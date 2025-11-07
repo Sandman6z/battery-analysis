@@ -330,13 +330,13 @@ VSVersionInfo(
             shutil.copy(f"{self.project_root}/src/battery_analysis/utils/file_writer.py", f"{self.build_path}/Build_BatteryAnalysis")
             shutil.copy(f"{self.project_root}/src/battery_analysis/utils/version.py", f"{self.build_path}/Build_BatteryAnalysis")
             shutil.copy(f"{self.project_root}/src/battery_analysis/resources_rc.py", f"{self.build_path}/Build_BatteryAnalysis")
-            shutil.copy(f"{self.project_root}/config/resources/icons/Icon_BatteryTestGUI.ico", f"{self.build_path}/Build_BatteryAnalysis/Icon_BatteryAnalysis.ico")
+            shutil.copy(f"{self.project_root}/config/resources/icons/icon_battery_test_gui.ico", f"{self.build_path}/Build_BatteryAnalysis/Icon_BatteryAnalysis.ico")
         
         if self.bBuildImageMaker:
             os.mkdir(f"{self.build_path}/Build_ImageShow")
             shutil.copy(f"{self.project_root}/src/battery_analysis/main/image_show.py", f"{self.build_path}/Build_ImageShow")
             shutil.copy(f"{self.project_root}/src/battery_analysis/resources_rc.py", f"{self.build_path}/Build_ImageShow")
-            shutil.copy(f"{self.project_root}/config/resources/icons/Icon_BatteryTestGUI.ico", f"{self.build_path}/Build_ImageShow/Icon_ImageShow.ico")
+            shutil.copy(f"{self.project_root}/config/resources/icons/icon_battery_test_gui.ico", f"{self.build_path}/Build_ImageShow/Icon_ImageShow.ico")
 
     def build(self):
         """构建应用程序"""
@@ -377,7 +377,7 @@ VSVersionInfo(
         #     shutil.copy2(os.path.join(self.project_root, 'config', 'BTSDA.cfg'), final_build_dir)
         
         # 复制图标
-        icon_path = os.path.join(self.project_root, 'config', 'resources', 'icons', 'Icon_BatteryTestGUI.ico')
+        icon_path = os.path.join(self.project_root, 'config', 'resources', 'icons', 'icon_battery_test_gui.ico')
         if os.path.exists(icon_path):
             shutil.copy2(icon_path, os.path.join(self.build_path, 'Build_BatteryAnalysis', 'Icon_BatteryAnalysis.ico'))
             shutil.copy2(icon_path, os.path.join(self.build_path, 'Build_ImageShow', 'Icon_ImageShow.ico'))

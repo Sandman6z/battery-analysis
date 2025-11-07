@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "battery-analysis"  # 根据用户要求，项目名称统一为battery-analysis
-version = "0.1.0"
+version = "1.0.1"
 description = "电池测试GUI应用程序"
 authors = [
   { name = "作者名称", email = "author@example.com" }
@@ -36,7 +36,7 @@ dependencies = [
 Homepage = "projectURL"  # 从setup.py获取
 
 [project.scripts]
-battery-analysis = "battery_analysis.main.main_window:main"  # 从setup.py获取入口点
+battery-analysis = "src.battery_analysis.main.main_window:main"
 
 [tool.setuptools]
 packages = ["battery_analysis"]

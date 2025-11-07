@@ -1,3 +1,3 @@
 class Version(object):
     def __init__(self):
-        self.version = "1.0.0"
+        self.version = "1.0.1"

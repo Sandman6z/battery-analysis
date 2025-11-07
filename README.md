@@ -20,7 +20,7 @@ So we don't use `uv add`, we can use
 ## How to convert UI to py
 
 In `ui_main_window.py`, it shows use `pyuic5` to convert. So use
-> pyuic5 ./config/resources/ui/UI_BatteryAnalysis.ui -o ./src/battery_analysis/ui/ui_main_window.py
+> pyuic5 ./config/resources/ui/ui_battery_analysis.ui -o ./src/battery_analysis/ui/ui_main_window.py
 
 This will generate ui_main_window.py, which contains the Ui_MainWindow class.
 The `Main class` inherits `ui_main_window.Ui_MainWindow` and calls `self.setupUi(self)` in the constructor, which loads the UI elements into the current window object.
