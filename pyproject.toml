@@ -1,9 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "battery-test-gui"
+name = "battery-analysis"  # 根据用户要求，项目名称统一为battery-analysis
 version = "0.1.0"
-description = "Add your description here"
+description = "电池测试GUI应用程序"
+authors = [
+  { name = "作者名称", email = "author@example.com" }
+]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11"  # 保留pyproject.toml中的版本要求
+license = { file = "LICENSE" }  # 从setup.py推断
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]  # 从setup.py获取
+keywords = ["battery", "analysis", "GUI", "PyQt5"]  # 从项目信息推断
 dependencies = [
     "gitpython>=3.1.45",
     "matplotlib>=3.10.5",
@@ -15,5 +29,16 @@ dependencies = [
     "python-docx>=1.2.0",
     "pywin32>=311",
     "xlrd==1.2.0",
-    "xlsxwriter~=3.0.8",
-]
+    "xlsxwriter~=3.0.8"
+]  # 保留pyproject.toml中的依赖
+
+[project.urls]
+Homepage = "projectURL"  # 从setup.py获取
+
+[project.scripts]
+battery-analysis = "battery_analysis.main.main_window:main"  # 从setup.py获取入口点
+
+[tool.setuptools]
+packages = ["battery_analysis"]
+package-dir = {"" = "src"}
+include-package-data = true

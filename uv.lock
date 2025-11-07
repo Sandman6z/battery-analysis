@@ -12,7 +12,7 @@ wheels = [
 ]
 
 [[package]]
-name = "battery-test-gui"
+name = "battery-analysis"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
