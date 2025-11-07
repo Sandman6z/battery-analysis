@@ -71,12 +71,34 @@ class BuildManager(BuildConfig):
         self.build_path = self.temp_build_dir
         self.console = self.console_mode
         
+        # 清理构建目录和缓存
+        self.clean_build_dirs()
+        
         # 初始化时执行构建流程
         self.setup_version()
         self.copy_source_files()
         self.generate_version_info()
         self.build_applications()
         self.move_programs()
+    
+    def clean_build_dirs(self):
+        """清理构建目录和缓存"""
+        print(f"开始清理构建目录和缓存...")
+        
+        # 清理临时构建目录
+        if os.path.exists(self.temp_build_dir):
+            print(f"清理临时构建目录: {self.temp_build_dir}")
+            shutil.rmtree(self.temp_build_dir)
+        
+        # 清理最终构建目录（对应当前构建类型）
+        final_build_type_dir = os.path.join(self.project_root, 'build', self.build_type)
+        if os.path.exists(final_build_type_dir):
+            print(f"清理最终构建目录: {final_build_type_dir}")
+            shutil.rmtree(final_build_type_dir)
+        
+        # 创建必要的目录
+        os.makedirs(self.temp_build_dir, exist_ok=True)
+        print("构建目录清理完成")
     
     def copy_source_files(self):
         """复制源代码文件到构建目录"""
@@ -171,13 +193,13 @@ VSVersionInfo(
             else:
                 print(f"警告: {exe_path} 不存在")
         
-        # 复制配置文件
-        config_file = os.path.join(self.project_root, 'config', 'BTSDA.cfg')
-        if os.path.exists(config_file):
-            shutil.copy(config_file, build_dir)
-            print(f"已复制配置文件到: {build_dir}")
-        else:
-            print(f"警告: {config_file} 不存在，跳过复制")
+        # BTSDA.cfg文件不再需要复制到构建目录（保留文件本身但不拷贝到运行环境）
+        # config_file = os.path.join(self.project_root, 'config', 'BTSDA.cfg')
+        # if os.path.exists(config_file):
+        #     shutil.copy(config_file, build_dir)
+        #     print(f"已复制配置文件到: {build_dir}")
+        # else:
+        #     print(f"警告: {config_file} 不存在，跳过复制")
         
         # 创建setting.ini
         config = CaseSensitiveConfigParser()
@@ -350,8 +372,9 @@ VSVersionInfo(
         pyinstaller_cmd = f"{python_exe} -m PyInstaller"
         
         # 复制必要的配置文件和图标
-        if os.path.exists(os.path.join(self.project_root, 'config', 'BTSDA.cfg')):
-            shutil.copy2(os.path.join(self.project_root, 'config', 'BTSDA.cfg'), final_build_dir)
+        # BTSDA.cfg文件不再需要复制到构建目录（保留文件本身但不拷贝到运行环境）
+        # if os.path.exists(os.path.join(self.project_root, 'config', 'BTSDA.cfg')):
+        #     shutil.copy2(os.path.join(self.project_root, 'config', 'BTSDA.cfg'), final_build_dir)
         
         # 复制图标
         icon_path = os.path.join(self.project_root, 'config', 'resources', 'icons', 'Icon_BatteryTestGUI.ico')
