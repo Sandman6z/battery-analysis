@@ -59,14 +59,6 @@
             ]
         },
         {
-            "label": "(venv)build develop version",
-            "type": "shell",
-            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug",
-            "problemMatcher": [
-                "$python"
-            ]
-        },
-        {
             "label": "(venv)build release version",
             "type": "shell",
             "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Release",
