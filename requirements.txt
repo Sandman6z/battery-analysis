@@ -1,0 +1,11 @@
+GitPython
+matplotlib
+numpy
+openpyxl
+pyinstaller
+PyQt5
+pyqt5-tools
+python-docx
+pywin32
+xlrd==1.2.0
+XlsxWriter~=3.0.8

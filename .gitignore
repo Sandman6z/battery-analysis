@@ -1,3 +1,8 @@
+# 项目特殊条目（保留）
+/.idea/
+/__build__/
+/__temp__/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

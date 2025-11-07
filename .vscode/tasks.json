@@ -1,0 +1,78 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Qt Designer",
+            "type": "shell",
+            "command": "& ${workspaceFolder}\\.venv\\Lib\\site-packages\\qt5_applications\\Qt\\bin\\designer.exe",
+            "args": [
+                "./config/resources/ui/UI_BatteryAnalysis.ui"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "PyUIC",
+            "type": "shell",
+            "command": "& ${workspaceFolder}\\.venv\\Scripts\\pyuic5.exe",
+            "args": [
+                "./config/resources/ui/UI_BatteryAnalysis.ui",
+                "-o",
+                "./src/battery_analysis/ui/ui_main_window.py"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Pyrcc",
+            "type": "shell",
+            "command": "& ${workspaceFolder}\\.venv\\Scripts\\pyrcc5.exe",
+            "args": [
+                "./config/resources/icons/resources.qrc",
+                "-o",
+                "./src/battery_analysis/resources_rc.py"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "(venv)build debug version-BatteryAnalysis",
+            "type": "shell",
+            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug 1 0",
+            "problemMatcher": [
+                "$python"
+            ]
+        },
+        {
+            "label": "(venv)build debug version-ImageShow",
+            "type": "shell",
+            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug 0 1",
+            "problemMatcher": [
+                "$python"
+            ]
+        },
+        {
+            "label": "(venv)build debug version",
+            "type": "shell",
+            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug 1 1",
+            "problemMatcher": [
+                "$python"
+            ]
+        },
+        {
+            "label": "(venv)build develop version",
+            "type": "shell",
+            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug",
+            "problemMatcher": [
+                "$python"
+            ]
+        },
+        {
+            "label": "(venv)build release version",
+            "type": "shell",
+            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Release",
+            "problemMatcher": [
+                "$python"
+            ]
+        }
+    ]
+}
