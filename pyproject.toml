@@ -1,6 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools-scm>=6.2"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+tag_regex = "v(?P<version>\\d+\\.\\d+\\.\\d+.*)"
+local_scheme = "node-and-date"
 
 [project]
 name = "battery-analysis"  # 根据用户要求，项目名称统一为battery-analysis
@@ -28,8 +33,9 @@ dependencies = [
     "pyqt5-tools>=5.15.9.3.3",
     "python-docx>=1.2.0",
     "pywin32>=311",
+    "setuptools-scm>=9.2.2",
     "xlrd==1.2.0",
-    "xlsxwriter~=3.0.8"
+    "xlsxwriter~=3.0.8",
 ]  # 保留pyproject.toml中的依赖
 
 [project.urls]

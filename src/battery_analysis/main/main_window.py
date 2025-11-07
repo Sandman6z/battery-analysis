@@ -17,7 +17,7 @@ import win32api, win32con
 
 from src.battery_analysis.ui import ui_main_window
 
-from src.battery_analysis.utils import version
+from src.battery_analysis.utils.version import __version__ as app_version
 from src.battery_analysis.utils import file_writer
 from src.battery_analysis.utils import battery_analysis
 
@@ -45,12 +45,12 @@ class Checker:
         self.strErrorMsg = strErrorMsg
 
 
-class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
+class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     sigSetVersion = QC.pyqtSignal()
 
     def __init__(self, bBuild: bool) -> None:
         super().__init__()
-        version.Version.__init__(self)
+        self.version = app_version
         self.thread = None
         self.bHasConfig = True
         self.checkerBatteryType = Checker()

@@ -1,6 +1,13 @@
 import os
 import sys
+import setuptools_scm
 
+# 尝试使用setuptools_scm获取版本号
+try:
+    VERSION = setuptools_scm.get_version(root='..', relative_to=__file__)
+except Exception:
+    VERSION = "0.0.0"
+    
 # 添加项目根目录到Python路径，确保能正确导入模块
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
@@ -223,16 +230,20 @@ VSVersionInfo(
             print(f"已清理临时构建目录: {self.build_path}")
 
     def setup_version(self):
-        """设置版本信息"""
-        if self.build_type == "Debug":
-            # Debug模式使用当前配置的版本号
-            version_content = f"""class Version(object):
+        """设置版本信息 - 使用setuptools_scm获取的版本号"""
+        global VERSION
+        # 使用setuptools_scm获取的版本号
+        self.version = VERSION
+        
+        # 生成版本文件
+        version_content = f"""class Version(object):
     def __init__(self):
         self.version = "{self.version}"
 """
-            self._write_file(version_content, os.path.join(self.script_dir, "Utility_Version.py"))
-        else:  # Release模式
-            self.update_version_and_commit()
+        self._write_file(version_content, os.path.join(self.script_dir, "Utility_Version.py"))
+        
+        # 更新配置中的版本号
+        self.config.set("BuildConfig", "Version", self.version)
 
     def _write_file(self, content, file_path):
         """写入文件的辅助方法"""
@@ -240,66 +251,19 @@ VSVersionInfo(
             f.write(content)
 
     def update_version_and_commit(self):
-        """更新版本并提交更改"""
-        if not self.git_repo or not self.git_index or not self.git:
-            # 如果没有Git仓库，在测试环境中直接跳过版本更新检查
-            print("警告: Git仓库未初始化，在测试环境中跳过版本更新检查")
-            return
-            # 原代码: raise BuildException("Git仓库未初始化，无法更新版本")
+        """更新版本并提交更改 - 使用setuptools_scm自动管理版本"""
+        global VERSION
+        # 版本管理已切换为使用setuptools_scm
+        print("版本管理已切换为Git标签模式。请使用Git标签来管理版本号：")
+        print("1. 创建新标签: git tag -a vX.Y.Z -m \"Release vX.Y.Z\"")
+        print("2. 推送标签: git push origin vX.Y.Z")
+        print("3. setuptools-scm将自动从标签生成版本号")
         
-        version_split = self.version.split(".")
-        # 确保版本号至少有三位
-        while len(version_split) < 3:
-            version_split.append("0")
+        # 使用setuptools_scm获取的版本号
+        self.version = VERSION
         
-        self.git.add("-A")
-        
-        # 检查版本文件是否已更改
-        version_changed = False
-        try:
-            for diff in self.git_index.diff("HEAD"):
-                if diff.a_path == "__version__.md":
-                    version_changed = True
-                    break
-        except Exception as e:
-            # 在测试环境中，暂时放宽版本文件检查
-            print(f"警告: 获取Git差异失败: {e}，在测试环境中跳过版本文件检查")
-            version_changed = True
-        
-        if not version_changed:
-            # 在测试环境中，暂时允许跳过版本更新
-            print("警告: 在测试环境中跳过__version__.md更新检查")
-            # 原代码: raise BuildException("请更新 __version__.md")
-        
-        if self.build_type == "Release":
-            try:
-                # 检查是否只有版本文件被更改
-                # 在测试环境中，暂时放宽这个限制
-                print("警告: 在测试环境中跳过Git更改检查")
-                # 原代码:
-                # if len(self.git_index.diff("HEAD")) != 1 or self.git_index.diff("HEAD")[0].a_path != "__version__.md":
-                #     raise BuildException("索引中有其他更改，无法构建发布版本")
-                
-                # 更新版本号，使用三位版本号格式
-                try:
-                    if self.git_repo.commit().message and "Release" in self.git_repo.commit().message:
-                        # 保持主版本和次版本不变，修订号重置为0
-                        self.version = f"{version_split[0]}.{version_split[1]}.0"
-                    else:
-                        # 增加修订号
-                        self.version = f"{version_split[0]}.{version_split[1]}.{int(version_split[2])+1}"
-                except Exception as e:
-                    print(f"警告: 无法获取或解析提交消息: {e}，使用默认版本更新")
-                    self.version = f"{version_split[0]}.{version_split[1]}.{int(version_split[2])+1}"
-                
-                self._update_version_files()
-                
-                # 注释掉等待文件更改的循环，因为我们不实际执行Git提交
-                # 原代码:
-                # while not self.git_repo.is_dirty():
-                #     pass
-            except Exception as e:
-                print(f"警告: Release模式版本更新失败: {e}，使用当前版本继续")
+        # 更新版本文件
+        self._update_version_files()
 
     def _update_version_files(self):
         """更新版本相关文件"""
