@@ -35,15 +35,10 @@ jobs:
           # 从secrets获取Gitee Token
           $giteeToken = '${{ secrets.GITEE_TOKEN }}'
           
-          # 验证Token是否已设置 (GitHub会自动将secrets显示为***) - 只检查null或空
+          # 只验证Token是否为空
+          # 注意：GitHub在日志中会将secrets显示为***，但这不代表Token未正确注入
           if ([string]::IsNullOrEmpty($giteeToken)) { 
             Write-Host "错误: GITEE_TOKEN 未设置，请确保在GitHub仓库中正确配置了此Secret"
-            exit 1
-          }
-          
-          # 简单检查，确认Token不为原始模板字符串
-          if ($giteeToken -eq '${{ secrets.GITEE_TOKEN }}') { 
-            Write-Host "错误: GITEE_TOKEN 未正确注入，请检查GitHub仓库的Secrets配置"
             exit 1
           }
           
@@ -51,11 +46,10 @@ jobs:
           Write-Host "Gitee仓库名: $giteeRepo"
           Write-Host "Token已成功获取 (已隐藏)"
           
-          # 构建并添加远程仓库 - 使用标准的https格式
-          # 避免在URL中包含特殊字符和空格
-          $giteeUrl = "https://$giteeToken:x-oauth-basic@gitee.com/$giteeUsername/$giteeRepo.git"
+          # 构建正确的Gitee仓库URL，使用标准格式
+          $giteeUrl = "https://$giteeToken@gitee.com/$giteeUsername/$giteeRepo.git"
           
-          # 显示构建的URL（隐藏token）- 使用简单的字符串替换而不是复杂的正则表达式
+          # 显示构建的URL（隐藏token）
           $maskedUrl = "https://******@gitee.com/$giteeUsername/$giteeRepo.git"
           Write-Host "添加远程仓库URL: $maskedUrl"
           
@@ -128,15 +122,10 @@ jobs:
           
           Write-Host "开始同步Release到Gitee: $releaseTag"
           
-          # 验证Token是否已设置
+          # 只验证Token是否为空
+          # 注意：GitHub在日志中会将secrets显示为***，但这不代表Token未正确注入
           if ([string]::IsNullOrEmpty($giteeToken)) { 
             Write-Host "错误: GITEE_TOKEN 未设置，请确保在GitHub仓库中正确配置了此Secret" 
-            exit 1
-          }
-          
-          # 简单检查，确认Token不为原始模板字符串
-          if ($giteeToken -eq '${{ secrets.GITEE_TOKEN }}') { 
-            Write-Host "错误: GITEE_TOKEN 未正确注入，请检查GitHub仓库的Secrets配置"
             exit 1
           }
           
