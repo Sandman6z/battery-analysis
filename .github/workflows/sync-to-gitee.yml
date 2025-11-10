@@ -74,6 +74,17 @@ jobs:
           $giteeUsername = 'boedt'
           $giteeRepo = 'battery-analysis'
           
+          # 从secrets获取Gitee Token
+          $giteeToken = '${{ secrets.GITEE_TOKEN }}'
+          
+          # 只验证Token是否为空
+          # 注意：GitHub在日志中会将secrets显示为***，但这不代表Token未正确注入
+          if ([string]::IsNullOrEmpty($giteeToken)) { 
+            Write-Host "错误: GITEE_TOKEN 未设置，请确保在GitHub仓库中正确配置了此Secret"
+            exit 1
+          }
+          
+          Write-Host "Gitee Token已成功获取 (已隐藏)"
           Write-Host "开始同步代码到Gitee..."
           Write-Host "Gitee仓库: $giteeUsername/$giteeRepo"
           
@@ -81,27 +92,25 @@ jobs:
           Write-Host "验证远程仓库连接..."
           git remote -v
           
-          # 直接使用带token的URL进行推送，这是最简单可靠的方式
-          Write-Host "更新远程仓库URL为带凭证的版本..."
-          $giteeUrlWithToken = "https://$giteeToken@gitee.com/$giteeUsername/$giteeRepo.git"
-          git remote set-url gitee $giteeUrlWithToken
+          # 在当前步骤中再次确保禁用凭证助手，防止任何可能的干扰
+          Write-Host "配置Git凭证处理选项..."
+          git config --local --unset credential.helper
+          git config --local core.askPass ""
+          git config --local credential.modalprompt false
           
-          # 显示更新后的远程仓库URL（隐藏token）
-          $maskedUrl = "https://******@gitee.com/$giteeUsername/$giteeRepo.git"
-          Write-Host "已更新远程仓库URL: $maskedUrl"
-          
-          # 强制推送main分支，添加详细的错误处理
+          # 直接执行推送，避免URL变量可能带来的问题
           Write-Host "推送main分支到Gitee..."
-          $mainPushResult = git push gitee main --force 2>&1
+          # 直接在命令中使用token，避免中间变量展开问题
+          $mainPushResult = git push "https://$giteeToken@gitee.com/$giteeUsername/$giteeRepo.git" main --force 2>&1
           if ($LASTEXITCODE -ne 0) {
             Write-Host "错误: main分支推送失败: $mainPushResult"
             exit 1
           }
           Write-Host "main分支推送成功"
           
-          # 推送所有标签
+          # 推送所有标签，使用相同的直接URL方式
           Write-Host "推送所有标签到Gitee..."
-          $tagsPushResult = git push gitee --tags --force 2>&1
+          $tagsPushResult = git push "https://$giteeToken@gitee.com/$giteeUsername/$giteeRepo.git" --tags --force 2>&1
           if ($LASTEXITCODE -ne 0) {
             Write-Host "错误: 标签推送失败: $tagsPushResult"
             exit 1
