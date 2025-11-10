@@ -35,8 +35,8 @@ jobs:
     
     - name: Run build script
       run: |
-        # 使用uv环境运行构建脚本
-        uv run python scripts/build.py
+        # 使用uv环境运行构建脚本，并指定Debug构建类型
+        uv run python scripts/build.py Debug
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
