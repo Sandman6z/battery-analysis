@@ -45,3 +45,21 @@ jobs:
       with:
         name: battery-analysis-build
         path: build/
+    
+    - name: Create GitHub Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        name: v${{ github.run_number }}-debug
+        tag_name: v${{ github.run_number }}-debug
+        body: |
+          自动构建版本 - Debug模式
+          构建编号: ${{ github.run_number }}
+          提交SHA: ${{ github.sha }}
+        draft: false
+        prerelease: true
+        files: |
+          build/*.exe
+          build/*.ini
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
