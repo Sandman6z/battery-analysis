@@ -22,12 +22,10 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
-          # 配置Git在Windows环境中使用凭证助手，并禁用交互式提示
-          git config --global credential.helper store
-          git config --global credential.provider generic
-          git config --global credential.useHttpPath true
-          # 禁用自动检测超时问题
-          git config --global credential.autoDetectTimeout -1
+          # 禁用凭证助手以避免冲突，因为我们直接在URL中提供凭证
+          git config --global --unset credential.helper
+          # 禁用交互式提示
+          git config --global core.askPass ""
 
       - name: Add Gitee remote
         run: |
@@ -52,16 +50,12 @@ jobs:
           Write-Host "Gitee仓库名: $giteeRepo"
           Write-Host "Token已成功获取 (已隐藏)"
           
-          # 构建正确的Gitee仓库URL，避免特殊字符问题
+          # 构建正确的Gitee仓库URL
           $giteeUrl = "https://gitee.com/$giteeUsername/$giteeRepo.git"
           
           # 显示构建的URL（隐藏token）
           $maskedUrl = "https://******@gitee.com/$giteeUsername/$giteeRepo.git"
           Write-Host "添加远程仓库URL: $maskedUrl"
-          
-          # 预先存储凭证，避免推送时提示输入密码
-          Write-Host "存储Git凭证..."
-          Add-Content -Path $env:USERPROFILE\.git-credentials -Value "https://$giteeToken@gitee.com" -Force
           
           # 移除可能存在的旧远程仓库配置
           git remote remove gitee 2>$null
@@ -87,19 +81,14 @@ jobs:
           Write-Host "验证远程仓库连接..."
           git remote -v
           
-          # 在Windows环境中使用HTTP基本认证进行推送，避免凭证问题
-          # 为了防止凭证提示，我们使用环境变量GIT_ASKPASS和一个简单的脚本
-          Write-Host "设置Git推送环境..."
+          # 直接使用带token的URL进行推送，这是最简单可靠的方式
+          Write-Host "更新远程仓库URL为带凭证的版本..."
+          $giteeUrlWithToken = "https://$giteeToken@gitee.com/$giteeUsername/$giteeRepo.git"
+          git remote set-url gitee $giteeUrlWithToken
           
-          # 创建临时脚本作为git askpass命令
-          $askPassScript = "$PSScriptRoot\git-askpass.ps1"
-          @"
-          Write-Output "$giteeToken"
-          "@ | Set-Content -Path $askPassScript -Force
-          
-          # 设置环境变量以使用我们的askpass脚本
-          $env:GIT_ASKPASS = $askPassScript
-          $env:GIT_USERNAME = "$giteeToken"
+          # 显示更新后的远程仓库URL（隐藏token）
+          $maskedUrl = "https://******@gitee.com/$giteeUsername/$giteeRepo.git"
+          Write-Host "已更新远程仓库URL: $maskedUrl"
           
           # 强制推送main分支，添加详细的错误处理
           Write-Host "推送main分支到Gitee..."
@@ -118,9 +107,6 @@ jobs:
             exit 1
           }
           Write-Host "标签推送成功"
-          
-          # 清理临时脚本
-          Remove-Item -Path $askPassScript -Force -ErrorAction SilentlyContinue
           
           Write-Host "代码同步到Gitee成功完成"
 
