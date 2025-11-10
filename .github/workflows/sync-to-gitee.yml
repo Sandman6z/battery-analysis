@@ -31,20 +31,34 @@ jobs:
           # 直接使用实际的仓库信息
           $giteeUsername = 'boedt'  # 从仓库地址提取的用户名
           $giteeRepo = 'battery-analysis'  # 从仓库地址提取的仓库名
+          
+          # 从环境变量获取Gitee Token
           $giteeToken = '${{ secrets.GITEE_TOKEN }}'
           
           # 验证Token是否已设置
           if ([string]::IsNullOrEmpty($giteeToken)) { 
-            Write-Host "错误: GITEE_TOKEN 未设置，请在GitHub仓库设置中配置此Secret" 
+            Write-Host "错误: GITEE_TOKEN 未设置，请按照以下步骤配置："
+            Write-Host "1. 访问您的GitHub仓库页面"
+            Write-Host "2. 点击Settings > Secrets and variables > Actions"
+            Write-Host "3. 点击New repository secret"
+            Write-Host "4. 名称输入: GITEE_TOKEN"
+            Write-Host "5. 值输入您的Gitee个人访问令牌（需要repo权限）"
+            Write-Host "6. 点击Add secret保存"
             exit 1
           }
           
           Write-Host "Gitee用户名: $giteeUsername"
           Write-Host "Gitee仓库名: $giteeRepo"
           
-          # 构建并添加远程仓库
+          # 构建并添加远程仓库 - 确保URL格式正确，无多余字符
           $giteeUrl = "https://${giteeUsername}:${giteeToken}@gitee.com/${giteeUsername}/${giteeRepo}.git"
-          Write-Host "添加远程仓库: $([regex]::Replace($giteeUrl, '(?<=:).*(?=@)', '******'))" # 隐藏token
+          
+          # 显示构建的URL（隐藏token）
+          $maskedUrl = [regex]::Replace($giteeUrl, '(?<=:).*(?=@)', '******')
+          Write-Host "添加远程仓库URL: $maskedUrl"
+          
+          # 添加远程仓库
+          Write-Host "执行: git remote add gitee [masked_url]"
           git remote add gitee $giteeUrl
           
           # 验证远程仓库是否添加成功
