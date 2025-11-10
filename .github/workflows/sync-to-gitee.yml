@@ -97,6 +97,10 @@ jobs:
           Write-Host "验证远程仓库连接..."
           git remote -v
           
+          # 设置Gitee仓库URL作为环境变量，避免PowerShell特殊字符处理问题
+          $giteeRepoUrl = "https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git"
+          echo "GITEE_REPO_URL=$giteeRepoUrl" >> $env:GITHUB_ENV
+          
           # 在当前步骤中再次确保禁用凭证助手，防止任何可能的干扰
           Write-Host "配置Git凭证处理选项..."
           git config --local --unset credential.helper
@@ -105,20 +109,30 @@ jobs:
           git config --local credential.modalprompt false
           git config --local credential.autoDetectTimeout -1
           
-          # 使用环境变量直接在shell命令中执行，避免PowerShell变量展开问题
-          Write-Host "推送main分支到Gitee..."
-          # 使用cmd.exe来执行git命令，避免PowerShell的特殊字符处理问题
-          cmd.exe /C "git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git main --force 2>&1"
+          # 使用batch脚本方式执行，完全避开PowerShell的特殊字符处理
+          Write-Host "创建临时batch脚本..."
+          @"
+          @echo off
+          git push %GITEE_REPO_URL% main --force
+          "@ | Out-File -FilePath sync-to-gitee.bat -Encoding ascii
+          
+          Write-Host "执行推送脚本..."
+          .\sync-to-gitee.bat
           if ($LASTEXITCODE -ne 0) {
             Write-Host "错误: main分支推送失败，退出代码: $LASTEXITCODE"
             exit 1
           }
           Write-Host "main分支推送成功"
           
-          # 推送所有标签，使用相同的cmd.exe方式
+          # 推送所有标签，使用相同的batch脚本方式
           Write-Host "推送所有标签到Gitee..."
-          # 使用cmd.exe来执行git命令，避免PowerShell的特殊字符处理问题
-          cmd.exe /C "git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git --tags --force 2>&1"
+          @"
+          @echo off
+          git push %GITEE_REPO_URL% --tags --force
+          "@ | Out-File -FilePath sync-tags.bat -Encoding ascii
+          
+          Write-Host "执行标签推送脚本..."
+          .\sync-tags.bat
           if ($LASTEXITCODE -ne 0) {
             Write-Host "错误: 标签推送失败，退出代码: $LASTEXITCODE"
             exit 1
