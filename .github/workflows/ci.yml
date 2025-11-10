@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-test:
     runs-on: windows-latest
+    permissions:
+      contents: write
     env:
       PYTHONIOENCODING: utf-8
       PYTHONUTF8: 1
@@ -59,7 +61,7 @@ jobs:
         draft: false
         prerelease: true
         files: |
-          build/*.exe
-          build/*.ini
+          build/Debug/*.exe
+          build/Debug/*.ini
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
