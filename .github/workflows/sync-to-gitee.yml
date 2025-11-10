@@ -22,10 +22,15 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
-          # 禁用凭证助手以避免冲突，因为我们直接在URL中提供凭证
+          # 彻底禁用GCM和所有凭证助手
           git config --global --unset credential.helper
-          # 禁用交互式提示
+          git config --global credential.helper ""
           git config --global core.askPass ""
+          git config --global credential.modalprompt false
+          git config --global credential.autoDetectTimeout -1
+          # 设置环境变量来禁用GCM
+          echo "GIT_TERMINAL_PROMPT=0" >> $GITHUB_ENV
+          echo "GCM_AUTODETECT_TIMEOUT=-1" >> $GITHUB_ENV
 
       - name: Add Gitee remote
         run: |
@@ -95,24 +100,27 @@ jobs:
           # 在当前步骤中再次确保禁用凭证助手，防止任何可能的干扰
           Write-Host "配置Git凭证处理选项..."
           git config --local --unset credential.helper
+          git config --local credential.helper ""
           git config --local core.askPass ""
           git config --local credential.modalprompt false
+          git config --local credential.autoDetectTimeout -1
           
-          # 直接执行推送，避免URL变量可能带来的问题
+          # 使用环境变量直接在shell命令中执行，避免PowerShell变量展开问题
           Write-Host "推送main分支到Gitee..."
-          # 直接在命令中使用token，避免中间变量展开问题
-          $mainPushResult = git push "https://$giteeToken@gitee.com/$giteeUsername/$giteeRepo.git" main --force 2>&1
+          # 使用cmd.exe来执行git命令，避免PowerShell的特殊字符处理问题
+          cmd.exe /C "git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git main --force 2>&1"
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "错误: main分支推送失败: $mainPushResult"
+            Write-Host "错误: main分支推送失败，退出代码: $LASTEXITCODE"
             exit 1
           }
           Write-Host "main分支推送成功"
           
-          # 推送所有标签，使用相同的直接URL方式
+          # 推送所有标签，使用相同的cmd.exe方式
           Write-Host "推送所有标签到Gitee..."
-          $tagsPushResult = git push "https://$giteeToken@gitee.com/$giteeUsername/$giteeRepo.git" --tags --force 2>&1
+          # 使用cmd.exe来执行git命令，避免PowerShell的特殊字符处理问题
+          cmd.exe /C "git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git --tags --force 2>&1"
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "错误: 标签推送失败: $tagsPushResult"
+            Write-Host "错误: 标签推送失败，退出代码: $LASTEXITCODE"
             exit 1
           }
           Write-Host "标签推送成功"
