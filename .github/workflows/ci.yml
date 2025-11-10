@@ -29,9 +29,9 @@ jobs:
       run: |
         uv add flake8
         # 停止构建如果有Python语法错误或未定义名称
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # 警告但不停止构建其他问题
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     
     - name: Run build script
       run: |
