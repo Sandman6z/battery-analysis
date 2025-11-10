@@ -29,33 +29,31 @@ jobs:
           Write-Host "设置Gitee远程仓库"
           
           # 直接使用实际的仓库信息
-          $giteeUsername = 'boedt'  # 从仓库地址提取的用户名
-          $giteeRepo = 'battery-analysis'  # 从仓库地址提取的仓库名
+          $giteeUsername = 'boedt'
+          $giteeRepo = 'battery-analysis'
           
           # 从环境变量获取Gitee Token
           $giteeToken = '${{ secrets.GITEE_TOKEN }}'
           
           # 验证Token是否已设置
-          if ([string]::IsNullOrEmpty($giteeToken)) { 
-            Write-Host "错误: GITEE_TOKEN 未设置，请按照以下步骤配置："
-            Write-Host "1. 访问您的GitHub仓库页面"
-            Write-Host "2. 点击Settings > Secrets and variables > Actions"
-            Write-Host "3. 点击New repository secret"
-            Write-Host "4. 名称输入: GITEE_TOKEN"
-            Write-Host "5. 值输入您的Gitee个人访问令牌（需要repo权限）"
-            Write-Host "6. 点击Add secret保存"
+          if ([string]::IsNullOrEmpty($giteeToken) -or $giteeToken -eq '${{ secrets.GITEE_TOKEN }}') { 
+            Write-Host "错误: GITEE_TOKEN 未设置或设置不正确，请确保在GitHub仓库中正确配置了此Secret"
             exit 1
           }
           
           Write-Host "Gitee用户名: $giteeUsername"
           Write-Host "Gitee仓库名: $giteeRepo"
           
-          # 构建并添加远程仓库 - 确保URL格式正确，无多余字符
-          $giteeUrl = "https://${giteeUsername}:${giteeToken}@gitee.com/${giteeUsername}/${giteeRepo}.git"
+          # 构建并添加远程仓库 - 使用不同的认证格式，避免用户名无效问题
+          # 使用Token作为用户名的格式，这是Gitee接受的方式之一
+          $giteeUrl = "https://${giteeToken}:x-oauth-basic@gitee.com/${giteeUsername}/${giteeRepo}.git"
           
           # 显示构建的URL（隐藏token）
-          $maskedUrl = [regex]::Replace($giteeUrl, '(?<=:).*(?=@)', '******')
+          $maskedUrl = [regex]::Replace($giteeUrl, '(?<=https://).*(?=:x-oauth-basic)', '******')
           Write-Host "添加远程仓库URL: $maskedUrl"
+          
+          # 移除可能存在的旧远程仓库配置
+          git remote remove gitee 2>$null
           
           # 添加远程仓库
           Write-Host "执行: git remote add gitee [masked_url]"
@@ -67,35 +65,36 @@ jobs:
 
       - name: Sync code to Gitee
         run: |
-          try {
-            # 直接使用实际的仓库信息
-            $giteeUsername = 'boedt'
-            $giteeRepo = 'battery-analysis'
-            
-            Write-Host "开始同步代码到Gitee..."
-            Write-Host "Gitee仓库: $giteeUsername/$giteeRepo"
-            
-            # 验证远程仓库配置
-            Write-Host "验证远程仓库连接..."
-            git remote -v
-            
-            # 强制推送main分支
-            Write-Host "推送main分支到Gitee..."
-            git push gitee main --force
-            Write-Host "main分支推送成功"
-            
-            # 推送所有标签
-            Write-Host "推送所有标签到Gitee..."
-            git push gitee --tags --force
-            Write-Host "标签推送成功"
-            
-            Write-Host "代码同步到Gitee成功完成"
-          } catch {
-            Write-Host "错误: 代码同步失败"
-            Write-Host $_.Exception.Message
-            Write-Host $_.Exception.StackTrace
+          # 直接使用实际的仓库信息
+          $giteeUsername = 'boedt'
+          $giteeRepo = 'battery-analysis'
+          
+          Write-Host "开始同步代码到Gitee..."
+          Write-Host "Gitee仓库: $giteeUsername/$giteeRepo"
+          
+          # 验证远程仓库配置
+          Write-Host "验证远程仓库连接..."
+          git remote -v
+          
+          # 强制推送main分支，添加详细的错误处理
+          Write-Host "推送main分支到Gitee..."
+          $mainPushResult = git push gitee main --force 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "错误: main分支推送失败: $mainPushResult"
             exit 1
           }
+          Write-Host "main分支推送成功"
+          
+          # 推送所有标签
+          Write-Host "推送所有标签到Gitee..."
+          $tagsPushResult = git push gitee --tags --force 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "错误: 标签推送失败: $tagsPushResult"
+            exit 1
+          }
+          Write-Host "标签推送成功"
+          
+          Write-Host "代码同步到Gitee成功完成"
 
       - name: Setup GitHub CLI
         uses: actions/setup-node@v4
@@ -106,7 +105,6 @@ jobs:
       - name: Sync Release to Gitee
         if: github.event_name == 'release'
         env:
-          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_NAME: ${{ github.event.release.name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
@@ -114,58 +112,65 @@ jobs:
           RELEASE_DRAFT: ${{ github.event.release.draft }}
           RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
         run: |
+          # 直接使用实际的仓库信息
+          $giteeUsername = 'boedt'
+          $giteeRepo = 'battery-analysis'
+          
+          # 获取Gitee Token并验证
+          $giteeToken = '${{ secrets.GITEE_TOKEN }}'
+          
+          Write-Host "开始同步Release到Gitee: ${{ env.RELEASE_TAG }}"
+          
+          # 验证Token是否已设置
+          if ([string]::IsNullOrEmpty($giteeToken) -or $giteeToken -eq '${{ secrets.GITEE_TOKEN }}') { 
+            Write-Host "错误: GITEE_TOKEN 未设置或设置不正确，请确保在GitHub仓库中正确配置了此Secret" 
+            exit 1
+          }
+          
+          # 创建资产目录
+          Write-Host "创建资产目录..."
+          New-Item -ItemType Directory -Force -Path release_assets
+          Set-Location release_assets
+          
+          # 下载GitHub Release资产
+          Write-Host "下载GitHub Release资产..."
+          $downloadResult = gh release download ${{ env.RELEASE_TAG }} --repo ${{ github.repository }} 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "警告: 资产下载失败或没有资产文件: $downloadResult"
+          }
+          
+          # 显示下载的文件
+          Write-Host "下载的资产文件:"
+          Get-ChildItem
+          
+          # 准备JSON数据
+          $releaseBody = ${{ env.RELEASE_BODY }}
+          if ([string]::IsNullOrEmpty($releaseBody)) {
+            $releaseBody = "从GitHub同步的Release"
+          }
+          $releaseBody = $releaseBody -replace '"', '\\"' -replace "`n", '\\n'
+          
+          $jsonData = @"
+          {
+            "body": "$releaseBody",
+            "draft": ${{ env.RELEASE_DRAFT }},
+            "prerelease": ${{ env.RELEASE_PRERELEASE }},
+            "tag_name": "${{ env.RELEASE_TAG }}",
+            "name": "${{ env.RELEASE_NAME }}"
+          }
+          "@
+          
+          # 保存JSON到文件
+          $jsonData | Out-File -FilePath release_data.json -Encoding utf8
+          Write-Host "JSON数据已准备: $(Get-Content release_data.json)"
+          
+          # 创建Gitee Release
+          Write-Host "创建Gitee Release: ${{ env.RELEASE_TAG }}"
+          $releaseUrl = "https://gitee.com/api/v5/repos/${giteeUsername}/${giteeRepo}/releases"
+          Write-Host "API URL: $releaseUrl"
+          
           try {
-            # 直接使用实际的仓库信息
-            $giteeUsername = 'boedt'
-            $giteeRepo = 'battery-analysis'
-            
-            Write-Host "开始同步Release到Gitee: ${{ env.RELEASE_TAG }}"
-            
-            # 验证Token是否已设置
-            if ([string]::IsNullOrEmpty('${{ secrets.GITEE_TOKEN }}')) { 
-              Write-Host "错误: GITEE_TOKEN 未设置，请在GitHub仓库设置中配置此Secret" 
-              exit 1
-            }
-            
-            # 创建资产目录
-            Write-Host "创建资产目录..."
-            New-Item -ItemType Directory -Force -Path release_assets
-            Set-Location release_assets
-            
-            # 下载GitHub Release资产
-            Write-Host "下载GitHub Release资产..."
-            gh release download ${{ env.RELEASE_TAG }} --repo ${{ github.repository }}
-            
-            # 显示下载的文件
-            Write-Host "下载的资产文件:"
-            Get-ChildItem
-            
-            # 准备JSON数据
-            $releaseBody = ${{ env.RELEASE_BODY }}
-            if ([string]::IsNullOrEmpty($releaseBody)) {
-              $releaseBody = "从GitHub同步的Release"
-            }
-            $releaseBody = $releaseBody -replace '"', '\\"' -replace "`n", '\\n'
-            
-            $jsonData = @"
-            {
-              "body": "$releaseBody",
-              "draft": ${{ env.RELEASE_DRAFT }},
-              "prerelease": ${{ env.RELEASE_PRERELEASE }},
-              "tag_name": "${{ env.RELEASE_TAG }}",
-              "name": "${{ env.RELEASE_NAME }}"
-            }
-            "@
-            
-            # 保存JSON到文件
-            $jsonData | Out-File -FilePath release_data.json -Encoding utf8
-            
-            # 创建Gitee Release
-            Write-Host "创建Gitee Release: ${{ env.RELEASE_TAG }}"
-            $releaseUrl = "https://gitee.com/api/v5/repos/${giteeUsername}/${giteeRepo}/releases"
-            Write-Host "API URL: $releaseUrl"
-            
-            $releaseResponse = Invoke-RestMethod -Uri $releaseUrl -Method Post -Headers @{"Authorization"="token ${{ secrets.GITEE_TOKEN }}"} -ContentType "application/json" -Body $jsonData
+            $releaseResponse = Invoke-RestMethod -Uri $releaseUrl -Method Post -Headers @{"Authorization"="token $giteeToken"} -ContentType "application/json" -Body $jsonData -ErrorAction Stop
             $releaseId = $releaseResponse.id
             
             Write-Host "Gitee Release创建成功，ID: $releaseId"
@@ -176,26 +181,41 @@ jobs:
               Write-Host "警告: 没有找到需要上传的资产文件"
             } else {
               Write-Host "开始上传$assetsCount个资产文件到Gitee Release..."
+              $assetUploadSuccess = $true
+              
               Get-ChildItem -File | ForEach-Object {
                 $fileName = $_.Name
                 $filePath = $_.FullName
                 Write-Host "上传文件: $fileName"
                 
                 # 使用curl上传文件 (Windows环境中的curl)
-                curl.exe -X POST "https://gitee.com/api/v5/repos/${giteeUsername}/${giteeRepo}/releases/$releaseId/assets" `
-                  -H "Authorization: token ${{ secrets.GITEE_TOKEN }}" `
+                $uploadResult = curl.exe -X POST "https://gitee.com/api/v5/repos/${giteeUsername}/${giteeRepo}/releases/$releaseId/assets" `
+                  -H "Authorization: token $giteeToken" `
                   -F "name=$fileName" `
-                  -F "attachment=@$filePath"
+                  -F "attachment=@$filePath" 2>&1
                 
-                Write-Host "文件 $fileName 上传完成"
+                if ($LASTEXITCODE -ne 0) {
+                  Write-Host "警告: 文件 $fileName 上传失败: $uploadResult"
+                  $assetUploadSuccess = $false
+                } else {
+                  Write-Host "文件 $fileName 上传完成"
+                }
               }
-              Write-Host "所有资产文件上传完成"
+              
+              if ($assetUploadSuccess) {
+                Write-Host "所有资产文件上传完成"
+              } else {
+                Write-Host "注意: 部分资产文件上传失败，请查看日志"
+              }
             }
             
             Write-Host "Release同步到Gitee成功完成"
           } catch {
-            Write-Host "错误: Release同步失败"
-            Write-Host $_.Exception.Message
-            Write-Host $_.Exception.StackTrace
+            Write-Host "错误: Release创建或资产上传失败: $_.Exception.Message"
+            # 尝试清理
+            Set-Location ..
             exit 1
           }
+          
+          # 回到上级目录
+          Set-Location ..
