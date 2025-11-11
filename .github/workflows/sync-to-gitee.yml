@@ -74,39 +74,77 @@ jobs:
           git remote -v
 
       - name: Sync code to Gitee
-        shell: cmd
+        shell: powershell
         run: |
-          echo Gitee Token已成功获取 (已隐藏)
-          echo 开始同步代码到Gitee...
-          echo Gitee仓库: boedt/battery-analysis
+          Write-Host "Gitee Token已成功获取 (已隐藏)"
+          Write-Host "开始同步代码到Gitee..."
+          Write-Host "Gitee仓库: boedt/battery-analysis"
           
-          echo 验证远程仓库连接...
+          Write-Host "验证远程仓库连接..."
           git remote -v
           
-          echo 配置Git凭证处理选项...
+          Write-Host "配置Git凭证处理选项..."
           git config --local --unset credential.helper
           git config --local credential.helper ""
           git config --local core.askPass ""
           git config --local credential.modalprompt false
           git config --local credential.autoDetectTimeout -1
           
-          echo 执行main分支推送...
-          git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git refs/heads/main:refs/heads/main --force 2>&1
-          if %ERRORLEVEL% neq 0 (
-            echo 错误: main分支推送失败，退出代码: %ERRORLEVEL%
-            exit /b 1
-          )
-          echo main分支推送成功
+          # 创建临时批处理文件，直接写入完整的git命令，避免shell解析问题
+          Write-Host "创建临时批处理文件..."
+          $pushScript = @"
+@echo off
+setlocal enabledelayedexpansion
+
+REM 设置Gitee仓库URL
+set GITEE_TOKEN=${{ secrets.GITEE_TOKEN }}
+set GITEE_REPO=https://!GITEE_TOKEN!@gitee.com/boedt/battery-analysis.git
+
+REM 确保没有交互式提示
+set GIT_TERMINAL_PROMPT=0
+
+REM 推送main分支
+echo 执行main分支推送...
+git push !GITEE_REPO! refs/heads/main:refs/heads/main --force
+if ERRORLEVEL 1 (
+    echo 错误: main分支推送失败
+    exit /b 1
+)
+echo main分支推送成功
+
+REM 推送所有标签
+echo 推送所有标签到Gitee...
+git push !GITEE_REPO! --tags --force
+if ERRORLEVEL 1 (
+    echo 错误: 标签推送失败
+    exit /b 1
+)
+echo 标签推送成功
+
+endlocal
+"@
           
-          echo 推送所有标签到Gitee...
-          git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git --tags --force 2>&1
-          if %ERRORLEVEL% neq 0 (
-            echo 错误: 标签推送失败，退出代码: %ERRORLEVEL%
-            exit /b 1
-          )
-          echo 标签推送成功
+          # 保存批处理文件
+          $pushScript | Out-File -FilePath sync-to-gitee.bat -Encoding ascii
           
-          echo 代码同步到Gitee成功完成
+          # 确保文件存在并可执行
+          if (Test-Path sync-to-gitee.bat) {
+            Write-Host "批处理文件创建成功"
+            Get-Content sync-to-gitee.bat | ForEach-Object { Write-Host "[DEBUG] $_" }
+          } else {
+            Write-Host "错误: 批处理文件创建失败"
+            exit 1
+          }
+          
+          # 执行批处理文件
+          Write-Host "执行批处理文件..."
+          cmd.exe /c sync-to-gitee.bat
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "错误: 同步脚本执行失败，退出代码: $LASTEXITCODE"
+            exit 1
+          }
+          
+          Write-Host "代码同步到Gitee成功完成"
 
       - name: Setup GitHub CLI
         uses: actions/setup-node@v4
