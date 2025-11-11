@@ -227,7 +227,7 @@ jobs:
         echo "\nNote: Detailed debug logs have been generated, please check logs for any issues"
         
     - name: Create Gitee Release
-      if: github.event_name == 'release'
+      if: github.event_name == 'release' || (github.event_name == 'push' && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')) || github.event_name == 'workflow_dispatch'
       run: |
         echo "========================================"
         echo "Gitee Release API operation preparation"
