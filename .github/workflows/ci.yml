@@ -39,7 +39,6 @@ jobs:
     
     - name: Run build script
       run: |
-        # 使用uv环境运行构建脚本，并指定Debug构建类型
         uv run python scripts/build.py Debug
     
     - name: Upload build artifacts
@@ -52,8 +51,8 @@ jobs:
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
-        name: v${{ github.run_number }}-debug
-        tag_name: v${{ github.run_number }}-debug
+        name: v1.0.1-beta.${{ github.run_number }}
+        tag_name: v1.0.1-beta.${{ github.run_number }}
         body: |
           自动构建版本 - Debug模式
           构建编号: ${{ github.run_number }}
