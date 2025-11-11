@@ -254,7 +254,7 @@ jobs:
         echo "Repository: ${{ github.event.repository.name }}"
         echo "Release tag: ${{ github.event.release.tag_name }}"
         echo "Release name: ${{ github.event.release.name }}"
-        echo "Release body length: ${{ github.event.release.body != '' && (length(github.event.release.body) | int) || 0 }}"
+        echo "Release body length: ${{ github.event.release.body != '' && length(github.event.release.body) || 0 }}"
         echo "Release draft: ${{ github.event.release.draft }}"
         echo "Release prerelease: ${{ github.event.release.prerelease }}"
         echo "Release created at: ${{ github.event.release.created_at }}"
