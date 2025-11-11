@@ -34,21 +34,9 @@ jobs:
         
     - name: Push to Gitee
       run: |
-        # 推送标签到 Gitee（不使用--force避免覆盖）
-        if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
-          # 只推送当前标签
-          TAG_NAME="${{ github.ref_name }}"
-          echo "推送标签 $TAG_NAME 到 Gitee..."
-          git push gitee "refs/tags/$TAG_NAME"
-        else
-          # 推送所有标签
-          echo "推送所有标签到 Gitee..."
-          git push gitee --tags
-        fi
-        
-        # 可选：只推送main分支，避免推送所有分支
-        echo "推送main分支到 Gitee..."
-        git push gitee main || echo "分支推送遇到问题，但继续执行"
+        # 推送所有分支和标签到 Gitee
+        git push gitee --all --force
+        git push gitee --tags --force
         
     - name: Sync Release (如果 Gitee 有对应的标签，会自动创建 Release)
       run: |
