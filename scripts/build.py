@@ -234,15 +234,9 @@ VSVersionInfo(
 
     def setup_version(self):
         """设置版本信息"""
-        if self.build_type == "Debug":
-            # Debug模式使用当前配置的版本号
-            version_content = f"""class Version(object):
-    def __init__(self):
-        self.version = "{self.version}"
-"""
-            self._write_file(version_content, os.path.join(self.script_dir, "Utility_Version.py"))
-        else:  # Release模式
+        if self.build_type != "Debug":  # Release模式
             self.update_version_and_commit()
+        # Debug模式下，版本号直接从pyproject.toml读取，不再生成Utility_Version.py
 
     def _write_file(self, content, file_path):
         """写入文件的辅助方法"""
@@ -298,13 +292,7 @@ VSVersionInfo(
                 print(f"警告: Release模式版本更新失败: {e}，使用当前版本继续")
 
     def _update_version_files(self):
-        """更新版本相关文件 - 只更新Utility_Version.py，Config_BatteryAnalysis.ini已在初始化时同步"""
-        version_content = f"""class Version(object):
-    def __init__(self):
-        self.version = "{self.version}"
-"""
-        self._write_file(version_content, os.path.join(self.script_dir, "Utility_Version.py"))
-        
+        """更新版本相关文件 - Config_BatteryAnalysis.ini已在初始化时同步"""
         # 确保配置文件在根目录的config文件夹中也保持更新
         with open(self.config_path, 'w', encoding='utf-8') as f:
             self.config.write(f)
