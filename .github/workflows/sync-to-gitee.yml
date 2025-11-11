@@ -1,86 +1,100 @@
 name: Sync Release to Gitee
 
 on:
-  release:
-    types: [published, edited, released]
   push:
     tags:
       - 'v*'  # 同步以 v 开头的标签，如 v1.0.0
+  release:
+    types: [published, edited, released]
 
 jobs:
   sync-to-gitee:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # 获取所有历史记录，包括标签
-        
-    - name: Setup Git config
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@users.noreply.github.com"
-        
-    - name: Add Gitee remote
-      run: |
-        # 添加 Gitee 远程仓库
-        git remote add gitee https://${{ secrets.GITEE_USERNAME }}:${{ secrets.GITEE_TOKEN }}@gitee.com/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}.git
-        
-    - name: Push to Gitee
-      run: |
-        # 推送所有分支和标签到 Gitee
-        git push gitee --all --force
-        git push gitee --tags --force
-        
-    - name: Sync Release (如果 Gitee 有对应的标签，会自动创建 Release)
-      run: |
-        # 获取最新的标签
-        LATEST_TAG=$(git describe --tags --abbrev=0)
-        
-        if [ -n "$LATEST_TAG" ]; then
-          echo "最新标签: $LATEST_TAG"
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configure Git safe directory
+        run: |
+          git config --global --add safe.directory /github/workspace
+      
+      - name: Setup Git config and Sync to Gitee using HTTPS
+        run: |
+          # 设置Git配置
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
           
-          # 这里可以添加调用 Gitee API 创建 Release 的逻辑
-          # 但由于 Gitee 在推送标签后通常会自创建 Release，所以这一步是可选的
-        fi
-        
-    - name: Create Release on Gitee via API (可选)
-      if: github.event_name == 'release'
-      run: |
-        # 使用 Gitee API 创建/更新 Release（更精确的控制）
-        RELEASE_TAG="${{ github.event.release.tag_name }}"
-        RELEASE_NAME="${{ github.event.release.name }}"
-        RELEASE_BODY=$(echo '${{ github.event.release.body }}' | sed 's/"/\\"/g')
-        
-        # 检查 Release 是否已存在
-        RESPONSE=$(curl -s -X GET \
-          "https://gitee.com/api/v5/repos/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}/releases/tags/$RELEASE_TAG" \
-          -H "Authorization: token ${{ secrets.GITEE_TOKEN }}")
-        
-        if echo "$RESPONSE" | grep -q '"id"'; then
-          # Release 已存在，更新它
-          RELEASE_ID=$(echo "$RESPONSE" | grep -o '"id":[0-9]*' | cut -d: -f2)
-          curl -X PATCH \
-            "https://gitee.com/api/v5/repos/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}/releases/$RELEASE_ID" \
-            -H "Authorization: token ${{ secrets.GITEE_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"tag_name\": \"$RELEASE_TAG\",
-              \"name\": \"$RELEASE_NAME\",
-              \"body\": \"$RELEASE_BODY\"
-            }"
-          echo "已更新 Gitee Release: $RELEASE_TAG"
-        else
-          # 创建新 Release
-          curl -X POST \
-            "https://gitee.com/api/v5/repos/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}/releases" \
-            -H "Authorization: token ${{ secrets.GITEE_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"tag_name\": \"$RELEASE_TAG\",
-              \"name\": \"$RELEASE_NAME\",
-              \"body\": \"$RELEASE_BODY\"
-            }"
-          echo "已创建 Gitee Release: $RELEASE_TAG"
-        fi
+          # 添加Gitee远程仓库（使用HTTPS）
+          git remote add gitee https://boedt:${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git 2>/dev/null || git remote set-url gitee https://boedt:${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git
+          
+          # 推送当前标签（当触发事件是标签推送）
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+            TAG_NAME="${{ github.ref_name }}"
+            echo "推送标签 $TAG_NAME 到 Gitee..."
+            git push gitee "refs/tags/$TAG_NAME"
+          fi
+          
+          # 推送所有标签
+          echo "推送所有标签到 Gitee..."
+          git push gitee --tags || echo "标签推送遇到问题，但继续执行"
+          
+          # 推送main分支（可选）
+          echo "推送main分支到 Gitee..."
+          git push gitee main || echo "分支推送遇到问题，但继续执行"
+      
+      - name: Sync Release (如果 Gitee 有对应的标签，会自动创建 Release)
+        run: |
+          # 获取最新的标签
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          
+          if [ -n "$LATEST_TAG" ]; then
+            echo "最新标签: $LATEST_TAG"
+            
+            # 这里可以添加调用 Gitee API 创建 Release 的逻辑
+            # 但由于 Gitee 在推送标签后通常会自创建 Release，所以这一步是可选的
+          fi
+      
+      - name: Create Release on Gitee via API (可选)
+        if: github.event_name == 'release'
+        run: |
+          # 使用 Gitee API 创建/更新 Release（更精确的控制）
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_NAME="${{ github.event.release.name }}"
+          RELEASE_BODY=$(echo '${{ github.event.release.body }}' | sed 's/"/\\"/g')
+          
+          # 检查 Release 是否已存在
+          RESPONSE=$(curl -s -X GET \
+            "https://gitee.com/api/v5/repos/boedt/battery-analysis/releases/tags/$RELEASE_TAG" \
+            -H "Authorization: token ${{ secrets.GITEE_TOKEN }}")
+          
+          if echo "$RESPONSE" | grep -q '"id"'; then
+            # Release 已存在，更新它
+            RELEASE_ID=$(echo "$RESPONSE" | grep -o '"id":[0-9]*' | cut -d: -f2)
+            curl -X PATCH \
+              "https://gitee.com/api/v5/repos/boedt/battery-analysis/releases/$RELEASE_ID" \
+              -H "Authorization: token ${{ secrets.GITEE_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"tag_name\": \"$RELEASE_TAG\",
+                \"name\": \"$RELEASE_NAME\",
+                \"body\": \"$RELEASE_BODY\"
+              }"
+            echo "已更新 Gitee Release: $RELEASE_TAG"
+          else
+            # 创建新 Release
+            curl -X POST \
+              "https://gitee.com/api/v5/repos/boedt/battery-analysis/releases" \
+              -H "Authorization: token ${{ secrets.GITEE_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"tag_name\": \"$RELEASE_TAG\",
+                \"name\": \"$RELEASE_NAME\",
+                \"body\": \"$RELEASE_BODY\"
+              }"
+            echo "已创建 Gitee Release: $RELEASE_TAG"
+          fi
