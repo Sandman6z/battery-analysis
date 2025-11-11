@@ -74,57 +74,39 @@ jobs:
           git remote -v
 
       - name: Sync code to Gitee
+        shell: cmd
         run: |
-          # 直接使用实际的仓库信息
-          $giteeUsername = 'boedt'
-          $giteeRepo = 'battery-analysis'
+          echo Gitee Token已成功获取 (已隐藏)
+          echo 开始同步代码到Gitee...
+          echo Gitee仓库: boedt/battery-analysis
           
-          # 从secrets获取Gitee Token
-          $giteeToken = '${{ secrets.GITEE_TOKEN }}'
-          
-          # 只验证Token是否为空
-          # 注意：GitHub在日志中会将secrets显示为***，但这不代表Token未正确注入
-          if ([string]::IsNullOrEmpty($giteeToken)) { 
-            Write-Host "错误: GITEE_TOKEN 未设置，请确保在GitHub仓库中正确配置了此Secret"
-            exit 1
-          }
-          
-          Write-Host "Gitee Token已成功获取 (已隐藏)"
-          Write-Host "开始同步代码到Gitee..."
-          Write-Host "Gitee仓库: $giteeUsername/$giteeRepo"
-          
-          # 验证远程仓库配置
-          Write-Host "验证远程仓库连接..."
+          echo 验证远程仓库连接...
           git remote -v
           
-          # 在当前步骤中再次确保禁用凭证助手，防止任何可能的干扰
-          Write-Host "配置Git凭证处理选项..."
+          echo 配置Git凭证处理选项...
           git config --local --unset credential.helper
           git config --local credential.helper ""
           git config --local core.askPass ""
           git config --local credential.modalprompt false
           git config --local credential.autoDetectTimeout -1
           
-          # 使用cmd.exe直接执行git命令，避免PowerShell的特殊字符处理
-          # 直接在命令中硬编码仓库信息和token，确保格式正确
-          Write-Host "执行main分支推送..."
-          cmd.exe /c "git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git refs/heads/main:refs/heads/main --force 2>&1"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "错误: main分支推送失败，退出代码: $LASTEXITCODE"
-            exit 1
-          }
-          Write-Host "main分支推送成功"
+          echo 执行main分支推送...
+          git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git refs/heads/main:refs/heads/main --force 2>&1
+          if %ERRORLEVEL% neq 0 (
+            echo 错误: main分支推送失败，退出代码: %ERRORLEVEL%
+            exit /b 1
+          )
+          echo main分支推送成功
           
-          # 推送所有标签
-          Write-Host "推送所有标签到Gitee..."
-          cmd.exe /c "git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git --tags --force 2>&1"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "错误: 标签推送失败，退出代码: $LASTEXITCODE"
-            exit 1
-          }
-          Write-Host "标签推送成功"
+          echo 推送所有标签到Gitee...
+          git push https://${{ secrets.GITEE_TOKEN }}@gitee.com/boedt/battery-analysis.git --tags --force 2>&1
+          if %ERRORLEVEL% neq 0 (
+            echo 错误: 标签推送失败，退出代码: %ERRORLEVEL%
+            exit /b 1
+          )
+          echo 标签推送成功
           
-          Write-Host "代码同步到Gitee成功完成"
+          echo 代码同步到Gitee成功完成
 
       - name: Setup GitHub CLI
         uses: actions/setup-node@v4
