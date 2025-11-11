@@ -13,8 +13,8 @@ wheels = [
 
 [[package]]
 name = "battery-analysis"
-version = "0.1.0"
-source = { virtual = "." }
+version = "1.0.1"
+source = { editable = "." }
 dependencies = [
     { name = "gitpython" },
     { name = "matplotlib" },
