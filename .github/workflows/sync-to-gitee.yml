@@ -1,94 +1,135 @@
-name: Sync to Gitee
+name: Sync Release to Gitee
 
 on:
-  push:
-    branches: [ main ]
   release:
-    types: [ published, created, edited, prereleased ]
+    types: [published, edited, released]
+  push:
+    tags:
+      - 'v*'  # 同步以 v 开头的标签，如 v1.0.0
+    branches:
+      - 'main'           # 监听 main 分支的推送
+      - 'feat/**'        # 监听所有以 feat/ 开头的分支推送
 
 jobs:
   sync-to-gitee:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
-      contents: write
-      actions: read
+      contents: write  # 确保有写入权限
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config --global user.name 'GitHub Actions Bot'
-          git config --global user.email 'actions@github.com'
-
-      - name: Add Gitee remote
-        env:
-          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
-        run: |
-          git remote add gitee https://${{ secrets.GITEE_USERNAME }}:${env:GITEE_TOKEN}@gitee.com/${{ secrets.GITEE_USERNAME }}/${{ secrets.GITEE_REPO }}.git
-
-      - name: Sync code to Gitee
-        run: |
-          git push gitee main --force
-          git push gitee --tags --force
-
-      - name: Setup GitHub CLI
-        uses: actions/setup-node@v4
-        with:
-          node-version: '16'
-      - run: npm install -g @github-cli/cli
-
-      - name: Sync Release to Gitee
-        if: github.event_name == 'release'
-        env:
-          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_NAME: ${{ github.event.release.name }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_DRAFT: ${{ github.event.release.draft }}
-          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
-        run: |
-          # 创建资产目录
-          New-Item -ItemType Directory -Force -Path release_assets
-          Set-Location release_assets
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 获取所有历史记录，包括标签
+        
+    - name: Setup Git config
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@users.noreply.github.com"
+        
+    - name: Add Gitee remote
+      run: |
+        # 添加 Gitee 远程仓库
+        git remote add gitee https://${{ secrets.GITEE_USERNAME }}:${{ secrets.GITEE_TOKEN }}@gitee.com/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}.git
+        
+    - name: Push to Gitee
+      run: |
+        # 推送标签到 Gitee（不使用--force避免覆盖）
+        if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+          # 只推送当前标签
+          TAG_NAME="${{ github.ref_name }}"
+          echo "推送标签 $TAG_NAME 到 Gitee..."
+          git push gitee "refs/tags/$TAG_NAME"
+        else
+          # 推送所有标签
+          echo "推送所有标签到 Gitee..."
+          git push gitee --tags
+        fi
+        
+        # 可选：只推送main分支，避免推送所有分支
+        echo "推送main分支到 Gitee..."
+        git push gitee main || echo "分支推送遇到问题，但继续执行"
+        
+    - name: Sync Release (如果 Gitee 有对应的标签，会自动创建 Release)
+      run: |
+        # 获取最新的标签
+        LATEST_TAG=$(git describe --tags --abbrev=0)
+        
+        if [ -n "$LATEST_TAG" ]; then
+          echo "最新标签: $LATEST_TAG"
           
-          # 下载GitHub Release资产
-          gh release download ${{ env.RELEASE_TAG }} --repo ${{ github.repository }}
+          # 这里可以添加调用 Gitee API 创建 Release 的逻辑
+          # 但由于 Gitee 在推送标签后通常会自创建 Release，所以这一步是可选的
+        fi
+        
+    - name: Create Release on Gitee via API (可选)
+      if: github.event_name == 'release'
+      run: |
+        # 验证必要的secrets是否存在
+        if [[ -z "${{ secrets.GITEE_USERNAME }}" || -z "${{ secrets.GITEE_TOKEN }}" ]]; then
+          echo "错误: 缺少必要的Gitee配置信息（GITEE_USERNAME或GITEE_TOKEN）"
+          exit 1
+        fi
+        
+        # 使用 Gitee API 创建/更新 Release（更精确的控制）
+        RELEASE_TAG="${{ github.event.release.tag_name }}"
+        RELEASE_NAME="${{ github.event.release.name }}"
+        RELEASE_BODY=$(echo '${{ github.event.release.body }}' | sed 's/"/\\"/g' || echo "")
+        
+        # 添加超时和重试逻辑
+        curl_with_retry() {
+          local max_attempts=3
+          local attempt=1
+          local delay=2
           
-          # 准备JSON数据
-          $releaseBody = ${{ env.RELEASE_BODY }} -replace '"', '\"' -replace "`n", '\\n'
-          $jsonData = @"
-          {
-            "access_token": "${{ secrets.GITEE_TOKEN }}",
-            "body": "$releaseBody",
-            "draft": ${{ env.RELEASE_DRAFT }},
-            "prerelease": ${{ env.RELEASE_PRERELEASE }},
-            "tag_name": "${{ env.RELEASE_TAG }}",
-            "name": "${{ env.RELEASE_NAME }}"
-          }
-          "@
-          
-          # 保存JSON到文件
-          $jsonData | Out-File -FilePath release_data.json -Encoding utf8
-          
-          # 创建Gitee Release
-          Write-Host "创建Gitee Release: ${{ env.RELEASE_TAG }}"
-          $releaseResponse = Invoke-RestMethod -Uri "https://gitee.com/api/v5/repos/${{ secrets.GITEE_USERNAME }}/${{ secrets.GITEE_REPO }}/releases" -Method Post -ContentType "application/json" -Body $jsonData
-          $releaseId = $releaseResponse.id
-          
-          Write-Host "Gitee Release ID: $releaseId"
-          
-          # 上传资产文件到Gitee Release
-          Get-ChildItem -File | ForEach-Object {
-            $fileName = $_.Name
-            Write-Host "上传文件: $fileName"
+          while [ $attempt -le $max_attempts ]; do
+            echo "尝试第 $attempt 次调用 API..."
+            response=$(curl -s -w "\n%{http_code}" -X "$1" \
+              "$2" \
+              -H "Authorization: token ${{ secrets.GITEE_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              ${3:+-d "$3"})
             
-            # 使用curl上传文件 (Windows环境中的curl)
-            curl.exe -X POST "https://gitee.com/api/v5/repos/${{ secrets.GITEE_USERNAME }}/${{ secrets.GITEE_REPO }}/releases/$releaseId/assets" `
-              -H "Authorization: token ${{ secrets.GITEE_TOKEN }}" `
-              -F "name=$fileName" `
-              -F "attachment=@$fileName"
-          }
+            http_code=$(echo "$response" | tail -n 1)
+            response_body=$(echo "$response" | head -n -1)
+            
+            if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+              echo "API调用成功: $http_code"
+              echo "$response_body"
+              return 0
+            fi
+            
+            echo "API调用失败: $http_code, 响应: $response_body"
+            attempt=$((attempt + 1))
+            
+            if [ $attempt -le $max_attempts ]; then
+              echo "$delay 秒后重试..."
+              sleep $delay
+              delay=$((delay * 2))
+            fi
+          done
+          
+          echo "达到最大重试次数，API调用失败"
+          return 1
+        }
+        
+        # 检查 Release 是否已存在
+        REPO_URL="https://gitee.com/api/v5/repos/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}"
+        RESPONSE=$(curl_with_retry GET "$REPO_URL/releases/tags/$RELEASE_TAG")
+        
+        if echo "$RESPONSE" | grep -q '"id"'; then
+          # Release 已存在，更新它
+          RELEASE_ID=$(echo "$RESPONSE" | grep -o '"id":[0-9]*' | cut -d: -f2 | head -1)
+          JSON_PAYLOAD="{\"tag_name\": \"$RELEASE_TAG\", \"name\": \"$RELEASE_NAME\", \"body\": \"$RELEASE_BODY\"}"
+          
+          echo "更新已存在的 Release: $RELEASE_TAG (ID: $RELEASE_ID)"
+          curl_with_retry PATCH "$REPO_URL/releases/$RELEASE_ID" "$JSON_PAYLOAD"
+          echo "已更新 Gitee Release: $RELEASE_TAG"
+        else
+          # 创建新 Release
+          JSON_PAYLOAD="{\"tag_name\": \"$RELEASE_TAG\", \"name\": \"$RELEASE_NAME\", \"body\": \"$RELEASE_BODY\"}"
+          
+          echo "创建新的 Release: $RELEASE_TAG"
+          curl_with_retry POST "$REPO_URL/releases" "$JSON_PAYLOAD"
+          echo "已创建 Gitee Release: $RELEASE_TAG"
+        fi
