@@ -1,4 +1,4 @@
-name: Sync Release to Gitee [增强版调试模式]
+name: Sync Release to Gitee
 
 on:
   release:
@@ -9,10 +9,10 @@ on:
     branches:
       - 'main'           # 监听 main 分支的推送
       - 'feat/**'        # 监听所有以 feat/ 开头的分支推送
-  workflow_dispatch:  # 允许手动触发，方便调试
+  workflow_dispatch:  # Allow manual trigger for debugging
     inputs:
       debug_mode:
-        description: '启用详细调试模式'
+        description: 'Enable detailed debug mode'
         required: true
         default: 'true'
         type: boolean
@@ -29,35 +29,35 @@ jobs:
       with:
         fetch-depth: 0  # 获取所有历史记录，包括标签
         
-    - name: 🔍 工作流触发信息调试
+    - name: Workflow trigger info debug
       run: |
         echo "========================================"
-        echo "📋 工作流触发详细信息"
-        echo "========================================"
-        echo "触发事件: ${{ github.event_name }}"
-        echo "触发动作: ${{ github.event.action || 'N/A' }}"
-        echo "触发分支/标签: ${{ github.ref_name }}"
-        echo "引用类型: ${{ github.ref_type || 'N/A' }}"
-        echo "仓库名称: ${{ github.repository }}"
-        echo "仓库所有者: ${{ github.repository_owner }}"
-        echo "推送者: ${{ github.actor }}"
+        echo "Workflow trigger details"
+        echo "======================================="
+        echo "Trigger event: ${{ github.event_name }}"
+        echo "Trigger action: ${{ github.event.action || 'N/A' }}"
+        echo "Trigger branch/tag: ${{ github.ref_name }}"
+        echo "Reference type: ${{ github.ref_type || 'N/A' }}"
+        echo "Repository name: ${{ github.repository }}"
+        echo "Repository owner: ${{ github.repository_owner }}"
+        echo "Pusher: ${{ github.actor }}"
         
         if [[ "${{ github.event_name }}" == "release" ]]; then
-          echo "\n📦 Release 事件详细信息:"
+          echo "\nRelease event details:"
           echo "Release ID: ${{ github.event.release.id || 'N/A' }}"
-          echo "Release 标签: ${{ github.event.release.tag_name || 'N/A' }}"
-          echo "Release 名称: ${{ github.event.release.name || 'N/A' }}"
-          echo "Release 草稿: ${{ github.event.release.draft }}"
-          echo "Release 预发布: ${{ github.event.release.prerelease }}"
-          echo "Release 发布者: ${{ github.event.release.author.login || 'N/A' }}"
+          echo "Release tag: ${{ github.event.release.tag_name || 'N/A' }}"
+          echo "Release name: ${{ github.event.release.name || 'N/A' }}"
+          echo "Release draft: ${{ github.event.release.draft }}"
+          echo "Release prerelease: ${{ github.event.release.prerelease }}"
+          echo "Release author: ${{ github.event.release.author.login || 'N/A' }}"
         fi
         
         echo "\n========================================"
-        echo "🔍 Git 环境信息"
-        echo "========================================"
+        echo "Git environment info"
+        echo "======================================="
         git --version
         git config --list
-        echo "\n本地仓库信息:"
+        echo "\nLocal repository info:"
         git remote -v
         git branch -a
         git tag -l | sort -V
@@ -67,192 +67,190 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@users.noreply.github.com"
         
-    - name: 🔌 添加 Gitee 远程仓库
+    - name: Add Gitee remote repository
       run: |
         echo "========================================"
-        echo "🔍 Gitee Secrets 配置验证"
-        echo "========================================"
+        echo "Gitee Secrets validation"
+        echo "======================================="
         
         # 验证必要的secrets是否存在
         if [[ -z "${{ secrets.GITEE_USERNAME }}" ]]; then
-          echo "❌ 错误: 缺少Gitee用户名配置 (GITEE_USERNAME)"
+          echo "Error: Missing Gitee username configuration (GITEE_USERNAME)"
           exit 1
         else
-          echo "✅ Gitee用户名已配置 (长度: ${#GITEE_USERNAME})" | env GITEE_USERNAME="${{ secrets.GITEE_USERNAME }}"
+          echo "Gitee username configured (length: ${#GITEE_USERNAME})" | env GITEE_USERNAME="${{ secrets.GITEE_USERNAME }}"
         fi
         
         if [[ -z "${{ secrets.GITEE_TOKEN }}" ]]; then
-          echo "❌ 错误: 缺少Gitee访问令牌配置 (GITEE_TOKEN)"
+          echo "Error: Missing Gitee access token configuration (GITEE_TOKEN)"
           exit 1
         else
-          echo "✅ Gitee访问令牌已配置 (长度: ${#GITEE_TOKEN})" | env GITEE_TOKEN="${{ secrets.GITEE_TOKEN }}"
+          echo "Gitee access token configured (length: ${#GITEE_TOKEN})" | env GITEE_TOKEN="${{ secrets.GITEE_TOKEN }}"
         fi
         
         echo "\n========================================"
-        echo "🔧 配置 Gitee 远程仓库"
-        echo "========================================"
+        echo "Configuring Gitee remote repository"
+        echo "======================================="
         echo "Repository name: ${{ github.event.repository.name }}"
         
         # 构建并打印Gitee仓库URL（隐藏敏感信息）
         GITEE_REPO_URL="https://${{ secrets.GITEE_USERNAME }}:***@gitee.com/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}.git"
         echo "Gitee 仓库 URL (已隐藏Token): $GITEE_REPO_URL"
         
-        # 移除可能已存在的gitee远程，避免冲突
-        git remote remove gitee 2>/dev/null || echo "没有找到现有gitee远程，继续执行"
+        # Remove existing gitee remote if exists to avoid conflicts
+        git remote remove gitee 2>/dev/null || echo "No existing gitee remote found, continuing"
         
-        # 添加新的Gitee远程仓库
-        echo "正在添加Gitee远程仓库..."
+        # Add new Gitee remote repository
+        echo "Adding Gitee remote repository..."
         git remote add gitee "https://${{ secrets.GITEE_USERNAME }}:${{ secrets.GITEE_TOKEN }}@gitee.com/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}.git"
         
-        # 验证远程仓库配置
-        echo "\n✅ 远程仓库配置验证:"
+        # Verify remote repository configuration
+        echo "\nRemote repository configuration verification:"
         git remote -v
         
-        # 尝试ping远程仓库以验证连接
-        echo "\n📡 测试Gitee仓库连接..."
-        git ls-remote --heads --tags gitee || echo "⚠️  警告: 远程仓库连接测试失败，但继续执行后续步骤"
+        # Try pinging remote repository to verify connection
+        echo "\nTesting Gitee repository connection..."
+        git ls-remote --heads --tags gitee || echo "Warning: Remote repository connection test failed, but continuing with subsequent steps"
         
-    - name: 📤 推送到 Gitee
+    - name: Push to Gitee
       run: |
         echo "========================================"
-        echo "🚀 准备推送到 Gitee"
-        echo "========================================"
-        echo "触发事件: ${{ github.event_name }}"
-        echo "触发引用: ${{ github.ref_name }}"
-        echo "引用类型: ${{ github.ref_type || 'N/A' }}"
+        echo "Preparing to push to Gitee"
+        echo "======================================="
+        echo "Trigger event: ${{ github.event_name }}"
+        echo "Trigger reference: ${{ github.ref_name }}"
+        echo "Reference type: ${{ github.ref_type || 'N/A' }}"
         
         # 推送当前分支（基于触发事件）
         if [[ "${{ github.event_name }}" == "push" ]]; then
-          echo "\n📤 处理 Push 事件推送..."
+          echo "\nProcessing Push event push..."
           # 确定要推送的引用
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            # 推送标签
+            # Push tag
             TAG_NAME="${{ github.ref_name }}"
-            echo "📌 正在推送标签 $TAG_NAME 到 Gitee..."
-            echo "命令: git push -v gitee refs/tags/$TAG_NAME"
+            echo "Pushing tag $TAG_NAME to Gitee..."
+            echo "Command: git push -v gitee refs/tags/$TAG_NAME"
             git push -v gitee "refs/tags/$TAG_NAME"
             PUSH_RESULT=$?
             if [[ $PUSH_RESULT -eq 0 ]]; then
-              echo "✅ 标签 $TAG_NAME 推送成功"
+              echo "Tag $TAG_NAME pushed successfully"
             else
-              echo "❌ 标签 $TAG_NAME 推送失败，错误码: $PUSH_RESULT"
+              echo "Tag $TAG_NAME push failed, error code: $PUSH_RESULT"
             fi
           else
-            # 推送分支
+            # Push branch
             BRANCH_NAME="${{ github.ref_name }}"
-            echo "🌿 正在推送分支 $BRANCH_NAME 到 Gitee..."
-            echo "命令: git push -v gitee $BRANCH_NAME"
+            echo "Pushing branch $BRANCH_NAME to Gitee..."
+            echo "Command: git push -v gitee $BRANCH_NAME"
             git push -v gitee "$BRANCH_NAME"
             PUSH_RESULT=$?
             if [[ $PUSH_RESULT -eq 0 ]]; then
-              echo "✅ 分支 $BRANCH_NAME 推送成功"
+              echo "Branch $BRANCH_NAME pushed successfully"
             else
-              echo "❌ 分支 $BRANCH_NAME 推送失败，错误码: $PUSH_RESULT"
+              echo "Branch $BRANCH_NAME push failed, error code: $PUSH_RESULT"
             fi
           fi
         elif [[ "${{ github.event_name }}" == "release" ]]; then
-          echo "\n📤 处理 Release 事件推送..."
-          # 推送标签和相关分支
+          echo "\nProcessing Release event push..."
+          # Push tag and related branch
           RELEASE_TAG="${{ github.event.release.tag_name }}"
-          echo "📌 正在推送 Release 标签 $RELEASE_TAG 到 Gitee..."
+          echo "Pushing Release tag $RELEASE_TAG to Gitee..."
           git push -v gitee "refs/tags/$RELEASE_TAG"
           TAG_PUSH_RESULT=$?
           
-          echo "\n🌿 正在推送 main 分支到 Gitee..."
+          echo "\nPushing main branch to Gitee..."
           git push -v gitee "main"
           BRANCH_PUSH_RESULT=$?
           
           if [[ $TAG_PUSH_RESULT -eq 0 && $BRANCH_PUSH_RESULT -eq 0 ]]; then
-            echo "✅ Release 相关内容推送成功"
+            echo "Release related content pushed successfully"
           else
-            echo "❌ Release 相关内容推送部分失败，请检查日志"
+            echo "Release related content push partially failed, please check logs"
           fi
         else
-          echo "📤 处理手动触发或其他事件推送..."
-          # 对于手动触发的工作流，推送当前分支
+          echo "Processing manual trigger or other event push..."
+          # For manually triggered workflows, push current branch
           CURRENT_BRANCH=$(git branch --show-current)
-          echo "🌿 正在推送当前分支 $CURRENT_BRANCH 到 Gitee..."
+          echo "Pushing current branch $CURRENT_BRANCH to Gitee..."
           git push -v gitee "$CURRENT_BRANCH"
         fi
         
-        # 显示推送状态和验证信息
+        # Show push status and verification info
         echo "\n========================================"
-        echo "📋 推送后验证信息"
-        echo "========================================"
-        echo "📝 本地标签列表："
+        echo "Post-push verification info"
+        echo "======================================="
+        echo "Local tag list:"
         git tag -l | sort -V
         
-        echo "\n📡 Gitee 远程引用验证："
-        echo "🔍 检查远程分支："
+        echo "\nGitee remote references verification:"
         git ls-remote gitee --heads
         
-        echo "\n🔍 检查远程标签："
+        echo "Checking remote tags:"
         git ls-remote gitee --tags
         
-        # 如果是标签推送，特别验证该标签
+        # If it's a tag push, verify the tag specifically
         if [[ "${{ github.ref_type }}" == "tag" ]]; then
-          echo "\n🔍 特别验证标签 ${{ github.ref_name }} 是否存在于 Gitee："
+          echo "\nVerifying if tag ${{ github.ref_name }} exists in Gitee:"
           git ls-remote gitee "refs/tags/${{ github.ref_name }}"
           if [[ $? -eq 0 ]]; then
-            echo "✅ 标签 ${{ github.ref_name }} 在 Gitee 上已存在"
+            echo "Tag ${{ github.ref_name }} exists in Gitee"
           else
-            echo "❌ 标签 ${{ github.ref_name }} 在 Gitee 上不存在，推送可能失败"
+            echo "Tag ${{ github.ref_name }} does not exist in Gitee, push may have failed"
           fi
         fi
         
-    - name: 📋 标签同步状态检查
+    - name: Tag sync status check
       run: |
         echo "========================================"
-        echo "🔍 标签同步状态检查"
-        echo "========================================"
+        echo "Tag sync status check"
+        echo "======================================="
         
-        # 获取最新的标签
-        echo "🏷️ 获取本地最新标签..."
+        # Get latest tag
+        echo "Getting latest local tag..."
         LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "无标签")
-        echo "最新本地标签: $LATEST_TAG"
+        echo "Latest local tag: $LATEST_TAG"
         
-        # 列出所有本地标签
-        echo "\n📋 所有本地标签:"
-        git tag -l | sort -V || echo "本地仓库中暂无标签"
+        # List all local tags
+        echo "\nAll local tags:"
+        git tag -l | sort -V || echo "No tags in local repository"
         
-        # 检查Gitee上的标签
-        echo "\n📡 Gitee远程仓库标签:"
-        git ls-remote --tags gitee | sort -k2 -V || echo "无法获取Gitee标签信息"
+        # Check tags on Gitee
+        echo "\nGitee remote repository tags:"
+        git ls-remote --tags gitee | sort -k2 -V || echo "Unable to get Gitee tag information"
         
         echo "\n========================================"
-        echo "📝 同步完成信息"
-        echo "========================================"
-        echo "操作类型: ${{ github.event_name }}"
-        echo "触发引用: ${{ github.ref_name }}"
-        echo "运行成功: ✅ 工作流执行完成"
-        echo "\n注意: 详细的调试日志已生成，请根据日志排查任何可能的问题"
+        echo "Sync completion info"
+        echo "======================================="
+        echo "Operation type: ${{ github.event_name }}"
+        echo "Trigger reference: ${{ github.ref_name }}"
+        echo "Run successful: Workflow execution completed"
+        echo "\nNote: Detailed debug logs have been generated, please check logs for any issues"
         
-    - name: 📦 创建 Gitee Release [增强调试模式]
+    - name: Create Gitee Release
       if: github.event_name == 'release'
       run: |
         echo "========================================"
-        echo "🔧 Gitee Release API 操作准备"
-        echo "========================================"
+        echo "Gitee Release API operation preparation"
+        echo "======================================="
         
-        # 验证必要的secrets是否存在
-        echo "🔍 验证Gitee Secrets..."
+        # Validate necessary secrets exist
+        echo "Validating Gitee Secrets..."
         if [[ -z "${{ secrets.GITEE_USERNAME }}" ]]; then
-          echo "❌ 错误: 缺少Gitee用户名配置 (GITEE_USERNAME)"
+          echo "Error: Missing Gitee username configuration (GITEE_USERNAME)"
           exit 1
         else
-          echo "✅ Gitee用户名已配置"
+          echo "Gitee username configured"
         fi
         
         if [[ -z "${{ secrets.GITEE_TOKEN }}" ]]; then
-          echo "❌ 错误: 缺少Gitee访问令牌配置 (GITEE_TOKEN)"
+          echo "Error: Missing Gitee access token configuration (GITEE_TOKEN)"
           exit 1
         else
-          echo "✅ Gitee访问令牌已配置"
+          echo "Gitee access token configured"
         fi
         
         echo "\n========================================"
-        echo "📋 Release 信息详情调试"
-        echo "========================================"
+        echo "Release info details debug"
         echo "Repository: ${{ github.event.repository.name }}"
         echo "Release tag: ${{ github.event.release.tag_name }}"
         echo "Release name: ${{ github.event.release.name }}"
@@ -263,18 +261,18 @@ jobs:
         echo "Release published at: ${{ github.event.release.published_at }}"
         echo "Release author: ${{ github.event.release.author.login || 'N/A' }}"
         
-        # 提取发布信息
+        # Extract release information
         RELEASE_TAG="${{ github.event.release.tag_name }}"
         RELEASE_NAME="${{ github.event.release.name }}"
-        # 安全处理发布描述
-        echo "🔒 处理发布描述内容..."
+        # Securely process release description
+        echo "Processing release description content..."
         RELEASE_BODY=$(echo '${{ github.event.release.body }}' | sed 's/"/\\"/g' || echo "")
         RELEASE_DRAFT="${{ github.event.release.draft }}"
         RELEASE_PRERELEASE="${{ github.event.release.prerelease }}"
         
-        echo "✅ 发布信息提取完成"
+        echo "Release info extraction completed"
         
-        # 增强的curl重试函数，带详细调试
+        # Enhanced curl retry function with detailed debugging
         curl_with_retry() {
           local max_attempts=3
           local attempt=1
@@ -284,13 +282,13 @@ jobs:
           local data=$3
           local operation_name=$4
           
-          echo "🔄 $operation_name - API调用信息:"
-          echo "   方法: $method"
+          echo "$operation_name - API call info:"
+          echo "   Method: $method"
           echo "   URL: $url"
-          echo "   请求体长度: ${#data} 字符"
+          echo "   Request body length: ${#data} characters"
           
           while [ $attempt -le $max_attempts ]; do
-            echo "📞 尝试第 $attempt/$max_attempts 次调用 API..."
+            echo "Attempt $attempt/$max_attempts to call API..."
             
             # 记录开始时间
             start_time=$(date +%s)
@@ -310,153 +308,153 @@ jobs:
             http_code=$(echo "$response" | tail -n 1)
             response_body=$(echo "$response" | head -n -1)
             
-            echo "⏱️  API调用耗时: ${duration}s"
-            echo "📊 API响应代码: $http_code"
+            echo "API call duration: ${duration}s"
+            echo "API response code: $http_code"
             
-            # 检查是否成功
+            # Check if successful
             if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-              echo "✅ API调用成功: $http_code"
-              echo "📋 响应体长度: ${#response_body} 字符"
+              echo "API call successful: $http_code"
+              echo "Response body length: ${#response_body} characters"
               
-              # 安全打印响应样本
+              # Securely print response sample
               if [ -n "$response_body" ]; then
-                echo "📄 响应样本: $(echo "$response_body" | head -c 150)${response_body:150:+...}"
+                echo "Response sample: $(echo "$response_body" | head -c 150)${response_body:150:+...}"
               else
-                echo "📄 响应体为空"
+                echo "Response body is empty"
               fi
               
               echo "$response_body"
               return 0
             fi
             
-            # 失败处理
-            echo "❌ API调用失败: $http_code"
+            # Error handling
+            echo "API call failed: $http_code"
             if [ -n "$response_body" ]; then
-              echo "📄 错误响应: $(echo "$response_body" | head -c 300)${response_body:300:+...}"
+              echo "Error response: $(echo "$response_body" | head -c 300)${response_body:300:+...}"
             else
-              echo "📄 错误响应为空"
+              echo "Error response is empty"
             fi
             
-            # 准备重试
+            # Prepare retry
             attempt=$((attempt + 1))
             
             if [ $attempt -le $max_attempts ]; then
-              echo "⏳ $delay 秒后重试..."
+              echo "Retrying after $delay seconds..."
               sleep $delay
               delay=$((delay * 2))
             fi
           done
           
-          echo "❌ 达到最大重试次数 ($max_attempts)，API调用失败"
+          echo "Maximum retry attempts ($max_attempts) reached, API call failed"
           return 1
         }
         
         echo "\n========================================"
-        echo "🌐 Gitee API 操作流程"
-        echo "========================================"
+        echo "Gitee API operation flow"
+        echo "======================================="
         
-        # 构建仓库URL
+        # Build repository URL
         REPO_URL="https://gitee.com/api/v5/repos/${{ secrets.GITEE_USERNAME }}/${{ github.event.repository.name }}"
-        echo "📌 Gitee API 仓库 URL: $REPO_URL"
+        echo "Gitee API repository URL: $REPO_URL"
         
-        # 1. 验证仓库是否存在和访问权限
-        echo "\n🔍 步骤1: 验证仓库访问权限..."
-        REPO_INFO=$(curl_with_retry GET "$REPO_URL" "" "验证仓库访问")
+        # 1. Verify repository exists and access permissions
+        echo "\nStep 1: Verifying repository access permissions..."
+        REPO_INFO=$(curl_with_retry GET "$REPO_URL" "" "Verify repository access")
         if [[ $? -ne 0 ]]; then
-          echo "⚠️  警告: 无法访问仓库或仓库不存在，检查URL和权限配置"
-          echo "🔍 URL检查: $REPO_URL"
-          echo "🔍 用户名检查: ${{ secrets.GITEE_USERNAME }}"
+          echo "Warning: Unable to access repository or repository does not exist, check URL and permission configuration"
+          echo "URL check: $REPO_URL"
+          echo "Username check: ${{ secrets.GITEE_USERNAME }}"
         else
-          echo "✅ 仓库访问成功，权限验证通过"
+          echo "Repository access successful, permission verified"
         fi
         
-        # 2. 构建完整的JSON请求体
-        echo "\n📝 步骤2: 构建Release JSON请求体..."
+        # 2. Build complete JSON request body
+        echo "\nStep 2: Building Release JSON request body..."
         JSON_PAYLOAD="{\"tag_name\": \"$RELEASE_TAG\", \"name\": \"$RELEASE_NAME\", \"body\": \"$RELEASE_BODY\", \"draft\": $RELEASE_DRAFT, \"prerelease\": $RELEASE_PRERELEASE}"
-        echo "✅ JSON请求体构建完成"
-        echo "📊 请求体样本: $(echo "$JSON_PAYLOAD" | head -c 100)${JSON_PAYLOAD:100:+...}"
+        echo "JSON request body built successfully"
+        echo "Request body sample: $(echo "$JSON_PAYLOAD" | head -c 100)${JSON_PAYLOAD:100:+...}"
         
-        # 3. 检查标签是否已存在于Gitee
-        echo "\n🔍 步骤3: 检查标签 $RELEASE_TAG 是否存在于Gitee..."
+        # 3. Check if tag exists in Gitee
+        echo "\nStep 3: Checking if tag $RELEASE_TAG exists in Gitee..."
         TAG_ENDPOINT="$REPO_URL/git/refs/tags/$RELEASE_TAG"
-        echo "   检查URL: $TAG_ENDPOINT"
-        TAG_INFO=$(curl_with_retry GET "$TAG_ENDPOINT" "" "检查标签存在性")
+        echo "   Check URL: $TAG_ENDPOINT"
+        TAG_INFO=$(curl_with_retry GET "$TAG_ENDPOINT" "" "Check tag existence")
         if [[ $? -ne 0 ]]; then
-          echo "❌ 标签在Gitee上不存在，尝试重新推送标签..."
-          echo "🚀 执行命令: git push -v gitee refs/tags/$RELEASE_TAG"
+          echo "Tag does not exist in Gitee, trying to push tag again..."
+          echo "Executing command: git push -v gitee refs/tags/$RELEASE_TAG"
           git push -v gitee "refs/tags/$RELEASE_TAG"
           
-          # 再次验证标签是否存在
-          echo "🔍 再次验证标签是否存在..."
+          # Verify tag exists again
+          echo "Verifying if tag exists again..."
           git ls-remote gitee "refs/tags/$RELEASE_TAG"
           if [[ $? -eq 0 ]]; then
-            echo "✅ 标签推送成功，在Gitee上已存在"
+            echo "Tag pushed successfully, exists in Gitee"
           else
-            echo "❌ 标签推送失败，可能存在权限或网络问题"
+            echo "Tag push failed, permission or network issue likely"
           fi
         else
-          echo "✅ 标签 $RELEASE_TAG 在Gitee上已存在"
+          echo "Tag $RELEASE_TAG exists in Gitee"
         fi
         
-        # 4. 检查Release是否已存在
-        echo "\n🔍 步骤4: 检查Release $RELEASE_TAG 是否已存在..."
+        # 4. Check if Release exists
+        echo "\nStep 4: Checking if Release $RELEASE_TAG already exists..."
         RELEASE_CHECK_ENDPOINT="$REPO_URL/releases/tags/$RELEASE_TAG"
-        echo "   检查URL: $RELEASE_CHECK_ENDPOINT"
-        RESPONSE=$(curl_with_retry GET "$RELEASE_CHECK_ENDPOINT" "" "检查Release存在性")
+        echo "   Check URL: $RELEASE_CHECK_ENDPOINT"
+        RESPONSE=$(curl_with_retry GET "$RELEASE_CHECK_ENDPOINT" "" "Check Release existence")
         
-        # 5. 根据存在性决定创建或更新
+        # 5. Decide to create or update based on existence
         if echo "$RESPONSE" | grep -q '"id"'; then
-          # Release已存在，更新它
+          # Release exists, update it
           RELEASE_ID=$(echo "$RESPONSE" | grep -o '"id":[0-9]*' | cut -d: -f2 | head -1)
-          echo "📝 发现已存在的Release: $RELEASE_TAG (ID: $RELEASE_ID)"
-          echo "🔄 准备更新Release..."
+          echo "Found existing Release: $RELEASE_TAG (ID: $RELEASE_ID)"
+          echo "Preparing to update Release..."
           
           UPDATE_ENDPOINT="$REPO_URL/releases/$RELEASE_ID"
-          echo "   更新URL: $UPDATE_ENDPOINT"
-          UPDATE_RESULT=$(curl_with_retry PATCH "$UPDATE_ENDPOINT" "$JSON_PAYLOAD" "更新Release")
+          echo "   Update URL: $UPDATE_ENDPOINT"
+          UPDATE_RESULT=$(curl_with_retry PATCH "$UPDATE_ENDPOINT" "$JSON_PAYLOAD" "Update Release")
           
           if [[ $? -eq 0 ]]; then
-            echo "✅ 成功更新Gitee Release: $RELEASE_TAG"
+            echo "Successfully updated Gitee Release: $RELEASE_TAG"
           else
-            echo "❌ 更新Release失败，检查错误日志"
+            echo "Failed to update Release, check error logs"
           fi
         else
-          # 创建新Release
-          echo "📝 未发现现有Release，准备创建新Release..."
+          # Create new Release
+          echo "No existing Release found, preparing to create new Release..."
           CREATE_ENDPOINT="$REPO_URL/releases"
-          echo "   创建URL: $CREATE_ENDPOINT"
-          CREATE_RESULT=$(curl_with_retry POST "$CREATE_ENDPOINT" "$JSON_PAYLOAD" "创建Release")
+          echo "   Create URL: $CREATE_ENDPOINT"
+          CREATE_RESULT=$(curl_with_retry POST "$CREATE_ENDPOINT" "$JSON_PAYLOAD" "Create Release")
           
           if [[ $? -eq 0 ]]; then
-            echo "✅ 成功创建Gitee Release: $RELEASE_TAG"
+            echo "Successfully created Gitee Release: $RELEASE_TAG"
           else
-            echo "❌ 创建Release失败，检查错误日志"
+            echo "Failed to create Release, check error logs"
           fi
         fi
         
-        # 6. 最终验证
+        # 6. Final verification
         echo "\n========================================"
-        echo "✅ 最终验证与状态汇总"
-        echo "========================================"
+        echo "Final verification and status summary"
+        echo "======================================="
         
-        # 列出Gitee上的发布
-        echo "\n📋 列出Gitee上最新的5个发布:"
-        curl_with_retry GET "$REPO_URL/releases?per_page=5" "" "列出最新发布"
+        # List releases on Gitee
+        echo "\nListing latest 5 releases on Gitee:"
+        curl_with_retry GET "$REPO_URL/releases?per_page=5" "" "List latest releases"
         
-        # 列出Gitee上的标签
-        echo "\n🏷️  列出Gitee上的标签:"
-        curl_with_retry GET "$REPO_URL/git/refs/tags" "" "列出所有标签"
+        # List tags on Gitee
+        echo "\nListing tags on Gitee:"
+        curl_with_retry GET "$REPO_URL/git/refs/tags" "" "List all tags"
         
-        # 特别验证目标标签和Release
-        echo "\n🎯 特别验证目标标签 $RELEASE_TAG 的Release:"
-        curl_with_retry GET "$RELEASE_CHECK_ENDPOINT" "" "验证目标Release"
+        # Specifically verify target tag and Release
+        echo "\nSpecifically verifying Release for target tag $RELEASE_TAG:"
+        curl_with_retry GET "$RELEASE_CHECK_ENDPOINT" "" "Verify target Release"
         
         echo "\n========================================"
-        echo "📊 同步操作完成状态摘要"
+        echo "Sync operation completion status summary"
+        echo "======================================="
+        echo "Operation type: ${{ github.event_name }}"
+        echo "Target tag: $RELEASE_TAG"
+        echo "Repository: ${{ github.repository }}"
+        echo "Workflow run ID: ${{ github.run_id }}"
         echo "========================================"
-        echo "🔄 操作类型: ${{ github.event_name }}"
-        echo "🏷️  目标标签: $RELEASE_TAG"
-        echo "🔗 仓库: ${{ github.repository }}"
-        echo "📝 工作流运行ID: ${{ github.run_id }}"
-        echo "========================================"
-        echo "请检查以上日志以确认同步状态"
+        echo "Please check the above logs to confirm sync status"
