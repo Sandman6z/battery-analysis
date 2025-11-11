@@ -42,11 +42,21 @@ class BuildConfig:
             print(f"警告: 无法初始化Git仓库: {e}")
             print("继续构建过程，但不进行Git相关操作")
         
-        # 读取配置文件
+        # 首先读取pyproject.toml获取主版本号
+        import tomllib
+        with open(os.path.join(self.project_root, "pyproject.toml"), "rb") as f:
+            pyproject_data = tomllib.load(f)
+        self.version = pyproject_data.get("project", {}).get("version", "0.0.0")
+        
+        # 然后读取配置文件获取其他配置
         self.config = CaseSensitiveConfigParser()
         self.config_path = os.path.join(self.project_root, "config", "Config_BatteryAnalysis.ini")
         self.config.read(self.config_path, encoding='utf-8')
-        self.version = self.config.get("BuildConfig", "Version")
+        
+        # 确保配置文件中的版本号与pyproject.toml一致
+        if not self.config.has_section("BuildConfig"):
+            self.config.add_section("BuildConfig")
+        self.config.set("BuildConfig", "Version", self.version)
         self.console_mode = self.config.getboolean("BuildConfig", "Console")
         
         # 定义构建应用相关目录
@@ -254,22 +264,8 @@ VSVersionInfo(
         
         self.git.add("-A")
         
-        # 检查版本文件是否已更改
-        version_changed = False
-        try:
-            for diff in self.git_index.diff("HEAD"):
-                if diff.a_path == "__version__.md":
-                    version_changed = True
-                    break
-        except Exception as e:
-            # 在测试环境中，暂时放宽版本文件检查
-            print(f"警告: 获取Git差异失败: {e}，在测试环境中跳过版本文件检查")
-            version_changed = True
-        
-        if not version_changed:
-            # 在测试环境中，暂时允许跳过版本更新
-            print("警告: 在测试环境中跳过__version__.md更新检查")
-            # 原代码: raise BuildException("请更新 __version__.md")
+        # 不再检查版本文件，因为版本管理已迁移到CHANGELOG.md
+        # 版本更新检查已移除
         
         if self.build_type == "Release":
             try:
@@ -302,18 +298,15 @@ VSVersionInfo(
                 print(f"警告: Release模式版本更新失败: {e}，使用当前版本继续")
 
     def _update_version_files(self):
-        """更新版本相关文件"""
-        self.config.set("BuildConfig", "Version", self.version)
-        
+        """更新版本相关文件 - 只更新Utility_Version.py，Config_BatteryAnalysis.ini已在初始化时同步"""
         version_content = f"""class Version(object):
     def __init__(self):
         self.version = "{self.version}"
 """
         self._write_file(version_content, os.path.join(self.script_dir, "Utility_Version.py"))
         
-        # 写入配置文件
-        config_output_path = os.path.join(self.script_dir, "config", "Config_BatteryAnalysis.ini")
-        with open(config_output_path, 'w', encoding='utf-8') as f:
+        # 确保配置文件在根目录的config文件夹中也保持更新
+        with open(self.config_path, 'w', encoding='utf-8') as f:
             self.config.write(f)
 
     def copy2dir(self):

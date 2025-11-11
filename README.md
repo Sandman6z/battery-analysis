@@ -87,7 +87,7 @@ I think must install pyinstaller under project env:
 
 - 一定在激活虚拟环境
 - 一定在虚拟环境下安装打包工具，否则无法生成各种hook，运行会各种缺失，用什么命令添加都无效
-- 遇到task version问题，去修改`__version__.md`和`Utility_Version.py`
+- 遇到task version问题，去修改`CHANGELOG.md`和`Utility_Version.py`
 
 ## bug list
 1. 第五页有空白页
