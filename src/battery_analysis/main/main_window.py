@@ -569,7 +569,24 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.current_directory, _ = QW.QFileDialog.getOpenFileName(self, "Select Test Profile", self.current_directory, "XML Files(*.xml)")
         if self.current_directory != "":
             self.lineEdit_TestProfile.setText(self.current_directory)
-            self.current_directory = self.current_directory + "/../"
+            # 获取Test Profile的父目录
+            test_profile_dir = os.path.dirname(self.current_directory)
+            # 获取父目录的上级目录（同级目录的根目录）
+            parent_dir = os.path.dirname(test_profile_dir)
+            # 自动设置input path为同级的2_xlsx文件夹
+            input_path = os.path.join(parent_dir, "2_xlsx")
+            if os.path.exists(input_path):
+                self.lineEdit_InputPath.setText(input_path)
+                self.sigSetVersion.emit()
+            # 自动设置output path为同级的3_analysis results文件夹
+            output_path = os.path.join(parent_dir, "3_analysis results")
+            if not os.path.exists(output_path):
+                # 如果输出目录不存在，创建它
+                os.makedirs(output_path)
+            self.lineEdit_OutputPath.setText(output_path)
+            self.sigSetVersion.emit()
+            # 更新current_directory
+            self.current_directory = parent_dir
 
     def select_inputpath(self) -> None:
         self.current_directory = QW.QFileDialog.getExistingDirectory(self, "Select Input Path", self.current_directory)
