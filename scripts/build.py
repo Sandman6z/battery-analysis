@@ -183,10 +183,10 @@ VSVersionInfo(
         if not os.path.exists(build_dir):
             os.makedirs(build_dir)
         
-        # 准备文件名，添加版本号和构建类型信息
+        # 准备文件名，只添加版本号信息
         version_suffix = self.version.replace('.', '_')
-        dataconverter_exe_name = f"BatteryTest-DataConverter_{self.build_type}_{version_suffix}.exe"
-        imagemaker_exe_name = f"BatteryTest-ImageMaker_{self.build_type}_{version_suffix}.exe"
+        dataconverter_exe_name = f"battery-analyzer_{version_suffix}.exe"
+        imagemaker_exe_name = f"battery-analysis-visualizer_{version_suffix}.exe"
         
         # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
         if self.build_dataconverter:
@@ -369,10 +369,10 @@ VSVersionInfo(
         project_root_escaped = self.project_root.replace('\\', '\\\\')
         src_path_escaped = src_path.replace('\\', '\\\\')
         
-        # 准备文件名，添加版本号和构建类型信息
+        # 准备文件名，添加版本号信息
         version_suffix = self.version.replace('.', '_')
-        dataconverter_exe_name = f"BatteryTest-DataConverter_{self.build_type}_{version_suffix}"
-        imagemaker_exe_name = f"BatteryTest-ImageMaker_{self.build_type}_{version_suffix}"
+        dataconverter_exe_name = f"battery-analyzer_{version_suffix}"
+        imagemaker_exe_name = f"battery-analysis-visualizer_{version_suffix}"
 
         # 为DataConverter生成spec文件
         if self.bBuildDataConverter:
