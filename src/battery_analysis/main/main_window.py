@@ -22,7 +22,7 @@ from src.battery_analysis.utils import file_writer
 from src.battery_analysis.utils import battery_analysis
 
 
-def calc_md5checksum(file_paths):
+def calculate_md5_checksum(file_paths):
     md5_hash = hashlib.md5()
     for file_path in file_paths:
         with open(file_path, "rb") as file:
@@ -33,48 +33,48 @@ def calc_md5checksum(file_paths):
 
 class Checker:
     def __init__(self) -> None:
-        self.bCheckPass = True
-        self.strErrorMsg = ""
+        self.check_pass = True
+        self.error_msg = ""
 
     def clear(self):
-        self.bCheckPass = True
-        self.strErrorMsg = ""
+        self.check_pass = True
+        self.error_msg = ""
 
-    def setError(self, strErrorMsg: str):
-        self.bCheckPass = False
-        self.strErrorMsg = strErrorMsg
+    def set_error(self, error_msg: str):
+        self.check_pass = False
+        self.error_msg = error_msg
 
 
 class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
     sigSetVersion = QC.pyqtSignal()
 
-    def __init__(self, bBuild: bool) -> None:
+    def __init__(self, is_build: bool) -> None:
         super().__init__()
         version.Version.__init__(self)
         self.thread = None
-        self.bHasConfig = True
-        self.checkerBatteryType = Checker()
-        self.checkerTable = Checker()
-        self.checkerInputXlsx = Checker()
-        self.checkerUpdateConfig = Checker()
-        self.strConstructionMethod = ""
-        self.strTestInformation = ""
-        self.strSpecificationType = ""
-        self.strCCCurrent = ""
-        self.strMd5Checksum = ""
-        self.strMd5ChecksumRun = ""
+        self.has_config = True
+        self.is_build = is_build
+        self.checker_battery_type = Checker()
+        self.checker_table = Checker()
+        self.checker_input_xlsx = Checker()
+        self.checker_update_config = Checker()
+        self.construction_method = ""
+        self.test_information = ""
+        self.specification_type = ""
+        self.cc_current = ""
+        self.md5_checksum = ""
+        self.md5_checksum_run = ""
         if sys.platform == "win32":
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
-        # 将传入的bBuild赋值给实例变量
-        self.bBuild = bBuild
-        if self.bBuild:
+        # 使用已赋值的is_build变量
+        if self.is_build:
             self.path = os.path.dirname(sys.executable)
             if not os.path.exists(self.path + "/setting.ini"):
-                self.bHasConfig = False
+                self.has_config = False
             else:
-                self.bHasConfig = True
+                self.has_config = True
             self.config = QC.QSettings(self.path + "/setting.ini", QC.QSettings.IniFormat)
             self.current_directory = self.path
         else:
@@ -98,7 +98,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.setupUi(self)
 
         self.init_window()
-        self.init_widget()
+        self.initialize_widgets()
 
         listPulseCurrent = self.get_config("BatteryConfig/PulseCurrent")
         listCutoffVoltage = self.get_config("BatteryConfig/CutoffVoltage")
@@ -158,13 +158,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         icon.addPixmap(Logo, QG.QIcon.Normal, QG.QIcon.Off)
         self.setWindowIcon(icon)
 
-    def init_widget(self) -> None:
-        if self.bHasConfig:
+    def initialize_widgets(self) -> None:
+        if self.has_config:
             self.statusBar_BatteryAnalysis.showMessage("status:ok")
             self.init_lineedit()
             self.init_combobox()
             self.init_table()
-            self.connect_widget()
+            self.connect_widgets()
             self.pushButton_Run.setFocus()
         else:
             # @todo: Add error popup windows here
@@ -262,49 +262,49 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         setSpanItem("Reported By", 13, 0, 1, 2)
         setSpanItem(self.get_config("TestInformation/ReportedBy")[0], 13, 2, _bEditable=True)
 
-    def connect_widget(self) -> None:
-        self.comboBox_BatteryType.currentIndexChanged.connect(self.check_batterytype)
-        self.comboBox_Specification_Type.currentIndexChanged.connect(self.check_specification)
-        self.comboBox_Specification_Method.currentIndexChanged.connect(self.check_specification)
+    def connect_widgets(self) -> None:
+        self.comboBox_BatteryType.currentIndexChanged.connect(self.check_battery_type)
+        self.comboBox_Specification_Type.currentIndexChanged.connect(self.check_specification_type)
+        self.comboBox_Specification_Method.currentIndexChanged.connect(self.check_specification_type)
         self.comboBox_TesterLocation.currentIndexChanged.connect(self.set_table)
-        self.lineEdit_InputPath.textChanged.connect(self.get_xlsxinfo)
-        self.pushButton_TestProfile.clicked.connect(self.select_testprofile)
-        self.pushButton_InputPath.clicked.connect(self.select_inputpath)
-        self.pushButton_OutputPath.clicked.connect(self.select_outputpath)
+        self.lineEdit_InputPath.textChanged.connect(self.get_excel_info)
+        self.pushButton_TestProfile.clicked.connect(self.select_test_profile)
+        self.pushButton_InputPath.clicked.connect(self.select_input_path)
+        self.pushButton_OutputPath.clicked.connect(self.select_output_path)
         self.pushButton_Run.clicked.connect(self.run)
         self.sigSetVersion.connect(self.get_version)
 
-    def check_batterytype(self) -> None:
-        self.checkerBatteryType.clear()
+    def check_battery_type(self) -> None:
+        self.checker_battery_type.clear()
         if self.comboBox_BatteryType.currentText() == "Coin Cell":
             self.comboBox_ConstructionMethod.setEnabled(False)
             self.comboBox_ConstructionMethod.setCurrentIndex(-1)
             self.lineEdit_DatasheetNominalCapacity.setText("")
             self.lineEdit_CalculationNominalCapacity.setText("")
             self.lineEdit_RequiredUseableCapacity.setText("")
-            self.comboBox_Specification_Type.currentIndexChanged.disconnect(self.check_specification)
-            self.comboBox_Specification_Method.currentIndexChanged.disconnect(self.check_specification)
+            self.comboBox_Specification_Type.currentIndexChanged.disconnect(self.check_specification_type)
+            self.comboBox_Specification_Method.currentIndexChanged.disconnect(self.check_specification_type)
             self.comboBox_Specification_Type.clear()
             self.comboBox_Specification_Type.addItems(self.get_config("BatteryConfig/SpecificationTypeCoinCell"))
             self.comboBox_Specification_Type.setCurrentIndex(-1)
-            self.comboBox_Specification_Type.currentIndexChanged.connect(self.check_specification)
-            self.comboBox_Specification_Method.currentIndexChanged.connect(self.check_specification)
+            self.comboBox_Specification_Type.currentIndexChanged.connect(self.check_specification_type)
+            self.comboBox_Specification_Method.currentIndexChanged.connect(self.check_specification_type)
             for t in range(self.comboBox_Specification_Type.count()):
-                if self.strSpecificationType == self.comboBox_Specification_Type.itemText(t):
+                if self.specification_type == self.comboBox_Specification_Type.itemText(t):
                     self.comboBox_Specification_Type.setCurrentIndex(t)
                     break
         elif self.comboBox_BatteryType.currentText() == "Pouch Cell":
             self.comboBox_ConstructionMethod.setEnabled(True)
             for c in range(self.comboBox_ConstructionMethod.count()):
-                if self.strConstructionMethod == self.comboBox_ConstructionMethod.itemText(c):
+                if self.construction_method == self.comboBox_ConstructionMethod.itemText(c):
                     self.comboBox_ConstructionMethod.setCurrentIndex(c)
-                    self.strConstructionMethod = ""
+                    self.construction_method = ""
                     break
             self.lineEdit_DatasheetNominalCapacity.setText("")
             self.lineEdit_CalculationNominalCapacity.setText("")
             self.lineEdit_RequiredUseableCapacity.setText("")
-            self.comboBox_Specification_Type.currentIndexChanged.disconnect(self.check_specification)
-            self.comboBox_Specification_Method.currentIndexChanged.disconnect(self.check_specification)
+            self.comboBox_Specification_Type.currentIndexChanged.disconnect(self.check_specification_type)
+            self.comboBox_Specification_Method.currentIndexChanged.disconnect(self.check_specification_type)
             self.comboBox_Specification_Type.clear()
             self.comboBox_Specification_Type.addItems(self.get_config("BatteryConfig/SpecificationTypePouchCell"))
             self.comboBox_Specification_Type.setCurrentIndex(-1)
@@ -317,28 +317,28 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         elif self.comboBox_BatteryType.currentText() == "":
             pass
         else:
-            self.checkerBatteryType.setError(f"No battery type named {self.comboBox_BatteryType.currentText()}")
+            self.checker_battery_type.set_error(f"No battery type named {self.comboBox_BatteryType.currentText()}")
             self.statusBar_BatteryAnalysis.showMessage(f"[Error]: No battery type named {self.comboBox_BatteryType.currentText()}")
 
-    def check_specification(self) -> None:
-        self.strSpecificationType = self.comboBox_Specification_Type.currentText()
+    def check_specification_type(self) -> None:
+        self.specification_type = self.comboBox_Specification_Type.currentText()
         listSpecificationTypeCoinCell = self.get_config("BatteryConfig/SpecificationTypeCoinCell")
         listSpecificationTypePouchCell = self.get_config("BatteryConfig/SpecificationTypePouchCell")
         for c in range(len(listSpecificationTypeCoinCell)):
-            if self.strSpecificationType == listSpecificationTypeCoinCell[c]:
+            if self.specification_type == listSpecificationTypeCoinCell[c]:
                 self.comboBox_BatteryType.setCurrentIndex(0)
         for p in range(len(listSpecificationTypePouchCell)):
-            if self.strSpecificationType == listSpecificationTypePouchCell[p]:
+            if self.specification_type == listSpecificationTypePouchCell[p]:
                 self.comboBox_BatteryType.setCurrentIndex(1)
             
         specification_method = self.comboBox_Specification_Method.currentText()
-        if self.strSpecificationType == "" or specification_method == "":
+        if self.specification_type == "" or specification_method == "":
             return
 
         setRule = self.get_config("BatteryConfig/Rules")
         for r in range(len(setRule)):
             listRule = list(setRule[r].split("/"))
-            if listRule[0] == self.strSpecificationType:
+            if listRule[0] == self.specification_type:
                 if specification_method == listRule[1]:
                     self.lineEdit_DatasheetNominalCapacity.setText(f"{listRule[2]}")
                     self.lineEdit_CalculationNominalCapacity.setText(f"{listRule[3]}")
@@ -352,7 +352,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                     self.lineEdit_CalculationNominalCapacity.setText("")
                     self.lineEdit_RequiredUseableCapacity.setText("")
                 break
-            elif listRule[0] in self.strSpecificationType:
+            elif listRule[0] in self.specification_type:
                 if specification_method == listRule[1]:
                     self.lineEdit_DatasheetNominalCapacity.setText(f"{listRule[2]}")
                     self.lineEdit_CalculationNominalCapacity.setText(f"{listRule[3]}")
@@ -369,7 +369,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 pass
 
     def set_table(self) -> None:
-        self.checkerTable.clear()
+        self.checker_table.clear()
         # 不再重新创建QSettings实例，而是重新读取配置
         # 这样可以确保使用与初始化时相同的配置文件路径和设置
         self.config.sync()  # 确保配置文件被正确加载
@@ -389,11 +389,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             self.statusBar_BatteryAnalysis.showMessage("[Error]: No TestInformation in setting.ini")
             return
 
-        self.strTestInformation = ""
+        self.test_information = ""
         for t in range(len(listTestInformation)):
             listTestInformationSplit = listTestInformation[t].split(".")
             if not len(listTestInformationSplit) == 3:
-                self.checkerTable.setError(f"Wrong TestInformation section format:[{listTestInformation[t]}] in setting.ini")
+                self.checker_table.set_error(f"Wrong TestInformation section format:[{listTestInformation[t]}] in setting.ini")
                 self.statusBar_BatteryAnalysis.showMessage(f"[Error]: Wrong TestInformation section format:[{listTestInformation[t]}] in setting.ini")
                 return
             else:
@@ -401,11 +401,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 strLaboratory = listTestInformationSplit[2]
                 strTesterLocation = self.comboBox_TesterLocation.currentText().replace(" ", "")
                 if (strLaboratory in strTesterLocation) and (strLocation in strTesterLocation):
-                    self.strTestInformation = listTestInformation[t]
+                    self.test_information = listTestInformation[t]
                     break
 
-        if self.strTestInformation == "":
-            self.checkerTable.setError("Can't find matched TestInformation section in setting.ini")
+        if self.test_information == "":
+            self.checker_table.set_error("Can't find matched TestInformation section in setting.ini")
             self.statusBar_BatteryAnalysis.showMessage("[Error]: Can't find matched TestInformation section in setting.ini")
             return
 
@@ -417,23 +417,23 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             _qtItem = QW.QTableWidgetItem(_strItem)
             self.tableWidget_TestInformation.setItem(_intRow, _intCol, _qtItem)
 
-        setItem(self.get_config(f"{self.strTestInformation}/TestEquipment"), 0, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/SoftwareVersions.BTSServerVersion"), 1, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/SoftwareVersions.BTSClientVersion"), 2, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/SoftwareVersions.BTSDAVersion"), 3, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/MiddleMachines.Model"), 4, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/MiddleMachines.HardwareVersion"), 5, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/MiddleMachines.SerialNumber"), 6, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/MiddleMachines.FirmwareVersion"), 7, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/MiddleMachines.DeviceType"), 8, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/TestUnits.Model"), 9, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/TestUnits.HardwareVersion"), 10, 2)
-        setItem(self.get_config(f"{self.strTestInformation}/TestUnits.FirmwareVersion"), 11, 2)
+        setItem(self.get_config(f"{self.test_information}/TestEquipment"), 0, 2)
+        setItem(self.get_config(f"{self.test_information}/SoftwareVersions.BTSServerVersion"), 1, 2)
+        setItem(self.get_config(f"{self.test_information}/SoftwareVersions.BTSClientVersion"), 2, 2)
+        setItem(self.get_config(f"{self.test_information}/SoftwareVersions.BTSDAVersion"), 3, 2)
+        setItem(self.get_config(f"{self.test_information}/MiddleMachines.Model"), 4, 2)
+        setItem(self.get_config(f"{self.test_information}/MiddleMachines.HardwareVersion"), 5, 2)
+        setItem(self.get_config(f"{self.test_information}/MiddleMachines.SerialNumber"), 6, 2)
+        setItem(self.get_config(f"{self.test_information}/MiddleMachines.FirmwareVersion"), 7, 2)
+        setItem(self.get_config(f"{self.test_information}/MiddleMachines.DeviceType"), 8, 2)
+        setItem(self.get_config(f"{self.test_information}/TestUnits.Model"), 9, 2)
+        setItem(self.get_config(f"{self.test_information}/TestUnits.HardwareVersion"), 10, 2)
+        setItem(self.get_config(f"{self.test_information}/TestUnits.FirmwareVersion"), 11, 2)
 
-    def get_xlsxinfo(self) -> None:
-        self.checkerInputXlsx.clear()
-        self.comboBox_Specification_Type.currentIndexChanged.disconnect(self.check_specification)
-        self.comboBox_Specification_Method.currentIndexChanged.disconnect(self.check_specification)
+    def get_excel_info(self) -> None:
+        self.checker_input_xlsx.clear()
+        self.comboBox_Specification_Type.currentIndexChanged.disconnect(self.check_specification_type)
+        self.comboBox_Specification_Method.currentIndexChanged.disconnect(self.check_specification_type)
         self.comboBox_BatteryType.setCurrentIndex(-1)
         self.comboBox_Specification_Type.clear()
         self.comboBox_Specification_Type.addItems(self.get_config("BatteryConfig/SpecificationTypeCoinCell"))
@@ -447,8 +447,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.lineEdit_SamplesQty.setText("")
         self.lineEdit_DatasheetNominalCapacity.setText("")
         self.lineEdit_CalculationNominalCapacity.setText("")
-        self.comboBox_Specification_Type.currentIndexChanged.connect(self.check_specification)
-        self.comboBox_Specification_Method.currentIndexChanged.connect(self.check_specification)
+        self.comboBox_Specification_Type.currentIndexChanged.connect(self.check_specification_type)
+        self.comboBox_Specification_Method.currentIndexChanged.connect(self.check_specification_type)
         strInDataXlsxDir = self.lineEdit_InputPath.text()
         if strInDataXlsxDir != "":
             listAllInXlsx = [f for f in os.listdir(strInDataXlsxDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
@@ -459,7 +459,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 self.strConstructionMethod = ""
                 for c in range(self.comboBox_ConstructionMethod.count()):
                     if self.comboBox_ConstructionMethod.itemText(c) in strSampleInputXlsxTitle:
-                        self.strConstructionMethod = self.comboBox_ConstructionMethod.itemText(c)
+                        self.construction_method = self.comboBox_ConstructionMethod.itemText(c)
                         break
                 listAllSpecificationType = self.get_config("BatteryConfig/SpecificationTypeCoinCell") + self.get_config("BatteryConfig/SpecificationTypePouchCell")
                 listAllSpecificationMethod = self.get_config("BatteryConfig/SpecificationMethod")
@@ -492,93 +492,93 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                     # self.listCurrentLevel = [int(listPulseCurrent[c].strip()) for c in range(len(listPulseCurrent))]
                     # self.config.setValue("BatteryConfig/PulseCurrent", listPulseCurrent)
 
-                self.strCCCurrent = ""
+                self.cc_current = ""
                 listCCCurrentToSplit = re.findall("mA,(.*?)\)", strSampleInputXlsxTitle)
                 if len(listCCCurrentToSplit) == 1:
                     strCCCurrentToSplit = listCCCurrentToSplit[0].replace("mAh", "")
                     listCCCurrentToSplit = re.findall("([\d.]+)mA", strCCCurrentToSplit)
                     if len(listCCCurrentToSplit) >= 1:
-                        self.strCCCurrent = listCCCurrentToSplit[-1]
+                        self.cc_current = listCCCurrentToSplit[-1]
                 self.lineEdit_SamplesQty.setText(str(len(listAllInXlsx)))
             else:
-                self.checkerInputXlsx.setError("Input path has no data")
+                self.checker_input_xlsx.set_error("Input path has no data")
                 self.statusBar_BatteryAnalysis.showMessage("[Error]: Input path has no data")
 
     def get_version(self) -> None:
-        strInPutDir = self.lineEdit_InputPath.text()
-        strOutoutDir = self.lineEdit_OutputPath.text()
-        if os.path.exists(strInPutDir) and os.path.exists(strOutoutDir):
-            listAllInXlsx = [strInPutDir + f"/{f}" for f in os.listdir(strInPutDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        input_dir = self.lineEdit_InputPath.text()
+        output_dir = self.lineEdit_OutputPath.text()
+        if os.path.exists(input_dir) and os.path.exists(output_dir):
+            listAllInXlsx = [input_dir + f"/{f}" for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
             if len(listAllInXlsx) == 0:
                 self.lineEdit_Version.setText("")
                 return
-            strCsvMd5Path = strOutoutDir + "/MD5.csv"
-            self.strMd5Checksum = calc_md5checksum(listAllInXlsx)
-            if os.path.exists(strCsvMd5Path) and os.path.getsize(strCsvMd5Path) != 0:
+            csv_md5_path = output_dir + "/MD5.csv"
+            self.md5_checksum = calculate_md5_checksum(listAllInXlsx)
+            if os.path.exists(csv_md5_path) and os.path.getsize(csv_md5_path) != 0:
                 listMD5Reader = []
                 f = open(strCsvMd5Path, mode='r', encoding='utf-8')
                 csvMD5Reader = csv.reader(f)
                 for row in csvMD5Reader:
                     listMD5Reader.append(row)
                 f.close()
-                [_, listChecksum, _, listTimes] = listMD5Reader
+                [_, checksum_list, _, times_list] = listMD5Reader
 
-                os.remove(strCsvMd5Path)
-                f = open(strCsvMd5Path, mode='w', newline='', encoding='utf-8')
+                os.remove(csv_md5_path)
+                f = open(csv_md5_path, mode='w', newline='', encoding='utf-8')
                 csvMD5Writer = csv.writer(f)
 
                 if len(listChecksum) == 0:
                     csvMD5Writer.writerow(["Checksums:"])
-                    csvMD5Writer.writerow([self.strMd5Checksum])
+                    csvMD5Writer.writerow([self.md5_checksum])
                     csvMD5Writer.writerow(["Times:"])
                     csvMD5Writer.writerow(["0"])
                     self.lineEdit_Version.setText("1.0")
                 else:
-                    intVersionMajor = 1
-                    intVersionMinor = 0
-                    for c in range(len(listChecksum)):
-                        if self.strMd5Checksum == listChecksum[c]:
-                            intVersionMajor = c + 1
-                            intVersionMinor = int(listTimes[c])
+                    version_major = 1
+                    version_minor = 0
+                    for c in range(len(checksum_list)):
+                        if self.md5_checksum == checksum_list[c]:
+                            version_major = c + 1
+                            version_minor = int(times_list[c])
                             # increase it after executing the whole program
                             break
                         if c == len(listChecksum) - 1:
-                            intVersionMajor = c + 2
-                            listChecksum.append(self.strMd5Checksum)
-                            listTimes.append("0")
+                            version_major = c + 2
+                            checksum_list.append(self.md5_checksum)
+                            times_list.append("0")
                     csvMD5Writer.writerow(["Checksums:"])
-                    csvMD5Writer.writerow(listChecksum)
+                    csvMD5Writer.writerow(checksum_list)
                     csvMD5Writer.writerow(["Times:"])
-                    csvMD5Writer.writerow(listTimes)
-                    self.lineEdit_Version.setText(f"{intVersionMajor}.{intVersionMinor}")
+                    csvMD5Writer.writerow(times_list)
+                    self.lineEdit_Version.setText(f"{version_major}.{version_minor}")
                 f.close()
             else:
-                f = open(strCsvMd5Path, mode='w', newline='', encoding='utf-8')
+                f = open(csv_md5_path, mode='w', newline='', encoding='utf-8')
                 csvMD5Writer = csv.writer(f)
                 csvMD5Writer.writerow(["Checksums:"])
-                csvMD5Writer.writerow([self.strMd5Checksum])
+                csvMD5Writer.writerow([self.md5_checksum])
                 csvMD5Writer.writerow(["Times:"])
                 csvMD5Writer.writerow(["0"])
                 f.close()
                 self.lineEdit_Version.setText("1.0")
-            win32api.SetFileAttributes(strCsvMd5Path, win32con.FILE_ATTRIBUTE_HIDDEN)
+            win32api.SetFileAttributes(csv_md5_path, win32con.FILE_ATTRIBUTE_HIDDEN)
         else:
             self.lineEdit_Version.setText("")
 
-    def select_testprofile(self) -> None:
+    def select_test_profile(self) -> None:
         self.current_directory, _ = QW.QFileDialog.getOpenFileName(self, "Select Test Profile", self.current_directory, "XML Files(*.xml)")
         if self.current_directory != "":
             self.lineEdit_TestProfile.setText(self.current_directory)
             self.current_directory = self.current_directory + "/../"
 
-    def select_inputpath(self) -> None:
+    def select_input_path(self) -> None:
         self.current_directory = QW.QFileDialog.getExistingDirectory(self, "Select Input Path", self.current_directory)
         if self.current_directory != "":
             self.lineEdit_InputPath.setText(self.current_directory)
             self.sigSetVersion.emit()
             self.current_directory = self.current_directory + "/../../"
 
-    def select_outputpath(self) -> None:
+    def select_output_path(self) -> None:
         self.current_directory = QW.QFileDialog.getExistingDirectory(self, "Select Output Path", self.current_directory)
         if self.current_directory != "":
             self.lineEdit_OutputPath.setText(self.current_directory)
@@ -586,9 +586,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             self.current_directory = self.current_directory + "/../"
 
     def run(self) -> None:
-        if self.checkerBatteryType.bCheckPass and self.checkerTable.bCheckPass and self.checkerInputXlsx.bCheckPass:
-            self.save_table()
-            self.init_widgetcolor()
+        if self.checker_battery_type.check_pass and self.checker_table.check_pass and self.checker_input_xlsx.check_pass:
+            self.save_test_table()
+            self.initialize_widget_colors()
             if self.checkinput():
                 self.init_thread()
                 if self.thread is not None:
@@ -632,18 +632,18 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                         self.lineEdit_Version.text(),
                         self.lineEdit_RequiredUseableCapacity.text()
                     ]
-                    self.thread.get_info(self.path, self.lineEdit_InputPath.text(), self.lineEdit_OutputPath.text(), test_info, self.bBuild)
+                    self.thread.get_info(self.path, self.lineEdit_InputPath.text(), self.lineEdit_OutputPath.text(), test_info, self.is_build)
                     self.update_config(test_info)
-                    if self.checkerUpdateConfig.bCheckPass:
-                        self.strMd5ChecksumRun = self.strMd5Checksum
+                    if self.checker_update_config.check_pass:
+                        self.md5_checksum_run = self.md5_checksum
                         self.statusBar_BatteryAnalysis.showMessage("status:ok")
                         self.thread.start()     
         else:
-            self.statusBar_BatteryAnalysis.showMessage(f"[Error]: {self.checkerBatteryType.strErrorMsg} {self.checkerTable.strErrorMsg} {self.checkerInputXlsx.strErrorMsg}")
+            self.statusBar_BatteryAnalysis.showMessage(f"[Error]: {self.checker_battery_type.error_msg} {self.checker_table.error_msg} {self.checker_input_xlsx.error_msg}")
             self.pushButton_Run.setText("Rerun")
             self.pushButton_Run.setFocus()
 
-    def save_table(self) -> None:
+    def save_test_table(self) -> None:
         # set focus on pushButton_Run for saving the input text
         self.pushButton_Run.setFocus()
 
@@ -656,19 +656,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             else:
                 self.config.setValue(f"{_strConfig}", listItemText)
 
-        if self.strTestInformation != "":
-            setItem(f"{self.strTestInformation}/TestEquipment", 0, 2)
-            setItem(f"{self.strTestInformation}/SoftwareVersions.BTSServerVersion", 1, 2)
-            setItem(f"{self.strTestInformation}/SoftwareVersions.BTSClientVersion", 2, 2)
-            setItem(f"{self.strTestInformation}/SoftwareVersions.BTSDAVersion", 3, 2)
-            setItem(f"{self.strTestInformation}/MiddleMachines.Model", 4, 2)
-            setItem(f"{self.strTestInformation}/MiddleMachines.HardwareVersion", 5, 2)
-            setItem(f"{self.strTestInformation}/MiddleMachines.SerialNumber", 6, 2)
-            setItem(f"{self.strTestInformation}/MiddleMachines.FirmwareVersion", 7, 2)
-            setItem(f"{self.strTestInformation}/MiddleMachines.DeviceType", 8, 2)
-            setItem(f"{self.strTestInformation}/TestUnits.Model", 9, 2)
-            setItem(f"{self.strTestInformation}/TestUnits.HardwareVersion", 10, 2)
-            setItem(f"{self.strTestInformation}/TestUnits.FirmwareVersion", 11, 2)
+        if self.test_information != "":
+            setItem(f"{self.test_information}/TestEquipment", 0, 2)
+            setItem(f"{self.test_information}/SoftwareVersions.BTSServerVersion", 1, 2)
+            setItem(f"{self.test_information}/SoftwareVersions.BTSClientVersion", 2, 2)
+            setItem(f"{self.test_information}/SoftwareVersions.BTSDAVersion", 3, 2)
+            setItem(f"{self.test_information}/MiddleMachines.Model", 4, 2)
+            setItem(f"{self.test_information}/MiddleMachines.HardwareVersion", 5, 2)
+            setItem(f"{self.test_information}/MiddleMachines.SerialNumber", 6, 2)
+            setItem(f"{self.test_information}/MiddleMachines.FirmwareVersion", 7, 2)
+            setItem(f"{self.test_information}/MiddleMachines.DeviceType", 8, 2)
+            setItem(f"{self.test_information}/TestUnits.Model", 9, 2)
+            setItem(f"{self.test_information}/TestUnits.HardwareVersion", 10, 2)
+            setItem(f"{self.test_information}/TestUnits.FirmwareVersion", 11, 2)
 
         setItem("TestInformation/TestEquipment", 0, 2)
         setItem("TestInformation/SoftwareVersions.BTSServerVersion", 1, 2)
@@ -684,7 +684,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         setItem("TestInformation/TestUnits.FirmwareVersion", 11, 2)
         setItem("TestInformation/ReportedBy", 13, 2)
 
-    def init_widgetcolor(self) -> None:
+    def initialize_widget_colors(self) -> None:
         self.label_BatteryType.setStyleSheet("background-color:")
         self.label_ConstructionMethod.setStyleSheet("background-color:")
         self.label_Specification.setStyleSheet("background-color:")
