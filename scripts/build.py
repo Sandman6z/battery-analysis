@@ -50,7 +50,7 @@ class BuildConfig:
         
         # 然后读取配置文件获取其他配置
         self.config = CaseSensitiveConfigParser()
-        self.config_path = os.path.join(self.project_root, "config", "Config_BatteryAnalysis.ini")
+        self.config_path = os.path.join(self.project_root, "config", "setting.ini")
         self.config.read(self.config_path, encoding='utf-8')
         
         # 确保配置文件中的版本号与pyproject.toml一致
@@ -213,7 +213,7 @@ VSVersionInfo(
         
         # 创建setting.ini
         config = CaseSensitiveConfigParser()
-        config_path = os.path.join(self.project_root, "config", "Config_BatteryAnalysis.ini")
+        config_path = os.path.join(self.project_root, "config", "setting.ini")
         if os.path.exists(config_path):
             config.read(config_path, encoding='utf-8')
             if config.has_section("PltConfig"):
