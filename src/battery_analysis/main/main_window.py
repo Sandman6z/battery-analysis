@@ -67,12 +67,29 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
-        # 统一使用发布模式逻辑
-        # 获取项目根目录的config文件夹路径
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # current_dir是src/battery_analysis/main/，需要向上3级到达项目根目录
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-        self.config_path = os.path.join(project_root, "config", "setting.ini")
+        # 改进的配置文件路径查找逻辑
+        # 首先尝试从当前工作目录查找（开发环境）
+        current_dir = os.getcwd() if not getattr(sys, 'frozen', False) else os.path.dirname(sys.executable)
+        self.config_path = os.path.join(current_dir, "config", "setting.ini")
+        
+        project_root = current_dir  # 默认使用当前目录作为项目根目录
+        
+        # 如果在开发环境中且找不到配置文件，尝试从脚本目录推导
+        if not os.path.exists(self.config_path) and not getattr(sys, 'frozen', False):
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # current_dir是src/battery_analysis/main/，需要向上3级到达项目根目录
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+            self.config_path = os.path.join(project_root, "config", "setting.ini")
+        
+        # 如果仍然找不到，在exe环境中查找exe目录下的配置文件
+        if not os.path.exists(self.config_path) and getattr(sys, 'frozen', False):
+            exe_dir = os.path.dirname(sys.executable)
+            project_root = exe_dir  # 在exe环境中，使用exe目录作为项目根目录
+            # 首先尝试exe目录下的config/setting.ini
+            self.config_path = os.path.join(exe_dir, "config", "setting.ini")
+            # 如果config目录不存在，尝试直接查找exe目录下的setting.ini
+            if not os.path.exists(self.config_path):
+                self.config_path = os.path.join(exe_dir, "setting.ini")
         
         if not os.path.exists(self.config_path):
             self.bHasConfig = False
@@ -925,34 +942,52 @@ class Thread(QC.QThread):
                 print(self.strErrorXlsx)
                 # shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
             else:
+                # 优化ImageMaker启动逻辑
+                try:
+                    from ..utils.version import Version
+                    version_info = Version()
+                    version = version_info.version
+                except:
+                    version = "1.0.0"
+                
                 # 获取构建类型和版本信息
-                # 优先使用可执行文件所在目录，而不是输出目录
                 import sys
                 exe_dir = os.path.dirname(sys.executable)
                 build_type = "Debug" if "Debug" in exe_dir else "Release"
-                version = "1.0.0"
                 
-                # 尝试在可执行文件所在目录查找ImageMaker
-                exe_path = os.path.join(exe_dir, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe")
+                # 按优先级尝试查找可执行文件
+                exe_candidates = [
+                    # 1. 优先使用带版本号的可执行文件（可执行文件所在目录）
+                    os.path.join(exe_dir, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe"),
+                    # 2. 不带版本号的可执行文件（可执行文件所在目录）
+                    os.path.join(exe_dir, "battery-analysis-visualizer.exe"),
+                    # 3. 带版本号的可执行文件（项目目录）
+                    os.path.join(self.strPath, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe"),
+                    # 4. 不带版本号的可执行文件（项目目录）
+                    os.path.join(self.strPath, "battery-analysis-visualizer.exe"),
+                    # 5. 构建目录中的文件
+                    os.path.join(self.strPath, "build", build_type, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe"),
+                    os.path.join(self.strPath, "build", build_type, "battery-analysis-visualizer.exe"),
+                ]
                 
-                if os.path.exists(exe_path):
-                    subprocess.run(exe_path, shell=True)
-                else:
-                    print(f"可执行文件不存在: {exe_path}")
-                    # 如果找不到带版本的文件，尝试不带版本的名称
-                    fallback_path = os.path.join(exe_dir, "battery-analysis-visualizer.exe")
-                    if os.path.exists(fallback_path):
-                        subprocess.run(fallback_path, shell=True)
-                    else:
-                        print(f"可执行文件不存在: {fallback_path}")
-                        # 最后尝试在当前strPath中查找（保持原有逻辑作为备份）
-                        exe_path_backup = os.path.join(self.strPath, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe")
-                        if os.path.exists(exe_path_backup):
-                            subprocess.run(exe_path_backup, shell=True)
-                        else:
-                            fallback_path_backup = os.path.join(self.strPath, "battery-analysis-visualizer.exe")
-                            if os.path.exists(fallback_path_backup):
-                                subprocess.run(fallback_path_backup, shell=True)
+                exe_executed = False
+                for exe_path in exe_candidates:
+                    if os.path.exists(exe_path):
+                        print(f"启动ImageMaker: {exe_path}")
+                        try:
+                            # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行
+                            subprocess.run(exe_path, shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
+                            exe_executed = True
+                            break
+                        except Exception as e:
+                            print(f"启动失败 {exe_path}: {e}")
+                            continue
+                
+                if not exe_executed:
+                    print("警告: 未找到battery-analysis-visualizer可执行文件")
+                    print("候选路径:")
+                    for path in exe_candidates:
+                        print(f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")
         else:
             print(self.strErrorBattery)
             # shutil.rmtree(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
@@ -979,6 +1014,17 @@ class Thread(QC.QThread):
 
 
 def main() -> None:
+    import warnings
+    import matplotlib
+    
+    # 抑制PyQt5的deprecation warning
+    warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
+    
+    # 优化matplotlib配置，避免font cache构建警告
+    matplotlib.use('Agg')  # 使用非交互式后端
+    matplotlib.rcParams['font.family'] = 'sans-serif'
+    matplotlib.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans', 'Liberation Sans']
+    
     app = QW.QApplication(sys.argv)
     main = Main()
     # 移除固定窗口大小，允许自由调整
