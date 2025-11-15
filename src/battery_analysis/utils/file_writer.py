@@ -34,35 +34,12 @@ class XlsxWordWriter:
         # get config
         self.config = configparser.ConfigParser()
         
-        # 检查是否是打包后的程序
-        bBuild = getattr(sys, 'frozen', False)
-        
-        if bBuild:
-            # 打包模式：从可执行文件目录读取setting.ini
-            self.path = os.path.dirname(sys.executable)
-            config_path = os.path.join(self.path, "setting.ini")
-        else:
-            # 开发模式：尝试从多个位置读取配置
-            # 1. 向上三级目录到项目根目录的config目录
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            config_path = os.path.join(project_root, "config", "Config_BatteryAnalysis.ini")
-            
-            # 2. 如果找不到，尝试当前目录的setting.ini
-            if not os.path.exists(config_path):
-                config_path = os.path.join(os.getcwd(), "setting.ini")
-            
-            # 3. 如果还找不到，尝试向上多级目录查找setting.ini
-            if not os.path.exists(config_path):
-                current_dir = os.getcwd()
-                for i in range(4):  # 向上查找4级目录
-                    parent_dir = os.path.dirname(current_dir)
-                    if parent_dir == current_dir:  # 已到达根目录
-                        break
-                    test_config_path = os.path.join(parent_dir, "setting.ini")
-                    if os.path.exists(test_config_path):
-                        config_path = test_config_path
-                        break
-                    current_dir = parent_dir
+        # 统一使用发布模式逻辑，从项目根目录的config文件夹读取配置
+        # 获取当前文件的目录
+        current_file_dir = os.path.dirname(os.path.abspath(__file__))
+        # 向上三级目录到项目根目录的config目录
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file_dir)))
+        config_path = os.path.join(project_root, "config", "setting.ini")
         
         # 尝试读取配置文件
         if os.path.exists(config_path):
@@ -1405,26 +1382,11 @@ class XlsxWordWriter:
 class JsonWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
         self.config = configparser.ConfigParser()
-        # 判断是开发模式还是打包模式
-        bBuild = os.path.exists(os.path.dirname(sys.executable) + "/setting.ini")
         
         try:
-            # 开发模式：尝试从项目根目录的config文件夹读取
-            if not bBuild:
-                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-                config_path = os.path.join(project_root, "config", "Config_BatteryAnalysis.ini")
-                if os.path.exists(config_path):
-                    self.config.read(config_path, encoding='utf-8')
-                else:
-                    # 配置文件不存在，创建默认配置
-                    if not self.config.has_section("BatteryConfig"):
-                        self.config.add_section("BatteryConfig")
-                    if not self.config.has_section("PltConfig"):
-                        self.config.add_section("PltConfig")
-            # 打包模式：从可执行文件目录读取
-            else:
-                self.path = os.path.dirname(sys.executable)
-                self.config.read(self.path + "/setting.ini", encoding='utf-8')
+            # 统一使用发布模式逻辑：从可执行文件目录读取
+            self.path = os.path.dirname(sys.executable)
+            self.config.read(self.path + "/setting.ini", encoding='utf-8')
         except Exception as e:
             # 发生错误时创建基本配置
             print(f"配置读取失败: {e}，使用默认配置")

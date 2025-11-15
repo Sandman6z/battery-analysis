@@ -14,41 +14,36 @@ from src.battery_analysis.utils.exception_type import BatteryAnalysisException
 
 class FIGURE:
     def __init__(self):
-        global bBuild
-        if os.path.exists(f"{os.path.dirname(os.path.abspath(__file__))}/Main_ImageShow.py"):
-            bBuild = False
-        else:
-            bBuild = True
-        
-        # 将全局变量bBuild赋值给实例变量，确保整个类中使用一致
-        self.bBuild = bBuild
         self.config = configparser.ConfigParser()
         
         # 初始化默认配置
         if not self.config.has_section("PltConfig"):
             self.config.add_section("PltConfig")
         
+        # 统一使用发布模式逻辑
+        # 获取项目根目录的config文件夹路径
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(os.path.dirname(current_dir))
+        self.path = project_root
+        
         # 尝试读取配置文件
         config_loaded = False
         try:
-            if self.bBuild:
-                self.path = os.path.dirname(sys.executable)
-                setting_ini_path = os.path.join(self.path, "setting.ini")
-                if os.path.exists(setting_ini_path):
-                    self.config.read(setting_ini_path, encoding='utf-8')
-                    config_loaded = True
-                else:
-                    print("未找到setting.ini，使用默认配置")
+            # 优先读取setting.ini（发布模式）
+            setting_ini_path = os.path.join(project_root, "config", "setting.ini")
+            if os.path.exists(setting_ini_path):
+                self.config.read(setting_ini_path, encoding='utf-8')
+                config_loaded = True
+                print("成功读取setting.ini配置")
             else:
-                self.path = os.path.dirname(os.path.abspath(__file__))
-                # 向上三级目录到项目根目录，再访问config目录
-                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                # 回退到Config_BatteryAnalysis.ini（兼容旧版本）
                 config_path = os.path.join(project_root, "config", "Config_BatteryAnalysis.ini")
                 if os.path.exists(config_path):
                     self.config.read(config_path, encoding='utf-8')
                     config_loaded = True
+                    print("成功读取Config_BatteryAnalysis.ini配置")
                 else:
-                    print("未找到Config_BatteryAnalysis.ini，使用默认配置")
+                    print("未找到配置文件，使用默认配置")
         except Exception as e:
             print(f"配置读取失败: {e}，使用默认配置")
         
@@ -475,8 +470,4 @@ class FIGURE:
 
 
 if __name__ == '__main__':
-    if os.path.exists(f"{os.path.dirname(os.path.abspath(__file__))}/Main_ImageShow.py"):
-        bBuild = False
-    else:
-        bBuild = True
     FIGURE()

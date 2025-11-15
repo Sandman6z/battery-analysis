@@ -48,7 +48,7 @@ class Checker:
 class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
     sigSetVersion = QC.pyqtSignal()
 
-    def __init__(self, bBuild: bool) -> None:
+    def __init__(self) -> None:
         super().__init__()
         version.Version.__init__(self)
         self.thread = None
@@ -67,33 +67,20 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
-        # 将传入的bBuild赋值给实例变量
-        self.bBuild = bBuild
-        if self.bBuild:
-            self.path = os.path.dirname(sys.executable)
-            if not os.path.exists(self.path + "/setting.ini"):
-                self.bHasConfig = False
-            else:
-                self.bHasConfig = True
-            self.config = QC.QSettings(self.path + "/setting.ini", QC.QSettings.IniFormat)
-            self.current_directory = self.path
+        # 统一使用发布模式逻辑
+        # 获取项目根目录的config文件夹路径
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        # current_dir是src/battery_analysis/main/，需要向上3级到达项目根目录
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+        self.config_path = os.path.join(project_root, "config", "setting.ini")
+        
+        if not os.path.exists(self.config_path):
+            self.bHasConfig = False
         else:
-            self.path = os.path.dirname(os.path.abspath(__file__))
-            # 向上三级目录到项目根目录，再访问config目录
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            parent_dir = os.path.dirname(current_dir)
-            grandparent_dir = os.path.dirname(parent_dir)
-            great_grandparent_dir = os.path.dirname(grandparent_dir)
-            project_root = great_grandparent_dir
-            config_path = os.path.join(project_root, "config", "Config_BatteryAnalysis.ini")
-            if not os.path.exists(config_path):
-                self.bHasConfig = False
-            else:
-                self.bHasConfig = True
-            # 使用UTF-8编码明确初始化QSettings，确保正确读取INI文件
-            self.config = QC.QSettings(config_path, QC.QSettings.IniFormat)
-            self.config.setIniCodec('UTF-8')
-            self.current_directory = f"C:/Users/{os.getlogin()}/Desktop/"
+            self.bHasConfig = True
+        self.config = QC.QSettings(self.config_path, QC.QSettings.IniFormat)
+        self.current_directory = project_root
+        self.path = project_root  # 添加缺失的path属性，用于线程参数
 
         self.setupUi(self)
 
@@ -106,47 +93,22 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.listVoltageLevel = [float(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
 
     def get_config(self, strValue):
-        # DEBUG: 打印尝试读取的配置路径
-        print(f"DEBUG: 尝试读取配置路径: {strValue}")
-        
-        listValue = []
-        value = self.config.value(strValue)
-        
-        # DEBUG: 打印原始值及类型
-        print(f"DEBUG: 读取到的原始值: {value}, 类型: {type(value)}")
-        
-        # 特别处理TestInformation相关的配置路径
-        if "TestInformation" in strValue:
-            print(f"DEBUG: 正在读取TestInformation相关配置: {strValue}")
-            # 检查配置文件中是否存在该section
-            parts = strValue.split('/')
-            if len(parts) >= 1:
-                section = parts[0]
-                # 列出所有可用的sections
-                all_sections = self.config.childGroups()
-                print(f"DEBUG: 可用的sections: {all_sections}")
-                if section in all_sections:
-                    print(f"DEBUG: Section {section} 存在于配置文件中")
-                    # 列出该section下的所有keys
-                    self.config.beginGroup(section)
-                    all_keys = self.config.allKeys()
-                    self.config.endGroup()
-                    print(f"DEBUG: {section} 下的可用keys: {all_keys}")
-                else:
-                    print(f"DEBUG: Section {section} 不存在于配置文件中")
-        
-        if type(value) == list:
-            for v in range(len(value)):
-                if value[v] != "":
-                    listValue.append(value[v])
-        elif type(value) == str:
-            listValue = [value]
-        else:
-            pass
-        
-        # DEBUG: 打印处理后的返回值
-        print(f"DEBUG: 处理后的返回值: {listValue}")
-        return listValue                    
+        # 获取配置值并处理为列表格式，移除所有DEBUG打印以避免UI卡死
+        try:
+            value = self.config.value(strValue)
+            if type(value) == list:
+                listValue = []
+                for v in range(len(value)):
+                    if value[v] != "":
+                        listValue.append(value[v])
+            elif type(value) == str:
+                listValue = [value]
+            else:
+                listValue = []
+            return listValue
+        except Exception as e:
+            print(f"读取配置 {strValue} 失败: {e}")
+            return []                    
 
     def init_window(self) -> None:
         # 在窗口标题中显示应用程序名称和版本号
@@ -649,7 +611,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                         self.lineEdit_Version.text(),
                         self.lineEdit_RequiredUseableCapacity.text()
                     ]
-                    self.thread.get_info(self.path, self.lineEdit_InputPath.text(), self.lineEdit_OutputPath.text(), test_info, self.bBuild)
+                    self.thread.get_info(self.path, self.lineEdit_InputPath.text(), self.lineEdit_OutputPath.text(), test_info)
                     self.update_config(test_info)
                     if self.checkerUpdateConfig.bCheckPass:
                         self.strMd5ChecksumRun = self.strMd5Checksum
@@ -928,12 +890,11 @@ class Thread(QC.QThread):
         self.strErrorXlsx = ""
         self.strTestDate = ""
 
-    def get_info(self, strPath, strInputPath, strOutputPath, listTestInfo, bBuild) -> None:
+    def get_info(self, strPath, strInputPath, strOutputPath, listTestInfo) -> None:
         self.strPath = strPath
         self.strInputPath = strInputPath
         self.strOutputPath = strOutputPath
         self.listTestInfo = listTestInfo
-        self.bBuild = bBuild
 
     def run(self) -> None:
         self.bThreadRun = True
@@ -964,38 +925,34 @@ class Thread(QC.QThread):
                 print(self.strErrorXlsx)
                 # shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
             else:
-                    if self.bBuild:
-                        # 获取构建类型和版本信息
-                        # 优先使用可执行文件所在目录，而不是输出目录
-                        import sys
-                        exe_dir = os.path.dirname(sys.executable)
-                        build_type = "Debug" if "Debug" in exe_dir else "Release"
-                        version = "1.0.0"
-                        
-                        # 尝试在可执行文件所在目录查找ImageMaker
-                        exe_path = os.path.join(exe_dir, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe")
-                        
-                        if os.path.exists(exe_path):
-                            subprocess.run(exe_path, shell=True)
-                        else:
-                            print(f"可执行文件不存在: {exe_path}")
-                            # 如果找不到带版本的文件，尝试不带版本的名称
-                            fallback_path = os.path.join(exe_dir, "battery-analysis-visualizer.exe")
-                            if os.path.exists(fallback_path):
-                                subprocess.run(fallback_path, shell=True)
-                            else:
-                                print(f"可执行文件不存在: {fallback_path}")
-                                # 最后尝试在当前strPath中查找（保持原有逻辑作为备份）
-                                exe_path_backup = os.path.join(self.strPath, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe")
-                                if os.path.exists(exe_path_backup):
-                                    subprocess.run(exe_path_backup, shell=True)
-                                else:
-                                    fallback_path_backup = os.path.join(self.strPath, "battery-analysis-visualizer.exe")
-                                    if os.path.exists(fallback_path_backup):
-                                        subprocess.run(fallback_path_backup, shell=True)
+                # 获取构建类型和版本信息
+                # 优先使用可执行文件所在目录，而不是输出目录
+                import sys
+                exe_dir = os.path.dirname(sys.executable)
+                build_type = "Debug" if "Debug" in exe_dir else "Release"
+                version = "1.0.0"
+                
+                # 尝试在可执行文件所在目录查找ImageMaker
+                exe_path = os.path.join(exe_dir, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe")
+                
+                if os.path.exists(exe_path):
+                    subprocess.run(exe_path, shell=True)
+                else:
+                    print(f"可执行文件不存在: {exe_path}")
+                    # 如果找不到带版本的文件，尝试不带版本的名称
+                    fallback_path = os.path.join(exe_dir, "battery-analysis-visualizer.exe")
+                    if os.path.exists(fallback_path):
+                        subprocess.run(fallback_path, shell=True)
                     else:
-                        # 使用python -m方式调用，确保模块路径正确
-                        os.system("python -m src.battery_analysis.main.image_show")
+                        print(f"可执行文件不存在: {fallback_path}")
+                        # 最后尝试在当前strPath中查找（保持原有逻辑作为备份）
+                        exe_path_backup = os.path.join(self.strPath, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe")
+                        if os.path.exists(exe_path_backup):
+                            subprocess.run(exe_path_backup, shell=True)
+                        else:
+                            fallback_path_backup = os.path.join(self.strPath, "battery-analysis-visualizer.exe")
+                            if os.path.exists(fallback_path_backup):
+                                subprocess.run(fallback_path_backup, shell=True)
         else:
             print(self.strErrorBattery)
             # shutil.rmtree(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
@@ -1022,12 +979,8 @@ class Thread(QC.QThread):
 
 
 def main() -> None:
-    if os.path.exists(f"{os.path.dirname(os.path.abspath(__file__))}/main_window.py"):
-        bBuild = False
-    else:
-        bBuild = True
     app = QW.QApplication(sys.argv)
-    main = Main(bBuild)
+    main = Main()
     # 移除固定窗口大小，允许自由调整
     main.setMinimumSize(970, 885)  # 设置最小尺寸以确保UI元素正常显示
     main.show()
