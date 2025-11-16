@@ -1,6 +1,14 @@
 import os
-import tomllib
 import sys
+
+# 兼容性导入：优先使用标准库 tomllib，若不可用则回退到第三方 tomli
+try:
+    import tomllib  # Python 3.11+
+except Exception:
+    try:
+        import tomli as tomllib  # 作为备选
+    except Exception:
+        tomllib = None
 
 class Version(object):
     def __init__(self):
@@ -33,6 +41,8 @@ class Version(object):
                     raise FileNotFoundError(f"pyproject.toml not found at: {pyproject_path}")
                 
                 # 读取pyproject.toml
+                if tomllib is None:
+                    raise ImportError("tomllib/tomli not available for reading TOML")
                 with open(pyproject_path, "rb") as f:
                     pyproject_data = tomllib.load(f)
                 

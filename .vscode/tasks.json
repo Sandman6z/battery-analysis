@@ -35,25 +35,9 @@
             "problemMatcher": []
         },
         {
-            "label": "(venv)build debug version-BatteryAnalysis",
-            "type": "shell",
-            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug 1 0",
-            "problemMatcher": [
-                "$python"
-            ]
-        },
-        {
-            "label": "(venv)build debug version-ImageShow",
-            "type": "shell",
-            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug 0 1",
-            "problemMatcher": [
-                "$python"
-            ]
-        },
-        {
             "label": "(venv)build debug version",
             "type": "shell",
-            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug 1 1",
+            "command": "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug",
             "problemMatcher": [
                 "$python"
             ]

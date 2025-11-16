@@ -93,9 +93,6 @@ I think must install pyinstaller under project env:
 1. 第五页有空白页
 
 ## 运行方式
-
-> 已移除顶层 `main.py`，请使用以下统一入口运行或打包。
-
 ### 开发运行（推荐）
 - 使用虚拟环境：
   - ` .\.venv\Scripts\activate `
@@ -108,9 +105,7 @@ I think must install pyinstaller under project env:
 
 ### 构建与打包
 - Debug 构建：
-  - 仅构建 Analyzer：` python -m scripts.build Debug 1 0 `
-  - 仅构建 Visualizer：` python -m scripts.build Debug 0 1 `
-  - 同时构建二者：` python -m scripts.build Debug 1 1 `
+  - ` python -m scripts.build Debug `
 - Release 构建：
   - ` python -m scripts.build Release `
 
