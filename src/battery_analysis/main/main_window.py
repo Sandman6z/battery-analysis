@@ -942,32 +942,34 @@ class Thread(QC.QThread):
                 print(self.strErrorXlsx)
                 # shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
             else:
-                # 优化ImageMaker启动逻辑
-                try:
-                    from ..utils.version import Version
-                    version_info = Version()
-                    version = version_info.version
-                except:
-                    version = "1.0.0"
-                
-                # 获取构建类型和版本信息
+                # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                 import sys
+                import re
                 exe_dir = os.path.dirname(sys.executable)
                 build_type = "Debug" if "Debug" in exe_dir else "Release"
-                
-                # 按优先级尝试查找可执行文件
+
+                # 从当前运行的 analyzer 可执行文件名中解析版本（形如 battery-analyzer_1_0_1.exe）
+                analyzer_exe_name = os.path.basename(sys.executable)
+                m = re.search(r"battery-analyzer_(\d+_\d+_\d+)\.exe", analyzer_exe_name, re.IGNORECASE)
+                version_us = None
+                if m:
+                    version_us = m.group(1)
+                else:
+                    # 回退：从项目版本读取，并转换为下划线格式
+                    try:
+                        from ..utils.version import Version
+                        version_us = Version().version.replace('.', '_')
+                    except Exception:
+                        version_us = "1_0_1"  # 与项目默认版本保持一致
+
+                # 仅使用与 analyzer 同版本的候选路径
                 exe_candidates = [
-                    # 1. 优先使用带版本号的可执行文件（可执行文件所在目录）
-                    os.path.join(exe_dir, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe"),
-                    # 2. 不带版本号的可执行文件（可执行文件所在目录）
-                    os.path.join(exe_dir, "battery-analysis-visualizer.exe"),
-                    # 3. 带版本号的可执行文件（项目目录）
-                    os.path.join(self.strPath, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe"),
-                    # 4. 不带版本号的可执行文件（项目目录）
-                    os.path.join(self.strPath, "battery-analysis-visualizer.exe"),
-                    # 5. 构建目录中的文件
-                    os.path.join(self.strPath, "build", build_type, f"battery-analysis-visualizer_{version.replace('.', '_')}.exe"),
-                    os.path.join(self.strPath, "build", build_type, "battery-analysis-visualizer.exe"),
+                    # 可执行文件所在目录（打包/本地运行）
+                    os.path.join(exe_dir, f"battery-analysis-visualizer_{version_us}.exe"),
+                    # 项目根目录（少数场景可能存在）
+                    os.path.join(self.strPath, f"battery-analysis-visualizer_{version_us}.exe"),
+                    # 项目构建目录（Debug/Release）
+                    os.path.join(self.strPath, "build", build_type, f"battery-analysis-visualizer_{version_us}.exe"),
                 ]
                 
                 exe_executed = False

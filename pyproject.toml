@@ -29,7 +29,7 @@ dependencies = [
     "python-docx>=1.2.0",
     "pywin32>=311",
     "xlrd==1.2.0",
-    "xlsxwriter~=3.0.8"
+    "xlsxwriter~=3.0.8",
 ]  # 保留pyproject.toml中的依赖
 
 [project.urls]
