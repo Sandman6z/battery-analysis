@@ -91,3 +91,38 @@ I think must install pyinstaller under project env:
 
 ## bug list
 1. 第五页有空白页
+
+## 运行方式
+
+> 已移除顶层 `main.py`，请使用以下统一入口运行或打包。
+
+### 开发运行（推荐）
+- 使用虚拟环境：
+  - ` .\.venv\Scripts\activate `
+  - ` python -m battery_analysis.main.main_window `
+- 使用 uv：
+  - ` uv run python -m battery_analysis.main.main_window `
+
+### 安装后脚本入口
+- ` uv run battery-analysis `
+
+### 构建与打包
+- Debug 构建：
+  - 仅构建 Analyzer：` python -m scripts.build Debug 1 0 `
+  - 仅构建 Visualizer：` python -m scripts.build Debug 0 1 `
+  - 同时构建二者：` python -m scripts.build Debug 1 1 `
+- Release 构建：
+  - ` python -m scripts.build Release `
+
+### 打包后运行
+- Debug：
+  - ` .\build\Debug\battery-analyzer_1_0_1.exe `
+  - ` .\build\Debug\battery-analysis-visualizer_1_0_1.exe `
+- Release：
+  - ` .\build\Release\battery-analyzer_1_0_1.exe `
+  - ` .\build\Release\battery-analysis-visualizer_1_0_1.exe `
+
+### 注意事项
+- 始终在已激活的虚拟环境中运行或打包。
+- 模块入口与打包后的 exe 在资源定位上保持一致（基于 `sys.executable`）。
+- 已移除临时测试脚本：`test_config_read.py`、`test_exe.py`、`test_exe_start.py`、`test_ui_events.py`，如需本地检查请直接使用上述“开发运行”命令并验证界面与配置读取是否正常。
