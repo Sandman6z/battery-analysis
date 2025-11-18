@@ -71,28 +71,35 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
         # 改进的配置文件路径查找逻辑
-        # 首先尝试从当前工作目录查找（开发环境）
-        current_dir = os.getcwd() if not getattr(sys, 'frozen', False) else os.path.dirname(sys.executable)
-        self.config_path = os.path.join(current_dir, "config", "setting.ini")
+        # 首先确定基础目录
+        if getattr(sys, 'frozen', False):
+            # 在exe环境中，使用exe所在目录
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            # 在开发环境中，使用脚本目录推导项目根目录
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
         
-        project_root = current_dir  # 默认使用当前目录作为项目根目录
+        # 定义可能的配置文件路径列表
+        possible_config_paths = [
+            # 1. 首先检查当前工作目录下的config文件夹
+            os.path.join(os.getcwd(), "config", "setting.ini"),
+            # 2. 检查基础目录下的config文件夹
+            os.path.join(base_dir, "config", "setting.ini"),
+            # 3. 检查当前工作目录下的setting.ini
+            os.path.join(os.getcwd(), "setting.ini"),
+            # 4. 检查基础目录下的setting.ini
+            os.path.join(base_dir, "setting.ini")
+        ]
         
-        # 如果在开发环境中且找不到配置文件，尝试从脚本目录推导
-        if not os.path.exists(self.config_path) and not getattr(sys, 'frozen', False):
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            # current_dir是src/battery_analysis/main/，需要向上3级到达项目根目录
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-            self.config_path = os.path.join(project_root, "config", "setting.ini")
+        # 遍历所有可能的路径，找到第一个存在的配置文件
+        self.config_path = None
+        for path in possible_config_paths:
+            if os.path.exists(path):
+                self.config_path = path
+                break
         
-        # 如果仍然找不到，在exe环境中查找exe目录下的配置文件
-        if not os.path.exists(self.config_path) and getattr(sys, 'frozen', False):
-            exe_dir = os.path.dirname(sys.executable)
-            project_root = exe_dir  # 在exe环境中，使用exe目录作为项目根目录
-            # 首先尝试exe目录下的config/setting.ini
-            self.config_path = os.path.join(exe_dir, "config", "setting.ini")
-            # 如果config目录不存在，尝试直接查找exe目录下的setting.ini
-            if not os.path.exists(self.config_path):
-                self.config_path = os.path.join(exe_dir, "setting.ini")
+        project_root = base_dir
         
         if not os.path.exists(self.config_path):
             self.bHasConfig = False

@@ -455,8 +455,8 @@ VSVersionInfo(
                 f'--add-data={src_path};.',
                 # 添加battery_analysis包目录
                 f'--add-data={os.path.join(src_path, "battery_analysis")};battery_analysis',
-                # 添加配置文件
-                f'--add-data={os.path.join(self.project_root, "config")};config',
+                # 添加配置文件 - 使用绝对路径并确保正确的目标目录结构
+                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config"))};config',
                 f'--add-data={os.path.join(self.project_root, "pyproject.toml")};.',
                 # 添加必要的hidden-import，确保模块能被找到
                 '--hidden-import=matplotlib.backends.backend_svg',
