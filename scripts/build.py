@@ -299,30 +299,32 @@ VSVersionInfo(
             shutil.rmtree(self.build_path)
         os.mkdir(self.build_path)
         
-        # 创建Build_BatteryAnalysis目录
+        # 为BatteryAnalysis创建构建目录
         os.mkdir(f"{self.build_path}/Build_BatteryAnalysis")
         
-        # 复制整个battery_analysis包到构建目录
-        # 首先复制主窗口文件到根目录（作为入口点）
+        # 复制主入口文件到根目录
         shutil.copy(f"{self.project_root}/src/battery_analysis/main/main_window.py", f"{self.build_path}/Build_BatteryAnalysis")
+        shutil.copy(f"{self.project_root}/src/battery_analysis/resources_rc.py", f"{self.build_path}/Build_BatteryAnalysis")
+        shutil.copy(f"{self.project_root}/config/resources/icons/Icon_BatteryTestGUI.ico", f"{self.build_path}/Build_BatteryAnalysis/Icon_BatteryAnalysis.ico")
         
-        # 然后复制整个battery_analysis包结构
+        # 创建完整的battery_analysis包结构
         battery_analysis_src = os.path.join(self.project_root, "src", "battery_analysis")
         battery_analysis_dest = os.path.join(self.build_path, "Build_BatteryAnalysis", "battery_analysis")
-        shutil.copytree(battery_analysis_src, battery_analysis_dest)
         
-        # 复制图标
-        shutil.copy(f"{self.project_root}/config/resources/icons/Icon_BatteryTestGUI.ico", f"{self.build_path}/Build_BatteryAnalysis/Icon_BatteryAnalysis.ico")
+        # 使用copytree确保复制完整的包结构，包括__init__.py文件
+        shutil.copytree(battery_analysis_src, battery_analysis_dest)
 
-        # 创建Build_ImageShow目录
+        # 为ImageShow创建构建目录
         os.mkdir(f"{self.build_path}/Build_ImageShow")
-        # 复制image_show.py和resources_rc.py
+        
+        # 复制ImageShow的主文件和资源
         shutil.copy(f"{self.project_root}/src/battery_analysis/main/image_show.py", f"{self.build_path}/Build_ImageShow")
         shutil.copy(f"{self.project_root}/src/battery_analysis/resources_rc.py", f"{self.build_path}/Build_ImageShow")
-        # 复制图标
         shutil.copy(f"{self.project_root}/config/resources/icons/Icon_BatteryTestGUI.ico", f"{self.build_path}/Build_ImageShow/Icon_ImageShow.ico")
-        # 复制battery_analysis包到ImageShow目录
-        shutil.copytree(battery_analysis_src, os.path.join(self.build_path, "Build_ImageShow", "battery_analysis"))
+        
+        # 为ImageShow也创建完整的battery_analysis包结构
+        battery_analysis_dest_img = os.path.join(self.build_path, "Build_ImageShow", "battery_analysis")
+        shutil.copytree(battery_analysis_src, battery_analysis_dest_img)
 
     def build(self):
         """构建应用程序"""
@@ -449,21 +451,34 @@ VSVersionInfo(
                 *(['--strip'] if not debug_mode else []),
                 *(['--noconsole'] if not (self.console_mode or debug_mode) else ['--console']),
                 f'--version-file=version.txt',
-                # 因为我们已经在copy2dir中复制了完整的battery_analysis包结构
-                # 所以这里只需要添加配置文件和必要的数据文件
+                # 确保src目录被正确添加
+                f'--add-data={src_path};.',
+                # 添加battery_analysis包目录
+                f'--add-data={os.path.join(src_path, "battery_analysis")};battery_analysis',
+                # 添加配置文件
                 f'--add-data={os.path.join(self.project_root, "config")};config',
                 f'--add-data={os.path.join(self.project_root, "pyproject.toml")};.',
-                # 使用--collect-all确保收集battery_analysis包的所有子模块
-                '--collect-all=battery_analysis',
-                # 其他必要的hidden-import和收集
+                # 添加必要的hidden-import，确保模块能被找到
                 '--hidden-import=matplotlib.backends.backend_svg',
                 '--hidden-import=docx',
-                '--collect-all=openpyxl',
+                '--hidden-import=openpyxl',
+                '--hidden-import=battery_analysis',
+                '--hidden-import=battery_analysis.main',
+                '--hidden-import=battery_analysis.ui',
+                '--hidden-import=battery_analysis.utils',
+                '--hidden-import=battery_analysis.utils.version',
+                '--hidden-import=battery_analysis.utils.file_writer',
+                '--hidden-import=battery_analysis.utils.battery_analysis',
+                '--hidden-import=battery_analysis.ui.ui_main_window',
                 '--hidden-import=tomli',
+                '--hidden-import=xlsxwriter',
                 '--collect-all=xlsxwriter',
+                '--collect-all=openpyxl',
+                '--hidden-import=xlrd',
                 '--collect-all=xlrd',
-                # 设置Python路径，确保能找到battery_analysis包
-                '--path', '.',
+                # 增加导入路径，确保能找到battery_analysis模块
+                '--path', f'{src_path}',
+                '--path', f'{self.project_root}',
             ]
             
             print(f"执行命令: {' '.join(cmd_args)}")
