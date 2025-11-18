@@ -96,9 +96,9 @@ I think must install pyinstaller under project env:
 ### 开发运行（推荐）
 - 使用虚拟环境：
   - ` .\.venv\Scripts\activate `
-  - ` python -m battery_analysis.main.main_window `
+  - ` python -m src.battery_analysis.main.main_window `
 - 使用 uv：
-  - ` uv run python -m battery_analysis.main.main_window `
+  - ` uv run python -m src.battery_analysis.main.main_window `
 
 ### 安装后脚本入口
 - ` uv run battery-analysis `
