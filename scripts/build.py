@@ -230,9 +230,7 @@ VSVersionInfo(
 
     def setup_version(self):
         """设置版本信息"""
-        if self.build_type != "Debug":  # Release模式
-            self.update_version_and_commit()
-        # Debug模式下，版本号直接从pyproject.toml读取，不再生成Utility_Version.py
+        # 无论是Debug还是Release模式，版本号都直接从pyproject.toml读取，不进行版本更新操作
 
     def _write_file(self, content, file_path):
         """写入文件的辅助方法"""

@@ -39,7 +39,7 @@ jobs:
     
     - name: Run build script
       run: |
-        uv run python scripts/build.py Debug
+        uv run python scripts/build.py Release
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -61,13 +61,13 @@ jobs:
         name: v1.0.1-beta.${{ steps.vars.outputs.short_sha }}
         tag_name: v1.0.1-beta.${{ steps.vars.outputs.short_sha }}
         body: |
-          自动构建版本 - Debug模式
+          自动构建版本 - Release模式
           构建编号: ${{ github.run_number }}
           提交SHA: ${{ github.sha }}
         draft: false
         prerelease: true
         files: |
-          build/Debug/*.exe
-          build/Debug/*.ini
+          build/Release/*.exe
+          build/Release/*.ini
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
