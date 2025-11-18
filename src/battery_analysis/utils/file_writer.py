@@ -34,21 +34,47 @@ class XlsxWordWriter:
         # get config
         self.config = configparser.ConfigParser()
         
-        # 统一使用发布模式逻辑，从项目根目录的config文件夹读取配置
-        # 获取当前文件的目录
-        current_file_dir = os.path.dirname(os.path.abspath(__file__))
-        # 向上三级目录到项目根目录的config目录
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file_dir)))
-        config_path = os.path.join(project_root, "config", "setting.ini")
+        # 改进配置文件路径查找逻辑，支持开发环境和exe环境
+        config_path = None
+        
+        # 确定基础目录（区分exe环境和开发环境）
+        if getattr(sys, 'frozen', False):  # exe环境
+            base_dir = os.path.dirname(sys.executable)
+        else:  # 开发环境
+            current_file_dir = os.path.dirname(os.path.abspath(__file__))
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file_dir)))
+        
+        # 定义可能的配置文件路径列表
+        possible_config_paths = [
+            # 1. 当前工作目录下的config目录
+            os.path.join(os.getcwd(), "config", "setting.ini"),
+            # 2. 基础目录下的config目录
+            os.path.join(base_dir, "config", "setting.ini"),
+            # 3. 当前工作目录下直接查找
+            os.path.join(os.getcwd(), "setting.ini"),
+            # 4. 基础目录下直接查找
+            os.path.join(base_dir, "setting.ini")
+        ]
+        
+        # 遍历查找第一个存在的配置文件
+        for path in possible_config_paths:
+            if os.path.exists(path):
+                config_path = path
+                print(f"找到配置文件: {config_path}")
+                break
         
         # 尝试读取配置文件
-        if os.path.exists(config_path):
+        if config_path and os.path.exists(config_path):
             self.config.read(config_path, encoding='utf-8')
         else:
-            print(f"警告: 找不到配置文件 {config_path}")
+            print("警告: 找不到配置文件，尝试了以下路径:")
+            for path in possible_config_paths:
+                print(f"  - {path}")
             # 创建默认的PltConfig部分
             self.config.add_section("PltConfig")
             self.config.set("PltConfig", "Title", "\"默认标题\"")
+            # 创建默认的TestInformation部分
+            self.config.add_section("TestInformation")
         
         # 安全获取PltConfig/Title，添加默认值处理
         try:
