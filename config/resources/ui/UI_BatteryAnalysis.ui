@@ -244,7 +244,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_AcceleratedAging">
+          <widget class="QSpinBox" name="spinBox_AcceleratedAging">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -261,19 +261,19 @@
             <enum>Qt::ClickFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-           </property>
-           <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText</set>
+            <string notr="true"/>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -605,7 +605,7 @@ QComboBox::down-arrow:on {
         <x>0</x>
         <y>0</y>
         <width>361</width>
-        <height>171</height>
+        <height>181</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">

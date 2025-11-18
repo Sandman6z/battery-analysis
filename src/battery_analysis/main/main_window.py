@@ -9,17 +9,20 @@ import hashlib
 import threading
 import subprocess
 
+# 添加项目根目录到Python路径
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+
 import PyQt5.QtGui as QG
 import PyQt5.QtCore as QC
 import PyQt5.QtWidgets as QW
 
 import win32api, win32con
 
-from src.battery_analysis.ui import ui_main_window
+from battery_analysis.ui import ui_main_window
 
-from src.battery_analysis.utils import version
-from src.battery_analysis.utils import file_writer
-from src.battery_analysis.utils import battery_analysis
+from battery_analysis.utils import version
+from battery_analysis.utils import file_writer
+from battery_analysis.utils import battery_analysis
 
 
 def calc_md5checksum(file_paths):
@@ -151,7 +154,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
 
     def init_lineedit(self) -> None:
         # input limit, only numbers allowed
-        reg = QC.QRegExp("^\d*$")
+        reg = QC.QRegExp(r"^\d*$")
         validator = QG.QRegExpValidator(self)
         validator.setRegExp(reg)
         # self.lineEdit_BatchDateCode.setValidator(validator)
@@ -160,9 +163,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.lineEdit_DatasheetNominalCapacity.setValidator(validator)
         self.lineEdit_CalculationNominalCapacity.setValidator(validator)
         self.lineEdit_RequiredUseableCapacity.setValidator(validator)
-        self.lineEdit_AcceleratedAging.setValidator(validator)
+        # QSpinBox不需要设置文本验证器，因为它有内置的范围限制
 
-        reg = QC.QRegExp("^\d+(\.\d+)?$")
+        reg = QC.QRegExp(r"^\d+(\.\d+)?$")
         validator = QG.QRegExpValidator(self)
         validator.setRegExp(reg)
         self.lineEdit_Version.setValidator(validator)
@@ -321,7 +324,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 if specification_method == listRule[1]:
                     self.lineEdit_DatasheetNominalCapacity.setText(f"{listRule[2]}")
                     self.lineEdit_CalculationNominalCapacity.setText(f"{listRule[3]}")
-                    listRequiredUseableCapacityPercentage = re.findall("(\d+)%", listRule[4])
+                    listRequiredUseableCapacityPercentage = re.findall(r"(\d+)%", listRule[4])
                     if listRequiredUseableCapacityPercentage != [] and len(listRequiredUseableCapacityPercentage) == 1:
                         self.lineEdit_RequiredUseableCapacity.setText(f"{int(int(listRule[3])*int(listRequiredUseableCapacityPercentage[0])/100)}")
                     else:
@@ -335,7 +338,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 if specification_method == listRule[1]:
                     self.lineEdit_DatasheetNominalCapacity.setText(f"{listRule[2]}")
                     self.lineEdit_CalculationNominalCapacity.setText(f"{listRule[3]}")
-                    listRequiredUseableCapacityPercentage = re.findall("(\d+)%", listRule[4])
+                    listRequiredUseableCapacityPercentage = re.findall(r"(\d+)%", listRule[4])
                     if listRequiredUseableCapacityPercentage != [] and len(listRequiredUseableCapacityPercentage) == 1:
                         self.lineEdit_RequiredUseableCapacity.setText(f"{int(int(listRule[3])*int(listRequiredUseableCapacityPercentage[0])/100)}")
                     else:
@@ -458,7 +461,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 listBatchDateCode = re.findall("DC(.*?),", strSampleInputXlsxTitle)
                 if len(listBatchDateCode) == 1:
                     self.lineEdit_BatchDateCode.setText(listBatchDateCode[0].strip())
-                listPulseCurrentToSplit = re.findall("\(([\d.]+[-\d.]+)mA", strSampleInputXlsxTitle)
+                listPulseCurrentToSplit = re.findall(r"\(([\d.]+[-\d.]+)mA", strSampleInputXlsxTitle)
                 if len(listPulseCurrentToSplit) == 1:
                     listPulseCurrent = listPulseCurrentToSplit[0].split("-")
                     try:
@@ -472,10 +475,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                     # self.config.setValue("BatteryConfig/PulseCurrent", listPulseCurrent)
 
                 self.strCCCurrent = ""
-                listCCCurrentToSplit = re.findall("mA,(.*?)\)", strSampleInputXlsxTitle)
+                listCCCurrentToSplit = re.findall(r"mA,(.*?)\)", strSampleInputXlsxTitle)
                 if len(listCCCurrentToSplit) == 1:
                     strCCCurrentToSplit = listCCCurrentToSplit[0].replace("mAh", "")
-                    listCCCurrentToSplit = re.findall("([\d.]+)mA", strCCCurrentToSplit)
+                    listCCCurrentToSplit = re.findall(r"([\d.]+)mA", strCCCurrentToSplit)
                     if len(listCCCurrentToSplit) >= 1:
                         self.strCCCurrent = listCCCurrentToSplit[-1]
                 self.lineEdit_SamplesQty.setText(str(len(listAllInXlsx)))
@@ -619,7 +622,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                         self.lineEdit_Temperature.text(),
                         self.lineEdit_DatasheetNominalCapacity.text(),
                         self.lineEdit_CalculationNominalCapacity.text(),
-                        self.lineEdit_AcceleratedAging.text(),
+                        str(self.spinBox_AcceleratedAging.value()),
                         self.comboBox_TesterLocation.currentText(),
                         self.comboBox_TestedBy.currentText(),
                         self.lineEdit_TestProfile.text(),
@@ -740,7 +743,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             check_pass_flag = False
             warning_info.append("Calculation Nominal Capacity")
             self.label_CalculationNominalCapacity.setStyleSheet("background-color:red")
-        if self.lineEdit_AcceleratedAging.text() == "":
+        # QSpinBox总是有一个值（0-10），所以不需要检查是否为空
+        # 但我们仍然可以检查值是否在有效范围内（虽然控件已经限制了）
+        aging_value = self.spinBox_AcceleratedAging.value()
+        if aging_value < 0 or aging_value > 10:
             check_pass_flag = False
             warning_info.append("Accelerated Aging")
             self.label_AcceleratedAging.setStyleSheet("background-color:red")

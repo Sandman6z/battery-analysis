@@ -951,7 +951,13 @@ class XlsxWordWriter:
         if len(listStrContent[4].split("\\")) == 1:
             wsExcel.write(2, intTestProfileStartLine, listStrContent[4], wsExcelData)
         else:
-            wsExcel.write_url(2, intTestProfileStartLine, listStrContent[4], wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
+            # 将相对路径转换为file:// URL格式
+            url_path = listStrContent[4]
+            # 确保路径使用正斜杠
+            url_path = url_path.replace('\\', '/')
+            # 添加file://前缀
+            file_url = f'file:///{url_path}'
+            wsExcel.write_url(2, intTestProfileStartLine, file_url, wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
         wsExcel.write(2, intTestProfileStartLine + 1, listStrContent[5], wsExcelData)
         wsExcel.write(2, intTestProfileStartLine + 2, listStrContent[6], wsExcelData)
         wsExcel.write(2, intTestProfileStartLine + 3, listStrContent[7], wsExcelData)
@@ -977,7 +983,13 @@ class XlsxWordWriter:
         wsExcel.write(2, intTestDateStartCol + 1, listStrContent[15], wsExcelData)
         wsExcel.write(2, intTestDateStartCol + 2, listStrContent[16], wsExcelData)
         wsExcel.write(2, intTestDateStartCol + 3, listStrContent[17], wsExcelData_bgyellow)
-        wsExcel.write_url(2, intTestDateStartCol + 4, listStrContent[18], wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
+        # 将相对路径转换为file:// URL格式
+        url_path = listStrContent[18]
+        # 确保路径使用正斜杠
+        url_path = url_path.replace('\\', '/')
+        # 添加file://前缀
+        file_url = f'file:///{url_path}'
+        wsExcel.write_url(2, intTestDateStartCol + 4, file_url, wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
         wsExcel.write(2, intTestDateStartCol + 5, listStrContent[19], wsExcelData)
 
         WsSetCol(wsWord, 0, 1, 30)
@@ -1012,7 +1024,13 @@ class XlsxWordWriter:
         if len(listStrContent[4].split("\\")) == 1:
             wsWord.write(intTestProfileStartLine, 1, listStrContent[4], wsWordData)
         else:
-            wsWord.write_url(intTestProfileStartLine, 1, listStrContent[4], wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
+            # 将相对路径转换为file:// URL格式
+            url_path = listStrContent[4]
+            # 确保路径使用正斜杠
+            url_path = url_path.replace('\\', '/')
+            # 添加file://前缀
+            file_url = f'file:///{url_path}'
+            wsWord.write_url(intTestProfileStartLine, 1, file_url, wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
         wsWord.merge_range(intTestProfileStartLine + 1, 1, intTestProfileStartLine + 1, intActualMeasuredCapacityLength, listStrContent[5], wsWordData)
         wsWord.merge_range(intTestProfileStartLine + 2, 1, intTestProfileStartLine + 2, intActualMeasuredCapacityLength, listStrContent[6], wsWordData)
         wsWord.merge_range(intTestProfileStartLine + 3, 1, intTestProfileStartLine + 3, intActualMeasuredCapacityLength, listStrContent[7], wsWordData)
@@ -1042,7 +1060,13 @@ class XlsxWordWriter:
         wsWord.merge_range(intTestDateStartRow + 2, 1, intTestDateStartRow + 2, intActualMeasuredCapacityLength, listStrContent[16], wsWordData)
         wsWord.merge_range(intTestDateStartRow + 3, 1, intTestDateStartRow + 3, intActualMeasuredCapacityLength, listStrContent[17], wsWordData_bgyellow)
         wsWord.merge_range(intTestDateStartRow + 4, 1, intTestDateStartRow + 4, intActualMeasuredCapacityLength, "", wsWordData)
-        wsWord.write_url(intTestDateStartRow + 4, 1, strRelResultPath, wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
+        # 将相对路径转换为file:// URL格式
+        url_path = strRelResultPath
+        # 确保路径使用正斜杠
+        url_path = url_path.replace('\\', '/')
+        # 添加file://前缀
+        file_url = f'file:///{url_path}'
+        wsWord.write_url(intTestDateStartRow + 4, 1, file_url, wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
         wsWord.merge_range(intTestDateStartRow + 5, 1, intTestDateStartRow + 5, intActualMeasuredCapacityLength, listStrContent[19], wsWordData)
 
         # wdResult write table Overview
