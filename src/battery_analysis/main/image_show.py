@@ -345,14 +345,24 @@ class FIGURE:
         4. 解析电池名称
         5. 过滤数据
         
-        如果CSV文件不存在或读取失败，会记录错误并返回，不会生成模拟数据。
+        重要说明：此方法仅使用CSV文件中的真实数据，不会生成或使用任何模拟数据。
+        如果CSV文件不存在或读取失败，会记录错误并返回，不会自动生成替代数据。
         异常处理：捕获读取和处理过程中可能出现的所有异常，并记录详细日志。
         """
         try:
+            logging.info(f"开始读取CSV文件: {self.strInfoImageCsvPath}")
+            
             # 检查文件是否存在
             csv_path = Path(self.strInfoImageCsvPath)
             if not csv_path.exists():
-                logging.error(f"找不到CSV文件 {self.strInfoImageCsvPath}")
+                logging.error(f"错误: 找不到CSV文件 {self.strInfoImageCsvPath}")
+                self.intBatteryNum = 0
+                return
+            
+            # 检查文件大小
+            file_size = csv_path.stat().st_size
+            if file_size == 0:
+                logging.error(f"错误: CSV文件 {self.strInfoImageCsvPath} 为空")
                 self.intBatteryNum = 0
                 return
             
@@ -362,13 +372,24 @@ class FIGURE:
             # 使用上下文管理器安全读取文件
             with open(csv_path, mode='r', encoding='utf-8') as f:
                 csvreader = csv.reader(f)
+                # 读取所有行以验证数据量
+                all_rows = list(csvreader)
+                if len(all_rows) < 5:  # 至少需要几行数据才可能包含有效电池信息
+                    logging.error(f"错误: CSV文件 {self.strInfoImageCsvPath} 数据行数不足")
+                    self.intBatteryNum = 0
+                    return
+                
+                # 重置读取器以处理数据
+                f.seek(0)
+                csvreader = csv.reader(f)
                 self._process_csv_data(csvreader)
             
             self.intBatteryNum = len(self.listBatteryName)
             
             # 检查是否读取到有效数据
             if self.intBatteryNum == 0:
-                logging.error("CSV文件中没有电池信息")
+                logging.error("错误: CSV文件中没有找到有效的电池信息")
+                logging.warning("请确认CSV文件格式正确，包含电池测试数据")
                 return
             
             # 解析电池名称
@@ -377,9 +398,28 @@ class FIGURE:
             # 过滤数据
             self._filter_all_data()
             
-            logging.info(f"成功读取并处理CSV数据，包含{self.intBatteryNum}个电池")
+            # 验证过滤后的数据
+            data_valid = False
+            for c in range(self.intCurrentLevelNum):
+                if c < len(self.listPlt) and self.listPlt[c][2]:  # 检查过滤后的数据
+                    data_valid = True
+                    break
+            
+            if not data_valid:
+                logging.error("错误: 过滤后没有有效的电池数据可供显示")
+                self.intBatteryNum = 0
+                return
+            
+            logging.info(f"成功读取并处理CSV数据，包含{self.intBatteryNum}个电池的真实测试数据")
+        except FileNotFoundError:
+            logging.error(f"错误: 文件未找到: {self.strInfoImageCsvPath}")
+            self.intBatteryNum = 0
+        except PermissionError:
+            logging.error(f"错误: 没有权限访问文件: {self.strInfoImageCsvPath}")
+            self.intBatteryNum = 0
         except Exception as e:
-            logging.error(f"读取CSV文件出错: {e}")
+            logging.error(f"错误: 读取CSV文件时发生异常: {str(e)}")
+            logging.error(f"错误类型: {type(e).__name__}")
             traceback.print_exc()
             self.intBatteryNum = 0
     
@@ -536,81 +576,153 @@ class FIGURE:
 
 
     def plt_figure(self):
-        """创建并显示电池数据图表，包含交互控件以切换数据显示"""
+        """创建并显示电池数据图表，包含交互控件以切换数据显示
+        
+        重要说明：此方法只使用CSV文件中的真实数据，不会生成或显示任何模拟数据。
+        如果没有有效的电池数据或绘图过程中出错，会显示详细的错误信息和故障排除建议。
+        """
         try:
-            # 检查数据有效性
+            logging.info("开始绘制图表，仅使用CSV文件中的真实数据")
+            
+            # 执行多层次的数据有效性检查
             if self.intBatteryNum <= 0:
-                logging.error("没有有效的电池数据，无法创建图表")
+                logging.error("严重错误: 没有有效的电池数据可供显示")
+                logging.warning("请注意: 此程序仅使用CSV文件中的真实数据，不会生成模拟数据")
+                self._show_error_plot()
+                return
+            
+            # 检查必要的数据结构是否有效
+            if not hasattr(self, 'listPlt') or not self.listPlt:
+                logging.error("严重错误: 电池数据结构未初始化或为空")
                 self._show_error_plot()
                 return
             
             # 初始化图表和轴
-            fig, ax, title_fontdict, axis_fontdict = self._initialize_figure()
-            
-            # 绘制电池数据曲线
-            lines_unfiltered, lines_filtered = self._plot_battery_curves(ax)
-            
-            # 检查是否成功绘制了曲线
-            if not lines_filtered and not lines_unfiltered:
-                logging.error("无法绘制任何电池数据曲线")
+            try:
+                fig, ax, title_fontdict, axis_fontdict = self._initialize_figure()
+                if fig is None or ax is None:
+                    raise ValueError("无法初始化图表或坐标轴")
+            except Exception as init_error:
+                logging.error(f"图表初始化失败: {str(init_error)}")
                 self._show_error_plot()
                 return
             
-            # 添加过滤切换按钮
-            check_filter = self._add_filter_button(fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict)
+            # 绘制电池数据曲线
+            try:
+                lines_unfiltered, lines_filtered = self._plot_battery_curves(ax)
+                valid_data_found = bool(lines_filtered) or bool(lines_unfiltered)
+                
+                if valid_data_found:
+                    logging.info(f"成功绘制了 {len(lines_filtered)} 条过滤曲线和 {len(lines_unfiltered)} 条原始曲线")
+            except Exception as plot_error:
+                logging.error(f"绘制电池曲线时出错: {str(plot_error)}")
+                lines_unfiltered, lines_filtered = [], []
+                valid_data_found = False
             
-            # 添加电池选择按钮
-            check_line1, check_line2 = self._add_battery_selection_buttons(
-                fig, check_filter, lines_unfiltered, lines_filtered
-            )
+            # 检查是否成功绘制了曲线
+            if not valid_data_found:
+                logging.error("严重错误: 无法绘制任何电池数据曲线")
+                self._show_error_plot()
+                return
             
-            # 添加鼠标悬停交互功能
-            self._add_hover_functionality(fig, ax, lines_filtered, lines_unfiltered, check_filter)
+            # 添加交互控件
+            try:
+                check_filter = self._add_filter_button(fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict)
+                check_line1, check_line2 = self._add_battery_selection_buttons(
+                    fig, check_filter, lines_unfiltered, lines_filtered
+                )
+                self._add_hover_functionality(fig, ax, lines_filtered, lines_unfiltered, check_filter)
+                logging.info("成功添加图表交互控件")
+            except Exception as ui_error:
+                logging.warning(f"添加交互控件时出错: {str(ui_error)}")
+                # 即使交互控件添加失败，仍然尝试显示图表
             
             # 添加快捷键提示
             fig.text(0.01, 0.98, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=8)
             
-            logging.info("图表创建完成，显示中...")
+            logging.info("图表创建完成，显示CSV文件中的真实电池测试数据")
             plt.show()
         
         except Exception as e:
-            logging.error(f"创建图表时出错: {e}")
+            logging.error(f"严重错误: 绘制图表时发生未预期的异常: {str(e)}")
+            logging.error(f"错误类型: {type(e).__name__}")
             traceback.print_exc()
             self._show_error_plot()
             
-    def _show_error_plot(self):
+    def _show_error_plot(self, title=None, main_message=None, details=None):
         """
-        显示错误信息图表，当无法生成有效数据图表时调用
+        显示详细的错误信息图表，提供清晰的错误反馈和故障排除建议
         
-        创建一个包含错误信息的简单图表，提供友好的用户反馈
-        而不是让程序崩溃或显示空白窗口。
+        Args:
+            title (str, optional): 错误标题，默认为"数据错误"
+            main_message (str, optional): 主要错误信息，默认为"无法加载或显示电池数据"
+            details (str, optional): 详细错误信息和故障排除建议
         """
         try:
-            plt.figure(figsize=(10, 6))
-            plt.title("错误: 无法生成电池数据图表", fontsize=16, color='red')
-            plt.text(0.5, 0.6, "未找到有效的电池数据文件或数据处理失败。", 
-                     fontsize=14, ha='center', va='center')
-            plt.text(0.5, 0.5, "请检查:", fontsize=12, ha='center', va='center')
-            plt.text(0.5, 0.4, "1. CSV文件是否存在且格式正确", fontsize=12, ha='center', va='center')
-            plt.text(0.5, 0.35, "2. 配置文件是否正确配置", fontsize=12, ha='center', va='center')
-            plt.text(0.5, 0.3, "3. 文件路径是否包含中文字符或特殊字符", fontsize=12, ha='center', va='center')
+            # 设置默认错误信息
+            if title is None:
+                title = "数据错误"
+            if main_message is None:
+                main_message = "无法加载或显示电池数据"
+            if details is None:
+                details = "1. CSV文件是否存在且格式正确\n"
+                details += "2. 配置文件是否正确配置\n"
+                details += "3. 文件路径是否包含中文字符或特殊字符\n"
+                details += "4. CSV文件是否包含有效的电池测试数据"
+            
+            # 创建错误图表
+            fig, ax = plt.subplots(figsize=(10, 6))
+            
+            # 设置图表标题
+            ax.set_title(title, fontsize=16, fontweight='bold', color='#d32f2f')
             
             # 隐藏坐标轴
-            plt.axis('off')
+            ax.axis('off')
+            
+            # 构建完整的错误信息文本
+            full_text = f"{main_message}\n\n"
+            full_text += "故障排除步骤:\n"
+            full_text += details
+            
+            # 添加重要提示
+            full_text += "\n\n"
+            full_text += "重要提示: 此程序仅使用CSV文件中的真实数据，"
+            full_text += "不会生成或使用任何模拟数据。"
             
             # 显示错误日志信息（如果有）
             if hasattr(self, 'errorlog') and self.errorlog:
-                plt.text(0.5, 0.2, f"错误详情: {str(self.errorlog)}", 
-                         fontsize=10, ha='center', va='center', color='darkred')
+                full_text += f"\n\n错误详情: {str(self.errorlog)}"
             
-            logging.info("显示错误信息图表")
+            # 显示错误信息
+            ax.text(0.5, 0.5, full_text, fontsize=12, ha='center', va='center', 
+                   wrap=True, linespacing=1.4)
+            
+            # 添加版本信息和时间戳
+            import datetime
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            fig.text(0.01, 0.01, f"Battery Analysis Tool v1.0 | {current_time}", 
+                    fontsize=8, color='gray')
+            
+            # 添加边框和样式
+            for spine in ax.spines.values():
+                spine.set_color('#ff5722')
+                spine.set_linewidth(1)
+            
+            logging.info(f"显示错误信息图表: {title} - {main_message}")
             plt.tight_layout()
             plt.show()
+            
         except Exception as e:
-            # 如果连错误图表都无法显示，输出到控制台
-            logging.critical(f"无法显示错误图表: {e}")
-            print("错误: 无法生成电池数据图表")
-            print("请检查CSV文件是否存在且格式正确")
+            logging.critical(f"显示错误图表时发生异常: {str(e)}")
+            traceback.print_exc()
+            # 如果连错误图表都无法显示，尝试使用简单的文本输出
+            print("\n严重错误: 无法显示图形界面的错误信息")
+            print(f"错误详情: {title or '未知错误'} - {main_message or '无法加载数据'}")
+            print("\n请检查以下事项:")
+            print("1. Python环境是否正确安装")
+            print("2. Matplotlib库是否可用")
+            print("3. CSV文件是否存在且格式正确")
+            print("4. 系统是否有足够的资源显示图形")
     
     def _initialize_figure(self):
         """初始化图表设置和布局"""
@@ -890,17 +1002,7 @@ class FIGURE:
         except Exception as e:
             logging.warning(f"添加悬停功能时出错: {e}")
     
-    def _show_error_plot(self):
-        """显示错误提示图表"""
-        try:
-            fig, ax = plt.subplots(figsize=(8, 6))
-            ax.text(0.5, 0.5, "创建图表时出错，请检查数据或配置", 
-                   ha='center', va='center', fontsize=14, color='red')
-            ax.axis('off')
-            plt.tight_layout()
-            plt.show()
-        except Exception as e:
-            logging.critical(f"显示错误图表也失败: {e}")
+    # 注意：_show_error_plot方法已在前面定义，此方法已更新为增强版
 
 
 if __name__ == '__main__':
