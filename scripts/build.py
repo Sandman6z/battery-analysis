@@ -449,6 +449,8 @@ VSVersionInfo(
                 *(['--strip'] if not debug_mode else []),
                 *(['--noconsole'] if not (self.console_mode or debug_mode) else ['--console']),
                 f'--version-file=version.txt',
+                # 禁用UPX压缩以避免DLL加载问题
+                '--noupx',
                 # 确保src目录被正确添加
                 f'--add-data={src_path};.',
                 # 添加battery_analysis包目录

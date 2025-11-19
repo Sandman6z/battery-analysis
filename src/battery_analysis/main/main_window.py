@@ -101,11 +101,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         
         project_root = base_dir
         
-        if not os.path.exists(self.config_path):
+        # 添加对None值的检查，避免TypeError
+        if self.config_path is None or not os.path.exists(self.config_path):
             self.bHasConfig = False
+            # 创建默认配置设置
+            self.config = QC.QSettings()
         else:
             self.bHasConfig = True
-        self.config = QC.QSettings(self.config_path, QC.QSettings.IniFormat)
+            self.config = QC.QSettings(self.config_path, QC.QSettings.IniFormat)
         self.current_directory = project_root
         self.path = project_root  # 添加缺失的path属性，用于线程参数
 
@@ -121,6 +124,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
 
     def get_config(self, strValue):
         # 获取配置值并处理为列表格式，移除所有DEBUG打印以避免UI卡死
+        # 如果没有配置文件，直接返回空列表
+        if not self.bHasConfig:
+            return []
+        
         try:
             value = self.config.value(strValue)
             if type(value) == list:
