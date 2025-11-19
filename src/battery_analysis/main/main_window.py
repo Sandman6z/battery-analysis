@@ -214,7 +214,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.tableWidget_TestInformation.horizontalHeader().setStretchLastSection(True)
 
         def setSpanItem(_strItem: str, _intRow: int, _intCol: int, _intRowLengthDown: int = 1, _intColLengthRight: int = 1, _bEditable: bool = False) -> None:
-            self.tableWidget_TestInformation.setSpan(_intRow, _intCol, _intRowLengthDown, _intColLengthRight)
+            # 只有当跨度大于1时才调用setSpan，避免单个单元格跨度的警告
+            if _intRowLengthDown > 1 or _intColLengthRight > 1:
+                self.tableWidget_TestInformation.setSpan(_intRow, _intCol, _intRowLengthDown, _intColLengthRight)
             _item = QW.QTableWidgetItem(_strItem)
             if not _bEditable:
                 _item.setFlags(QC.Qt.ItemIsEnabled)
