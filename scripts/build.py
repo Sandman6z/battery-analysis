@@ -485,8 +485,8 @@ VSVersionInfo(
                 # 禁用UPX压缩以避免DLL加载问题
                 '--noupx',
                 # 确保Python DLL正确包含
-                # 使用环境变量中的TEMP目录，如果不存在则使用C:\TEMP
-                '--runtime-tmpdir=' + os.environ.get('TEMP', 'C:\\TEMP'),
+                # 移除--runtime-tmpdir参数，让PyInstaller使用默认的临时目录处理机制
+                # 这样可以避免硬编码路径带来的权限和路径格式问题
                 # 确保所有依赖的DLL都被正确包含
                 '--collect-all=pywin32'
             ]
@@ -636,8 +636,8 @@ VSVersionInfo(
                   '--log-level=DEBUG',
                   '--noupx',
                   f'--version-file=version.txt',
-                  # 使用环境变量中的TEMP目录，如果不存在则使用C:\TEMP
-                  '--runtime-tmpdir=' + os.environ.get('TEMP', 'C:\TEMP'),
+                  # 移除--runtime-tmpdir参数，让PyInstaller使用默认的临时目录处理机制
+                  # 这样可以避免硬编码路径带来的权限和路径格式问题
                   '--collect-all=pywin32']
         
         # 如果找到DLL，添加到命令参数
