@@ -435,20 +435,38 @@ VSVersionInfo(
             # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
             import subprocess
             
-            # 查找Python DLL路径
+            # 查找Python DLL路径 - 改进版本，适配GitHub Actions环境
             python_dll = None
-            for dll_path in [
-                os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
-                os.path.join(os.path.dirname(sys.executable).replace('Scripts', ''), 'python311.dll'),
-                os.path.join(os.path.dirname(sys.executable).replace('Scripts', 'DLLs'), 'python311.dll')
-            ]:
-                if os.path.exists(dll_path):
-                    python_dll = dll_path
-                    break
             
+            # 首先尝试直接从Python安装目录查找
+            python_home = os.path.dirname(os.path.dirname(sys.executable))
+            print(f"Python home directory: {python_home}")
+            
+            # 添加更多可能的DLL路径，包括GitHub Actions环境中的常见位置
+            possible_dll_paths = [
+                os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
+                os.path.join(python_home, 'python311.dll'),
+                os.path.join(python_home, 'DLLs', 'python311.dll'),
+                os.path.join(os.environ.get('PYTHONHOME', ''), 'python311.dll'),
+                'python311.dll'  # 让PyInstaller尝试在PATH中查找
+            ]
+            
+            # 打印所有尝试的路径用于调试
+            print("Trying to find python311.dll in:")
+            for i, path in enumerate(possible_dll_paths):
+                print(f"  {i+1}. {path} - {'Found' if os.path.exists(path) else 'Not found'}")
+                if os.path.exists(path):
+                    python_dll = path
+                    break
+                    
             # 如果找到DLL，则添加警告
             if not python_dll:
                 print("Warning: Could not find python311.dll")
+                # 在GitHub Actions环境中，可能需要特殊处理
+                print("Current environment:")
+                for key in ['PYTHONHOME', 'PATH', 'TEMP', 'TMP']:
+                    if key in os.environ:
+                        print(f"  {key}: {os.environ[key]}")
             
             # 构建命令参数列表（切换为命令行方式，避免 spec 执行异常）
             # Windows 下 --add-data 使用分号分隔： 源路径;目标目录
@@ -467,7 +485,8 @@ VSVersionInfo(
                 # 禁用UPX压缩以避免DLL加载问题
                 '--noupx',
                 # 确保Python DLL正确包含
-                '--runtime-tmpdir=C:\\TEMP',
+                # 使用环境变量中的TEMP目录，如果不存在则使用C:\TEMP
+                '--runtime-tmpdir=' + os.environ.get('TEMP', 'C:\\TEMP'),
                 # 确保所有依赖的DLL都被正确包含
                 '--collect-all=pywin32'
             ]
@@ -583,15 +602,28 @@ VSVersionInfo(
         # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
         import subprocess
 
-        # 查找Python DLL路径
+        # 查找Python DLL路径 - 改进版本，适配GitHub Actions环境
         python_dll = None
-        for dll_path in [
+        
+        # 首先尝试直接从Python安装目录查找
+        python_home = os.path.dirname(os.path.dirname(sys.executable))
+        print(f"Python home directory: {python_home}")
+        
+        # 添加更多可能的DLL路径，包括GitHub Actions环境中的常见位置
+        possible_dll_paths = [
             os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
-            os.path.join(os.path.dirname(sys.executable).replace('Scripts', ''), 'python311.dll'),
-            os.path.join(os.path.dirname(sys.executable).replace('Scripts', 'DLLs'), 'python311.dll')
-        ]:
-            if os.path.exists(dll_path):
-                python_dll = dll_path
+            os.path.join(python_home, 'python311.dll'),
+            os.path.join(python_home, 'DLLs', 'python311.dll'),
+            os.path.join(os.environ.get('PYTHONHOME', ''), 'python311.dll'),
+            'python311.dll'  # 让PyInstaller尝试在PATH中查找
+        ]
+        
+        # 打印所有尝试的路径用于调试
+        print("Trying to find python311.dll in:")
+        for i, path in enumerate(possible_dll_paths):
+            print(f"  {i+1}. {path} - {'Found' if os.path.exists(path) else 'Not found'}")
+            if os.path.exists(path):
+                python_dll = path
                 break
 
         # 构建命令参数列表 - 添加DLL修复参数，不使用spec文件而是直接使用命令行参数
@@ -604,7 +636,8 @@ VSVersionInfo(
                   '--log-level=DEBUG',
                   '--noupx',
                   f'--version-file=version.txt',
-                  '--runtime-tmpdir=C:\TEMP',
+                  # 使用环境变量中的TEMP目录，如果不存在则使用C:\TEMP
+                  '--runtime-tmpdir=' + os.environ.get('TEMP', 'C:\TEMP'),
                   '--collect-all=pywin32']
         
         # 如果找到DLL，添加到命令参数
