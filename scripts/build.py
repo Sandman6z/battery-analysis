@@ -435,6 +435,21 @@ VSVersionInfo(
             # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
             import subprocess
             
+            # 查找Python DLL路径
+            python_dll = None
+            for dll_path in [
+                os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
+                os.path.join(os.path.dirname(sys.executable).replace('Scripts', ''), 'python311.dll'),
+                os.path.join(os.path.dirname(sys.executable).replace('Scripts', 'DLLs'), 'python311.dll')
+            ]:
+                if os.path.exists(dll_path):
+                    python_dll = dll_path
+                    break
+            
+            # 如果找到DLL，则添加警告
+            if not python_dll:
+                print("Warning: Could not find python311.dll")
+            
             # 构建命令参数列表（切换为命令行方式，避免 spec 执行异常）
             # Windows 下 --add-data 使用分号分隔： 源路径;目标目录
             cmd_args = [
@@ -451,6 +466,18 @@ VSVersionInfo(
                 f'--version-file=version.txt',
                 # 禁用UPX压缩以避免DLL加载问题
                 '--noupx',
+                # 确保Python DLL正确包含
+                '--runtime-tmpdir=C:\\TEMP',
+                # 确保所有依赖的DLL都被正确包含
+                '--collect-all=pywin32'
+            ]
+            
+            # 添加Python DLL路径（如果找到）
+            if python_dll:
+                cmd_args.append('--add-binary=' + python_dll + ';.')
+            
+            # 添加其他参数
+            cmd_args.extend([
                 # 确保src目录被正确添加
                 f'--add-data={src_path};.',
                 # 添加battery_analysis包目录
@@ -480,8 +507,8 @@ VSVersionInfo(
                 '--collect-all=xlrd',
                 # 增加导入路径，确保能找到battery_analysis模块
                 '--path', f'{src_path}',
-                '--path', f'{self.project_root}',
-            ]
+                '--path', f'{self.project_root}'
+            ])
             
             print(f"执行命令: {' '.join(cmd_args)}")
             try:
@@ -556,10 +583,59 @@ VSVersionInfo(
         # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
         import subprocess
 
-        # 构建命令参数列表
-        cmd_args = [sys.executable, '-m', 'PyInstaller', 'build.spec', 
+        # 查找Python DLL路径
+        python_dll = None
+        for dll_path in [
+            os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
+            os.path.join(os.path.dirname(sys.executable).replace('Scripts', ''), 'python311.dll'),
+            os.path.join(os.path.dirname(sys.executable).replace('Scripts', 'DLLs'), 'python311.dll')
+        ]:
+            if os.path.exists(dll_path):
+                python_dll = dll_path
+                break
+
+        # 构建命令参数列表 - 添加DLL修复参数，不使用spec文件而是直接使用命令行参数
+        cmd_args = [sys.executable, '-m', 'PyInstaller', 'image_show.py', 
+                  f'--name={imagemaker_exe_name}',
+                  '--onefile',  # 添加此参数生成单个可执行文件
+                  f'--icon=Icon_ImageShow.ico',
                   f'--distpath={final_build_dir}', 
-                  f'--workpath={temp_path}/ImageMaker']
+                  f'--workpath={temp_path}/ImageMaker',
+                  '--log-level=DEBUG',
+                  '--noupx',
+                  f'--version-file=version.txt',
+                  '--runtime-tmpdir=C:\TEMP',
+                  '--collect-all=pywin32']
+        
+        # 如果找到DLL，添加到命令参数
+        if python_dll:
+            cmd_args.append('--add-binary=' + python_dll + ';.')
+        else:
+            print("Warning: Could not find python311.dll")
+        
+        # 添加剩余参数
+        cmd_args.extend([
+                  f'--add-data={src_path};src',
+                  f'--add-data={os.path.abspath(os.path.join(self.project_root, "config"))};config',
+                  f'--add-data={os.path.join(self.project_root, "pyproject.toml")};.',
+                  f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
+                  '--hidden-import=matplotlib.backends.backend_svg',
+                  '--hidden-import=docx',
+                  '--hidden-import=openpyxl',
+                  '--hidden-import=battery_analysis',
+                  '--hidden-import=battery_analysis.main',
+                  '--hidden-import=battery_analysis.ui',
+                  '--hidden-import=battery_analysis.utils',
+                  '--hidden-import=tomli',
+                  '--hidden-import=xlsxwriter',
+                  '--collect-all=xlsxwriter',
+                  '--collect-all=openpyxl',
+                  '--hidden-import=xlrd',
+                  '--collect-all=xlrd',
+                  '--path', f'{src_path}',
+                  '--path', f'{self.project_root}',
+                  *(['--console'] if self.console_mode or debug_mode else ['--noconsole'])
+        ])
 
         print(f"执行命令: {' '.join(cmd_args)}")
         try:
