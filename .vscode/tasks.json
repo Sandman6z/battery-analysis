@@ -2,30 +2,22 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Qt Designer",
+            "label": "Pyuic6 (PyQt6)",
             "type": "shell",
-            "command": ".venv\\Lib\\site-packages\\qt5_applications\\Qt\\bin\\designer.exe",
+            "command": "powershell",
             "args": [
-                "./config/resources/ui/UI_BatteryAnalysis.ui"
+                "-Command",
+                ". '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m PyQt6.uic.pyuic './config/resources/ui/UI_BatteryAnalysis.ui' -o './src/battery_analysis/ui/ui_main_window.py'"
             ],
             "problemMatcher": []
         },
         {
-            "label": "PyUIC",
+            "label": "Pyrcc (PyQt6)",
             "type": "shell",
-            "command": ".venv\\Scripts\\pyuic5.exe",
+            "command": "python",
             "args": [
-                "./config/resources/ui/UI_BatteryAnalysis.ui",
-                "-o",
-                "./src/battery_analysis/ui/ui_main_window.py"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Pyrcc",
-            "type": "shell",
-            "command": ".venv\\Scripts\\pyrcc5.exe",
-            "args": [
+                "-m",
+                "PyQt6.pyrcc_main",
                 "./config/resources/icons/resources.qrc",
                 "-o",
                 "./src/battery_analysis/resources_rc.py"
@@ -35,13 +27,10 @@
         {
             "label": "(venv)build debug version",
             "type": "shell",
-            "command": ".venv\\Scripts\\Activate.ps1",
+            "command": "powershell",
             "args": [
-                "&&",
-                "python",
-                "-m",
-                "scripts.build",
-                "Debug"
+                "-Command",
+                ". '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Debug"
             ],
             "problemMatcher": [
                 "$python"
@@ -50,13 +39,10 @@
         {
             "label": "(venv)build release version",
             "type": "shell",
-            "command": ".venv\\Scripts\\Activate.ps1",
+            "command": "powershell",
             "args": [
-                "&&",
-                "python",
-                "-m",
-                "scripts.build",
-                "Release"
+                "-Command",
+                ". '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m scripts.build Release"
             ],
             "problemMatcher": [
                 "$python"

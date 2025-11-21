@@ -12,9 +12,9 @@ import subprocess
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
-import PyQt5.QtGui as QG
-import PyQt5.QtCore as QC
-import PyQt5.QtWidgets as QW
+import PyQt6.QtGui as QG
+import PyQt6.QtCore as QC
+import PyQt6.QtWidgets as QW
 
 import win32api, win32con
 
@@ -108,7 +108,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             self.config = QC.QSettings()
         else:
             self.bHasConfig = True
-            self.config = QC.QSettings(self.config_path, QC.QSettings.IniFormat)
+            self.config = QC.QSettings(self.config_path, QC.QSettings.Format.IniFormat)
         self.current_directory = project_root
         self.path = project_root  # 添加缺失的path属性，用于线程参数
 
@@ -151,7 +151,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         Logo = QG.QPixmap()
         Logo.loadFromData(base64.b64decode(Icon_BatteryAnalysis))
         icon = QG.QIcon()
-        icon.addPixmap(Logo, QG.QIcon.Normal, QG.QIcon.Off)
+        icon.addPixmap(Logo, QG.QIcon.Mode.Normal, QG.QIcon.State.Off)
         self.setWindowIcon(icon)
 
     def init_widget(self) -> None:
@@ -168,9 +168,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
 
     def init_lineedit(self) -> None:
         # input limit, only numbers allowed
-        reg = QC.QRegExp(r"^\d*$")
-        validator = QG.QRegExpValidator(self)
-        validator.setRegExp(reg)
+        reg = QC.QRegularExpression(r"^\d*$")
+        validator = QG.QRegularExpressionValidator(self)
+        validator.setRegularExpression(reg)
         # self.lineEdit_BatchDateCode.setValidator(validator)
         self.lineEdit_SamplesQty.setValidator(validator)
         # self.lineEdit_Temperature.setValidator(validator)
@@ -179,9 +179,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.lineEdit_RequiredUseableCapacity.setValidator(validator)
         # QSpinBox不需要设置文本验证器，因为它有内置的范围限制
 
-        reg = QC.QRegExp(r"^\d+(\.\d+)?$")
-        validator = QG.QRegExpValidator(self)
-        validator.setRegExp(reg)
+        reg = QC.QRegularExpression(r"^\d+(\.\d+)?$")
+        validator = QG.QRegularExpressionValidator(self)
+        validator.setRegularExpression(reg)
         self.lineEdit_Version.setValidator(validator)
 
         self.lineEdit_TestProfile.setText("Not provided")
@@ -219,7 +219,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 self.tableWidget_TestInformation.setSpan(_intRow, _intCol, _intRowLengthDown, _intColLengthRight)
             _item = QW.QTableWidgetItem(_strItem)
             if not _bEditable:
-                _item.setFlags(QC.Qt.ItemIsEnabled)
+                _item.setFlags(QC.Qt.ItemFlag.ItemIsEnabled)
                 _item.setBackground(QG.QBrush(QG.QColor(242, 242, 242)))
             self.tableWidget_TestInformation.setItem(_intRow, _intCol, _item)
 
@@ -1054,7 +1054,7 @@ def main() -> None:
     # 移除固定窗口大小，允许自由调整
     main.setMinimumSize(970, 885)  # 设置最小尺寸以确保UI元素正常显示
     main.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 if __name__ == '__main__':
     main()
