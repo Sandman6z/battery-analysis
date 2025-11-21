@@ -23,11 +23,11 @@ class Version(object):
                 if os.path.exists(exe_pyproject_path):
                     with open(exe_pyproject_path, "rb") as f:
                         pyproject_data = tomllib.load(f)
-                    self.version = pyproject_data.get("project", {}).get("version", "1.0.1")
+                    self.version = pyproject_data.get("project", {}).get("version", "2.0.0")
                     print(f"Version read from exe directory pyproject.toml: {self.version}", file=sys.stderr)
                 else:
                     # 如果exe目录下没有pyproject.toml，使用硬编码版本
-                    self.version = "1.0.1"
+                    self.version = "2.0.0"
                     print(f"Using hardcoded version in PyInstaller environment: {self.version}", file=sys.stderr)
             else:
                 # 在开发环境中，尝试从pyproject.toml读取版本号
@@ -47,11 +47,11 @@ class Version(object):
                     pyproject_data = tomllib.load(f)
                 
                 # 获取版本号
-                self.version = pyproject_data.get("project", {}).get("version", "1.0.1")
+                self.version = pyproject_data.get("project", {}).get("version", "2.0.0")
                 print(f"Version read from pyproject.toml: {self.version}", file=sys.stderr)
                 
         except Exception as e:
             # 如果读取失败，使用默认版本号
             print(f"Error reading version: {e}", file=sys.stderr)
-            self.version = "1.0.1"  # 使用一致的默认版本号
+            self.version = "2.0.0"  # 使用一致的默认版本号
             print(f"Using default version: {self.version}", file=sys.stderr)

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "battery-analysis"  
-version = "1.0.1"
+version = "2.0.0"
 description = "电池测试数据分析App"
 authors = [
   { name = "作者名称", email = "author@example.com" }

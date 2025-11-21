@@ -982,7 +982,7 @@ class Thread(QC.QThread):
                         from ..utils.version import Version
                         version_us = Version().version.replace('.', '_')
                     except Exception:
-                        version_us = "1_0_1"  # 与项目默认版本保持一致
+                        version_us = "2_0_0"  # 与项目默认版本保持一致
 
                 # 仅使用与 analyzer 同版本的候选路径
                 exe_candidates = [

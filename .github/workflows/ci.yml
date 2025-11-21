@@ -58,8 +58,8 @@ jobs:
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
-        name: v1.0.1-beta.${{ steps.vars.outputs.short_sha }}
-        tag_name: v1.0.1-beta.${{ steps.vars.outputs.short_sha }}
+        name: v2.0.0-beta.${{ steps.vars.outputs.short_sha }}
+        tag_name: v2.0.0-beta.${{ steps.vars.outputs.short_sha }}
         body: |
           自动构建版本 - Release模式
           构建编号: ${{ github.run_number }}

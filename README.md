@@ -109,14 +109,6 @@ I think must install pyinstaller under project env:
 - Release 构建：
   - ` python -m scripts.build Release `
 
-### 打包后运行
-- Debug：
-  - ` .\build\Debug\battery-analyzer_1_0_1.exe `
-  - ` .\build\Debug\battery-analysis-visualizer_1_0_1.exe `
-- Release：
-  - ` .\build\Release\battery-analyzer_1_0_1.exe `
-  - ` .\build\Release\battery-analysis-visualizer_1_0_1.exe `
-
 ### 注意事项
 - 始终在已激活的虚拟环境中运行或打包。
 - 模块入口与打包后的 exe 在资源定位上保持一致（基于 `sys.executable`）。
