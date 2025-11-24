@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Pyuic6 (PyQt6)",
+            "label": "Pyuic6",
             "type": "shell",
             "command": "powershell",
             "args": [
@@ -11,19 +11,7 @@
             ],
             "problemMatcher": []
         },
-        {
-            "label": "Pyrcc (PyQt6)",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "-m",
-                "PyQt6.pyrcc_main",
-                "./config/resources/icons/resources.qrc",
-                "-o",
-                "./src/battery_analysis/resources_rc.py"
-            ],
-            "problemMatcher": []
-        },
+
         {
             "label": "(venv)build debug version",
             "type": "shell",

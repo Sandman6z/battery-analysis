@@ -404,7 +404,7 @@ QComboBox::drop-down {
 
 /* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
+    image: url(config/resources/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
     margin-right: 4px; /* 让它别贴边，可按需调 */
@@ -412,7 +412,7 @@ QComboBox::down-arrow {
 
 /* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
+    image: url(config/resources/icons/chevron-up.svg);
 }
 </string>
            </property>
@@ -715,7 +715,7 @@ QComboBox::drop-down {
 
 /* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
+    image: url(config/resources/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
     margin-right: 4px; /* 让它别贴边，可按需调 */
@@ -723,7 +723,7 @@ QComboBox::down-arrow {
 
 /* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
+    image: url(config/resources/icons/chevron-up.svg);
 }
 </string>
            </property>
@@ -828,7 +828,7 @@ QComboBox::drop-down {
 
 /* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
+    image: url(config/resources/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
     margin-right: 4px; /* 让它别贴边，可按需调 */
@@ -836,7 +836,7 @@ QComboBox::down-arrow {
 
 /* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
+    image: url(config/resources/icons/chevron-up.svg);
 }
 </string>
            </property>
@@ -964,7 +964,7 @@ QComboBox::drop-down {
 
 /* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
+    image: url(config/resources/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
     margin-right: 4px; /* 让它别贴边，可按需调 */
@@ -972,7 +972,7 @@ QComboBox::down-arrow {
 
 /* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
+    image: url(config/resources/icons/chevron-up.svg);
 }
 </string>
              </property>
@@ -1029,7 +1029,7 @@ QComboBox::drop-down {
 
 /* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
+    image: url(config/resources/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
     margin-right: 4px; /* 让它别贴边，可按需调 */
@@ -1037,7 +1037,7 @@ QComboBox::down-arrow {
 
 /* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
+    image: url(config/resources/icons/chevron-up.svg);
 }
 </string>
              </property>
@@ -1583,7 +1583,7 @@ QComboBox::drop-down {
 
 /* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
+    image: url(config/resources/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
     margin-right: 4px; /* 让它别贴边，可按需调 */
@@ -1591,7 +1591,7 @@ QComboBox::down-arrow {
 
 /* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
+    image: url(config/resources/icons/chevron-up.svg);
 }
 </string>
         </property>
@@ -1707,7 +1707,7 @@ QComboBox::drop-down {
 
 /* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
+    image: url(config/resources/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
     margin-right: 4px; /* 让它别贴边，可按需调 */
@@ -1715,7 +1715,7 @@ QComboBox::down-arrow {
 
 /* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
+    image: url(config/resources/icons/chevron-up.svg);
 }
 </string>
         </property>

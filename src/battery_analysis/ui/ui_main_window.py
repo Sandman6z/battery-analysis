@@ -183,7 +183,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* 3) 指定自定义小三角 */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
+"    image: url(config/resources/icons/chevron-down.svg);\n"
 "    width: 12px;\n"
 "    height: 12px;\n"
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
@@ -191,7 +191,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
+"    image: url(config/resources/icons/chevron-up.svg);\n"
 "}\n"
 "")
         self.comboBox_Manufacturer.setEditable(False)
@@ -330,7 +330,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* 3) 指定自定义小三角 */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
+"    image: url(config/resources/icons/chevron-down.svg);\n"
 "    width: 12px;\n"
 "    height: 12px;\n"
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
@@ -338,7 +338,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
+"    image: url(config/resources/icons/chevron-up.svg);\n"
 "}\n"
 "")
         self.comboBox_BatteryType.setEditable(False)
@@ -395,7 +395,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* 3) 指定自定义小三角 */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
+"    image: url(config/resources/icons/chevron-down.svg);\n"
 "    width: 12px;\n"
 "    height: 12px;\n"
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
@@ -403,7 +403,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
+"    image: url(config/resources/icons/chevron-up.svg);\n"
 "}\n"
 "")
         self.comboBox_ConstructionMethod.setEditable(False)
@@ -466,7 +466,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* 3) 指定自定义小三角 */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
+"    image: url(config/resources/icons/chevron-down.svg);\n"
 "    width: 12px;\n"
 "    height: 12px;\n"
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
@@ -474,7 +474,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
+"    image: url(config/resources/icons/chevron-up.svg);\n"
 "}\n"
 "")
         self.comboBox_Specification_Method.setEditable(False)
@@ -514,7 +514,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* 3) 指定自定义小三角 */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
+"    image: url(config/resources/icons/chevron-down.svg);\n"
 "    width: 12px;\n"
 "    height: 12px;\n"
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
@@ -522,7 +522,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
+"    image: url(config/resources/icons/chevron-up.svg);\n"
 "}\n"
 "")
         self.comboBox_Specification_Type.setEditable(False)
@@ -771,7 +771,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* 3) 指定自定义小三角 */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
+"    image: url(config/resources/icons/chevron-down.svg);\n"
 "    width: 12px;\n"
 "    height: 12px;\n"
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
@@ -779,7 +779,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
+"    image: url(config/resources/icons/chevron-up.svg);\n"
 "}\n"
 "")
         self.comboBox_TestedBy.setEditable(False)
@@ -842,7 +842,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* 3) 指定自定义小三角 */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
+"    image: url(config/resources/icons/chevron-down.svg);\n"
 "    width: 12px;\n"
 "    height: 12px;\n"
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
@@ -850,7 +850,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
+"    image: url(config/resources/icons/chevron-up.svg);\n"
 "}\n"
 "")
         self.comboBox_TesterLocation.setEditable(False)
