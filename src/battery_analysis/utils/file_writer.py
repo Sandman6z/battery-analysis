@@ -6,6 +6,7 @@ import math
 import datetime
 import traceback
 import configparser
+import logging
 
 # 设置Matplotlib使用非交互式后端，避免线程安全问题
 import matplotlib
@@ -148,7 +149,11 @@ class XlsxWordWriter:
             
         # strTimeStamp = datetime.datetime.now().strftime("%Y%m%d")
 
-        self.strReportWordPath = f"{self.strResultPath}/../{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}_TD{td}_V{self.listTestInfo[16]}.docx"
+        # 使用pathlib.Path来规范化路径，避免出现../符号
+        from pathlib import Path
+        report_name = f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}_TD{td}_V{self.listTestInfo[16]}.docx"
+        result_dir = Path(self.strResultPath).parent
+        self.strReportWordPath = str(result_dir / report_name)
         self.listTextToReplace = ["TypeA", "TypeB", "TypeC", "TypeD", "TypeE", "TypeF", "TypeG", "StrA", "StrB", "StrC", "StrD", "StrF"]
         self.listImageToReplace = ["<<Image_FilteredLoadVoltageOverCharge>>"]
         for i in range(10):     # max 10 images to replace
@@ -1273,6 +1278,8 @@ class XlsxWordWriter:
         wbSample.close()
         # close word writer
         wdReport.save(self.strReportWordPath)
+        # 输出docx文件的完整路径到日志
+        logging.info(f"数据分析完成，生成的docx报告路径: {self.strReportWordPath}")
         # close csv writer
         f.close()
 
