@@ -1,41 +1,55 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=68.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "battery-analysis"  
+name = "battery-analysis"
 version = "2.0.0"
-description = "电池测试数据分析App"
+description = "电池测试数据可视化分析应用，支持多种数据格式导入与图表生成"
 authors = [
-  { name = "作者名称", email = "author@example.com" }
+  { name = "Ewin电池分析团队", email = "battery-analysis@example.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.11"  
-license = { file = "LICENSE" }  # 从setup.py推断
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-]  # 从setup.py获取
-keywords = ["battery", "analysis", "GUI", "PyQt5"]  # 从项目信息推断
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: User Interfaces"
+]
+keywords = ["battery", "analysis", "GUI", "PyQt6", "data-visualization"]
 dependencies = [
-    "gitpython>=3.1.45",
-    "matplotlib>=3.10.5",
-    "numpy>=2.3.2",
-    "openpyxl>=3.1.5",
-    "pyinstaller>=6.15.0",
-    "pyqt6>=6.10.0",
-    "python-docx>=1.2.0",
-    "pywin32>=311",
+    "gitpython>=3.1.45,<4.0.0",
+    "matplotlib>=3.8.0,<4.0.0",
+    "numpy>=1.24.0,<3.0.0",
+    "openpyxl>=3.1.0,<4.0.0",
+    "pyqt6>=6.6.0,<7.0.0",
+    "python-docx>=1.2.0,<2.0.0",
+    "pywin32>=311,<400",
     "xlrd==1.2.0",
     "xlsxwriter~=3.0.8",
-]  # 保留pyproject.toml中的依赖
+]
+
+[project.optional-dependencies]
+dev = [
+    "pyinstaller>=6.10.0,<7.0.0",
+    "pytest>=7.4.0,<8.0.0",
+    "black>=23.0.0,<24.0.0"
+]
 
 [project.urls]
-Homepage = "projectURL"  
+Homepage = "https://github.com/battery-analysis/battery-analysis"
+Repository = "https://github.com/battery-analysis/battery-analysis"
+Documentation = "https://github.com/battery-analysis/battery-analysis/blob/main/README.md"
 
 [project.scripts]
-battery-analysis = "battery_analysis.main.main_window:main"  
+battery-analysis = "battery_analysis.main.main_window:main"
 
 [tool.setuptools]
 packages = ["battery_analysis"]

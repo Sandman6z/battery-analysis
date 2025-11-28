@@ -1055,7 +1055,7 @@ def main() -> None:
     # 优化matplotlib配置，避免font cache构建警告
     matplotlib.use('Agg')  # 使用非交互式后端
     matplotlib.rcParams['font.family'] = 'sans-serif'
-    matplotlib.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans', 'Liberation Sans']
+    matplotlib.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans','Liberation Sans']
     
     app = QW.QApplication(sys.argv)
     main = Main()
@@ -1064,5 +1064,5 @@ def main() -> None:
     main.show()
     sys.exit(app.exec())
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     main()
