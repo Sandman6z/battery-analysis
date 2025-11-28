@@ -27,7 +27,7 @@ jobs:
     
     - name: Install dependencies using uv
       run: |
-        uv add -r requirements.txt
+        uv sync --dev
     
     - name: Lint with flake8
       run: |

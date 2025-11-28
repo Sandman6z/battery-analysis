@@ -1,0 +1,45 @@
+[MASTER]
+
+# 默认情况下，pylint将当前目录添加到Python路径中，这样模块导入可以正常工作
+
+# 忽略特定的目录
+ignore=CVS,__pycache__,temp,build,.git,.vscode
+
+# 最大行长度
+max-line-length=100
+
+[MESSAGES CONTROL]
+
+# 启用的消息类别
+enable=all
+
+# 禁用的消息
+# C0116: 缺少函数文档字符串
+# C0115: 缺少类文档字符串
+# R0903: 类具有太少的公共方法
+# R0913: 函数参数太多
+# R0914: 函数局部变量太多
+# W0511: TODO注释
+# C0103: 变量名不符合命名约定（暂时禁用，因为代码可能有不同的风格）
+disable=C0116,C0115,R0903,R0913,R0914,W0511,C0103
+
+[FORMAT]
+
+# 缩进空格数
+indent-string='    '
+indent-after-paren=4
+
+[VARIABLES]
+
+# 允许的变量名正则表达式
+good-names=i,j,k,ex,Run,_,id
+
+[TYPECHECK]
+
+# 忽略导入错误（如果有一些导入在某些环境中不可用）
+ignored-modules=PyQt6,win32api,win32con
+
+[IMPORTS]
+
+# 允许导入未使用的模块
+allow-import-from-stdlib-without-as=os,sys,re,csv,time,hashlib,threading,logging,datetime,os.path

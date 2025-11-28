@@ -74,7 +74,7 @@ I think must install pyinstaller under project env:
 > rm .\main.py #remove no useful auto-create file
 > uv venv --python 3.11
 > .\venv\Scripts\activate
-> uv add -r .\requirements.txt
+> uv sync
 
 ## Q&A
 

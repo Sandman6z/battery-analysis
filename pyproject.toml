@@ -39,7 +39,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0,<8.0.0",
-    "black>=23.0.0,<24.0.0"
+    "black>=23.0.0,<24.0.0",
+    "pylint>=2.17.0,<3.0.0",
+    "pylint-json2html>=0.3.0,<1.0.0"
 ]
 build = [
     "pyinstaller>=6.10.0,<7.0.0"
@@ -50,6 +52,39 @@ Homepage = "https://github.com/battery-analysis/battery-analysis"
 Repository = "https://github.com/battery-analysis/battery-analysis"
 Documentation = "https://github.com/battery-analysis/battery-analysis/blob/main/README.md"
 
+[tool.pylint]
+# Pylint配置
+ignore = ["CVS", "__pycache__", "temp", "build", ".git", ".vscode"]
+max-line-length = 100
+
+[tool.pylint.messages_control]
+enable = ["all"]
+disable = [
+    "missing-function-docstring",  # C0116
+    "missing-class-docstring",     # C0115
+    "too-few-public-methods",      # R0903
+    "too-many-arguments",          # R0913
+    "too-many-locals",             # R0914
+    "fixme",                       # W0511
+    "invalid-name"                 # C0103
+]
+
+[tool.pylint.format]
+indent-string = "    "
+indent-after-paren = 4
+
+[tool.pylint.variables]
+good-names = ["i", "j", "k", "ex", "Run", "_", "id"]
+
+[tool.pylint.typecheck]
+ignored-modules = ["PyQt6", "win32api", "win32con"]
+
+[tool.pylint.imports]
+allow-import-from-stdlib-without-as = [
+    "os", "sys", "re", "csv", "time", "hashlib",
+    "threading", "logging", "datetime", "os.path"
+]
+
 [project.scripts]
 battery-analysis = "battery_analysis.main.main_window:main"
 
@@ -57,3 +92,5 @@ battery-analysis = "battery_analysis.main.main_window:main"
 packages = ["battery_analysis"]
 package-dir = {"" = "src"}
 include-package-data = true
+
+# 依赖组已在[project.optional-dependencies]中定义，无需重复定义

@@ -4,11 +4,8 @@ import re
 import csv
 import sys
 import time
-import base64
-import shutil
 import hashlib
 import threading
-import subprocess
 import logging
 from pathlib import Path
 
@@ -539,6 +536,35 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             self.statusBar_BatteryAnalysis.showMessage("[Error]: Input path has no data")
 
     def get_version(self) -> None:
+        """
+        计算并设置电池分析的版本号
+        
+        此方法通过分析输入目录中的XLSX文件，计算其MD5校验和，
+        然后根据MD5.csv文件中的历史记录确定当前版本号。如果输入文件内容变更，
+        版本号会自动增加。
+        
+        工作流程：
+        1. 从UI获取输入和输出目录路径
+        2. 检查目录是否存在
+        3. 收集输入目录中所有有效的.xlsx文件（排除临时文件）
+        4. 计算这些文件的MD5校验和
+        5. 读取MD5.csv文件（如果存在）来获取历史记录
+        6. 根据MD5校验和匹配确定版本号
+        7. 如果找到匹配的MD5，使用对应的版本号；否则创建新版本
+        8. 更新MD5.csv文件并设置为隐藏属性
+        9. 将版本号显示在UI中
+        
+        版本号格式：
+        - 主版本号：当输入文件内容发生变化时增加
+        - 次版本号：同一内容的重复运行计数
+        
+        错误处理：
+        - 如果输入或输出目录不存在，清空版本号显示
+        - 如果输入目录中没有XLSX文件，清空版本号显示
+        
+        返回值：
+            None
+        """
         strInPutDir = self.lineEdit_InputPath.text()
         strOutoutDir = self.lineEdit_OutputPath.text()
         if os.path.exists(strInPutDir) and os.path.exists(strOutoutDir):
