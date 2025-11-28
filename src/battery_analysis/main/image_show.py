@@ -716,13 +716,13 @@ class FIGURE:
             logging.critical(f"显示错误图表时发生异常: {str(e)}")
             traceback.print_exc()
             # 如果连错误图表都无法显示，尝试使用简单的文本输出
-            print("\n严重错误: 无法显示图形界面的错误信息")
-            print(f"错误详情: {title or '未知错误'} - {main_message or '无法加载数据'}")
-            print("\n请检查以下事项:")
-            print("1. Python环境是否正确安装")
-            print("2. Matplotlib库是否可用")
-            print("3. CSV文件是否存在且格式正确")
-            print("4. 系统是否有足够的资源显示图形")
+            logging.error("\n严重错误: 无法显示图形界面的错误信息")
+            logging.error(f"错误详情: {title or '未知错误'} - {main_message or '无法加载数据'}")
+            logging.info("\n请检查以下事项:")
+            logging.info("1. Python环境是否正确安装")
+            logging.info("2. Matplotlib库是否可用")
+            logging.info("3. CSV文件是否存在且格式正确")
+            logging.info("4. 系统是否有足够的资源显示图形")
     
     def _initialize_figure(self):
         """初始化图表设置和布局"""

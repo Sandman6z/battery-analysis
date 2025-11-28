@@ -61,16 +61,16 @@ class XlsxWordWriter:
         for path in possible_config_paths:
             if os.path.exists(path):
                 config_path = path
-                print(f"找到配置文件: {config_path}")
+                logging.info(f"找到配置文件: {config_path}")
                 break
         
         # 尝试读取配置文件
         if config_path and os.path.exists(config_path):
             self.config.read(config_path, encoding='utf-8')
         else:
-            print("警告: 找不到配置文件，尝试了以下路径:")
+            logging.warning("找不到配置文件，尝试了以下路径:")
             for path in possible_config_paths:
-                print(f"  - {path}")
+                logging.info(f"  - {path}")
             # 创建默认的PltConfig部分
             self.config.add_section("PltConfig")
             self.config.set("PltConfig", "Title", "\"默认标题\"")
@@ -85,7 +85,7 @@ class XlsxWordWriter:
                 # 使用测试信息生成默认标题
                 strImageTitle = f"{listTestInfo[4]} {listTestInfo[2]} {listTestInfo[3]}({listTestInfo[5]}), 默认标题"
         except Exception as e:
-            print(f"获取标题时出错: {e}")
+            logging.error(f"获取标题时出错: {e}")
             strImageTitle = "默认电池分析图标题"
 
         # init variables for all files
@@ -166,7 +166,7 @@ class XlsxWordWriter:
             else:
                 # 设置默认值
                 listBatteryTypeBase = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
-                print("警告: 使用默认电池类型基础规格")
+                logging.warning("使用默认电池类型基础规格")
                 
             strBatteryType = ""
             for b in range(len(listBatteryTypeBase)):
@@ -178,12 +178,12 @@ class XlsxWordWriter:
             if strBatteryType == "":
                 if listBatteryTypeBase:
                     strBatteryType = listBatteryTypeBase[0]
-                    print(f"警告: 未找到精确匹配的电池类型，使用默认值: {strBatteryType}")
+                    logging.warning(f"未找到精确匹配的电池类型，使用默认值: {strBatteryType}")
                 else:
                     strBatteryType = self.listTestInfo[2]  # 直接使用测试信息中的类型
-                    print(f"警告: 电池类型列表为空，直接使用测试信息: {strBatteryType}")
+                    logging.warning(f"电池类型列表为空，直接使用测试信息: {strBatteryType}")
         except Exception as e:
-            print(f"获取电池类型时出错: {e}")
+            logging.error(f"获取电池类型时出错: {e}")
             strBatteryType = self.listTestInfo[2]  # 出错时使用测试信息中的类型
         self.listTestInfoForReplace = [self.listTestInfo[2], self.listTestInfo[3], self.listTestInfo[4],
                                        self.listTestInfo[5], self.listTestInfo[7], self.listTestInfo[11], strBatteryType,
@@ -475,12 +475,12 @@ class XlsxWordWriter:
             try:
                 # 检查section是否存在
                 if not self.config.has_section(_strSection):
-                    print(f"警告: 配置中找不到section '{_strSection}'，返回空字符串")
+                    logging.warning(f"配置中找不到section '{_strSection}'，返回空字符串")
                     return ""
                 
                 # 检查item是否存在
                 if not self.config.has_option(_strSection, _strItem):
-                    print(f"警告: 配置中找不到选项 '{_strItem}' in section '{_strSection}'，返回空字符串")
+                    logging.warning(f"配置中找不到选项 '{_strItem}' in section '{_strSection}'，返回空字符串")
                     return ""
                 
                 # 获取值并处理
@@ -493,7 +493,7 @@ class XlsxWordWriter:
                     _strValue += f"\n{_strBlankSpace}{_listItem[_i]}"
                 return _strValue
             except Exception as e:
-                print(f"获取配置项 '{_strItem}' from section '{_strSection}'时出错: {e}")
+                logging.error(f"获取配置项 '{_strItem}' from section '{_strSection}'时出错: {e}")
                 return ""
 
         def AddHyperlink(_pParagraph, _strUrl: str, _strText: str):
@@ -1446,7 +1446,7 @@ class JsonWriter:
             self.config.read(self.path + "/setting.ini", encoding='utf-8')
         except Exception as e:
             # 发生错误时创建基本配置
-            print(f"配置读取失败: {e}，使用默认配置")
+            logging.error(f"配置读取失败: {e}，使用默认配置")
             if not self.config.has_section("BatteryConfig"):
                 self.config.add_section("BatteryConfig")
             if not self.config.has_section("PltConfig"):
@@ -1505,11 +1505,11 @@ class JsonWriter:
         try:
             if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "SpecificationTypeBase"):
                 listBatteryTypeBase = self.config.get("BatteryConfig", "SpecificationTypeBase").split(",")
-                print(f"使用配置文件中的电池类型基础规格: {listBatteryTypeBase}")
+                logging.info(f"使用配置文件中的电池类型基础规格: {listBatteryTypeBase}")
             else:
                 # 使用默认值
                 listBatteryTypeBase = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
-                print("使用默认电池类型基础规格")
+                logging.info("使用默认电池类型基础规格")
             
             strBatteryType = ""
             for b in range(len(listBatteryTypeBase)):
@@ -1520,9 +1520,9 @@ class JsonWriter:
             # 如果没有找到匹配项，使用默认值
             if strBatteryType == "":
                 strBatteryType = "CoinCell"
-                print(f"未找到精确匹配的电池类型，使用默认值: {strBatteryType}")
+                logging.warning(f"未找到精确匹配的电池类型，使用默认值: {strBatteryType}")
         except Exception as e:
-            print(f"处理电池类型时出错: {e}，使用默认值")
+            logging.error(f"处理电池类型时出错: {e}，使用默认值")
             strBatteryType = "CoinCell"
 
         self.dictJson.update({

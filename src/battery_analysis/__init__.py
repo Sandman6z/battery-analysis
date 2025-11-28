@@ -2,7 +2,11 @@
 
 import os
 import tomllib
+import logging
 from pathlib import Path
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def _get_version_from_pyproject():
     """从pyproject.toml文件中读取版本号"""
@@ -19,7 +23,7 @@ def _get_version_from_pyproject():
         return pyproject_data["project"]["version"]
     except (FileNotFoundError, KeyError, tomllib.TOMLDecodeError) as e:
         # 如果无法读取版本号，使用默认版本作为回退
-        print(f"Warning: Could not read version from pyproject.toml: {e}")
+        logging.warning(f"Could not read version from pyproject.toml: {e}")
         return "2.0.0"
 
 # 从pyproject.toml读取版本号

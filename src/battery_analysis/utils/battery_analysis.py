@@ -2,6 +2,10 @@ import os
 import csv
 import datetime
 import traceback
+import logging
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 import xlrd as rd
 
@@ -243,7 +247,7 @@ class BatteryAnalysis:
         f.close()
 
     def UBA_Log(self, _data: str) -> None:
-        print(_data, end='')
+        logging.debug(_data, end='')
         f = open(self.strResultLogTxt, "a")
         f.write(_data)
         f.close()

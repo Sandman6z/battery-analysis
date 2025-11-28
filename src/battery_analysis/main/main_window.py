@@ -9,7 +9,11 @@ import shutil
 import hashlib
 import threading
 import subprocess
+import logging
 from pathlib import Path
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 添加项目根目录到Python路径
 script_dir = Path(__file__).absolute().parent
@@ -151,7 +155,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 list_value = []
             return list_value
         except Exception as e:
-            print(f"读取配置 {config_key} 失败: {e}")
+            logging.error(f"读取配置 {config_key} 失败: {e}")
             return []
 
     def init_window(self) -> None:
@@ -1072,7 +1076,7 @@ class Thread(QC.QThread):
                                                      listBatteryInfo=listBatteryInfo)
             self.strErrorXlsx = infoFile.UFW_GetErrorLog()
             if self.strErrorXlsx != "":
-                print(self.strErrorXlsx)
+                logging.error(self.strErrorXlsx)
                 # shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
             else:
                 # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
@@ -1108,23 +1112,23 @@ class Thread(QC.QThread):
                 exe_executed = False
                 for exe_path in exe_candidates:
                     if os.path.exists(exe_path):
-                        print(f"启动ImageMaker: {exe_path}")
+                        logging.info(f"启动ImageMaker: {exe_path}")
                         try:
                             # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行
                             subprocess.run(exe_path, shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
                             exe_executed = True
                             break
                         except Exception as e:
-                            print(f"启动失败 {exe_path}: {e}")
+                            logging.error(f"启动失败 {exe_path}: {e}")
                             continue
                 
                 if not exe_executed:
-                    print("警告: 未找到battery-analysis-visualizer可执行文件")
-                    print("候选路径:")
+                    logging.warning("未找到battery-analysis-visualizer可执行文件")
+                    logging.info("候选路径:")
                     for path in exe_candidates:
-                        print(f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")
+                        logging.info(f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")
         else:
-            print(self.strErrorBattery)
+            logging.error(self.strErrorBattery)
             # shutil.rmtree(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
         self.bThreadRun = False
 
