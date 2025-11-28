@@ -1,6 +1,17 @@
 import os
 import sys
 
+# 检查PyInstaller是否已安装，如果未安装则提示用户安装build依赖
+try:
+    import PyInstaller
+    print(f"PyInstaller已安装: {PyInstaller.__version__}")
+except ImportError:
+    print("警告: 未找到PyInstaller模块。请先安装build依赖组:")
+    print("  uv pip install -e '.[build]'")
+    print("或")
+    print("  pip install -e '.[build]'")
+    sys.exit(1)
+
 # 添加项目根目录到Python路径，确保能正确导入模块
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
@@ -697,9 +708,25 @@ VSVersionInfo(
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
         build_type = sys.argv[1]
-        if build_type not in ['Debug', 'Release']:
+        if build_type in ['--help', '-h']:
+            print("用法: python -m scripts.build [构建类型]")
+            print("\n构建类型:")
+            print("  Debug    - 构建调试版本")
+            print("  Release  - 构建发布版本")
+            print("\n示例:")
+            print("  python -m scripts.build Debug")
+            print("  python -m scripts.build Release")
+            sys.exit(0)
+        elif build_type not in ['Debug', 'Release']:
             raise ValueError(f"不支持的构建类型: {build_type}。只支持Debug和Release。")
         print(f"开始{build_type}模式构建...")
         BuildManager(build_type)
     else:
-        raise ValueError("需要1个参数: 构建类型名称（Debug或Release）")
+        print("用法: python -m scripts.build [构建类型]")
+        print("\n构建类型:")
+        print("  Debug    - 构建调试版本")
+        print("  Release  - 构建发布版本")
+        print("\n示例:")
+        print("  python -m scripts.build Debug")
+        print("  python -m scripts.build Release")
+        sys.exit(1)

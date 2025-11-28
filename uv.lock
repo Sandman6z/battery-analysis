@@ -28,9 +28,11 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+build = [
+    { name = "pyinstaller" },
+]
 dev = [
     { name = "black" },
-    { name = "pyinstaller" },
     { name = "pytest" },
 ]
 
@@ -41,7 +43,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.8.0,<4.0.0" },
     { name = "numpy", specifier = ">=1.24.0,<3.0.0" },
     { name = "openpyxl", specifier = ">=3.1.0,<4.0.0" },
-    { name = "pyinstaller", marker = "extra == 'dev'", specifier = ">=6.10.0,<7.0.0" },
+    { name = "pyinstaller", marker = "extra == 'build'", specifier = ">=6.10.0,<7.0.0" },
     { name = "pyqt6", specifier = ">=6.6.0,<7.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0,<8.0.0" },
     { name = "python-docx", specifier = ">=1.2.0,<2.0.0" },
@@ -49,7 +51,7 @@ requires-dist = [
     { name = "xlrd", specifier = "==1.2.0" },
     { name = "xlsxwriter", specifier = "~=3.0.8" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["dev", "build"]
 
 [[package]]
 name = "black"
