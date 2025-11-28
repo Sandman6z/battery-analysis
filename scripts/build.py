@@ -1,5 +1,10 @@
-import os
 import sys
+import shutil
+import datetime
+import configparser
+import subprocess
+from pathlib import Path
+from git import Repo
 
 # 检查PyInstaller是否已安装，如果未安装则提示用户安装build依赖
 try:
@@ -13,15 +18,9 @@ except ImportError:
     sys.exit(1)
 
 # 添加项目根目录到Python路径，确保能正确导入模块
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(script_dir)
-sys.path.insert(0, project_root)
-
-import shutil
-import datetime
-import configparser
-
-from git import Repo
+script_dir = Path(__file__).absolute().parent
+project_root = script_dir.parent
+sys.path.insert(0, str(project_root))
 
 from src.battery_analysis.utils.exception_type import BuildException
 
@@ -35,18 +34,18 @@ class CaseSensitiveConfigParser(configparser.ConfigParser):
 class BuildConfig:
     """构建配置基类"""
     def __init__(self):
-        self.script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.script_dir = Path(__file__).absolute().parent
         # 项目根目录是scripts的上一级目录
-        self.project_root = os.path.dirname(self.script_dir)
-        self.temp_build_dir = os.path.join(self.project_root, "__temp__")
-        self.final_build_dir = os.path.join(self.project_root, "build")
+        self.project_root = self.script_dir.parent
+        self.temp_build_dir = self.project_root / "__temp__"
+        self.final_build_dir = self.project_root / "build"
         
         # 初始化Git仓库
         self.git_repo = None
         self.git_index = None
         self.git = None
         try:
-            self.git_repo = Repo(self.project_root)
+            self.git_repo = Repo(str(self.project_root))
             self.git_index = self.git_repo.index
             self.git = self.git_repo.git
         except Exception as e:
@@ -55,14 +54,14 @@ class BuildConfig:
         
         # 首先读取pyproject.toml获取主版本号
         import tomllib
-        with open(os.path.join(self.project_root, "pyproject.toml"), "rb") as f:
+        with open(self.project_root / "pyproject.toml", "rb") as f:
             pyproject_data = tomllib.load(f)
         self.version = pyproject_data.get("project", {}).get("version", "0.0.0")
         
         # 然后读取配置文件获取其他配置
         self.config = CaseSensitiveConfigParser()
-        self.config_path = os.path.join(self.project_root, "config", "setting.ini")
-        self.config.read(self.config_path, encoding='utf-8')
+        self.config_path = self.project_root / "config" / "setting.ini"
+        self.config.read(str(self.config_path), encoding='utf-8')
         
         # 确保配置文件中的版本号与pyproject.toml一致
         if not self.config.has_section("BuildConfig"):
@@ -71,8 +70,8 @@ class BuildConfig:
         self.console_mode = self.config.getboolean("BuildConfig", "Console")
         
         # 定义构建应用相关目录
-        self.dataconverter_build_dir = os.path.join(self.temp_build_dir, "Build_BatteryAnalysis")
-        self.imagemaker_build_dir = os.path.join(self.temp_build_dir, "Build_ImageShow")
+        self.dataconverter_build_dir = self.temp_build_dir / "Build_BatteryAnalysis"
+        self.imagemaker_build_dir = self.temp_build_dir / "Build_ImageShow"
 
 
 class BuildManager(BuildConfig):
@@ -101,18 +100,18 @@ class BuildManager(BuildConfig):
         print(f"开始清理构建目录和缓存...")
         
         # 清理临时构建目录
-        if os.path.exists(self.temp_build_dir):
+        if self.temp_build_dir.exists():
             print(f"清理临时构建目录: {self.temp_build_dir}")
             shutil.rmtree(self.temp_build_dir)
         
         # 清理最终构建目录（对应当前构建类型）
-        final_build_type_dir = os.path.join(self.project_root, 'build', self.build_type)
-        if os.path.exists(final_build_type_dir):
+        final_build_type_dir = self.project_root / 'build' / self.build_type
+        if final_build_type_dir.exists():
             print(f"清理最终构建目录: {final_build_type_dir}")
             shutil.rmtree(final_build_type_dir)
         
         # 创建必要的目录
-        os.makedirs(self.temp_build_dir, exist_ok=True)
+        self.temp_build_dir.mkdir(parents=True, exist_ok=True)
         print("构建目录清理完成")
     
     def copy_source_files(self):
@@ -122,16 +121,17 @@ class BuildManager(BuildConfig):
     def generate_version_info(self):
         """生成版本信息文件"""
         # 在构建目录中创建version.txt文件（统一为两个应用生成）
-        if os.path.exists(os.path.join(self.build_path, 'Build_BatteryAnalysis')):
+        build_path = Path(self.build_path)
+        if (build_path / 'Build_BatteryAnalysis').exists():
             self._write_file(
                 self._generate_vs_version_info("test", "BatteryTest-DataConverter"),
-                os.path.join(self.build_path, 'Build_BatteryAnalysis', 'version.txt')
+                build_path / 'Build_BatteryAnalysis' / 'version.txt'
             )
 
-        if os.path.exists(os.path.join(self.build_path, 'Build_ImageShow')):
+        if (build_path / 'Build_ImageShow').exists():
             self._write_file(
                 self._generate_vs_version_info("test", "BatteryTest-ImageMaker"),
-                os.path.join(self.build_path, 'Build_ImageShow', 'version.txt')
+                build_path / 'Build_ImageShow' / 'version.txt'
             )
     
     def _generate_vs_version_info(self, commit_id, app_name):
@@ -188,9 +188,8 @@ VSVersionInfo(
         """移动构建好的程序到最终位置"""
         print('开始移动文件...')
         # 使用项目根目录作为基础路径，添加构建类型子目录
-        build_dir = os.path.join(self.project_root, 'build', self.build_type)
-        if not os.path.exists(build_dir):
-            os.makedirs(build_dir)
+        build_dir = self.project_root / 'build' / self.build_type
+        build_dir.mkdir(parents=True, exist_ok=True)
         
         # 准备文件名，只添加版本号信息
         version_suffix = self.version.replace('.', '_')
@@ -198,46 +197,39 @@ VSVersionInfo(
         imagemaker_exe_name = f"battery-analysis-visualizer_{version_suffix}.exe"
         
         # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
-        exe_path = os.path.join(build_dir, dataconverter_exe_name)
-        if os.path.exists(exe_path):
+        exe_path = build_dir / dataconverter_exe_name
+        if exe_path.exists():
             print(f"确认: {exe_path} 已在目标目录中")
         else:
             print(f"警告: {exe_path} 不存在")
 
-        exe_path = os.path.join(build_dir, imagemaker_exe_name)
-        if os.path.exists(exe_path):
+        exe_path = build_dir / imagemaker_exe_name
+        if exe_path.exists():
             print(f"确认: {exe_path} 已在目标目录中")
         else:
             print(f"警告: {exe_path} 不存在")
         
-        # BTSDA.cfg文件不再需要复制到构建目录（保留文件本身但不拷贝到运行环境）
-        # config_file = os.path.join(self.project_root, 'config', 'BTSDA.cfg')
-        # if os.path.exists(config_file):
-        #     shutil.copy(config_file, build_dir)
-        #     print(f"已复制配置文件到: {build_dir}")
-        # else:
-        #     print(f"警告: {config_file} 不存在，跳过复制")
-        
         # 创建setting.ini
         config = CaseSensitiveConfigParser()
-        config_path = os.path.join(self.project_root, "config", "setting.ini")
-        if os.path.exists(config_path):
-            config.read(config_path, encoding='utf-8')
+        config_path = self.project_root / "config" / "setting.ini"
+        if config_path.exists():
+            config.read(str(config_path), encoding='utf-8')
             if config.has_section("PltConfig"):
                 config.set("PltConfig", "Path", "")
                 config.set("PltConfig", "Title", "")
             if config.has_section("BuildConfig"):
                 config.remove_section("BuildConfig")
-            with open(os.path.join(build_dir, "setting.ini"), 'w', encoding='utf-8') as f:
+            with open(build_dir / "setting.ini", 'w', encoding='utf-8') as f:
                 config.write(f)
-            print(f"已创建: {os.path.join(build_dir, 'setting.ini')}")
+            print(f"已创建: {build_dir / 'setting.ini'}")
         else:
             print(f"警告: {config_path} 不存在，无法创建setting.ini")
         
         # 清理临时构建目录
-        if os.path.exists(self.build_path):
-            shutil.rmtree(self.build_path)
-            print(f"已清理临时构建目录: {self.build_path}")
+        build_path = Path(self.build_path)
+        if build_path.exists():
+            shutil.rmtree(build_path)
+            print(f"已清理临时构建目录: {build_path}")
 
     def setup_version(self):
         """设置版本信息"""
@@ -245,7 +237,10 @@ VSVersionInfo(
 
     def _write_file(self, content, file_path):
         """写入文件的辅助方法"""
-        with open(file_path, "w", encoding='utf-8') as f:
+        # 确保目录存在
+        file_path_obj = Path(file_path)
+        file_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path_obj, "w", encoding='utf-8') as f:
             f.write(content)
 
     def update_version_and_commit(self):
@@ -304,87 +299,74 @@ VSVersionInfo(
 
     def copy2dir(self):
         """复制源文件到构建目录"""
-        if os.path.exists(self.build_path):
-            shutil.rmtree(self.build_path)
-        os.mkdir(self.build_path)
+        build_path = Path(self.build_path)
+        if build_path.exists():
+            shutil.rmtree(build_path)
+        build_path.mkdir(parents=True, exist_ok=True)
         
-        # 为BatteryAnalysis创建构建目录
-        os.mkdir(f"{self.build_path}/Build_BatteryAnalysis")
+        # 创建两个应用的构建目录
+        battery_analysis_dir = build_path / "Build_BatteryAnalysis"
+        image_show_dir = build_path / "Build_ImageShow"
+        battery_analysis_dir.mkdir()
+        image_show_dir.mkdir()
         
-        # 复制主入口文件到根目录
-        shutil.copy(f"{self.project_root}/src/battery_analysis/main/main_window.py", f"{self.build_path}/Build_BatteryAnalysis")
-        shutil.copy(f"{self.project_root}/src/battery_analysis/resources_rc.py", f"{self.build_path}/Build_BatteryAnalysis")
-        shutil.copy(f"{self.project_root}/config/resources/icons/Icon_BatteryTestGUI.ico", f"{self.build_path}/Build_BatteryAnalysis/Icon_BatteryAnalysis.ico")
+        # 定义源文件路径
+        main_window_path = self.project_root / "src" / "battery_analysis" / "main" / "main_window.py"
+        image_show_path = self.project_root / "src" / "battery_analysis" / "main" / "image_show.py"
+        resources_rc_path = self.project_root / "src" / "battery_analysis" / "resources_rc.py"
+        icon_path = self.project_root / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico"
+        battery_analysis_src = self.project_root / "src" / "battery_analysis"
+        
+        # 复制BatteryAnalysis的文件
+        shutil.copy(main_window_path, battery_analysis_dir)
+        shutil.copy(resources_rc_path, battery_analysis_dir)
+        shutil.copy(icon_path, battery_analysis_dir / "Icon_BatteryAnalysis.ico")
         
         # 创建完整的battery_analysis包结构
-        battery_analysis_src = os.path.join(self.project_root, "src", "battery_analysis")
-        battery_analysis_dest = os.path.join(self.build_path, "Build_BatteryAnalysis", "battery_analysis")
-        
-        # 使用copytree确保复制完整的包结构，包括__init__.py文件
+        battery_analysis_dest = battery_analysis_dir / "battery_analysis"
         shutil.copytree(battery_analysis_src, battery_analysis_dest)
 
-        # 为ImageShow创建构建目录
-        os.mkdir(f"{self.build_path}/Build_ImageShow")
-        
-        # 复制ImageShow的主文件和资源
-        shutil.copy(f"{self.project_root}/src/battery_analysis/main/image_show.py", f"{self.build_path}/Build_ImageShow")
-        shutil.copy(f"{self.project_root}/src/battery_analysis/resources_rc.py", f"{self.build_path}/Build_ImageShow")
-        shutil.copy(f"{self.project_root}/config/resources/icons/Icon_BatteryTestGUI.ico", f"{self.build_path}/Build_ImageShow/Icon_ImageShow.ico")
+        # 复制ImageShow的文件
+        shutil.copy(image_show_path, image_show_dir)
+        shutil.copy(resources_rc_path, image_show_dir)
+        shutil.copy(icon_path, image_show_dir / "Icon_ImageShow.ico")
         
         # 为ImageShow也创建完整的battery_analysis包结构
-        battery_analysis_dest_img = os.path.join(self.build_path, "Build_ImageShow", "battery_analysis")
+        battery_analysis_dest_img = image_show_dir / "battery_analysis"
         shutil.copytree(battery_analysis_src, battery_analysis_dest_img)
 
     def build(self):
         """构建应用程序"""
         print('开始构建...')
         # 确保临时目录存在
-        temp_path = os.path.join(self.project_root, '__temp__')
-        if not os.path.exists(temp_path):
-            os.makedirs(temp_path)
+        temp_path = self.project_root / '__temp__'
+        temp_path.mkdir(parents=True, exist_ok=True)
         
         # 确保构建目录存在
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
+        build_path = Path(self.build_path)
+        build_path.mkdir(parents=True, exist_ok=True)
 
-        # 确保 Build_BatteryAnalysis 目录存在
-        if not os.path.exists(os.path.join(self.build_path, 'Build_BatteryAnalysis')):
-            os.makedirs(os.path.join(self.build_path, 'Build_BatteryAnalysis'))
-        # 确保 Build_ImageShow 目录存在
-        if not os.path.exists(os.path.join(self.build_path, 'Build_ImageShow')):
-            os.makedirs(os.path.join(self.build_path, 'Build_ImageShow'))
+        # 确保 Build_BatteryAnalysis 和 Build_ImageShow 目录存在
+        battery_analysis_dir = build_path / 'Build_BatteryAnalysis'
+        image_show_dir = build_path / 'Build_ImageShow'
+        battery_analysis_dir.mkdir(exist_ok=True)
+        image_show_dir.mkdir(exist_ok=True)
 
-        # 确保 build 目录存在
-        build_dir = os.path.join(self.project_root, 'build')
-        if not os.path.exists(build_dir):
-            os.makedirs(build_dir)
-            
-        # 为构建目录添加构建类型子目录，便于区分不同构建版本
-        final_build_dir = os.path.join(build_dir, self.build_type)
-        if not os.path.exists(final_build_dir):
-            os.makedirs(final_build_dir)
+        # 确保 build 目录存在并添加构建类型子目录
+        final_build_dir = self.project_root / 'build' / self.build_type
+        final_build_dir.mkdir(parents=True, exist_ok=True)
 
-        # 获取Python解释器路径和PyInstaller命令
+        # 获取Python解释器路径
         python_exe = sys.executable
-        pyinstaller_cmd = f"{python_exe} -m PyInstaller"
         
-        # 复制必要的配置文件和图标
-        # BTSDA.cfg文件不再需要复制到构建目录（保留文件本身但不拷贝到运行环境）
-        # if os.path.exists(os.path.join(self.project_root, 'config', 'BTSDA.cfg')):
-        #     shutil.copy2(os.path.join(self.project_root, 'config', 'BTSDA.cfg'), final_build_dir)
+        # 复制必要的图标（如果copy2dir方法未处理）
+        icon_path = self.project_root / 'config' / 'resources' / 'icons' / 'Icon_BatteryTestGUI.ico'
+        if icon_path.exists():
+            shutil.copy2(icon_path, battery_analysis_dir / 'Icon_BatteryAnalysis.ico')
+            shutil.copy2(icon_path, image_show_dir / 'Icon_ImageShow.ico')
         
-        # 复制图标
-        icon_path = os.path.join(self.project_root, 'config', 'resources', 'icons', 'Icon_BatteryTestGUI.ico')
-        if os.path.exists(icon_path):
-            shutil.copy2(icon_path, os.path.join(self.build_path, 'Build_BatteryAnalysis', 'Icon_BatteryAnalysis.ico'))
-            shutil.copy2(icon_path, os.path.join(self.build_path, 'Build_ImageShow', 'Icon_ImageShow.ico'))
-        
-        src_path = os.path.join(self.project_root, 'src')
+        src_path = self.project_root / 'src'
 
-        # 对路径进行转义处理，确保在Python代码中正确使用
-        project_root_escaped = self.project_root.replace('\\', '\\\\')
-        src_path_escaped = src_path.replace('\\', '\\\\')
-        
         # 准备文件名，添加版本号信息
         version_suffix = self.version.replace('.', '_')
         dataconverter_exe_name = f"battery-analyzer_{version_suffix}"
@@ -395,6 +377,9 @@ VSVersionInfo(
         debug_mode = self.build_type == "Debug"
 
         # 使用简单的字符串拼接方式，并处理路径转义
+        project_root_escaped = str(project_root).replace('\\', '\\\\')
+        src_path_escaped = str(src_path).replace('\\', '\\\\')
+        
         spec_content = '# -*- mode: python ; coding: utf-8 -*-\n'
         spec_content += 'block_cipher = None\n'
         spec_content += 'a = Analysis(\n'
@@ -563,6 +548,10 @@ VSVersionInfo(
         debug_mode = self.build_type == "Debug"
 
         # 使用简单的字符串拼接方式，并处理路径转义
+        # 重新定义转义路径变量，确保在ImageMaker部分也能正确使用
+        project_root_escaped = str(project_root).replace('\\', '\\\\')
+        src_path_escaped = str(src_path).replace('\\', '\\\\')
+        
         spec_content = '# -*- mode: python ; coding: utf-8 -*-\n'
         spec_content += 'block_cipher = None\n'
         spec_content += 'a = Analysis(\n'
@@ -617,24 +606,25 @@ VSVersionInfo(
         python_dll = None
         
         # 首先尝试直接从Python安装目录查找
-        python_home = os.path.dirname(os.path.dirname(sys.executable))
+        python_exec_dir = Path(sys.executable).parent
+        python_home = python_exec_dir.parent
         print(f"Python home directory: {python_home}")
         
         # 添加更多可能的DLL路径，包括GitHub Actions环境中的常见位置
         possible_dll_paths = [
-            os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
-            os.path.join(python_home, 'python311.dll'),
-            os.path.join(python_home, 'DLLs', 'python311.dll'),
-            os.path.join(os.environ.get('PYTHONHOME', ''), 'python311.dll'),
-            'python311.dll'  # 让PyInstaller尝试在PATH中查找
+            python_exec_dir / 'python311.dll',
+            python_home / 'python311.dll',
+            python_home / 'DLLs' / 'python311.dll',
+            Path(os.environ.get('PYTHONHOME', '')) / 'python311.dll',
+            Path('python311.dll')  # 让PyInstaller尝试在PATH中查找
         ]
         
         # 打印所有尝试的路径用于调试
         print("Trying to find python311.dll in:")
         for i, path in enumerate(possible_dll_paths):
-            print(f"  {i+1}. {path} - {'Found' if os.path.exists(path) else 'Not found'}")
-            if os.path.exists(path):
-                python_dll = path
+            print(f"  {i+1}. {path} - {'Found' if path.exists() else 'Not found'}")
+            if path.exists():
+                python_dll = str(path)
                 break
 
         # 构建命令参数列表 - 添加DLL修复参数，不使用spec文件而是直接使用命令行参数
@@ -660,9 +650,9 @@ VSVersionInfo(
         # 添加剩余参数
         cmd_args.extend([
                   f'--add-data={src_path};src',
-                  f'--add-data={os.path.abspath(os.path.join(self.project_root, "config"))};config',
-                  f'--add-data={os.path.join(self.project_root, "pyproject.toml")};.',
-                  f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
+                  f'--add-data={self.project_root / "config"};config',
+                  f'--add-data={self.project_root / "pyproject.toml"};.',
+                  f'--add-data={self.project_root / "config" / "setting.ini"};.',
                   '--hidden-import=matplotlib.backends.backend_svg',
                   '--hidden-import=docx',
                   '--hidden-import=openpyxl',
@@ -686,7 +676,7 @@ VSVersionInfo(
             # 在指定目录下执行命令
             result = subprocess.run(
                 cmd_args,
-                cwd=os.path.join(self.build_path, 'Build_ImageShow'),
+                cwd=image_show_dir,
                 check=False,
                 capture_output=True,
                 text=True
@@ -700,7 +690,7 @@ VSVersionInfo(
             result = subprocess.CompletedProcess(cmd_args, 1)
 
         # 清理临时文件
-        if os.path.exists(temp_path):
+        if temp_path.exists():
             shutil.rmtree(temp_path)
         print(f'构建完成，可执行文件位于: {final_build_dir}')
 
