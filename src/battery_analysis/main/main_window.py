@@ -77,6 +77,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.cc_current = ""
         self.md5_checksum = ""
         self.md5_checksum_run = ""
+
         if sys.platform == "win32":
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
@@ -1198,9 +1199,22 @@ def main() -> None:
     
     app = QW.QApplication(sys.argv)
     main = Main()
-    # 移除固定窗口大小，允许自由调整
-    main.setMinimumSize(970, 885)  # 设置最小尺寸以确保UI元素正常显示
+    # 设置窗口最小尺寸为更小的值，确保在小分辨率屏幕上也能显示标题栏
+    main.setMinimumSize(800, 600)  # 设置一个合理的最小尺寸
     main.show()
+    
+    # 获取屏幕可用区域
+    screen_rect = app.primaryScreen().availableGeometry()
+    
+    # 确保窗口不会超出屏幕边界
+    window = main.windowHandle()
+    if window:
+        # 如果窗口太大，调整为适合屏幕
+        if main.width() > screen_rect.width() or main.height() > screen_rect.height():
+            new_width = min(main.width(), int(screen_rect.width() * 0.9))
+            new_height = min(main.height(), int(screen_rect.height() * 0.9))
+            main.resize(new_width, new_height)
+    
     sys.exit(app.exec())
 
 if __name__ == '__main__': 
