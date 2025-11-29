@@ -116,6 +116,12 @@ class FIGURE:
             if setting_ini_path.exists():
                 self.config.read(setting_ini_path, encoding='utf-8')
                 logging.info("成功读取setting.ini配置")
+            else:
+                # 如果找不到，尝试使用绝对路径（确保在任何位置都能找到）
+                abs_setting_ini_path = Path(__file__).resolve().parent.parent.parent / "config" / "setting.ini"
+                if abs_setting_ini_path.exists():
+                    self.config.read(abs_setting_ini_path, encoding='utf-8')
+                    logging.info("成功读取绝对路径下的setting.ini配置")
                 return
             
             # 回退到Config_BatteryAnalysis.ini（兼容旧版本）

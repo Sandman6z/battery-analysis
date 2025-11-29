@@ -210,3 +210,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# 项目无关文件 - 报告文件
+pylint_report.html
+pylint_report.json
+cleanup_report.md
+
+# 临时构建目录
+temp_build/

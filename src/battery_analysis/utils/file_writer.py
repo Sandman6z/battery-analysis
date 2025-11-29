@@ -54,7 +54,9 @@ class XlsxWordWriter:
             # 3. 当前工作目录下直接查找
             os.path.join(os.getcwd(), "setting.ini"),
             # 4. 基础目录下直接查找
-            os.path.join(base_dir, "setting.ini")
+            os.path.join(base_dir, "setting.ini"),
+            # 5. 基于当前文件的绝对路径查找（确保在任何位置都能找到）
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(current_file_dir))), "config", "setting.ini")
         ]
         
         # 遍历查找第一个存在的配置文件

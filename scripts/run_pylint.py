@@ -13,6 +13,11 @@ import subprocess
 import sys
 import json
 from pathlib import Path
+import logging
+
+# 配置日志记录
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def run_pylint():
     """运行Pylint分析并显示结果"""
@@ -24,19 +29,19 @@ def run_pylint():
     try:
         subprocess.run([sys.executable, "-m", "pylint", "--version"], 
                       check=True, capture_output=True, text=True)
-        print("Pylint已安装，开始分析...")
+        logger.info("Pylint已安装，开始分析...")
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("错误：Pylint未安装！请运行 'uv sync --dev' 或者 'uv pip install -e '.[dev]'' 来安装开发依赖。")
+        logger.error("错误：Pylint未安装！请运行 'uv sync --dev' 或者 'uv pip install -e '.[dev]'' 来安装开发依赖。")
         sys.exit(1)
     
     # 要分析的主要代码目录
     src_dir = project_root / "src"
     
     if not src_dir.exists():
-        print(f"错误：源目录 {src_dir} 不存在！")
+        logger.error(f"错误：源目录 {src_dir} 不存在！")
         sys.exit(1)
     
-    print(f"正在分析目录：{src_dir}")
+    logger.info(f"正在分析目录：{src_dir}")
     
     # 构建Pylint命令 - 现在使用pyproject.toml中的配置
     pylint_cmd = [
@@ -62,29 +67,29 @@ def run_pylint():
             encoding='utf-8'
         )
         
-        # 实时打印输出
+        # 实时记录输出
         for line in process.stdout:
-            print(line, end='')
+            logger.info(line.rstrip())
             
         process.wait()
         
         if process.returncode == 0:
-            print("\n✅ 代码分析完成，未发现问题！")
+            logger.info("✅ 代码分析完成，未发现问题！")
         elif process.returncode == 1:
-            print("\n⚠️  代码分析完成，发现一些警告。")
+            logger.warning("⚠️  代码分析完成，发现一些警告。")
         else:
-            print("\n❌ 代码分析完成，发现错误。")
+            logger.error("❌ 代码分析完成，发现错误。")
             
         # 生成HTML报告
         generate_html_report(project_root, src_dir)
             
     except Exception as e:
-        print(f"运行Pylint时出错：{str(e)}")
+        logger.error(f"运行Pylint时出错：{str(e)}")
         sys.exit(1)
 
 def generate_html_report(project_root, src_dir):
     """生成HTML格式的Pylint报告"""
-    print("\n正在生成HTML报告...")
+    logger.info("正在生成HTML报告...")
     
     json_report = project_root / "pylint_report.json"
     html_report = project_root / "pylint_report.html"
@@ -98,7 +103,7 @@ def generate_html_report(project_root, src_dir):
         "--output", str(json_report),
         # 禁用可能导致生成JSON报告失败的检查项
         "--disable=line-too-long,trailing-whitespace",
-        "--exit-code=0",  # 强制返回成功状态码，确保报告生成
+        "--fail-under=0",  # 确保即使有错误也返回0退出码
         str(src_dir)
     ]
     
@@ -108,7 +113,7 @@ def generate_html_report(project_root, src_dir):
         
         # 检查文件是否成功创建
         if json_report.exists() and json_report.stat().st_size > 0:
-            print(f"JSON报告已保存到：{json_report}")
+            logger.info(f"JSON报告已保存到：{json_report}")
             
             # 尝试多种方式生成HTML报告
             html_generated = False
@@ -133,10 +138,10 @@ def generate_html_report(project_root, src_dir):
                                     html_cmd = [sys.executable, script_path, str(json_report), str(html_report)]
                                     html_result = subprocess.run(html_cmd, capture_output=True, text=True)
                                     if html_result.returncode == 0:
-                                        print(f"HTML报告已成功保存到：{html_report}")
+                                        logger.info(f"HTML报告已成功保存到：{html_report}")
                                         html_generated = True
                                         break
-                        except Exception:
+                        except Exception as e:
                             pass
                 except Exception:
                     pass
@@ -219,15 +224,15 @@ def generate_html_report(project_root, src_dir):
                         </body>
                         </html>
                         """)
-                    print(f"已创建自定义HTML报告到：{html_report}")
+                    logger.info(f"已创建自定义HTML报告到：{html_report}")
                     html_generated = True
                 except Exception as e:
-                    print(f"创建自定义HTML报告时出错：{str(e)}")
+                    logger.error(f"创建自定义HTML报告时出错：{str(e)}")
             
             if not html_generated:
-                print("警告：无法生成HTML报告")
+                logger.warning("无法生成HTML报告")
         else:
-            print(f"警告：JSON报告文件创建失败或为空")
+            logger.warning("JSON报告文件创建失败或为空")
             # 即使JSON报告失败，也尝试创建一个基本的HTML报告
             try:
                 with open(html_report, 'w', encoding='utf-8') as f:
@@ -249,11 +254,11 @@ def generate_html_report(project_root, src_dir):
                     </body>
                     </html>
                     """)
-                print(f"已创建最小化HTML报告到：{html_report}")
+                logger.info(f"已创建最小化HTML报告到：{html_report}")
             except Exception:
-                print("无法创建任何HTML报告")
+                logger.error("无法创建任何HTML报告")
     except Exception as e:
-        print(f"生成报告时出错：{str(e)}")
+        logger.error(f"生成报告时出错：{str(e)}")
 
 if __name__ == "__main__":
     run_pylint()

@@ -91,14 +91,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         
         # 定义可能的配置文件路径列表
         possible_config_paths = [
-            # 1. 首先检查当前工作目录下的config文件夹
+            # 1. 检查当前工作目录下的config/setting.ini
             Path.cwd() / "config" / "setting.ini",
-            # 2. 检查基础目录下的config文件夹
+            # 2. 检查基础目录下的config/setting.ini
             base_dir / "config" / "setting.ini",
             # 3. 检查当前工作目录下的setting.ini
             Path.cwd() / "setting.ini",
             # 4. 检查基础目录下的setting.ini
-            base_dir / "setting.ini"
+            base_dir / "setting.ini",
+            # 5. 检查项目根目录下的config/setting.ini（确保在任何位置都能找到）
+            Path(__file__).resolve().parent.parent.parent / "config" / "setting.ini"
         ]
         
         # 遍历所有可能的路径，找到第一个存在的配置文件
