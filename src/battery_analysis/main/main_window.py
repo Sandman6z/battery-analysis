@@ -7,6 +7,8 @@ import time
 import hashlib
 import threading
 import logging
+import shutil
+import subprocess
 from pathlib import Path
 
 # 配置日志
