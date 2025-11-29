@@ -337,6 +337,17 @@ VSVersionInfo(
         shutil.copy(main_window_path, battery_analysis_dir)
         shutil.copy(resources_rc_path, battery_analysis_dir / "resources")
         shutil.copy(icon_path, battery_analysis_dir / "Icon_BatteryAnalysis.ico")
+        
+        # 复制SVG图标文件到构建目录的config/resources/icons文件夹
+        svg_dir = self.project_root / "config" / "resources" / "icons"
+        if svg_dir.exists():
+            # 创建目标目录
+            dest_svg_dir = battery_analysis_dir / "config" / "resources" / "icons"
+            dest_svg_dir.mkdir(parents=True, exist_ok=True)
+            # 复制所有SVG文件
+            for svg_file in svg_dir.glob("*.svg"):
+                shutil.copy(svg_file, dest_svg_dir)
+                logger.info(f"已复制SVG图标: {svg_file.name}")
         # 确保UI目录存在并复制UI文件
         ui_dest_dir = battery_analysis_dir / "battery_analysis" / "ui" / "resources"
         ui_dest_dir.mkdir(parents=True, exist_ok=True)
@@ -351,6 +362,16 @@ VSVersionInfo(
         shutil.copy(image_show_path, image_show_dir)
         shutil.copy(resources_rc_path, image_show_dir / "resources")
         shutil.copy(icon_path, image_show_dir / "Icon_ImageShow.ico")
+        
+        # 复制SVG图标文件到ImageShow的config/resources/icons文件夹
+        if svg_dir.exists():
+            # 创建目标目录
+            dest_svg_dir_img = image_show_dir / "config" / "resources" / "icons"
+            dest_svg_dir_img.mkdir(parents=True, exist_ok=True)
+            # 复制所有SVG文件
+            for svg_file in svg_dir.glob("*.svg"):
+                shutil.copy(svg_file, dest_svg_dir_img)
+                logger.info(f"已复制SVG图标到ImageShow: {svg_file.name}")
         
         # 为ImageShow也创建完整的battery_analysis包结构
         battery_analysis_dest_img = image_show_dir / "battery_analysis"

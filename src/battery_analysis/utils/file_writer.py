@@ -38,11 +38,13 @@ class XlsxWordWriter:
         # 改进配置文件路径查找逻辑，支持开发环境和exe环境
         config_path = None
         
+        # 获取当前文件所在目录
+        current_file_dir = os.path.dirname(os.path.abspath(__file__))
+        
         # 确定基础目录（区分exe环境和开发环境）
         if getattr(sys, 'frozen', False):  # exe环境
             base_dir = os.path.dirname(sys.executable)
         else:  # 开发环境
-            current_file_dir = os.path.dirname(os.path.abspath(__file__))
             base_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file_dir)))
         
         # 定义可能的配置文件路径列表
