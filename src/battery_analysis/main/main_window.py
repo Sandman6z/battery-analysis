@@ -31,6 +31,8 @@ from battery_analysis.ui import ui_main_window
 from battery_analysis.utils import version
 from battery_analysis.utils import file_writer
 from battery_analysis.utils import battery_analysis
+# 导入资源文件
+from battery_analysis.resources import resources_rc
 
 
 def calc_md5checksum(file_paths):
