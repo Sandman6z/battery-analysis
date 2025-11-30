@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file './config/resources/ui/UI_BatteryAnalysis.ui'
+# Form implementation generated from reading ui file './src/battery_analysis/ui/resources/ui_battery_analysis.ui'
 #
 # Created by: PyQt6 UI code generator 6.10.0
 #
@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QtCore.QSize(640, 480))  # 设置更小的最小尺寸，确保在小屏幕上也能显示标题栏
+        MainWindow.setMinimumSize(QtCore.QSize(200, 200))
         MainWindow.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
         MainWindow.setTabShape(QtWidgets.QTabWidget.TabShape.Rounded)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
@@ -360,7 +360,7 @@ class Ui_MainWindow(object):
         self.label_ConstructionMethod.setFont(font)
         self.label_ConstructionMethod.setObjectName("label_ConstructionMethod")
         self.horizontalLayout_ConstructionMethod.addWidget(self.label_ConstructionMethod)
-        spacerItem6 = QtWidgets.QSpacerItem(0, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem6 = QtWidgets.QSpacerItem(12, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_ConstructionMethod.addItem(spacerItem6)
         self.comboBox_ConstructionMethod = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_4)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -1001,6 +1001,7 @@ class Ui_MainWindow(object):
         self.tableWidget_TestInformation.setFont(font)
         self.tableWidget_TestInformation.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.CursorShape.IBeamCursor))
         self.tableWidget_TestInformation.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
+        self.tableWidget_TestInformation.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.tableWidget_TestInformation.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.tableWidget_TestInformation.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.tableWidget_TestInformation.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustIgnored)
@@ -1108,7 +1109,6 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         font.setBold(False)
         font.setUnderline(False)
-        font.setWeight(50)
         font.setKerning(True)
         font.setStyleStrategy(QtGui.QFont.StyleStrategy.PreferAntialias)
         self.pushButton_Run.setFont(font)
@@ -1201,6 +1201,23 @@ class Ui_MainWindow(object):
         self.statusBar_BatteryAnalysis = QtWidgets.QStatusBar(parent=MainWindow)
         self.statusBar_BatteryAnalysis.setObjectName("statusBar_BatteryAnalysis")
         MainWindow.setStatusBar(self.statusBar_BatteryAnalysis)
+        self.menuBar = QtWidgets.QMenuBar(parent=MainWindow)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 970, 22))
+        self.menuBar.setObjectName("menuBar")
+        self.menuHelp = QtWidgets.QMenu(parent=self.menuBar)
+        self.menuHelp.setObjectName("menuHelp")
+        self.menuFile = QtWidgets.QMenu(parent=self.menuBar)
+        self.menuFile.setObjectName("menuFile")
+        MainWindow.setMenuBar(self.menuBar)
+        self.actionUser_Mannual = QtGui.QAction(parent=MainWindow)
+        self.actionUser_Mannual.setObjectName("actionUser_Mannual")
+        self.actionAbout = QtGui.QAction(parent=MainWindow)
+        self.actionAbout.setObjectName("actionAbout")
+        self.menuHelp.addAction(self.actionUser_Mannual)
+        self.menuHelp.addSeparator()
+        self.menuHelp.addAction(self.actionAbout)
+        self.menuBar.addAction(self.menuFile.menuAction())
+        self.menuBar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
         self.comboBox_BatteryType.setCurrentIndex(-1)
@@ -1237,3 +1254,7 @@ class Ui_MainWindow(object):
         self.tableWidget_TestInformation.setSortingEnabled(__sortingEnabled)
         self.pushButton_Run.setText(_translate("MainWindow", "Run"))
         self.label_Version.setText(_translate("MainWindow", "Report Version"))
+        self.menuHelp.setTitle(_translate("MainWindow", "Help"))
+        self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.actionUser_Mannual.setText(_translate("MainWindow", "User Mannual"))
+        self.actionAbout.setText(_translate("MainWindow", "About"))

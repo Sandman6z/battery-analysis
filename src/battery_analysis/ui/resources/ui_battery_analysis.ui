@@ -30,7 +30,7 @@
    <string>MainWindow</string>
   </property>
   <property name="tabShape">
-   <enum>QTabWidget::Rounded</enum>
+   <enum>QTabWidget::TabShape::Rounded</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -52,6 +52,7 @@
      <font>
       <family>Microsoft YaHei UI</family>
       <pointsize>9</pointsize>
+      <fontweight>Medium</fontweight>
      </font>
     </property>
     <property name="title">
@@ -67,13 +68,13 @@
       </rect>
      </property>
      <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
+      <enum>Qt::LayoutDirection::LeftToRight</enum>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Shadow::Sunken</enum>
      </property>
      <widget class="QWidget" name="verticalLayoutWidget_5">
       <property name="geometry">
@@ -123,6 +124,7 @@
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -133,10 +135,10 @@
          <item>
           <spacer name="horizontalSpacer_9">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -164,10 +166,10 @@
             <cursorShape>IBeamCursor</cursorShape>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>
@@ -182,10 +184,10 @@
 </string>
            </property>
            <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText</set>
+            <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
            <property name="readOnly">
             <bool>false</bool>
@@ -220,6 +222,7 @@
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -230,10 +233,10 @@
          <item>
           <spacer name="horizontalSpacer_10">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -255,16 +258,17 @@
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="minimum">
             <number>0</number>
@@ -292,10 +296,10 @@
       </rect>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Shadow::Sunken</enum>
      </property>
      <widget class="QWidget" name="verticalLayoutWidget_3">
       <property name="geometry">
@@ -345,6 +349,7 @@
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -355,10 +360,10 @@
          <item>
           <spacer name="horizontalSpacer_3">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -380,7 +385,7 @@
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">/* 1) 外框圆角 */
@@ -449,6 +454,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -459,10 +465,10 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer_4">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -481,7 +487,7 @@ QComboBox::down-arrow:on {
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
@@ -493,10 +499,10 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText</set>
+            <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -528,6 +534,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -538,10 +545,10 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer_5">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -560,7 +567,7 @@ QComboBox::down-arrow:on {
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
@@ -572,10 +579,10 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText</set>
+            <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -594,10 +601,10 @@ QComboBox::down-arrow:on {
       </rect>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Shadow::Sunken</enum>
      </property>
      <widget class="QWidget" name="verticalLayoutWidget_4">
       <property name="geometry">
@@ -647,6 +654,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -657,10 +665,10 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -691,7 +699,7 @@ QComboBox::down-arrow:on {
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">/* 1) 外框圆角 */
@@ -763,6 +771,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -773,14 +782,14 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer_12">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>0</width>
+             <width>12</width>
              <height>20</height>
             </size>
            </property>
@@ -804,7 +813,7 @@ QComboBox::down-arrow:on {
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">/* 1) 外框圆角 */
@@ -873,6 +882,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -883,10 +893,10 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -902,7 +912,7 @@ QComboBox::down-arrow:on {
             <number>2</number>
            </property>
            <property name="sizeConstraint">
-            <enum>QLayout::SetFixedSize</enum>
+            <enum>QLayout::SizeConstraint::SetFixedSize</enum>
            </property>
            <property name="leftMargin">
             <number>5</number>
@@ -940,7 +950,7 @@ QComboBox::down-arrow:on {
               <cursorShape>PointingHandCursor</cursorShape>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="styleSheet">
               <string notr="true">/* 1) 外框圆角 */
@@ -1005,7 +1015,7 @@ QComboBox::down-arrow:on {
               <cursorShape>PointingHandCursor</cursorShape>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="styleSheet">
               <string notr="true">/* 1) 外框圆角 */
@@ -1045,7 +1055,7 @@ QComboBox::down-arrow:on {
               <bool>false</bool>
              </property>
              <property name="insertPolicy">
-              <enum>QComboBox::InsertAtBottom</enum>
+              <enum>QComboBox::InsertPolicy::InsertAtBottom</enum>
              </property>
             </widget>
            </item>
@@ -1066,10 +1076,10 @@ QComboBox::down-arrow:on {
       </rect>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Shadow::Sunken</enum>
      </property>
      <widget class="QWidget" name="verticalLayoutWidget_6">
       <property name="geometry">
@@ -1119,6 +1129,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -1129,10 +1140,10 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer_6">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1151,7 +1162,7 @@ QComboBox::down-arrow:on {
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
@@ -1163,10 +1174,10 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText</set>
+            <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -1192,6 +1203,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -1202,10 +1214,10 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer_7">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1224,7 +1236,7 @@ QComboBox::down-arrow:on {
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
@@ -1236,7 +1248,7 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -1268,6 +1280,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -1278,10 +1291,10 @@ QComboBox::down-arrow:on {
          <item>
           <spacer name="horizontalSpacer_8">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Fixed</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1300,7 +1313,7 @@ QComboBox::down-arrow:on {
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
@@ -1312,10 +1325,10 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="inputMethodHints">
-            <set>Qt::ImhHiddenText</set>
+            <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -1342,6 +1355,7 @@ QComboBox::down-arrow:on {
      <font>
       <family>Microsoft YaHei UI</family>
       <pointsize>9</pointsize>
+      <fontweight>Medium</fontweight>
      </font>
     </property>
     <property name="styleSheet">
@@ -1404,10 +1418,10 @@ QComboBox::down-arrow:on {
       <item>
        <spacer name="horizontalSpacer_11">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -1432,10 +1446,10 @@ QComboBox::down-arrow:on {
          </font>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QLineEdit {
@@ -1447,10 +1461,10 @@ QComboBox::down-arrow:on {
 </string>
         </property>
         <property name="inputMethodHints">
-         <set>Qt::ImhHiddenText</set>
+         <set>Qt::InputMethodHint::ImhHiddenText</set>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
         <property name="readOnly">
          <bool>true</bool>
@@ -1475,7 +1489,7 @@ QComboBox::down-arrow:on {
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="text">
          <string>Open</string>
@@ -1534,10 +1548,10 @@ QComboBox::down-arrow:on {
       <item>
        <spacer name="horizontalSpacer_16">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -1559,7 +1573,7 @@ QComboBox::down-arrow:on {
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">/* 1) 外框圆角 */
@@ -1652,10 +1666,10 @@ QComboBox::down-arrow:on {
       <item>
        <spacer name="horizontalSpacer_13">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -1683,7 +1697,7 @@ QComboBox::down-arrow:on {
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">/* 1) 外框圆角 */
@@ -1740,6 +1754,7 @@ QComboBox::down-arrow:on {
      <font>
       <family>Microsoft YaHei UI</family>
       <pointsize>9</pointsize>
+      <fontweight>Medium</fontweight>
      </font>
     </property>
     <property name="title">
@@ -1758,6 +1773,7 @@ QComboBox::down-arrow:on {
       <font>
        <family>Microsoft JhengHei</family>
        <pointsize>9</pointsize>
+       <fontweight>Medium</fontweight>
       </font>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_InputPath">
@@ -1785,6 +1801,7 @@ QComboBox::down-arrow:on {
          <font>
           <family>Microsoft JhengHei</family>
           <pointsize>9</pointsize>
+          <fontweight>Medium</fontweight>
          </font>
         </property>
         <property name="text">
@@ -1795,10 +1812,10 @@ QComboBox::down-arrow:on {
       <item>
        <spacer name="horizontalSpacer_14">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -1817,7 +1834,7 @@ QComboBox::down-arrow:on {
          </font>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QLineEdit {
@@ -1829,10 +1846,10 @@ QComboBox::down-arrow:on {
 </string>
         </property>
         <property name="inputMethodHints">
-         <set>Qt::ImhHiddenText</set>
+         <set>Qt::InputMethodHint::ImhHiddenText</set>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
         <property name="readOnly">
          <bool>true</bool>
@@ -1851,13 +1868,14 @@ QComboBox::down-arrow:on {
          <font>
           <family>Microsoft JhengHei</family>
           <pointsize>9</pointsize>
+          <fontweight>Medium</fontweight>
          </font>
         </property>
         <property name="cursor">
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="text">
          <string>Open</string>
@@ -1879,6 +1897,7 @@ QComboBox::down-arrow:on {
       <font>
        <family>Microsoft JhengHei</family>
        <pointsize>9</pointsize>
+       <fontweight>Medium</fontweight>
       </font>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_OutputPath">
@@ -1900,6 +1919,7 @@ QComboBox::down-arrow:on {
          <font>
           <family>Microsoft JhengHei</family>
           <pointsize>9</pointsize>
+          <fontweight>Medium</fontweight>
          </font>
         </property>
         <property name="text">
@@ -1910,10 +1930,10 @@ QComboBox::down-arrow:on {
       <item>
        <spacer name="horizontalSpacer_15">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -1932,7 +1952,7 @@ QComboBox::down-arrow:on {
          </font>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QLineEdit {
@@ -1944,10 +1964,10 @@ QComboBox::down-arrow:on {
 </string>
         </property>
         <property name="inputMethodHints">
-         <set>Qt::ImhHiddenText</set>
+         <set>Qt::InputMethodHint::ImhHiddenText</set>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
         <property name="readOnly">
          <bool>true</bool>
@@ -1960,13 +1980,14 @@ QComboBox::down-arrow:on {
          <font>
           <family>Microsoft JhengHei</family>
           <pointsize>9</pointsize>
+          <fontweight>Medium</fontweight>
          </font>
         </property>
         <property name="cursor">
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="text">
          <string>Open</string>
@@ -1989,6 +2010,7 @@ QComboBox::down-arrow:on {
      <font>
       <family>Microsoft YaHei UI</family>
       <pointsize>9</pointsize>
+      <fontweight>Medium</fontweight>
      </font>
     </property>
     <property name="styleSheet">
@@ -2045,16 +2067,19 @@ QComboBox::down-arrow:on {
           <cursorShape>IBeamCursor</cursorShape>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::ClickFocus</enum>
+          <enum>Qt::FocusPolicy::ClickFocus</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::AdjustIgnored</enum>
+          <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
          </property>
          <property name="tabKeyNavigation">
           <bool>false</bool>
@@ -2268,10 +2293,10 @@ QComboBox::down-arrow:on {
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
@@ -2297,10 +2322,10 @@ QComboBox::down-arrow:on {
       <item>
        <widget class="QFrame" name="frame_7">
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::Shape::StyledPanel</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <widget class="QPushButton" name="pushButton_Run">
          <property name="enabled">
@@ -2330,7 +2355,6 @@ QComboBox::down-arrow:on {
           <font>
            <family>Consolas</family>
            <pointsize>12</pointsize>
-           <weight>50</weight>
            <bold>false</bold>
            <underline>false</underline>
            <stylestrategy>PreferAntialias</stylestrategy>
@@ -2344,7 +2368,7 @@ QComboBox::down-arrow:on {
           <bool>true</bool>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::ClickFocus</enum>
+          <enum>Qt::FocusPolicy::ClickFocus</enum>
          </property>
          <property name="styleSheet">
           <string notr="true">QPushButton#pushButton_Run {
@@ -2381,10 +2405,10 @@ QPushButton#pushButton_Run:pressed {
       <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Orientation::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -2409,10 +2433,10 @@ QPushButton#pushButton_Run:pressed {
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::Shape::StyledPanel</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <widget class="QProgressBar" name="progressBar">
          <property name="geometry">
@@ -2424,7 +2448,7 @@ QPushButton#pushButton_Run:pressed {
           </rect>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
+          <enum>Qt::LayoutDirection::LeftToRight</enum>
          </property>
          <property name="autoFillBackground">
           <bool>false</bool>
@@ -2433,7 +2457,7 @@ QPushButton#pushButton_Run:pressed {
           <number>100</number>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </widget>
@@ -2441,10 +2465,10 @@ QPushButton#pushButton_Run:pressed {
       <item>
        <spacer name="verticalSpacer_2">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Orientation::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -2459,7 +2483,7 @@ QPushButton#pushButton_Run:pressed {
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_Version">
           <property name="sizeConstraint">
-           <enum>QLayout::SetDefaultConstraint</enum>
+           <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
           </property>
           <property name="leftMargin">
            <number>5</number>
@@ -2488,7 +2512,7 @@ QPushButton#pushButton_Run:pressed {
           <item>
            <spacer name="horizontalSpacer_17">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -2506,7 +2530,7 @@ QPushButton#pushButton_Run:pressed {
              </font>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::ClickFocus</enum>
+             <enum>Qt::FocusPolicy::ClickFocus</enum>
             </property>
             <property name="styleSheet">
              <string notr="true">QLineEdit {
@@ -2518,10 +2542,10 @@ QPushButton#pushButton_Run:pressed {
 </string>
             </property>
             <property name="inputMethodHints">
-             <set>Qt::ImhHiddenText</set>
+             <set>Qt::InputMethodHint::ImhHiddenText</set>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -2534,12 +2558,47 @@ QPushButton#pushButton_Run:pressed {
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar_BatteryAnalysis"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>970</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionUser_Mannual"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actionUser_Mannual">
+   <property name="text">
+    <string>User Mannual</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <includes>
   <include location="local">©BOEDT </include>
  </includes>
  <resources>
-  <include location="../icons/resources.qrc"/>
+  <include location="../../../../config/resources/icons/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
