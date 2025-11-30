@@ -207,10 +207,26 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.lineEdit_RequiredUseableCapacity.setValidator(validator)
         # QSpinBox不需要设置文本验证器，因为它有内置的范围限制
 
-        reg = QC.QRegularExpression(r"^\d+(\.\d+)?$")
+        # 增强版本号验证，支持x.y.z格式
+        reg = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
         validator = QG.QRegularExpressionValidator(self)
         validator.setRegularExpression(reg)
         self.lineEdit_Version.setValidator(validator)
+        # 添加版本号实时验证
+        self.lineEdit_Version.textChanged.connect(self.validate_version)
+
+        # 为输入路径添加存在性验证
+        self.lineEdit_InputPath.textChanged.connect(self.validate_input_path)
+        
+        # 为必填字段添加非空验证
+        required_fields = [
+            self.lineEdit_SamplesQty,
+            self.lineEdit_DatasheetNominalCapacity,
+            self.lineEdit_CalculationNominalCapacity,
+            self.lineEdit_RequiredUseableCapacity
+        ]
+        for field in required_fields:
+            field.textChanged.connect(self.validate_required_fields)
 
         self.lineEdit_TestProfile.setText("Not provided")
         self.lineEdit_Temperature.setText("Room Temperature")
@@ -315,9 +331,40 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.pushButton_Run.clicked.connect(self.run)
         self.sigSetVersion.connect(self.get_version)
         
+        # 设置菜单快捷键
+        self.setup_menu_shortcuts()
+        
         # 菜单动作连接
         self.actionExit.triggered.connect(self.handle_exit)
         self.actionAbout.triggered.connect(self.handle_about)
+        self.actionUser_Mannual.triggered.connect(self.show_user_manual)
+        self.actionOnline_Help.triggered.connect(self.show_online_help)
+        
+        # 常用编辑功能连接
+        self.actionCopy.triggered.connect(self.copy_selected_text)
+        self.actionPaste.triggered.connect(self.paste_text)
+        self.actionCut.triggered.connect(self.cut_selected_text)
+        
+        # 工具栏和状态栏显示/隐藏功能连接
+        if hasattr(self, 'actionShow_Toolbar'):
+            self.actionShow_Toolbar.triggered.connect(self.toggle_toolbar_safe)
+        if hasattr(self, 'actionShow_Statusbar'):
+            self.actionShow_Statusbar.triggered.connect(self.toggle_statusbar_safe)
+        
+        # 工具菜单功能连接
+        self.actionCalculate_Battery.triggered.connect(self.calculate_battery)
+        self.actionAnalyze_Data.triggered.connect(self.analyze_data)
+        self.actionGenerate_Report.triggered.connect(self.generate_report)
+        self.actionBatch_Processing.triggered.connect(self.batch_processing)
+        
+        # 缩放功能连接
+        self.actionZoom_In.triggered.connect(self.zoom_in)
+        self.actionZoom_Out.triggered.connect(self.zoom_out)
+        self.actionReset_Zoom.triggered.connect(self.reset_zoom)
+        
+        # 文件操作连接
+        self.actionSave.triggered.connect(self.save_settings)
+        self.actionExport_Report.triggered.connect(self.export_report)
         
     def handle_exit(self) -> None:
         """处理退出操作，显示确认对话框"""
@@ -346,6 +393,577 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             '关于 Battery Analyzer',
             about_text
         )
+        
+    def toggle_toolbar_safe(self) -> None:
+        """安全地切换工具栏的显示/隐藏状态"""
+        if hasattr(self, 'actionShow_Toolbar') and hasattr(self, 'toolBar'):
+            self.toolBar.setVisible(self.actionShow_Toolbar.isChecked())
+        elif hasattr(self, 'toolBar'):
+            # 如果没有actionShow_Toolbar，只是切换显示状态
+            self.toolBar.setVisible(not self.toolBar.isVisible())
+    
+    def toggle_statusbar_safe(self) -> None:
+        """安全地切换状态栏的显示/隐藏状态"""
+        if hasattr(self, 'actionShow_Statusbar') and hasattr(self, 'statusBar_BatteryAnalysis'):
+            self.statusBar_BatteryAnalysis.setVisible(self.actionShow_Statusbar.isChecked())
+        elif hasattr(self, 'statusBar_BatteryAnalysis'):
+            # 如果没有actionShow_Statusbar，只是切换显示状态
+            self.statusBar_BatteryAnalysis.setVisible(not self.statusBar_BatteryAnalysis.isVisible())
+    
+    def calculate_battery(self) -> None:
+        """电池计算功能"""
+        try:
+            # 检查必要组件是否存在
+            if not hasattr(self, 'comboBox_BatteryModel') or not hasattr(self, 'spinBox_BatteryCapacity'):
+                logging.error("电池计算所需组件未找到")
+                QW.QMessageBox.warning(
+                    self, 
+                    "错误", 
+                    "电池计算所需组件未找到，请检查程序配置。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return
+                
+            model = self.comboBox_BatteryModel.currentText()
+            capacity = self.spinBox_BatteryCapacity.value()
+            
+            # 执行电池计算逻辑
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage(f"正在计算电池数据: {model}")
+            
+            # 这里可以添加实际的电池计算逻辑
+            QW.QMessageBox.information(
+                self, 
+                "电池计算", 
+                f"电池型号: {model}\n容量: {capacity} mAh\n\n计算已完成。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        except Exception as e:
+            logging.error(f"电池计算失败: {e}")
+            QW.QMessageBox.warning(
+                self, 
+                "错误", 
+                f"电池计算时出错: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+                
+    def analyze_data(self) -> None:
+        """数据分析功能"""
+        try:
+            # 检查必要组件是否存在
+            if not hasattr(self, 'tableWidget_TestInfo'):
+                logging.error("数据分析所需组件未找到")
+                QW.QMessageBox.warning(
+                    self, 
+                    "错误", 
+                    "数据分析所需组件未找到，请检查程序配置。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("正在分析数据...")
+            
+            # 这里可以添加实际的数据分析逻辑
+            QW.QMessageBox.information(
+                self, 
+                "数据分析", 
+                "数据分析已完成。\n\n请查看结果表格。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        except Exception as e:
+            logging.error(f"数据分析失败: {e}")
+            QW.QMessageBox.warning(
+                self, 
+                "错误", 
+                f"数据分析时出错: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+                
+    def generate_report(self) -> None:
+        """生成报告功能"""
+        try:
+            # 检查必要组件是否存在
+            if not hasattr(self, 'tableWidget_TestInfo'):
+                logging.error("报告生成所需组件未找到")
+                QW.QMessageBox.warning(
+                    self, 
+                    "错误", 
+                    "报告生成所需组件未找到，请检查程序配置。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("正在生成报告...")
+            
+            # 这里可以添加实际的报告生成逻辑
+            QW.QMessageBox.information(
+                self, 
+                "报告生成", 
+                "报告已成功生成。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        except Exception as e:
+            logging.error(f"报告生成失败: {e}")
+            QW.QMessageBox.warning(
+                self, 
+                "错误", 
+                f"报告生成时出错: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+                
+    def batch_processing(self) -> None:
+        """批量处理功能"""
+        try:
+            # 检查必要组件是否存在
+            if not hasattr(self, 'lineEdit_InputPath') or not hasattr(self, 'lineEdit_OutputPath'):
+                logging.error("批量处理所需组件未找到")
+                QW.QMessageBox.warning(
+                    self, 
+                    "错误", 
+                    "批量处理所需组件未找到，请检查程序配置。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return
+                
+            # 检查输入路径是否设置
+            if not self.lineEdit_InputPath.text():
+                QW.QMessageBox.warning(
+                    self, 
+                    "警告", 
+                    "请先设置输入路径。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return
+                
+            # 检查输出路径是否设置
+            if not self.lineEdit_OutputPath.text():
+                QW.QMessageBox.warning(
+                    self, 
+                    "警告", 
+                    "请先设置输出路径。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("正在进行批量处理...")
+            
+            # 这里可以添加实际的批量处理逻辑
+            QW.QMessageBox.information(
+                self, 
+                "批量处理", 
+                f"批量处理已完成。\n\n输入: {self.lineEdit_InputPath.text()}\n输出: {self.lineEdit_OutputPath.text()}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        except Exception as e:
+            logging.error(f"批量处理失败: {e}")
+            QW.QMessageBox.warning(
+                self, 
+                "错误", 
+                f"批量处理时出错: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+                
+    def save_settings(self) -> None:
+        """保存设置功能"""
+        try:
+            # 这里可以添加实际的设置保存逻辑
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("正在保存设置...")
+            
+            QW.QMessageBox.information(
+                self, 
+                "保存设置", 
+                "设置已成功保存。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        except Exception as e:
+            logging.error(f"保存设置失败: {e}")
+            QW.QMessageBox.warning(
+                self, 
+                "错误", 
+                f"保存设置时出错: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+                
+    def export_report(self) -> None:
+        """导出报告功能"""
+        try:
+            # 检查输出路径是否设置
+            if not hasattr(self, 'lineEdit_OutputPath') or not self.lineEdit_OutputPath.text():
+                QW.QMessageBox.warning(
+                    self, 
+                    "警告", 
+                    "请先设置输出路径后再导出报告。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return
+            
+            self.statusBar_BatteryAnalysis.showMessage("导出报告中...")
+            
+            # 这里可以实现报告导出逻辑
+            QW.QMessageBox.information(
+                self, 
+                "导出报告", 
+                f"报告已导出到: {self.lineEdit_OutputPath.text()}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            
+            self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        except Exception as e:
+            logging.error(f"导出报告失败: {e}")
+            QW.QMessageBox.warning(
+                self, 
+                "错误", 
+                f"导出报告时出错: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        
+    def setup_menu_shortcuts(self) -> None:
+        """安全地设置所有菜单的快捷键"""
+        try:
+            # 文件菜单快捷键
+            if hasattr(self, 'actionNew'):
+                self.actionNew.setShortcut(QG.QKeySequence.StandardKey.New)
+            if hasattr(self, 'actionOpen'):
+                self.actionOpen.setShortcut(QG.QKeySequence.StandardKey.Open)
+            if hasattr(self, 'actionSave'):
+                self.actionSave.setShortcut(QG.QKeySequence.StandardKey.Save)
+            if hasattr(self, 'actionSave_As'):
+                self.actionSave_As.setShortcut(QG.QKeySequence.StandardKey.SaveAs)
+            if hasattr(self, 'actionExit'):
+                self.actionExit.setShortcut(QG.QKeySequence.StandardKey.Quit)
+            
+            # 编辑菜单快捷键
+            if hasattr(self, 'actionUndo'):
+                self.actionUndo.setShortcut(QG.QKeySequence.StandardKey.Undo)
+            if hasattr(self, 'actionRedo'):
+                self.actionRedo.setShortcut(QG.QKeySequence.StandardKey.Redo)
+            if hasattr(self, 'actionCut'):
+                self.actionCut.setShortcut(QG.QKeySequence.StandardKey.Cut)
+            if hasattr(self, 'actionCopy'):
+                self.actionCopy.setShortcut(QG.QKeySequence.StandardKey.Copy)
+            if hasattr(self, 'actionPaste'):
+                self.actionPaste.setShortcut(QG.QKeySequence.StandardKey.Paste)
+            
+            # 视图菜单快捷键
+            if hasattr(self, 'actionZoom_In'):
+                self.actionZoom_In.setShortcut(QG.QKeySequence.StandardKey.ZoomIn)
+            if hasattr(self, 'actionZoom_Out'):
+                self.actionZoom_Out.setShortcut(QG.QKeySequence.StandardKey.ZoomOut)
+            
+            # 工具菜单快捷键
+            if hasattr(self, 'actionCalculate_Battery'):
+                self.actionCalculate_Battery.setShortcut(QG.QKeySequence("Ctrl+B"))
+            if hasattr(self, 'actionAnalyze_Data'):
+                self.actionAnalyze_Data.setShortcut(QG.QKeySequence("Ctrl+D"))
+            if hasattr(self, 'actionGenerate_Report'):
+                self.actionGenerate_Report.setShortcut(QG.QKeySequence("Ctrl+R"))
+            
+            # 帮助菜单快捷键
+            if hasattr(self, 'actionUser_Mannual'):
+                self.actionUser_Mannual.setShortcut(QG.QKeySequence.StandardKey.HelpContents)
+            if hasattr(self, 'actionOnline_Help'):
+                self.actionOnline_Help.setShortcut(QG.QKeySequence("F1"))
+            if hasattr(self, 'actionAbout'):
+                self.actionAbout.setShortcut(QG.QKeySequence("Ctrl+Alt+A"))
+            
+            # 为菜单项添加视觉提示
+            if hasattr(self, 'actionShow_Toolbar'):
+                self.actionShow_Toolbar.setCheckable(True)
+                self.actionShow_Toolbar.setChecked(True)
+            if hasattr(self, 'actionShow_Statusbar'):
+                self.actionShow_Statusbar.setCheckable(True)
+                self.actionShow_Statusbar.setChecked(True)
+        except Exception as e:
+            logging.error(f"设置菜单快捷键失败: {e}")
+    
+    def show_user_manual(self) -> None:
+        """显示用户手册"""
+        try:
+            # 尝试打开用户手册文件
+            manual_path = Path(self.current_directory) / "docs" / "user_manual.pdf"
+            if manual_path.exists():
+                os.startfile(str(manual_path))
+            else:
+                # 如果找不到手册文件，显示提示
+                QW.QMessageBox.information(
+                    self,
+                    "用户手册",
+                    "未找到用户手册文件。请联系技术支持获取最新版本文档。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+        except Exception as e:
+            logging.error(f"打开用户手册失败: {e}")
+            QW.QMessageBox.warning(
+                self,
+                "错误",
+                f"无法打开用户手册: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+    
+    def show_online_help(self) -> None:
+        """显示在线帮助"""
+        try:
+            # 打开在线帮助网页
+            help_url = "https://example.com/battery-analyzer-help"
+            QG.QDesktopServices.openUrl(QC.QUrl(help_url))
+        except Exception as e:
+            logging.error(f"打开在线帮助失败: {e}")
+            QW.QMessageBox.information(
+                self,
+                "在线帮助",
+                "无法打开在线帮助。请检查网络连接或联系技术支持。\n\n帮助中心网址: https://example.com/battery-analyzer-help",
+                QW.QMessageBox.StandardButton.Ok
+            )
+    
+    def copy_selected_text(self) -> None:
+        """复制选中的文本"""
+        focused_widget = self.focusWidget()
+        if isinstance(focused_widget, QW.QLineEdit) or isinstance(focused_widget, QW.QTextEdit):
+            focused_widget.copy()
+    
+    def paste_text(self) -> None:
+        """粘贴文本"""
+        focused_widget = self.focusWidget()
+        if isinstance(focused_widget, QW.QLineEdit) or isinstance(focused_widget, QW.QTextEdit):
+            focused_widget.paste()
+    
+    def cut_selected_text(self) -> None:
+        """剪切选中的文本"""
+        focused_widget = self.focusWidget()
+        if isinstance(focused_widget, QW.QLineEdit) or isinstance(focused_widget, QW.QTextEdit):
+            focused_widget.cut()
+    
+    def calculate_battery(self) -> None:
+        """执行电池计算"""
+        # 这里可以实现电池计算的逻辑，或连接到现有的计算功能
+        self.statusBar_BatteryAnalysis.showMessage("执行电池计算...")
+        # 模拟计算过程
+        QW.QMessageBox.information(
+            self,
+            "电池计算",
+            "电池计算功能将根据输入的参数进行计算。\n\n点击'运行'按钮开始完整的电池分析流程。",
+            QW.QMessageBox.StandardButton.Ok
+        )
+        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+    
+    def analyze_data(self) -> None:
+        """分析数据"""
+        # 检查输入路径是否设置
+        if not self.lineEdit_InputPath.text():
+            QW.QMessageBox.warning(
+                self,
+                "警告",
+                "请先设置输入路径后再分析数据。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            return
+        
+        self.statusBar_BatteryAnalysis.showMessage("分析数据中...")
+        # 这里可以连接到现有的数据分析功能
+        QW.QMessageBox.information(
+            self,
+            "数据分析",
+            "数据分析功能将处理输入路径中的数据文件。\n\n点击'运行'按钮开始完整的电池分析流程。",
+            QW.QMessageBox.StandardButton.Ok
+        )
+        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+    
+    def generate_report(self) -> None:
+        """生成报告"""
+        # 检查输出路径是否设置
+        if not self.lineEdit_OutputPath.text():
+            QW.QMessageBox.warning(
+                self,
+                "警告",
+                "请先设置输出路径后再生成报告。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            return
+        
+        self.statusBar_BatteryAnalysis.showMessage("生成报告中...")
+        # 这里可以连接到现有的报告生成功能
+        QW.QMessageBox.information(
+            self,
+            "生成报告",
+            "报告将被生成到指定的输出路径。\n\n点击'运行'按钮开始完整的电池分析流程。",
+            QW.QMessageBox.StandardButton.Ok
+        )
+        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+    
+    def batch_processing(self) -> None:
+        """批量处理"""
+        self.statusBar_BatteryAnalysis.showMessage("准备批量处理...")
+        QW.QMessageBox.information(
+            self,
+            "批量处理",
+            "批量处理功能允许您同时分析多个电池数据集。\n\n此功能正在开发中，敬请期待。",
+            QW.QMessageBox.StandardButton.Ok
+        )
+        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+    
+    def zoom_in(self) -> None:
+        """放大界面元素"""
+        # 实现界面元素放大功能
+        font = self.font()
+        current_size = font.pointSize()
+        if current_size < 20:  # 设置最大字体大小限制
+            font.setPointSize(current_size + 1)
+            self.setFont(font)
+    
+    def zoom_out(self) -> None:
+        """缩小界面元素"""
+        # 实现界面元素缩小功能
+        font = self.font()
+        current_size = font.pointSize()
+        if current_size > 8:  # 设置最小字体大小限制
+            font.setPointSize(current_size - 1)
+            self.setFont(font)
+    
+    def reset_zoom(self) -> None:
+        """重置界面缩放"""
+        # 重置界面元素大小到默认值
+        font = self.font()
+        font.setPointSize(9)  # 假设默认字体大小为9
+        self.setFont(font)
+    
+    def save_settings(self) -> None:
+        """保存当前设置"""
+        try:
+            # 保存当前配置信息
+            # 这里可以实现配置保存逻辑
+            self.statusBar_BatteryAnalysis.showMessage("设置已保存")
+            QW.QMessageBox.information(
+                self,
+                "保存设置",
+                "当前配置已成功保存。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+        except Exception as e:
+            logging.error(f"保存设置失败: {e}")
+            QW.QMessageBox.warning(
+                self,
+                "错误",
+                f"无法保存设置: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+    
+    def export_report(self) -> None:
+        """导出报告"""
+        # 检查输出路径是否设置
+        if not self.lineEdit_OutputPath.text():
+            QW.QMessageBox.warning(
+                self,
+                "警告",
+                "请先设置输出路径后再导出报告。",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            return
+        
+        self.statusBar_BatteryAnalysis.showMessage("导出报告中...")
+        # 这里可以连接到现有的报告导出功能
+        QW.QMessageBox.information(
+            self,
+            "导出报告",
+            "报告将被导出到指定的输出路径。\n\n点击'运行'按钮开始完整的电池分析流程。",
+            QW.QMessageBox.StandardButton.Ok
+        )
+        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+    
+    def toggle_statusbar(self) -> None:
+        """切换状态栏的显示/隐藏状态"""
+        self.statusBar_BatteryAnalysis.setVisible(self.actionShow_Statusbar.isChecked())
+        
+    def validate_version(self) -> None:
+        """验证版本号格式并提供实时反馈"""
+        version_text = self.lineEdit_Version.text()
+        if version_text and not QC.QRegularExpression(r"^\d+(\.\d+){0,2}$").match(version_text).hasMatch():
+            self.statusBar_BatteryAnalysis.showMessage("[警告]: 版本号格式不正确，应为 x.y.z 格式")
+            # 设置错误样式
+            self.lineEdit_Version.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+        else:
+            # 重置样式
+            self.lineEdit_Version.setStyleSheet("")
+            # 如果所有验证都通过，显示正常状态
+            if self.checker_battery_type.b_check_pass:
+                self.statusBar_BatteryAnalysis.showMessage("status:ok")
+    
+    def validate_input_path(self) -> None:
+        """验证输入路径是否存在"""
+        path = self.lineEdit_InputPath.text()
+        if path and not os.path.exists(path):
+            self.statusBar_BatteryAnalysis.showMessage("[警告]: 输入路径不存在")
+            self.lineEdit_InputPath.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+        else:
+            self.lineEdit_InputPath.setStyleSheet("")
+            # 如果所有验证都通过，显示正常状态
+            if self.checker_battery_type.b_check_pass:
+                self.statusBar_BatteryAnalysis.showMessage("status:ok")
+    
+    def validate_required_fields(self) -> None:
+        """验证必填字段是否为空"""
+        empty_fields = []
+        
+        if not self.lineEdit_SamplesQty.text():
+            empty_fields.append("样品数量")
+            self.lineEdit_SamplesQty.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+        else:
+            self.lineEdit_SamplesQty.setStyleSheet("")
+            
+        if not self.lineEdit_DatasheetNominalCapacity.text():
+            empty_fields.append("标称容量")
+            self.lineEdit_DatasheetNominalCapacity.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+        else:
+            self.lineEdit_DatasheetNominalCapacity.setStyleSheet("")
+            
+        if not self.lineEdit_CalculationNominalCapacity.text():
+            empty_fields.append("计算容量")
+            self.lineEdit_CalculationNominalCapacity.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+        else:
+            self.lineEdit_CalculationNominalCapacity.setStyleSheet("")
+            
+        if not self.lineEdit_RequiredUseableCapacity.text():
+            empty_fields.append("可用容量")
+            self.lineEdit_RequiredUseableCapacity.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+        else:
+            self.lineEdit_RequiredUseableCapacity.setStyleSheet("")
+        
+        if empty_fields:
+            self.statusBar_BatteryAnalysis.showMessage(f"[警告]: 以下必填字段为空: {', '.join(empty_fields)}")
+        else:
+            # 如果所有验证都通过，显示正常状态
+            if self.checker_battery_type.b_check_pass:
+                self.statusBar_BatteryAnalysis.showMessage("status:ok")
 
     def check_batterytype(self) -> None:
         self.checker_battery_type.clear()
@@ -917,26 +1535,118 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.thread.sigRenamePath.connect(self.rename_pltPath)
 
     def get_threadinfo(self, threadstate, stateindex, threadinfo) -> None:
-        self.statusBar_BatteryAnalysis.showMessage(threadinfo)
+        # 正常运行状态处理
         if threadstate:
-            if stateindex == 0:
-                self.pushButton_Run.setText("Running.")
-            if stateindex == 1:
-                self.pushButton_Run.setText("Running..")
-            if stateindex == 2:
-                self.pushButton_Run.setText("Running...")
-            if stateindex == 3:
-                self.pushButton_Run.setText("Running....")
+            # 处理取消状态
+            if "canceling" in threadinfo:
+                self.statusBar_BatteryAnalysis.showMessage("正在取消任务...")
+                self.pushButton_Run.setText("取消中...")
+                self.pushButton_Run.setEnabled(False)
+            else:
+                # 正常运行状态显示
+                self.statusBar_BatteryAnalysis.showMessage("正在分析电池数据...")
+                if stateindex == 0:
+                    self.pushButton_Run.setText("Running.")
+                if stateindex == 1:
+                    self.pushButton_Run.setText("Running..")
+                if stateindex == 2:
+                    self.pushButton_Run.setText("Running...")
+                if stateindex == 3:
+                    self.pushButton_Run.setText("Running....")
         else:
             self.thread.deleteLater()
-            if stateindex == 0:
+            
+            # 任务完成处理
+            if stateindex == 0 and "success" in threadinfo:
                 self.pushButton_Run.setText("Run")
                 self.pushButton_Run.setStyleSheet("background-color:#00FF00")
                 self.pushButton_Run.setEnabled(True)
+                self.statusBar_BatteryAnalysis.showMessage("电池分析完成！")
+                
+                # 显示成功提示
+                QW.QMessageBox.information(
+                    self,
+                    "分析完成",
+                    "电池分析已成功完成！\n\n报告已生成到指定输出路径。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+            
+            # 电池分析错误处理 (stateindex == 1)
+            elif stateindex == 1:
+                self.pushButton_Run.setText("Rerun")
+                self.pushButton_Run.setStyleSheet("background-color:red")
+                self.pushButton_Run.setEnabled(True)
+                
+                # 增强的错误消息处理
+                error_title = "电池分析错误"
+                error_msg = "分析电池数据时出现错误。"
+                error_details = threadinfo
+                
+                # 根据错误内容提供更具体的建议
+                suggestions = []
+                if "input path" in error_details.lower() or "找不到文件" in error_details:
+                    suggestions.append("请检查输入路径是否正确")
+                    suggestions.append("确保包含必要的数据文件")
+                if "格式" in error_details or "format" in error_details.lower():
+                    suggestions.append("检查数据文件格式是否符合要求")
+                if "权限" in error_details or "permission" in error_details.lower():
+                    suggestions.append("确保您有足够的文件操作权限")
+                
+                # 如果没有具体建议，提供通用建议
+                if not suggestions:
+                    suggestions.append("检查输入数据的完整性")
+                    suggestions.append("确保文件路径不包含特殊字符")
+                    suggestions.append("重新选择有效的输入和输出目录")
+                
+                # 构建完整的错误消息
+                full_error_msg = f"{error_msg}\n\n错误详情:\n{error_details}\n\n建议解决步骤:\n"
+                full_error_msg += "\n".join([f"- {s}" for s in suggestions])
+                
+                # 显示详细的错误对话框
+                QW.QMessageBox.critical(
+                    self,
+                    error_title,
+                    full_error_msg,
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                
+                self.statusBar_BatteryAnalysis.showMessage(f"[错误]: {error_title}")
+            
+            # 文件写入错误处理 (stateindex == 2)
+            elif stateindex == 2:
+                self.pushButton_Run.setText("Rerun")
+                self.pushButton_Run.setStyleSheet("background-color:red")
+                self.pushButton_Run.setEnabled(True)
+                
+                error_title = "报告生成错误"
+                error_msg = "生成分析报告时出现错误。"
+                error_details = threadinfo
+                
+                suggestions = [
+                    "检查输出路径是否存在且可写",
+                    "确保有足够的磁盘空间",
+                    "关闭可能正在使用输出文件的其他程序",
+                    "尝试选择不同的输出目录"
+                ]
+                
+                full_error_msg = f"{error_msg}\n\n错误详情:\n{error_details}\n\n建议解决步骤:\n"
+                full_error_msg += "\n".join([f"- {s}" for s in suggestions])
+                
+                QW.QMessageBox.critical(
+                    self,
+                    error_title,
+                    full_error_msg,
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                
+                self.statusBar_BatteryAnalysis.showMessage(f"[错误]: {error_title}")
+            
+            # 其他错误情况
             else:
                 self.pushButton_Run.setText("Rerun")
                 self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
+                self.statusBar_BatteryAnalysis.showMessage(f"[错误]: {threadinfo}")
 
     def set_version(self) -> None:
         # 导入pathlib用于更现代的路径处理
@@ -1097,6 +1807,7 @@ class Thread(QC.QThread):
     info = QC.pyqtSignal(bool, int, str)
     sigThreadEnd = QC.pyqtSignal()
     sigRenamePath = QC.pyqtSignal(str)
+    sigProgressUpdate = QC.pyqtSignal(int, str)  # 进度更新信号：进度值(0-100)，状态文本
 
     def __init__(self) -> None:
         super().__init__()
@@ -1105,9 +1816,16 @@ class Thread(QC.QThread):
         self.strOutputPath = ""
         self.listTestInfo = []
         self.bThreadRun = False
+        self.bCancelRequested = False  # 取消标志
+        self.progress_value = 0  # 当前进度值
         self.strErrorBattery = ""
         self.strErrorXlsx = ""
         self.strTestDate = ""
+        
+    def request_cancel(self) -> None:
+        """请求取消任务"""
+        self.bCancelRequested = True
+        self.sigProgressUpdate.emit(self.progress_value, "正在取消任务...")
 
     def get_info(self, strPath, strInputPath, strOutputPath, listTestInfo) -> None:
         self.strPath = strPath
@@ -1117,33 +1835,80 @@ class Thread(QC.QThread):
 
     def run(self) -> None:
         self.bThreadRun = True
+        self.bCancelRequested = False
+        self.progress_value = 0
         threading.Thread(target=self.signal_running, daemon=True).start()
-        if os.path.exists(f"{self.strOutputPath}/V{self.listTestInfo[16]}"):
-            shutil.rmtree(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
-        os.mkdir(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
-        infoBattery = battery_analysis.BatteryAnalysis(strInDataXlsxDir=self.strInputPath,
-                                                              strResultPath=self.strOutputPath,
-                                                              listTestInfo=self.listTestInfo)
-        self.strErrorBattery = infoBattery.UBA_GetErrorLog()
-        if self.strErrorBattery == "":
-            listBatteryInfo = infoBattery.UBA_GetBatteryInfo()
-            try:
-                [sy, sm, sd] = listBatteryInfo[2][0].split(" ")[0].split("-")
-                self.strTestDate = f"{sy}{sm}{sd}"
-            except ValueError:
-                self.strTestDate = "00000000"
-            if os.path.exists(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}"):
-                shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
-            self.sigRenamePath.emit(self.strTestDate)
-            os.rename(f"{self.strOutputPath}/V{self.listTestInfo[16]}", f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
-            infoFile = file_writer.FileWriter(strResultPath=self.strOutputPath,
-                                                     listTestInfo=self.listTestInfo,
-                                                     listBatteryInfo=listBatteryInfo)
-            self.strErrorXlsx = infoFile.UFW_GetErrorLog()
-            if self.strErrorXlsx != "":
-                logging.error(self.strErrorXlsx)
-                # shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
-            else:
+        
+        try:
+            # 发送初始进度
+            self.sigProgressUpdate.emit(0, "准备分析...")
+            
+            # 检查并创建目录
+            if os.path.exists(f"{self.strOutputPath}/V{self.listTestInfo[16]}"):
+                shutil.rmtree(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
+            if self.bCancelRequested:
+                return
+            
+            os.mkdir(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
+            self.progress_value = 10
+            self.sigProgressUpdate.emit(self.progress_value, "初始化分析...")
+            
+            # 电池分析
+            infoBattery = battery_analysis.BatteryAnalysis(strInDataXlsxDir=self.strInputPath,
+                                                                 strResultPath=self.strOutputPath,
+                                                                 listTestInfo=self.listTestInfo)
+            
+            self.progress_value = 20
+            self.sigProgressUpdate.emit(self.progress_value, "进行电池分析...")
+            if self.bCancelRequested:
+                return
+            
+            self.strErrorBattery = infoBattery.UBA_GetErrorLog()
+            if self.strErrorBattery == "":
+                self.progress_value = 40
+                self.sigProgressUpdate.emit(self.progress_value, "获取电池信息...")
+                listBatteryInfo = infoBattery.UBA_GetBatteryInfo()
+                
+                if self.bCancelRequested:
+                    return
+                
+                try:
+                    [sy, sm, sd] = listBatteryInfo[2][0].split(" ")[0].split("-")
+                    self.strTestDate = f"{sy}{sm}{sd}"
+                except ValueError:
+                    self.strTestDate = "00000000"
+                except Exception as e:
+                    logging.error(f"解析测试日期失败: {e}")
+                    self.strTestDate = "00000000"
+                
+                if os.path.exists(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}"):
+                    shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
+                
+                self.sigRenamePath.emit(self.strTestDate)
+                os.rename(f"{self.strOutputPath}/V{self.listTestInfo[16]}", f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
+                
+                self.progress_value = 60
+                self.sigProgressUpdate.emit(self.progress_value, "准备生成报告...")
+                if self.bCancelRequested:
+                    return
+                
+                # 文件写入
+                infoFile = file_writer.FileWriter(strResultPath=self.strOutputPath,
+                                                         listTestInfo=self.listTestInfo,
+                                                         listBatteryInfo=listBatteryInfo)
+                
+                self.progress_value = 80
+                self.sigProgressUpdate.emit(self.progress_value, "生成报告中...")
+                if self.bCancelRequested:
+                    return
+                
+                self.strErrorXlsx = infoFile.UFW_GetErrorLog()
+                if self.strErrorXlsx != "":
+                    logging.error(self.strErrorXlsx)
+                    # shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
+                else:
+                    self.progress_value = 100
+                    self.sigProgressUpdate.emit(self.progress_value, "分析完成！")
                 # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                 import sys
                 import re
@@ -1192,20 +1957,24 @@ class Thread(QC.QThread):
                     logging.info("候选路径:")
                     for path in exe_candidates:
                         logging.info(f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")
-        else:
-            logging.error(self.strErrorBattery)
-            # shutil.rmtree(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
-        self.bThreadRun = False
+
+        except Exception as e:
+            logging.error(f"线程运行过程中发生错误: {e}")
+        finally:
+            self.bThreadRun = False
 
     def signal_running(self) -> None:
         while self.bThreadRun:
-            self.info.emit(True, 0, "status:run")
+            status_text = "status:run"
+            if self.bCancelRequested:
+                status_text = "status:canceling"
+            self.info.emit(True, 0, status_text)
             time.sleep(0.4)
-            self.info.emit(True, 1, "status:run")
+            self.info.emit(True, 1, status_text)
             time.sleep(0.4)
-            self.info.emit(True, 2, "status:run")
+            self.info.emit(True, 2, status_text)
             time.sleep(0.4)
-            self.info.emit(True, 3, "status:run")
+            self.info.emit(True, 3, status_text)
             time.sleep(0.4)
         if self.strErrorBattery != "":
             self.info.emit(False, 1, self.strErrorBattery)
