@@ -314,6 +314,38 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.pushButton_OutputPath.clicked.connect(self.select_outputpath)
         self.pushButton_Run.clicked.connect(self.run)
         self.sigSetVersion.connect(self.get_version)
+        
+        # 菜单动作连接
+        self.actionExit.triggered.connect(self.handle_exit)
+        self.actionAbout.triggered.connect(self.handle_about)
+        
+    def handle_exit(self) -> None:
+        """处理退出操作，显示确认对话框"""
+        reply = QW.QMessageBox.question(
+            self,
+            '确认退出',
+            '确定要退出应用程序吗？',
+            QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
+            QW.QMessageBox.StandardButton.No
+        )
+        
+        if reply == QW.QMessageBox.StandardButton.Yes:
+            self.close()
+            
+    def handle_about(self) -> None:
+        """显示关于对话框"""
+        about_text = f"""
+        <h3>Battery Analyzer</h3>
+        <p>版本: v{self.version}</p>
+        <p>电池分析工具，用于电池性能测试和数据分析。</p>
+        <p>© {time.localtime().tm_year} Battery Testing System</p>
+        """
+        
+        QW.QMessageBox.about(
+            self,
+            '关于 Battery Analyzer',
+            about_text
+        )
 
     def check_batterytype(self) -> None:
         self.checker_battery_type.clear()
