@@ -1,0 +1,237 @@
+# -*- coding: utf-8 -*-
+"""
+验证控制器模块
+负责处理输入验证相关的业务逻辑
+"""
+import os
+import re
+import logging
+from PyQt6 import QtCore as QC
+
+
+class ValidationController(QC.QObject):
+    """
+    验证控制器类
+    负责各种输入验证和数据校验
+    """
+    # 定义信号
+    validation_error = QC.pyqtSignal(str)  # 验证错误信号
+    validation_success = QC.pyqtSignal()  # 验证成功信号
+    
+    def __init__(self):
+        """
+        初始化验证控制器
+        """
+        super().__init__()
+    
+    def validate_test_info(self, test_info):
+        """
+        验证测试信息的完整性和有效性
+        
+        Args:
+            test_info: 测试信息列表
+        
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        if not test_info:
+            error_msg = "测试信息不能为空"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        # 检查必要字段
+        required_fields = [
+            (0, "项目名称"),
+            (2, "电池类型"),
+            (3, "标称容量"),
+            (16, "软件版本")
+        ]
+        
+        for index, field_name in required_fields:
+            if index >= len(test_info) or not test_info[index]:
+                error_msg = f"{field_name}不能为空"
+                self.validation_error.emit(error_msg)
+                return False, error_msg
+        
+        # 验证标称容量是否为有效数字
+        if not self._is_valid_number(test_info[3]):
+            error_msg = "标称容量必须是有效的数字"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        # 验证软件版本格式
+        if not self._is_valid_version(test_info[16]):
+            error_msg = "软件版本格式不正确，应为X.X.X格式"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        self.validation_success.emit()
+        return True, ""
+    
+    def validate_input_data(self, input_path):
+        """
+        验证输入数据的有效性
+        
+        Args:
+            input_path: 输入数据路径
+        
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        if not input_path:
+            error_msg = "输入数据路径不能为空"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        if not os.path.exists(input_path):
+            error_msg = f"输入数据路径不存在: {input_path}"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        if not os.path.isdir(input_path):
+            error_msg = f"输入数据路径必须是目录: {input_path}"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        # 检查目录中是否包含必要的文件
+        try:
+            files = os.listdir(input_path)
+            # 检查是否至少有一个xlsx或csv文件
+            has_data_file = any(file.endswith('.xlsx') or file.endswith('.csv') for file in files)
+            if not has_data_file:
+                error_msg = f"输入目录中未找到数据文件(.xlsx或.csv)"
+                self.validation_error.emit(error_msg)
+                return False, error_msg
+        except Exception as e:
+            error_msg = f"读取输入目录失败: {e}"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        self.validation_success.emit()
+        return True, ""
+    
+    def validate_output_path(self, output_path):
+        """
+        验证输出路径的有效性
+        
+        Args:
+            output_path: 输出路径
+        
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        if not output_path:
+            error_msg = "输出路径不能为空"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        # 检查输出目录是否可写
+        try:
+            # 如果目录不存在，尝试创建
+            if not os.path.exists(output_path):
+                os.makedirs(output_path)
+            
+            # 测试写入权限
+            test_file = os.path.join(output_path, "test_write_access.tmp")
+            with open(test_file, 'w') as f:
+                f.write("test")
+            os.remove(test_file)
+        except Exception as e:
+            error_msg = f"输出目录不可写: {e}"
+            self.validation_error.emit(error_msg)
+            return False, error_msg
+        
+        self.validation_success.emit()
+        return True, ""
+    
+    def validate_all_inputs(self, test_info, input_path, output_path):
+        """
+        验证所有输入
+        
+        Args:
+            test_info: 测试信息列表
+            input_path: 输入数据路径
+            output_path: 输出路径
+        
+        Returns:
+            tuple: (是否全部有效, 错误消息)
+        """
+        # 验证测试信息
+        valid, error_msg = self.validate_test_info(test_info)
+        if not valid:
+            return False, error_msg
+        
+        # 验证输入数据
+        valid, error_msg = self.validate_input_data(input_path)
+        if not valid:
+            return False, error_msg
+        
+        # 验证输出路径
+        valid, error_msg = self.validate_output_path(output_path)
+        if not valid:
+            return False, error_msg
+        
+        return True, ""
+    
+    def _is_valid_number(self, value):
+        """
+        检查值是否为有效数字
+        
+        Args:
+            value: 要检查的值
+        
+        Returns:
+            bool: 是否为有效数字
+        """
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+    
+    def _is_valid_version(self, version):
+        """
+        检查版本格式是否正确（X.X.X）
+        
+        Args:
+            version: 版本字符串
+        
+        Returns:
+            bool: 格式是否正确
+        """
+        pattern = r'^\d+\.\d+\.\d+$'
+        return bool(re.match(pattern, version))
+    
+    def sanitize_file_name(self, file_name):
+        """
+        清理文件名，移除或替换无效字符
+        
+        Args:
+            file_name: 原始文件名
+        
+        Returns:
+            str: 清理后的文件名
+        """
+        # 定义Windows系统中不允许的字符
+        invalid_chars = '<>:"/\\|?*'
+        sanitized = ''.join(c if c not in invalid_chars else '_' for c in file_name)
+        return sanitized
+    
+    def validate_test_date(self, date_str):
+        """
+        验证测试日期格式
+        
+        Args:
+            date_str: 日期字符串
+        
+        Returns:
+            bool: 格式是否正确
+        """
+        # 检查YYYY-MM-DD格式
+        pattern = r'^\d{4}-\d{2}-\d{2}$'
+        if re.match(pattern, date_str):
+            return True
+        
+        # 检查YYYYMMDD格式
+        pattern = r'^\d{8}$'
+        return bool(re.match(pattern, date_str))

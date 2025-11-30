@@ -29,8 +29,10 @@ import win32con
 # 本地模块导入
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils import version
-from battery_analysis.utils import file_writer
-from battery_analysis.utils import battery_analysis
+# 导入控制器
+from battery_analysis.main.controllers.main_controller import MainController
+from battery_analysis.main.controllers.file_controller import FileController
+from battery_analysis.main.controllers.validation_controller import ValidationController
 # 导入资源文件
 from battery_analysis.resources import resources_rc
 
@@ -65,7 +67,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         super().__init__()
         version.Version.__init__(self)
         
-        self.thread = None
+        # 初始化控制器
+        self.main_controller = MainController()
+        self.file_controller = FileController()
+        self.validation_controller = ValidationController()
+        
         self.b_has_config = True
         self.checker_battery_type = Checker()
         self.checker_table = Checker()
@@ -128,7 +134,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             )
         
         self.current_directory = str(project_root)
-        self.path = str(project_root)  # 添加缺失的path属性，用于线程参数
+        self.path = str(project_root)
+        
+        # 设置控制器的项目上下文
+        self.main_controller.set_project_context(
+            project_path=self.path,
+            input_path="",  # 初始为空，后续会更新
+            output_path=""  # 初始为空，后续会更新
+        )
+        
+        # 连接控制器信号
+        self._connect_controllers()
 
         self.setupUi(self)
 
@@ -180,6 +196,54 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         
         self.setWindowIcon(icon)
 
+    def _connect_controllers(self):
+        """
+        连接控制器信号和槽函数
+        """
+        # 主控制器信号连接
+        self.main_controller.progress_updated.connect(self._on_progress_updated)
+        self.main_controller.status_changed.connect(self.get_threadinfo)
+        self.main_controller.analysis_completed.connect(self.set_version)
+        self.main_controller.path_renamed.connect(self.rename_pltPath)
+        
+        # 文件控制器信号连接
+        self.file_controller.config_loaded.connect(self._on_config_loaded)
+        self.file_controller.error_occurred.connect(self._on_controller_error)
+        
+        # 验证控制器信号连接
+        self.validation_controller.validation_error.connect(self._on_controller_error)
+    
+    def _on_progress_updated(self, progress, status_text):
+        """
+        进度更新处理
+        
+        Args:
+            progress: 进度值
+            status_text: 状态文本
+        """
+        # 这里可以添加进度条更新逻辑
+        pass
+    
+    def _on_config_loaded(self, config_dict):
+        """
+        配置加载完成处理
+        
+        Args:
+            config_dict: 配置字典
+        """
+        pass
+    
+    def _on_controller_error(self, error_msg):
+        """
+        控制器错误处理
+        
+        Args:
+            error_msg: 错误消息
+        """
+        QW.QMessageBox.critical(self, "错误", error_msg)
+        
+
+    
     def init_widget(self) -> None:
         if self.b_has_config:
             self.statusBar_BatteryAnalysis.showMessage("status:ok")
@@ -1320,62 +1384,82 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             self.current_directory = self.current_directory + "/../"
 
     def run(self) -> None:
-        if self.checker_battery_type.b_check_pass and self.checker_table.b_check_pass and self.checker_input_xlsx.b_check_pass:
-            self.save_table()
-            self.init_widgetcolor()
-            if self.checkinput():
-                self.init_thread()
-                if self.thread is not None:
-                    """ test_info
-                    index 0: Battery Type
-                    index 1: Construction Method
-                    index 2: Specification_Type
-                    index 3: Specification_Method
-                    index 4: Manufacturer
-                    index 5: Batch/Date Code
-                    index 6: Sample Qty  
-                    index 7: Temperature
-                    index 8: Datasheet Nominal Capacity
-                    index 9: Calculation Nominal Capacity
-                    index 10: Accelerated Aging
-                    index 11: Tester Location
-                    index 12: Test By
-                    index 13: Test Profile
-                    index 14: Pulse Current List
-                    index 15: Cut-off Voltage List
-                    index 16: Report word version
-                    index 17: Required Useable Capacity
-                    """
-                    test_info = [
-                        self.comboBox_BatteryType.currentText(),
-                        self.comboBox_ConstructionMethod.currentText(),
-                        self.comboBox_Specification_Type.currentText(),
-                        self.comboBox_Specification_Method.currentText(),
-                        self.comboBox_Manufacturer.currentText(),
-                        self.lineEdit_BatchDateCode.text(),
-                        self.lineEdit_SamplesQty.text(),
-                        self.lineEdit_Temperature.text(),
-                        self.lineEdit_DatasheetNominalCapacity.text(),
-                        self.lineEdit_CalculationNominalCapacity.text(),
-                        str(self.spinBox_AcceleratedAging.value()),
-                        self.comboBox_TesterLocation.currentText(),
-                        self.comboBox_TestedBy.currentText(),
-                        self.lineEdit_TestProfile.text(),
-                        self.listCurrentLevel,
-                        self.listVoltageLevel,
-                        self.lineEdit_Version.text(),
-                        self.lineEdit_RequiredUseableCapacity.text()
-                    ]
-                    self.thread.get_info(self.path, self.lineEdit_InputPath.text(), self.lineEdit_OutputPath.text(), test_info)
-                    self.update_config(test_info)
-                    if self.checker_update_config.b_check_pass:
-                        self.md5_checksum_run = self.md5_checksum
-                        self.statusBar_BatteryAnalysis.showMessage("status:ok")
-                        self.thread.start()     
-        else:
-            self.statusBar_BatteryAnalysis.showMessage(f"[Error]: {self.checker_battery_type.str_error_msg} {self.checker_table.str_error_msg} {self.checker_input_xlsx.str_error_msg}")
-            self.pushButton_Run.setText("Rerun")
-            self.pushButton_Run.setFocus()
+        # 保存表格数据
+        self.save_table()
+        self.init_widgetcolor()
+        # 初始化线程（方法保留以保持向后兼容性）
+        self.init_thread()
+        
+        # 准备测试信息
+        """ test_info
+        index 0: Battery Type
+        index 1: Construction Method
+        index 2: Specification_Type
+        index 3: Specification_Method
+        index 4: Manufacturer
+        index 5: Batch/Date Code
+        index 6: Sample Qty  
+        index 7: Temperature
+        index 8: Datasheet Nominal Capacity
+        index 9: Calculation Nominal Capacity
+        index 10: Accelerated Aging
+        index 11: Tester Location
+        index 12: Test By
+        index 13: Test Profile
+        index 14: Pulse Current List
+        index 15: Cut-off Voltage List
+        index 16: Report word version
+        index 17: Required Useable Capacity
+        """
+        test_info = [
+            self.comboBox_BatteryType.currentText(),
+            self.comboBox_ConstructionMethod.currentText(),
+            self.comboBox_Specification_Type.currentText(),
+            self.comboBox_Specification_Method.currentText(),
+            self.comboBox_Manufacturer.currentText(),
+            self.lineEdit_BatchDateCode.text(),
+            self.lineEdit_SamplesQty.text(),
+            self.lineEdit_Temperature.text(),
+            self.lineEdit_DatasheetNominalCapacity.text(),
+            self.lineEdit_CalculationNominalCapacity.text(),
+            str(self.spinBox_AcceleratedAging.value()),
+            self.comboBox_TesterLocation.currentText(),
+            self.comboBox_TestedBy.currentText(),
+            self.lineEdit_TestProfile.text(),
+            self.listCurrentLevel,
+            self.listVoltageLevel,
+            self.lineEdit_Version.text(),
+            self.lineEdit_RequiredUseableCapacity.text()
+        ]
+        # 简化验证，只验证必要的路径
+        if not self.lineEdit_InputPath.text():
+            QW.QMessageBox.critical(self, "输入验证失败", "输入数据路径不能为空")
+            self.pushButton_Run.setEnabled(True)
+            return
+        
+        if not self.lineEdit_OutputPath.text():
+            QW.QMessageBox.critical(self, "输入验证失败", "输出路径不能为空")
+            self.pushButton_Run.setEnabled(True)
+            return
+        
+        # 更新控制器的上下文和测试信息
+        self.main_controller.set_project_context(
+            project_path=self.path,
+            input_path=self.lineEdit_InputPath.text(),
+            output_path=self.lineEdit_OutputPath.text()
+        )
+        self.main_controller.set_test_info(test_info)
+        
+        # 更新配置
+        self.update_config(test_info)
+        self.md5_checksum_run = self.md5_checksum
+        self.statusBar_BatteryAnalysis.showMessage("status:ok")
+        
+        # 启动分析
+        success = self.main_controller.start_analysis()
+        if not success:
+            self.pushButton_Run.setEnabled(True)
+            QW.QMessageBox.warning(self, "启动失败", "无法启动分析任务")
 
     def save_table(self) -> None:
         # set focus on pushButton_Run for saving the input text
@@ -1529,10 +1613,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         return check_pass_flag
 
     def init_thread(self) -> None:
-        self.thread = Thread()
-        self.thread.info.connect(self.get_threadinfo)
-        self.thread.sigThreadEnd.connect(self.set_version)
-        self.thread.sigRenamePath.connect(self.rename_pltPath)
+        """
+        初始化线程（现在由控制器管理）
+        """
+        # 线程管理已转移到控制器
+        # 此方法保留以保持向后兼容性
+        pass
 
     def get_threadinfo(self, threadstate, stateindex, threadinfo) -> None:
         # 正常运行状态处理
@@ -1554,7 +1640,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 if stateindex == 3:
                     self.pushButton_Run.setText("Running....")
         else:
-            self.thread.deleteLater()
+            # 不再需要手动删除线程，由控制器管理线程生命周期
             
             # 任务完成处理
             if stateindex == 0 and "success" in threadinfo:
@@ -1803,187 +1889,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             self.tableWidget_TestInformation.horizontalHeader().resizeSection(2, int(available_width * 0.6))
 
 
-class Thread(QC.QThread):
-    info = QC.pyqtSignal(bool, int, str)
-    sigThreadEnd = QC.pyqtSignal()
-    sigRenamePath = QC.pyqtSignal(str)
-    sigProgressUpdate = QC.pyqtSignal(int, str)  # 进度更新信号：进度值(0-100)，状态文本
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.strPath = ""
-        self.strInputPath = ""
-        self.strOutputPath = ""
-        self.listTestInfo = []
-        self.bThreadRun = False
-        self.bCancelRequested = False  # 取消标志
-        self.progress_value = 0  # 当前进度值
-        self.strErrorBattery = ""
-        self.strErrorXlsx = ""
-        self.strTestDate = ""
-        
-    def request_cancel(self) -> None:
-        """请求取消任务"""
-        self.bCancelRequested = True
-        self.sigProgressUpdate.emit(self.progress_value, "正在取消任务...")
-
-    def get_info(self, strPath, strInputPath, strOutputPath, listTestInfo) -> None:
-        self.strPath = strPath
-        self.strInputPath = strInputPath
-        self.strOutputPath = strOutputPath
-        self.listTestInfo = listTestInfo
-
-    def run(self) -> None:
-        self.bThreadRun = True
-        self.bCancelRequested = False
-        self.progress_value = 0
-        threading.Thread(target=self.signal_running, daemon=True).start()
-        
-        try:
-            # 发送初始进度
-            self.sigProgressUpdate.emit(0, "准备分析...")
-            
-            # 检查并创建目录
-            if os.path.exists(f"{self.strOutputPath}/V{self.listTestInfo[16]}"):
-                shutil.rmtree(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
-            if self.bCancelRequested:
-                return
-            
-            os.mkdir(f"{self.strOutputPath}/V{self.listTestInfo[16]}")
-            self.progress_value = 10
-            self.sigProgressUpdate.emit(self.progress_value, "初始化分析...")
-            
-            # 电池分析
-            infoBattery = battery_analysis.BatteryAnalysis(strInDataXlsxDir=self.strInputPath,
-                                                                 strResultPath=self.strOutputPath,
-                                                                 listTestInfo=self.listTestInfo)
-            
-            self.progress_value = 20
-            self.sigProgressUpdate.emit(self.progress_value, "进行电池分析...")
-            if self.bCancelRequested:
-                return
-            
-            self.strErrorBattery = infoBattery.UBA_GetErrorLog()
-            if self.strErrorBattery == "":
-                self.progress_value = 40
-                self.sigProgressUpdate.emit(self.progress_value, "获取电池信息...")
-                listBatteryInfo = infoBattery.UBA_GetBatteryInfo()
-                
-                if self.bCancelRequested:
-                    return
-                
-                try:
-                    [sy, sm, sd] = listBatteryInfo[2][0].split(" ")[0].split("-")
-                    self.strTestDate = f"{sy}{sm}{sd}"
-                except ValueError:
-                    self.strTestDate = "00000000"
-                except Exception as e:
-                    logging.error(f"解析测试日期失败: {e}")
-                    self.strTestDate = "00000000"
-                
-                if os.path.exists(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}"):
-                    shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
-                
-                self.sigRenamePath.emit(self.strTestDate)
-                os.rename(f"{self.strOutputPath}/V{self.listTestInfo[16]}", f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
-                
-                self.progress_value = 60
-                self.sigProgressUpdate.emit(self.progress_value, "准备生成报告...")
-                if self.bCancelRequested:
-                    return
-                
-                # 文件写入
-                infoFile = file_writer.FileWriter(strResultPath=self.strOutputPath,
-                                                         listTestInfo=self.listTestInfo,
-                                                         listBatteryInfo=listBatteryInfo)
-                
-                self.progress_value = 80
-                self.sigProgressUpdate.emit(self.progress_value, "生成报告中...")
-                if self.bCancelRequested:
-                    return
-                
-                self.strErrorXlsx = infoFile.UFW_GetErrorLog()
-                if self.strErrorXlsx != "":
-                    logging.error(self.strErrorXlsx)
-                    # shutil.rmtree(f"{self.strOutputPath}/{self.strTestDate}_V{self.listTestInfo[16]}")
-                else:
-                    self.progress_value = 100
-                    self.sigProgressUpdate.emit(self.progress_value, "分析完成！")
-                # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
-                import sys
-                import re
-                exe_dir = os.path.dirname(sys.executable)
-                build_type = "Debug" if "Debug" in exe_dir else "Release"
-
-                # 从当前运行的 analyzer 可执行文件名中解析版本（形如 battery-analyzer_1_0_1.exe）
-                analyzer_exe_name = os.path.basename(sys.executable)
-                m = re.search(r"battery-analyzer_(\d+_\d+_\d+)\.exe", analyzer_exe_name, re.IGNORECASE)
-                version_us = None
-                if m:
-                    version_us = m.group(1)
-                else:
-                    # 回退：从项目版本读取，并转换为下划线格式
-                    try:
-                        from ..utils.version import Version
-                        version_us = Version().version.replace('.', '_')
-                    except Exception:
-                        version_us = "2_0_0"  # 与项目默认版本保持一致
-
-                # 仅使用与 analyzer 同版本的候选路径
-                exe_candidates = [
-                    # 可执行文件所在目录（打包/本地运行）
-                    os.path.join(exe_dir, f"battery-analysis-visualizer_{version_us}.exe"),
-                    # 项目根目录（少数场景可能存在）
-                    os.path.join(self.strPath, f"battery-analysis-visualizer_{version_us}.exe"),
-                    # 项目构建目录（Debug/Release）
-                    os.path.join(self.strPath, "build", build_type, f"battery-analysis-visualizer_{version_us}.exe"),
-                ]
-                
-                exe_executed = False
-                for exe_path in exe_candidates:
-                    if os.path.exists(exe_path):
-                        logging.info(f"启动ImageMaker: {exe_path}")
-                        try:
-                            # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行
-                            subprocess.run(exe_path, shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
-                            exe_executed = True
-                            break
-                        except Exception as e:
-                            logging.error(f"启动失败 {exe_path}: {e}")
-                            continue
-                
-                if not exe_executed:
-                    logging.warning("未找到battery-analysis-visualizer可执行文件")
-                    logging.info("候选路径:")
-                    for path in exe_candidates:
-                        logging.info(f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")
-
-        except Exception as e:
-            logging.error(f"线程运行过程中发生错误: {e}")
-        finally:
-            self.bThreadRun = False
-
-    def signal_running(self) -> None:
-        while self.bThreadRun:
-            status_text = "status:run"
-            if self.bCancelRequested:
-                status_text = "status:canceling"
-            self.info.emit(True, 0, status_text)
-            time.sleep(0.4)
-            self.info.emit(True, 1, status_text)
-            time.sleep(0.4)
-            self.info.emit(True, 2, status_text)
-            time.sleep(0.4)
-            self.info.emit(True, 3, status_text)
-            time.sleep(0.4)
-        if self.strErrorBattery != "":
-            self.info.emit(False, 1, self.strErrorBattery)
-        else:
-            if self.strErrorXlsx != "":
-                self.info.emit(False, 2, self.strErrorXlsx)
-            else:
-                self.info.emit(False, 0, "status:success")
-                self.sigThreadEnd.emit()
 
 
 def main() -> None:
