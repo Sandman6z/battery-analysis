@@ -58,21 +58,24 @@ class BuildConfig:
             logger.warning(f"无法初始化Git仓库: {e}")
             logger.warning("继续构建过程，但不进行Git相关操作")
         
-        # 首先读取pyproject.toml获取主版本号
-        import tomllib
-        with open(self.project_root / "pyproject.toml", "rb") as f:
-            pyproject_data = tomllib.load(f)
-        self.version = pyproject_data.get("project", {}).get("version", "0.0.0")
+        # 从pyproject.toml读取版本号（版本号中心化管理）
+        try:
+            import tomllib
+            with open(self.project_root / "pyproject.toml", "rb") as f:
+                pyproject_data = tomllib.load(f)
+            self.version = pyproject_data.get("project", {}).get("version", "0.0.0")
+        except Exception as e:
+            logger.warning(f"无法从pyproject.toml读取版本号: {e}，使用默认版本")
+            self.version = "0.0.0"
         
-        # 然后读取配置文件获取其他配置
+        # 读取配置文件获取其他配置
         self.config = CaseSensitiveConfigParser()
         self.config_path = self.project_root / "config" / "setting.ini"
         self.config.read(str(self.config_path), encoding='utf-8')
         
-        # 确保配置文件中的版本号与pyproject.toml一致
+        # 确保BuildConfig部分存在
         if not self.config.has_section("BuildConfig"):
             self.config.add_section("BuildConfig")
-        self.config.set("BuildConfig", "Version", self.version)
         self.console_mode = self.config.getboolean("BuildConfig", "Console")
         
         # 定义构建应用相关目录
@@ -94,12 +97,57 @@ class BuildManager(BuildConfig):
         # 清理构建目录和缓存
         self.clean_build_dirs()
         
-        # 初始化时执行构建流程
-        self.setup_version()
-        self.copy_source_files()
-        self.generate_version_info()
-        self.build_applications()
-        self.move_programs()
+        # 保存原始__init__.py内容，以便构建后恢复
+        original_init_content = None
+        
+        try:
+            # 在构建前嵌入版本号
+            original_init_content = self.embed_version_in_init()
+            
+            # 执行构建流程
+            self.setup_version()
+            self.copy_source_files()
+            self.generate_version_info()
+            self.build_applications()
+            self.move_programs()
+        finally:
+            # 构建完成后恢复原始__init__.py文件
+            if original_init_content:
+                try:
+                    init_file_path = self.project_root / "src" / "battery_analysis" / "__init__.py"
+                    with open(init_file_path, 'w', encoding='utf-8') as f:
+                        f.write(original_init_content)
+                    logger.info("已恢复原始__init__.py文件")
+                except Exception as e:
+                    logger.error(f"恢复原始__init__.py文件时出错: {e}")
+    
+    def embed_version_in_init(self):
+        """在构建前将版本号嵌入到__init__.py文件中"""
+        init_file_path = self.project_root / "src" / "battery_analysis" / "__init__.py"
+        
+        try:
+            # 读取原始文件内容
+            with open(init_file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # 替换版本号占位符
+            # 查找PyInstaller环境下返回的版本号行
+            old_line = '        # 版本号将在构建时被替换为实际值\n        return "2.0.0"'
+            new_line = f'        # 构建时嵌入的实际版本号\n        return "{self.version}"'
+            
+            updated_content = content.replace(old_line, new_line)
+            
+            # 写回文件
+            with open(init_file_path, 'w', encoding='utf-8') as f:
+                f.write(updated_content)
+            
+            logger.info(f"已将版本号 {self.version} 嵌入到 {init_file_path}")
+            
+            # 返回原始内容，以便稍后恢复
+            return content
+        except Exception as e:
+            logger.error(f"嵌入版本号时出错: {e}")
+            return None
     
     def clean_build_dirs(self):
         """清理构建目录和缓存"""
@@ -223,14 +271,7 @@ VSVersionInfo(
         else:
             logger.warning(f"警告: {exe_path} 不存在")
         
-        # 复制pyproject.toml到构建目录（解决无法读取版本的问题）
-        pyproject_dest = build_dir / "pyproject.toml"
-        pyproject_src = self.project_root / "pyproject.toml"
-        if pyproject_src.exists():
-            shutil.copy2(pyproject_src, pyproject_dest)
-            logger.info(f"已复制: {pyproject_dest}")
-        else:
-            logger.warning(f"找不到源文件 {pyproject_src}")
+        # 不再复制pyproject.toml到构建目录，版本号已直接在构建脚本中处理
         
         # 创建setting.ini
         config = CaseSensitiveConfigParser()
@@ -575,7 +616,7 @@ VSVersionInfo(
                 '--hidden-import=battery_analysis.utils.file_writer',
                 '--hidden-import=battery_analysis.utils.battery_analysis',
                 '--hidden-import=battery_analysis.ui.ui_main_window',
-                '--hidden-import=tomli',
+                
                 '--hidden-import=xlsxwriter',
                 '--collect-all=xlsxwriter',
                 '--collect-all=openpyxl',
@@ -722,7 +763,7 @@ VSVersionInfo(
                   '--hidden-import=battery_analysis.main',
                   '--hidden-import=battery_analysis.ui',
                   '--hidden-import=battery_analysis.utils',
-                  '--hidden-import=tomli',
+
                   '--hidden-import=xlsxwriter',
                   '--collect-all=xlsxwriter',
                   '--collect-all=openpyxl',
