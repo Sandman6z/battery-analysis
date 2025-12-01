@@ -168,34 +168,50 @@ class AnalysisWorker(QC.QRunnable):
             logging.error(f"线程运行过程中发生错误: {e}")
         finally:
             self.b_thread_run = False
-            status_thread.join(timeout=1.0)  # 等待状态线程结束
+            # 等待状态线程结束，设置超时避免死锁
+            try:
+                status_thread.join(timeout=1.0)
+            except Exception as e:
+                logging.error(f"等待状态线程结束时出错: {e}")
     
     def _signal_running(self):
         """
         发送运行状态信号的内部方法
         """
-        while self.b_thread_run:
-            status_text = "status:run"
-            if self.b_cancel_requested:
-                status_text = "status:canceling"
-            self.signals.info.emit(True, 0, status_text)
-            time.sleep(0.4)
-            self.signals.info.emit(True, 1, status_text)
-            time.sleep(0.4)
-            self.signals.info.emit(True, 2, status_text)
-            time.sleep(0.4)
-            self.signals.info.emit(True, 3, status_text)
-            time.sleep(0.4)
+        try:
+            while self.b_thread_run:
+                status_text = "status:run"
+                if self.b_cancel_requested:
+                    status_text = "status:canceling"
+                
+                try:
+                    self.signals.info.emit(True, 0, status_text)
+                    time.sleep(0.4)
+                    self.signals.info.emit(True, 1, status_text)
+                    time.sleep(0.4)
+                    self.signals.info.emit(True, 2, status_text)
+                    time.sleep(0.4)
+                    self.signals.info.emit(True, 3, status_text)
+                    time.sleep(0.4)
+                except RuntimeError:
+                    # 处理信号对象已被删除的情况
+                    break
+        except Exception as e:
+            logging.error(f"状态线程运行出错: {e}")
         
         # 发送完成状态
-        if self.str_error_battery != "":
-            self.signals.info.emit(False, 1, self.str_error_battery)
-        else:
-            if self.str_error_xlsx != "":
-                self.signals.info.emit(False, 2, self.str_error_xlsx)
+        try:
+            if self.str_error_battery != "":
+                self.signals.info.emit(False, 1, self.str_error_battery)
             else:
-                self.signals.info.emit(False, 0, "status:success")
-                self.signals.thread_end.emit()
+                if self.str_error_xlsx != "":
+                    self.signals.info.emit(False, 2, self.str_error_xlsx)
+                else:
+                    self.signals.info.emit(False, 0, "status:success")
+                    self.signals.thread_end.emit()
+        except RuntimeError:
+            # 处理信号对象已被删除的情况
+            logging.warning("信号对象已被删除，无法发送完成状态")
     
     def _start_visualizer(self):
         """

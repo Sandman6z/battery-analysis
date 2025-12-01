@@ -109,11 +109,36 @@ class BatteryAnalysis:
 
         def strCompareDate(_strDate1: str, _strDate2: str, _bEarlier: bool) -> str:
             def intConvertDate(_strDate: str) -> int:
-                _cd1 = _strDate.split(" ")[0].split("-")
-                _cd2 = _strDate.split(" ")[1].split(":")
-                return int("{}{:02}{:02}{:02}{:02}{:02}".format(int(_cd1[0]), int(_cd1[1]), int(_cd1[2]),
-                                                                int(_cd2[0]), int(_cd2[1]), int(_cd2[2])))
-
+                # 改进的日期时间转换函数，处理可能没有空格分隔的日期字符串
+                try:
+                    # 尝试按空格分割日期和时间
+                    if " " in _strDate:
+                        _date_part, _time_part = _strDate.split(" ")
+                    else:
+                        # 如果没有空格，尝试找到日期部分和时间部分的分割位置
+                        # 假设格式为 "YYYY-MM-DDHH:MM:SS" 或类似格式
+                        _date_part = _strDate[:10]  # 提取YYYY-MM-DD部分
+                        _time_part = _strDate[10:]  # 提取剩余的时间部分
+                    
+                    _cd1 = _date_part.split("-")
+                    
+                    # 清理时间部分，确保可以正确分割
+                    if _time_part and ":" in _time_part:
+                        _cd2 = _time_part.split(":")
+                        return int("{}{:02}{:02}{:02}{:02}{:02}".format(
+                            int(_cd1[0]), int(_cd1[1]), int(_cd1[2]),
+                            int(_cd2[0]), int(_cd2[1]), int(_cd2[2])
+                        ))
+                    else:
+                        # 如果时间部分格式不正确，使用默认值
+                        return int("{}{:02}{:02}000000".format(
+                            int(_cd1[0]), int(_cd1[1]), int(_cd1[2])
+                        ))
+                except (IndexError, ValueError) as e:
+                    # 如果解析失败，记录错误并返回默认值
+                    logging.error(f"日期解析错误: {_strDate}, 错误: {e}")
+                    # 返回一个默认的日期时间值
+                    return 20000101000000  # 2000-01-01 00:00:00
             if _strDate1 == _strDate2:
                 _min_date = _strDate1
                 _max_date = _strDate2
