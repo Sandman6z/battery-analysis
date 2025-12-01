@@ -118,14 +118,70 @@ class AnalysisWorker(QC.QRunnable):
                 if self.b_cancel_requested:
                     return
                 
+                # 获取Test Date和原始周期日期进行验证
+                test_date = list_battery_info[3]  # 从修改后的UBA_GetBatteryInfo返回值中获取Test Date
+                original_cycle_date = list_battery_info[4]  # 从修改后的UBA_GetBatteryInfo返回值中获取原始周期日期
+                
+                logging.info(f"获取到的Test Date: {test_date}, 原始周期日期: {original_cycle_date}")
+                
                 try:
-                    [sy, sm, sd] = list_battery_info[2][0].split(" ")[0].split("-")
-                    self.str_test_date = f"{sy}{sm}{sd}"
-                except ValueError:
-                    self.str_test_date = "00000000"
+                    # 优先使用从Excel或文件名提取的Test Date（已经是YYYYMMDD格式）
+                    if test_date and len(test_date) == 8 and test_date.isdigit():
+                        self.str_test_date = test_date
+                        logging.info(f"使用YYYYMMDD格式的Test Date: {self.str_test_date}")
+                    elif test_date:
+                        # 如果test_date是其他格式，尝试解析
+                        try:
+                            # 尝试处理标准日期格式 YYYY-MM-DD
+                            if '-' in test_date:
+                                date_part = test_date.split(' ')[0] if ' ' in test_date else test_date
+                                [sy, sm, sd] = date_part.split("-")
+                                self.str_test_date = f"{sy}{sm}{sd}"
+                            elif '/' in test_date:
+                                # 尝试处理 YYYY/MM/DD 格式
+                                date_part = test_date.split(' ')[0] if ' ' in test_date else test_date
+                                [sy, sm, sd] = date_part.split("/")
+                                self.str_test_date = f"{sy}{sm}{sd}"
+                            else:
+                                # 尝试作为YYYYMMDD直接使用
+                                self.str_test_date = test_date
+                            logging.info(f"从Test Date解析得到: {self.str_test_date}")
+                        except:
+                            # 解析失败时，尝试使用原始周期日期
+                            if original_cycle_date:
+                                try:
+                                    # 尝试处理标准日期格式 YYYY-MM-DD
+                                    if '-' in original_cycle_date:
+                                        date_part = original_cycle_date.split(' ')[0] if ' ' in original_cycle_date else original_cycle_date
+                                        [sy, sm, sd] = date_part.split("-")
+                                        self.str_test_date = f"{sy}{sm}{sd}"
+                                    elif '/' in original_cycle_date:
+                                        # 尝试处理 YYYY/MM/DD 格式
+                                        date_part = original_cycle_date.split(' ')[0] if ' ' in original_cycle_date else original_cycle_date
+                                        [sy, sm, sd] = date_part.split("/")
+                                        self.str_test_date = f"{sy}{sm}{sd}"
+                                    else:
+                                        # 尝试作为YYYYMMDD直接使用
+                                        self.str_test_date = original_cycle_date
+                                    logging.info(f"从原始周期日期解析得到: {self.str_test_date}")
+                                except:
+                                    # 最后尝试回退到原有的日期提取方式
+                                    try:
+                                        [sy, sm, sd] = list_battery_info[2][0].split(" ")[0].split("-")
+                                        self.str_test_date = f"{sy}{sm}{sd}"
+                                        logging.info(f"从list_battery_info解析得到: {self.str_test_date}")
+                                    except:
+                                        self.str_test_date = "00000000"
+                                        logging.error("所有日期解析方式都失败了")
                 except Exception as e:
                     logging.error(f"解析测试日期失败: {e}")
                     self.str_test_date = "00000000"
+                
+                # 日志记录最终使用的日期
+                logging.info(f"最终确定的测试日期: {self.str_test_date}")
+                
+                # 取消严格的日期比较，避免因为日期格式不一致导致程序退出
+                # 现在优先使用从文件名提取的正确日期
                 
                 # 重命名目录
                 final_dir = f"{self.str_output_path}/{self.str_test_date}_V{self.list_test_info[16]}"

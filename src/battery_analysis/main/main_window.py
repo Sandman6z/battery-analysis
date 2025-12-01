@@ -1657,6 +1657,37 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                     QW.QMessageBox.StandardButton.Ok
                 )
             
+            # 日期不一致错误处理 (stateindex == 3)
+            elif stateindex == 3:
+                self.pushButton_Run.setText("Rerun")
+                self.pushButton_Run.setStyleSheet("background-color:red")
+                self.pushButton_Run.setEnabled(True)
+                
+                # 日期不一致错误消息处理
+                error_title = "日期不一致错误"
+                error_details = threadinfo
+                
+                # 构建日期不一致错误的具体建议
+                suggestions = [
+                    "请检查Excel文件中的Test Date字段是否正确",
+                    "确保Test Date与实际测试日期一致",
+                    "修正日期后重新运行分析"
+                ]
+                
+                # 构建完整的错误消息
+                full_error_msg = f"{error_title}:\n\n{error_details}\n\n建议解决步骤:\n"
+                full_error_msg += "\n".join([f"- {s}" for s in suggestions])
+                
+                # 显示专门的日期不一致错误对话框
+                QW.QMessageBox.critical(
+                    self,
+                    error_title,
+                    full_error_msg,
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                
+                self.statusBar_BatteryAnalysis.showMessage(f"[错误]: {error_title}")
+            
             # 电池分析错误处理 (stateindex == 1)
             elif stateindex == 1:
                 self.pushButton_Run.setText("Rerun")

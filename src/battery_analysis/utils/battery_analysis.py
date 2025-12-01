@@ -3,6 +3,7 @@ import csv
 import datetime
 import traceback
 import logging
+import re
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -32,6 +33,10 @@ class BatteryAnalysis:
         self.listBatteryName = []
         # list for time stamp
         self.listTimeStamp = []
+        # 存储从Excel提取的测试日期
+        self.test_date = "00000000"
+        # 存储从cycleBegin提取的原始日期
+        self.original_cycle_date = "00000000"
 
         # list for Info_Iamge.csv, use the .csv to draw line chart
         self.listAllPosiForInfoImageCsv = []
@@ -60,7 +65,157 @@ class BatteryAnalysis:
             self.strErrorLog = str(e)
             traceback.print_exc()
 
+    def UBA_GetTestDateFromExcel(self, strPath: str) -> str:
+        """
+        从Excel文件中提取Test Date字段
+        
+        Args:
+            strPath: Excel文件路径
+            
+        Returns:
+            str: 格式化的日期字符串 (YYYYMMDD)，如果无法提取则返回默认值
+        """
+        try:
+            rb = rd.open_workbook(strPath)
+            
+            # 搜索所有工作表中的"Test Date"字段
+            for sheet_idx in range(len(rb.sheets())):
+                sheet = rb.sheets()[sheet_idx]
+                for row in range(min(20, sheet.nrows)):  # 只搜索前20行以提高效率
+                    for col in range(sheet.ncols):
+                        cell_value = sheet.cell_value(row, col)
+                        if isinstance(cell_value, str):
+                            # 搜索包含Test Date的单元格
+                            if "Test Date" in cell_value or "测试日期" in cell_value:
+                                # 尝试从相邻单元格获取日期值
+                                if col + 1 < sheet.ncols:
+                                    date_value = sheet.cell_value(row, col + 1)
+                                    if isinstance(date_value, str) and date_value.strip():
+                                        # 处理多种日期格式
+                                        date_str = date_value.strip()
+                                        # 格式1: 10.06.2025 - 08.07.2025
+                                        if "-" in date_str and "." in date_str:
+                                            start_date_part = date_str.split("-")[0].strip()
+                                            if "." in start_date_part:
+                                                parts = start_date_part.split(".")
+                                                if len(parts) == 3:
+                                                    try:
+                                                        day, month, year = parts
+                                                        # 确保值可以转换为整数
+                                                        int(day), int(month), int(year)
+                                                        return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                    except ValueError:
+                                                        logging.warning(f"日期部分无法转换为整数: {parts}")
+                                        # 格式2: 2025-06-10
+                                        elif "-" in date_str:
+                                            parts = date_str.split("-")
+                                            if len(parts) >= 3:
+                                                try:
+                                                    year, month, day = parts[:3]
+                                                    # 确保值可以转换为整数
+                                                    int(year), int(month), int(day)
+                                                    return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                except ValueError:
+                                                    logging.warning(f"日期部分无法转换为整数: {parts[:3]}")
+                                
+                                # 尝试从下方单元格获取日期值
+                                if row + 1 < sheet.nrows:
+                                    date_value = sheet.cell_value(row + 1, col)
+                                    if isinstance(date_value, str) and date_value.strip():
+                                        # 处理多种日期格式
+                                        date_str = date_value.strip()
+                                        if "-" in date_str and "." in date_str:
+                                            start_date_part = date_str.split("-")[0].strip()
+                                            if "." in start_date_part:
+                                                parts = start_date_part.split(".")
+                                                if len(parts) == 3:
+                                                    try:
+                                                        day, month, year = parts
+                                                        # 确保值可以转换为整数
+                                                        int(day), int(month), int(year)
+                                                        return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                    except ValueError:
+                                                        logging.warning(f"日期部分无法转换为整数: {parts}")
+                                        elif "-" in date_str:
+                                            parts = date_str.split("-")
+                                            if len(parts) >= 3:
+                                                try:
+                                                    year, month, day = parts[:3]
+                                                    # 确保值可以转换为整数
+                                                    int(year), int(month), int(day)
+                                                    return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                except ValueError:
+                                                    logging.warning(f"日期部分无法转换为整数: {parts[:3]}")
+            
+            # 如果找不到Test Date字段，尝试从文件名提取
+            file_name = os.path.basename(strPath)
+            logging.info(f"正在从文件名解析日期: {file_name}")
+            
+            # 尝试从文件名中提取日期
+            # 匹配文件名中所有连续的数字组
+            digit_groups = re.findall(r'(\d+)', file_name)
+            if digit_groups:
+                # 取最后一组连续数字
+                last_digit_group = digit_groups[-1]
+                # 提取前8位作为日期（如果长度足够）
+                if len(last_digit_group) >= 8:
+                    date_str = last_digit_group[:8]
+                    logging.info(f"从文件名最后一组连续数字提取前8位作为日期: {date_str}")
+                    # 验证提取的日期是否有效（简单验证：年份在合理范围）
+                    try:
+                        year = int(date_str[:4])
+                        if 2000 <= year <= 2100:
+                            return date_str
+                        else:
+                            logging.warning(f"提取的日期年份 {year} 不在有效范围内")
+                    except ValueError:
+                        logging.error("无法解析日期年份")
+            # 如果最后一组数字不足8位或验证失败，尝试匹配任意8位数字
+            date_match = re.search(r'(\d{8})', file_name)
+            if date_match:
+                date_str = date_match.group(1)
+                logging.info(f"从文件名提取任意8位日期: {date_str}")
+                try:
+                    year = int(date_str[:4])
+                    if 2000 <= year <= 2100:
+                        return date_str
+                except ValueError:
+                    logging.error("无法解析日期年份")
+            
+            # 然后尝试其他常见的日期格式
+            date_patterns = [
+                r'(\d{4})-(\d{2})-(\d{2})',  # 2025-06-10
+                r'(\d{2})\.(\d{2})\.(\d{4})'  # 10.06.2025
+            ]
+            
+            for pattern in date_patterns:
+                match = re.search(pattern, file_name)
+                if match:
+                    try:
+                        if pattern == r'(\d{2})\.(\d{2})\.(\d{4})':
+                            day, month, year = match.groups()
+                            result = f"{year}{month.zfill(2)}{day.zfill(2)}"
+                            logging.info(f"从文件名提取到日期: {result}")
+                            return result
+                        else:
+                            year, month, day = match.groups()
+                            result = f"{year}{month.zfill(2)}{day.zfill(2)}"
+                            logging.info(f"从文件名提取到日期: {result}")
+                            return result
+                    except Exception as e:
+                        logging.warning(f"从文件名解析日期失败: {e}")
+            
+        except Exception as e:
+            logging.error(f"从Excel提取Test Date失败: {strPath}, 错误: {e}")
+        
+        # 确保总是有返回值
+        return "00000000"
+    
     def UBA_AnalysisXlsx(self, strPath: str) -> None:
+        # 首先尝试从Excel读取Test Date
+        if self.test_date == "00000000":
+            self.test_date = self.UBA_GetTestDateFromExcel(strPath)
+        
         # temp list to store voltage and row refer to different current level and voltage level
         listLevelToVoltage = []
         listLevelToRow = []
@@ -160,6 +315,17 @@ class BatteryAnalysis:
         if not self.listTimeStamp:
             self.listTimeStamp.append(cycleBegin[2])
             self.listTimeStamp.append(cycleEnd[-1])
+            # 保存原始的cycle日期
+            if hasattr(cycleBegin, '__getitem__') and len(cycleBegin) > 2 and isinstance(cycleBegin[2], str):
+                try:
+                    date_part = cycleBegin[2].split(" ")[0]
+                    if "-" in date_part:
+                        parts = date_part.split("-")
+                        if len(parts) >= 3:
+                            year, month, day = parts[:3]
+                            self.original_cycle_date = f"{year}{month.zfill(2)}{day.zfill(2)}"
+                except Exception as e:
+                    logging.error(f"解析原始cycle日期失败: {e}")
         else:
             # compare start time stamp
             self.listTimeStamp[0] = strCompareDate(cycleBegin[2], self.listTimeStamp[0], True)
@@ -278,7 +444,15 @@ class BatteryAnalysis:
         f.close()
 
     def UBA_GetBatteryInfo(self) -> list:
-        return [self.listAllBatteryCharge, self.listBatteryName, self.listTimeStamp]
+        """
+        返回电池信息列表，包含以下内容：
+        [0]: 所有电池电荷数据
+        [1]: 电池名称列表
+        [2]: 时间戳列表
+        [3]: 从Test Date提取的日期
+        [4]: 从cycleBegin提取的原始日期
+        """
+        return [self.listAllBatteryCharge, self.listBatteryName, self.listTimeStamp, self.test_date, self.original_cycle_date]
 
     def UBA_GetErrorLog(self) -> str:
         return self.strErrorLog

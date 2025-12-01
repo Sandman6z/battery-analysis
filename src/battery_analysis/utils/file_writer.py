@@ -96,11 +96,70 @@ class XlsxWordWriter:
         self.listTestInfo = listTestInfo
         self.listBatteryInfo = listBatteryInfo
         try:
-            [sy, sm, sd] = self.listBatteryInfo[2][0].split(" ")[0].split("-")
-            td = f"{sy}{sm}{sd}"
-        except ValueError:
-            td = "00000000"
-        self.strResultPath = f"{strResultPath}/{td}_V{listTestInfo[16]}"
+            # 优先使用从Excel提取的Test Date（listBatteryInfo[3]）
+            if len(self.listBatteryInfo) > 3 and self.listBatteryInfo[3] and self.listBatteryInfo[3] != "00000000":
+                test_date = self.listBatteryInfo[3]
+                logging.info(f"使用从Excel提取的Test Date: {test_date}")
+                # 处理YYYYMMDD格式（8位数字）
+                if len(test_date) == 8 and test_date.isdigit():
+                    sy = test_date[:4]
+                    sm = test_date[4:6]
+                    sd = test_date[6:8]
+                    td = f"{sy}{sm}{sd}"
+                # 处理YYYY-MM-DD格式
+                elif "-" in test_date:
+                    [sy, sm, sd] = test_date.split(" ")[0].split("-")
+                    td = f"{sy}{sm}{sd}"
+                # 处理YYYY/MM/DD格式
+                elif "/" in test_date:
+                    [sy, sm, sd] = test_date.split(" ")[0].split("/")
+                    td = f"{sy}{sm}{sd}"
+                else:
+                    raise ValueError(f"不支持的日期格式: {test_date}")
+            else:
+                # 使用从BatteryAnalysis类获取的test_date（在索引3位置）
+                if len(self.listBatteryInfo) > 3 and self.listBatteryInfo[3] and self.listBatteryInfo[3] != "00000000":
+                    # test_date已经是YYYYMMDD格式的字符串
+                    td = self.listBatteryInfo[3]
+                    logging.info(f"使用从Excel提取的Test Date: {td}")
+                else:
+                    raise ValueError("无法从BatteryInfo列表中提取有效日期信息")
+            # 验证日期有效性
+            if not (len(td) == 8 and td.isdigit() and td != "00000000"):
+                raise ValueError(f"无效的日期格式: {td}")
+            logging.info(f"成功解析日期: {td}")
+        except (ValueError, IndexError) as e:
+            logging.error(f"日期解析失败: {e}")
+            # 尝试从文件名中提取日期
+            if len(listTestInfo) > 0 and hasattr(listTestInfo[0], 'split'):
+                import re
+                filename = str(listTestInfo[0])
+                # 匹配文件名中所有连续的数字组
+                digit_groups = re.findall(r'(\d+)', filename)
+                if digit_groups:
+                    # 取最后一组连续数字
+                    last_digit_group = digit_groups[-1]
+                    # 提取前8位作为日期（如果长度足够）
+                    if len(last_digit_group) >= 8:
+                        td = last_digit_group[:8]
+                        logging.info(f"从文件名最后一组连续数字提取前8位作为日期: {td}")
+                    else:
+                        # 如果最后一组数字不足8位，尝试匹配任意8位数字
+                        match = re.search(r'(\d{8})', filename)
+                        if match:
+                            td = match.group(1)
+                            logging.info(f"从文件名提取任意8位日期: {td}")
+                        else:
+                            td = "00000000"
+                            logging.warning(f"无法从文件名提取日期，使用默认值: {td}")
+                else:
+                    td = "00000000"
+                    logging.warning(f"文件名中没有数字，无法提取日期，使用默认值: {td}")
+            else:
+                td = "00000000"
+                logging.warning(f"无法从文件名提取日期，使用默认值: {td}")
+        # 使用os.path.join确保路径分隔符一致性
+        self.strResultPath = os.path.join(strResultPath, f"{td}_V{listTestInfo[16]}")
 
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
@@ -1474,7 +1533,8 @@ class JsonWriter:
         for c in range(len(self.listCurrentLevel)):
             self.strFileCurrentType = self.strFileCurrentType + f"{self.listCurrentLevel[c]}-"
         self.strFileCurrentType = self.strFileCurrentType[:-1]
-        self.strResultJsonPath = f"{self.strResultPath}/{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{self.listTestInfo[7]}.json"
+        # 使用os.path.join确保路径分隔符一致性
+        self.strResultJsonPath = os.path.join(self.strResultPath, f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{self.listTestInfo[7]}.json")
         self.listBatteryVoltage = []
         for v in range(len(self.listVoltageLevel)):
             self.listBatteryVoltage.append(len(str(self.listVoltageLevel[v])) < 4 and str(self.listVoltageLevel[v]) + '0' * (4 - len(str(self.listVoltageLevel[v]))) or str(self.listVoltageLevel[v]))
@@ -1537,6 +1597,8 @@ class JsonWriter:
             "batteryManufacturer": self.listTestInfo[4],
             "testRuns": self.listTestRun})
 
+        # 确保目标目录存在
+        os.makedirs(os.path.dirname(self.strResultJsonPath), exist_ok=True)
         with open(self.strResultJsonPath, 'w') as file:
             json.dump(self.dictJson, file, indent=4)
 
