@@ -40,17 +40,13 @@ class Version:
             return self._get_default_version()
     
     def _get_version_from_pyinstaller_environment(self) -> str:
-        """从PyInstaller打包环境获取版本号"""
-        exe_dir = Path(sys.executable).parent
-        exe_pyproject_path = exe_dir / "pyproject.toml"
-        
-        if exe_pyproject_path.exists():
-            version = self._read_version_from_file(exe_pyproject_path)
-            logger.info(f"Version read from exe directory pyproject.toml: {version}")
-            return version
-        else:
-            logger.warning(f"No pyproject.toml found in {exe_dir}, using hardcoded version")
-            return self._get_default_version()
+        """从PyInstaller打包环境获取版本号
+        不再依赖pyproject.toml文件，而是直接返回默认版本号
+        这个默认版本号应该在构建时与pyproject.toml保持一致
+        """
+        logger.info("Running in PyInstaller environment, using version from build configuration")
+        # 使用默认版本号，在构建时确保与pyproject.toml保持一致
+        return self._get_default_version()
     
     def _get_version_from_development_environment(self) -> str:
         """从开发环境获取版本号"""

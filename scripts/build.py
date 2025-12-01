@@ -197,10 +197,18 @@ VSVersionInfo(
         build_dir = self.project_root / 'build' / self.build_type
         build_dir.mkdir(parents=True, exist_ok=True)
         
-        # 准备文件名，只添加版本号信息
-        version_suffix = self.version.replace('.', '_')
-        dataconverter_exe_name = f"battery-analyzer_{version_suffix}.exe"
-        imagemaker_exe_name = f"battery-analysis-visualizer_{version_suffix}.exe"
+        # 确定系统架构
+        architecture = "x64"
+        
+        # 根据构建类型生成相应的文件名格式
+        if self.build_type == "Release":
+            # Release版本：battery-analyzer_2.0.0_x64.exe
+            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}.exe"
+            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}.exe"
+        else:
+            # Debug版本：battery-analyzer_2.0.0_x64_debug.exe
+            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}_debug.exe"
+            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}_debug.exe"
         
         # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
         exe_path = build_dir / dataconverter_exe_name
@@ -410,10 +418,18 @@ VSVersionInfo(
         
         src_path = self.project_root / 'src'
 
-        # 准备文件名，添加版本号信息
-        version_suffix = self.version.replace('.', '_')
-        dataconverter_exe_name = f"battery-analyzer_{version_suffix}"
-        imagemaker_exe_name = f"battery-analysis-visualizer_{version_suffix}"
+        # 确定系统架构
+        architecture = "x64"
+        
+        # 根据构建类型生成相应的文件名格式（注意：这里不带.exe后缀，PyInstaller会自动添加）
+        if self.build_type == "Release":
+            # Release版本：battery-analyzer_2.0.0_x64
+            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}"
+            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}"
+        else:
+            # Debug版本：battery-analyzer_2.0.0_x64_debug
+            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}_debug"
+            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}_debug"
 
         # 为DataConverter生成spec文件
         # 构建参数设置，Debug模式和Release模式有所区别
