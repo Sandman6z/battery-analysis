@@ -635,7 +635,7 @@ VSVersionInfo(
                     cwd=os.path.join(self.build_path, 'Build_BatteryAnalysis'),
                     check=False,
                     capture_output=True,
-                    text=True
+                    encoding='utf-8'
                 )
                 logger.info(f"BatteryAnalysis构建结果: {result.returncode}")
                 logger.debug(f"标准输出: {result.stdout}")
@@ -782,7 +782,7 @@ VSVersionInfo(
                 cwd=image_show_dir,
                 check=False,
                 capture_output=True,
-                text=True
+                encoding='utf-8'
             )
             logger.info(f"ImageShow构建结果: {result.returncode}")
             logger.debug(f"标准输出: {result.stdout}")
