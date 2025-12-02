@@ -26,8 +26,8 @@ jobs:
       uses: astral-sh/setup-uv@v3
     
     - name: Install dependencies using uv
-      run: |
-        uv pip install -e '.[dev,build]'
+        run: |
+          uv pip install -e '.[dev,build]'
     
     - name: Lint with flake8
       run: |
