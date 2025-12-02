@@ -84,22 +84,27 @@ class BatteryAnalysis:
                 # 检查是否在PyInstaller环境中运行
                 is_frozen = getattr(sys, 'frozen', False)
                 
-                # 在PyInstaller或Windows环境下，使用串行处理避免递归启动
                 if is_frozen or sys.platform.startswith('win'):
-                    logging.info("在Windows或PyInstaller环境中，使用串行处理以避免递归启动问题")
-                    # 串行处理所有文件
-                    for args in process_args:
-                        try:
-                            # 直接调用处理函数
-                            result = self._parallel_process_file(args)
-                            results.append(result)
-                        except Exception as e:
-                            logging.error(f"处理文件时出错: {e}")
-                            from src.battery_analysis.utils.exception_type import BatteryAnalysisException
-                            raise BatteryAnalysisException(f"处理失败: {str(e)}")
+                    # 在Windows或PyInstaller环境下，使用线程池代替进程池避免递归启动
+                    # 线程池不会导致新进程创建，因此避免了递归启动问题
+                    logging.info("在Windows或PyInstaller环境中，使用线程池并行处理以提高性能并避免递归启动问题")
+                    cpu_count = min(multiprocessing.cpu_count(), 4)
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=cpu_count) as executor:
+                        # 提交所有任务
+                        future_to_args = {executor.submit(self._parallel_process_file, args): args for args in process_args}
+                        
+                        # 获取结果
+                        for future in concurrent.futures.as_completed(future_to_args):
+                            try:
+                                result = future.result()
+                                results.append(result)
+                            except Exception as e:
+                                logging.error(f"处理文件时出错: {e}")
+                                from src.battery_analysis.utils.exception_type import BatteryAnalysisException
+                                raise BatteryAnalysisException(f"处理失败: {str(e)}")
                 else:
-                    # 在非Windows环境下，仍然可以使用并行处理
-                    logging.info("在非Windows环境中，使用并行处理提高性能")
+                    # 在非Windows环境下，使用进程池并行处理以获得更好的CPU利用率
+                    logging.info("在非Windows环境中，使用进程池并行处理以获得最佳性能")
                     cpu_count = min(multiprocessing.cpu_count(), 4)
                     with multiprocessing.Pool(processes=cpu_count) as pool:
                         try:
