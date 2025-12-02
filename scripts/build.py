@@ -46,17 +46,7 @@ class BuildConfig:
         self.temp_build_dir = self.project_root / "__temp__"
         self.final_build_dir = self.project_root / "build"
         
-        # 初始化Git仓库
-        self.git_repo = None
-        self.git_index = None
-        self.git = None
-        try:
-            self.git_repo = Repo(str(self.project_root))
-            self.git_index = self.git_repo.index
-            self.git = self.git_repo.git
-        except Exception as e:
-            logger.warning(f"无法初始化Git仓库: {e}")
-            logger.warning("继续构建过程，但不进行Git相关操作")
+        # 不需要Git仓库初始化，简化构建流程
         
         # 从pyproject.toml读取版本号（版本号中心化管理）
         try:
@@ -310,30 +300,17 @@ VSVersionInfo(
     def update_version_and_commit(self):
         """更新版本并提交更改"""
         if not self.git_repo or not self.git_index or not self.git:
-            # 如果没有Git仓库，在测试环境中直接跳过版本更新检查
-            logger.warning("Git仓库未初始化，在测试环境中跳过版本更新检查")
+            # 如果没有Git仓库，直接跳过版本更新检查
+            logger.warning("Git仓库未初始化，跳过版本更新检查")
             return
-            # 原代码: raise BuildException("Git仓库未初始化，无法更新版本")
         
         version_split = self.version.split(".")
         # 确保版本号至少有三位
         while len(version_split) < 3:
             version_split.append("0")
         
-        self.git.add("-A")
-        
-        # 不再检查版本文件，因为版本管理已迁移到CHANGELOG.md
-        # 版本更新检查已移除
-        
         if self.build_type == "Release":
             try:
-                # 检查是否只有版本文件被更改
-                # 在测试环境中，暂时放宽这个限制
-                logger.warning("在测试环境中跳过Git更改检查")
-                # 原代码:
-                # if len(self.git_index.diff("HEAD")) != 1 or self.git_index.diff("HEAD")[0].a_path != "__version__.md":
-                #     raise BuildException("索引中有其他更改，无法构建发布版本")
-                
                 # 更新版本号，使用三位版本号格式
                 try:
                     if self.git_repo.commit().message and "Release" in self.git_repo.commit().message:
@@ -347,11 +324,6 @@ VSVersionInfo(
                     self.version = f"{version_split[0]}.{version_split[1]}.{int(version_split[2])+1}"
                 
                 self._update_version_files()
-                
-                # 注释掉等待文件更改的循环，因为我们不实际执行Git提交
-                # 原代码:
-                # while not self.git_repo.is_dirty():
-                #     pass
             except Exception as e:
                 logger.warning(f"Release模式版本更新失败: {e}，使用当前版本继续")
 
@@ -524,7 +496,6 @@ VSVersionInfo(
 
         with open(os.path.join(self.build_path, 'Build_BatteryAnalysis', 'build.spec'), 'w', encoding='utf-8') as f:
             f.write(spec_content)
-            logger.debug("DataConverter spec 内容如下:\n" + spec_content)
 
             # 执行 pyinstaller 命令
             logger.info(f"开始构建 {dataconverter_exe_name}...")
@@ -536,7 +507,6 @@ VSVersionInfo(
             
             # 首先尝试直接从Python安装目录查找
             python_home = os.path.dirname(os.path.dirname(sys.executable))
-            logger.debug(f"Python home directory: {python_home}")
             
             # 添加更多可能的DLL路径，包括GitHub Actions环境中的常见位置
             possible_dll_paths = [
@@ -547,10 +517,8 @@ VSVersionInfo(
                 'python311.dll'  # 让PyInstaller尝试在PATH中查找
             ]
             
-            # 打印所有尝试的路径用于调试
-            logger.debug("Trying to find python311.dll in:")
-            for i, path in enumerate(possible_dll_paths):
-                logger.debug(f"  {i+1}. {path} - {'Found' if os.path.exists(path) else 'Not found'}")
+            # 查找python311.dll
+            for path in possible_dll_paths:
                 if os.path.exists(path):
                     python_dll = path
                     break
@@ -558,11 +526,6 @@ VSVersionInfo(
             # 如果找到DLL，则添加警告
             if not python_dll:
                 logger.warning("Could not find python311.dll")
-                # 在GitHub Actions环境中，可能需要特殊处理
-                logger.debug("Current environment:")
-                for key in ['PYTHONHOME', 'PATH', 'TEMP', 'TMP']:
-                    if key in os.environ:
-                        logger.debug(f"  {key}: {os.environ[key]}")
             
             # 构建命令参数列表（切换为命令行方式，避免 spec 执行异常）
             # Windows 下 --add-data 使用分号分隔： 源路径;目标目录
@@ -627,7 +590,6 @@ VSVersionInfo(
                 '--path', f'{self.project_root}'
             ])
             
-            logger.debug(f"执行命令: {' '.join(cmd_args)}")
             try:
                 # 在指定目录下执行命令
                 result = subprocess.run(
@@ -638,7 +600,6 @@ VSVersionInfo(
                     encoding='utf-8'
                 )
                 logger.info(f"BatteryAnalysis构建结果: {result.returncode}")
-                logger.debug(f"标准输出: {result.stdout}")
                 if result.stderr:
                     logger.error(f"错误输出: {result.stderr}")
             except Exception as e:
@@ -710,7 +671,6 @@ VSVersionInfo(
         # 首先尝试直接从Python安装目录查找
         python_exec_dir = Path(sys.executable).parent
         python_home = python_exec_dir.parent
-        logger.debug(f"Python home directory: {python_home}")
         
         # 添加更多可能的DLL路径，包括GitHub Actions环境中的常见位置
         possible_dll_paths = [
@@ -721,10 +681,8 @@ VSVersionInfo(
             Path('python311.dll')  # 让PyInstaller尝试在PATH中查找
         ]
         
-        # 打印所有尝试的路径用于调试
-        logger.debug("Trying to find python311.dll in:")
-        for i, path in enumerate(possible_dll_paths):
-            logger.debug(f"  {i+1}. {path} - {'Found' if path.exists() else 'Not found'}")
+        # 查找python311.dll
+        for path in possible_dll_paths:
             if path.exists():
                 python_dll = str(path)
                 break
@@ -774,7 +732,6 @@ VSVersionInfo(
                   *(['--console'] if self.console_mode or debug_mode else ['--noconsole'])
         ])
 
-        logger.debug(f"执行命令: {' '.join(cmd_args)}")
         try:
             # 在指定目录下执行命令
             result = subprocess.run(
@@ -785,7 +742,6 @@ VSVersionInfo(
                 encoding='utf-8'
             )
             logger.info(f"ImageShow构建结果: {result.returncode}")
-            logger.debug(f"标准输出: {result.stdout}")
             if result.stderr:
                 logger.error(f"错误输出: {result.stderr}")
         except Exception as e:
