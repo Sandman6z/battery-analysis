@@ -4,6 +4,7 @@ import datetime
 import traceback
 import logging
 import re
+from concurrent.futures import ProcessPoolExecutor
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -49,14 +50,40 @@ class BatteryAnalysis:
         try:
             # get all input .xlsx path
             self.listAllInXlsx = [self.strInDataXlsxDir + f for f in os.listdir(self.strInDataXlsxDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-            # print(self.listAllInXlsx)
 
             if len(self.listAllInXlsx) == 0:
                 raise BatteryAnalysisException("[Input Path Error]: has no data file")
 
-            # analysis every battery data 
-            for i in range(len(self.listAllInXlsx)):
-                self.UBA_AnalysisXlsx(self.listAllInXlsx[i])
+            # 并行处理Excel文件
+            # 首先获取测试日期（如果有需要统一处理的）
+            if self.listAllInXlsx:
+                # 先从第一个文件获取测试日期
+                first_date = self.UBA_GetTestDateFromExcel(self.listAllInXlsx[0])
+                if first_date != "00000000":
+                    self.test_date = first_date
+                
+                # 准备并行处理的参数
+                process_args = [(file_path, self.listCurrentLevel, self.listVoltageLevel) for file_path in self.listAllInXlsx]
+                
+                # 使用进程池并行处理
+                with ProcessPoolExecutor(max_workers=None) as executor:  # None表示使用CPU核心数
+                    results = list(executor.map(self._parallel_process_file, process_args))
+                
+                # 合并结果
+                for battery_name, battery_charge, posi_data, voltage_data, charge_data, timestamp_info in results:
+                    self.listBatteryName.append(battery_name)
+                    self.listAllBatteryCharge.append(battery_charge)
+                    self.listAllPosiForInfoImageCsv.append(posi_data)
+                    self.listAllVoltageForInfoImageCsv.append(voltage_data)
+                    self.listAllChargeForInfoImageCsv.append(charge_data)
+                    
+                    # 处理时间戳
+                    if not self.listTimeStamp:
+                        self.listTimeStamp = timestamp_info
+                    else:
+                        # 更新最早和最晚时间
+                        self.listTimeStamp[0] = self._str_compare_date(timestamp_info[0], self.listTimeStamp[0], True)
+                        self.listTimeStamp[1] = self._str_compare_date(timestamp_info[1], self.listTimeStamp[1], False)
 
             # write .csv for draw line chart
             self.UBA_WriteCsv(f"{strResultPath}/V{listTestInfo[16]}")
@@ -211,10 +238,14 @@ class BatteryAnalysis:
         # 确保总是有返回值
         return "00000000"
     
-    def UBA_AnalysisXlsx(self, strPath: str) -> None:
-        # 首先尝试从Excel读取Test Date
-        if self.test_date == "00000000":
-            self.test_date = self.UBA_GetTestDateFromExcel(strPath)
+    @staticmethod
+    def _parallel_process_file(args):
+        """并行处理单个Excel文件的静态方法"""
+        strPath, listCurrentLevel, listVoltageLevel = args
+        
+        # 导入需要的模块
+        import xlrd as rd
+        import logging
         
         # temp list to store voltage and row refer to different current level and voltage level
         listLevelToVoltage = []
@@ -226,15 +257,15 @@ class BatteryAnalysis:
         listChargeForInfoImageCsv = []
 
         # init list
-        for c in range(len(self.listCurrentLevel)):
+        for c in range(len(listCurrentLevel)):
             listLevelToVoltage.append([])
             listLevelToRow.append([])
             listLevelToCharge.append([])
             listPosiForInfoImageCsv.append([])
             listVoltageForInfoImageCsv.append([])
             listChargeForInfoImageCsv.append([])
-            for v in range(len(self.listVoltageLevel)):
-                listLevelToVoltage[c].append(self.listVoltageLevel[v])
+            for v in range(len(listVoltageLevel)):
+                listLevelToVoltage[c].append(listVoltageLevel[v])
                 listLevelToRow[c].append(0)
                 listLevelToCharge[c].append(0)
 
@@ -262,8 +293,8 @@ class BatteryAnalysis:
         recordVoltage = recordTable.col_values(3)
         recordCharge = recordTable.col_values(4)
 
-        def strCompareDate(_strDate1: str, _strDate2: str, _bEarlier: bool) -> str:
-            def intConvertDate(_strDate: str) -> int:
+        def str_compare_date(_strDate1, _strDate2, _bEarlier):
+            def int_convert_date(_strDate):
                 # 改进的日期时间转换函数，处理可能没有空格分隔的日期字符串
                 try:
                     # 尝试按空格分割日期和时间
@@ -271,7 +302,6 @@ class BatteryAnalysis:
                         _date_part, _time_part = _strDate.split(" ")
                     else:
                         # 如果没有空格，尝试找到日期部分和时间部分的分割位置
-                        # 假设格式为 "YYYY-MM-DDHH:MM:SS" 或类似格式
                         _date_part = _strDate[:10]  # 提取YYYY-MM-DD部分
                         _time_part = _strDate[10:]  # 提取剩余的时间部分
                     
@@ -294,12 +324,13 @@ class BatteryAnalysis:
                     logging.error(f"日期解析错误: {_strDate}, 错误: {e}")
                     # 返回一个默认的日期时间值
                     return 20000101000000  # 2000-01-01 00:00:00
+            
             if _strDate1 == _strDate2:
                 _min_date = _strDate1
                 _max_date = _strDate2
             else:
-                _convert_date1 = intConvertDate(_strDate1)
-                _convert_date2 = intConvertDate(_strDate2)
+                _convert_date1 = int_convert_date(_strDate1)
+                _convert_date2 = int_convert_date(_strDate2)
                 if _convert_date1 < _convert_date2:
                     _min_date = _strDate1
                     _max_date = _strDate2
@@ -311,29 +342,10 @@ class BatteryAnalysis:
             else:
                 return _max_date
 
-        # first battery, not need compare
-        if not self.listTimeStamp:
-            self.listTimeStamp.append(cycleBegin[2])
-            self.listTimeStamp.append(cycleEnd[-1])
-            # 保存原始的cycle日期
-            if hasattr(cycleBegin, '__getitem__') and len(cycleBegin) > 2 and isinstance(cycleBegin[2], str):
-                try:
-                    date_part = cycleBegin[2].split(" ")[0]
-                    if "-" in date_part:
-                        parts = date_part.split("-")
-                        if len(parts) >= 3:
-                            year, month, day = parts[:3]
-                            self.original_cycle_date = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                except Exception as e:
-                    logging.error(f"解析原始cycle日期失败: {e}")
-        else:
-            # compare start time stamp
-            self.listTimeStamp[0] = strCompareDate(cycleBegin[2], self.listTimeStamp[0], True)
-            # compare end time stamp
-            self.listTimeStamp[1] = strCompareDate(cycleEnd[-1], self.listTimeStamp[1], False)
-        # print(self.listTimeStamp)
+        # 处理时间戳
+        listTimeStamp = [cycleBegin[2], cycleEnd[-1]]
 
-        def bIsInRangeMilliAmpere(_floatInput: float, _floatStandard: float):
+        def b_is_in_range_milli_ampere(_floatInput, _floatStandard):
             _floatMin = _floatStandard*1.05
             _floatMax = _floatStandard*0.95
             if _floatMin <= _floatInput <= _floatMax:
@@ -342,36 +354,27 @@ class BatteryAnalysis:
                 return False
 
         # analysis battery data
-        self.listBatteryName.append(cycleCycle[0])
+        battery_name = cycleCycle[0]
         for row in range(2, recordRows):
             if recordStep[row] != "脉冲" and recordStep[row] != "Pulse":
                 pass
             else:
-                for c in range(len(self.listCurrentLevel)):
-                    if bIsInRangeMilliAmpere(float(recordCurrent[row]) * 1000, -float(self.listCurrentLevel[c])):
+                for c in range(len(listCurrentLevel)):
+                    if b_is_in_range_milli_ampere(float(recordCurrent[row]) * 1000, -float(listCurrentLevel[c])):
                         if row < recordRows - 1:
-                            if not bIsInRangeMilliAmpere(float(recordCurrent[row + 1]) * 1000, -float(self.listCurrentLevel[c])):
+                            if not b_is_in_range_milli_ampere(float(recordCurrent[row + 1]) * 1000, -float(listCurrentLevel[c])):
                                 listPosiForInfoImageCsv[c].append(row)
                                 listVoltageForInfoImageCsv[c].append(recordVoltage[row])
-                        for v in range(len(self.listVoltageLevel)):
-                            if float(recordVoltage[row]) <= self.listVoltageLevel[v]:
+                        for v in range(len(listVoltageLevel)):
+                            if float(recordVoltage[row]) <= listVoltageLevel[v]:
                                 if listLevelToRow[c][v] == 0:
                                     listLevelToVoltage[c][v] = float(recordVoltage[row])
                                     listLevelToRow[c][v] = row
 
-        self.UBA_Log(datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S]") + '\r')
-        self.UBA_Log("Battery {}:\r".format(self.listBatteryName[-1]))
-        for c in range(len(self.listCurrentLevel)):
-            self.UBA_Log("{}mA - ".format(self.listCurrentLevel[c]))
-            for v in range(len(self.listVoltageLevel)):
-                self.UBA_Log("{}:{}, ".format(
-                    listLevelToVoltage[c][v], listLevelToRow[c][v] and listLevelToRow[c][v] + 1 or listLevelToRow[c][v]))
-            self.UBA_Log("\r")
-
         # for Utility_XlsxWriter.py to write .xlsx
         listOneBatteryCharge = []
 
-        def Posi2Charge(intPosi: int, intCharge: int):
+        def posi2_charge(intPosi, intCharge):
             if intPosi:
                 _cycle = recordCycle[intPosi]
                 for _c1 in range(2, cycleRows):
@@ -390,14 +393,12 @@ class BatteryAnalysis:
             else:
                 listOneBatteryCharge.append(0)
 
-        for c in range(len(self.listCurrentLevel)):
-            for v in range(len(self.listVoltageLevel)):
-                Posi2Charge(listLevelToRow[c][v], listLevelToCharge[c][v])
-        self.listAllBatteryCharge.append(listOneBatteryCharge)
-        self.UBA_Log("\r")
+        for c in range(len(listCurrentLevel)):
+            for v in range(len(listVoltageLevel)):
+                posi2_charge(listLevelToRow[c][v], listLevelToCharge[c][v])
 
         # for Main_ImageShow.py to draw line chart
-        def listPosi2Charge(listPosi: list) -> list:
+        def list_posi2_charge(listPosi):
             _listCharge = []
             for _i in range(len(listPosi)):
                 _intTempCharge = 0
@@ -417,14 +418,125 @@ class BatteryAnalysis:
                 _listCharge.append(_intTempCharge)
             return _listCharge
 
-        for c in range(len(self.listCurrentLevel)):
-            listChargeForInfoImageCsv[c] = listPosi2Charge(listPosiForInfoImageCsv[c])
+        for c in range(len(listCurrentLevel)):
+            listChargeForInfoImageCsv[c] = list_posi2_charge(listPosiForInfoImageCsv[c])
             if len(listChargeForInfoImageCsv[c]) != len(listVoltageForInfoImageCsv[c]):
-                raise BatteryAnalysisException("[Plt Data Error]: battery {} {}mA pulse, charge is not equal to voltage"
-                                              .format(self.listBatteryName[-1], self.listCurrentLevel[c]))
-        self.listAllPosiForInfoImageCsv.append(listPosiForInfoImageCsv)
-        self.listAllVoltageForInfoImageCsv.append(listVoltageForInfoImageCsv)
-        self.listAllChargeForInfoImageCsv.append(listChargeForInfoImageCsv)
+                from src.battery_analysis.utils.exception_type import BatteryAnalysisException
+                raise BatteryAnalysisException(f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, charge is not equal to voltage")
+        
+        # 返回处理结果
+        return (
+            battery_name, 
+            listOneBatteryCharge, 
+            listPosiForInfoImageCsv, 
+            listVoltageForInfoImageCsv, 
+            listChargeForInfoImageCsv, 
+            listTimeStamp
+        )
+        
+    def _str_compare_date(self, strDate1, strDate2, bEarlier):
+        """日期比较辅助方法"""
+        def int_convert_date(strDate):
+            # 日期时间转换函数
+            try:
+                if " " in strDate:
+                    date_part, time_part = strDate.split(" ")
+                else:
+                    date_part = strDate[:10]
+                    time_part = strDate[10:]
+                
+                cd1 = date_part.split("-")
+                
+                if time_part and ":" in time_part:
+                    cd2 = time_part.split(":")
+                    return int("{}{:02}{:02}{:02}{:02}{:02}".format(
+                        int(cd1[0]), int(cd1[1]), int(cd1[2]),
+                        int(cd2[0]), int(cd2[1]), int(cd2[2])
+                    ))
+                else:
+                    return int("{}{:02}{:02}000000".format(
+                        int(cd1[0]), int(cd1[1]), int(cd1[2])
+                    ))
+            except Exception:
+                return 20000101000000
+        
+        if strDate1 == strDate2:
+            min_date = strDate1
+            max_date = strDate2
+        else:
+            convert_date1 = int_convert_date(strDate1)
+            convert_date2 = int_convert_date(strDate2)
+            if convert_date1 < convert_date2:
+                min_date = strDate1
+                max_date = strDate2
+            else:
+                min_date = strDate2
+                max_date = strDate1
+        
+        return min_date if bEarlier else max_date
+        
+    def UBA_AnalysisXlsx(self, strPath: str) -> None:
+        """保留原方法接口，使用并行处理方法实现"""
+        # 使用并行处理方法处理单个文件
+        result = self._parallel_process_file((strPath, self.listCurrentLevel, self.listVoltageLevel))
+        
+        # 处理结果，与原方法保持一致
+        battery_name, battery_charge, posi_data, voltage_data, charge_data, timestamp_info = result
+        
+        # 更新类属性
+        self.listBatteryName.append(battery_name)
+        self.listAllBatteryCharge.append(battery_charge)
+        self.listAllPosiForInfoImageCsv.append(posi_data)
+        self.listAllVoltageForInfoImageCsv.append(voltage_data)
+        self.listAllChargeForInfoImageCsv.append(charge_data)
+        
+        # 处理时间戳
+        if not self.listTimeStamp:
+            self.listTimeStamp = timestamp_info
+            # 尝试提取原始cycle日期
+            if isinstance(timestamp_info[0], str) and " " in timestamp_info[0]:
+                try:
+                    date_part = timestamp_info[0].split(" ")[0]
+                    if "-" in date_part:
+                        parts = date_part.split("-")
+                        if len(parts) >= 3:
+                            year, month, day = parts[:3]
+                            self.original_cycle_date = f"{year}{month.zfill(2)}{day.zfill(2)}"
+                except Exception as e:
+                    logging.error(f"解析原始cycle日期失败: {e}")
+        else:
+            # 更新最早和最晚时间
+            self.listTimeStamp[0] = self._str_compare_date(timestamp_info[0], self.listTimeStamp[0], True)
+            self.listTimeStamp[1] = self._str_compare_date(timestamp_info[1], self.listTimeStamp[1], False)
+        
+        # 记录日志
+        self.UBA_Log(datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S]") + '\r')
+        self.UBA_Log(f"Battery {battery_name}:\r")
+        
+        # 重建listLevelToVoltage和listLevelToRow用于日志输出
+        listLevelToVoltage = []
+        listLevelToRow = []
+        for c in range(len(self.listCurrentLevel)):
+            listLevelToVoltage.append([])
+            listLevelToRow.append([])
+            for v in range(len(self.listVoltageLevel)):
+                # 从结果数据中提取电压和行信息
+                listLevelToVoltage[c].append(self.listVoltageLevel[v])
+                listLevelToRow[c].append(0)
+                
+                # 查找匹配的电压等级
+                for posi, voltage in zip(posi_data[c], voltage_data[c]):
+                    if voltage <= self.listVoltageLevel[v]:
+                        listLevelToVoltage[c][v] = voltage
+                        listLevelToRow[c][v] = posi
+                        break
+            
+            self.UBA_Log(f"{self.listCurrentLevel[c]}mA - ")
+            for v in range(len(self.listVoltageLevel)):
+                self.UBA_Log(f"{listLevelToVoltage[c][v]}:{listLevelToRow[c][v] and listLevelToRow[c][v] + 1 or listLevelToRow[c][v]}, ")
+            self.UBA_Log("\r")
+        
+        self.UBA_Log("\r")
 
     def UBA_WriteCsv(self, _strResultPath: str) -> None:
         f = open(f"{_strResultPath}/Info_Image.csv", mode='w', newline='', encoding='utf-8')
