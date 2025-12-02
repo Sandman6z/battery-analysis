@@ -665,27 +665,36 @@ VSVersionInfo(
         # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
         import subprocess
 
-        # 查找Python DLL路径 - 改进版本，适配GitHub Actions环境
+        # 简化Python DLL处理，优先使用CI环境变量中的路径
+        # 将复杂的环境特定逻辑移至CI配置中，本地构建仍能工作
         python_dll = None
         
-        # 首先尝试直接从Python安装目录查找
-        python_exec_dir = Path(sys.executable).parent
-        python_home = python_exec_dir.parent
-        
-        # 添加更多可能的DLL路径，包括GitHub Actions环境中的常见位置
-        possible_dll_paths = [
-            python_exec_dir / 'python311.dll',
-            python_home / 'python311.dll',
-            python_home / 'DLLs' / 'python311.dll',
-            Path(os.environ.get('PYTHONHOME', '')) / 'python311.dll',
-            Path('python311.dll')  # 让PyInstaller尝试在PATH中查找
-        ]
-        
-        # 查找python311.dll
-        for path in possible_dll_paths:
-            if path.exists():
-                python_dll = str(path)
-                break
+        # 1. 优先检查CI环境变量中设置的DLL路径（用于GitHub Actions）
+        ci_dll_path = os.environ.get('PYTHON_DLL_PATH')
+        if ci_dll_path and os.path.exists(ci_dll_path):
+            logger.info(f"使用CI环境变量中的Python DLL路径: {ci_dll_path}")
+            python_dll = ci_dll_path
+        else:
+            logger.info("未找到CI环境变量中的Python DLL路径，尝试本地路径")
+            # 2. 本地环境的基本路径查找
+            python_exec_dir = Path(sys.executable).parent
+            basic_paths = [
+                python_exec_dir / 'python311.dll',
+                Path(sys.prefix) / 'python311.dll'
+            ]
+            
+            for path in basic_paths:
+                logger.debug(f"检查本地DLL路径: {path}")
+                if path.exists():
+                    logger.info(f"找到本地Python DLL: {path}")
+                    python_dll = str(path)
+                    break
+            
+            # 添加错误处理
+            if not python_dll:
+                logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
+                logger.warning(f"尝试过的路径: {', '.join(str(p) for p in basic_paths)}")
+                # 即使未找到DLL，也继续构建过程，但添加警告
 
         # 构建命令参数列表 - 添加DLL修复参数，不使用spec文件而是直接使用命令行参数
         cmd_args = [sys.executable, '-m', 'PyInstaller', 'image_show.py', 
