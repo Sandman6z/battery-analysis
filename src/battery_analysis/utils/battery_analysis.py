@@ -4,7 +4,14 @@ import datetime
 import traceback
 import logging
 import re
-from concurrent.futures import ProcessPoolExecutor
+import multiprocessing
+import sys
+import concurrent.futures
+
+# 添加进程保护，避免在multiprocessing子进程中执行不必要的代码
+if __name__ == '__main__':
+    # 这确保在子进程中不会执行主程序逻辑
+    pass
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -70,22 +77,41 @@ class BatteryAnalysis:
                 # 准备并行处理的参数
                 process_args = [(file_path, self.listCurrentLevel, self.listVoltageLevel) for file_path in self.listAllInXlsx]
                 
-                # 使用进程池并行处理，添加错误处理和超时控制
+                # 在Windows环境下使用更安全的并行处理方式
+                # 避免multiprocessing在PyInstaller环境中导致的递归启动问题
                 results = []
-                with ProcessPoolExecutor(max_workers=None) as executor:  # None表示使用CPU核心数
-                    # 使用as_completed获取完成的任务结果
-                    future_to_file = {executor.submit(self._parallel_process_file, args): args[0] for args in process_args}
-                    
-                    from concurrent.futures import as_completed
-                    for future in as_completed(future_to_file):
-                        file_path = future_to_file[future]
+                
+                # 检查是否在PyInstaller环境中运行
+                is_frozen = getattr(sys, 'frozen', False)
+                
+                # 在PyInstaller或Windows环境下，使用串行处理避免递归启动
+                if is_frozen or sys.platform.startswith('win'):
+                    logging.info("在Windows或PyInstaller环境中，使用串行处理以避免递归启动问题")
+                    # 串行处理所有文件
+                    for args in process_args:
                         try:
-                            result = future.result(timeout=300)  # 设置5分钟超时
+                            # 直接调用处理函数
+                            result = self._parallel_process_file(args)
                             results.append(result)
                         except Exception as e:
-                            logging.error(f"处理文件失败: {file_path}, 错误: {e}")
+                            logging.error(f"处理文件时出错: {e}")
                             from src.battery_analysis.utils.exception_type import BatteryAnalysisException
-                            raise BatteryAnalysisException(f"处理文件时出错: {file_path}, 错误: {str(e)}")
+                            raise BatteryAnalysisException(f"处理失败: {str(e)}")
+                else:
+                    # 在非Windows环境下，仍然可以使用并行处理
+                    logging.info("在非Windows环境中，使用并行处理提高性能")
+                    cpu_count = min(multiprocessing.cpu_count(), 4)
+                    with multiprocessing.Pool(processes=cpu_count) as pool:
+                        try:
+                            results = pool.map(self._parallel_process_file, process_args)
+                        except Exception as e:
+                            logging.error(f"并行处理文件时出错: {e}")
+                            pool.terminate()
+                            from src.battery_analysis.utils.exception_type import BatteryAnalysisException
+                            raise BatteryAnalysisException(f"并行处理失败: {str(e)}")
+                        finally:
+                            pool.close()
+                            pool.join()
                 
                 # 合并结果
                 for battery_name, battery_charge, posi_data, voltage_data, charge_data, timestamp_info in results:

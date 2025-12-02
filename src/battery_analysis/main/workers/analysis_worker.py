@@ -306,8 +306,8 @@ class AnalysisWorker(QC.QRunnable):
             if os.path.exists(exe_path):
                 logging.info(f"启动ImageMaker: {exe_path}")
                 try:
-                    # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行
-                    subprocess.run(exe_path, shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
+                    # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行，移除shell=True避免重复启动
+                    subprocess.run([exe_path], creationflags=subprocess.CREATE_NEW_CONSOLE)
                     exe_executed = True
                     break
                 except Exception as e:
