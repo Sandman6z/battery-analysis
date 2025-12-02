@@ -25,8 +25,19 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v3
     
+    - name: Create and activate virtual environment
+      run: |
+        # 创建虚拟环境
+        python -m venv .venv
+        # 激活虚拟环境（PowerShell命令）
+        .\.venv\Scripts\Activate.ps1
+        # 验证虚拟环境激活状态
+        Write-Host "虚拟环境已激活: $(Get-Command python).Source"
+    
     - name: Install dependencies using uv
       run: |
+        # 确保激活虚拟环境
+        .\.venv\Scripts\Activate.ps1
         uv pip install -e '.[dev,build]'
     
     - name: Lint with flake8
