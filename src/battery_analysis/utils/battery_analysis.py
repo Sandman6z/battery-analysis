@@ -17,9 +17,7 @@ if __name__ == '__main__':
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 import xlrd as rd
-
 from src.battery_analysis.utils.exception_type import BatteryAnalysisException
-
 
 class BatteryAnalysis:
     def __init__(self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list) -> None:
@@ -98,9 +96,8 @@ class BatteryAnalysis:
                             try:
                                 result = future.result()
                                 results.append(result)
-                            except Exception as e:
-                                logging.error(f"处理文件时出错: {e}")
-                                from src.battery_analysis.utils.exception_type import BatteryAnalysisException
+                            except (FileNotFoundError, PermissionError, ValueError, KeyError, IndexError) as e:
+                                logging.error("处理文件时出错: %s", e)
                                 raise BatteryAnalysisException(f"处理失败: {str(e)}")
                 else:
                     # 在非Windows环境下，使用进程池并行处理以获得更好的CPU利用率
@@ -109,10 +106,9 @@ class BatteryAnalysis:
                     with multiprocessing.Pool(processes=cpu_count) as pool:
                         try:
                             results = pool.map(self._parallel_process_file, process_args)
-                        except Exception as e:
-                            logging.error(f"并行处理文件时出错: {e}")
+                        except (FileNotFoundError, PermissionError, ValueError, KeyError, IndexError) as e:
+                            logging.error("并行处理文件时出错: %s", e)
                             pool.terminate()
-                            from src.battery_analysis.utils.exception_type import BatteryAnalysisException
                             raise BatteryAnalysisException(f"并行处理失败: {str(e)}")
                         finally:
                             pool.close()
@@ -137,7 +133,7 @@ class BatteryAnalysis:
             # write .csv for draw line chart
             self.UBA_WriteCsv(f"{strResultPath}/V{listTestInfo[16]}")
 
-        except BaseException as e:
+        except (IOError, OSError, ValueError, rd.XLRDError) as e:
             self.strErrorLog = str(e)
             traceback.print_exc()
 
@@ -175,24 +171,22 @@ class BatteryAnalysis:
                                             if "." in start_date_part:
                                                 parts = start_date_part.split(".")
                                                 if len(parts) == 3:
-                                                    try:
-                                                        day, month, year = parts
-                                                        # 确保值可以转换为整数
-                                                        int(day), int(month), int(year)
-                                                        return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
-                                                    except ValueError:
-                                                        logging.warning(f"日期部分无法转换为整数: {parts}")
+                                                      try:
+                                                          day, month, year = parts
+                                                          # 确保值可以转换为整数并直接使用
+                                                          return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                      except ValueError:
+                                                          logging.warning("日期部分无法转换为整数: %s", parts)
                                         # 格式2: 2025-06-10
                                         elif "-" in date_str:
                                             parts = date_str.split("-")
                                             if len(parts) >= 3:
-                                                try:
-                                                    year, month, day = parts[:3]
-                                                    # 确保值可以转换为整数
-                                                    int(year), int(month), int(day)
-                                                    return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
-                                                except ValueError:
-                                                    logging.warning(f"日期部分无法转换为整数: {parts[:3]}")
+                                                  try:
+                                                      year, month, day = parts[:3]
+                                                      # 确保值可以转换为整数并直接使用
+                                                      return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                  except ValueError:
+                                                      logging.warning("日期部分无法转换为整数: %s", parts[:3])
                                 
                                 # 尝试从下方单元格获取日期值
                                 if row + 1 < sheet.nrows:
@@ -207,25 +201,23 @@ class BatteryAnalysis:
                                                 if len(parts) == 3:
                                                     try:
                                                         day, month, year = parts
-                                                        # 确保值可以转换为整数
-                                                        int(day), int(month), int(year)
+                                                        # 确保值可以转换为整数并直接使用
                                                         return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
                                                     except ValueError:
-                                                        logging.warning(f"日期部分无法转换为整数: {parts}")
+                                                        logging.warning("日期部分无法转换为整数: %s", parts)
                                         elif "-" in date_str:
                                             parts = date_str.split("-")
                                             if len(parts) >= 3:
                                                 try:
                                                     year, month, day = parts[:3]
-                                                    # 确保值可以转换为整数
-                                                    int(year), int(month), int(day)
+                                                    # 确保值可以转换为整数并直接使用
                                                     return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
                                                 except ValueError:
-                                                    logging.warning(f"日期部分无法转换为整数: {parts[:3]}")
+                                                    logging.warning("日期部分无法转换为整数: %s", parts[:3])
             
             # 如果找不到Test Date字段，尝试从文件名提取
             file_name = os.path.basename(strPath)
-            logging.info(f"从文件名解析日期: {file_name}")
+            logging.info("从文件名解析日期: %s", file_name)
             
             # 尝试从文件名中提取日期
             # 匹配文件名中所有连续的数字组
@@ -236,14 +228,13 @@ class BatteryAnalysis:
                 # 提取前8位作为日期（如果长度足够）
                 if len(last_digit_group) >= 8:
                     date_str = last_digit_group[:8]
-                    logging.info(f"提取日期: {date_str}")
+                    logging.info("提取日期: %s", date_str)
                     # 验证提取的日期是否有效（简单验证：年份在合理范围）
                     try:
                         year = int(date_str[:4])
                         if 2000 <= year <= 2100:
                             return date_str
-                        else:
-                            logging.warning(f"提取的年份 {year} 不在有效范围内")
+                        logging.warning("提取的年份 %s 不在有效范围内", year)
                     except ValueError:
                         logging.error("无法解析年份")
             # 然后尝试其他常见的日期格式
@@ -259,18 +250,17 @@ class BatteryAnalysis:
                         if pattern == r'(\d{2})\.(\d{2})\.(\d{4})':
                             day, month, year = match.groups()
                             result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                            logging.info(f"从文件名提取到日期: {result}")
+                            logging.info("从文件名提取到日期: %s", result)
                             return result
-                        else:
-                            year, month, day = match.groups()
-                            result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                            logging.info(f"从文件名提取到日期: {result}")
-                            return result
-                    except Exception as e:
-                        logging.warning(f"从文件名解析日期失败: {e}")
+                        year, month, day = match.groups()
+                        result = f"{year}{month.zfill(2)}{day.zfill(2)}"
+                        logging.info("从文件名提取到日期: %s", result)
+                        return result
+                    except (ValueError, AttributeError) as e:
+                        logging.warning("从文件名解析日期失败: %s", e)
             
-        except Exception as e:
-            logging.error(f"从Excel提取Test Date失败: {strPath}, 错误: {e}")
+        except (rd.XLRDError, FileNotFoundError, PermissionError, ValueError) as e:
+            logging.error("从Excel提取Test Date失败: %s, 错误: %s", strPath, e)
         
         # 确保总是有返回值
         return "00000000"
@@ -279,10 +269,6 @@ class BatteryAnalysis:
     def _parallel_process_file(args):
         """并行处理单个Excel文件的静态方法"""
         strPath, listCurrentLevel, listVoltageLevel = args
-        
-        # 导入需要的模块
-        import xlrd as rd
-        import logging
         
         # temp list to store voltage and row refer to different current level and voltage level
         listLevelToVoltage = []
@@ -294,25 +280,24 @@ class BatteryAnalysis:
         listChargeForInfoImageCsv = []
 
         # init list
-        for c in range(len(listCurrentLevel)):
+        for c, _ in enumerate(listCurrentLevel):
             listLevelToVoltage.append([])
             listLevelToRow.append([])
             listLevelToCharge.append([])
             listPosiForInfoImageCsv.append([])
             listVoltageForInfoImageCsv.append([])
             listChargeForInfoImageCsv.append([])
-            for v in range(len(listVoltageLevel)):
-                listLevelToVoltage[c].append(listVoltageLevel[v])
+            for v, voltage_level in enumerate(listVoltageLevel):
+                listLevelToVoltage[c].append(voltage_level)
                 listLevelToRow[c].append(0)
                 listLevelToCharge[c].append(0)
 
         # read workbook with error handling
         try:
             rb = rd.open_workbook(strPath)
-        except Exception as e:
-            logging.error(f"读取Excel文件失败: {strPath}, 错误: {e}")
-            from src.battery_analysis.utils.exception_type import BatteryAnalysisException
-            raise BatteryAnalysisException(f"无法打开Excel文件: {strPath}")
+        except (FileNotFoundError, PermissionError, rd.XLRDError) as e:
+            logging.error("读取Excel文件失败: %s, 错误: %s", strPath, e)
+            raise BatteryAnalysisException(f"无法打开Excel文件: {strPath}") from e
         # cycle sheet
         cycleTable = rb.sheets()[0]
         cycleRows = cycleTable.nrows
@@ -335,86 +320,13 @@ class BatteryAnalysis:
         recordVoltage = recordTable.col_values(3)
         recordCharge = recordTable.col_values(4)
 
-        def int_convert_date(strDate: str) -> int:
-            """将日期字符串转换为整数"""
-            if '-' in strDate:
-                return int(strDate.replace('-', ''))
-            else:
-                return int(strDate)
-        
-        def str_compare_date(_strDate1, _strDate2, _bEarlier):
-            # 首先尝试简单格式的日期比较
-            try:
-                # 尝试直接比较日期部分（如果是YYYY-MM-DD格式）
-                if '-' in _strDate1 and '-' in _strDate2:
-                    date1_val = int_convert_date(_strDate1.split(' ')[0])
-                    date2_val = int_convert_date(_strDate2.split(' ')[0])
-                    if date1_val < date2_val:
-                        return _strDate1 if _bEarlier else _strDate2
-                    elif date1_val > date2_val:
-                        return _strDate2 if _bEarlier else _strDate1
-            except:
-                pass
-                
-            # 如果简单比较失败，使用完整的日期时间转换
-            def full_int_convert_date(_strDate):
-                # 改进的日期时间转换函数，处理可能没有空格分隔的日期字符串
-                try:
-                    # 尝试按空格分割日期和时间
-                    if " " in _strDate:
-                        _date_part, _time_part = _strDate.split(" ")
-                    else:
-                        # 如果没有空格，尝试找到日期部分和时间部分的分割位置
-                        _date_part = _strDate[:10]  # 提取YYYY-MM-DD部分
-                        _time_part = _strDate[10:]  # 提取剩余的时间部分
-                    
-                    _cd1 = _date_part.split("-")
-                    
-                    # 清理时间部分，确保可以正确分割
-                    if _time_part and ":" in _time_part:
-                        _cd2 = _time_part.split(":")
-                        return int("{}{:02}{:02}{:02}{:02}{:02}".format(
-                            int(_cd1[0]), int(_cd1[1]), int(_cd1[2]),
-                            int(_cd2[0]), int(_cd2[1]), int(_cd2[2])
-                        ))
-                    else:
-                        # 如果时间部分格式不正确，使用默认值
-                        return int("{}{:02}{:02}000000".format(
-                            int(_cd1[0]), int(_cd1[1]), int(_cd1[2])
-                        ))
-                except (IndexError, ValueError) as e:
-                    # 如果解析失败，记录错误并返回默认值
-                    logging.error(f"日期解析错误: {_strDate}, 错误: {e}")
-                    # 返回一个默认的日期时间值
-                    return 20000101000000  # 2000-01-01 00:00:00
-            
-            if _strDate1 == _strDate2:
-                _min_date = _strDate1
-                _max_date = _strDate2
-            else:
-                _convert_date1 = full_int_convert_date(_strDate1)
-                _convert_date2 = full_int_convert_date(_strDate2)
-                if _convert_date1 < _convert_date2:
-                    _min_date = _strDate1
-                    _max_date = _strDate2
-                else:
-                    _min_date = _strDate2
-                    _max_date = _strDate1
-            if _bEarlier:
-                return _min_date
-            else:
-                return _max_date
-
         # 处理时间戳
         listTimeStamp = [cycleBegin[2], cycleEnd[-1]]
 
         def b_is_in_range_milli_ampere(_floatInput, _floatStandard):
             _floatMin = _floatStandard*1.05
             _floatMax = _floatStandard*0.95
-            if _floatMin <= _floatInput <= _floatMax:
-                return True
-            else:
-                return False
+            return _floatMin <= _floatInput <= _floatMax
 
         # analysis battery data
         battery_name = cycleCycle[0]
@@ -426,7 +338,7 @@ class BatteryAnalysis:
         for row in range(2, recordRows):
             step = recordStep[row]
             # 快速跳过非脉冲步骤
-            if step != "脉冲" and step != "Pulse":
+            if step not in ("脉冲", "Pulse"):
                 continue
                 
             current = float(recordCurrent[row]) * 1000
@@ -477,9 +389,9 @@ class BatteryAnalysis:
         # for Main_ImageShow.py to draw line chart
         def list_posi2_charge(listPosi):
             _listCharge = []
-            for _i in range(len(listPosi)):
+            for posi in listPosi:
                 _intTempCharge = 0
-                _cycle = recordCycle[listPosi[_i]]
+                _cycle = recordCycle[posi]
                 for _c1 in range(2, cycleRows):
                     if cycleCycle[_c1] < _cycle:
                         _intTempCharge += abs(cycleCharge[_c1])
@@ -487,18 +399,18 @@ class BatteryAnalysis:
                         break
                 for _c2 in range(2, stepRows):
                     if stepCycle[_c2] == _cycle:
-                        if stepStep[_c2] != "脉冲" and stepStep[_c2] != "Pulse":
+                        if stepStep[_c2] not in ("脉冲", "Pulse"):
                             _intTempCharge += abs(stepCharge[_c2])
                     if stepCycle[_c2] > _cycle:
                         break
-                _intTempCharge += abs(recordCharge[listPosi[_i]])
+                _intTempCharge += abs(recordCharge[posi])
                 _listCharge.append(_intTempCharge)
             return _listCharge
 
-        for c in range(len(listCurrentLevel)):
+        for c, _ in enumerate(listCurrentLevel):
             listChargeForInfoImageCsv[c] = list_posi2_charge(listPosiForInfoImageCsv[c])
             if len(listChargeForInfoImageCsv[c]) != len(listVoltageForInfoImageCsv[c]):
-                from src.battery_analysis.utils.exception_type import BatteryAnalysisException
+
                 raise BatteryAnalysisException(f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, charge is not equal to voltage")
         
         # 返回处理结果
@@ -526,29 +438,23 @@ class BatteryAnalysis:
                 
                 if time_part and ":" in time_part:
                     cd2 = time_part.split(":")
-                    return int("{}{:02}{:02}{:02}{:02}{:02}".format(
-                        int(cd1[0]), int(cd1[1]), int(cd1[2]),
-                        int(cd2[0]), int(cd2[1]), int(cd2[2])
-                    ))
-                else:
-                    return int("{}{:02}{:02}000000".format(
-                        int(cd1[0]), int(cd1[1]), int(cd1[2])
-                    ))
-            except Exception:
+                    return int(f"{int(cd1[0])}{int(cd1[1]):02}{int(cd1[2]):02}{int(cd2[0]):02}{int(cd2[1]):02}{int(cd2[2]):02}")
+                return int(f"{int(cd1[0])}{int(cd1[1]):02}{int(cd1[2]):02}000000")
+            except (ValueError, IndexError):
                 return 20000101000000
         
         if strDate1 == strDate2:
+            return strDate1 if bEarlier else strDate2
+            
+        convert_date1 = int_convert_date(strDate1)
+        convert_date2 = int_convert_date(strDate2)
+        
+        if convert_date1 < convert_date2:
             min_date = strDate1
             max_date = strDate2
         else:
-            convert_date1 = int_convert_date(strDate1)
-            convert_date2 = int_convert_date(strDate2)
-            if convert_date1 < convert_date2:
-                min_date = strDate1
-                max_date = strDate2
-            else:
-                min_date = strDate2
-                max_date = strDate1
+            min_date = strDate2
+            max_date = strDate1
         
         return min_date if bEarlier else max_date
         
@@ -581,8 +487,8 @@ class BatteryAnalysis:
                         if len(parts) >= 3:
                             year, month, day = parts[:3]
                             self.original_cycle_date = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                except Exception as e:
-                    logging.error(f"解析原始cycle日期失败: {e}")
+                except (ValueError, IndexError) as e:
+                    logging.error("解析原始cycle日期失败: %s", e)
         else:
             # 更新最早和最晚时间
             self.listTimeStamp[0] = self._str_compare_date(timestamp_info[0], self.listTimeStamp[0], True)
@@ -595,23 +501,23 @@ class BatteryAnalysis:
         # 重建listLevelToVoltage和listLevelToRow用于日志输出
         listLevelToVoltage = []
         listLevelToRow = []
-        for c in range(len(self.listCurrentLevel)):
+        for c, current_level in enumerate(self.listCurrentLevel):
             listLevelToVoltage.append([])
             listLevelToRow.append([])
-            for v in range(len(self.listVoltageLevel)):
+            for v, voltage_level in enumerate(self.listVoltageLevel):
                 # 从结果数据中提取电压和行信息
-                listLevelToVoltage[c].append(self.listVoltageLevel[v])
+                listLevelToVoltage[c].append(voltage_level)
                 listLevelToRow[c].append(0)
                 
                 # 查找匹配的电压等级
                 for posi, voltage in zip(posi_data[c], voltage_data[c]):
-                    if voltage <= self.listVoltageLevel[v]:
+                    if voltage <= voltage_level:
                         listLevelToVoltage[c][v] = voltage
                         listLevelToRow[c][v] = posi
                         break
             
-            self.UBA_Log(f"{self.listCurrentLevel[c]}mA - ")
-            for v in range(len(self.listVoltageLevel)):
+            self.UBA_Log(f"{current_level}mA - ")
+            for v, voltage in enumerate(self.listVoltageLevel):
                 self.UBA_Log(f"{listLevelToVoltage[c][v]}:{listLevelToRow[c][v] and listLevelToRow[c][v] + 1 or listLevelToRow[c][v]}, ")
             self.UBA_Log("\r")
         
@@ -631,8 +537,8 @@ class BatteryAnalysis:
         csv_data = []
         
         # 遍历电池数据
-        for b in range(len(self.listBatteryName)):
-            csv_data.append(["BATTERY", self.listBatteryName[b]])
+        for b, battery_name in enumerate(self.listBatteryName):
+            csv_data.append(["BATTERY", battery_name])
             for c in range(len(self.listCurrentLevel)):
                 # 一次性添加所有相关行
                 csv_data.append(self.listAllPosiForInfoImageCsv[b][c])
@@ -661,19 +567,19 @@ class BatteryAnalysis:
             return
         
         try:
-            with open(self.strResultLogTxt, "a") as f:
+            with open(self.strResultLogTxt, "a", encoding='utf-8') as f:
                 f.writelines(self._log_buffer)
             # 清空缓冲区
             self._log_buffer = []
             self._log_buffer_size = 0
-        except Exception as e:
-            logging.error(f"写入日志文件失败: {e}")
+        except (IOError, OSError) as e:
+                logging.error("写入日志文件失败: %s", e)
 
     def __del__(self):
         """析构函数，确保日志缓冲区被刷新"""
         try:
             self._flush_log_buffer()
-        except Exception:
+        except (IOError, OSError):
             pass
             
     def UBA_GetBatteryInfo(self) -> list:

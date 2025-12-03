@@ -42,4 +42,3 @@ ignored-modules=PyQt6,win32api,win32con
 [IMPORTS]
 
 # 允许导入未使用的模块
-allow-import-from-stdlib-without-as=os,sys,re,csv,time,hashlib,threading,logging,datetime,os.path

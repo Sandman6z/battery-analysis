@@ -46,8 +46,6 @@ class BuildConfig:
         self.temp_build_dir = self.project_root / "__temp__"
         self.final_build_dir = self.project_root / "build"
         
-        # 不需要Git仓库初始化，简化构建流程
-        
         # 从pyproject.toml读取版本号（版本号中心化管理）
         try:
             import tomllib

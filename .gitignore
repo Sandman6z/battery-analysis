@@ -215,6 +215,7 @@ __marimo__/
 pylint_report.html
 pylint_report.json
 cleanup_report.md
+pylint_output.txt
 
 # 临时构建目录
 temp_build/
