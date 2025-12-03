@@ -62,14 +62,18 @@ def run_pylint():
         process = subprocess.Popen(
             pylint_cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding='utf-8'
+            stderr=subprocess.STDOUT
         )
         
-        # 实时记录输出
+        # 实时记录输出，尝试多种编码处理
         for line in process.stdout:
-            logger.info(line.rstrip())
+            try:
+                # 优先尝试UTF-8编码
+                decoded_line = line.decode('utf-8')
+            except UnicodeDecodeError:
+                # 如果UTF-8失败，尝试GBK编码（适用于中文Windows系统）
+                decoded_line = line.decode('gbk', errors='replace')
+            logger.info(decoded_line.rstrip())
             
         process.wait()
         

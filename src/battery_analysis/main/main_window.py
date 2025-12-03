@@ -1,3 +1,13 @@
+"""
+电池分析主窗口模块
+
+这个模块实现了电池分析应用的主窗口界面和核心功能，包括：
+- 窗口初始化和布局设置
+- 配置文件管理
+- 控制器连接和信号处理
+- 用户交互界面
+"""
+
 # 标准库导入
 import os
 import re
@@ -5,11 +15,17 @@ import csv
 import sys
 import time
 import hashlib
-import threading
 import logging
-import shutil
-import subprocess
+import warnings
 from pathlib import Path
+
+# 第三方库导入
+import PyQt6.QtGui as QG
+import PyQt6.QtCore as QC
+import PyQt6.QtWidgets as QW
+import win32api
+import win32con
+import matplotlib
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -18,13 +34,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 script_dir = Path(__file__).absolute().parent
 project_root = script_dir.parent.parent.parent
 sys.path.insert(0, str(project_root))
-
-# 第三方库导入
-import PyQt6.QtGui as QG
-import PyQt6.QtCore as QC
-import PyQt6.QtWidgets as QW
-import win32api
-import win32con
 
 # 本地模块导入
 from battery_analysis.ui import ui_main_window
@@ -1766,9 +1775,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 self.statusBar_BatteryAnalysis.showMessage(f"[错误]: {threadinfo}")
 
     def set_version(self) -> None:
-        # 导入pathlib用于更现代的路径处理
-        from pathlib import Path
-        
         # 初始化必要的属性如果不存在
         if not hasattr(self, 'md5_checksum_run'):
             self.md5_checksum_run = self.md5_checksum if hasattr(self, 'md5_checksum') else ''
@@ -1828,7 +1834,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                         try:
                             md5_file.unlink()  # 删除原文件
                         except PermissionError:
-                            self.statusBar_BatteryAnalysis.showMessage(f"[Warning]: Cannot remove existing MD5 file, using new location")
+                            self.statusBar_BatteryAnalysis.showMessage("[Warning]: Cannot remove existing MD5 file, using new location")
                             md5_file = temp_file  # 使用临时文件作为新的MD5文件
                             temp_file = None
                     
@@ -1881,22 +1887,18 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         bSetTitle = False
         rules = self.get_config("BatteryConfig/Rules")
         specification_type = self.comboBox_Specification_Type.currentText()
-        strPulseCurrent = ""
-        for c in range(len(self.listCurrentLevel)):
-            strPulseCurrent += f"{self.listCurrentLevel[c]}mA/"
+        strPulseCurrent = "".join([f"{current_level}mA/" for current_level in self.listCurrentLevel])
         for rule in rules:
             rule_parts = rule.split("/")
             if self.cc_current == "":
-                  self.cc_current = rule_parts[5]
+                self.cc_current = rule_parts[5]
             if rule_parts[0] == specification_type:
                 self.config.setValue("PltConfig/Title", f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), -{test_info[8]}mAh@{self.cc_current}mA, {strPulseCurrent[:-1]}, {test_info[7]}")
                 bSetTitle = True
                 break
-            elif rule_parts[0] in specification_type:
+            if rule_parts[0] in specification_type:
                 self.config.setValue("PltConfig/Title", f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), -{test_info[8]}mAh@{self.cc_current}mA, {strPulseCurrent[:-1]}, {test_info[7]}")
                 bSetTitle = True
-            else:
-                pass
         if not bSetTitle:
             self.checker_update_config.set_error("PltTitle")
             self.statusBar_BatteryAnalysis.showMessage(f"[Error]: No rules for {specification_type}")
@@ -1924,9 +1926,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
 
 
 def main() -> None:
-    import warnings
-    import matplotlib
-    
     # 抑制PyQt5的deprecation warning
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
     
@@ -1936,22 +1935,22 @@ def main() -> None:
     matplotlib.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans','Liberation Sans']
     
     app = QW.QApplication(sys.argv)
-    main = Main()
+    window = Main()
     # 设置窗口最小尺寸为更小的值，确保在小分辨率屏幕上也能显示标题栏
-    main.setMinimumSize(800, 600)  # 设置一个合理的最小尺寸
-    main.show()
+    window.setMinimumSize(800, 600)  # 设置一个合理的最小尺寸
+    window.show()
     
     # 获取屏幕可用区域
     screen_rect = app.primaryScreen().availableGeometry()
     
     # 确保窗口不会超出屏幕边界
-    window = main.windowHandle()
-    if window:
+    window_handle = window.windowHandle()
+    if window_handle:
         # 如果窗口太大，调整为适合屏幕
-        if main.width() > screen_rect.width() or main.height() > screen_rect.height():
-            new_width = min(main.width(), int(screen_rect.width() * 0.9))
-            new_height = min(main.height(), int(screen_rect.height() * 0.9))
-            main.resize(new_width, new_height)
+        if window.width() > screen_rect.width() or window.height() > screen_rect.height():
+            new_width = min(window.width(), int(screen_rect.width() * 0.9))
+            new_height = min(window.height(), int(screen_rect.height() * 0.9))
+            window.resize(new_width, new_height)
     
     sys.exit(app.exec())
 

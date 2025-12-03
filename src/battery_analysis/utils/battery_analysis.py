@@ -87,7 +87,7 @@ class BatteryAnalysis:
                 if is_frozen or sys.platform.startswith('win'):
                     # 在Windows或PyInstaller环境下，使用线程池代替进程池避免递归启动
                     # 线程池不会导致新进程创建，因此避免了递归启动问题
-                    logging.info("在Windows或PyInstaller环境中，使用线程池并行处理以提高性能并避免递归启动问题")
+                    logging.info("使用线程池并行处理")
                     cpu_count = min(multiprocessing.cpu_count(), 4)
                     with concurrent.futures.ThreadPoolExecutor(max_workers=cpu_count) as executor:
                         # 提交所有任务
@@ -225,7 +225,7 @@ class BatteryAnalysis:
             
             # 如果找不到Test Date字段，尝试从文件名提取
             file_name = os.path.basename(strPath)
-            logging.info(f"正在从文件名解析日期: {file_name}")
+            logging.info(f"从文件名解析日期: {file_name}")
             
             # 尝试从文件名中提取日期
             # 匹配文件名中所有连续的数字组
@@ -236,28 +236,16 @@ class BatteryAnalysis:
                 # 提取前8位作为日期（如果长度足够）
                 if len(last_digit_group) >= 8:
                     date_str = last_digit_group[:8]
-                    logging.info(f"从文件名最后一组连续数字提取前8位作为日期: {date_str}")
+                    logging.info(f"提取日期: {date_str}")
                     # 验证提取的日期是否有效（简单验证：年份在合理范围）
                     try:
                         year = int(date_str[:4])
                         if 2000 <= year <= 2100:
                             return date_str
                         else:
-                            logging.warning(f"提取的日期年份 {year} 不在有效范围内")
+                            logging.warning(f"提取的年份 {year} 不在有效范围内")
                     except ValueError:
-                        logging.error("无法解析日期年份")
-            # 如果最后一组数字不足8位或验证失败，尝试匹配任意8位数字
-            date_match = re.search(r'(\d{8})', file_name)
-            if date_match:
-                date_str = date_match.group(1)
-                logging.info(f"从文件名提取任意8位日期: {date_str}")
-                try:
-                    year = int(date_str[:4])
-                    if 2000 <= year <= 2100:
-                        return date_str
-                except ValueError:
-                    logging.error("无法解析日期年份")
-            
+                        logging.error("无法解析年份")
             # 然后尝试其他常见的日期格式
             date_patterns = [
                 r'(\d{4})-(\d{2})-(\d{2})',  # 2025-06-10
