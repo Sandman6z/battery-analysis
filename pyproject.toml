@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "battery-analysis"
-version = "2.0.0"
+version = "2.0.1"
 description = "电池测试数据可视化分析应用，支持多种数据格式导入与图表生成"
 authors = [
   { name = "Ewin电池分析团队", email = "battery-analysis@example.com" }

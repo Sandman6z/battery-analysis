@@ -1,0 +1,64 @@
+name: Sync Docs to GitHub Wiki
+
+# 触发条件：当docs目录或相关文档文件有变更时触发
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'README.md'
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      repository-projects: read
+
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Wiki repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync main README to Wiki Home
+        run: |
+          cp README.md wiki/Home.md
+
+      - name: Sync USER_GUIDE to Wiki
+        run: |
+          cp docs/USER_GUIDE.md wiki/User-Guide.md
+
+
+      - name: Sync DOCSTRING_GUIDE to Wiki
+        run: |
+          cp docs/DOCSTRING_GUIDE.md wiki/Docstring-Guide.md
+
+      - name: Sync README_PYLINT to Wiki
+        run: |
+          cp docs/README_PYLINT.md wiki/Pylint-Guide.md
+
+      - name: Configure Git for Wiki commits
+        working-directory: wiki
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Commit and push Wiki changes
+        working-directory: wiki
+        run: |
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Sync docs from main repository: ${{ github.sha }}"
+            git push
+          fi
