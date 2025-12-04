@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      repository-projects: read
 
     steps:
       - name: Checkout main repository
@@ -25,7 +24,7 @@ jobs:
       - name: Checkout Wiki repository
         uses: actions/checkout@v4
         with:
-          repository: Sandman6z/battery-analysis/wiki
+          repository: ${{ github.repository }}.wiki
           path: wiki
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -36,7 +35,6 @@ jobs:
       - name: Sync USER_GUIDE to Wiki
         run: |
           cp docs/USER_GUIDE.md wiki/User-Guide.md
-
 
       - name: Sync DOCSTRING_GUIDE to Wiki
         run: |
