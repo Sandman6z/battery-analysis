@@ -25,7 +25,7 @@ jobs:
       - name: Checkout Wiki repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}.wiki
+          repository: Sandman6z/battery-analysis/wiki
           path: wiki
           token: ${{ secrets.GITHUB_TOKEN }}
 

@@ -118,12 +118,12 @@ class BuildManager(BuildConfig):
             with open(init_file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # 替换版本号占位符
-            # 查找PyInstaller环境下返回的版本号行
-            old_line = '        # 版本号将在构建时被替换为实际值\n        return "2.0.0"'
-            new_line = f'        # 构建时嵌入的实际版本号\n        return "{self.version}"'
+            # 替换版本号占位符 - 使用更健壮的方式匹配和替换
+            # 分别替换两行，避免因为不可见字符导致的精确匹配失败
+            content = content.replace('# 版本号将在构建时被替换为实际值', '# 构建时嵌入的实际版本号')
+            content = content.replace('return "2.0.0"', f'return "{self.version}"')
             
-            updated_content = content.replace(old_line, new_line)
+            updated_content = content
             
             # 写回文件
             with open(init_file_path, 'w', encoding='utf-8') as f:

@@ -14,8 +14,8 @@ def _get_version_from_pyproject():
     # 检查是否在PyInstaller环境中运行
     if hasattr(sys, '_MEIPASS'):
         logging.info("在PyInstaller环境中运行，使用构建时嵌入的版本号")
-        # 构建时嵌入的实际版本号
-        return "2.0.1"
+        # 版本号将在构建时被替换为实际值
+        return "2.0.0"
     
     # 获取项目根目录
     package_dir = Path(__file__).parent.parent.parent  # 向上三层到项目根目录
