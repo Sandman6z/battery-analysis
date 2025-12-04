@@ -304,6 +304,72 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.lineEdit_TestProfile.setText("Not provided")
         self.lineEdit_Temperature.setText("Room Temperature")
 
+    def _load_user_settings(self) -> None:
+        """加载用户配置文件中的设置"""
+        try:
+            user_config_path = os.path.join(os.path.dirname(self.config_path), "user_settings.ini") if self.b_has_config else None
+            
+            if user_config_path and os.path.exists(user_config_path):
+                # 创建用户配置QSettings实例
+                user_settings = QC.QSettings(user_config_path, QC.QSettings.Format.IniFormat)
+                
+                # 加载电池类型相关设置
+                battery_type = user_settings.value("UserConfig/BatteryType")
+                if battery_type:
+                    index = self.comboBox_BatteryType.findText(battery_type)
+                    if index >= 0:
+                        self.comboBox_BatteryType.setCurrentIndex(index)
+                
+                construction_method = user_settings.value("UserConfig/ConstructionMethod")
+                if construction_method:
+                    index = self.comboBox_ConstructionMethod.findText(construction_method)
+                    if index >= 0:
+                        self.comboBox_ConstructionMethod.setCurrentIndex(index)
+                
+                specification_type = user_settings.value("UserConfig/SpecificationType")
+                if specification_type:
+                    index = self.comboBox_Specification_Type.findText(specification_type)
+                    if index >= 0:
+                        self.comboBox_Specification_Type.setCurrentIndex(index)
+                
+                specification_method = user_settings.value("UserConfig/SpecificationMethod")
+                if specification_method:
+                    index = self.comboBox_Specification_Method.findText(specification_method)
+                    if index >= 0:
+                        self.comboBox_Specification_Method.setCurrentIndex(index)
+                
+                manufacturer = user_settings.value("UserConfig/Manufacturer")
+                if manufacturer:
+                    index = self.comboBox_Manufacturer.findText(manufacturer)
+                    if index >= 0:
+                        self.comboBox_Manufacturer.setCurrentIndex(index)
+                
+                tester_location = user_settings.value("UserConfig/TesterLocation")
+                if tester_location:
+                    index = self.comboBox_TesterLocation.findText(tester_location)
+                    if index >= 0:
+                        self.comboBox_TesterLocation.setCurrentIndex(index)
+                
+                tested_by = user_settings.value("UserConfig/TestedBy")
+                if tested_by:
+                    index = self.comboBox_TestedBy.findText(tested_by)
+                    if index >= 0:
+                        self.comboBox_TestedBy.setCurrentIndex(index)
+                
+                # 加载温度设置
+                temperature = user_settings.value("UserConfig/Temperature")
+                if temperature:
+                    self.lineEdit_Temperature.setText(temperature)
+                
+                # 加载输出路径设置
+                output_path = user_settings.value("UserConfig/OutputPath")
+                if output_path:
+                    self.lineEdit_OutputPath.setText(output_path)
+                    # 更新控制器的输出路径
+                    self.main_controller.set_project_context(output_path=output_path)
+        except Exception as e:
+            logging.error(f"加载用户设置失败: {e}")
+    
     def init_combobox(self) -> None:
         self.comboBox_BatteryType.addItems(self.get_config("BatteryConfig/BatteryType"))
         self.comboBox_ConstructionMethod.addItems(self.get_config("BatteryConfig/ConstructionMethod"))
@@ -323,6 +389,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.comboBox_TestedBy.setCurrentIndex(-1)
 
         self.comboBox_ConstructionMethod.setEnabled(False)
+        
+        # 加载用户配置的设置
+        self._load_user_settings()
 
     def init_table(self) -> None:
         self.config.setValue(
@@ -659,33 +728,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             if hasattr(self, 'statusBar_BatteryAnalysis'):
                 self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
                 
-    def save_settings(self) -> None:
-        """保存设置功能"""
-        try:
-            # 这里可以添加实际的设置保存逻辑
-            if hasattr(self, 'statusBar_BatteryAnalysis'):
-                self.statusBar_BatteryAnalysis.showMessage("正在保存设置...")
-            
-            QW.QMessageBox.information(
-                self, 
-                "保存设置", 
-                "设置已成功保存。",
-                QW.QMessageBox.StandardButton.Ok
-            )
-            
-            if hasattr(self, 'statusBar_BatteryAnalysis'):
-                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-        except Exception as e:
-            logging.error(f"保存设置失败: {e}")
-            QW.QMessageBox.warning(
-                self, 
-                "错误", 
-                f"保存设置时出错: {str(e)}",
-                QW.QMessageBox.StandardButton.Ok
-            )
-            if hasattr(self, 'statusBar_BatteryAnalysis'):
-                self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-                
     def export_report(self) -> None:
         """导出报告功能"""
         try:
@@ -931,17 +973,78 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.setFont(font)
     
     def save_settings(self) -> None:
-        """保存当前设置"""
+        """保存当前设置到用户配置文件"""
         try:
-            # 保存当前配置信息
-            # 这里可以实现配置保存逻辑
-            self.statusBar_BatteryAnalysis.showMessage("设置已保存")
-            QW.QMessageBox.information(
-                self,
-                "保存设置",
-                "当前配置已成功保存。",
-                QW.QMessageBox.StandardButton.Ok
-            )
+            # 显示保存状态
+            self.statusBar_BatteryAnalysis.showMessage("正在保存设置...")
+            
+            # 创建用户配置文件路径（与原始配置文件同目录，使用不同名称）
+            user_config_path = os.path.join(os.path.dirname(self.config_path), "user_settings.ini") if self.b_has_config else None
+            
+            if user_config_path:
+                # 创建用户配置QSettings实例
+                user_settings = QC.QSettings(user_config_path, QC.QSettings.Format.IniFormat)
+                
+                # 保存用户可修改的设置项
+                # 电池类型相关设置
+                battery_type = self.comboBox_BatteryType.currentText()
+                if battery_type:
+                    user_settings.setValue("UserConfig/BatteryType", battery_type)
+                
+                construction_method = self.comboBox_ConstructionMethod.currentText()
+                if construction_method:
+                    user_settings.setValue("UserConfig/ConstructionMethod", construction_method)
+                
+                specification_type = self.comboBox_Specification_Type.currentText()
+                if specification_type:
+                    user_settings.setValue("UserConfig/SpecificationType", specification_type)
+                
+                specification_method = self.comboBox_Specification_Method.currentText()
+                if specification_method:
+                    user_settings.setValue("UserConfig/SpecificationMethod", specification_method)
+                
+                manufacturer = self.comboBox_Manufacturer.currentText()
+                if manufacturer:
+                    user_settings.setValue("UserConfig/Manufacturer", manufacturer)
+                
+                tester_location = self.comboBox_TesterLocation.currentText()
+                if tester_location:
+                    user_settings.setValue("UserConfig/TesterLocation", tester_location)
+                
+                tested_by = self.comboBox_TestedBy.currentText()
+                if tested_by:
+                    user_settings.setValue("UserConfig/TestedBy", tested_by)
+                
+                # 温度设置
+                temperature = self.lineEdit_Temperature.text()
+                if temperature:
+                    user_settings.setValue("UserConfig/Temperature", temperature)
+                
+                # 输出路径设置
+                output_path = self.lineEdit_OutputPath.text()
+                if output_path:
+                    user_settings.setValue("UserConfig/OutputPath", output_path)
+                
+                # 同步保存到内存中的配置实例
+                self.config = user_settings
+                
+                self.statusBar_BatteryAnalysis.showMessage("设置已保存")
+                QW.QMessageBox.information(
+                    self,
+                    "保存设置",
+                    "当前配置已成功保存到用户配置文件。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+            else:
+                # 如果没有原始配置文件，显示错误消息
+                QW.QMessageBox.warning(
+                    self,
+                    "错误",
+                    "无法找到配置文件路径，无法保存设置。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                self.statusBar_BatteryAnalysis.showMessage("保存设置失败")
+                
         except Exception as e:
             logging.error(f"保存设置失败: {e}")
             QW.QMessageBox.warning(
@@ -950,6 +1053,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
                 f"无法保存设置: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
+            self.statusBar_BatteryAnalysis.showMessage("保存设置失败")
     
     def export_report(self) -> None:
         """导出报告"""
