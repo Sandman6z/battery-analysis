@@ -394,13 +394,18 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self._load_user_settings()
 
     def init_table(self) -> None:
-        self.config.setValue(
-            "TestInformation/DataProcessingPlatforms", 
-            f"BatteryAnalysis-DataConverter_V{self.version}.exe"
-        )
+        # 不再硬编码DataProcessingPlatforms的值，而是从配置文件中读取
+        # 这样用户的手动修改才能持久化
         # 移除固定列宽设置，改为在resizeEvent中按比例分配
         # 确保表格的最后一列自动拉伸
         self.tableWidget_TestInformation.horizontalHeader().setStretchLastSection(True)
+        
+        # 暂时断开cellChanged信号的连接，避免在初始化时触发保存操作
+        try:
+            self.tableWidget_TestInformation.cellChanged.disconnect()
+        except TypeError:
+            # 忽略TypeError异常，因为信号可能还没有被连接
+            pass
 
         def set_span_item(item_text: str, row: int, col: int, 
                           row_span: int = 1, col_span: int = 1, 
@@ -449,14 +454,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         set_span_item("", 11, 2, editable=True)
 
         set_span_item("Data Processing Platforms", 12, 0, 1, 2)
+        platforms = self.get_config("TestInformation/DataProcessingPlatforms")
         set_span_item(
-            self.get_config("TestInformation/DataProcessingPlatforms")[0], 
+            platforms[0] if platforms else "", 
             12, 2, 
             editable=True
         )
         set_span_item("Reported By", 13, 0, 1, 2)
+        reported_by = self.get_config("TestInformation/ReportedBy")
         set_span_item(
-            self.get_config("TestInformation/ReportedBy")[0], 
+            reported_by[0] if reported_by else "", 
             13, 2, 
             editable=True
         )
@@ -1613,6 +1620,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         set_item("TestInformation/TestUnits.Model", 9, 2)
         set_item("TestInformation/TestUnits.HardwareVersion", 10, 2)
         set_item("TestInformation/TestUnits.FirmwareVersion", 11, 2)
+        set_item("TestInformation/DataProcessingPlatforms", 12, 2)
         set_item("TestInformation/ReportedBy", 13, 2)
 
     def init_widgetcolor(self) -> None:
