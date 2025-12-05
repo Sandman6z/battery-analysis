@@ -3,18 +3,18 @@ name: Sync to Wiki
 on:
   push:
     branches: [main, "feat/*"]
-    paths:
-      - "docs/**"
-      - "README.md"
+    # paths:
+    #   - "docs/**"
+    #   - "README.md"
 
 jobs:
   sync-wiki:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      PYTHONIOENCODING: utf-8
-      PYTHONUTF8: 1
+    # permissions:
+    #   contents: write
+    # env:
+    #   PYTHONIOENCODING: utf-8
+    #   PYTHONUTF8: 1
     steps:
       - uses: actions/checkout@v4
         with:
