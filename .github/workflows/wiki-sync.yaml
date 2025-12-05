@@ -21,10 +21,15 @@ jobs:
         run: |
           # 检查Wiki是否已初始化
           echo "Checking if Wiki is initialized..."
-          curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/${{ github.repository }}/pages" | grep -q "200"
-          if [ $? -ne 0 ]; then
+          # 使用正确的API端点检查Wiki是否存在
+          WIKI_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/${{ github.repository }}/wikis")
+          if [ "$WIKI_EXISTS" -eq 404 ]; then
             echo "Warning: Wiki is not initialized. Please manually initialize Wiki in GitHub settings."
+            echo "Go to GitHub repository > Settings > Features > Wiki and enable it."
             exit 0
+          elif [ "$WIKI_EXISTS" -ne 200 ]; then
+            echo "Warning: Failed to check Wiki status with HTTP code: $WIKI_EXISTS"
+            echo "Proceeding with Wiki sync..."
           fi
 
       - name: Sync Markdown to Wiki
