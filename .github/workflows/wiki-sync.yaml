@@ -38,13 +38,28 @@ jobs:
             exit 0
           fi
 
+      # Create master branch for Wiki (required by the action)
+      - name: Create master branch for Wiki
+        run: |
+          # Clone the Wiki repository
+          git clone https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.wiki.git temp_wiki
+          cd temp_wiki
+          # Create master branch from main
+          git checkout main
+          git checkout -b master
+          git push -u origin master
+          cd ..
+          rm -rf temp_wiki
+        continue-on-error: true
+        
+      # Sync Markdown to Wiki
       - name: Sync Markdown to Wiki
         uses: Andrew-Chen-Wang/github-wiki-action@v3
         with:
           WIKI_DIR: "docs"
-          WIKI_PUSH_MESSAGE: "docs: update wiki from docs directory"
+          WIKI_PUSH_MESSAGE: "Update Wiki - {{ github.event.head_commit.message }}"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          GH_NAME: "Sandman6z"
-          GH_MAIL: "zbnsandman@gmail.com"
+          GH_NAME: ${{ github.event.head_commit.author.name }}
+          GH_MAIL: ${{ github.event.head_commit.author.email }}
           REPO: ${{ github.repository }}
