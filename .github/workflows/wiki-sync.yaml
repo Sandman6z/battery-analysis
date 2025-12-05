@@ -24,4 +24,4 @@ jobs:
           path: "docs"
           commit-message: "docs: update wiki from docs directory"
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
