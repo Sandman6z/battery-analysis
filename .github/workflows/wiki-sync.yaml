@@ -16,40 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    - uses: actions/checkout@v4
-      with:
-        repository: ${{ github.repository }}.wiki
-        path: wiki
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Sync main README to Wiki Home
-      run: cp README.md wiki/Home.md
-
-    - name: Sync USER_GUIDE to Wiki
-      run: cp docs/USER_GUIDE.md wiki/User-Guide.md
-
-    - name: Sync DOCSTRING_GUIDE to Wiki
-      run: cp docs/DOCSTRING_GUIDE.md wiki/Docstring-Guide.md
-
-    - name: Sync README_PYLINT to Wiki
-      run: cp docs/README_PYLINT.md wiki/Pylint-Guide.md
-
-    - name: Configure Git
-      working-directory: wiki
+    - name: Print debug information
       run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
+        echo "Repository: ${{ github.repository }}"
+        echo "GitHub Token available: ${{ secrets.GITHUB_TOKEN != '' }}"
 
-    - name: Commit and push changes
-      working-directory: wiki
+    - name: Test file copying
       run: |
-        git add .
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit -m "Sync docs from main repository: ${{ github.sha }}"
-          git push
-        fi
+        mkdir -p wiki
+        cp README.md wiki/Home.md
+        ls -la wiki/
