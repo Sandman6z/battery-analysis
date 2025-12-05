@@ -1,0 +1,38 @@
+{
+  "test_data": {
+    "result_path": "./test_result.xlsx",
+    "test_info": [
+      "Test Name",
+      "Test Date",
+      "Test Version",
+      "Test Environment",
+      "Product Model",
+      "Test Type",
+      "Tester",
+      "Batch Number",
+      "Sample Number",
+      "Test Temperature",
+      "Test Humidity",
+      "Test Voltage",
+      "Test Current",
+        "Test Duration",
+        ["100", "200", "300"],
+        ["3.0", "3.5", "4.2"],
+        "Software Version"
+    ],
+    "battery_info": [
+      [[100, 90, 80, 70], [100, 95, 90, 85], [100, 85, 75, 65]],
+      ["BTS001_01", "BTS001_02", "BTS001_03"],
+      ["2023-01-01 10:00:00", "2023-01-01 12:00:00"],
+      "20230101"
+    ],
+    "expected_reported_by": "BOEDT"
+  },
+  "error_cases": {
+    "empty_battery_info": {
+      "result_path": "./test_result_error.xlsx",
+      "test_info": ["Test Name"],
+      "battery_info": []
+    }
+  }
+}

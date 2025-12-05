@@ -85,6 +85,32 @@ allow-import-from-stdlib-without-as = [
     "threading", "logging", "datetime", "os.path"
 ]
 
+[tool.pytest.ini_options]
+# 测试目录配置
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*TestCase"]
+python_functions = ["test_*"]
+
+# 测试运行配置
+addopts = ["-xvs", "--tb=short", "--import-mode=importlib", "--no-header", "--color=yes"]
+xfail_strict = true
+
+# 忽略的警告
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+    "ignore::FutureWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::ImportWarning"
+]
+
+# 日志配置
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
 [project.scripts]
 battery-analysis = "battery_analysis.main.main_window:main"
 

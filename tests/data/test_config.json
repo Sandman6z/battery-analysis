@@ -1,0 +1,28 @@
+{
+  "tester_locations": [
+    "CT-4008Q (Qual.), BOE DT",
+    "CT-4008Q (QA), BOE DT",
+    "CT-4008Q (Qual.), PDI",
+    "CT-4008Q (QA), BOE CQ",
+    "CT-4008Q (QA), Jabil VN",
+    "CT-4008Q (HWE), VG Fernitz"
+  ],
+  "reported_by_mapping": {
+    "0": "BOEDT",
+    "1": "BOEDT",
+    "2": "PDI",
+    "3": "BOECQ",
+    "4": "Jabil VN",
+    "5": "VG Fernitz"
+  },
+  "test_scenarios": [
+    {
+      "tester_location_index": 2,
+      "expected_reported_by": "PDI"
+    },
+    {
+      "tester_location_index": 4,
+      "expected_reported_by": "Jabil VN"
+    }
+  ]
+}
