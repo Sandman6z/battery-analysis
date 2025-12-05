@@ -1,9 +1,8 @@
-name: Sync Docs to GitHub Wiki
+name: Sync to Wiki
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
     paths:
       - 'docs/**'
       - 'README.md'
@@ -13,15 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
     - uses: actions/checkout@v4
-
+    
     - name: Print debug information
       run: |
         echo "Repository: ${{ github.repository }}"
         echo "GitHub Token available: ${{ secrets.GITHUB_TOKEN != '' }}"
-
+    
     - name: Test file copying
       run: |
         mkdir -p wiki
