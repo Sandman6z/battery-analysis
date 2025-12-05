@@ -1569,7 +1569,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             self.listCurrentLevel,
             self.listVoltageLevel,
             self.lineEdit_Version.text(),
-            self.lineEdit_RequiredUseableCapacity.text()
+            self.lineEdit_RequiredUseableCapacity.text(),
+            self.tableWidget_TestInformation.item(13, 2).text() if self.tableWidget_TestInformation.item(13, 2) else ""
         ]
         # 简化验证，只验证必要的路径
         if not self.lineEdit_InputPath.text():

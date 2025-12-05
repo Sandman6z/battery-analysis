@@ -695,7 +695,7 @@ class XlsxWordWriter:
         text = tableVersionHistory.cell(1, 0).paragraphs[0].add_run(datetime.datetime.now().strftime("%Y.%m.%d"))
         text.font.size = Pt(10)
         text.font.bold = False
-        strReportedBy = GetItem("TestInformation", "ReportedBy")
+        strReportedBy = self.listTestInfo[18] if len(self.listTestInfo) > 18 else ""
         tableVersionHistory.cell(1, 2).paragraphs[0].add_run(f"{strReportedBy}").font.size = Pt(10)
 
         # wdReport write table Test Information
