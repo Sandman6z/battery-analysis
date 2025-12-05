@@ -3,27 +3,41 @@ name: Sync to Wiki
 on:
   push:
     branches: [main, "feat/*"]
-    # paths:
-    #   - "docs/**"
-    #   - "README.md"
+    paths:
+      - "docs/**"
+      - "README.md"
 
 jobs:
   sync-wiki:
     runs-on: ubuntu-latest
-    # permissions:
-    #   contents: write
-    # env:
-    #   PYTHONIOENCODING: utf-8
-    #   PYTHONUTF8: 1
+    permissions:
+      contents: write
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: 1
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Wiki initialization
+        run: |
+          # 检查Wiki是否已初始化
+          echo "Checking if Wiki is initialized..."
+          curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/${{ github.repository }}/pages" | grep -q "200"
+          if [ $? -ne 0 ]; then
+            echo "Warning: Wiki is not initialized. Please manually initialize Wiki in GitHub settings."
+            exit 0
+          fi
 
       - name: Sync Markdown to Wiki
         uses: Andrew-Chen-Wang/github-wiki-action@v3
         with:
-          path: "docs"
-          commit-message: "docs: update wiki from docs directory"
+          WIKI_DIR: "docs"
+          WIKI_PUSH_MESSAGE: "docs: update wiki from docs directory"
+          WIKI_FOLDER: "wiki"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GH_NAME: "Sandman6z"
           GH_MAIL: "zbnsandman@gmail.com"
+          REPO: ${{ github.repository }}
