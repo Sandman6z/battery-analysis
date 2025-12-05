@@ -2,7 +2,7 @@ name: Sync to Wiki
 
 on:
   push:
-    branches: [ main, feat/* ]
+    branches: [ main ]
     paths:
       - 'docs/**'
       - 'README.md'
@@ -10,18 +10,13 @@ on:
 jobs:
   sync-wiki:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - uses: actions/checkout@v4
     
-    - name: Print debug information
-      run: |
-        echo "Repository: ${{ github.repository }}"
-        echo "GitHub Token available: ${{ secrets.GITHUB_TOKEN != '' }}"
-    
-    - name: Test file copying
-      run: |
-        mkdir -p wiki
-        cp README.md wiki/Home.md
-        ls -la wiki/
+    - name: Sync Markdown to Wiki
+      uses: Andrew-Chen-Wang/github-wiki-action@v3
+      with:
+        path: 'docs'
+        commit-message: 'docs: update wiki from docs directory'
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
