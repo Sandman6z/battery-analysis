@@ -44,10 +44,27 @@ jobs:
           # Clone the Wiki repository
           git clone https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.wiki.git temp_wiki
           cd temp_wiki
-          # Create master branch from main
-          git checkout main
-          git checkout -b master
-          git push -u origin master
+          
+          # Check if master branch already exists
+          if git ls-remote --exit-code --heads origin master; then
+            echo "Master branch already exists, skipping..."
+          else
+            # Try to create master branch from main if it exists
+            if git ls-remote --exit-code --heads origin main; then
+              git checkout main
+              git checkout -b master
+              git push -u origin master
+              echo "Created master branch from main"
+            else
+              # If no main branch, create an initial master branch with a dummy file
+              echo "# Wiki" > Home.md
+              git add Home.md
+              git commit -m "Initial wiki commit"
+              git push -u origin master
+              echo "Created initial master branch"
+            fi
+          fi
+          
           cd ..
           rm -rf temp_wiki
         continue-on-error: true
