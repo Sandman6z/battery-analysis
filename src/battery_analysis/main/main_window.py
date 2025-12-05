@@ -1321,8 +1321,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         # 更新ReportedBy到表格
         qt_item = QW.QTableWidgetItem(reported_by)
         self.tableWidget_TestInformation.setItem(13, 2, qt_item)
-        # 更新ReportedBy到配置文件
-        self.config.setValue("TestInformation/ReportedBy", reported_by)
 
     def get_xlsxinfo(self) -> None:
         self.checker_input_xlsx.clear()
@@ -1642,7 +1640,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         set_item("TestInformation/TestUnits.Model", 9, 2)
         set_item("TestInformation/TestUnits.HardwareVersion", 10, 2)
         set_item("TestInformation/TestUnits.FirmwareVersion", 11, 2)
-        set_item("TestInformation/ReportedBy", 13, 2)
 
     def init_widgetcolor(self) -> None:
         self.label_BatteryType.setStyleSheet("background-color:")
