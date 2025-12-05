@@ -104,7 +104,7 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
-    needs: build-and-test
+    needs: build-and-test  # Release job depends on build-and-test to ensure build artifacts are available and can't run in parallel
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feat/'))
     steps:
     - uses: actions/checkout@v4
