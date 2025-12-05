@@ -462,9 +462,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             editable=False
         )
         set_span_item("Reported By", 13, 0, 1, 2)
-        reported_by = self.get_config("TestInformation/ReportedBy")
         set_span_item(
-            reported_by[0] if reported_by else "", 
+            "", 
             13, 2, 
             editable=True
         )
@@ -1302,6 +1301,28 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         set_item(self.get_config(f"{self.test_information}/TestUnits.Model"), 9, 2)
         set_item(self.get_config(f"{self.test_information}/TestUnits.HardwareVersion"), 10, 2)
         set_item(self.get_config(f"{self.test_information}/TestUnits.FirmwareVersion"), 11, 2)
+
+        # 根据TesterLocation自动设置ReportedBy
+        current_tester_location = self.comboBox_TesterLocation.currentIndex()
+        # 根据用户要求，前两个选项都是BOEDT，后面的依次为PDI, BOECQ, Jabil VN和VG Fernitz
+        if current_tester_location == 0 or current_tester_location == 1:
+            reported_by = "BOEDT"
+        elif current_tester_location == 2:
+            reported_by = "PDI"
+        elif current_tester_location == 3:
+            reported_by = "BOECQ"
+        elif current_tester_location == 4:
+            reported_by = "Jabil VN"
+        elif current_tester_location == 5:
+            reported_by = "VG Fernitz"
+        else:
+            reported_by = ""
+        
+        # 更新ReportedBy到表格
+        qt_item = QW.QTableWidgetItem(reported_by)
+        self.tableWidget_TestInformation.setItem(13, 2, qt_item)
+        # 更新ReportedBy到配置文件
+        self.config.setValue("TestInformation/ReportedBy", reported_by)
 
     def get_xlsxinfo(self) -> None:
         self.checker_input_xlsx.clear()
