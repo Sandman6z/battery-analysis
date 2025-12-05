@@ -25,3 +25,5 @@ jobs:
           commit-message: "docs: update wiki from docs directory"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_NAME: "Sandman6z"
+          GH_MAIL: "zbnsandman@gmail.com"
