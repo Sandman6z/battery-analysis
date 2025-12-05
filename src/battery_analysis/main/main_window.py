@@ -453,12 +453,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         set_span_item("", 10, 2, editable=True)
         set_span_item("", 11, 2, editable=True)
 
+        # Data Processing Platforms 不写入setting.ini，默认跟随软件版本
+        from src.battery_analysis import __version__
         set_span_item("Data Processing Platforms", 12, 0, 1, 2)
-        platforms = self.get_config("TestInformation/DataProcessingPlatforms")
         set_span_item(
-            platforms[0] if platforms else "", 
+            f"Battery Analyzer-v{__version__}", 
             12, 2, 
-            editable=True
+            editable=False
         )
         set_span_item("Reported By", 13, 0, 1, 2)
         reported_by = self.get_config("TestInformation/ReportedBy")
@@ -1620,7 +1621,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         set_item("TestInformation/TestUnits.Model", 9, 2)
         set_item("TestInformation/TestUnits.HardwareVersion", 10, 2)
         set_item("TestInformation/TestUnits.FirmwareVersion", 11, 2)
-        set_item("TestInformation/DataProcessingPlatforms", 12, 2)
         set_item("TestInformation/ReportedBy", 13, 2)
 
     def init_widgetcolor(self) -> None:

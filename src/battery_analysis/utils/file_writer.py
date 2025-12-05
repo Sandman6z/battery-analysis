@@ -8,6 +8,9 @@ import traceback
 import configparser
 import logging
 
+# 导入软件版本信息
+from src.battery_analysis import __version__
+
 # 设置Matplotlib使用非交互式后端，避免线程安全问题
 import matplotlib
 matplotlib.use('Agg')  # 使用Agg后端，不会启动GUI
@@ -735,7 +738,8 @@ class XlsxWordWriter:
         tableTestInformation.cell(3, 1).paragraphs[0].add_run(f"Model: {strItemTestUnitsModel}\n"
                                                               f"Hardware Version: {strItemTestUnitsHardwareVersion}\n"
                                                               f"Firmware Version: {strItemTestUnitsFirmwareVersion}").font.size = Pt(10)
-        strItemDataProcessingPlatforms = GetItem("TestInformation", "DataProcessingPlatforms")
+        # Data Processing Platforms 跟随软件版本，不再从配置文件读取
+        strItemDataProcessingPlatforms = f"Battery Analyzer-v{__version__}"
         tableTestInformation.cell(4, 1).paragraphs[0].add_run(f"{strItemDataProcessingPlatforms}").font.size = Pt(10)
 
         # wbResult and csv write analytical battery statistic

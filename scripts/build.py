@@ -39,7 +39,7 @@ class CaseSensitiveConfigParser(configparser.ConfigParser):
 
 class BuildConfig:
     """构建配置基类"""
-    def __init__(self):
+    def __init__(self, build_type=None):
         self.script_dir = Path(__file__).absolute().parent
         # 项目根目录是scripts的上一级目录
         self.project_root = self.script_dir.parent
@@ -56,15 +56,12 @@ class BuildConfig:
             logger.warning(f"无法从pyproject.toml读取版本号: {e}，使用默认版本")
             self.version = "0.0.0"
         
-        # 读取配置文件获取其他配置
-        self.config = CaseSensitiveConfigParser()
-        self.config_path = self.project_root / "config" / "setting.ini"
-        self.config.read(str(self.config_path), encoding='utf-8')
-        
-        # 确保BuildConfig部分存在
-        if not self.config.has_section("BuildConfig"):
-            self.config.add_section("BuildConfig")
-        self.console_mode = self.config.getboolean("BuildConfig", "Console")
+        # 根据构建类型决定是否显示控制台窗口
+        # Debug构建默认显示控制台窗口，Release构建默认不显示控制台窗口
+        self.debug_mode = build_type == "Debug"
+        self.console_mode = self.debug_mode
+        # 补充说明：Release模式下，self.debug_mode为False，因此self.console_mode也为False
+        # 这样就自动实现了Release模式不显示控制台的功能，无需额外编写Release模式的逻辑
         
         # 定义构建应用相关目录
         self.dataconverter_build_dir = self.temp_build_dir / "Build_BatteryAnalysis"
@@ -74,11 +71,11 @@ class BuildConfig:
 class BuildManager(BuildConfig):
     """构建管理器"""
     def __init__(self, build_type):
-        super().__init__()
+        super().__init__(build_type)
         # 只支持Debug和Release两种构建类型
         if build_type not in ['Debug', 'Release']:
-            raise ValueError(f"不支持的构建类型: {build_type}。只支持Debug和Release。")
-        self.build_type = build_type  # 构建类型: Debug或Release
+            raise ValueError(f"不支持的构建类型: {build_type}。只支持'Debug'和'Release'，或请检查大小写")
+        self.build_type = build_type
         self.build_path = self.temp_build_dir
         self.console = self.console_mode
         
@@ -269,8 +266,6 @@ VSVersionInfo(
             if config.has_section("PltConfig"):
                 config.set("PltConfig", "Path", "")
                 config.set("PltConfig", "Title", "")
-            if config.has_section("BuildConfig"):
-                config.remove_section("BuildConfig")
             with open(build_dir / "setting.ini", 'w', encoding='utf-8') as f:
                 config.write(f)
             logger.info(f"已创建: {build_dir / 'setting.ini'}")
