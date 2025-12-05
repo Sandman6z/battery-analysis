@@ -21,15 +21,21 @@ jobs:
         run: |
           # 检查Wiki是否已初始化
           echo "Checking if Wiki is initialized..."
-          # 使用正确的API端点检查Wiki是否存在
-          WIKI_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/${{ github.repository }}/wikis")
-          if [ "$WIKI_EXISTS" -eq 404 ]; then
-            echo "Warning: Wiki is not initialized. Please manually initialize Wiki in GitHub settings."
-            echo "Go to GitHub repository > Settings > Features > Wiki and enable it."
+          
+          # 直接检查wiki.git仓库是否存在
+          WIKI_URL="https://github.com/${{ github.repository }}.wiki.git"
+          echo "Checking Wiki repository at: $WIKI_URL"
+          
+          # 使用git ls-remote检查仓库是否存在
+          if git ls-remote --exit-code "$WIKI_URL" > /dev/null 2>&1; then
+            echo "✓ Wiki repository exists and is accessible"
+          else
+            echo "✗ Wiki repository not found or inaccessible"
+            echo "Please manually initialize Wiki in GitHub settings:"
+            echo "1. Go to GitHub repository > Settings > Features > Wiki"
+            echo "2. Enable the Wiki feature"
+            echo "3. Create at least one Wiki page to initialize the repository"
             exit 0
-          elif [ "$WIKI_EXISTS" -ne 200 ]; then
-            echo "Warning: Failed to check Wiki status with HTTP code: $WIKI_EXISTS"
-            echo "Proceeding with Wiki sync..."
           fi
 
       - name: Sync Markdown to Wiki
@@ -37,7 +43,6 @@ jobs:
         with:
           WIKI_DIR: "docs"
           WIKI_PUSH_MESSAGE: "docs: update wiki from docs directory"
-          WIKI_FOLDER: "wiki"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GH_NAME: "Sandman6z"
