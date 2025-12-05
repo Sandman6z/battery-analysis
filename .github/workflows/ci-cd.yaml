@@ -1,4 +1,4 @@
-name: Battery Analysis CI
+name: Battery Analysis CI-CD
 
 on:
   push:
