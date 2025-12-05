@@ -33,7 +33,7 @@ jobs:
             echo "✗ Wiki repository not found or inaccessible"
             echo "Please manually initialize Wiki in GitHub settings:"
             echo "1. Go to GitHub repository > Settings > Features > Wiki"
-            echo "2. Enable the Wiki feature"
+            echo "2. Enable Wiki feature"
             echo "3. Create at least one Wiki page to initialize the repository"
             exit 0
           fi
