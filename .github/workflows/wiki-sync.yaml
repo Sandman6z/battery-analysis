@@ -38,45 +38,55 @@ jobs:
             exit 0
           fi
 
-      # Create master branch for Wiki (required by the action)
-      - name: Create master branch for Wiki
+      # Sync Markdown to Wiki manually without using hardcoded master branch action
+      - name: Sync Markdown to Wiki manually
         run: |
           # Clone the Wiki repository
           git clone https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.wiki.git temp_wiki
+          
+          # Set git configuration
+          git config --global user.name "${{ github.event.head_commit.author.name }}"
+          git config --global user.email "${{ github.event.head_commit.author.email }}"
+          
+          # Navigate to Wiki directory
           cd temp_wiki
           
-          # Check if master branch already exists
-          if git ls-remote --exit-code --heads origin master; then
-            echo "Master branch already exists, skipping..."
-          else
-            # Try to create master branch from main if it exists
-            if git ls-remote --exit-code --heads origin main; then
-              git checkout main
-              git checkout -b master
-              git push -u origin master
-              echo "Created master branch from main"
-            else
-              # If no main branch, create an initial master branch with a dummy file
-              echo "# Wiki" > Home.md
-              git add Home.md
-              git commit -m "Initial wiki commit"
-              git push -u origin master
-              echo "Created initial master branch"
-            fi
+          # Check current branch and create if needed
+          CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
+          echo "Current Wiki branch: $CURRENT_BRANCH"
+          
+          # Create main branch if it doesn't exist
+          if [ ! "$CURRENT_BRANCH" = "main" ]; then
+            git checkout -b main
+            git push -u origin main
           fi
           
+          # Clear existing Wiki content (keep .git directory)
+          find . -type f -not -name ".git*" -not -path "./.git/*" -delete
+          
+          # Copy documentation files
+          cp -r ../docs/* .
+          
+          # Convert README.md to Home.md if it exists
+          if [ -f "README.md" ]; then
+            mv README.md Home.md
+          fi
+          
+          # Add all files
+          git add -A
+          
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            # Commit changes
+            git commit -m "Update Wiki - ${{ github.event.head_commit.message }}"
+            # Push changes
+            git push origin main
+          fi
+          
+          # Navigate back and clean up
           cd ..
           rm -rf temp_wiki
-        continue-on-error: true
-        
-      # Sync Markdown to Wiki
-      - name: Sync Markdown to Wiki
-        uses: Andrew-Chen-Wang/github-wiki-action@v3
-        with:
-          WIKI_DIR: "docs"
-          WIKI_PUSH_MESSAGE: "Update Wiki - {{ github.event.head_commit.message }}"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          GH_NAME: ${{ github.event.head_commit.author.name }}
-          GH_MAIL: ${{ github.event.head_commit.author.email }}
-          REPO: ${{ github.repository }}
