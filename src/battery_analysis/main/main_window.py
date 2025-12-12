@@ -18,6 +18,7 @@ import hashlib
 import logging
 import warnings
 from pathlib import Path
+import multiprocessing
 
 # 第三方库导入
 import PyQt6.QtGui as QG
@@ -2057,6 +2058,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
 
 
 def main() -> None:
+    # 解决PyInstaller打包后multiprocessing导致的递归启动问题
+    multiprocessing.freeze_support()
     # 抑制PyQt5的deprecation warning
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
     
