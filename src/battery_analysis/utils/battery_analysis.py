@@ -366,55 +366,74 @@ class BatteryAnalysis:
                             listLevelToVoltage[c_idx][v_idx] = voltage
                             listLevelToRow[c_idx][v_idx] = row
 
+        # 算法优化：预计算累积充电量和索引表，加速后续计算
+        # 1. 预计算cycle的累积充电量
+        cycle_cumulative_charge = [0.0] * cycleRows
+        total_charge = 0.0
+        for c1 in range(2, cycleRows):
+            total_charge += abs(cycleCharge[c1])
+            cycle_cumulative_charge[c1] = total_charge
+        
+        # 2. 创建step数据的字典索引，加速查找
+        step_dict = {}
+        for c2 in range(2, stepRows):
+            cycle_key = stepCycle[c2]
+            if cycle_key not in step_dict:
+                step_dict[cycle_key] = []
+            if stepStep[c2] not in ("脉冲", "Pulse"):
+                step_dict[cycle_key].append(abs(stepCharge[c2]))
+        
+        # 3. 合并posi2_charge和list_posi2_charge功能，减少代码重复
+        def calculate_charge(positions, is_single=True):
+            """统一计算单个或多个位置的充电量"""
+            if is_single:
+                positions = [positions]
+                results = []
+            else:
+                results = [0.0] * len(positions)
+            
+            for idx, intPosi in enumerate(positions):
+                if not intPosi:
+                    if is_single:
+                        results.append(0)
+                    continue
+                
+                _cycle = recordCycle[intPosi]
+                
+                # 使用预计算的累积充电量，避免重复遍历
+                # 找到第一个大于等于当前cycle的索引
+                cycle_idx = 2
+                while cycle_idx < cycleRows and cycleCycle[cycle_idx] < _cycle:
+                    cycle_idx += 1
+                
+                # 获取累积充电量
+                intCharge = cycle_cumulative_charge[cycle_idx - 1] if cycle_idx > 2 else 0
+                
+                # 使用字典快速查找step数据
+                if _cycle in step_dict:
+                    intCharge += sum(step_dict[_cycle])
+                
+                # 添加当前记录的充电量
+                intCharge += abs(recordCharge[intPosi])
+                
+                if is_single:
+                    results.append(round(intCharge))
+                else:
+                    results[idx] = intCharge
+            
+            return results[0] if is_single else results
+
         # for Utility_XlsxWriter.py to write .xlsx
         listOneBatteryCharge = []
 
-        def posi2_charge(intPosi, intCharge):
-            if intPosi:
-                _cycle = recordCycle[intPosi]
-                for _c1 in range(2, cycleRows):
-                    if cycleCycle[_c1] < _cycle:
-                        intCharge += abs(cycleCharge[_c1])
-                    if cycleCycle[_c1] >= _cycle:
-                        break
-                for _c2 in range(2, stepRows):
-                    if stepCycle[_c2] == _cycle:
-                        if stepStep[_c2] != "脉冲" and stepStep[_c2] != "Pulse":
-                            intCharge += abs(stepCharge[_c2])
-                    if stepCycle[_c2] > _cycle:
-                        break
-                intCharge += abs(recordCharge[intPosi])
-                listOneBatteryCharge.append(round(intCharge))
-            else:
-                listOneBatteryCharge.append(0)
-
         for c in range(len(listCurrentLevel)):
             for v in range(len(listVoltageLevel)):
-                posi2_charge(listLevelToRow[c][v], listLevelToCharge[c][v])
+                charge = calculate_charge(listLevelToRow[c][v])
+                listOneBatteryCharge.append(charge)
 
         # for Main_ImageShow.py to draw line chart
-        def list_posi2_charge(listPosi):
-            _listCharge = []
-            for posi in listPosi:
-                _intTempCharge = 0
-                _cycle = recordCycle[posi]
-                for _c1 in range(2, cycleRows):
-                    if cycleCycle[_c1] < _cycle:
-                        _intTempCharge += abs(cycleCharge[_c1])
-                    if cycleCycle[_c1] >= _cycle:
-                        break
-                for _c2 in range(2, stepRows):
-                    if stepCycle[_c2] == _cycle:
-                        if stepStep[_c2] not in ("脉冲", "Pulse"):
-                            _intTempCharge += abs(stepCharge[_c2])
-                    if stepCycle[_c2] > _cycle:
-                        break
-                _intTempCharge += abs(recordCharge[posi])
-                _listCharge.append(_intTempCharge)
-            return _listCharge
-
-        for c, _ in enumerate(listCurrentLevel):
-            listChargeForInfoImageCsv[c] = list_posi2_charge(listPosiForInfoImageCsv[c])
+        for c, posi_list in enumerate(listPosiForInfoImageCsv):
+            listChargeForInfoImageCsv[c] = calculate_charge(posi_list, is_single=False)
             if len(listChargeForInfoImageCsv[c]) != len(listVoltageForInfoImageCsv[c]):
 
                 raise BatteryAnalysisException(f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, charge is not equal to voltage")

@@ -1287,10 +1287,20 @@ class XlsxWordWriter:
                     run.font.size = Pt(9)
         tableOverview.cell(0, 0).width = Cm(27)
 
-        # wdResult replace TypeA-TypeF, StrA-StrF and Image
+        # 合并三次文档遍历时为一次，减少I/O操作
+        # wdResult replace TypeA-TypeF, StrA-StrF, Image and insert tables in one pass
+        bInsertOverview = False
+        bInsertVersionHistory = False
+        bInsertTestInformation = False
+        bInsertStatisticalsResults = False
+        intStepOut = 0
+        
         for paragraph in wdReport.paragraphs:
+            # 1. 替换文本和插入图片
+            modified = False
             for t in range(len(self.listTextToReplace)):
                 if self.listTextToReplace[t] in paragraph.text:
+                    modified = True
                     if self.listTextToReplace[t] == "StrD":
                         paragraph.text = paragraph.text.replace(self.listTextToReplace[t], "")
                         text = paragraph.add_run(f"{self.listTestInfoForReplace[t]}")
@@ -1298,26 +1308,23 @@ class XlsxWordWriter:
                         paragraph.add_run(".")
                     else:
                         paragraph.text = paragraph.text.replace(self.listTextToReplace[t], f"{self.listTestInfoForReplace[t]}")
-            for i in range(len(self.listImageToReplace)):
-                if self.listImageToReplace[i] in paragraph.text:
-                    paragraph.text = paragraph.text.replace(self.listImageToReplace[i], "")
-                    if i < 2 * len(self.listPngPath) + 1:
-                        if i == 0:
-                            paragraph.add_run("").add_picture(self.strFilteredPngPath, width=Cm(15))
-                        elif i % 2 == 1:
-                            paragraph.add_run("").add_picture(self.listPngPath[int((i - 1) / 2)], width=Cm(7.2))
+            
+            if not modified:  # 只有当段落未被修改时才处理图片，避免重复处理
+                for i in range(len(self.listImageToReplace)):
+                    if self.listImageToReplace[i] in paragraph.text:
+                        paragraph.text = paragraph.text.replace(self.listImageToReplace[i], "")
+                        if i < 2 * len(self.listPngPath) + 1:
+                            if i == 0:
+                                paragraph.add_run("").add_picture(self.strFilteredPngPath, width=Cm(15))
+                            elif i % 2 == 1:
+                                paragraph.add_run("").add_picture(self.listPngPath[int((i - 1) / 2)], width=Cm(7.2))
+                            else:
+                                paragraph.add_run(f"Figure {int(i / 2 + 1)}  {self.listTestInfoForReplace[2]} {self.listTestInfoForReplace[0]}-{self.listTestInfoForReplace[1]} Boxplot, {self.listCurrentLevel[int(i / 2 - 1)]}mA")
                         else:
-                            paragraph.add_run(f"Figure {int(i / 2 + 1)}  {self.listTestInfoForReplace[2]} {self.listTestInfoForReplace[0]}-{self.listTestInfoForReplace[1]} Boxplot, {self.listCurrentLevel[int(i / 2 - 1)]}mA")
-                    else:
-                        paragraph._element.getparent().remove(paragraph._element)   
-
-        # add table Overview, Version History, Test Information and Statisticals Results
-        bInsertOverview = False
-        bInsertVersionHistory = False
-        bInsertTestInformation = False
-        bInsertStatisticalsResults = False
-        intStepOut = 0
-        for paragraph in wdReport.paragraphs:
+                            paragraph._element.getparent().remove(paragraph._element)
+                            continue  # 跳过后续处理，因为段落已被删除
+            
+            # 2. 插入表格的逻辑
             if "Battery Quality Test / Alternative Battery Test for ESL Batteries" in paragraph.text:
                 bInsertOverview = True
                 intStepOut = 4
@@ -1330,8 +1337,7 @@ class XlsxWordWriter:
             elif "Test results" in paragraph.text and "Heading 1" == paragraph.style.name:
                 bInsertStatisticalsResults = True
                 intStepOut = 2
-            else:
-                pass
+            
             if intStepOut:
                 intStepOut = intStepOut - 1
             else:
@@ -1347,13 +1353,10 @@ class XlsxWordWriter:
                 elif bInsertStatisticalsResults:
                     bInsertStatisticalsResults = False
                     paragraph._p.addnext(tableStatisticalsResults._tbl)
-                else:
-                    pass
-
-        # if "Room Temperature", delete "℃"
-        for paragraph in wdReport.paragraphs:
+            
+            # 3. 删除温度符号
             if listStrContent[16] == "Room Temperature" and "\u2103" in paragraph.text:
-                paragraph.text = paragraph.text.replace(paragraph.text, paragraph.text.replace("\u2103", ""))
+                paragraph.text = paragraph.text.replace("\u2103", "")
 
         # close xlsx writer
         wbResult.close()
