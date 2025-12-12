@@ -56,6 +56,10 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# Pylint reports
+pylint_report.json
+pylint_report.html
+
 # Translations
 *.mo
 *.pot
