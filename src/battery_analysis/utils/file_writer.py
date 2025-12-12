@@ -593,11 +593,18 @@ class XlsxWordWriter:
         # init csv writer
         f = open(self.strResultCsvPath, mode='w', newline='', encoding='utf-8')
         csvwriterResultCsvFile = csv.writer(f)
+        
+        # CSV写入缓冲区，减少I/O操作
+        csv_buffer = []
+        csv_buffer_size = 0
+        max_csv_buffer_size = 100  # 每次写入100行
 
         def CsvWrite(_strMessage):
+            nonlocal csv_buffer, csv_buffer_size
+            
             if type(_strMessage) == str:
                 _listTemp = [_strMessage]
-                csvwriterResultCsvFile.writerow(_listTemp)
+                csv_buffer.append(_listTemp)
             elif type(_strMessage) == list:
                 _listTemp = []
                 for _i in range(len(_strMessage)):
@@ -605,9 +612,17 @@ class XlsxWordWriter:
                         _listTemp.append(_strMessage[_i])
                     else:
                         _listTemp.append("")
-                csvwriterResultCsvFile.writerow(_listTemp)
+                csv_buffer.append(_listTemp)
             else:
                 raise BatteryAnalysisException("File: file_writer.py, Function:csv_write(_message), Error: Unknown _message type")
+            
+            csv_buffer_size += 1
+            
+            # 当缓冲区达到一定大小或写入特定标记时，批量写入文件
+            if csv_buffer_size >= max_csv_buffer_size or (_strMessage and isinstance(_strMessage, str) and "#END HEADER" in _strMessage):
+                csvwriterResultCsvFile.writerows(csv_buffer)
+                csv_buffer.clear()
+                csv_buffer_size = 0
 
         # wbResult and csv write fixed part
         if wsOverview is None:
@@ -1347,7 +1362,10 @@ class XlsxWordWriter:
         wdReport.save(self.strReportWordPath)
         # 输出docx文件的完整路径到日志
         logging.info(f"数据分析完成，生成的docx报告路径: {self.strReportWordPath}")
-        # close csv writer
+        # close csv writer - 确保缓冲区中的所有数据都被写入
+        if csv_buffer:
+            csvwriterResultCsvFile.writerows(csv_buffer)
+            csv_buffer.clear()
         f.close()
 
     def UXWW_Draw(self, _listCpt: list, maxXaxis: int) -> None:
