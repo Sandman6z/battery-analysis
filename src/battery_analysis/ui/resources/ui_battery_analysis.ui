@@ -11,22 +11,6 @@
     <height>885</height>
    </rect>
   </property>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>工具栏</string>
-   </property>
-   <property name="movable">
-    <bool>true</bool>
-   </property>
-   <property name="floatable">
-    <bool>true</bool>
-   </property>
-   <addaction name="actionRun_Analysis"/>
-   <addaction name="actionOpen_File"/>
-   <addaction name="actionSave_Results"/>
-   <addaction name="actionSettings"/>
-   <addaction name="actionHelp"/>
-  </widget>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
@@ -176,6 +160,7 @@
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="cursor">
@@ -395,6 +380,7 @@
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="cursor">
@@ -500,6 +486,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="focusPolicy">
@@ -580,6 +567,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="focusPolicy">
@@ -709,6 +697,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="cursor">
@@ -823,6 +812,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="cursor">
@@ -960,6 +950,7 @@ QComboBox::down-arrow:on {
               <font>
                <family>Microsoft JhengHei</family>
                <pointsize>9</pointsize>
+               <bold>false</bold>
               </font>
              </property>
              <property name="cursor">
@@ -1025,6 +1016,7 @@ QComboBox::down-arrow:on {
               <font>
                <family>Microsoft JhengHei</family>
                <pointsize>9</pointsize>
+               <bold>false</bold>
               </font>
              </property>
              <property name="cursor">
@@ -1175,6 +1167,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="focusPolicy">
@@ -1249,6 +1242,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="focusPolicy">
@@ -1326,6 +1320,7 @@ QComboBox::down-arrow:on {
             <font>
              <family>Microsoft JhengHei</family>
              <pointsize>9</pointsize>
+             <bold>false</bold>
             </font>
            </property>
            <property name="focusPolicy">
@@ -1847,6 +1842,7 @@ QComboBox::down-arrow:on {
          <font>
           <family>Microsoft JhengHei</family>
           <pointsize>9</pointsize>
+          <bold>false</bold>
          </font>
         </property>
         <property name="focusPolicy">
@@ -1965,6 +1961,7 @@ QComboBox::down-arrow:on {
          <font>
           <family>Microsoft JhengHei</family>
           <pointsize>9</pointsize>
+          <bold>false</bold>
          </font>
         </property>
         <property name="focusPolicy">
@@ -2470,7 +2467,7 @@ QPushButton#pushButton_Run:pressed {
           <bool>false</bool>
          </property>
          <property name="value">
-          <number>100</number>
+          <number>0</number>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -2572,6 +2569,28 @@ QPushButton#pushButton_Run:pressed {
      </layout>
     </widget>
    </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>工具栏</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="floatable">
+    <bool>true</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionRun_Analysis"/>
+   <addaction name="actionOpen_File"/>
+   <addaction name="actionSave_Results"/>
+   <addaction name="actionSettings"/>
+   <addaction name="actionHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar_BatteryAnalysis"/>
   <widget class="QMenuBar" name="menuBar">
@@ -2706,14 +2725,14 @@ QPushButton#pushButton_Run:pressed {
    </property>
   </action>
   <action name="actionShow_Toolbar">
-   <property name="text">
-    <string>Show Toolbar</string>
-   </property>
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="checked">
     <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Toolbar</string>
    </property>
   </action>
   <action name="actionRun_Analysis">
@@ -2751,14 +2770,14 @@ QPushButton#pushButton_Run:pressed {
    </property>
   </action>
   <action name="actionShow_Statusbar">
-   <property name="text">
-    <string>Show Statusbar</string>
-   </property>
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="checked">
     <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Statusbar</string>
    </property>
   </action>
   <action name="actionZoom_In">
@@ -2812,9 +2831,6 @@ QPushButton#pushButton_Run:pressed {
    </property>
   </action>
  </widget>
- <toolbars>
-  <toolbarset name="toolBar" area="topToolBarArea" orientation="Horizontal" toolBarArea="topToolBarArea" toolBarBreak="false"/>
- </toolbars>
  <includes>
   <include location="local">©BOEDT </include>
  </includes>

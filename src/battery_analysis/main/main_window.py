@@ -70,6 +70,69 @@ class Checker:
         self.str_error_msg = error_msg
 
 
+class ProgressDialog(QW.QDialog):
+    """
+    弹出式进度条对话框类
+    
+    用于显示详细的进度信息，适合长时间运行的任务
+    """
+    def __init__(self, parent=None):
+        """
+        初始化弹出式进度条
+        
+        Args:
+            parent: 父窗口
+        """
+        super().__init__(parent)
+        self.setWindowTitle("电池分析进度")
+        self.setModal(False)  # 非模态窗口，允许用户同时操作主界面
+        self.setFixedSize(400, 120)
+        self.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint | \
+                          QC.Qt.WindowType.WindowCloseButtonHint | QC.Qt.WindowType.WindowStaysOnTopHint)
+        
+        # 创建布局
+        layout = QW.QVBoxLayout()
+        
+        # 添加状态文本标签
+        self.status_label = QW.QLabel("准备开始分析...")
+        self.status_label.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
+        self.status_label.setWordWrap(True)
+        layout.addWidget(self.status_label)
+        
+        # 添加进度条
+        self.progress_bar = QW.QProgressBar()
+        self.progress_bar.setValue(0)
+        self.progress_bar.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.progress_bar)
+        
+        # 设置布局
+        self.setLayout(layout)
+    
+    def update_progress(self, progress, status_text):
+        """
+        更新进度信息
+        
+        Args:
+            progress: 进度值
+            status_text: 状态文本
+        """
+        self.progress_bar.setValue(progress)
+        self.status_label.setText(status_text)
+        
+        # 确保界面实时更新
+        QW.QApplication.processEvents()
+    
+    def closeEvent(self, event):
+        """
+        关闭事件处理
+        
+        Args:
+            event: 关闭事件
+        """
+        # 这里可以添加关闭时的处理逻辑
+        event.accept()
+
+
 class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
     sigSetVersion = QC.pyqtSignal()
 
@@ -81,6 +144,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         self.main_controller = MainController()
         self.file_controller = FileController()
         self.validation_controller = ValidationController()
+        
+        # 进度条相关属性
+        self.progress_dialog = None
+        self.progress_start_time = None
+        self.show_popup_progress = False
+        self.task_duration_threshold = 30  # 任务时长阈值（秒），超过这个时间显示弹出式进度条
         
         self.b_has_config = True
         self.checker_battery_type = Checker()
@@ -231,8 +300,28 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             progress: 进度值
             status_text: 状态文本
         """
-        # 这里可以添加进度条更新逻辑
-        pass
+        # 更新嵌入式进度条
+        if hasattr(self, 'progressBar'):
+            self.progressBar.setValue(progress)
+        # 更新状态栏信息
+        if hasattr(self, 'statusBar_BatteryAnalysis'):
+            self.statusBar_BatteryAnalysis.showMessage(f"状态: {status_text}")
+        
+        # 检查是否需要显示弹出式进度条
+        if self.progress_start_time is not None:
+            elapsed_time = time.time() - self.progress_start_time
+            
+            # 如果任务已经运行超过阈值且弹出式进度条尚未显示，则显示它
+            if elapsed_time > self.task_duration_threshold and not self.show_popup_progress:
+                self._show_progress_dialog()
+        
+        # 更新弹出式进度条（如果已显示）
+        if self.show_popup_progress and self.progress_dialog:
+            self.progress_dialog.update_progress(progress, status_text)
+            
+        # 如果任务完成，关闭弹出式进度条
+        if progress >= 100:
+            self._close_progress_dialog()
     
     def _on_config_loaded(self, config_dict):
         """
@@ -243,6 +332,27 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         """
         pass
     
+    def _show_progress_dialog(self):
+        """
+        显示弹出式进度条对话框
+        """
+        if not self.progress_dialog:
+            self.progress_dialog = ProgressDialog(self)
+        self.progress_dialog.show()
+        self.progress_dialog.raise_()
+        self.progress_dialog.activateWindow()
+        self.show_popup_progress = True
+    
+    def _close_progress_dialog(self):
+        """
+        关闭弹出式进度条对话框
+        """
+        if self.progress_dialog and self.show_popup_progress:
+            self.progress_dialog.close()
+            self.progress_dialog = None
+            self.show_popup_progress = False
+        self.progress_start_time = None
+    
     def _on_controller_error(self, error_msg):
         """
         控制器错误处理
@@ -250,6 +360,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         Args:
             error_msg: 错误消息
         """
+        # 关闭进度条
+        self._close_progress_dialog()
         QW.QMessageBox.critical(self, "错误", error_msg)
         
 
@@ -1785,6 +1897,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             
             # 任务完成处理
             if stateindex == 0 and "success" in threadinfo:
+                # 关闭进度条
+                self._close_progress_dialog()
+                
                 self.pushButton_Run.setText("Run")
                 self.pushButton_Run.setStyleSheet("background-color:#00FF00")
                 self.pushButton_Run.setEnabled(True)
@@ -1800,6 +1915,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             
             # 日期不一致错误处理 (stateindex == 3)
             elif stateindex == 3:
+                # 关闭进度条
+                self._close_progress_dialog()
+                
                 self.pushButton_Run.setText("Rerun")
                 self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
@@ -1831,6 +1949,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             
             # 电池分析错误处理 (stateindex == 1)
             elif stateindex == 1:
+                # 关闭进度条
+                self._close_progress_dialog()
+                
                 self.pushButton_Run.setText("Rerun")
                 self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
@@ -1872,6 +1993,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             
             # 文件写入错误处理 (stateindex == 2)
             elif stateindex == 2:
+                # 关闭进度条
+                self._close_progress_dialog()
+                
                 self.pushButton_Run.setText("Rerun")
                 self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
