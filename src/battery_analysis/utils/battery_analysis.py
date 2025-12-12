@@ -84,13 +84,16 @@ class BatteryAnalysis:
                 
                 if is_frozen or sys.platform.startswith('win'):
                     # 在Windows或PyInstaller环境下，使用进程池但避免递归启动问题
-                    # 使用multiprocessing的spawn启动方式，避免fork导致的问题
                     logging.info("使用进程池并行处理")
-                    # 增加可用进程数，充分利用CPU核心
-                    cpu_count = multiprocessing.cpu_count()
-                    # 设置启动方式为spawn，避免Windows下的递归启动问题
-                    ctx = multiprocessing.get_context('spawn')
-                    with concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count, mp_context=ctx) as executor:
+                    
+                    # 使用资源管理器获取最优进程数
+                    from battery_analysis.utils.resource_manager import ResourceManager
+                    max_processes = ResourceManager.get_optimal_process_count()
+                    
+                    # 获取适合当前平台的进程上下文
+                    ctx = ResourceManager.get_processing_context()
+                    
+                    with concurrent.futures.ProcessPoolExecutor(max_workers=max_processes, mp_context=ctx) as executor:
                         # 提交所有任务
                         future_to_args = {executor.submit(self._parallel_process_file, args): args for args in process_args}
                         
