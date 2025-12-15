@@ -1499,9 +1499,13 @@ class JsonWriter:
         self.config = configparser.ConfigParser()
         
         try:
-            # 统一使用发布模式逻辑：从可执行文件目录读取
-            self.path = os.path.dirname(sys.executable)
-            self.config.read(self.path + "/setting.ini", encoding='utf-8')
+            # 使用通用配置文件查找函数
+            config_path = find_config_file()
+            if config_path and os.path.exists(config_path):
+                self.config.read(config_path, encoding='utf-8')
+                logging.info(f"找到并读取配置文件: {config_path}")
+            else:
+                raise Exception("找不到配置文件")
         except Exception as e:
             # 发生错误时创建基本配置
             logging.error(f"配置读取失败: {e}，使用默认配置")
