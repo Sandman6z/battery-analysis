@@ -129,12 +129,13 @@ class ProgressDialog(QW.QDialog):
         event.accept()
 
 
-class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
+class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     sigSetVersion = QC.pyqtSignal()
 
     def __init__(self) -> None:
         super().__init__()
-        version.Version.__init__(self)
+        from battery_analysis import __version__
+        self.version = __version__
         
         # 初始化控制器
         self.main_controller = MainController()

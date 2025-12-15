@@ -28,9 +28,17 @@ except ImportError:
         logger.warning("Neither tomllib nor tomli is available")
 
 class Version:
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Version, cls).__new__(cls)
+            cls._instance.version = cls._instance._get_version()
+        return cls._instance
+    
     def __init__(self):
         """初始化版本对象，从pyproject.toml读取版本号或使用默认值"""
-        self.version = self._get_version()
+        # 已经在__new__中初始化过了，避免重复执行
 
     def _get_version(self) -> str:
         """获取项目版本号"""
@@ -75,7 +83,6 @@ class Version:
             raise ImportError("tomllib/tomli not available for reading TOML")
 
         version = self._read_version_from_file(pyproject_path)
-        logger.info("Version read from pyproject.toml: %s", version)
         return version
 
     def _read_version_from_file(self, file_path: Path) -> str:
@@ -84,7 +91,6 @@ class Version:
             with open(file_path, "rb") as f:
                 pyproject_data = tomllib.load(f)
             version = pyproject_data["project"]["version"]
-            logger.info("Version read from pyproject.toml: %s", version)
             return version
         except (FileNotFoundError, KeyError, tomllib.TOMLDecodeError, OSError) as e:
             logger.error("Failed to read version from pyproject.toml: %s", e)
