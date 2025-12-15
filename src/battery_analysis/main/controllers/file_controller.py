@@ -9,6 +9,8 @@ import logging
 import configparser
 from PyQt6 import QtCore as QC
 
+from battery_analysis.utils.config_utils import find_config_file
+
 
 class FileController(QC.QObject):
     """
@@ -62,15 +64,11 @@ class FileController(QC.QObject):
         Returns:
             dict: 配置信息字典，如果加载失败返回None
         """
-        config_path = os.path.join(self.project_path, "config", config_file_name)
+        # 使用通用配置文件查找函数
+        config_path = find_config_file(config_file_name)
         
-        if not os.path.exists(config_path):
-            # 尝试从当前目录查找配置文件
-            config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "config", config_file_name)
-            config_path = os.path.normpath(config_path)
-        
-        if not os.path.exists(config_path):
-            error_msg = f"未找到配置文件: {config_path}"
+        if not config_path or not os.path.exists(config_path):
+            error_msg = f"未找到配置文件: {config_file_name}"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
             return None

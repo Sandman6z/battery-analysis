@@ -10,6 +10,7 @@ import logging
 
 # 导入软件版本信息
 from battery_analysis import __version__
+from battery_analysis.utils.config_utils import find_config_file
 
 # 设置Matplotlib使用非交互式后端，避免线程安全问题
 import matplotlib
@@ -38,46 +39,15 @@ class XlsxWordWriter:
         # get config
         self.config = configparser.ConfigParser()
         
-        # 改进配置文件路径查找逻辑，支持开发环境和exe环境
-        config_path = None
-        
-        # 获取当前文件所在目录
-        current_file_dir = os.path.dirname(os.path.abspath(__file__))
-        
-        # 确定基础目录（区分exe环境和开发环境）
-        if getattr(sys, 'frozen', False):  # exe环境
-            base_dir = os.path.dirname(sys.executable)
-        else:  # 开发环境
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file_dir)))
-        
-        # 定义可能的配置文件路径列表
-        possible_config_paths = [
-            # 1. 当前工作目录下的config目录
-            os.path.join(os.getcwd(), "config", "setting.ini"),
-            # 2. 基础目录下的config目录
-            os.path.join(base_dir, "config", "setting.ini"),
-            # 3. 当前工作目录下直接查找
-            os.path.join(os.getcwd(), "setting.ini"),
-            # 4. 基础目录下直接查找
-            os.path.join(base_dir, "setting.ini"),
-            # 5. 基于当前文件的绝对路径查找（确保在任何位置都能找到）
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(current_file_dir))), "config", "setting.ini")
-        ]
-        
-        # 遍历查找第一个存在的配置文件
-        for path in possible_config_paths:
-            if os.path.exists(path):
-                config_path = path
-                logging.info(f"找到配置文件: {config_path}")
-                break
+        # 使用通用配置文件查找函数
+        config_path = find_config_file()
         
         # 尝试读取配置文件
         if config_path and os.path.exists(config_path):
             self.config.read(config_path, encoding='utf-8')
+            logging.info(f"找到并读取配置文件: {config_path}")
         else:
-            logging.warning("找不到配置文件，尝试了以下路径:")
-            for path in possible_config_paths:
-                logging.info(f"  - {path}")
+            logging.warning("找不到配置文件，使用默认配置")
             # 创建默认的PltConfig部分
             self.config.add_section("PltConfig")
             self.config.set("PltConfig", "Title", "\"默认标题\"")

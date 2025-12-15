@@ -34,6 +34,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # 本地模块导入
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils import version
+from battery_analysis.utils.config_utils import find_config_file
 # 导入控制器
 from battery_analysis.main.controllers.main_controller import MainController
 from battery_analysis.main.controllers.file_controller import FileController
@@ -163,37 +164,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
         # 改进的配置文件路径查找逻辑
-        # 首先确定基础目录
-        if getattr(sys, 'frozen', False):
-            # 在exe环境中，使用exe所在目录
-            base_dir = Path(sys.executable).parent
-        else:
-            # 在开发环境中，使用脚本目录推导项目根目录
-            script_dir = Path(__file__).absolute().parent
-            base_dir = script_dir.parent.parent.parent
+        self.config_path = find_config_file()
         
-        # 定义可能的配置文件路径列表
-        possible_config_paths = [
-            # 1. 检查当前工作目录下的config/setting.ini
-            Path.cwd() / "config" / "setting.ini",
-            # 2. 检查基础目录下的config/setting.ini
-            base_dir / "config" / "setting.ini",
-            # 3. 检查当前工作目录下的setting.ini
-            Path.cwd() / "setting.ini",
-            # 4. 检查基础目录下的setting.ini
-            base_dir / "setting.ini",
-            # 5. 检查项目根目录下的config/setting.ini（确保在任何位置都能找到）
-            Path(__file__).resolve().parent.parent.parent / "config" / "setting.ini"
-        ]
-        
-        # 遍历所有可能的路径，找到第一个存在的配置文件
-        self.config_path = None
-        for path in possible_config_paths:
-            if path.exists():
-                self.config_path = str(path)
-                break
-        
-        project_root = base_dir
+        project_root = Path(__file__).resolve().parent.parent.parent
         
         # 添加对None值的检查，避免TypeError
         if self.config_path is None or not Path(self.config_path).exists():

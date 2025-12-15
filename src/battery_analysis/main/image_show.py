@@ -39,6 +39,7 @@ from matplotlib.widgets import CheckButtons
 
 # 导入异常类
 from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.config_utils import find_config_file
 
 
 class FIGURE:
@@ -101,22 +102,18 @@ class FIGURE:
         """
         try:
             # 优先读取setting.ini（发布模式）
-            setting_ini_path = self.project_root / "config" / "setting.ini"
-            if setting_ini_path.exists():
+            setting_ini_path = find_config_file()
+            if setting_ini_path and os.path.exists(setting_ini_path):
                 self.config.read(setting_ini_path, encoding='utf-8')
                 logging.info("成功读取setting.ini配置")
             else:
-                # 如果找不到，尝试使用绝对路径（确保在任何位置都能找到）
-                abs_setting_ini_path = Path(__file__).resolve().parent.parent.parent / "config" / "setting.ini"
-                if abs_setting_ini_path.exists():
-                    self.config.read(abs_setting_ini_path, encoding='utf-8')
-                    logging.info("成功读取绝对路径下的setting.ini配置")
+                logging.warning("未找到setting.ini配置文件")
                 return
             
             # 回退到Config_BatteryAnalysis.ini（兼容旧版本）
-            config_path = self.project_root / "config" / "Config_BatteryAnalysis.ini"
-            if config_path.exists():
-                self.config.read(config_path, encoding='utf-8')
+            config_battery_path = find_config_file("Config_BatteryAnalysis.ini")
+            if config_battery_path and os.path.exists(config_battery_path):
+                self.config.read(config_battery_path, encoding='utf-8')
                 logging.info("成功读取Config_BatteryAnalysis.ini配置")
                 return
             
