@@ -37,19 +37,8 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.widgets import CheckButtons
 
-# 尝试导入异常类，如果失败则定义一个简单的异常类
-try:
-    # 尝试相对导入
-    from ..utils.exception_type import BatteryAnalysisException
-except ImportError:
-    try:
-        # 尝试绝对导入
-        from src.battery_analysis.utils.exception_type import BatteryAnalysisException
-    except ImportError:
-        # 如果都失败，定义一个简单的异常类
-        class BatteryAnalysisException(Exception):
-            """电池分析异常类"""
-            pass
+# 导入异常类
+from battery_analysis.utils.exception_type import BatteryAnalysisException
 
 
 class FIGURE:

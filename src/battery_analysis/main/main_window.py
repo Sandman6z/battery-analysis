@@ -31,11 +31,6 @@ import matplotlib
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# 添加项目根目录到Python路径
-script_dir = Path(__file__).absolute().parent
-project_root = script_dir.parent.parent.parent
-sys.path.insert(0, str(project_root))
-
 # 本地模块导入
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils import version
@@ -567,7 +562,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow, version.Version):
         set_span_item("", 11, 2, editable=True)
 
         # Data Processing Platforms 不写入setting.ini，默认跟随软件版本
-        from src.battery_analysis import __version__
+        from battery_analysis import __version__
         set_span_item("Data Processing Platforms", 12, 0, 1, 2)
         set_span_item(
             f"Battery Analyzer-v{__version__}", 

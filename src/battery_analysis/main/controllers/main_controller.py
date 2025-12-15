@@ -5,7 +5,7 @@
 """
 import os
 from PyQt6 import QtCore as QC
-from src.battery_analysis.main.workers.analysis_worker import AnalysisWorker
+from battery_analysis.main.workers.analysis_worker import AnalysisWorker
 
 
 class MainController(QC.QObject):

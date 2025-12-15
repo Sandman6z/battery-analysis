@@ -96,7 +96,7 @@ class AnalysisWorker(QC.QRunnable):
             
             # 电池分析
             # 延迟导入以避免循环引用
-            from src.battery_analysis.utils import battery_analysis
+            from battery_analysis.utils import battery_analysis
             
             info_battery = battery_analysis.BatteryAnalysis(
                 strInDataXlsxDir=self.str_input_path,
@@ -197,7 +197,7 @@ class AnalysisWorker(QC.QRunnable):
                     return
                 
                 # 文件写入
-                from src.battery_analysis.utils import file_writer
+                from battery_analysis.utils import file_writer
                 
                 info_file = file_writer.FileWriter(
                     strResultPath=self.str_output_path,

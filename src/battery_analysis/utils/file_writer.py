@@ -9,7 +9,7 @@ import configparser
 import logging
 
 # 导入软件版本信息
-from src.battery_analysis import __version__
+from battery_analysis import __version__
 
 # 设置Matplotlib使用非交互式后端，避免线程安全问题
 import matplotlib
@@ -30,7 +30,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Pt, Cm
 
-from src.battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.exception_type import BatteryAnalysisException
 
 
 class XlsxWordWriter:

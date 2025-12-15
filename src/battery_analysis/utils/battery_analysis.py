@@ -17,7 +17,7 @@ if __name__ == '__main__':
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 import xlrd as rd
-from src.battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.exception_type import BatteryAnalysisException
 
 class BatteryAnalysis:
     def __init__(self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list) -> None:

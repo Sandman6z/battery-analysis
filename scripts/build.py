@@ -28,7 +28,7 @@ script_dir = Path(__file__).absolute().parent
 project_root = script_dir.parent
 sys.path.insert(0, str(project_root))
 
-from src.battery_analysis.utils.exception_type import BuildException
+from battery_analysis.utils.exception_type import BuildException
 
 
 class CaseSensitiveConfigParser(configparser.ConfigParser):
