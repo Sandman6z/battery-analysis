@@ -481,6 +481,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 移除固定列宽设置，改为在resizeEvent中按比例分配
         # 确保表格的最后一列自动拉伸
         self.tableWidget_TestInformation.horizontalHeader().setStretchLastSection(True)
+        # 设置表格行高自动适应内容
+        self.tableWidget_TestInformation.verticalHeader().setSectionResizeMode(QW.QHeaderView.ResizeMode.ResizeToContents)
         
         # 暂时断开cellChanged信号的连接，避免在初始化时触发保存操作
         try:
