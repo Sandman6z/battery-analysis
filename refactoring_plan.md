@@ -4,20 +4,21 @@
 
 通过代码审查，发现项目中存在多个过长的代码文件，这些文件功能过于集中，不符合单一职责原则，同时还存在嵌套函数过多、类职责不清晰和错误处理不统一等问题，降低了代码的可维护性、可读性和可测试性。本计划提出对这些问题的解决方案和重构建议，并反映当前项目的重构进展。
 
-## 1. main_window.py (104906字节)
+## 1. main_window.py (91700字节)
 
 ### 当前状态
-- ✅ 已创建controllers目录，包含main_controller.py、file_controller.py和validation_controller.py
+- ✅ 已创建controllers目录，包含main_controller.py、file_controller.py、validation_controller.py和ui_controller.py
 - ✅ 已创建workers目录，包含analysis_worker.py
 - ✅ 已创建models目录框架
-- ⚠️ 文件大小仍然过大，UI初始化与业务逻辑仍有混合
+- ⚠️ 文件大小已从104906字节减少到91700字节，但仍然较大
+- ✅ UI控制器(ui_controller.py)已实现，负责UI状态管理和界面更新
+- ✅ 主控制器(main_controller.py)已实现，负责核心业务逻辑协调
 - ✅ 线程管理部分已优化，使用QRunnable直接发送信号，移除冗余线程
 
 ### 问题分析
-- 事件处理和业务逻辑仍有混合
-- 嵌套函数过多，增加理解难度
-- 控制器职责划分不够清晰
+- 事件处理和业务逻辑仍有部分混合
 - UI和数据处理仍有耦合
+- 仍有部分业务逻辑和数据处理功能需要进一步剥离到对应的控制器模块，包括：电池计算(calculate_battery)、数据分析(analyze_data)、报告生成(generate_report)、批量处理(batch_processing)、配置更新(update_config)等核心功能，以及MD5校验和计算等辅助功能
 
 ### 下一步重构建议
 
@@ -53,9 +54,9 @@ main/
    - 完善与其他控制器的通信机制
 
 3. **analysis_worker.py**
-   - 优化QRunnable实现
-   - 完善任务取消和错误处理机制
-   - 减少与主线程的直接耦合
+   - ✅ 优化QRunnable实现
+   - ✅ 完善任务取消和错误处理机制
+   - ✅ 减少与主线程的直接耦合
 
 ## 2. file_writer.py (89692字节)
 
@@ -140,18 +141,19 @@ utils/
    - 实现统一的接口方法
    - 完善错误处理机制
 
-## 4. analysis_worker.py (14831字节)
+## 4. analysis_worker.py (13902字节)
 
 ### 当前状态
 - ✅ 已移动到main/workers目录
 - ✅ 已使用QRunnable实现
-- ⚠️ 文件大小仍然较大，工作流逻辑与具体实现仍有混合
-- ⚠️ 错误处理需要进一步完善
+- ✅ 文件大小已从14831字节减少到13902字节
+- ✅ 工作流逻辑与具体实现已部分分离
+- ✅ 错误处理机制已基本完善
+- ✅ 与主线程的耦合已减少
 
 ### 问题分析
-- 工作流逻辑与具体实现混合
-- 错误处理分散在各个步骤中
-- 缺少清晰的职责划分
+- 工作流逻辑与具体实现仍需进一步分离
+- 任务拆分可以更细粒度
 
 ### 拆分建议
 
@@ -269,12 +271,13 @@ scripts/
 - ✅ 已创建exception_type.py，定义了BatteryAnalysisException和BuildException
 - ❌ 缺少专门的error_handler.py
 - ❌ 缺少统一的logger.py
-- ⚠️ 日志格式不统一，错误处理分散
+- ⚠️ 日志格式基本统一，但错误处理仍有分散
+- ✅ 部分模块已开始使用自定义异常
 
 ### 问题分析
-- 错误处理分散在各个模块中
-- 日志记录格式不统一
-- 缺少集中式异常管理
+- 错误处理仍分散在各个模块中
+- 缺少集中式异常管理和日志记录
+- 缺少专门的错误处理器和日志管理器
 
 ### 解决方案
 
@@ -378,19 +381,21 @@ utils/
 
 | 模块 | 当前大小 | 重构状态 | 优先级 |
 |------|----------|----------|--------|
-| main_window.py | 104906字节 | 部分重构 | 高 |
+| main_window.py | 91700字节 | 部分重构 | 高 |
 | file_writer.py | 89692字节 | 未重构 | 高 |
 | battery_analysis.py | 30595字节 | 未重构 | 中 |
 | image_show.py | 46876字节 | 未重构 | 中 |
-| analysis_worker.py | 14831字节 | 部分重构 | 中 |
+| analysis_worker.py | 13902字节 | 已完成 | 中 |
 | build.py | 未知 | 部分重构 | 低 |
 | 统一错误处理 | 部分实现 | 部分重构 | 中 |
+| ui_controller.py | 已实现 | 已完成 | 高 |
 
 ## 下一步行动
 
-1. 开始重构file_writer.py，拆分不同文件格式的写入逻辑
+1. 开始重构file_writer.py，拆分不同文件格式的写入逻辑到独立模块
 2. 完善统一错误处理机制，创建logger.py和error_handler.py
-3. 继续优化main_window.py，进一步剥离业务逻辑
+3. 继续优化main_window.py，进一步剥离剩余的业务逻辑
 4. 开始重构battery_analysis.py，提取嵌套函数为独立模块
+5. 考虑启动image_show.py的重构计划，分离UI和图像处理逻辑
 
-每个重构阶段完成后，进行全面测试，确保应用程序功能正常运行。
+每个重构阶段完成后，进行全面测试，确保应用程序功能正常运行。同时，保持文档的更新，记录重构过程中的重要变更和决策。
