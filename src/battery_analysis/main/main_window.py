@@ -39,6 +39,7 @@ from battery_analysis.utils.config_utils import find_config_file
 from battery_analysis.main.controllers.main_controller import MainController
 from battery_analysis.main.controllers.file_controller import FileController
 from battery_analysis.main.controllers.validation_controller import ValidationController
+from battery_analysis.main.controllers.ui_controller import UiController
 # 导入资源文件
 from battery_analysis.resources import resources_rc
 
@@ -141,6 +142,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.main_controller = MainController()
         self.file_controller = FileController()
         self.validation_controller = ValidationController()
+        self.ui_controller = UiController(self)
         
         # 进度条相关属性
         self.progress_dialog = None
@@ -269,12 +271,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             progress: 进度值
             status_text: 状态文本
         """
-        # 更新嵌入式进度条
-        if hasattr(self, 'progressBar'):
-            self.progressBar.setValue(progress)
-        # 更新状态栏信息
-        if hasattr(self, 'statusBar_BatteryAnalysis'):
-            self.statusBar_BatteryAnalysis.showMessage(f"状态: {status_text}")
+        # 使用UI控制器更新进度
+        self.ui_controller.update_progress(progress, status_text)
         
         # 检查是否需要显示弹出式进度条
         if self.progress_start_time is not None:
@@ -339,216 +337,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if self.b_has_config:
             self.statusBar_BatteryAnalysis.showMessage("status:ok")
             
-            self.init_lineedit()
-            self.init_combobox()
-            self.init_table()
+            # 使用UI控制器初始化UI元素
+            self.ui_controller.init_ui_elements()
+            
+            # 连接UI信号和槽
             self.connect_widget()
+            
+            # 加载用户设置
+            self.ui_controller.load_user_settings()
             
             self.pushButton_Run.setFocus()
         else:
             # @todo: Add error popup windows here
             pass
-
-    def init_lineedit(self) -> None:
-        # input limit, only numbers allowed
-        reg = QC.QRegularExpression(r"^\d*$")
-        validator = QG.QRegularExpressionValidator(self)
-        validator.setRegularExpression(reg)
-        # self.lineEdit_BatchDateCode.setValidator(validator)
-        self.lineEdit_SamplesQty.setValidator(validator)
-        # self.lineEdit_Temperature.setValidator(validator)
-        self.lineEdit_DatasheetNominalCapacity.setValidator(validator)
-        self.lineEdit_CalculationNominalCapacity.setValidator(validator)
-        self.lineEdit_RequiredUseableCapacity.setValidator(validator)
-        # QSpinBox不需要设置文本验证器，因为它有内置的范围限制
-
-        # 增强版本号验证，支持x.y.z格式
-        reg = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
-        validator = QG.QRegularExpressionValidator(self)
-        validator.setRegularExpression(reg)
-        self.lineEdit_Version.setValidator(validator)
-        # 添加版本号实时验证
-        self.lineEdit_Version.textChanged.connect(self.validate_version)
-
-        # 为输入路径添加存在性验证
-        self.lineEdit_InputPath.textChanged.connect(self.validate_input_path)
-        
-        # 为必填字段添加非空验证
-        required_fields = [
-            self.lineEdit_SamplesQty,
-            self.lineEdit_DatasheetNominalCapacity,
-            self.lineEdit_CalculationNominalCapacity,
-            self.lineEdit_RequiredUseableCapacity
-        ]
-        for field in required_fields:
-            field.textChanged.connect(self.validate_required_fields)
-
-        self.lineEdit_TestProfile.setText("Not provided")
-        self.lineEdit_Temperature.setText("Room Temperature")
-
-    def _load_user_settings(self) -> None:
-        """加载用户配置文件中的设置"""
-        try:
-            user_config_path = os.path.join(os.path.dirname(self.config_path), "user_settings.ini") if self.b_has_config else None
-            
-            if user_config_path and os.path.exists(user_config_path):
-                # 创建用户配置QSettings实例
-                user_settings = QC.QSettings(user_config_path, QC.QSettings.Format.IniFormat)
-                
-                # 加载电池类型相关设置
-                battery_type = user_settings.value("UserConfig/BatteryType")
-                if battery_type:
-                    index = self.comboBox_BatteryType.findText(battery_type)
-                    if index >= 0:
-                        self.comboBox_BatteryType.setCurrentIndex(index)
-                
-                construction_method = user_settings.value("UserConfig/ConstructionMethod")
-                if construction_method:
-                    index = self.comboBox_ConstructionMethod.findText(construction_method)
-                    if index >= 0:
-                        self.comboBox_ConstructionMethod.setCurrentIndex(index)
-                
-                specification_type = user_settings.value("UserConfig/SpecificationType")
-                if specification_type:
-                    index = self.comboBox_Specification_Type.findText(specification_type)
-                    if index >= 0:
-                        self.comboBox_Specification_Type.setCurrentIndex(index)
-                
-                specification_method = user_settings.value("UserConfig/SpecificationMethod")
-                if specification_method:
-                    index = self.comboBox_Specification_Method.findText(specification_method)
-                    if index >= 0:
-                        self.comboBox_Specification_Method.setCurrentIndex(index)
-                
-                manufacturer = user_settings.value("UserConfig/Manufacturer")
-                if manufacturer:
-                    index = self.comboBox_Manufacturer.findText(manufacturer)
-                    if index >= 0:
-                        self.comboBox_Manufacturer.setCurrentIndex(index)
-                
-                tester_location = user_settings.value("UserConfig/TesterLocation")
-                if tester_location:
-                    index = self.comboBox_TesterLocation.findText(tester_location)
-                    if index >= 0:
-                        self.comboBox_TesterLocation.setCurrentIndex(index)
-                
-                tested_by = user_settings.value("UserConfig/TestedBy")
-                if tested_by:
-                    index = self.comboBox_TestedBy.findText(tested_by)
-                    if index >= 0:
-                        self.comboBox_TestedBy.setCurrentIndex(index)
-                
-                # 加载温度设置
-                temperature = user_settings.value("UserConfig/Temperature")
-                if temperature:
-                    self.lineEdit_Temperature.setText(temperature)
-                
-                # 加载输出路径设置
-                output_path = user_settings.value("UserConfig/OutputPath")
-                if output_path:
-                    self.lineEdit_OutputPath.setText(output_path)
-                    # 更新控制器的输出路径
-                    self.main_controller.set_project_context(output_path=output_path)
-        except Exception as e:
-            logging.error(f"加载用户设置失败: {e}")
-    
-    def init_combobox(self) -> None:
-        self.comboBox_BatteryType.addItems(self.get_config("BatteryConfig/BatteryType"))
-        self.comboBox_ConstructionMethod.addItems(self.get_config("BatteryConfig/ConstructionMethod"))
-        self.comboBox_Specification_Type.addItems(self.get_config("BatteryConfig/SpecificationTypeCoinCell"))
-        self.comboBox_Specification_Type.addItems(self.get_config("BatteryConfig/SpecificationTypePouchCell"))
-        self.comboBox_Specification_Method.addItems(self.get_config("BatteryConfig/SpecificationMethod"))
-        self.comboBox_Manufacturer.addItems(self.get_config("BatteryConfig/Manufacturer"))
-        self.comboBox_TesterLocation.addItems(self.get_config("TestConfig/TesterLocation"))
-        self.comboBox_TestedBy.addItems(self.get_config("TestConfig/TestedBy"))
-
-        self.comboBox_BatteryType.setCurrentIndex(-1)
-        self.comboBox_ConstructionMethod.setCurrentIndex(-1)
-        self.comboBox_Specification_Type.setCurrentIndex(-1)
-        self.comboBox_Specification_Method.setCurrentIndex(-1)
-        self.comboBox_Manufacturer.setCurrentIndex(-1)
-        self.comboBox_TesterLocation.setCurrentIndex(-1)
-        self.comboBox_TestedBy.setCurrentIndex(-1)
-
-        self.comboBox_ConstructionMethod.setEnabled(False)
-        
-        # 加载用户配置的设置
-        self._load_user_settings()
-
-    def init_table(self) -> None:
-        # 不再硬编码DataProcessingPlatforms的值，而是从配置文件中读取
-        # 这样用户的手动修改才能持久化
-        # 移除固定列宽设置，改为在resizeEvent中按比例分配
-        # 确保表格的最后一列自动拉伸
-        self.tableWidget_TestInformation.horizontalHeader().setStretchLastSection(True)
-        
-        # 暂时断开cellChanged信号的连接，避免在初始化时触发保存操作
-        try:
-            self.tableWidget_TestInformation.cellChanged.disconnect()
-        except TypeError:
-            # 忽略TypeError异常，因为信号可能还没有被连接
-            pass
-
-        def set_span_item(item_text: str, row: int, col: int, 
-                          row_span: int = 1, col_span: int = 1, 
-                          editable: bool = False) -> None:
-            # 只有当跨度大于1时才调用setSpan，避免单个单元格跨度的警告
-            if row_span > 1 or col_span > 1:
-                self.tableWidget_TestInformation.setSpan(row, col, row_span, col_span)
-            
-            item = QW.QTableWidgetItem(item_text)
-            if not editable:
-                item.setFlags(QC.Qt.ItemFlag.ItemIsEnabled)
-                item.setBackground(QG.QBrush(QG.QColor(242, 242, 242)))
-            
-            self.tableWidget_TestInformation.setItem(row, col, item)
-
-        set_span_item("Test Equipment", 0, 0, 1, 2)
-        set_span_item("", 0, 2, editable=True)
-
-        set_span_item("Software Versions", 1, 0, 3, 1)
-        set_span_item("BTS Server Version", 1, 1)
-        set_span_item("BTS Client Version", 2, 1)
-        set_span_item("TSDA (Data Analysis) Version", 3, 1)
-        set_span_item("", 1, 2, editable=True)
-        set_span_item("", 2, 2, editable=True)
-        set_span_item("", 3, 2, editable=True)
-
-        set_span_item("Middle Machines", 4, 0, 5, 1)
-        set_span_item("Model", 4, 1)
-        set_span_item("Hardware Version", 5, 1)
-        set_span_item("Serial Number", 6, 1)
-        set_span_item("Firmware Version", 7, 1)
-        set_span_item("Device Type", 8, 1)
-        set_span_item("", 4, 2, editable=True)
-        set_span_item("", 5, 2, editable=True)
-        set_span_item("", 6, 2, editable=True)
-        set_span_item("", 7, 2, editable=True)
-        set_span_item("", 8, 2, editable=True)
-
-        set_span_item("Test Units", 9, 0, 3, 1)
-        set_span_item("Model", 9, 1)
-        set_span_item("Hardware Version", 10, 1)
-        set_span_item("Firmware Version", 11, 1)
-        set_span_item("", 9, 2, editable=True)
-        set_span_item("", 9, 3, editable=True)
-        set_span_item("", 10, 2, editable=True)
-        set_span_item("", 11, 2, editable=True)
-
-        # Data Processing Platforms 不写入setting.ini，默认跟随软件版本
-        from battery_analysis import __version__
-        set_span_item("Data Processing Platforms", 12, 0, 1, 2)
-        set_span_item(
-            f"Battery Analyzer-v{__version__}", 
-            12, 2, 
-            editable=False
-        )
-        set_span_item("Reported By", 13, 0, 1, 2)
-        set_span_item(
-            "", 
-            13, 2, 
-            editable=True
-        )
 
     def connect_widget(self) -> None:
         self.comboBox_BatteryType.currentIndexChanged.connect(self.check_batterytype)
@@ -1170,67 +971,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """切换状态栏的显示/隐藏状态"""
         self.statusBar_BatteryAnalysis.setVisible(self.actionShow_Statusbar.isChecked())
         
-    def validate_version(self) -> None:
-        """验证版本号格式并提供实时反馈"""
-        version_text = self.lineEdit_Version.text()
-        if version_text and not QC.QRegularExpression(r"^\d+(\.\d+){0,2}$").match(version_text).hasMatch():
-            self.statusBar_BatteryAnalysis.showMessage("[警告]: 版本号格式不正确，应为 x.y.z 格式")
-            # 设置错误样式
-            self.lineEdit_Version.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            # 重置样式
-            self.lineEdit_Version.setStyleSheet("")
-            # 如果所有验证都通过，显示正常状态
-            if self.checker_battery_type.b_check_pass:
-                self.statusBar_BatteryAnalysis.showMessage("status:ok")
-    
-    def validate_input_path(self) -> None:
-        """验证输入路径是否存在"""
-        path = self.lineEdit_InputPath.text()
-        if path and not os.path.exists(path):
-            self.statusBar_BatteryAnalysis.showMessage("[警告]: 输入路径不存在")
-            self.lineEdit_InputPath.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_InputPath.setStyleSheet("")
-            # 如果所有验证都通过，显示正常状态
-            if self.checker_battery_type.b_check_pass:
-                self.statusBar_BatteryAnalysis.showMessage("status:ok")
-    
-    def validate_required_fields(self) -> None:
-        """验证必填字段是否为空"""
-        empty_fields = []
-        
-        if not self.lineEdit_SamplesQty.text():
-            empty_fields.append("样品数量")
-            self.lineEdit_SamplesQty.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_SamplesQty.setStyleSheet("")
-            
-        if not self.lineEdit_DatasheetNominalCapacity.text():
-            empty_fields.append("标称容量")
-            self.lineEdit_DatasheetNominalCapacity.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_DatasheetNominalCapacity.setStyleSheet("")
-            
-        if not self.lineEdit_CalculationNominalCapacity.text():
-            empty_fields.append("计算容量")
-            self.lineEdit_CalculationNominalCapacity.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_CalculationNominalCapacity.setStyleSheet("")
-            
-        if not self.lineEdit_RequiredUseableCapacity.text():
-            empty_fields.append("可用容量")
-            self.lineEdit_RequiredUseableCapacity.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_RequiredUseableCapacity.setStyleSheet("")
-        
-        if empty_fields:
-            self.statusBar_BatteryAnalysis.showMessage(f"[警告]: 以下必填字段为空: {', '.join(empty_fields)}")
-        else:
-            # 如果所有验证都通过，显示正常状态
-            if self.checker_battery_type.b_check_pass:
-                self.statusBar_BatteryAnalysis.showMessage("status:ok")
-
     def check_batterytype(self) -> None:
         self.checker_battery_type.clear()
         if self.comboBox_BatteryType.currentText() == "Coin Cell":
