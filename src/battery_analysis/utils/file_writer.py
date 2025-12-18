@@ -477,30 +477,40 @@ class XlsxWordWriter:
         # wbResult and csv write fixed part
         if wsOverview is None:
             raise BatteryAnalysisException(f"{self.strResultXlsxPath} sheet[overview] creation failed")
-        wsOverview.write(0, 0, f"#BEGIN HEADER")
-        wsOverview.write(1, 0, f"#PULSE DISCHARGE")
-        wsOverview.write(2, 0, f"#BATTERY CHARACTERISTICS")
-        wsOverview.write(3, 0, f"#Start Time: {self.listBatteryInfo[2][0]}")
-        wsOverview.write(4, 0, f"#Start Time: {self.listBatteryInfo[2][1]}")
-        wsOverview.write(5, 0, f"#Battery Type: {self.listTestInfo[2]} {self.listTestInfo[3]}")
-        wsOverview.write(6, 0, f"#Battery Manufacturer: {self.listTestInfo[4]}")
-        wsOverview.write(7, 0, f"#Battery Date Code: {self.listTestInfo[5]}")
-        wsOverview.write(8, 0, f"#Temperature: {self.listTestInfo[6]}")
-        wsOverview.write(9, 0, f"#Test Profile: {self.listTestInfo[13]}")
-        wsOverview.write(10, 0, f"#Version: V1.0")
-        wsOverview.write(11, 0, f"#END HEADER")
-        csv_buffer_size = csv_utils.csv_write(f"#BEGIN HEADER", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#PULSE DISCHARGE", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#BATTERY CHARACTERISTICS", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#Start Time: {self.listBatteryInfo[2][0]}", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#End Time: {self.listBatteryInfo[2][1]}", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#Battery Type: {self.listTestInfo[2]} {self.listTestInfo[3]}", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#Battery Manufacturer: {self.listTestInfo[4]}", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#Battery Date Code: {self.listTestInfo[5]}", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#Temperature: {self.listTestInfo[6]}", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#Test Profile: {self.listTestInfo[13]}", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#Version: V1.0", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
-        csv_buffer_size = csv_utils.csv_write(f"#END HEADER", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+        # Write header information
+        header_info = [
+            f"#BEGIN HEADER",
+            f"#PULSE DISCHARGE",
+            f"#BATTERY CHARACTERISTICS",
+            f"#Start Time: {self.listBatteryInfo[2][0]}",
+            f"#Start Time: {self.listBatteryInfo[2][1]}",
+            f"#Battery Type: {self.listTestInfo[2]} {self.listTestInfo[3]}",
+            f"#Battery Manufacturer: {self.listTestInfo[4]}",
+            f"#Battery Date Code: {self.listTestInfo[5]}",
+            f"#Temperature: {self.listTestInfo[6]}",
+            f"#Test Profile: {self.listTestInfo[13]}",
+            f"#Version: V1.0",
+            f"#END HEADER"
+        ]
+        for i, info in enumerate(header_info):
+            wsOverview.write(i, 0, info)
+        # Write CSV header information
+        csv_header_info = [
+            f"#BEGIN HEADER",
+            f"#PULSE DISCHARGE",
+            f"#BATTERY CHARACTERISTICS",
+            f"#Start Time: {self.listBatteryInfo[2][0]}",
+            f"#End Time: {self.listBatteryInfo[2][1]}",
+            f"#Battery Type: {self.listTestInfo[2]} {self.listTestInfo[3]}",
+            f"#Battery Manufacturer: {self.listTestInfo[4]}",
+            f"#Battery Date Code: {self.listTestInfo[5]}",
+            f"#Temperature: {self.listTestInfo[6]}",
+            f"#Test Profile: {self.listTestInfo[13]}",
+            f"#Version: V1.0",
+            f"#END HEADER"
+        ]
+        for info in csv_header_info:
+            csv_buffer_size = csv_utils.csv_write(info, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
 
         if wsResult is None:
             raise BatteryAnalysisException(f"{self.strResultXlsxPath} sheet[result] creation failed")
@@ -551,17 +561,24 @@ class XlsxWordWriter:
                 cell.paragraphs[0].paragraph_format.alignment = WD_TABLE_ALIGNMENT.CENTER
                 cell.paragraphs[0].paragraph_format.line_spacing_rules = WD_LINE_SPACING.SINGLE
                 cell.paragraphs[0].paragraph_format.space_after = Pt(0)
-        tableVersionHistory.cell(0, 0).paragraphs[0].add_run("Date").font.size = Pt(10)
-        tableVersionHistory.cell(0, 1).paragraphs[0].add_run("Version").font.size = Pt(10)
-        tableVersionHistory.cell(0, 2).paragraphs[0].add_run("Editor").font.size = Pt(10)
-        tableVersionHistory.cell(0, 3).paragraphs[0].add_run("Changes").font.size = Pt(10)
-        tableVersionHistory.cell(1, 1).paragraphs[0].add_run("1.0").font.size = Pt(10)
-        tableVersionHistory.cell(1, 3).paragraphs[0].add_run("Initial version").font.size = Pt(10)
-        text = tableVersionHistory.cell(1, 0).paragraphs[0].add_run(datetime.datetime.now().strftime("%Y.%m.%d"))
-        text.font.size = Pt(10)
-        text.font.bold = False
-        strReportedBy = self.listTestInfo[18] if len(self.listTestInfo) > 18 else ""
-        tableVersionHistory.cell(1, 2).paragraphs[0].add_run(f"{strReportedBy}").font.size = Pt(10)
+        # Set tableVersionHistory headers
+        headers = ["Date", "Version", "Editor", "Changes"]
+        for j, header in enumerate(headers):
+            tableVersionHistory.cell(0, j).paragraphs[0].add_run(header).font.size = Pt(10)
+        
+        # Set tableVersionHistory data
+        version_data = [
+            (0, datetime.datetime.now().strftime("%Y.%m.%d"), {"bold": False}),
+            (1, "1.0", {}),
+            (2, self.listTestInfo[18] if len(self.listTestInfo) > 18 else "", {}),
+            (3, "Initial version", {})
+        ]
+        
+        for col, content, properties in version_data:
+            text = tableVersionHistory.cell(1, col).paragraphs[0].add_run(content)
+            text.font.size = Pt(10)
+            for prop, value in properties.items():
+                setattr(text, prop, value)
 
         # wdReport write table Test Information
         tableTestInformation = wdReport.add_table(5, 2, style='Table Grid')
@@ -573,39 +590,37 @@ class XlsxWordWriter:
                 cell.paragraphs[0].paragraph_format.alignment = WD_TABLE_ALIGNMENT.LEFT
                 cell.paragraphs[0].paragraph_format.line_spacing_rules = WD_LINE_SPACING.SINGLE
                 cell.paragraphs[0].paragraph_format.space_after = Pt(0)
-        tableTestInformation.cell(0, 0).paragraphs[0].add_run("Test Equipment").font.size = Pt(10)
-        tableTestInformation.cell(1, 0).paragraphs[0].add_run("Software Versions").font.size = Pt(10)
-        tableTestInformation.cell(2, 0).paragraphs[0].add_run("Middle Machines").font.size = Pt(10)
-        tableTestInformation.cell(3, 0).paragraphs[0].add_run("Test Units").font.size = Pt(10)
-        tableTestInformation.cell(4, 0).paragraphs[0].add_run("Data Processing Platforms").font.size = Pt(10)
+        # Set tableTestInformation first column headers
+        test_info_headers = [
+            "Test Equipment",
+            "Software Versions",
+            "Middle Machines",
+            "Test Units",
+            "Data Processing Platforms"
+        ]
+        for r, header in enumerate(test_info_headers):
+            tableTestInformation.cell(r, 0).paragraphs[0].add_run(header).font.size = Pt(10)
 
-        strItemTestEquipment = word_utils.get_item(self.config, "TestInformation", "TestEquipment")
-        tableTestInformation.cell(0, 1).paragraphs[0].add_run(f"{strItemTestEquipment}").font.size = Pt(10)
-        strItemSoftwareVersionsBTSServerVersion = word_utils.get_item(self.config, "TestInformation", "SoftwareVersions.BTSServerVersion")
-        strItemSoftwareVersionsBTSClientVersion = word_utils.get_item(self.config, "TestInformation", "SoftwareVersions.BTSClientVersion")
-        strItemSoftwareVersionsTSDAVersion = word_utils.get_item(self.config, "TestInformation", "SoftwareVersions.BTSDAVersion")
-        tableTestInformation.cell(1, 1).paragraphs[0].add_run(f"BTS Server Version: {strItemSoftwareVersionsBTSServerVersion}\n"
-                                                              f"BTS Client Version: {strItemSoftwareVersionsBTSClientVersion}\n"
-                                                              f"BTSDA (Data Analysis) Version: {strItemSoftwareVersionsTSDAVersion}").font.size = Pt(10)
-        strItemMiddleMachinesModel = word_utils.get_item(self.config, "TestInformation", "MiddleMachines.Model", 6)
-        strItemMiddleMachinesHardwareVersion = word_utils.get_item(self.config, "TestInformation", "MiddleMachines.HardwareVersion", 14)
-        strItemMiddleMachinesSerialNumber = word_utils.get_item(self.config, "TestInformation", "MiddleMachines.SerialNumber", 12)
-        strItemMiddleMachinesFirmwareVersion = word_utils.get_item(self.config, "TestInformation", "MiddleMachines.FirmwareVersion", 14)
-        strItemMiddleMachinesDeviceType = word_utils.get_item(self.config, "TestInformation", "MiddleMachines.DeviceType", 10)
-        tableTestInformation.cell(2, 1).paragraphs[0].add_run(f"Model: {strItemMiddleMachinesModel}\n"
-                                                              f"Hardware Version: {strItemMiddleMachinesHardwareVersion}\n"
-                                                              f"Serial Number: {strItemMiddleMachinesSerialNumber}\n"
-                                                              f"Firmware Version: {strItemMiddleMachinesFirmwareVersion}\n"
-                                                              f"Device Type: {strItemMiddleMachinesDeviceType}").font.size = Pt(10)
-        strItemTestUnitsModel = word_utils.get_item(self.config, "TestInformation", "TestUnits.Model", 6)
-        strItemTestUnitsHardwareVersion = word_utils.get_item(self.config, "TestInformation", "TestUnits.HardwareVersion", 14)
-        strItemTestUnitsFirmwareVersion = word_utils.get_item(self.config, "TestInformation", "TestUnits.FirmwareVersion", 14)
-        tableTestInformation.cell(3, 1).paragraphs[0].add_run(f"Model: {strItemTestUnitsModel}\n"
-                                                              f"Hardware Version: {strItemTestUnitsHardwareVersion}\n"
-                                                              f"Firmware Version: {strItemTestUnitsFirmwareVersion}").font.size = Pt(10)
-        # Data Processing Platforms 跟随软件版本，不再从配置文件读取
-        strItemDataProcessingPlatforms = f"Battery Analyzer-v{__version__}"
-        tableTestInformation.cell(4, 1).paragraphs[0].add_run(f"{strItemDataProcessingPlatforms}").font.size = Pt(10)
+        # Set tableTestInformation data using functions to reduce repetition
+        test_info_data = []
+        test_info_data.append((0, lambda: word_utils.get_item(self.config, "TestInformation", "TestEquipment")))
+        test_info_data.append((1, lambda: f"BTS Server Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSServerVersion')}\n"\
+                                            f"BTS Client Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSClientVersion')}\n"\
+                                            f"BTSDA (Data Analysis) Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSDAVersion')}"))
+        test_info_data.append((2, lambda: f"Model: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.Model', 6)}\n"\
+                                            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.HardwareVersion', 14)}\n"\
+                                            f"Serial Number: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.SerialNumber', 12)}\n"\
+                                            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.FirmwareVersion', 14)}\n"\
+                                            f"Device Type: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.DeviceType', 10)}"))
+        test_info_data.append((3, lambda: f"Model: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.Model', 6)}\n"\
+                                            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.HardwareVersion', 14)}\n"\
+                                            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.FirmwareVersion', 14)}"))
+        test_info_data.append((4, lambda: f"Battery Analyzer-v{__version__}"))  # Data Processing Platforms
+        
+        # Process all test info data using a loop
+        for row, content_func in test_info_data:
+            content = content_func()
+            tableTestInformation.cell(row, 1).paragraphs[0].add_run(f"{content}").font.size = Pt(10)
 
         # wbResult and csv write analytical battery statistic
         for b in range(self.intBatteryNum):
@@ -883,29 +898,22 @@ class XlsxWordWriter:
             strRemarks  # 19
         ]
 
-        wsExcel.merge_range(0, 0, 1, 0, listStrItems[0], wsExcelLine)
-        wsExcel.merge_range(0, 1, 1, 1, listStrItems[1], wsExcelLine)
-        wsExcel.merge_range(0, 2, 1, 2, listStrItems[2], wsExcelLine)
-        wsExcel.merge_range(0, 3, 1, 3, listStrItems[3], wsExcelLine)
+        # First 4 items
+        for i in range(4):
+            wsExcel.merge_range(0, i, 1, i, listStrItems[i], wsExcelLine)
         if intTestProfileStartLine == 4:
             wsExcel.merge_range(0, intTestProfileStartLine, 1, intTestProfileStartLine, "", wsExcelLine)
         wsExcel.write(0, intTestProfileStartLine, listStrItems[4], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 1, 1, intTestProfileStartLine + 1, listStrItems[5], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 2, 1, intTestProfileStartLine + 2, listStrItems[6], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 3, 1, intTestProfileStartLine + 3, listStrItems[7], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 4, 1, intTestProfileStartLine + 4, listStrItems[8], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 5, 1, intTestProfileStartLine + 5, listStrItems[9], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 6, 1, intTestProfileStartLine + 6, listStrItems[10], wsExcelLine)
+        # Items 5-10
+        for i in range(5, 11):
+            wsExcel.merge_range(0, intTestProfileStartLine + (i - 4), 1, intTestProfileStartLine + (i - 4), listStrItems[i], wsExcelLine)
         wsExcel.merge_range(0, intTestProfileStartLine + 7, 1, intTestProfileStartLine + 8, listStrItems[11], wsExcelLine)
         wsExcel.merge_range(0, intTestProfileStartLine + 9, 0, intTestDateStartCol - 1, listStrItems[13], wsExcelLine)
         for v in range(self.intVoltageLevelNum):
             wsExcel.merge_range(1, intTestProfileStartLine + 9 + v * 2, 1, intTestProfileStartLine + 9 + v * 2 + 1, f"{self.listVoltageLevel[v]}V", wsExcelLine)
-        wsExcel.merge_range(0, intTestDateStartCol, 1, intTestDateStartCol, listStrItems[14], wsExcelLine)
-        wsExcel.merge_range(0, intTestDateStartCol + 1, 1, intTestDateStartCol + 1, listStrItems[15], wsExcelLine)
-        wsExcel.merge_range(0, intTestDateStartCol + 2, 1, intTestDateStartCol + 2, listStrItems[16], wsExcelLine)
-        wsExcel.merge_range(0, intTestDateStartCol + 3, 1, intTestDateStartCol + 3, listStrItems[17], wsExcelLine)
-        wsExcel.merge_range(0, intTestDateStartCol + 4, 1, intTestDateStartCol + 4, listStrItems[18], wsExcelLine)
-        wsExcel.merge_range(0, intTestDateStartCol + 5, 1, intTestDateStartCol + 5, listStrItems[19], wsExcelLine)
+        # Date columns (items 14-19)
+        for i in range(14, 20):
+            wsExcel.merge_range(0, intTestDateStartCol + (i - 14), 1, intTestDateStartCol + (i - 14), listStrItems[i], wsExcelLine)
 
         wsExcel.write(2, 0, listStrContent[0], wsExcelData)
         wsExcel.write(2, 1, listStrContent[1], wsExcelData)
@@ -921,14 +929,9 @@ class XlsxWordWriter:
             # 添加file://前缀
             file_url = f'file:///{url_path}'
             wsExcel.write_url(2, intTestProfileStartLine, file_url, wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
-        wsExcel.write(2, intTestProfileStartLine + 1, listStrContent[5], wsExcelData)
-        wsExcel.write(2, intTestProfileStartLine + 2, listStrContent[6], wsExcelData)
-        wsExcel.write(2, intTestProfileStartLine + 3, listStrContent[7], wsExcelData)
-        wsExcel.write(2, intTestProfileStartLine + 4, listStrContent[8], wsExcelData)
-        wsExcel.write(2, intTestProfileStartLine + 5, listStrContent[9], wsExcelData)
-        wsExcel.write(2, intTestProfileStartLine + 6, listStrContent[10], wsExcelData)
-        wsExcel.write(2, intTestProfileStartLine + 7, listStrContent[11], wsExcelData)
-        wsExcel.write(2, intTestProfileStartLine + 8, listStrContent[12], wsExcelData)
+        # 使用循环代替重复的write调用
+        for i in range(5, 13):
+            wsExcel.write(2, intTestProfileStartLine + (i - 4), listStrContent[i], wsExcelData)
 
         for v in range(self.intVoltageLevelNum):
             if v == intPosi2V25:
@@ -942,46 +945,41 @@ class XlsxWordWriter:
                                       f"=TRUNC({excel_utils.num2letter(intTestProfileStartLine + 9 + v * 2)}3/{excel_utils.num2letter(intTestProfileStartLine + 6)}3, 2)",
                                       wsExcelData_percentage)
 
-        wsExcel.write(2, intTestDateStartCol, listStrContent[14], wsExcelData)
-        wsExcel.write(2, intTestDateStartCol + 1, listStrContent[15], wsExcelData)
-        wsExcel.write(2, intTestDateStartCol + 2, listStrContent[16], wsExcelData)
-        wsExcel.write(2, intTestDateStartCol + 3, listStrContent[17], wsExcelData_bgyellow)
-        # 将相对路径转换为file:// URL格式
+        # 使用循环处理常规write调用
+        for i, col_offset in enumerate([0, 1, 2, 3, 5]):
+            # 跳过索引4，因为它是特殊的hyperlink情况
+            content_index = 14 + i
+            if col_offset == 3:
+                # listStrContent[17]使用特殊格式
+                wsExcel.write(2, intTestDateStartCol + col_offset, listStrContent[content_index], wsExcelData_bgyellow)
+            else:
+                wsExcel.write(2, intTestDateStartCol + col_offset, listStrContent[content_index], wsExcelData)
+        
+        # 特殊处理hyperlink情况(listStrContent[18])
         url_path = listStrContent[18]
         # 确保路径使用正斜杠
         url_path = url_path.replace('\\', '/')
         # 添加file://前缀
         file_url = f'file:///{url_path}'
         wsExcel.write_url(2, intTestDateStartCol + 4, file_url, wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
-        wsExcel.write(2, intTestDateStartCol + 5, listStrContent[19], wsExcelData)
 
         excel_utils.ws_set_col(wsWord, 0, 1, 30)
         excel_utils.ws_set_col(wsWord, 1, intActualMeasuredCapacityLength, 3)
-        wsWord.write(0, 0, listStrItems[0], wsWordLine)
-        wsWord.write(1, 0, listStrItems[1], wsWordLine)
-        wsWord.write(2, 0, listStrItems[2], wsWordLine)
-        wsWord.write(3, 0, listStrItems[3], wsWordLine)
-        wsWord.write(intTestProfileStartLine, 0, listStrItems[4], wsWordLine)
-        wsWord.write(intTestProfileStartLine + 1, 0, listStrItems[5], wsWordLine)
-        wsWord.write(intTestProfileStartLine + 2, 0, listStrItems[6], wsWordLine)
-        wsWord.write(intTestProfileStartLine + 3, 0, listStrItems[7], wsWordLine)
-        wsWord.write(intTestProfileStartLine + 4, 0, listStrItems[8], wsWordLine)
-        wsWord.write(intTestProfileStartLine + 5, 0, listStrItems[9], wsWordLine)
-        wsWord.write(intTestProfileStartLine + 6, 0, listStrItems[10], wsWordLine)
-        wsWord.write(intTestProfileStartLine + 7, 0, listStrItems[11], wsWordLine)
+        # 使用循环处理wsWord.write调用
+        for i in range(4):
+            wsWord.write(i, 0, listStrItems[i], wsWordLine)
+        
+        for i in range(4, 12):
+            wsWord.write(intTestProfileStartLine + (i - 4), 0, listStrItems[i], wsWordLine)
         wsWord.merge_range(intTestProfileStartLine + 8, 0, intTestProfileStartLine + 10, 0, listStrItems[13], wsWordLine)
         intTestDateStartRow = intTestProfileStartLine + 11
-        wsWord.write(intTestDateStartRow, 0, listStrItems[14], wsWordLine)
-        wsWord.write(intTestDateStartRow + 1, 0, listStrItems[15], wsWordLine)
-        wsWord.write(intTestDateStartRow + 2, 0, listStrItems[16], wsWordLine)
-        wsWord.write(intTestDateStartRow + 3, 0, listStrItems[17], wsWordLine)
-        wsWord.write(intTestDateStartRow + 4, 0, listStrItems[18], wsWordLine)
-        wsWord.write(intTestDateStartRow + 5, 0, listStrItems[19], wsWordLine)
+        # 使用循环处理wsWord.write调用
+        for i in range(6):
+            wsWord.write(intTestDateStartRow + i, 0, listStrItems[14 + i], wsWordLine)
 
-        wsWord.merge_range(0, 1, 0, intActualMeasuredCapacityLength, listStrContent[0], wsWordData)
-        wsWord.merge_range(1, 1, 1, intActualMeasuredCapacityLength, listStrContent[1], wsWordData)
-        wsWord.merge_range(2, 1, 2, intActualMeasuredCapacityLength, listStrContent[2], wsWordData)
-        wsWord.merge_range(3, 1, 3, intActualMeasuredCapacityLength, listStrContent[3], wsWordData)
+        # 使用循环处理wsWord.merge_range调用
+        for i in range(4):
+            wsWord.merge_range(i, 1, i, intActualMeasuredCapacityLength, listStrContent[i], wsWordData)
         if intTestProfileStartLine == 4:
             wsWord.merge_range(intTestProfileStartLine, 1, intTestProfileStartLine, intActualMeasuredCapacityLength, "", wsWordData)
         if len(listStrContent[4].split("\\")) == 1:
@@ -994,12 +992,9 @@ class XlsxWordWriter:
             # 添加file://前缀
             file_url = f'file:///{url_path}'
             wsWord.write_url(intTestProfileStartLine, 1, file_url, wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
-        wsWord.merge_range(intTestProfileStartLine + 1, 1, intTestProfileStartLine + 1, intActualMeasuredCapacityLength, listStrContent[5], wsWordData)
-        wsWord.merge_range(intTestProfileStartLine + 2, 1, intTestProfileStartLine + 2, intActualMeasuredCapacityLength, listStrContent[6], wsWordData)
-        wsWord.merge_range(intTestProfileStartLine + 3, 1, intTestProfileStartLine + 3, intActualMeasuredCapacityLength, listStrContent[7], wsWordData)
-        wsWord.merge_range(intTestProfileStartLine + 4, 1, intTestProfileStartLine + 4, intActualMeasuredCapacityLength, listStrContent[8], wsWordData)
-        wsWord.merge_range(intTestProfileStartLine + 5, 1, intTestProfileStartLine + 5, intActualMeasuredCapacityLength, listStrContent[9], wsWordData)
-        wsWord.merge_range(intTestProfileStartLine + 6, 1, intTestProfileStartLine + 6, intActualMeasuredCapacityLength, listStrContent[10], wsWordData)
+        # 使用循环处理wsWord.merge_range调用
+        for i in range(5, 11):
+            wsWord.merge_range(intTestProfileStartLine + (i - 4), 1, intTestProfileStartLine + (i - 4), intActualMeasuredCapacityLength, listStrContent[i], wsWordData)
         wsWord.merge_range(intTestProfileStartLine + 7, 1, intTestProfileStartLine + 7, int(intActualMeasuredCapacityLength / 2), listStrContent[11], wsWordData)
         wsWord.merge_range(intTestProfileStartLine + 7, int(intActualMeasuredCapacityLength / 2) + 1, intTestProfileStartLine + 7, intActualMeasuredCapacityLength, listStrContent[12], wsWordData)
         for v in range(self.intVoltageLevelNum):
@@ -1074,32 +1069,23 @@ class XlsxWordWriter:
         cell2 = tableOverview.cell(intTestProfileStartLine + 10, 0)
         cell1.merge(cell2)
 
-        tableOverview.cell(0, 0).paragraphs[0].add_run(listStrItems[0])
-        tableOverview.cell(1, 0).paragraphs[0].add_run(listStrItems[1])
-        tableOverview.cell(2, 0).paragraphs[0].add_run(listStrItems[2])
-        tableOverview.cell(3, 0).paragraphs[0].add_run(listStrItems[3])
+        # 使用循环优化重复代码
+        for i in range(4):
+            tableOverview.cell(i, 0).paragraphs[0].add_run(listStrItems[i])
         if intTestProfileStartLine == 4:
             tableOverview.cell(3, 0).paragraphs[0].text = tableOverview.cell(3, 0).paragraphs[0].text.replace(listStrItems[3], "")
-        tableOverview.cell(intTestProfileStartLine, 0).paragraphs[0].add_run(listStrItems[4])
-        tableOverview.cell(intTestProfileStartLine + 1, 0).paragraphs[0].add_run(listStrItems[5])
-        tableOverview.cell(intTestProfileStartLine + 2, 0).paragraphs[0].add_run(listStrItems[6])
-        tableOverview.cell(intTestProfileStartLine + 3, 0).paragraphs[0].add_run(listStrItems[7])
-        tableOverview.cell(intTestProfileStartLine + 4, 0).paragraphs[0].add_run(listStrItems[8])
-        tableOverview.cell(intTestProfileStartLine + 5, 0).paragraphs[0].add_run(listStrItems[9])
-        tableOverview.cell(intTestProfileStartLine + 6, 0).paragraphs[0].add_run(listStrItems[10])
-        tableOverview.cell(intTestProfileStartLine + 7, 0).paragraphs[0].add_run(listStrItems[11])
+        # 使用循环优化重复代码，注意跳过索引12
+        for i in range(4, 12):
+            tableOverview.cell(intTestProfileStartLine + (i - 4), 0).paragraphs[0].add_run(listStrItems[i])
+        # 处理跳过索引12的情况
         tableOverview.cell(intTestProfileStartLine + 8, 0).paragraphs[0].add_run(listStrItems[13])
-        tableOverview.cell(intTestDateStartRow, 0).paragraphs[0].add_run(listStrItems[14])
-        tableOverview.cell(intTestDateStartRow + 1, 0).paragraphs[0].add_run(listStrItems[15])
-        tableOverview.cell(intTestDateStartRow + 2, 0).paragraphs[0].add_run(listStrItems[16])
-        tableOverview.cell(intTestDateStartRow + 3, 0).paragraphs[0].add_run(listStrItems[17])
-        tableOverview.cell(intTestDateStartRow + 4, 0).paragraphs[0].add_run(listStrItems[18])
-        tableOverview.cell(intTestDateStartRow + 5, 0).paragraphs[0].add_run(listStrItems[19])
+        # 使用循环优化重复代码
+        for i in range(14, 20):
+            tableOverview.cell(intTestDateStartRow + (i - 14), 0).paragraphs[0].add_run(listStrItems[i])
 
-        tableOverview.cell(0, 1).paragraphs[0].add_run(listStrContent[0])
-        tableOverview.cell(1, 1).paragraphs[0].add_run(listStrContent[1])
-        tableOverview.cell(2, 1).paragraphs[0].add_run(listStrContent[2])
-        tableOverview.cell(3, 1).paragraphs[0].add_run(listStrContent[3])
+        # 使用循环优化重复代码
+        for i in range(4):
+            tableOverview.cell(i, 1).paragraphs[0].add_run(listStrContent[i])
         if intTestProfileStartLine == 4:
             tableOverview.cell(3, 1).paragraphs[0].text = tableOverview.cell(3, 1).paragraphs[0].text.replace(listStrContent[3], "")
         tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].text = ""
@@ -1107,13 +1093,9 @@ class XlsxWordWriter:
             tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].add_run(listStrContent[4])
         else:
             word_utils.add_hyperlink(tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0], listStrContent[4], listStrContent[4].split("\\")[-1])
-        tableOverview.cell(intTestProfileStartLine + 1, 1).paragraphs[0].add_run(listStrContent[5])
-        tableOverview.cell(intTestProfileStartLine + 2, 1).paragraphs[0].add_run(listStrContent[6])
-        tableOverview.cell(intTestProfileStartLine + 3, 1).paragraphs[0].add_run(listStrContent[7])
-        tableOverview.cell(intTestProfileStartLine + 4, 1).paragraphs[0].add_run(listStrContent[8])
-        tableOverview.cell(intTestProfileStartLine + 5, 1).paragraphs[0].add_run(listStrContent[9])
-        tableOverview.cell(intTestProfileStartLine + 6, 1).paragraphs[0].add_run(listStrContent[10])
-        tableOverview.cell(intTestProfileStartLine + 7, 1).paragraphs[0].add_run(listStrContent[11])
+        # 使用循环优化重复代码
+        for i in range(5, 12):
+            tableOverview.cell(intTestProfileStartLine + (i - 4), 1).paragraphs[0].add_run(listStrContent[i])
         tableOverview.cell(intTestProfileStartLine + 7, 1 + self.intVoltageLevelNum).paragraphs[0].add_run(listStrContent[12])
         for v in range(self.intVoltageLevelNum):
             text1 = tableOverview.cell(intTestProfileStartLine + 8, 1 + v * 2).paragraphs[0].add_run(f"{self.listVoltageLevel[v]}V")
@@ -1123,13 +1105,14 @@ class XlsxWordWriter:
                 text1.font.bold = True
                 text2.font.bold = True
                 text3.font.bold = True
-        tableOverview.cell(intTestDateStartRow, 1).paragraphs[0].add_run(listStrContent[14])
-        tableOverview.cell(intTestDateStartRow + 1, 1).paragraphs[0].add_run(listStrContent[15])
-        tableOverview.cell(intTestDateStartRow + 2, 1).paragraphs[0].add_run(listStrContent[16])
-        tableOverview.cell(intTestDateStartRow + 3, 1).paragraphs[0].add_run(listStrContent[17])
-        tableOverview.cell(intTestDateStartRow + 4, 1).paragraphs[0].text = ""
-        word_utils.add_hyperlink(tableOverview.cell(intTestDateStartRow + 4, 1).paragraphs[0], listStrContent[18], listStrContent[18].split("\\")[-1])
-        tableOverview.cell(intTestDateStartRow + 5, 1).paragraphs[0].add_run(listStrContent[19])
+        # 使用循环优化重复代码，注意处理索引18的特殊情况
+        for i in range(14, 20):
+            if i == 18:
+                # 特殊处理超链接
+                tableOverview.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0].text = ""
+                word_utils.add_hyperlink(tableOverview.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0], listStrContent[i], listStrContent[i].split("\\")[-1])
+            else:
+                tableOverview.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0].add_run(listStrContent[i])
 
         for row in range(intTestDateStartRow + 6):
             for col in range(1 + self.intVoltageLevelNum * 2):
