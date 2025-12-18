@@ -1102,8 +1102,9 @@ class XlsxWordWriter:
         tableOverview.cell(3, 1).paragraphs[0].add_run(listStrContent[3])
         if intTestProfileStartLine == 4:
             tableOverview.cell(3, 1).paragraphs[0].text = tableOverview.cell(3, 1).paragraphs[0].text.replace(listStrContent[3], "")
+        tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].text = ""
         if len(listStrContent[4].split("\\")) == 1:
-            tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].text = listStrContent[4]
+            tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].add_run(listStrContent[4])
         else:
             word_utils.add_hyperlink(tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0], listStrContent[4], listStrContent[4].split("\\")[-1])
         tableOverview.cell(intTestProfileStartLine + 1, 1).paragraphs[0].add_run(listStrContent[5])
@@ -1126,6 +1127,7 @@ class XlsxWordWriter:
         tableOverview.cell(intTestDateStartRow + 1, 1).paragraphs[0].add_run(listStrContent[15])
         tableOverview.cell(intTestDateStartRow + 2, 1).paragraphs[0].add_run(listStrContent[16])
         tableOverview.cell(intTestDateStartRow + 3, 1).paragraphs[0].add_run(listStrContent[17])
+        tableOverview.cell(intTestDateStartRow + 4, 1).paragraphs[0].text = ""
         word_utils.add_hyperlink(tableOverview.cell(intTestDateStartRow + 4, 1).paragraphs[0], listStrContent[18], listStrContent[18].split("\\")[-1])
         tableOverview.cell(intTestDateStartRow + 5, 1).paragraphs[0].add_run(listStrContent[19])
 

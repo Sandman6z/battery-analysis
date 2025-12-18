@@ -56,6 +56,24 @@ def add_hyperlink(_pParagraph, _strUrl: str, _strText: str):
     _rStyle.set(qn('w:val'), 'Hyperlink')
     _rPr.append(_rStyle)
     
+    # Set font color to blue (hex value for blue is 0000FF)
+    _color = OxmlElement('w:color')
+    _color.set(qn('w:val'), '0000FF')
+    _rPr.append(_color)
+    
+    # Set underline
+    _u = OxmlElement('w:u')
+    _u.set(qn('w:val'), 'single')
+    _rPr.append(_u)
+    
+    # Set font size to "小五" (9pt in Word, which is 18 in Word's XML)
+    _sz = OxmlElement('w:sz')
+    _sz.set(qn('w:val'), '18')
+    _szCs = OxmlElement('w:szCs')
+    _szCs.set(qn('w:val'), '18')
+    _rPr.append(_sz)
+    _rPr.append(_szCs)
+    
     # Add the rPr element to the run
     _run.append(_rPr)
     
