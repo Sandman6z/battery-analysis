@@ -1078,7 +1078,7 @@ class XlsxWordWriter:
         tableOverview.cell(1, 0).paragraphs[0].add_run(listStrItems[1])
         tableOverview.cell(2, 0).paragraphs[0].add_run(listStrItems[2])
         tableOverview.cell(3, 0).paragraphs[0].add_run(listStrItems[3])
-        if intTestProfileStartLine == 3:
+        if intTestProfileStartLine == 4:
             tableOverview.cell(3, 0).paragraphs[0].text = tableOverview.cell(3, 0).paragraphs[0].text.replace(listStrItems[3], "")
         tableOverview.cell(intTestProfileStartLine, 0).paragraphs[0].add_run(listStrItems[4])
         tableOverview.cell(intTestProfileStartLine + 1, 0).paragraphs[0].add_run(listStrItems[5])
@@ -1100,10 +1100,10 @@ class XlsxWordWriter:
         tableOverview.cell(1, 1).paragraphs[0].add_run(listStrContent[1])
         tableOverview.cell(2, 1).paragraphs[0].add_run(listStrContent[2])
         tableOverview.cell(3, 1).paragraphs[0].add_run(listStrContent[3])
-        if intTestProfileStartLine == 3:
+        if intTestProfileStartLine == 4:
             tableOverview.cell(3, 1).paragraphs[0].text = tableOverview.cell(3, 1).paragraphs[0].text.replace(listStrContent[3], "")
         if len(listStrContent[4].split("\\")) == 1:
-            tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].text = tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].text.replace("", listStrContent[4])
+            tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].text = listStrContent[4]
         else:
             word_utils.add_hyperlink(tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0], listStrContent[4], listStrContent[4].split("\\")[-1])
         tableOverview.cell(intTestProfileStartLine + 1, 1).paragraphs[0].add_run(listStrContent[5])

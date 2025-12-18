@@ -43,11 +43,32 @@ def add_hyperlink(_pParagraph, _strUrl: str, _strText: str):
 
     # Create the w:hyperlink tag and add needed values
     _hyperlink = OxmlElement('w:hyperlink')
-    _hyperlink.set(qn('r:id'), _rId, )
+    _hyperlink.set(qn('r:id'), _rId)
 
     # Create a w:r element
     _run = OxmlElement('w:r')
 
     # Create a new w:rPr element
     _rPr = OxmlElement('w:rPr')
+    
+    # Create a w:rStyle element and set its value to 'Hyperlink'
+    _rStyle = OxmlElement('w:rStyle')
+    _rStyle.set(qn('w:val'), 'Hyperlink')
+    _rPr.append(_rStyle)
+    
+    # Add the rPr element to the run
+    _run.append(_rPr)
+    
+    # Create a w:t element and add the text content
+    _text = OxmlElement('w:t')
+    _text.text = _strText
+    
+    # Add the text element to the run
+    _run.append(_text)
+    
+    # Add the run element to the hyperlink
+    _hyperlink.append(_run)
+    
+    # Add the hyperlink element to the paragraph
+    _pParagraph._p.append(_hyperlink)
     
