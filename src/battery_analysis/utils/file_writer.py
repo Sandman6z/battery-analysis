@@ -44,10 +44,10 @@ class XlsxWordWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
         # get config
         self.config = configparser.ConfigParser()
-        
+
         # 使用通用配置文件查找函数
         config_path = find_config_file()
-        
+
         # 尝试读取配置文件
         if config_path and os.path.exists(config_path):
             self.config.read(config_path, encoding='utf-8')
@@ -59,7 +59,7 @@ class XlsxWordWriter:
             self.config.set("PltConfig", "Title", "\"默认标题\"")
             # 创建默认的TestInformation部分
             self.config.add_section("TestInformation")
-        
+
         # 安全获取PltConfig/Title，添加默认值处理
         try:
             if self.config.has_section("PltConfig") and self.config.has_option("PltConfig", "Title"):
@@ -188,7 +188,7 @@ class XlsxWordWriter:
             self.strSampleReportWordPath = f"{self.strResultPath}/../../0_doc/Battery Measurement Report of TypeC TypeA_TypeD.docx"
         else:
             self.strSampleReportWordPath = f"{self.strResultPath}/../../0_doc/Battery Measurement Report of TypeC TypeA_TypeD_MP.docx"
-            
+
         # strTimeStamp = datetime.datetime.now().strftime("%Y%m%d")
 
         # 使用pathlib.Path来规范化路径，避免出现../符号
@@ -209,13 +209,13 @@ class XlsxWordWriter:
                 # 设置默认值
                 listBatteryTypeBase = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
                 logging.warning("使用默认电池类型基础规格")
-                
+
             strBatteryType = ""
             for b in range(len(listBatteryTypeBase)):
                 if listBatteryTypeBase[b].strip() in self.listTestInfo[2]:
                     strBatteryType = listBatteryTypeBase[b]
                     break
-            
+
             # 如果没有匹配到，使用列表中的第一个或直接使用测试信息
             if strBatteryType == "":
                 if listBatteryTypeBase:
@@ -468,7 +468,7 @@ class XlsxWordWriter:
         # init csv writer
         f = open(self.strResultCsvPath, mode='w', newline='', encoding='utf-8')
         csvwriterResultCsvFile = csv.writer(f)
-        
+
         # CSV写入缓冲区，减少I/O操作
         csv_buffer = []
         csv_buffer_size = 0
@@ -565,7 +565,7 @@ class XlsxWordWriter:
         headers = ["Date", "Version", "Editor", "Changes"]
         for j, header in enumerate(headers):
             tableVersionHistory.cell(0, j).paragraphs[0].add_run(header).font.size = Pt(10)
-        
+
         # Set tableVersionHistory data
         version_data = [
             (0, datetime.datetime.now().strftime("%Y.%m.%d"), {"bold": False}),
@@ -573,7 +573,7 @@ class XlsxWordWriter:
             (2, self.listTestInfo[18] if len(self.listTestInfo) > 18 else "", {}),
             (3, "Initial version", {})
         ]
-        
+
         for col, content, properties in version_data:
             text = tableVersionHistory.cell(1, col).paragraphs[0].add_run(content)
             text.font.size = Pt(10)
@@ -616,7 +616,7 @@ class XlsxWordWriter:
                                             f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.HardwareVersion', 14)}\n"\
                                             f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.FirmwareVersion', 14)}"))
         test_info_data.append((4, lambda: f"Battery Analyzer-v{__version__}"))  # Data Processing Platforms
-        
+
         # Process all test info data using a loop
         for row, content_func in test_info_data:
             content = content_func()
@@ -954,7 +954,7 @@ class XlsxWordWriter:
                 wsExcel.write(2, intTestDateStartCol + col_offset, listStrContent[content_index], wsExcelData_bgyellow)
             else:
                 wsExcel.write(2, intTestDateStartCol + col_offset, listStrContent[content_index], wsExcelData)
-        
+
         # 特殊处理hyperlink情况(listStrContent[18])
         url_path = listStrContent[18]
         # 确保路径使用正斜杠
@@ -968,7 +968,7 @@ class XlsxWordWriter:
         # 使用循环处理wsWord.write调用
         for i in range(4):
             wsWord.write(i, 0, listStrItems[i], wsWordLine)
-        
+
         for i in range(4, 12):
             wsWord.write(intTestProfileStartLine + (i - 4), 0, listStrItems[i], wsWordLine)
         wsWord.merge_range(intTestProfileStartLine + 8, 0, intTestProfileStartLine + 10, 0, listStrItems[13], wsWordLine)
@@ -1129,7 +1129,7 @@ class XlsxWordWriter:
         bInsertTestInformation = False
         bInsertStatisticalsResults = False
         intStepOut = 0
-        
+
         for paragraph in wdReport.paragraphs:
             # 1. 替换文本和插入图片
             modified = False
@@ -1143,7 +1143,7 @@ class XlsxWordWriter:
                         paragraph.add_run(".")
                     else:
                         paragraph.text = paragraph.text.replace(self.listTextToReplace[t], f"{self.listTestInfoForReplace[t]}")
-            
+
             if not modified:  # 只有当段落未被修改时才处理图片，避免重复处理
                 for i in range(len(self.listImageToReplace)):
                     if self.listImageToReplace[i] in paragraph.text:
@@ -1158,7 +1158,7 @@ class XlsxWordWriter:
                         else:
                             paragraph._element.getparent().remove(paragraph._element)
                             continue  # 跳过后续处理，因为段落已被删除
-            
+
             # 2. 插入表格的逻辑
             if "Battery Quality Test / Alternative Battery Test for ESL Batteries" in paragraph.text:
                 bInsertOverview = True
@@ -1172,7 +1172,7 @@ class XlsxWordWriter:
             elif "Test results" in paragraph.text and "Heading 1" == paragraph.style.name:
                 bInsertStatisticalsResults = True
                 intStepOut = 2
-            
+
             if intStepOut:
                 intStepOut = intStepOut - 1
             else:
@@ -1188,7 +1188,7 @@ class XlsxWordWriter:
                 elif bInsertStatisticalsResults:
                     bInsertStatisticalsResults = False
                     paragraph._p.addnext(tableStatisticalsResults._tbl)
-            
+
             # 3. 删除温度符号
             if listStrContent[16] == "Room Temperature" and "\u2103" in paragraph.text:
                 paragraph.text = paragraph.text.replace("\u2103", "")
@@ -1295,7 +1295,7 @@ class XlsxWordWriter:
 class JsonWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
         self.config = configparser.ConfigParser()
-        
+
         try:
             # 使用通用配置文件查找函数
             config_path = find_config_file()
@@ -1371,13 +1371,13 @@ class JsonWriter:
                 # 使用默认值
                 listBatteryTypeBase = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
                 logging.info("使用默认电池类型基础规格")
-            
+
             strBatteryType = ""
             for b in range(len(listBatteryTypeBase)):
                 if listBatteryTypeBase[b].strip() in self.listTestInfo[2]:
                     strBatteryType = listBatteryTypeBase[b]
                     break
-            
+
             # 如果没有找到匹配项，使用默认值
             if strBatteryType == "":
                 strBatteryType = "CoinCell"

@@ -1,0 +1,152 @@
+{
+  "src/battery_analysis/utils/exception_type.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/resources/__init__.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/controllers/__init__.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/controllers/validation_controller.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/workers/__init__.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/models/__init__.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/resource_manager.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/controllers/file_controller.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/__init__.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/battery_analysis.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/image_show.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/resources/resources_rc.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/config_utils.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/ui/ui_main_window.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/numeric_utils.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/excel_utils.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/plot_utils.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/csv_utils.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/word_utils.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/data_utils.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/file_writer.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/utils/version.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/controllers/main_controller.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/main_window.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ],
+  "src/battery_analysis/main/workers/analysis_worker.py": [
+    {
+      "error": "JSON解析失败",
+      "output": ""
+    }
+  ]
+}

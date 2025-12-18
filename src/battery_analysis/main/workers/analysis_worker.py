@@ -26,7 +26,7 @@ class AnalysisWorker(QC.QRunnable):
         thread_end = QC.pyqtSignal()
         rename_path = QC.pyqtSignal(str)
         progress_update = QC.pyqtSignal(int, str)  # 进度更新信号：进度值(0-100)，状态文本
-    
+
     def __init__(self):
         """
         初始化工作线程
@@ -43,18 +43,18 @@ class AnalysisWorker(QC.QRunnable):
         self.str_error_battery = ""
         self.str_error_xlsx = ""
         self.str_test_date = ""
-        
+
     def request_cancel(self):
         """
         请求取消任务
         """
         self.b_cancel_requested = True
         self.signals.progress_update.emit(self.progress_value, "正在取消任务...")
-    
+
     def set_info(self, str_path, str_input_path, str_output_path, list_test_info):
         """
         设置分析所需的信息
-        
+
         Args:
             str_path: 项目路径
             str_input_path: 输入数据路径
@@ -65,7 +65,7 @@ class AnalysisWorker(QC.QRunnable):
         self.str_input_path = str_input_path
         self.str_output_path = str_output_path
         self.list_test_info = list_test_info
-    
+
     def run(self):
         """
         执行分析任务的主方法
@@ -73,7 +73,7 @@ class AnalysisWorker(QC.QRunnable):
         self.b_thread_run = True
         self.b_cancel_requested = False
         self.progress_value = 0
-        
+
         # 发送初始运行状态
         try:
             status_text = "status:run"
@@ -84,52 +84,52 @@ class AnalysisWorker(QC.QRunnable):
         except RuntimeError:
             # 处理信号对象已被删除的情况
             pass
-        
+
         try:
             # 发送初始进度
             self.signals.progress_update.emit(0, "准备分析...")
-            
+
             # 检查并创建目录
             version_dir = f"{self.str_output_path}/V{self.list_test_info[16]}"
             if os.path.exists(version_dir):
                 shutil.rmtree(version_dir)
             if self.b_cancel_requested:
                 return
-            
+
             os.mkdir(version_dir)
             self.progress_value = 10
             self.signals.progress_update.emit(self.progress_value, "初始化分析...")
-            
+
             # 电池分析
             # 延迟导入以避免循环引用
             from battery_analysis.utils import battery_analysis
-            
+
             info_battery = battery_analysis.BatteryAnalysis(
                 strInDataXlsxDir=self.str_input_path,
                 strResultPath=self.str_output_path,
                 listTestInfo=self.list_test_info
             )
-            
+
             self.progress_value = 20
             self.signals.progress_update.emit(self.progress_value, "进行电池分析...")
             if self.b_cancel_requested:
                 return
-            
+
             self.str_error_battery = info_battery.UBA_GetErrorLog()
             if self.str_error_battery == "":
                 self.progress_value = 40
                 self.signals.progress_update.emit(self.progress_value, "获取电池信息...")
                 list_battery_info = info_battery.UBA_GetBatteryInfo()
-                
+
                 if self.b_cancel_requested:
                     return
-                
+
                 # 获取Test Date和原始周期日期进行验证
                 test_date = list_battery_info[3]  # 从修改后的UBA_GetBatteryInfo返回值中获取Test Date
                 original_cycle_date = list_battery_info[4]  # 从修改后的UBA_GetBatteryInfo返回值中获取原始周期日期
-                
+
                 logging.info(f"获取到的Test Date: {test_date}, 原始周期日期: {original_cycle_date}")
-                
+
                 try:
                     # 优先使用从Excel或文件名提取的Test Date（已经是YYYYMMDD格式）
                     if test_date and len(test_date) == 8 and test_date.isdigit():
@@ -182,50 +182,50 @@ class AnalysisWorker(QC.QRunnable):
                 except Exception as e:
                     logging.error(f"解析测试日期失败: {e}")
                     self.str_test_date = "00000000"
-                
+
                 # 日志记录最终使用的日期
                 logging.info(f"最终确定的测试日期: {self.str_test_date}")
-                
+
                 # 取消严格的日期比较，避免因为日期格式不一致导致程序退出
                 # 现在优先使用从文件名提取的正确日期
-                
+
                 # 重命名目录
                 final_dir = f"{self.str_output_path}/{self.str_test_date}_V{self.list_test_info[16]}"
                 if os.path.exists(final_dir):
                     shutil.rmtree(final_dir)
-                
+
                 self.signals.rename_path.emit(self.str_test_date)
                 os.rename(version_dir, final_dir)
-                
+
                 self.progress_value = 60
                 self.signals.progress_update.emit(self.progress_value, "准备生成报告...")
                 if self.b_cancel_requested:
                     return
-                
+
                 # 文件写入
                 from battery_analysis.utils import file_writer
-                
+
                 info_file = file_writer.FileWriter(
                     strResultPath=self.str_output_path,
                     listTestInfo=self.list_test_info,
                     listBatteryInfo=list_battery_info
                 )
-                
+
                 self.progress_value = 80
                 self.signals.progress_update.emit(self.progress_value, "生成报告中...")
                 if self.b_cancel_requested:
                     return
-                
+
                 self.str_error_xlsx = info_file.UFW_GetErrorLog()
                 if self.str_error_xlsx != "":
                     logging.error(self.str_error_xlsx)
                 else:
                     self.progress_value = 100
                     self.signals.progress_update.emit(self.progress_value, "分析完成！")
-                    
+
                 # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                 self._start_visualizer()
-                
+
         except Exception as e:
             logging.error(f"线程运行过程中发生错误: {e}")
         finally:
@@ -243,7 +243,7 @@ class AnalysisWorker(QC.QRunnable):
             except RuntimeError:
                 # 处理信号对象已被删除的情况
                 logging.warning("信号对象已被删除，无法发送完成状态")
-    
+
     def _start_visualizer(self):
         """
         启动可视化工具的内部方法
@@ -275,7 +275,7 @@ class AnalysisWorker(QC.QRunnable):
             # 项目构建目录（Debug/Release）
             os.path.join(self.str_path, "build", build_type, f"battery-analysis-visualizer_{version_us}.exe"),
         ]
-        
+
         exe_executed = False
         for exe_path in exe_candidates:
             if os.path.exists(exe_path):
@@ -288,7 +288,7 @@ class AnalysisWorker(QC.QRunnable):
                 except Exception as e:
                     logging.error(f"启动失败 {exe_path}: {e}")
                     continue
-        
+
         if not exe_executed:
             logging.warning("未找到battery-analysis-visualizer可执行文件")
             logging.info("候选路径:")

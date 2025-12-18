@@ -51,7 +51,7 @@ class BatteryAnalysis:
 
         # str for error log
         self.strErrorLog = ""
-        
+
         # 日志缓冲区，减少I/O操作
         self._log_buffer = []
         self._log_buffer_size = 0
@@ -71,32 +71,32 @@ class BatteryAnalysis:
                 first_date = self.UBA_GetTestDateFromExcel(self.listAllInXlsx[0])
                 if first_date != "00000000":
                     self.test_date = first_date
-                
+
                 # 准备并行处理的参数
                 process_args = [(file_path, self.listCurrentLevel, self.listVoltageLevel) for file_path in self.listAllInXlsx]
-                
+
                 # 在Windows环境下使用更安全的并行处理方式
                 # 避免multiprocessing在PyInstaller环境中导致的递归启动问题
                 results = []
-                
+
                 # 检查是否在PyInstaller环境中运行
                 is_frozen = getattr(sys, 'frozen', False)
-                
+
                 if is_frozen or sys.platform.startswith('win'):
                     # 在Windows或PyInstaller环境下，使用进程池但避免递归启动问题
                     logging.info("使用进程池并行处理")
-                    
+
                     # 使用资源管理器获取最优进程数
                     from battery_analysis.utils.resource_manager import ResourceManager
                     max_processes = ResourceManager.get_optimal_process_count()
-                    
+
                     # 获取适合当前平台的进程上下文
                     ctx = ResourceManager.get_processing_context()
-                    
+
                     with concurrent.futures.ProcessPoolExecutor(max_workers=max_processes, mp_context=ctx) as executor:
                         # 提交所有任务
                         future_to_args = {executor.submit(self._parallel_process_file, args): args for args in process_args}
-                        
+
                         # 获取结果
                         for future in concurrent.futures.as_completed(future_to_args):
                             try:
@@ -119,7 +119,7 @@ class BatteryAnalysis:
                         finally:
                             pool.close()
                             pool.join()
-                
+
                 # 合并结果
                 for battery_name, battery_charge, posi_data, voltage_data, charge_data, timestamp_info in results:
                     self.listBatteryName.append(battery_name)
@@ -127,7 +127,7 @@ class BatteryAnalysis:
                     self.listAllPosiForInfoImageCsv.append(posi_data)
                     self.listAllVoltageForInfoImageCsv.append(voltage_data)
                     self.listAllChargeForInfoImageCsv.append(charge_data)
-                    
+
                     # 处理时间戳
                     if not self.listTimeStamp:
                         self.listTimeStamp = timestamp_info
@@ -146,16 +146,16 @@ class BatteryAnalysis:
     def UBA_GetTestDateFromExcel(self, strPath: str) -> str:
         """
         从Excel文件中提取Test Date字段
-        
+
         Args:
             strPath: Excel文件路径
-            
+
         Returns:
             str: 格式化的日期字符串 (YYYYMMDD)，如果无法提取则返回默认值
         """
         try:
             rb = rd.open_workbook(strPath)
-            
+
             # 搜索所有工作表中的"Test Date"字段
             for sheet_idx in range(len(rb.sheets())):
                 sheet = rb.sheets()[sheet_idx]
@@ -193,7 +193,7 @@ class BatteryAnalysis:
                                                       return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
                                                   except ValueError:
                                                       logging.warning("日期部分无法转换为整数: %s", parts[:3])
-                                
+
                                 # 尝试从下方单元格获取日期值
                                 if row + 1 < sheet.nrows:
                                     date_value = sheet.cell_value(row + 1, col)
@@ -220,11 +220,11 @@ class BatteryAnalysis:
                                                     return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
                                                 except ValueError:
                                                     logging.warning("日期部分无法转换为整数: %s", parts[:3])
-            
+
             # 如果找不到Test Date字段，尝试从文件名提取
             file_name = os.path.basename(strPath)
             logging.info("从文件名解析日期: %s", file_name)
-            
+
             # 尝试从文件名中提取日期
             # 匹配文件名中所有连续的数字组
             digit_groups = re.findall(r'(\d+)', file_name)
@@ -248,7 +248,7 @@ class BatteryAnalysis:
                 r'(\d{4})-(\d{2})-(\d{2})',  # 2025-06-10
                 r'(\d{2})\.(\d{2})\.(\d{4})'  # 10.06.2025
             ]
-            
+
             for pattern in date_patterns:
                 match = re.search(pattern, file_name)
                 if match:
@@ -264,18 +264,18 @@ class BatteryAnalysis:
                         return result
                     except (ValueError, AttributeError) as e:
                         logging.warning("从文件名解析日期失败: %s", e)
-            
+
         except (rd.XLRDError, FileNotFoundError, PermissionError, ValueError) as e:
             logging.error("从Excel提取Test Date失败: %s, 错误: %s", strPath, e)
-        
+
         # 确保总是有返回值
         return "00000000"
-    
+
     @staticmethod
     def _parallel_process_file(args):
         """并行处理单个Excel文件的静态方法"""
         strPath, listCurrentLevel, listVoltageLevel = args
-        
+
         # temp list to store voltage and row refer to different current level and voltage level
         listLevelToVoltage = []
         listLevelToRow = []
@@ -336,20 +336,20 @@ class BatteryAnalysis:
 
         # analysis battery data
         battery_name = cycleCycle[0]
-        
+
         # 优化：预计算负值的电流等级，避免重复计算
         neg_current_levels = [-float(level) for level in listCurrentLevel]
-        
+
         # 优化：使用更高效的数据结构和算法
         for row in range(2, recordRows):
             step = recordStep[row]
             # 快速跳过非脉冲步骤
             if step not in ("脉冲", "Pulse"):
                 continue
-                
+
             current = float(recordCurrent[row]) * 1000
             voltage = float(recordVoltage[row])
-            
+
             # 遍历电流等级，使用预计算的负值
             for c_idx, neg_current_level in enumerate(neg_current_levels):
                 if b_is_in_range_milli_ampere(current, neg_current_level):
@@ -359,7 +359,7 @@ class BatteryAnalysis:
                         if not b_is_in_range_milli_ampere(next_current, neg_current_level):
                             listPosiForInfoImageCsv[c_idx].append(row)
                             listVoltageForInfoImageCsv[c_idx].append(voltage)
-                    
+
                     # 检查电压等级
                     for v_idx, voltage_level in enumerate(listVoltageLevel):
                         if voltage <= voltage_level and listLevelToRow[c_idx][v_idx] == 0:
@@ -373,7 +373,7 @@ class BatteryAnalysis:
         for c1 in range(2, cycleRows):
             total_charge += abs(cycleCharge[c1])
             cycle_cumulative_charge[c1] = total_charge
-        
+
         # 2. 创建step数据的字典索引，加速查找
         step_dict = {}
         for c2 in range(2, stepRows):
@@ -382,7 +382,7 @@ class BatteryAnalysis:
                 step_dict[cycle_key] = []
             if stepStep[c2] not in ("脉冲", "Pulse"):
                 step_dict[cycle_key].append(abs(stepCharge[c2]))
-        
+
         # 3. 合并posi2_charge和list_posi2_charge功能，减少代码重复
         def calculate_charge(positions, is_single=True):
             """统一计算单个或多个位置的充电量"""
@@ -391,36 +391,36 @@ class BatteryAnalysis:
                 results = []
             else:
                 results = [0.0] * len(positions)
-            
+
             for idx, intPosi in enumerate(positions):
                 if not intPosi:
                     if is_single:
                         results.append(0)
                     continue
-                
+
                 _cycle = recordCycle[intPosi]
-                
+
                 # 使用预计算的累积充电量，避免重复遍历
                 # 找到第一个大于等于当前cycle的索引
                 cycle_idx = 2
                 while cycle_idx < cycleRows and cycleCycle[cycle_idx] < _cycle:
                     cycle_idx += 1
-                
+
                 # 获取累积充电量
                 intCharge = cycle_cumulative_charge[cycle_idx - 1] if cycle_idx > 2 else 0
-                
+
                 # 使用字典快速查找step数据
                 if _cycle in step_dict:
                     intCharge += sum(step_dict[_cycle])
-                
+
                 # 添加当前记录的充电量
                 intCharge += abs(recordCharge[intPosi])
-                
+
                 if is_single:
                     results.append(round(intCharge))
                 else:
                     results[idx] = intCharge
-            
+
             return results[0] if is_single else results
 
         # for Utility_XlsxWriter.py to write .xlsx
@@ -437,17 +437,17 @@ class BatteryAnalysis:
             if len(listChargeForInfoImageCsv[c]) != len(listVoltageForInfoImageCsv[c]):
 
                 raise BatteryAnalysisException(f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, charge is not equal to voltage")
-        
+
         # 返回处理结果
         return (
-            battery_name, 
-            listOneBatteryCharge, 
-            listPosiForInfoImageCsv, 
-            listVoltageForInfoImageCsv, 
-            listChargeForInfoImageCsv, 
+            battery_name,
+            listOneBatteryCharge,
+            listPosiForInfoImageCsv,
+            listVoltageForInfoImageCsv,
+            listChargeForInfoImageCsv,
             listTimeStamp
         )
-        
+
     def _str_compare_date(self, strDate1, strDate2, bEarlier):
         """日期比较辅助方法"""
         def int_convert_date(strDate):
@@ -458,48 +458,48 @@ class BatteryAnalysis:
                 else:
                     date_part = strDate[:10]
                     time_part = strDate[10:]
-                
+
                 cd1 = date_part.split("-")
-                
+
                 if time_part and ":" in time_part:
                     cd2 = time_part.split(":")
                     return int(f"{int(cd1[0])}{int(cd1[1]):02}{int(cd1[2]):02}{int(cd2[0]):02}{int(cd2[1]):02}{int(cd2[2]):02}")
                 return int(f"{int(cd1[0])}{int(cd1[1]):02}{int(cd1[2]):02}000000")
             except (ValueError, IndexError):
                 return 20000101000000
-        
+
         if strDate1 == strDate2:
             return strDate1 if bEarlier else strDate2
-            
+
         convert_date1 = int_convert_date(strDate1)
         convert_date2 = int_convert_date(strDate2)
-        
+
         if convert_date1 < convert_date2:
             min_date = strDate1
             max_date = strDate2
         else:
             min_date = strDate2
             max_date = strDate1
-        
+
         return min_date if bEarlier else max_date
-        
+
         # 移除重复定义的方法，使用内部实现
-        
+
     def UBA_AnalysisXlsx(self, strPath: str) -> None:
         """保留原方法接口，使用并行处理方法实现"""
         # 使用并行处理方法处理单个文件
         result = self._parallel_process_file((strPath, self.listCurrentLevel, self.listVoltageLevel))
-        
+
         # 处理结果，与原方法保持一致
         battery_name, battery_charge, posi_data, voltage_data, charge_data, timestamp_info = result
-        
+
         # 更新类属性
         self.listBatteryName.append(battery_name)
         self.listAllBatteryCharge.append(battery_charge)
         self.listAllPosiForInfoImageCsv.append(posi_data)
         self.listAllVoltageForInfoImageCsv.append(voltage_data)
         self.listAllChargeForInfoImageCsv.append(charge_data)
-        
+
         # 处理时间戳
         if not self.listTimeStamp:
             self.listTimeStamp = timestamp_info
@@ -518,11 +518,11 @@ class BatteryAnalysis:
             # 更新最早和最晚时间
             self.listTimeStamp[0] = self._str_compare_date(timestamp_info[0], self.listTimeStamp[0], True)
             self.listTimeStamp[1] = self._str_compare_date(timestamp_info[1], self.listTimeStamp[1], False)
-        
+
         # 记录日志
         self.UBA_Log(datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S]") + '\r')
         self.UBA_Log(f"Battery {battery_name}:\r")
-        
+
         # 重建listLevelToVoltage和listLevelToRow用于日志输出
         listLevelToVoltage = []
         listLevelToRow = []
@@ -533,19 +533,19 @@ class BatteryAnalysis:
                 # 从结果数据中提取电压和行信息
                 listLevelToVoltage[c].append(voltage_level)
                 listLevelToRow[c].append(0)
-                
+
                 # 查找匹配的电压等级
                 for posi, voltage in zip(posi_data[c], voltage_data[c]):
                     if voltage <= voltage_level:
                         listLevelToVoltage[c][v] = voltage
                         listLevelToRow[c][v] = posi
                         break
-            
+
             self.UBA_Log(f"{current_level}mA - ")
             for v, voltage in enumerate(self.listVoltageLevel):
                 self.UBA_Log(f"{listLevelToVoltage[c][v]}:{listLevelToRow[c][v] and listLevelToRow[c][v] + 1 or listLevelToRow[c][v]}, ")
             self.UBA_Log("\r")
-        
+
         self.UBA_Log("\r")
 
     def UBA_WriteCsv(self, _strResultPath: str) -> None:
@@ -554,13 +554,13 @@ class BatteryAnalysis:
         if not self.listAllPosiForInfoImageCsv:
             logging.error("没有有效数据可写入CSV文件")
             return
-            
+
         # 创建CSV文件路径
         strCsvFilePath = f"{_strResultPath}/Info_Image.csv"
-        
+
         # 优化：批量准备CSV数据，减少I/O操作次数
         csv_data = []
-        
+
         # 遍历电池数据
         for b, battery_name in enumerate(self.listBatteryName):
             csv_data.append(["BATTERY", battery_name])
@@ -569,7 +569,7 @@ class BatteryAnalysis:
                 csv_data.append(self.listAllPosiForInfoImageCsv[b][c])
                 csv_data.append(self.listAllChargeForInfoImageCsv[b][c])
                 csv_data.append(self.listAllVoltageForInfoImageCsv[b][c])
-        
+
         # 一次性写入所有数据
         with open(strCsvFilePath, 'w', newline='', encoding='utf-8') as csvFile:
             writer = csv.writer(csvFile)
@@ -581,16 +581,16 @@ class BatteryAnalysis:
         # 添加到缓冲区
         self._log_buffer.append(_data)
         self._log_buffer_size += len(_data)
-        
+
         # 当缓冲区达到一定大小时写入文件
         if self._log_buffer_size >= self._max_buffer_size:
             self._flush_log_buffer()
-    
+
     def _flush_log_buffer(self):
         """将日志缓冲区写入文件"""
         if not self._log_buffer:
             return
-        
+
         try:
             with open(self.strResultLogTxt, "a", encoding='utf-8') as f:
                 f.writelines(self._log_buffer)
@@ -606,7 +606,7 @@ class BatteryAnalysis:
             self._flush_log_buffer()
         except (IOError, OSError):
             pass
-            
+
     def UBA_GetBatteryInfo(self) -> list:
         """
         返回电池信息列表，包含以下内容：
