@@ -261,7 +261,7 @@ class AnalysisWorker(QC.QRunnable):
         else:
             # 回退：从项目版本读取，并转换为下划线格式
             try:
-                from src.battery_analysis.utils.version import Version
+                from battery_analysis.utils.version import Version
                 version_us = Version().version.replace('.', '_')
             except Exception:
                 version_us = "2_0_0"  # 与项目默认版本保持一致

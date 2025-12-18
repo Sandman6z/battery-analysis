@@ -38,7 +38,10 @@ class Version:
     
     def __init__(self):
         """初始化版本对象，从pyproject.toml读取版本号或使用默认值"""
-        # 已经在__new__中初始化过了，避免重复执行
+        # 显式定义version属性，解决pylint no-member错误
+        # 仅在第一次初始化时设置，避免重复调用_get_version()
+        if not hasattr(self, 'version'):
+            self.version = self._get_version()
 
     def _get_version(self) -> str:
         """获取项目版本号"""

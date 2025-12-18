@@ -32,18 +32,21 @@ class MainController(QC.QObject):
         self.output_path = ""
         self.test_info = []
     
-    def set_project_context(self, project_path, input_path, output_path):
+    def set_project_context(self, project_path=None, input_path=None, output_path=None):
         """
         设置项目上下文信息
         
         Args:
-            project_path: 项目路径
-            input_path: 输入数据路径
-            output_path: 输出结果路径
+            project_path: 项目路径 (可选)
+            input_path: 输入数据路径 (可选)
+            output_path: 输出结果路径 (可选)
         """
-        self.project_path = project_path
-        self.input_path = input_path
-        self.output_path = output_path
+        if project_path is not None:
+            self.project_path = project_path
+        if input_path is not None:
+            self.input_path = input_path
+        if output_path is not None:
+            self.output_path = output_path
     
     def set_test_info(self, test_info):
         """
