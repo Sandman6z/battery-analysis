@@ -2,6 +2,7 @@ import math
 import matplotlib.pyplot as plt
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 
+
 def set_plt_axis(battery_type, max_xaxis):
     if battery_type == "Coin Cell":
         plt.axis([10, 600, 1, 3])
@@ -36,5 +37,6 @@ def set_plt_axis(battery_type, max_xaxis):
                 if i*500 >= maxTicks:
                     break
     else:
-        raise BatteryAnalysisException("[Plt LoadVoltageOverCharge Error]: Unknown battery type")
+        raise BatteryAnalysisException(
+            "[Plt LoadVoltageOverCharge Error]: Unknown battery type")
     plt.xticks(x_ticks)

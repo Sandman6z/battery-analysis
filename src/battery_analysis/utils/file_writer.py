@@ -1,3 +1,23 @@
+from battery_analysis.utils import csv_utils
+from battery_analysis.utils import plot_utils
+from battery_analysis.utils import data_utils
+from battery_analysis.utils import word_utils
+from battery_analysis.utils import excel_utils
+from battery_analysis.utils import numeric_utils
+from battery_analysis.utils.exception_type import BatteryAnalysisException
+from docx.shared import Pt, Cm
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+from docx.opc.constants import RELATIONSHIP_TYPE
+from docx.enum.text import WD_LINE_SPACING
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
+from docx.enum.dml import MSO_THEME_COLOR_INDEX
+from docx import Document
+from openpyxl.utils import get_column_letter
+from matplotlib.ticker import MultipleLocator
+import matplotlib.pyplot as plt
+import xlsxwriter as xwt
+import numpy as np
 import os
 import csv
 import sys
@@ -15,29 +35,6 @@ from battery_analysis.utils.config_utils import find_config_file
 # 设置Matplotlib使用非交互式后端，避免线程安全问题
 import matplotlib
 matplotlib.use('Agg')  # 使用Agg后端，不会启动GUI
-
-import numpy as np
-import xlsxwriter as xwt
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
-from openpyxl.utils import get_column_letter
-
-from docx import Document
-from docx.enum.dml import MSO_THEME_COLOR_INDEX
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.enum.text import WD_LINE_SPACING
-from docx.opc.constants import RELATIONSHIP_TYPE
-from docx.oxml import OxmlElement
-from docx.oxml.ns import qn
-from docx.shared import Pt, Cm
-
-from battery_analysis.utils.exception_type import BatteryAnalysisException
-from battery_analysis.utils import numeric_utils
-from battery_analysis.utils import excel_utils
-from battery_analysis.utils import word_utils
-from battery_analysis.utils import data_utils
-from battery_analysis.utils import plot_utils
-from battery_analysis.utils import csv_utils
 
 
 class XlsxWordWriter:
@@ -138,7 +135,8 @@ class XlsxWordWriter:
                 td = "00000000"
                 logging.warning(f"无法从文件名提取日期，使用默认值: {td}")
         # 使用os.path.join确保路径分隔符一致性
-        self.strResultPath = os.path.join(strResultPath, f"{td}_V{listTestInfo[16]}")
+        self.strResultPath = os.path.join(
+            strResultPath, f"{td}_V{listTestInfo[16]}")
 
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
@@ -146,7 +144,8 @@ class XlsxWordWriter:
         self.intVoltageLevelNum = len(self.listVoltageLevel)
         self.strFileCurrentType = ""
         for c in range(self.intCurrentLevelNum):
-            self.strFileCurrentType = self.strFileCurrentType + f"{self.listCurrentLevel[c]}-"
+            self.strFileCurrentType = self.strFileCurrentType + \
+                f"{self.listCurrentLevel[c]}-"
         self.strFileCurrentType = self.strFileCurrentType[:-1]
 
         self.listBatteryCharge = self.listBatteryInfo[0]
@@ -161,19 +160,25 @@ class XlsxWordWriter:
             strBoxplotTitle = strImageTitle
         else:
             strSplit = "A, "
-            strBoxplotTitle = strImageTitle.split(strSplit)[0] + strSplit + "\n" + strImageTitle.split(strSplit)[1] + strSplit + strImageTitle.split(strSplit)[2]
+            strBoxplotTitle = strImageTitle.split(strSplit)[0] + strSplit + "\n" + strImageTitle.split(
+                strSplit)[1] + strSplit + strImageTitle.split(strSplit)[2]
         for b in range(self.intCurrentLevelNum):
-            self.listBoxplotTitle.append(f"Useable Capacity over Cutoff Voltage, {self.listCurrentLevel[b]}mA Load\n{strBoxplotTitle}")
-            self.listPngPath.append(f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.png")
-            self.listSvgPath.append(f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.svg")
+            self.listBoxplotTitle.append(
+                f"Useable Capacity over Cutoff Voltage, {self.listCurrentLevel[b]}mA Load\n{strBoxplotTitle}")
+            self.listPngPath.append(
+                f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.png")
+            self.listSvgPath.append(
+                f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.svg")
         self.strUnfilteredPngPath = f"{self.strResultPath}/Image_UnfilteredLoadVoltageOverCharge.png"
         self.strUnfilteredSvgPath = f"{self.strResultPath}/Image_UnfilteredLoadVoltageOverCharge.svg"
         self.strFilteredPngPath = f"{self.strResultPath}/Image_FilteredLoadVoltageOverCharge.png"
         self.strFilteredSvgPath = f"{self.strResultPath}/Image_FilteredLoadVoltageOverCharge.svg"
         self.strPltName = f"Load Voltage over Charge\n{strImageTitle}"
         self.strInfoImageCsvPath = f"{self.strResultPath}/Info_Image.csv"
-        self.listPltColorType = ['#DF7040', '#0675BE', '#EDB120', '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
-        self.listColorName = ["red = ", "blue = ", "yellow = ", "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
+        self.listPltColorType = ['#DF7040', '#0675BE', '#EDB120',
+                                 '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
+        self.listColorName = ["red = ", "blue = ", "yellow = ",
+                              "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
         strStrF = ""
         for c in range(self.intCurrentLevelNum):
             strStrF += f"{self.listColorName[c]}{self.listCurrentLevel[c]}mA, "
@@ -196,18 +201,23 @@ class XlsxWordWriter:
         report_name = f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}_TD{td}_V{self.listTestInfo[16]}.docx"
         result_dir = Path(self.strResultPath).parent
         self.strReportWordPath = str(result_dir / report_name)
-        self.listTextToReplace = ["TypeA", "TypeB", "TypeC", "TypeD", "TypeE", "TypeF", "TypeG", "StrA", "StrB", "StrC", "StrD", "StrF"]
+        self.listTextToReplace = ["TypeA", "TypeB", "TypeC", "TypeD",
+                                  "TypeE", "TypeF", "TypeG", "StrA", "StrB", "StrC", "StrD", "StrF"]
         self.listImageToReplace = ["<<Image_FilteredLoadVoltageOverCharge>>"]
         for i in range(10):     # max 10 images to replace
-            self.listImageToReplace.append(f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
-            self.listImageToReplace.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
+            self.listImageToReplace.append(
+                f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
+            self.listImageToReplace.append(
+                f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
         # 安全获取电池类型基础规格，添加默认值
         try:
             if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "SpecificationTypeBase"):
-                listBatteryTypeBase = self.config.get("BatteryConfig", "SpecificationTypeBase").split(",")
+                listBatteryTypeBase = self.config.get(
+                    "BatteryConfig", "SpecificationTypeBase").split(",")
             else:
                 # 设置默认值
-                listBatteryTypeBase = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
+                listBatteryTypeBase = [
+                    "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
                 logging.warning("使用默认电池类型基础规格")
 
             strBatteryType = ""
@@ -476,7 +486,8 @@ class XlsxWordWriter:
 
         # wbResult and csv write fixed part
         if wsOverview is None:
-            raise BatteryAnalysisException(f"{self.strResultXlsxPath} sheet[overview] creation failed")
+            raise BatteryAnalysisException(
+                f"{self.strResultXlsxPath} sheet[overview] creation failed")
         # Write header information
         header_info = [
             f"#BEGIN HEADER",
@@ -510,36 +521,53 @@ class XlsxWordWriter:
             f"#END HEADER"
         ]
         for info in csv_header_info:
-            csv_buffer_size = csv_utils.csv_write(info, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+            csv_buffer_size = csv_utils.csv_write(
+                info, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
 
         if wsResult is None:
-            raise BatteryAnalysisException(f"{self.strResultXlsxPath} sheet[result] creation failed")
-        excel_utils.ws_set_col(wsResult, 0, self.intCurrentLevelNum * (2 + self.intVoltageLevelNum) + 1, 10)
+            raise BatteryAnalysisException(
+                f"{self.strResultXlsxPath} sheet[result] creation failed")
+        excel_utils.ws_set_col(
+            wsResult, 0, self.intCurrentLevelNum * (2 + self.intVoltageLevelNum) + 1, 10)
         excel_utils.ws_set_col(wsResult, 0, 1, 20)
         wsResult.write(2, 0, "Battery", wsResultData)
-        wsResult.write(4 + self.intBatteryNum, 0, "Mean(\u03BC)", wsResultData_italic)
-        wsResult.write(5 + self.intBatteryNum, 0, "Median", wsResultData_italic)
-        wsResult.write(6 + self.intBatteryNum, 0, "Std. Var.(\u03C3)", wsResultData_italic)
-        wsResult.write(7 + self.intBatteryNum, 0, "\u03BC-3\u03C3", wsResultData_italic)
-        wsResult.write(8 + self.intBatteryNum, 0, "\u03BC-2\u03C3", wsResultData_italic)
-        wsResult.write(9 + self.intBatteryNum, 0, "\u03BC+2\u03C3", wsResultData_italic)
-        wsResult.write(10 + self.intBatteryNum, 0, "\u03BC+3\u03C3", wsResultData_italic)
-        wsResult.write(11 + self.intBatteryNum, 0, "Minimum", wsResultData_italic)
-        wsResult.write(12 + self.intBatteryNum, 0, "Maximum", wsResultData_italic)
+        wsResult.write(4 + self.intBatteryNum, 0,
+                       "Mean(\u03BC)", wsResultData_italic)
+        wsResult.write(5 + self.intBatteryNum, 0,
+                       "Median", wsResultData_italic)
+        wsResult.write(6 + self.intBatteryNum, 0,
+                       "Std. Var.(\u03C3)", wsResultData_italic)
+        wsResult.write(7 + self.intBatteryNum, 0,
+                       "\u03BC-3\u03C3", wsResultData_italic)
+        wsResult.write(8 + self.intBatteryNum, 0,
+                       "\u03BC-2\u03C3", wsResultData_italic)
+        wsResult.write(9 + self.intBatteryNum, 0,
+                       "\u03BC+2\u03C3", wsResultData_italic)
+        wsResult.write(10 + self.intBatteryNum, 0,
+                       "\u03BC+3\u03C3", wsResultData_italic)
+        wsResult.write(11 + self.intBatteryNum, 0,
+                       "Minimum", wsResultData_italic)
+        wsResult.write(12 + self.intBatteryNum, 0,
+                       "Maximum", wsResultData_italic)
         for c in range(self.intCurrentLevelNum):
-            wsResult.write(1, 1 + c * (2 + self.intVoltageLevelNum), f"{self.listCurrentLevel[c]}mA", wsResultData)
-            wsResult.merge_range(1, 2 + c * (2 + self.intVoltageLevelNum), 1, (c + 1) * (2 + self.intVoltageLevelNum) - 1, "Voltage", wsResultData)
+            wsResult.write(1, 1 + c * (2 + self.intVoltageLevelNum),
+                           f"{self.listCurrentLevel[c]}mA", wsResultData)
+            wsResult.merge_range(1, 2 + c * (2 + self.intVoltageLevelNum), 1, (c + 1) * (
+                2 + self.intVoltageLevelNum) - 1, "Voltage", wsResultData)
             for v in range(self.intVoltageLevelNum):
-                wsResult.write(2, 2 + c * (2 + self.intVoltageLevelNum) + v, f"{self.listVoltageLevel[v]}V", wsResultData)
+                wsResult.write(2, 2 + c * (2 + self.intVoltageLevelNum) + v,
+                               f"{self.listVoltageLevel[v]}V", wsResultData)
 
-        csv_buffer_size = csv_utils.csv_write("", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+        csv_buffer_size = csv_utils.csv_write(
+            "", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
         listCsvLine = [""]
         for c in range(self.intCurrentLevelNum):
             listCsvLine.append(f"{self.listCurrentLevel[c]}mA")
             listCsvLine.append("Voltage")
             for v in range(self.intVoltageLevelNum):
                 listCsvLine.append("")
-        csv_buffer_size = csv_utils.csv_write(listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+        csv_buffer_size = csv_utils.csv_write(
+            listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
         listCsvLine = []
         for c in range(self.intCurrentLevelNum):
             listCsvLine.append("")
@@ -547,10 +575,12 @@ class XlsxWordWriter:
             for v in range(self.intVoltageLevelNum):
                 listCsvLine.append(f"{self.listVoltageLevel[v]}V")
         listCsvLine[0] = "Battery"
-        csv_buffer_size = csv_utils.csv_write(listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+        csv_buffer_size = csv_utils.csv_write(
+            listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
 
         # wdReport write table Version History
-        tableVersionHistory = wdReport.add_table(9, 4, style='Grid Table 4 Accent 3')
+        tableVersionHistory = wdReport.add_table(
+            9, 4, style='Grid Table 4 Accent 3')
         for r in range(9):
             tableVersionHistory.rows[r].height = Cm(0.6)
             for c in range(4):
@@ -564,18 +594,21 @@ class XlsxWordWriter:
         # Set tableVersionHistory headers
         headers = ["Date", "Version", "Editor", "Changes"]
         for j, header in enumerate(headers):
-            tableVersionHistory.cell(0, j).paragraphs[0].add_run(header).font.size = Pt(10)
+            tableVersionHistory.cell(0, j).paragraphs[0].add_run(
+                header).font.size = Pt(10)
 
         # Set tableVersionHistory data
         version_data = [
             (0, datetime.datetime.now().strftime("%Y.%m.%d"), {"bold": False}),
             (1, "1.0", {}),
-            (2, self.listTestInfo[18] if len(self.listTestInfo) > 18 else "", {}),
+            (2, self.listTestInfo[18] if len(
+                self.listTestInfo) > 18 else "", {}),
             (3, "Initial version", {})
         ]
 
         for col, content, properties in version_data:
-            text = tableVersionHistory.cell(1, col).paragraphs[0].add_run(content)
+            text = tableVersionHistory.cell(
+                1, col).paragraphs[0].add_run(content)
             text.font.size = Pt(10)
             for prop, value in properties.items():
                 setattr(text, prop, value)
@@ -599,32 +632,37 @@ class XlsxWordWriter:
             "Data Processing Platforms"
         ]
         for r, header in enumerate(test_info_headers):
-            tableTestInformation.cell(r, 0).paragraphs[0].add_run(header).font.size = Pt(10)
+            tableTestInformation.cell(r, 0).paragraphs[0].add_run(
+                header).font.size = Pt(10)
 
         # Set tableTestInformation data using functions to reduce repetition
         test_info_data = []
-        test_info_data.append((0, lambda: word_utils.get_item(self.config, "TestInformation", "TestEquipment")))
-        test_info_data.append((1, lambda: f"BTS Server Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSServerVersion')}\n"\
-                                            f"BTS Client Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSClientVersion')}\n"\
-                                            f"BTSDA (Data Analysis) Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSDAVersion')}"))
-        test_info_data.append((2, lambda: f"Model: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.Model', 6)}\n"\
-                                            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.HardwareVersion', 14)}\n"\
-                                            f"Serial Number: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.SerialNumber', 12)}\n"\
-                                            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.FirmwareVersion', 14)}\n"\
-                                            f"Device Type: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.DeviceType', 10)}"))
-        test_info_data.append((3, lambda: f"Model: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.Model', 6)}\n"\
-                                            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.HardwareVersion', 14)}\n"\
-                                            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.FirmwareVersion', 14)}"))
-        test_info_data.append((4, lambda: f"Battery Analyzer-v{__version__}"))  # Data Processing Platforms
+        test_info_data.append((0, lambda: word_utils.get_item(
+            self.config, "TestInformation", "TestEquipment")))
+        test_info_data.append((1, lambda: f"BTS Server Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSServerVersion')}\n"
+                               f"BTS Client Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSClientVersion')}\n"
+                               f"BTSDA (Data Analysis) Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSDAVersion')}"))
+        test_info_data.append((2, lambda: f"Model: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.Model', 6)}\n"
+                               f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.HardwareVersion', 14)}\n"
+                               f"Serial Number: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.SerialNumber', 12)}\n"
+                               f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.FirmwareVersion', 14)}\n"
+                               f"Device Type: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.DeviceType', 10)}"))
+        test_info_data.append((3, lambda: f"Model: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.Model', 6)}\n"
+                               f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.HardwareVersion', 14)}\n"
+                               f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.FirmwareVersion', 14)}"))
+        # Data Processing Platforms
+        test_info_data.append((4, lambda: f"Battery Analyzer-v{__version__}"))
 
         # Process all test info data using a loop
         for row, content_func in test_info_data:
             content = content_func()
-            tableTestInformation.cell(row, 1).paragraphs[0].add_run(f"{content}").font.size = Pt(10)
+            tableTestInformation.cell(row, 1).paragraphs[0].add_run(
+                f"{content}").font.size = Pt(10)
 
         # wbResult and csv write analytical battery statistic
         for b in range(self.intBatteryNum):
-            excel_utils.ws_result_write_data(3 + b, 0, self.listBatteryName[b], wsResultData, wsResult)
+            excel_utils.ws_result_write_data(
+                3 + b, 0, self.listBatteryName[b], wsResultData, wsResult)
             listCsvLine = []
             i = 0
             for c in range(self.intCurrentLevelNum):
@@ -632,10 +670,12 @@ class XlsxWordWriter:
                 listCsvLine.append("")
                 for v in range(self.intVoltageLevelNum):
                     listCsvLine.append(self.listBatteryCharge[b][i])
-                    excel_utils.ws_result_write_data(3 + b, 2 + c * (2 + self.intVoltageLevelNum) + v, self.listBatteryCharge[b][i], wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(
+                        3 + b, 2 + c * (2 + self.intVoltageLevelNum) + v, self.listBatteryCharge[b][i], wsResultData, wsResult)
                     i += 1
             listCsvLine[0] = f"{self.listBatteryName[b]}"
-            csv_buffer_size = csv_utils.csv_write(listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+            csv_buffer_size = csv_utils.csv_write(
+                listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
 
         # init and fill listCpt for calculate
         listCpt = []
@@ -689,32 +729,47 @@ class XlsxWordWriter:
                 listMax[c].append(numeric_utils.np_max(listCpt[c][v]))
 
         # wbResult and csv write calculated statistic
-        listCsvName = ["Mean(\u03BC)", "Median", "Std. Var.(\u03C3)", "\u03BC-3\u03C3", "\u03BC-2\u03C3", "\u03BC+2\u03C3", "\u03BC+3\u03C3", "Minimum", "Maximum"]
-        listCsvList = [listMean, listMed, listStd, listMM3S, listMM2S, listMP2S, listMP3S, listMin, listMax]
-        csv_buffer_size = csv_utils.csv_write("", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+        listCsvName = ["Mean(\u03BC)", "Median", "Std. Var.(\u03C3)", "\u03BC-3\u03C3",
+                       "\u03BC-2\u03C3", "\u03BC+2\u03C3", "\u03BC+3\u03C3", "Minimum", "Maximum"]
+        listCsvList = [listMean, listMed, listStd, listMM3S,
+                       listMM2S, listMP2S, listMP3S, listMin, listMax]
+        csv_buffer_size = csv_utils.csv_write(
+            "", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
         for n in range(len(listCsvName)):
             listCsvLine = []
             for c in range(self.intCurrentLevelNum):
                 listCsvLine.append("")
                 listCsvLine.append("")
                 for v in range(self.intVoltageLevelNum):
-                    excel_utils.ws_result_write_data(4 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMean[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(5 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMed[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(6 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listStd[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(7 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMM3S[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(8 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMM2S[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(9 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMP2S[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(10 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMP3S[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(11 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMin[c][v], 5), wsResultData, wsResult)
-                    excel_utils.ws_result_write_data(12 + self.intBatteryNum, 2 + c * (2 + self.intVoltageLevelNum) + v, round(listMax[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(4 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMean[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(5 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMed[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(6 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listStd[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(7 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMM3S[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(8 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMM2S[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(9 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMP2S[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(10 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMP3S[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(11 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMin[c][v], 5), wsResultData, wsResult)
+                    excel_utils.ws_result_write_data(12 + self.intBatteryNum, 2 + c * (
+                        2 + self.intVoltageLevelNum) + v, round(listMax[c][v], 5), wsResultData, wsResult)
                     listCsvLine.append(round(listCsvList[n][c][v], 5))
             listCsvLine[0] = f"{listCsvName[n]}"
-            csv_buffer_size = csv_utils.csv_write(listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+            csv_buffer_size = csv_utils.csv_write(
+                listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
 
         for c in range(self.intCurrentLevelNum):
-            wsResult.insert_image(14 + self.intBatteryNum, 1 + c * (2 + self.intVoltageLevelNum), self.listPngPath[c], {'x_scale': ((2 + self.intVoltageLevelNum) * 2 - 1) / 16, 'y_scale': ((2 + self.intVoltageLevelNum) * 2 - 1) / 16})
+            wsResult.insert_image(14 + self.intBatteryNum, 1 + c * (2 + self.intVoltageLevelNum), self.listPngPath[c], {
+                                  'x_scale': ((2 + self.intVoltageLevelNum) * 2 - 1) / 16, 'y_scale': ((2 + self.intVoltageLevelNum) * 2 - 1) / 16})
 
-        tableStatisticalsResults = wdReport.add_table(self.intCurrentLevelNum + 1, self.intVoltageLevelNum + 1, style='Table Grid')
+        tableStatisticalsResults = wdReport.add_table(
+            self.intCurrentLevelNum + 1, self.intVoltageLevelNum + 1, style='Table Grid')
         for c in range(self.intCurrentLevelNum + 1):
             for v in range(self.intVoltageLevelNum + 1):
                 cell = tableStatisticalsResults.cell(c, v)
@@ -731,12 +786,14 @@ class XlsxWordWriter:
                     word_utils.table_set_bg_color(cell, '#BFBFBF')
                     wsOverview.set_row(wsOverviewStatisticalStartLine, 20)
                     wsOverview.set_column(v, v, 18)
-                    wsOverview.write(wsOverviewStatisticalStartLine, v, "Statisticals Results", wsOverviewStatistics_bgdarkgray)
+                    wsOverview.write(wsOverviewStatisticalStartLine, v,
+                                     "Statisticals Results", wsOverviewStatistics_bgdarkgray)
                 elif c == 0 and v > 0:
                     tableStatisticalsResults.cell(c, v).width = Cm(3.55)
                     text1 = cell.paragraphs[0].add_run(f"Cut-off Voltage\n")
                     text1.font.size = Pt(12)
-                    text2 = cell.paragraphs[0].add_run(f"{self.listVoltageLevel[v - 1]}V")
+                    text2 = cell.paragraphs[0].add_run(
+                        f"{self.listVoltageLevel[v - 1]}V")
                     text2.font.bold = True
                     text2.font.size = Pt(12)
                     word_utils.table_set_bg_color(cell, '#F2F2F2')
@@ -749,7 +806,8 @@ class XlsxWordWriter:
                     tableStatisticalsResults.rows[c].height = Cm(2.35)
                     text1 = cell.paragraphs[0].add_run(f"Pulse Current\n")
                     text1.font.size = Pt(12)
-                    text2 = cell.paragraphs[0].add_run(f"{self.listCurrentLevel[c - 1]}mA")
+                    text2 = cell.paragraphs[0].add_run(
+                        f"{self.listCurrentLevel[c - 1]}mA")
                     text2.font.bold = True
                     text2.font.size = Pt(12)
                     word_utils.table_set_bg_color(cell, '#F2F2F2')
@@ -788,7 +846,8 @@ class XlsxWordWriter:
         elif self.listTestInfo[0] == "Pouch Cell":
             intTestProfileStartLine = 4
         else:
-            raise BatteryAnalysisException("[Test Info Error]: listTestInfo[0] is a unknown battery type")
+            raise BatteryAnalysisException(
+                "[Test Info Error]: listTestInfo[0] is a unknown battery type")
         excel_utils.ws_set_col(wsExcel, 0, 3, 12)
         excel_utils.ws_set_col(wsExcel, 3, 1, 20)
         excel_utils.ws_set_col(wsExcel, intTestProfileStartLine, 1, 12)
@@ -799,8 +858,10 @@ class XlsxWordWriter:
         excel_utils.ws_set_col(wsExcel, intTestProfileStartLine + 5, 2, 30)
         excel_utils.ws_set_col(wsExcel, intTestProfileStartLine + 7, 2, 15)
         intActualMeasuredCapacityLength = self.intVoltageLevelNum * 2
-        excel_utils.ws_set_col(wsExcel, intTestProfileStartLine + 9, intActualMeasuredCapacityLength, 6)
-        intTestDateStartCol = intTestProfileStartLine + 9 + intActualMeasuredCapacityLength
+        excel_utils.ws_set_col(
+            wsExcel, intTestProfileStartLine + 9, intActualMeasuredCapacityLength, 6)
+        intTestDateStartCol = intTestProfileStartLine + \
+            9 + intActualMeasuredCapacityLength
         excel_utils.ws_set_col(wsExcel, intTestDateStartCol, 1, 10)
         excel_utils.ws_set_col(wsExcel, intTestDateStartCol + 1, 1, 12)
         excel_utils.ws_set_col(wsExcel, intTestDateStartCol + 2, 1, 18)
@@ -834,7 +895,8 @@ class XlsxWordWriter:
             "Calculation Nominal Capacity[mAh]",  # 10
             "Required Useable Capacity[mAh]",  # 11
             None,  # 12
-            f"Actual Measured Capacity[mAh]\n(at {self.listCurrentLevel[intPosiMaxmA]}mA/2.25V)",  # 13
+            # 13
+            f"Actual Measured Capacity[mAh]\n(at {self.listCurrentLevel[intPosiMaxmA]}mA/2.25V)",
             "Test Date",  # 14
             "Samples Qty",  # 15
             "Temperature[\u2103]",  # 16
@@ -844,7 +906,8 @@ class XlsxWordWriter:
         ]
 
         try:
-            strRelProfilePath = os.path.relpath(self.listTestInfo[13], os.path.dirname(self.strSampleXlsxPath))
+            strRelProfilePath = os.path.relpath(
+                self.listTestInfo[13], os.path.dirname(self.strSampleXlsxPath))
         except ValueError:
             strRelProfilePath = self.listTestInfo[13]
 
@@ -853,14 +916,16 @@ class XlsxWordWriter:
         else:
             strBatchDateCode = self.listTestInfo[5]
 
-        intPassRate = float(int(self.listTestInfo[17])/int(self.listTestInfo[9]))
+        intPassRate = float(
+            int(self.listTestInfo[17])/int(self.listTestInfo[9]))
         strRequiredUseableCapacityPercentage = f"{int(100*int(self.listTestInfo[17])/int(self.listTestInfo[9]))}%"
         self.listTestInfoForReplace[9] = strRequiredUseableCapacityPercentage
 
         [sy, sm, sd] = self.listBatteryInfo[2][0].split(" ")[0].split("-")
         [ey, em, ed] = self.listBatteryInfo[2][1].split(" ")[0].split("-")
 
-        strRelResultPath = os.path.relpath(self.strResultXlsxPath, os.path.dirname(self.strReportWordPath))
+        strRelResultPath = os.path.relpath(
+            self.strResultXlsxPath, os.path.dirname(self.strReportWordPath))
         if listMM2S[intPosiMaxmA][intPosi2V25] / int(self.listTestInfo[9]) >= intPassRate:
             strResult = "Pass"
             self.listTestInfoForReplace[8] = "meets"
@@ -902,25 +967,32 @@ class XlsxWordWriter:
         for i in range(4):
             wsExcel.merge_range(0, i, 1, i, listStrItems[i], wsExcelLine)
         if intTestProfileStartLine == 4:
-            wsExcel.merge_range(0, intTestProfileStartLine, 1, intTestProfileStartLine, "", wsExcelLine)
+            wsExcel.merge_range(0, intTestProfileStartLine,
+                                1, intTestProfileStartLine, "", wsExcelLine)
         wsExcel.write(0, intTestProfileStartLine, listStrItems[4], wsExcelLine)
         # Items 5-10
         for i in range(5, 11):
-            wsExcel.merge_range(0, intTestProfileStartLine + (i - 4), 1, intTestProfileStartLine + (i - 4), listStrItems[i], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 7, 1, intTestProfileStartLine + 8, listStrItems[11], wsExcelLine)
-        wsExcel.merge_range(0, intTestProfileStartLine + 9, 0, intTestDateStartCol - 1, listStrItems[13], wsExcelLine)
+            wsExcel.merge_range(0, intTestProfileStartLine + (i - 4), 1,
+                                intTestProfileStartLine + (i - 4), listStrItems[i], wsExcelLine)
+        wsExcel.merge_range(0, intTestProfileStartLine + 7, 1,
+                            intTestProfileStartLine + 8, listStrItems[11], wsExcelLine)
+        wsExcel.merge_range(0, intTestProfileStartLine + 9, 0,
+                            intTestDateStartCol - 1, listStrItems[13], wsExcelLine)
         for v in range(self.intVoltageLevelNum):
-            wsExcel.merge_range(1, intTestProfileStartLine + 9 + v * 2, 1, intTestProfileStartLine + 9 + v * 2 + 1, f"{self.listVoltageLevel[v]}V", wsExcelLine)
+            wsExcel.merge_range(1, intTestProfileStartLine + 9 + v * 2, 1, intTestProfileStartLine +
+                                9 + v * 2 + 1, f"{self.listVoltageLevel[v]}V", wsExcelLine)
         # Date columns (items 14-19)
         for i in range(14, 20):
-            wsExcel.merge_range(0, intTestDateStartCol + (i - 14), 1, intTestDateStartCol + (i - 14), listStrItems[i], wsExcelLine)
+            wsExcel.merge_range(0, intTestDateStartCol + (i - 14), 1,
+                                intTestDateStartCol + (i - 14), listStrItems[i], wsExcelLine)
 
         wsExcel.write(2, 0, listStrContent[0], wsExcelData)
         wsExcel.write(2, 1, listStrContent[1], wsExcelData)
         wsExcel.write(2, 2, listStrContent[2], wsExcelData)
         wsExcel.write(2, 3, listStrContent[3], wsExcelData)
         if len(listStrContent[4].split("\\")) == 1:
-            wsExcel.write(2, intTestProfileStartLine, listStrContent[4], wsExcelData)
+            wsExcel.write(2, intTestProfileStartLine,
+                          listStrContent[4], wsExcelData)
         else:
             # 将相对路径转换为file:// URL格式
             url_path = listStrContent[4]
@@ -928,19 +1000,23 @@ class XlsxWordWriter:
             url_path = url_path.replace('\\', '/')
             # 添加file://前缀
             file_url = f'file:///{url_path}'
-            wsExcel.write_url(2, intTestProfileStartLine, file_url, wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
+            wsExcel.write_url(2, intTestProfileStartLine, file_url,
+                              wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
         # 使用循环代替重复的write调用
         for i in range(5, 13):
-            wsExcel.write(2, intTestProfileStartLine + (i - 4), listStrContent[i], wsExcelData)
+            wsExcel.write(2, intTestProfileStartLine + (i - 4),
+                          listStrContent[i], wsExcelData)
 
         for v in range(self.intVoltageLevelNum):
             if v == intPosi2V25:
-                wsExcel.write(2, intTestProfileStartLine + 9 + v * 2, f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsExcelData_bold)
+                wsExcel.write(2, intTestProfileStartLine + 9 + v * 2,
+                              f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsExcelData_bold)
                 wsExcel.write_formula(f"{excel_utils.num2letter(intTestProfileStartLine + 9 + v * 2 + 1)}3",
                                       f"=TRUNC({excel_utils.num2letter(intTestProfileStartLine + 9 + v * 2)}3/{excel_utils.num2letter(intTestProfileStartLine + 6)}3, 2)",
                                       wsExcelData_percentage_bold)
             else:
-                wsExcel.write(2, intTestProfileStartLine + 9 + v * 2, f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsExcelData)
+                wsExcel.write(2, intTestProfileStartLine + 9 + v * 2,
+                              f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsExcelData)
                 wsExcel.write_formula(f"{excel_utils.num2letter(intTestProfileStartLine + 9 + v * 2 + 1)}3",
                                       f"=TRUNC({excel_utils.num2letter(intTestProfileStartLine + 9 + v * 2)}3/{excel_utils.num2letter(intTestProfileStartLine + 6)}3, 2)",
                                       wsExcelData_percentage)
@@ -951,9 +1027,11 @@ class XlsxWordWriter:
             content_index = 14 + i
             if col_offset == 3:
                 # listStrContent[17]使用特殊格式
-                wsExcel.write(2, intTestDateStartCol + col_offset, listStrContent[content_index], wsExcelData_bgyellow)
+                wsExcel.write(2, intTestDateStartCol + col_offset,
+                              listStrContent[content_index], wsExcelData_bgyellow)
             else:
-                wsExcel.write(2, intTestDateStartCol + col_offset, listStrContent[content_index], wsExcelData)
+                wsExcel.write(2, intTestDateStartCol + col_offset,
+                              listStrContent[content_index], wsExcelData)
 
         # 特殊处理hyperlink情况(listStrContent[18])
         url_path = listStrContent[18]
@@ -961,7 +1039,8 @@ class XlsxWordWriter:
         url_path = url_path.replace('\\', '/')
         # 添加file://前缀
         file_url = f'file:///{url_path}'
-        wsExcel.write_url(2, intTestDateStartCol + 4, file_url, wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
+        wsExcel.write_url(2, intTestDateStartCol + 4, file_url,
+                          wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
 
         excel_utils.ws_set_col(wsWord, 0, 1, 30)
         excel_utils.ws_set_col(wsWord, 1, intActualMeasuredCapacityLength, 3)
@@ -970,20 +1049,26 @@ class XlsxWordWriter:
             wsWord.write(i, 0, listStrItems[i], wsWordLine)
 
         for i in range(4, 12):
-            wsWord.write(intTestProfileStartLine + (i - 4), 0, listStrItems[i], wsWordLine)
-        wsWord.merge_range(intTestProfileStartLine + 8, 0, intTestProfileStartLine + 10, 0, listStrItems[13], wsWordLine)
+            wsWord.write(intTestProfileStartLine + (i - 4),
+                         0, listStrItems[i], wsWordLine)
+        wsWord.merge_range(intTestProfileStartLine + 8, 0,
+                           intTestProfileStartLine + 10, 0, listStrItems[13], wsWordLine)
         intTestDateStartRow = intTestProfileStartLine + 11
         # 使用循环处理wsWord.write调用
         for i in range(6):
-            wsWord.write(intTestDateStartRow + i, 0, listStrItems[14 + i], wsWordLine)
+            wsWord.write(intTestDateStartRow + i, 0,
+                         listStrItems[14 + i], wsWordLine)
 
         # 使用循环处理wsWord.merge_range调用
         for i in range(4):
-            wsWord.merge_range(i, 1, i, intActualMeasuredCapacityLength, listStrContent[i], wsWordData)
+            wsWord.merge_range(
+                i, 1, i, intActualMeasuredCapacityLength, listStrContent[i], wsWordData)
         if intTestProfileStartLine == 4:
-            wsWord.merge_range(intTestProfileStartLine, 1, intTestProfileStartLine, intActualMeasuredCapacityLength, "", wsWordData)
+            wsWord.merge_range(intTestProfileStartLine, 1, intTestProfileStartLine,
+                               intActualMeasuredCapacityLength, "", wsWordData)
         if len(listStrContent[4].split("\\")) == 1:
-            wsWord.write(intTestProfileStartLine, 1, listStrContent[4], wsWordData)
+            wsWord.write(intTestProfileStartLine, 1,
+                         listStrContent[4], wsWordData)
         else:
             # 将相对路径转换为file:// URL格式
             url_path = listStrContent[4]
@@ -991,44 +1076,62 @@ class XlsxWordWriter:
             url_path = url_path.replace('\\', '/')
             # 添加file://前缀
             file_url = f'file:///{url_path}'
-            wsWord.write_url(intTestProfileStartLine, 1, file_url, wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
+            wsWord.write_url(intTestProfileStartLine, 1, file_url,
+                             wbSampleHyperlink, string=listStrContent[4].split("\\")[-1])
         # 使用循环处理wsWord.merge_range调用
         for i in range(5, 11):
-            wsWord.merge_range(intTestProfileStartLine + (i - 4), 1, intTestProfileStartLine + (i - 4), intActualMeasuredCapacityLength, listStrContent[i], wsWordData)
-        wsWord.merge_range(intTestProfileStartLine + 7, 1, intTestProfileStartLine + 7, int(intActualMeasuredCapacityLength / 2), listStrContent[11], wsWordData)
-        wsWord.merge_range(intTestProfileStartLine + 7, int(intActualMeasuredCapacityLength / 2) + 1, intTestProfileStartLine + 7, intActualMeasuredCapacityLength, listStrContent[12], wsWordData)
+            wsWord.merge_range(intTestProfileStartLine + (i - 4), 1, intTestProfileStartLine + (
+                i - 4), intActualMeasuredCapacityLength, listStrContent[i], wsWordData)
+        wsWord.merge_range(intTestProfileStartLine + 7, 1, intTestProfileStartLine + 7,
+                           int(intActualMeasuredCapacityLength / 2), listStrContent[11], wsWordData)
+        wsWord.merge_range(intTestProfileStartLine + 7, int(intActualMeasuredCapacityLength / 2) + 1,
+                           intTestProfileStartLine + 7, intActualMeasuredCapacityLength, listStrContent[12], wsWordData)
         for v in range(self.intVoltageLevelNum):
             if v == intPosi2V25:
-                wsWord.merge_range(intTestProfileStartLine + 8, 1 + v * 2, intTestProfileStartLine + 8, 2 + v * 2, f"{self.listVoltageLevel[v]}V", wsWordData_bold)
-                wsWord.merge_range(intTestProfileStartLine + 9, 1 + v * 2, intTestProfileStartLine + 9, 2 + v * 2, f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsWordData_bold)
-                wsWord.merge_range(intTestProfileStartLine + 10, 1 + v * 2, intTestProfileStartLine + 10, 2 + v * 2, "", wsWordData_bold)
+                wsWord.merge_range(intTestProfileStartLine + 8, 1 + v * 2, intTestProfileStartLine +
+                                   8, 2 + v * 2, f"{self.listVoltageLevel[v]}V", wsWordData_bold)
+                wsWord.merge_range(intTestProfileStartLine + 9, 1 + v * 2, intTestProfileStartLine + 9,
+                                   2 + v * 2, f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsWordData_bold)
+                wsWord.merge_range(intTestProfileStartLine + 10, 1 + v * 2,
+                                   intTestProfileStartLine + 10, 2 + v * 2, "", wsWordData_bold)
                 wsWord.write_formula(f"{excel_utils.num2letter(1 + v * 2)}{intTestProfileStartLine + 11}",
                                      f"=TRUNC({excel_utils.num2letter(1 + v * 2)}{intTestProfileStartLine + 10}/B{intTestProfileStartLine + 7}, 2)",
                                      wsWordData_percentage_bold)
             else:
-                wsWord.merge_range(intTestProfileStartLine + 8, 1 + v * 2, intTestProfileStartLine + 8, 2 + v * 2, f"{self.listVoltageLevel[v]}V", wsWordData)
-                wsWord.merge_range(intTestProfileStartLine + 9, 1 + v * 2, intTestProfileStartLine + 9, 2 + v * 2, f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsWordData)
-                wsWord.merge_range(intTestProfileStartLine + 10, 1 + v * 2, intTestProfileStartLine + 10, 2 + v * 2, "", wsWordData)
+                wsWord.merge_range(intTestProfileStartLine + 8, 1 + v * 2, intTestProfileStartLine +
+                                   8, 2 + v * 2, f"{self.listVoltageLevel[v]}V", wsWordData)
+                wsWord.merge_range(intTestProfileStartLine + 9, 1 + v * 2, intTestProfileStartLine +
+                                   9, 2 + v * 2, f"{round(listMM2S[intPosiMaxmA][v], 2)}", wsWordData)
+                wsWord.merge_range(intTestProfileStartLine + 10, 1 + v * 2,
+                                   intTestProfileStartLine + 10, 2 + v * 2, "", wsWordData)
                 wsWord.write_formula(f"{excel_utils.num2letter(1 + v * 2)}{intTestProfileStartLine + 11}",
                                      f"=TRUNC({excel_utils.num2letter(1 + v * 2)}{intTestProfileStartLine + 10}/B{intTestProfileStartLine + 7}, 2)",
                                      wsWordData_percentage)
 
-        wsWord.merge_range(intTestDateStartRow, 1, intTestDateStartRow, intActualMeasuredCapacityLength, listStrContent[14], wsWordData)
-        wsWord.merge_range(intTestDateStartRow + 1, 1, intTestDateStartRow + 1, intActualMeasuredCapacityLength, listStrContent[15], wsWordData)
-        wsWord.merge_range(intTestDateStartRow + 2, 1, intTestDateStartRow + 2, intActualMeasuredCapacityLength, listStrContent[16], wsWordData)
-        wsWord.merge_range(intTestDateStartRow + 3, 1, intTestDateStartRow + 3, intActualMeasuredCapacityLength, listStrContent[17], wsWordData_bgyellow)
-        wsWord.merge_range(intTestDateStartRow + 4, 1, intTestDateStartRow + 4, intActualMeasuredCapacityLength, "", wsWordData)
+        wsWord.merge_range(intTestDateStartRow, 1, intTestDateStartRow,
+                           intActualMeasuredCapacityLength, listStrContent[14], wsWordData)
+        wsWord.merge_range(intTestDateStartRow + 1, 1, intTestDateStartRow + 1,
+                           intActualMeasuredCapacityLength, listStrContent[15], wsWordData)
+        wsWord.merge_range(intTestDateStartRow + 2, 1, intTestDateStartRow + 2,
+                           intActualMeasuredCapacityLength, listStrContent[16], wsWordData)
+        wsWord.merge_range(intTestDateStartRow + 3, 1, intTestDateStartRow + 3,
+                           intActualMeasuredCapacityLength, listStrContent[17], wsWordData_bgyellow)
+        wsWord.merge_range(intTestDateStartRow + 4, 1, intTestDateStartRow +
+                           4, intActualMeasuredCapacityLength, "", wsWordData)
         # 将相对路径转换为file:// URL格式
         url_path = strRelResultPath
         # 确保路径使用正斜杠
         url_path = url_path.replace('\\', '/')
         # 添加file://前缀
         file_url = f'file:///{url_path}'
-        wsWord.write_url(intTestDateStartRow + 4, 1, file_url, wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
-        wsWord.merge_range(intTestDateStartRow + 5, 1, intTestDateStartRow + 5, intActualMeasuredCapacityLength, listStrContent[19], wsWordData)
+        wsWord.write_url(intTestDateStartRow + 4, 1, file_url,
+                         wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
+        wsWord.merge_range(intTestDateStartRow + 5, 1, intTestDateStartRow + 5,
+                           intActualMeasuredCapacityLength, listStrContent[19], wsWordData)
 
         # wdResult write table Overview
-        tableOverview = wdReport.add_table(intTestDateStartRow + 6, 1 + self.intVoltageLevelNum * 2, style='Table Grid')
+        tableOverview = wdReport.add_table(
+            intTestDateStartRow + 6, 1 + self.intVoltageLevelNum * 2, style='Table Grid')
         for row in range(intTestDateStartRow + 6):
             tableOverview.rows[row].height = Cm(0.5)
             for col in range(1 + self.intVoltageLevelNum * 2):
@@ -1053,7 +1156,8 @@ class XlsxWordWriter:
                     for col in range(1, self.intVoltageLevelNum):
                         cell2 = tableOverview.cell(row, col + 1)
                         cell1.merge(cell2)
-                    cell1 = tableOverview.cell(row, 1 + self.intVoltageLevelNum)
+                    cell1 = tableOverview.cell(
+                        row, 1 + self.intVoltageLevelNum)
                     for col in range(1 + self.intVoltageLevelNum, self.intVoltageLevelNum * 2):
                         cell2 = tableOverview.cell(row, col + 1)
                         cell1.merge(cell2)
@@ -1073,34 +1177,46 @@ class XlsxWordWriter:
         for i in range(4):
             tableOverview.cell(i, 0).paragraphs[0].add_run(listStrItems[i])
         if intTestProfileStartLine == 4:
-            tableOverview.cell(3, 0).paragraphs[0].text = tableOverview.cell(3, 0).paragraphs[0].text.replace(listStrItems[3], "")
+            tableOverview.cell(3, 0).paragraphs[0].text = tableOverview.cell(
+                3, 0).paragraphs[0].text.replace(listStrItems[3], "")
         # 使用循环优化重复代码，注意跳过索引12
         for i in range(4, 12):
-            tableOverview.cell(intTestProfileStartLine + (i - 4), 0).paragraphs[0].add_run(listStrItems[i])
+            tableOverview.cell(intTestProfileStartLine + (i - 4),
+                               0).paragraphs[0].add_run(listStrItems[i])
         # 处理跳过索引12的情况
-        tableOverview.cell(intTestProfileStartLine + 8, 0).paragraphs[0].add_run(listStrItems[13])
+        tableOverview.cell(intTestProfileStartLine + 8,
+                           0).paragraphs[0].add_run(listStrItems[13])
         # 使用循环优化重复代码
         for i in range(14, 20):
-            tableOverview.cell(intTestDateStartRow + (i - 14), 0).paragraphs[0].add_run(listStrItems[i])
+            tableOverview.cell(intTestDateStartRow + (i - 14),
+                               0).paragraphs[0].add_run(listStrItems[i])
 
         # 使用循环优化重复代码
         for i in range(4):
             tableOverview.cell(i, 1).paragraphs[0].add_run(listStrContent[i])
         if intTestProfileStartLine == 4:
-            tableOverview.cell(3, 1).paragraphs[0].text = tableOverview.cell(3, 1).paragraphs[0].text.replace(listStrContent[3], "")
+            tableOverview.cell(3, 1).paragraphs[0].text = tableOverview.cell(
+                3, 1).paragraphs[0].text.replace(listStrContent[3], "")
         tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].text = ""
         if len(listStrContent[4].split("\\")) == 1:
-            tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0].add_run(listStrContent[4])
+            tableOverview.cell(intTestProfileStartLine,
+                               1).paragraphs[0].add_run(listStrContent[4])
         else:
-            word_utils.add_hyperlink(tableOverview.cell(intTestProfileStartLine, 1).paragraphs[0], listStrContent[4], listStrContent[4].split("\\")[-1])
+            word_utils.add_hyperlink(tableOverview.cell(
+                intTestProfileStartLine, 1).paragraphs[0], listStrContent[4], listStrContent[4].split("\\")[-1])
         # 使用循环优化重复代码
         for i in range(5, 12):
-            tableOverview.cell(intTestProfileStartLine + (i - 4), 1).paragraphs[0].add_run(listStrContent[i])
-        tableOverview.cell(intTestProfileStartLine + 7, 1 + self.intVoltageLevelNum).paragraphs[0].add_run(listStrContent[12])
+            tableOverview.cell(intTestProfileStartLine + (i - 4),
+                               1).paragraphs[0].add_run(listStrContent[i])
+        tableOverview.cell(intTestProfileStartLine + 7, 1 +
+                           self.intVoltageLevelNum).paragraphs[0].add_run(listStrContent[12])
         for v in range(self.intVoltageLevelNum):
-            text1 = tableOverview.cell(intTestProfileStartLine + 8, 1 + v * 2).paragraphs[0].add_run(f"{self.listVoltageLevel[v]}V")
-            text2 = tableOverview.cell(intTestProfileStartLine + 9, 1 + v * 2).paragraphs[0].add_run(f"{round(listMM2S[intPosiMaxmA][v], 2)}")
-            text3 = tableOverview.cell(intTestProfileStartLine + 10, 1 + v * 2).paragraphs[0].add_run(f"{math.floor(100 * listMM2S[intPosiMaxmA][v] / int(listStrContent[10]))}%")
+            text1 = tableOverview.cell(
+                intTestProfileStartLine + 8, 1 + v * 2).paragraphs[0].add_run(f"{self.listVoltageLevel[v]}V")
+            text2 = tableOverview.cell(intTestProfileStartLine + 9, 1 + v *
+                                       2).paragraphs[0].add_run(f"{round(listMM2S[intPosiMaxmA][v], 2)}")
+            text3 = tableOverview.cell(intTestProfileStartLine + 10, 1 + v * 2).paragraphs[0].add_run(
+                f"{math.floor(100 * listMM2S[intPosiMaxmA][v] / int(listStrContent[10]))}%")
             if v == intPosi2V25:
                 text1.font.bold = True
                 text2.font.bold = True
@@ -1109,10 +1225,13 @@ class XlsxWordWriter:
         for i in range(14, 20):
             if i == 18:
                 # 特殊处理超链接
-                tableOverview.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0].text = ""
-                word_utils.add_hyperlink(tableOverview.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0], listStrContent[i], listStrContent[i].split("\\")[-1])
+                tableOverview.cell(intTestDateStartRow +
+                                   (i - 14), 1).paragraphs[0].text = ""
+                word_utils.add_hyperlink(tableOverview.cell(intTestDateStartRow + (
+                    i - 14), 1).paragraphs[0], listStrContent[i], listStrContent[i].split("\\")[-1])
             else:
-                tableOverview.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0].add_run(listStrContent[i])
+                tableOverview.cell(intTestDateStartRow + (i - 14),
+                                   1).paragraphs[0].add_run(listStrContent[i])
 
         for row in range(intTestDateStartRow + 6):
             for col in range(1 + self.intVoltageLevelNum * 2):
@@ -1137,24 +1256,31 @@ class XlsxWordWriter:
                 if self.listTextToReplace[t] in paragraph.text:
                     modified = True
                     if self.listTextToReplace[t] == "StrD":
-                        paragraph.text = paragraph.text.replace(self.listTextToReplace[t], "")
-                        text = paragraph.add_run(f"{self.listTestInfoForReplace[t]}")
+                        paragraph.text = paragraph.text.replace(
+                            self.listTextToReplace[t], "")
+                        text = paragraph.add_run(
+                            f"{self.listTestInfoForReplace[t]}")
                         text.font.bold = True
                         paragraph.add_run(".")
                     else:
-                        paragraph.text = paragraph.text.replace(self.listTextToReplace[t], f"{self.listTestInfoForReplace[t]}")
+                        paragraph.text = paragraph.text.replace(
+                            self.listTextToReplace[t], f"{self.listTestInfoForReplace[t]}")
 
             if not modified:  # 只有当段落未被修改时才处理图片，避免重复处理
                 for i in range(len(self.listImageToReplace)):
                     if self.listImageToReplace[i] in paragraph.text:
-                        paragraph.text = paragraph.text.replace(self.listImageToReplace[i], "")
+                        paragraph.text = paragraph.text.replace(
+                            self.listImageToReplace[i], "")
                         if i < 2 * len(self.listPngPath) + 1:
                             if i == 0:
-                                paragraph.add_run("").add_picture(self.strFilteredPngPath, width=Cm(15))
+                                paragraph.add_run("").add_picture(
+                                    self.strFilteredPngPath, width=Cm(15))
                             elif i % 2 == 1:
-                                paragraph.add_run("").add_picture(self.listPngPath[int((i - 1) / 2)], width=Cm(7.2))
+                                paragraph.add_run("").add_picture(
+                                    self.listPngPath[int((i - 1) / 2)], width=Cm(7.2))
                             else:
-                                paragraph.add_run(f"Figure {int(i / 2 + 1)}  {self.listTestInfoForReplace[2]} {self.listTestInfoForReplace[0]}-{self.listTestInfoForReplace[1]} Boxplot, {self.listCurrentLevel[int(i / 2 - 1)]}mA")
+                                paragraph.add_run(
+                                    f"Figure {int(i / 2 + 1)}  {self.listTestInfoForReplace[2]} {self.listTestInfoForReplace[0]}-{self.listTestInfoForReplace[1]} Boxplot, {self.listCurrentLevel[int(i / 2 - 1)]}mA")
                         else:
                             paragraph._element.getparent().remove(paragraph._element)
                             continue  # 跳过后续处理，因为段落已被删除
@@ -1222,7 +1348,8 @@ class XlsxWordWriter:
                 listBoxPlot.append(_listCpt[c][v])
                 listLabel.append(f"{self.listVoltageLevel[v]}V")
             plt.cla()
-            plt.boxplot(listBoxPlot, labels=listLabel, medianprops=medianprofile)
+            plt.boxplot(listBoxPlot, labels=listLabel,
+                        medianprops=medianprofile)
             plt.title(self.listBoxplotTitle[c], fontdict=fontdictLabel)
             plt.xlabel("Cutoff Voltage [V]")
             plt.ylabel("Useable Capacity [mAh]")
@@ -1244,12 +1371,14 @@ class XlsxWordWriter:
         for row in csvreaderInfoImageCsvFile:
             loop = index % intPerBatteryRows
             if loop != 0 and (loop % 3) != 1:
-                listPlt[int((loop - 1) / 3)][((loop - 1) % 3) - 1].append([float(row[i]) for i in range(len(row))])
+                listPlt[int((loop - 1) / 3)][((loop - 1) % 3) -
+                                             1].append([float(row[i]) for i in range(len(row))])
             index += 1
         f.close()
 
         for c in range(self.intCurrentLevelNum):
-            listPlt[c][2], listPlt[c][3] = data_utils.filter_data(listPlt[c][0], listPlt[c][1])
+            listPlt[c][2], listPlt[c][3] = data_utils.filter_data(
+                listPlt[c][0], listPlt[c][1])
 
         title_fontdict = {
             'fontsize': 15,
@@ -1268,10 +1397,12 @@ class XlsxWordWriter:
         ax.yaxis.set_major_locator(y_major_locator)
         plt.title(f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
         plt.xlabel("Charge [mAh]", fontdict=axis_fontdict)
-        plt.ylabel("Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
+        plt.ylabel(
+            "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
         for b in range(self.intBatteryNum):
             for c in range(self.intCurrentLevelNum):
-                plt.plot(listPlt[c][0][b], listPlt[c][1][b], color=f"{self.listPltColorType[c]}", linewidth=0.5)
+                plt.plot(listPlt[c][0][b], listPlt[c][1][b],
+                         color=f"{self.listPltColorType[c]}", linewidth=0.5)
         plt.grid(linestyle="--", alpha=0.3)
         plt.savefig(self.strUnfilteredPngPath)
         plt.savefig(self.strUnfilteredSvgPath, dpi=1200)
@@ -1286,7 +1417,8 @@ class XlsxWordWriter:
         plt.ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
         for b in range(self.intBatteryNum):
             for c in range(self.intCurrentLevelNum):
-                plt.plot(listPlt[c][0][b], listPlt[c][1][b], color=f"{self.listPltColorType[c]}", linewidth=0.5)
+                plt.plot(listPlt[c][0][b], listPlt[c][1][b],
+                         color=f"{self.listPltColorType[c]}", linewidth=0.5)
         plt.grid(linestyle="--", alpha=0.3)
         plt.savefig(self.strFilteredPngPath)
         plt.savefig(self.strFilteredSvgPath, dpi=1200)
@@ -1322,19 +1454,23 @@ class JsonWriter:
         self.dictJson = {}
         self.listTestRun = []
         self.dictMeasurements = {}
-        self.runAt = datetime.datetime.strptime(self.listBatteryInfo[2][0], "%Y-%m-%d %H:%M:%S").astimezone(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        self.runAt = datetime.datetime.strptime(
+            self.listBatteryInfo[2][0], "%Y-%m-%d %H:%M:%S").astimezone(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
         self.strFileCurrentType = ""
         for c in range(len(self.listCurrentLevel)):
-            self.strFileCurrentType = self.strFileCurrentType + f"{self.listCurrentLevel[c]}-"
+            self.strFileCurrentType = self.strFileCurrentType + \
+                f"{self.listCurrentLevel[c]}-"
         self.strFileCurrentType = self.strFileCurrentType[:-1]
         # 使用os.path.join确保路径分隔符一致性
-        self.strResultJsonPath = os.path.join(self.strResultPath, f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{self.listTestInfo[7]}.json")
+        self.strResultJsonPath = os.path.join(
+            self.strResultPath, f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{self.listTestInfo[7]}.json")
         self.listBatteryVoltage = []
         for v in range(len(self.listVoltageLevel)):
-            self.listBatteryVoltage.append(len(str(self.listVoltageLevel[v])) < 4 and str(self.listVoltageLevel[v]) + '0' * (4 - len(str(self.listVoltageLevel[v]))) or str(self.listVoltageLevel[v]))
+            self.listBatteryVoltage.append(len(str(self.listVoltageLevel[v])) < 4 and str(
+                self.listVoltageLevel[v]) + '0' * (4 - len(str(self.listVoltageLevel[v]))) or str(self.listVoltageLevel[v]))
 
         self.UJS_FormatJson()
 
@@ -1349,15 +1485,18 @@ class JsonWriter:
                 if j % (len(self.listVoltageLevel)) == 0:
                     index += 1
                 if self.listBatteryInfo[0][i][j] != 0 and self.listBatteryVoltage[j % len(self.listBatteryVoltage)] != "":
-                    dictMeasurements[index].update({self.listBatteryVoltage[j % len(self.listBatteryVoltage)]: self.listBatteryInfo[0][i][j]})
+                    dictMeasurements[index].update({self.listBatteryVoltage[j % len(
+                        self.listBatteryVoltage)]: self.listBatteryInfo[0][i][j]})
             try:
-                battery_name_split = self.listBatteryInfo[1][i].split("BTS")[1].split("_")
+                battery_name_split = self.listBatteryInfo[1][i].split("BTS")[
+                    1].split("_")
                 battery_name = f"{battery_name_split[2]}_{battery_name_split[3]}"
             except IndexError:
                 battery_name = f"Battery_{i}"
             listResults = []
             for c in range(len(self.listCurrentLevel)):
-                listResults.append({"scenario": f"{self.listCurrentLevel[c]}mA", "measurements": dictMeasurements[c]})
+                listResults.append(
+                    {"scenario": f"{self.listCurrentLevel[c]}mA", "measurements": dictMeasurements[c]})
             dictTestRun.update({"slot": battery_name, "results": listResults})
             self.listTestRun.append(dictTestRun)
 
@@ -1365,11 +1504,13 @@ class JsonWriter:
         # 安全读取电池类型基础规格
         try:
             if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "SpecificationTypeBase"):
-                listBatteryTypeBase = self.config.get("BatteryConfig", "SpecificationTypeBase").split(",")
+                listBatteryTypeBase = self.config.get(
+                    "BatteryConfig", "SpecificationTypeBase").split(",")
                 logging.info(f"使用配置文件中的电池类型基础规格: {listBatteryTypeBase}")
             else:
                 # 使用默认值
-                listBatteryTypeBase = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
+                listBatteryTypeBase = [
+                    "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
                 logging.info("使用默认电池类型基础规格")
 
             strBatteryType = ""

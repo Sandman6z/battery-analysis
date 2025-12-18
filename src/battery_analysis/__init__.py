@@ -4,7 +4,8 @@ import logging
 from battery_analysis.utils.version import Version
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 使用version模块获取版本号
 __version__ = Version().version

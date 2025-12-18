@@ -21,6 +21,11 @@
 - math: 用于数学计算
 """
 
+from battery_analysis.utils.config_utils import find_config_file
+from battery_analysis.utils.exception_type import BatteryAnalysisException
+from matplotlib.widgets import CheckButtons
+from matplotlib.ticker import MultipleLocator
+import matplotlib.pyplot as plt
 import os
 import csv
 import sys
@@ -31,15 +36,11 @@ from pathlib import Path
 import logging
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
-from matplotlib.widgets import CheckButtons
 
 # 导入异常类
-from battery_analysis.utils.exception_type import BatteryAnalysisException
-from battery_analysis.utils.config_utils import find_config_file
 
 
 class FIGURE:
@@ -86,7 +87,8 @@ class FIGURE:
         self._read_configurations()
 
         # 设置其他初始化参数
-        self.listColor = ['#DF7040', '#0675BE', '#EDB120', '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
+        self.listColor = ['#DF7040', '#0675BE', '#EDB120',
+                          '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
         self.maxXaxis = 1000  # 默认最大值
         self._read_rules_configuration()
 
@@ -111,7 +113,8 @@ class FIGURE:
                 return
 
             # 回退到Config_BatteryAnalysis.ini（兼容旧版本）
-            config_battery_path = find_config_file("Config_BatteryAnalysis.ini")
+            config_battery_path = find_config_file(
+                "Config_BatteryAnalysis.ini")
             if config_battery_path and os.path.exists(config_battery_path):
                 self.config.read(config_battery_path, encoding='utf-8')
                 logging.info("成功读取Config_BatteryAnalysis.ini配置")
@@ -135,21 +138,26 @@ class FIGURE:
         - 电池规格类型配置（纽扣电池和软包电池）
         """
         # 读取图表路径配置
-        self.strPltPath = self._get_config_value("PltConfig", "Path", os.getcwd())
+        self.strPltPath = self._get_config_value(
+            "PltConfig", "Path", os.getcwd())
 
         # 读取图表标题配置
-        self.strPltTitle = self._get_config_value("PltConfig", "Title", "Battery Test Results")
+        self.strPltTitle = self._get_config_value(
+            "PltConfig", "Title", "Battery Test Results")
 
         # 设置CSV文件路径
-        self.strInfoImageCsvPath = os.path.join(self.strPltPath, "Info_Image.csv")
+        self.strInfoImageCsvPath = os.path.join(
+            self.strPltPath, "Info_Image.csv")
 
         # 读取脉冲电流级别配置
         self.listPulseCurrentLevel = self._get_pulse_current_level()
         self.intCurrentLevelNum = len(self.listPulseCurrentLevel)
 
         # 读取电池规格类型配置
-        self.listCoinCell = self._get_config_list("BatteryConfig", "SpecificationTypeCoinCell")
-        self.listPouchCell = self._get_config_list("BatteryConfig", "SpecificationTypePouchCell")
+        self.listCoinCell = self._get_config_list(
+            "BatteryConfig", "SpecificationTypeCoinCell")
+        self.listPouchCell = self._get_config_list(
+            "BatteryConfig", "SpecificationTypePouchCell")
 
         # 设置图表标题
         self.strPltName = self._set_plot_title()
@@ -175,10 +183,12 @@ class FIGURE:
                 logging.debug(f"获取配置 {section}/{option}: {value}")
                 return value
             else:
-                logging.warning(f"未找到配置 {section}/{option}，使用默认值: {default_value}")
+                logging.warning(
+                    f"未找到配置 {section}/{option}，使用默认值: {default_value}")
                 return default_value
         except Exception as e:
-            logging.error(f"读取配置 {section}/{option} 出错: {e}，使用默认值: {default_value}")
+            logging.error(
+                f"读取配置 {section}/{option} 出错: {e}，使用默认值: {default_value}")
             return default_value
 
     def _get_config_list(self, section, option):
@@ -200,13 +210,15 @@ class FIGURE:
         """获取脉冲电流级别配置"""
         try:
             if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "PulseCurrent"):
-                listPulseCurrentLevel = self.config.get("BatteryConfig", "PulseCurrent").split(",")
+                listPulseCurrentLevel = self.config.get(
+                    "BatteryConfig", "PulseCurrent").split(",")
                 result = [int(item.strip()) for item in listPulseCurrentLevel]
                 logging.info(f"使用配置的脉冲电流级别: {result}")
                 return result
             else:
                 default_value = [10, 20, 50]
-                logging.warning(f"未找到BatteryConfig/PulseCurrent，使用默认值: {default_value}")
+                logging.warning(
+                    f"未找到BatteryConfig/PulseCurrent，使用默认值: {default_value}")
                 return default_value
         except Exception as e:
             default_value = [10, 20, 50]
@@ -231,7 +243,8 @@ class FIGURE:
         """读取并处理规则配置"""
         try:
             if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "Rules"):
-                listRules = self.config.get("BatteryConfig", "Rules").split(",")
+                listRules = self.config.get(
+                    "BatteryConfig", "Rules").split(",")
                 self._process_rules(listRules)
             else:
                 logging.warning("未找到BatteryConfig/Rules，使用默认maxXaxis")
@@ -249,10 +262,12 @@ class FIGURE:
                         if len(rule_parts) > 2:
                             try:
                                 self.maxXaxis = int(rule_parts[2])
-                                logging.info(f"根据规则设置maxXaxis: {self.maxXaxis}")
+                                logging.info(
+                                    f"根据规则设置maxXaxis: {self.maxXaxis}")
                                 break
                             except ValueError:
-                                logging.warning(f"规则中的maxXaxis值无效: {rule_parts[2]}")
+                                logging.warning(
+                                    f"规则中的maxXaxis值无效: {rule_parts[2]}")
         except Exception as e:
             logging.error(f"处理规则时出错: {e}，保持默认maxXaxis")
 
@@ -367,7 +382,8 @@ class FIGURE:
                 # 读取所有行以验证数据量
                 all_rows = list(csvreader)
                 if len(all_rows) < 5:  # 至少需要几行数据才可能包含有效电池信息
-                    logging.error(f"错误: CSV文件 {self.strInfoImageCsvPath} 数据行数不足")
+                    logging.error(
+                        f"错误: CSV文件 {self.strInfoImageCsvPath} 数据行数不足")
                     self.intBatteryNum = 0
                     return
 
@@ -461,8 +477,10 @@ class FIGURE:
                         # 确保索引在有效范围内
                         if 0 <= current_idx < self.intCurrentLevelNum and 0 <= data_idx < 4:
                             # 尝试将所有数据转换为float
-                            float_data = [float(row[i]) for i in range(len(row))]
-                            self.listPlt[current_idx][data_idx].append(float_data)
+                            float_data = [float(row[i])
+                                          for i in range(len(row))]
+                            self.listPlt[current_idx][data_idx].append(
+                                float_data)
                     except (ValueError, IndexError) as e:
                         logging.warning(f"解析CSV行数据时出错: {e}，跳过此行")
             index += 1
@@ -480,16 +498,19 @@ class FIGURE:
             try:
                 # 尝试提取BTS后的标识符部分
                 if "BTS" in self.listBatteryName[b]:
-                    strBatteryNameSplit = self.listBatteryName[b].split("BTS")[1].split("_")
+                    strBatteryNameSplit = self.listBatteryName[b].split("BTS")[
+                        1].split("_")
                     if len(strBatteryNameSplit) >= 4:
                         strBatteryName = f"{strBatteryNameSplit[2]}_{strBatteryNameSplit[3]}"
                     else:
                         # 如果分割后部分不足，使用可用部分
-                        strBatteryName = "_".join(strBatteryNameSplit[1:3]) if len(strBatteryNameSplit) >= 3 else f"Battery_{b}"
+                        strBatteryName = "_".join(strBatteryNameSplit[1:3]) if len(
+                            strBatteryNameSplit) >= 3 else f"Battery_{b}"
                 else:
                     # 如果没有BTS标识，使用原始名称的后部分或默认名称
                     name_parts = self.listBatteryName[b].split("_")
-                    strBatteryName = "_".join(name_parts[-2:]) if len(name_parts) >= 2 else f"Battery_{b}"
+                    strBatteryName = "_".join(
+                        name_parts[-2:]) if len(name_parts) >= 2 else f"Battery_{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
             except Exception as e:
                 logging.warning(f"解析电池名称时出错: {e}，使用默认名称")
@@ -531,7 +552,8 @@ class FIGURE:
                     if charge_diff == 0:
                         slope = slope_max
                     else:
-                        slope = abs((voltage_single[c] - voltage_single[c - 1]) / charge_diff)
+                        slope = abs(
+                            (voltage_single[c] - voltage_single[c - 1]) / charge_diff)
 
                     # 根据斜率和电压差异进行过滤
                     if slope < slope_max and abs(voltage_single[c] - voltage_single[c - 1]) < difference_max:
@@ -560,12 +582,10 @@ class FIGURE:
                 # 检查数据是否有效
                 if c < len(self.listPlt) and len(self.listPlt[c]) >= 4:
                     if self.listPlt[c][0] and self.listPlt[c][1]:
-                        self.listPlt[c][2], self.listPlt[c][3] = self.filter_data(self.listPlt[c][0], self.listPlt[c][1])
+                        self.listPlt[c][2], self.listPlt[c][3] = self.filter_data(
+                            self.listPlt[c][0], self.listPlt[c][1])
             except Exception as e:
                 logging.error(f"过滤数据时出错 (电流级别 {c}): {e}")
-
-
-
 
     def plt_figure(self):
         """创建并显示电池数据图表，包含交互控件以切换数据显示
@@ -601,11 +621,14 @@ class FIGURE:
 
             # 绘制电池数据曲线
             try:
-                lines_unfiltered, lines_filtered = self._plot_battery_curves(ax)
-                valid_data_found = bool(lines_filtered) or bool(lines_unfiltered)
+                lines_unfiltered, lines_filtered = self._plot_battery_curves(
+                    ax)
+                valid_data_found = bool(
+                    lines_filtered) or bool(lines_unfiltered)
 
                 if valid_data_found:
-                    logging.info(f"成功绘制了 {len(lines_filtered)} 条过滤曲线和 {len(lines_unfiltered)} 条原始曲线")
+                    logging.info(
+                        f"成功绘制了 {len(lines_filtered)} 条过滤曲线和 {len(lines_unfiltered)} 条原始曲线")
             except Exception as plot_error:
                 logging.error(f"绘制电池曲线时出错: {str(plot_error)}")
                 lines_unfiltered, lines_filtered = [], []
@@ -619,11 +642,13 @@ class FIGURE:
 
             # 添加交互控件
             try:
-                check_filter = self._add_filter_button(fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict)
+                check_filter = self._add_filter_button(
+                    fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict)
                 check_line1, check_line2 = self._add_battery_selection_buttons(
                     fig, check_filter, lines_unfiltered, lines_filtered
                 )
-                self._add_hover_functionality(fig, ax, lines_filtered, lines_unfiltered, check_filter)
+                self._add_hover_functionality(
+                    fig, ax, lines_filtered, lines_unfiltered, check_filter)
                 logging.info("成功添加图表交互控件")
             except Exception as ui_error:
                 logging.warning(f"添加交互控件时出错: {str(ui_error)}")
@@ -666,7 +691,8 @@ class FIGURE:
             fig, ax = plt.subplots(figsize=(10, 6))
 
             # 设置图表标题
-            ax.set_title(title, fontsize=16, fontweight='bold', color='#d32f2f')
+            ax.set_title(title, fontsize=16,
+                         fontweight='bold', color='#d32f2f')
 
             # 隐藏坐标轴
             ax.axis('off')
@@ -687,13 +713,13 @@ class FIGURE:
 
             # 显示错误信息
             ax.text(0.5, 0.5, full_text, fontsize=12, ha='center', va='center',
-                   wrap=True, linespacing=1.4)
+                    wrap=True, linespacing=1.4)
 
             # 添加版本信息和时间戳
             import datetime
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             fig.text(0.01, 0.01, f"Battery Analysis Tool v1.0 | {current_time}",
-                    fontsize=8, color='gray')
+                     fontsize=8, color='gray')
 
             # 添加边框和样式
             for spine in ax.spines.values():
@@ -709,7 +735,8 @@ class FIGURE:
             traceback.print_exc()
             # 如果连错误图表都无法显示，尝试使用简单的文本输出
             logging.error("\n严重错误: 无法显示图形界面的错误信息")
-            logging.error(f"错误详情: {title or '未知错误'} - {main_message or '无法加载数据'}")
+            logging.error(
+                f"错误详情: {title or '未知错误'} - {main_message or '无法加载数据'}")
             logging.info("\n请检查以下事项:")
             logging.info("1. Python环境是否正确安装")
             logging.info("2. Matplotlib库是否可用")
@@ -724,7 +751,8 @@ class FIGURE:
 
         # 创建图表并设置标题
         fig = plt.figure(figsize=(15, 6))
-        fig.canvas.manager.window.setWindowTitle("Filtered Load Voltage over Charge")
+        fig.canvas.manager.window.setWindowTitle(
+            "Filtered Load Voltage over Charge")
 
         # 清理并设置网格布局
         plt.clf()
@@ -743,7 +771,8 @@ class FIGURE:
         # 设置标题和标签
         ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
         ax.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
-        ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+        ax.set_ylabel(
+            "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
         # 添加网格线
         ax.grid(linestyle="--", alpha=0.3)
@@ -762,8 +791,10 @@ class FIGURE:
                     ul, = ax.plot(
                         self.listPlt[c][0][b],
                         self.listPlt[c][1][b],
-                        color=self.listColor[c] if c < len(self.listColor) else f'C{c}',
-                        label=[f'{self.listBatteryNameSplit[b]}', 'Unfiltered'],
+                        color=self.listColor[c] if c < len(
+                            self.listColor) else f'C{c}',
+                        label=[f'{self.listBatteryNameSplit[b]}',
+                               'Unfiltered'],
                         visible=False,
                         linewidth=0.5
                     )
@@ -773,7 +804,8 @@ class FIGURE:
                     fl, = ax.plot(
                         self.listPlt[c][2][b],
                         self.listPlt[c][3][b],
-                        color=self.listColor[c] if c < len(self.listColor) else f'C{c}',
+                        color=self.listColor[c] if c < len(
+                            self.listColor) else f'C{c}',
                         label=[f'{self.listBatteryNameSplit[b]}', 'Filtered'],
                         visible=True,
                         linewidth=0.5
@@ -791,30 +823,39 @@ class FIGURE:
 
         # 创建按钮区域
         rax_filter = plt.axes([0.001, 0.933, 0.16, 0.062])
-        check_filter = CheckButtons(rax_filter, labels_filter, visibility_filter)
+        check_filter = CheckButtons(
+            rax_filter, labels_filter, visibility_filter)
 
         # 回调函数：处理过滤/未过滤切换
         def func_filter(label):
             try:
                 if check_filter.get_status()[0]:
                     # 切换到过滤模式
-                    fig.canvas.manager.window.setWindowTitle("Filtered Load Voltage over Charge")
-                    ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
-                    ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+                    fig.canvas.manager.window.setWindowTitle(
+                        "Filtered Load Voltage over Charge")
+                    ax.set_title(
+                        f"Filtered {self.strPltName}", fontdict=title_fontdict)
+                    ax.set_ylabel(
+                        "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
                     # 更新线条可见性
                     for i in range(min(len(lines_unfiltered), len(lines_filtered))):
-                        lines_filtered[i].set_visible(lines_unfiltered[i].get_visible())
+                        lines_filtered[i].set_visible(
+                            lines_unfiltered[i].get_visible())
                         lines_unfiltered[i].set_visible(False)
                 else:
                     # 切换到未过滤模式
-                    fig.canvas.manager.window.setWindowTitle("Unfiltered Load Voltage over Charge")
-                    ax.set_title(f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
-                    ax.set_ylabel("Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
+                    fig.canvas.manager.window.setWindowTitle(
+                        "Unfiltered Load Voltage over Charge")
+                    ax.set_title(
+                        f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
+                    ax.set_ylabel(
+                        "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
                     # 更新线条可见性
                     for i in range(min(len(lines_filtered), len(lines_unfiltered))):
-                        lines_unfiltered[i].set_visible(lines_filtered[i].get_visible())
+                        lines_unfiltered[i].set_visible(
+                            lines_filtered[i].get_visible())
                         lines_filtered[i].set_visible(False)
 
                 fig.canvas.draw_idle()
@@ -854,7 +895,8 @@ class FIGURE:
             rax_line2 = plt.axes([0.081, 0.005, 0.08, 0.029*32])
             labels_line2 = ["None"] * 32
             visibility_line2 = [False] * 32
-            check_line2 = CheckButtons(rax_line2, labels_line2, visibility_line2)
+            check_line2 = CheckButtons(
+                rax_line2, labels_line2, visibility_line2)
 
             # 空按钮区域的回调函数
             def func_line2_empty(label):
@@ -867,7 +909,7 @@ class FIGURE:
         return check_line1, check_line2
 
     def _create_battery_check_buttons(self, fig, rect, start_idx, end_idx,
-                                    check_filter, lines_unfiltered, lines_filtered):
+                                      check_filter, lines_unfiltered, lines_filtered):
         """创建电池选择检查按钮"""
         labels_line = []
         visibility_line = []
@@ -897,7 +939,8 @@ class FIGURE:
                     return
 
                 # 根据当前模式（过滤/未过滤）更新对应线条的可见性
-                current_lines = lines_filtered if check_filter.get_status()[0] else lines_unfiltered
+                current_lines = lines_filtered if check_filter.get_status()[
+                    0] else lines_unfiltered
 
                 for i in range(len(current_lines)):
                     try:
@@ -906,11 +949,13 @@ class FIGURE:
                         if isinstance(line_label, list) and len(line_label) > 0:
                             # 处理标签为列表的情况
                             if label == line_label[0]:
-                                current_lines[i].set_visible(not current_lines[i].get_visible())
+                                current_lines[i].set_visible(
+                                    not current_lines[i].get_visible())
                         elif isinstance(line_label, str):
                             # 处理标签为字符串的情况
                             if label in line_label:
-                                current_lines[i].set_visible(not current_lines[i].get_visible())
+                                current_lines[i].set_visible(
+                                    not current_lines[i].get_visible())
                     except Exception as inner_e:
                         # 忽略单个线条处理错误，继续处理其他线条
                         logging.debug(f"处理线条标签时出错: {inner_e}")
@@ -938,7 +983,8 @@ class FIGURE:
             def on_hover(event):
                 if event.inaxes == ax:
                     # 获取当前可见的线条
-                    current_lines = lines_filtered if check_filter.get_status()[0] else lines_unfiltered
+                    current_lines = lines_filtered if check_filter.get_status()[
+                        0] else lines_unfiltered
 
                     # 查找最近的数据点
                     min_dist = float('inf')
@@ -954,7 +1000,8 @@ class FIGURE:
 
                                 # 查找距离鼠标最近的点
                                 for i, (x, y) in enumerate(zip(x_data, y_data)):
-                                    dist = ((x - event.xdata)**2 + (y - event.ydata)** 2)**0.5
+                                    dist = ((x - event.xdata)**2 +
+                                            (y - event.ydata) ** 2)**0.5
                                     # 只考虑一定范围内的点
                                     if dist < min_dist and dist < 0.05 * (self.maxXaxis - self.listAxis[0]):
                                         min_dist = dist
@@ -977,7 +1024,8 @@ class FIGURE:
                         else:
                             label_text = str(closest_line_label)
 
-                        annot.set_text(f"{label_text}\n点 {idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V")
+                        annot.set_text(
+                            f"{label_text}\n点 {idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V")
                         annot.set_visible(True)
                         fig.canvas.draw_idle()
                     else:

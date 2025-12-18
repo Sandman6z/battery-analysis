@@ -97,7 +97,8 @@ class ValidationController(QC.QObject):
         try:
             files = os.listdir(input_path)
             # 检查是否至少有一个xlsx或csv文件
-            has_data_file = any(file.endswith('.xlsx') or file.endswith('.csv') for file in files)
+            has_data_file = any(file.endswith('.xlsx')
+                                or file.endswith('.csv') for file in files)
             if not has_data_file:
                 error_msg = f"输入目录中未找到数据文件(.xlsx或.csv)"
                 self.validation_error.emit(error_msg)
@@ -214,7 +215,8 @@ class ValidationController(QC.QObject):
         """
         # 定义Windows系统中不允许的字符
         invalid_chars = '<>:"/\\|?*'
-        sanitized = ''.join(c if c not in invalid_chars else '_' for c in file_name)
+        sanitized = ''.join(
+            c if c not in invalid_chars else '_' for c in file_name)
         return sanitized
 
     def validate_test_date(self, date_str):

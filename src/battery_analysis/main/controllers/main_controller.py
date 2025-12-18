@@ -79,9 +79,11 @@ class MainController(QC.QObject):
         )
 
         # 连接信号
-        self.current_worker.signals.progress_update.connect(self._on_progress_update)
+        self.current_worker.signals.progress_update.connect(
+            self._on_progress_update)
         self.current_worker.signals.info.connect(self._on_status_changed)
-        self.current_worker.signals.thread_end.connect(self._on_analysis_completed)
+        self.current_worker.signals.thread_end.connect(
+            self._on_analysis_completed)
         self.current_worker.signals.rename_path.connect(self._on_path_renamed)
 
         # 启动工作线程

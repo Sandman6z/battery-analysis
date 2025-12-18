@@ -118,64 +118,77 @@ class AnalysisWorker(QC.QRunnable):
             self.str_error_battery = info_battery.UBA_GetErrorLog()
             if self.str_error_battery == "":
                 self.progress_value = 40
-                self.signals.progress_update.emit(self.progress_value, "获取电池信息...")
+                self.signals.progress_update.emit(
+                    self.progress_value, "获取电池信息...")
                 list_battery_info = info_battery.UBA_GetBatteryInfo()
 
                 if self.b_cancel_requested:
                     return
 
                 # 获取Test Date和原始周期日期进行验证
-                test_date = list_battery_info[3]  # 从修改后的UBA_GetBatteryInfo返回值中获取Test Date
-                original_cycle_date = list_battery_info[4]  # 从修改后的UBA_GetBatteryInfo返回值中获取原始周期日期
+                # 从修改后的UBA_GetBatteryInfo返回值中获取Test Date
+                test_date = list_battery_info[3]
+                # 从修改后的UBA_GetBatteryInfo返回值中获取原始周期日期
+                original_cycle_date = list_battery_info[4]
 
-                logging.info(f"获取到的Test Date: {test_date}, 原始周期日期: {original_cycle_date}")
+                logging.info(
+                    f"获取到的Test Date: {test_date}, 原始周期日期: {original_cycle_date}")
 
                 try:
                     # 优先使用从Excel或文件名提取的Test Date（已经是YYYYMMDD格式）
                     if test_date and len(test_date) == 8 and test_date.isdigit():
                         self.str_test_date = test_date
-                        logging.info(f"使用YYYYMMDD格式的Test Date: {self.str_test_date}")
+                        logging.info(
+                            f"使用YYYYMMDD格式的Test Date: {self.str_test_date}")
                     elif test_date:
                         # 如果test_date是其他格式，尝试解析
                         try:
                             # 尝试处理标准日期格式 YYYY-MM-DD
                             if '-' in test_date:
-                                date_part = test_date.split(' ')[0] if ' ' in test_date else test_date
+                                date_part = test_date.split(
+                                    ' ')[0] if ' ' in test_date else test_date
                                 [sy, sm, sd] = date_part.split("-")
                                 self.str_test_date = f"{sy}{sm}{sd}"
                             elif '/' in test_date:
                                 # 尝试处理 YYYY/MM/DD 格式
-                                date_part = test_date.split(' ')[0] if ' ' in test_date else test_date
+                                date_part = test_date.split(
+                                    ' ')[0] if ' ' in test_date else test_date
                                 [sy, sm, sd] = date_part.split("/")
                                 self.str_test_date = f"{sy}{sm}{sd}"
                             else:
                                 # 尝试作为YYYYMMDD直接使用
                                 self.str_test_date = test_date
-                            logging.info(f"从Test Date解析得到: {self.str_test_date}")
+                            logging.info(
+                                f"从Test Date解析得到: {self.str_test_date}")
                         except:
                             # 解析失败时，尝试使用原始周期日期
                             if original_cycle_date:
                                 try:
                                     # 尝试处理标准日期格式 YYYY-MM-DD
                                     if '-' in original_cycle_date:
-                                        date_part = original_cycle_date.split(' ')[0] if ' ' in original_cycle_date else original_cycle_date
+                                        date_part = original_cycle_date.split(
+                                            ' ')[0] if ' ' in original_cycle_date else original_cycle_date
                                         [sy, sm, sd] = date_part.split("-")
                                         self.str_test_date = f"{sy}{sm}{sd}"
                                     elif '/' in original_cycle_date:
                                         # 尝试处理 YYYY/MM/DD 格式
-                                        date_part = original_cycle_date.split(' ')[0] if ' ' in original_cycle_date else original_cycle_date
+                                        date_part = original_cycle_date.split(
+                                            ' ')[0] if ' ' in original_cycle_date else original_cycle_date
                                         [sy, sm, sd] = date_part.split("/")
                                         self.str_test_date = f"{sy}{sm}{sd}"
                                     else:
                                         # 尝试作为YYYYMMDD直接使用
                                         self.str_test_date = original_cycle_date
-                                    logging.info(f"从原始周期日期解析得到: {self.str_test_date}")
+                                    logging.info(
+                                        f"从原始周期日期解析得到: {self.str_test_date}")
                                 except:
                                     # 最后尝试回退到原有的日期提取方式
                                     try:
-                                        [sy, sm, sd] = list_battery_info[2][0].split(" ")[0].split("-")
+                                        [sy, sm, sd] = list_battery_info[2][0].split(" ")[
+                                            0].split("-")
                                         self.str_test_date = f"{sy}{sm}{sd}"
-                                        logging.info(f"从list_battery_info解析得到: {self.str_test_date}")
+                                        logging.info(
+                                            f"从list_battery_info解析得到: {self.str_test_date}")
                                     except:
                                         self.str_test_date = "00000000"
                                         logging.error("所有日期解析方式都失败了")
@@ -198,7 +211,8 @@ class AnalysisWorker(QC.QRunnable):
                 os.rename(version_dir, final_dir)
 
                 self.progress_value = 60
-                self.signals.progress_update.emit(self.progress_value, "准备生成报告...")
+                self.signals.progress_update.emit(
+                    self.progress_value, "准备生成报告...")
                 if self.b_cancel_requested:
                     return
 
@@ -212,7 +226,8 @@ class AnalysisWorker(QC.QRunnable):
                 )
 
                 self.progress_value = 80
-                self.signals.progress_update.emit(self.progress_value, "生成报告中...")
+                self.signals.progress_update.emit(
+                    self.progress_value, "生成报告中...")
                 if self.b_cancel_requested:
                     return
 
@@ -221,7 +236,8 @@ class AnalysisWorker(QC.QRunnable):
                     logging.error(self.str_error_xlsx)
                 else:
                     self.progress_value = 100
-                    self.signals.progress_update.emit(self.progress_value, "分析完成！")
+                    self.signals.progress_update.emit(
+                        self.progress_value, "分析完成！")
 
                 # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                 self._start_visualizer()
@@ -254,7 +270,8 @@ class AnalysisWorker(QC.QRunnable):
 
         # 从当前运行的 analyzer 可执行文件名中解析版本（形如 battery-analyzer_1_0_1.exe）
         analyzer_exe_name = os.path.basename(sys.executable)
-        m = re.search(r"battery-analyzer_(\d+_\d+_\d+)\.exe", analyzer_exe_name, re.IGNORECASE)
+        m = re.search(r"battery-analyzer_(\d+_\d+_\d+)\.exe",
+                      analyzer_exe_name, re.IGNORECASE)
         version_us = None
         if m:
             version_us = m.group(1)
@@ -269,11 +286,14 @@ class AnalysisWorker(QC.QRunnable):
         # 仅使用与 analyzer 同版本的候选路径
         exe_candidates = [
             # 可执行文件所在目录（打包/本地运行）
-            os.path.join(exe_dir, f"battery-analysis-visualizer_{version_us}.exe"),
+            os.path.join(
+                exe_dir, f"battery-analysis-visualizer_{version_us}.exe"),
             # 项目根目录（少数场景可能存在）
-            os.path.join(self.str_path, f"battery-analysis-visualizer_{version_us}.exe"),
+            os.path.join(
+                self.str_path, f"battery-analysis-visualizer_{version_us}.exe"),
             # 项目构建目录（Debug/Release）
-            os.path.join(self.str_path, "build", build_type, f"battery-analysis-visualizer_{version_us}.exe"),
+            os.path.join(self.str_path, "build", build_type,
+                         f"battery-analysis-visualizer_{version_us}.exe"),
         ]
 
         exe_executed = False
@@ -282,7 +302,8 @@ class AnalysisWorker(QC.QRunnable):
                 logging.info(f"启动ImageMaker: {exe_path}")
                 try:
                     # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行，移除shell=True避免重复启动
-                    subprocess.run([exe_path], creationflags=subprocess.CREATE_NEW_CONSOLE)
+                    subprocess.run(
+                        [exe_path], creationflags=subprocess.CREATE_NEW_CONSOLE)
                     exe_executed = True
                     break
                 except Exception as e:
@@ -293,4 +314,5 @@ class AnalysisWorker(QC.QRunnable):
             logging.warning("未找到battery-analysis-visualizer可执行文件")
             logging.info("候选路径:")
             for path in exe_candidates:
-                logging.info(f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")
+                logging.info(
+                    f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")

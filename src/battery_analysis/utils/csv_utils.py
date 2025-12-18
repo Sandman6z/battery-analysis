@@ -1,6 +1,7 @@
 import csv
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 
+
 def csv_write(_strMessage, csv_writer, buffer, buffer_size, max_buffer_size):
     if type(_strMessage) == str:
         _listTemp = [_strMessage]
@@ -14,7 +15,8 @@ def csv_write(_strMessage, csv_writer, buffer, buffer_size, max_buffer_size):
                 _listTemp.append("")
         buffer.append(_listTemp)
     else:
-        raise BatteryAnalysisException("File: csv_utils.py, Function:csv_write(_message), Error: Unknown _message type")
+        raise BatteryAnalysisException(
+            "File: csv_utils.py, Function:csv_write(_message), Error: Unknown _message type")
 
     buffer_size += 1
 

@@ -27,6 +27,7 @@ except ImportError:
         tomllib = None
         logger.warning("Neither tomllib nor tomli is available")
 
+
 class Version:
     _instance = None
 
@@ -59,7 +60,8 @@ class Version:
         不再依赖pyproject.toml文件，而是直接返回默认版本号
         这个默认版本号应该在构建时与pyproject.toml保持一致
         """
-        logger.info("Running in PyInstaller environment, using version from build configuration")
+        logger.info(
+            "Running in PyInstaller environment, using version from build configuration")
         # 这个版本号应该与pyproject.toml中的版本保持一致
         return self._get_default_version()
 
@@ -69,7 +71,8 @@ class Version:
         Returns:
             版本号字符串
         """
-        logger.info("Running in development environment, reading version from pyproject.toml")
+        logger.info(
+            "Running in development environment, reading version from pyproject.toml")
         # 获取项目根目录（假设这个文件位于src/battery_analysis/utils/下）
         current_dir = Path(__file__).resolve().parent
         # src/battery_analysis/utils -> src/battery_analysis -> src -> project_root
@@ -79,7 +82,8 @@ class Version:
 
         # 检查文件是否存在
         if not pyproject_path.exists():
-            raise FileNotFoundError(f"pyproject.toml not found at: {pyproject_path}")
+            raise FileNotFoundError(
+                f"pyproject.toml not found at: {pyproject_path}")
 
         # 读取pyproject.toml
         if tomllib is None:
