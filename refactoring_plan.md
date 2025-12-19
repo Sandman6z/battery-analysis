@@ -1,15 +1,15 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 13:20:16
-- 总文件数: 24
-- 存在问题的文件数: 24
+- 分析日期: 2025-12-19 13:28:25
+- 总文件数: 23
+- 存在问题的文件数: 23
 
 ## 文件: scripts\build.py
 
 ### 问题统计
-- 问题总数: 47
-- 错误(Error): 9
+- 问题总数: 45
+- 错误(Error): 7
 - 警告(Warning): 21
 - 规范(Convention): 14
 - 重构(Refactor): 3
@@ -20,18 +20,6 @@
 - 代码: C0114
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
-
-#### 行 1, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.exception_type'
-- 符号: import-error
-
-#### 行 1, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 1, 列 0
 - 类型: warning
@@ -449,29 +437,10 @@
 ## 文件: src\battery_analysis\__init__.py
 
 ### 问题统计
-- 问题总数: 7
-- 错误(Error): 5
+- 问题总数: 2
 - 规范(Convention): 2
 
 ### 详细问题
-#### 行 4, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.version'
-- 符号: import-error
-
-#### 行 4, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 14, 列 26
-- 类型: error
-- 代码: E0603
-- 描述: Undefined variable name 'utils' in __all__
-- 符号: undefined-all-variable
-
 #### 行 17, 列 0
 - 类型: convention
 - 代码: C0327
@@ -479,47 +448,15 @@
 - 符号: mixed-line-endings
 
 #### 行 17, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 17, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import battery_analysis.utils" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 17, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-## 文件: src\battery_analysis\main\controllers\file_controller.py
-
-### 问题统计
-- 问题总数: 2
-- 错误(Error): 2
-
-### 详细问题
-#### 行 12, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.config_utils'
-- 符号: import-error
-
-#### 行 12, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
 ## 文件: src\battery_analysis\main\controllers\main_controller.py
 
 ### 问题统计
-- 问题总数: 3
-- 错误(Error): 2
+- 问题总数: 1
 - 警告(Warning): 1
 
 ### 详细问题
@@ -528,18 +465,6 @@
 - 代码: W0611
 - 描述: Unused import os
 - 符号: unused-import
-
-#### 行 8, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.main.workers.analysis_worker'
-- 符号: import-error
-
-#### 行 8, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'main' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 ## 文件: src\battery_analysis\main\controllers\validation_controller.py
 
@@ -587,8 +512,7 @@
 ## 文件: src\battery_analysis\main\image_show.py
 
 ### 问题统计
-- 问题总数: 89
-- 错误(Error): 4
+- 问题总数: 85
 - 警告(Warning): 53
 - 规范(Convention): 17
 - 重构(Refactor): 15
@@ -599,30 +523,6 @@
 - 代码: C0302
 - 描述: Too many lines in module (1054/1000)
 - 符号: too-many-lines
-
-#### 行 24, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.config_utils'
-- 符号: import-error
-
-#### 行 24, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 25, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.exception_type'
-- 符号: import-error
-
-#### 行 25, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 25, 列 0
 - 类型: warning
@@ -1131,8 +1031,7 @@
 ## 文件: src\battery_analysis\main\main_window.py
 
 ### 问题统计
-- 问题总数: 79
-- 错误(Error): 12
+- 问题总数: 67
 - 警告(Warning): 20
 - 规范(Convention): 24
 - 重构(Refactor): 23
@@ -1150,83 +1049,11 @@
 - 描述: Unused resources_rc imported from battery_analysis.resources
 - 符号: unused-import
 
-#### 行 13, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.main.controllers.validation_controller'
-- 符号: import-error
-
-#### 行 13, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'main' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 14, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.main.controllers.file_controller'
-- 符号: import-error
-
-#### 行 14, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'main' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 15, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.main.controllers.main_controller'
-- 符号: import-error
-
-#### 行 15, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'main' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 16, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.config_utils'
-- 符号: import-error
-
-#### 行 16, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 17, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 17, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
 #### 行 17, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused version imported from battery_analysis.utils
 - 符号: unused-import
-
-#### 行 18, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.ui'
-- 符号: import-error
-
-#### 行 18, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'ui' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 19, 列 0
 - 类型: convention
@@ -1615,8 +1442,7 @@
 ## 文件: src\battery_analysis\main\workers\analysis_worker.py
 
 ### 问题统计
-- 问题总数: 27
-- 错误(Error): 6
+- 问题总数: 21
 - 警告(Warning): 14
 - 规范(Convention): 3
 - 重构(Refactor): 4
@@ -1659,22 +1485,10 @@
 - 符号: too-many-nested-blocks
 
 #### 行 107, 列 12
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 107, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.battery_analysis)
 - 符号: import-outside-toplevel
-
-#### 行 107, 列 12
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 165, 列 24
 - 类型: warning
@@ -1707,22 +1521,10 @@
 - 符号: broad-exception-caught
 
 #### 行 233, 列 20
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 233, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.file_writer)
 - 符号: import-outside-toplevel
-
-#### 行 233, 列 20
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 265, 列 27
 - 类型: warning
@@ -1749,22 +1551,10 @@
 - 符号: broad-exception-caught
 
 #### 行 312, 列 16
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.version'
-- 符号: import-error
-
-#### 行 312, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.version.Version)
 - 符号: import-outside-toplevel
-
-#### 行 312, 列 16
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 314, 列 19
 - 类型: warning
@@ -2607,8 +2397,7 @@
 ## 文件: src\battery_analysis\utils\battery_analysis.py
 
 ### 问题统计
-- 问题总数: 31
-- 错误(Error): 4
+- 问题总数: 27
 - 警告(Warning): 2
 - 规范(Convention): 13
 - 重构(Refactor): 12
@@ -2619,18 +2408,6 @@
 - 代码: C0114
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
-
-#### 行 1, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.exception_type'
-- 符号: import-error
-
-#### 行 1, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 2, 列 0
 - 类型: convention
@@ -2717,22 +2494,10 @@
 - 符号: consider-using-enumerate
 
 #### 行 96, 列 20
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.resource_manager'
-- 符号: import-error
-
-#### 行 96, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.resource_manager.ResourceManager)
 - 符号: import-outside-toplevel
-
-#### 行 96, 列 20
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 114, 列 32
 - 类型: warning
@@ -2803,8 +2568,7 @@
 ## 文件: src\battery_analysis\utils\csv_utils.py
 
 ### 问题统计
-- 问题总数: 7
-- 错误(Error): 2
+- 问题总数: 5
 - 警告(Warning): 1
 - 规范(Convention): 4
 
@@ -2820,18 +2584,6 @@
 - 代码: W0611
 - 描述: Unused import csv
 - 符号: unused-import
-
-#### 行 2, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.exception_type'
-- 符号: import-error
-
-#### 行 2, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 6, 列 7
 - 类型: convention
@@ -2911,8 +2663,7 @@
 ## 文件: src\battery_analysis\utils\file_writer.py
 
 ### 问题统计
-- 问题总数: 101
-- 错误(Error): 16
+- 问题总数: 85
 - 警告(Warning): 36
 - 规范(Convention): 37
 - 重构(Refactor): 12
@@ -2929,90 +2680,6 @@
 - 代码: C0114
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
-
-#### 行 1, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 1, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 2, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 2, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 3, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 3, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 4, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 4, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 5, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 5, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 6, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils'
-- 符号: import-error
-
-#### 行 6, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 7, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.exception_type'
-- 符号: import-error
-
-#### 行 7, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 8, 列 0
 - 类型: convention
@@ -3193,18 +2860,6 @@
 - 代码: C0412
 - 描述: Imports from package battery_analysis are not grouped
 - 符号: ungrouped-imports
-
-#### 行 33, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.config_utils'
-- 符号: import-error
-
-#### 行 33, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 36, 列 0
 - 类型: convention
@@ -3571,8 +3226,7 @@
 ## 文件: src\battery_analysis\utils\plot_utils.py
 
 ### 问题统计
-- 问题总数: 4
-- 错误(Error): 2
+- 问题总数: 2
 - 规范(Convention): 1
 - 重构(Refactor): 1
 
@@ -3582,18 +3236,6 @@
 - 代码: C0114
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
-
-#### 行 3, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.exception_type'
-- 符号: import-error
-
-#### 行 3, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 6, 列 0
 - 类型: refactor
@@ -3674,8 +3316,8 @@
 ## 文件: tests\battery_analysis\main\test_main_window.py
 
 ### 问题统计
-- 问题总数: 8
-- 错误(Error): 3
+- 问题总数: 6
+- 错误(Error): 1
 - 规范(Convention): 4
 - 重构(Refactor): 1
 
@@ -3697,18 +3339,6 @@
 - 代码: C0411
 - 描述: standard import "import os" should be placed before "import pytest"
 - 符号: wrong-import-order
-
-#### 行 4, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.main.main_window'
-- 符号: import-error
-
-#### 行 4, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'main' in module 'battery_analysis'
-- 符号: no-name-in-module
 
 #### 行 5, 列 0
 - 类型: error
@@ -3731,31 +3361,16 @@
 ## 文件: tests\battery_analysis\utils\test_file_writer.py
 
 ### 问题统计
-- 问题总数: 10
-- 错误(Error): 2
-- 警告(Warning): 3
-- 规范(Convention): 4
+- 问题总数: 1
 - 重构(Refactor): 1
 
 ### 详细问题
 #### 行 1, 列 0
-- 类型: convention
-- 代码: C0114
-- 描述: Missing module docstring
-- 符号: missing-module-docstring
-
-#### 行 1, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import pytest
-- 符号: unused-import
-
-#### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis:[25:34]
-==file_writer:[1459:1467]
+==battery_analysis.utils.battery_analysis:[25:34]
+==battery_analysis.utils.file_writer:[1459:1467]
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
         self.strFileCurrentType = ""
@@ -3763,49 +3378,6 @@
             self.strFileCurrentType = self.strFileCurrentType + \
                 f"{self.listCurrentLevel[c]}-"
         self.strFileCurrentType = self.strFileCurrentType[:-1]
-
-        # input .xlsx directory and result txt path
+        # 使用os.path.join确保路径分隔符一致性
 - 符号: duplicate-code
-
-#### 行 2, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import json" should be placed before "import pytest"
-- 符号: wrong-import-order
-
-#### 行 3, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import os" should be placed before "import pytest"
-- 符号: wrong-import-order
-
-#### 行 4, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import tempfile" should be placed before "import pytest"
-- 符号: wrong-import-order
-
-#### 行 4, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import tempfile
-- 符号: unused-import
-
-#### 行 5, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'battery_analysis.utils.file_writer'
-- 符号: import-error
-
-#### 行 5, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'utils' in module 'battery_analysis'
-- 符号: no-name-in-module
-
-#### 行 5, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused XlsxWordWriter imported from battery_analysis.utils.file_writer
-- 符号: unused-import
 

@@ -1,6 +1,7 @@
 from battery_analysis.utils import csv_utils
 from battery_analysis.utils import plot_utils
 from battery_analysis.utils import data_utils
+from battery_analysis.utils.data_utils import generate_current_type_string
 from battery_analysis.utils import word_utils
 from battery_analysis.utils import excel_utils
 from battery_analysis.utils import numeric_utils
@@ -1459,11 +1460,7 @@ class JsonWriter:
 
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
-        self.strFileCurrentType = ""
-        for c in range(len(self.listCurrentLevel)):
-            self.strFileCurrentType = self.strFileCurrentType + \
-                f"{self.listCurrentLevel[c]}-"
-        self.strFileCurrentType = self.strFileCurrentType[:-1]
+        self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
         # 使用os.path.join确保路径分隔符一致性
         self.strResultJsonPath = os.path.join(
             self.strResultPath, f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{self.listTestInfo[7]}.json")

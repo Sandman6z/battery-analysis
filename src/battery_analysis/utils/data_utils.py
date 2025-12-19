@@ -30,3 +30,18 @@ def filter_data(_listPltCharge: list, _listPltVoltage: list, _intTimes=5, _float
         _listPltChargeFiltered.append(_lisPltChargeSingle)
         _listPltVoltageFiltered.append(_listPltVoltageSingle)
     return _listPltChargeFiltered, _listPltVoltageFiltered
+
+
+def generate_current_type_string(list_current_level: list) -> str:
+    """
+    生成电流类型字符串，将电流水平列表用"-"连接
+    
+    Args:
+        list_current_level: 电流水平列表
+        
+    Returns:
+        连接后的电流类型字符串
+    """
+    if not list_current_level:
+        return ""
+    return "-".join(str(level) for level in list_current_level)

@@ -13,32 +13,6 @@
         "message-id": "C0114"
     },
     {
-        "type": "error",
-        "module": "build",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": 1,
-        "endColumn": 64,
-        "path": "scripts\\build.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.exception_type'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "build",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": 1,
-        "endColumn": 64,
-        "path": "scripts\\build.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
         "type": "warning",
         "module": "build",
         "obj": "CaseSensitiveConfigParser.optionxform",
@@ -910,45 +884,6 @@
         "message-id": "C0327"
     },
     {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 50,
-        "path": "src\\battery_analysis\\__init__.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.version'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 50,
-        "path": "src\\battery_analysis\\__init__.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "",
-        "line": 17,
-        "column": 0,
-        "endLine": 17,
-        "endColumn": 29,
-        "path": "src\\battery_analysis\\__init__.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
         "type": "convention",
         "module": "battery_analysis",
         "obj": "",
@@ -960,84 +895,6 @@
         "symbol": "wrong-import-position",
         "message": "Import \"import battery_analysis.utils\" should be placed at the top of the module",
         "message-id": "C0413"
-    },
-    {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "",
-        "line": 17,
-        "column": 0,
-        "endLine": 17,
-        "endColumn": 29,
-        "path": "src\\battery_analysis\\__init__.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "",
-        "line": 14,
-        "column": 26,
-        "endLine": 14,
-        "endColumn": 33,
-        "path": "src\\battery_analysis\\__init__.py",
-        "symbol": "undefined-all-variable",
-        "message": "Undefined variable name 'utils' in __all__",
-        "message-id": "E0603"
-    },
-    {
-        "type": "error",
-        "module": "controllers.file_controller",
-        "obj": "",
-        "line": 12,
-        "column": 0,
-        "endLine": 12,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\main\\controllers\\file_controller.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.config_utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "controllers.file_controller",
-        "obj": "",
-        "line": 12,
-        "column": 0,
-        "endLine": 12,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\main\\controllers\\file_controller.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "controllers.main_controller",
-        "obj": "",
-        "line": 8,
-        "column": 0,
-        "endLine": 8,
-        "endColumn": 72,
-        "path": "src\\battery_analysis\\main\\controllers\\main_controller.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.main.workers.analysis_worker'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "controllers.main_controller",
-        "obj": "",
-        "line": 8,
-        "column": 0,
-        "endLine": 8,
-        "endColumn": 72,
-        "path": "src\\battery_analysis\\main\\controllers\\main_controller.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'main' in module 'battery_analysis'",
-        "message-id": "E0611"
     },
     {
         "type": "warning",
@@ -1142,58 +999,6 @@
         "symbol": "too-many-lines",
         "message": "Too many lines in module (1054/1000)",
         "message-id": "C0302"
-    },
-    {
-        "type": "error",
-        "module": "image_show",
-        "obj": "",
-        "line": 24,
-        "column": 0,
-        "endLine": 24,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\main\\image_show.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.config_utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "image_show",
-        "obj": "",
-        "line": 24,
-        "column": 0,
-        "endLine": 24,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\main\\image_show.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "image_show",
-        "obj": "",
-        "line": 25,
-        "column": 0,
-        "endLine": 25,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\main\\image_show.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.exception_type'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "image_show",
-        "obj": "",
-        "line": 25,
-        "column": 0,
-        "endLine": 25,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\main\\image_show.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
     },
     {
         "type": "refactor",
@@ -2301,162 +2106,6 @@
         "message-id": "C0302"
     },
     {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 13,
-        "column": 0,
-        "endLine": 13,
-        "endColumn": 88,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.main.controllers.validation_controller'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 13,
-        "column": 0,
-        "endLine": 13,
-        "endColumn": 88,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'main' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 14,
-        "column": 0,
-        "endLine": 14,
-        "endColumn": 76,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.main.controllers.file_controller'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 14,
-        "column": 0,
-        "endLine": 14,
-        "endColumn": 76,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'main' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 15,
-        "column": 0,
-        "endLine": 15,
-        "endColumn": 76,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.main.controllers.main_controller'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 15,
-        "column": 0,
-        "endLine": 15,
-        "endColumn": 76,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'main' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 16,
-        "column": 0,
-        "endLine": 16,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.config_utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 16,
-        "column": 0,
-        "endLine": 16,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 17,
-        "column": 0,
-        "endLine": 17,
-        "endColumn": 42,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 17,
-        "column": 0,
-        "endLine": 17,
-        "endColumn": 42,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 18,
-        "column": 0,
-        "endLine": 18,
-        "endColumn": 46,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.ui'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "main_window",
-        "obj": "",
-        "line": 18,
-        "column": 0,
-        "endLine": 18,
-        "endColumn": 46,
-        "path": "src\\battery_analysis\\main\\main_window.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'ui' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
         "type": "refactor",
         "module": "main_window",
         "obj": "Main",
@@ -3354,19 +3003,6 @@
         "message-id": "W0718"
     },
     {
-        "type": "error",
-        "module": "workers.analysis_worker",
-        "obj": "AnalysisWorker.run",
-        "line": 107,
-        "column": 12,
-        "endLine": 107,
-        "endColumn": 63,
-        "path": "src\\battery_analysis\\main\\workers\\analysis_worker.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
         "type": "convention",
         "module": "workers.analysis_worker",
         "obj": "AnalysisWorker.run",
@@ -3378,19 +3014,6 @@
         "symbol": "import-outside-toplevel",
         "message": "Import outside toplevel (battery_analysis.utils.battery_analysis)",
         "message-id": "C0415"
-    },
-    {
-        "type": "error",
-        "module": "workers.analysis_worker",
-        "obj": "AnalysisWorker.run",
-        "line": 107,
-        "column": 12,
-        "endLine": 107,
-        "endColumn": 63,
-        "path": "src\\battery_analysis\\main\\workers\\analysis_worker.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
     },
     {
         "type": "warning",
@@ -3484,19 +3107,6 @@
         "message-id": "W0718"
     },
     {
-        "type": "error",
-        "module": "workers.analysis_worker",
-        "obj": "AnalysisWorker.run",
-        "line": 233,
-        "column": 20,
-        "endLine": 233,
-        "endColumn": 66,
-        "path": "src\\battery_analysis\\main\\workers\\analysis_worker.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
         "type": "convention",
         "module": "workers.analysis_worker",
         "obj": "AnalysisWorker.run",
@@ -3508,19 +3118,6 @@
         "symbol": "import-outside-toplevel",
         "message": "Import outside toplevel (battery_analysis.utils.file_writer)",
         "message-id": "C0415"
-    },
-    {
-        "type": "error",
-        "module": "workers.analysis_worker",
-        "obj": "AnalysisWorker.run",
-        "line": 233,
-        "column": 20,
-        "endLine": 233,
-        "endColumn": 66,
-        "path": "src\\battery_analysis\\main\\workers\\analysis_worker.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
     },
     {
         "type": "warning",
@@ -3588,19 +3185,6 @@
         "message-id": "W0718"
     },
     {
-        "type": "error",
-        "module": "workers.analysis_worker",
-        "obj": "AnalysisWorker._start_visualizer",
-        "line": 312,
-        "column": 16,
-        "endLine": 312,
-        "endColumn": 66,
-        "path": "src\\battery_analysis\\main\\workers\\analysis_worker.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.version'",
-        "message-id": "E0401"
-    },
-    {
         "type": "convention",
         "module": "workers.analysis_worker",
         "obj": "AnalysisWorker._start_visualizer",
@@ -3612,19 +3196,6 @@
         "symbol": "import-outside-toplevel",
         "message": "Import outside toplevel (battery_analysis.utils.version.Version)",
         "message-id": "C0415"
-    },
-    {
-        "type": "error",
-        "module": "workers.analysis_worker",
-        "obj": "AnalysisWorker._start_visualizer",
-        "line": 312,
-        "column": 16,
-        "endLine": 312,
-        "endColumn": 66,
-        "path": "src\\battery_analysis\\main\\workers\\analysis_worker.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
     },
     {
         "type": "warning",
@@ -5409,7 +4980,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -5421,34 +4992,8 @@
         "message-id": "C0114"
     },
     {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": 1,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\battery_analysis.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.exception_type'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": 1,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\battery_analysis.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis",
         "line": 23,
         "column": 0,
@@ -5461,7 +5006,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.__init__",
         "line": 29,
         "column": 8,
@@ -5473,21 +5018,8 @@
         "message-id": "C0200"
     },
     {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "BatteryAnalysis.__init__",
-        "line": 96,
-        "column": 20,
-        "endLine": 96,
-        "endColumn": 87,
-        "path": "src\\battery_analysis\\utils\\battery_analysis.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.resource_manager'",
-        "message-id": "E0401"
-    },
-    {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.__init__",
         "line": 96,
         "column": 20,
@@ -5499,21 +5031,8 @@
         "message-id": "C0415"
     },
     {
-        "type": "error",
-        "module": "battery_analysis",
-        "obj": "BatteryAnalysis.__init__",
-        "line": 96,
-        "column": 20,
-        "endLine": 96,
-        "endColumn": 87,
-        "path": "src\\battery_analysis\\utils\\battery_analysis.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
         "type": "warning",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.__init__",
         "line": 114,
         "column": 32,
@@ -5526,7 +5045,7 @@
     },
     {
         "type": "warning",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.__init__",
         "line": 127,
         "column": 28,
@@ -5539,7 +5058,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.__init__",
         "line": 24,
         "column": 4,
@@ -5552,7 +5071,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.__init__",
         "line": 24,
         "column": 4,
@@ -5565,7 +5084,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.UBA_GetTestDateFromExcel",
         "line": 167,
         "column": 8,
@@ -5578,7 +5097,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.UBA_GetTestDateFromExcel",
         "line": 167,
         "column": 8,
@@ -5591,7 +5110,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.UBA_GetTestDateFromExcel",
         "line": 167,
         "column": 8,
@@ -5604,7 +5123,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.UBA_GetTestDateFromExcel",
         "line": 167,
         "column": 8,
@@ -5617,7 +5136,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.UBA_GetTestDateFromExcel",
         "line": 157,
         "column": 4,
@@ -5630,7 +5149,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.UBA_GetTestDateFromExcel",
         "line": 157,
         "column": 4,
@@ -5643,7 +5162,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis.UBA_GetTestDateFromExcel",
         "line": 157,
         "column": 4,
@@ -5656,7 +5175,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis._parallel_process_file",
         "line": 294,
         "column": 4,
@@ -5669,7 +5188,7 @@
     },
     {
         "type": "refactor",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "BatteryAnalysis._parallel_process_file",
         "line": 294,
         "column": 4,
@@ -5682,7 +5201,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 2,
         "column": 0,
@@ -5695,7 +5214,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 3,
         "column": 0,
@@ -5708,7 +5227,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 4,
         "column": 0,
@@ -5721,7 +5240,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 5,
         "column": 0,
@@ -5734,7 +5253,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 6,
         "column": 0,
@@ -5747,7 +5266,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 7,
         "column": 0,
@@ -5760,7 +5279,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 8,
         "column": 0,
@@ -5773,7 +5292,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 9,
         "column": 0,
@@ -5786,7 +5305,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 10,
         "column": 0,
@@ -5799,7 +5318,7 @@
     },
     {
         "type": "convention",
-        "module": "battery_analysis",
+        "module": "battery_analysis.utils.battery_analysis",
         "obj": "",
         "line": 11,
         "column": 0,
@@ -5812,7 +5331,7 @@
     },
     {
         "type": "convention",
-        "module": "csv_utils",
+        "module": "battery_analysis.utils.csv_utils",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -5824,34 +5343,8 @@
         "message-id": "C0114"
     },
     {
-        "type": "error",
-        "module": "csv_utils",
-        "obj": "",
-        "line": 2,
-        "column": 0,
-        "endLine": 2,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\csv_utils.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.exception_type'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "csv_utils",
-        "obj": "",
-        "line": 2,
-        "column": 0,
-        "endLine": 2,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\csv_utils.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
         "type": "convention",
-        "module": "csv_utils",
+        "module": "battery_analysis.utils.csv_utils",
         "obj": "csv_write",
         "line": 6,
         "column": 7,
@@ -5864,7 +5357,7 @@
     },
     {
         "type": "convention",
-        "module": "csv_utils",
+        "module": "battery_analysis.utils.csv_utils",
         "obj": "csv_write",
         "line": 9,
         "column": 9,
@@ -5877,7 +5370,7 @@
     },
     {
         "type": "convention",
-        "module": "csv_utils",
+        "module": "battery_analysis.utils.csv_utils",
         "obj": "csv_write",
         "line": 11,
         "column": 8,
@@ -5890,7 +5383,7 @@
     },
     {
         "type": "warning",
-        "module": "csv_utils",
+        "module": "battery_analysis.utils.csv_utils",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -5903,7 +5396,7 @@
     },
     {
         "type": "convention",
-        "module": "data_utils",
+        "module": "battery_analysis.utils.data_utils",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -5916,7 +5409,7 @@
     },
     {
         "type": "convention",
-        "module": "data_utils",
+        "module": "battery_analysis.utils.data_utils",
         "obj": "filter_data",
         "line": 4,
         "column": 4,
@@ -5929,7 +5422,7 @@
     },
     {
         "type": "convention",
-        "module": "excel_utils",
+        "module": "battery_analysis.utils.excel_utils",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -5942,7 +5435,7 @@
     },
     {
         "type": "convention",
-        "module": "excel_utils",
+        "module": "battery_analysis.utils.excel_utils",
         "obj": "ws_result_write_data",
         "line": 10,
         "column": 7,
@@ -5955,7 +5448,7 @@
     },
     {
         "type": "convention",
-        "module": "excel_utils",
+        "module": "battery_analysis.utils.excel_utils",
         "obj": "ws_result_write_data",
         "line": 10,
         "column": 35,
@@ -5968,7 +5461,7 @@
     },
     {
         "type": "convention",
-        "module": "exception_type",
+        "module": "battery_analysis.utils.exception_type",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -5981,7 +5474,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -5994,7 +5487,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -6006,216 +5499,8 @@
         "message-id": "C0114"
     },
     {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": 1,
-        "endColumn": 44,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": 1,
-        "endColumn": 44,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 2,
-        "column": 0,
-        "endLine": 2,
-        "endColumn": 45,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 2,
-        "column": 0,
-        "endLine": 2,
-        "endColumn": 45,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 3,
-        "column": 0,
-        "endLine": 3,
-        "endColumn": 45,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 3,
-        "column": 0,
-        "endLine": 3,
-        "endColumn": 45,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 45,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 45,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 5,
-        "column": 0,
-        "endLine": 5,
-        "endColumn": 46,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 5,
-        "column": 0,
-        "endLine": 5,
-        "endColumn": 46,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 6,
-        "column": 0,
-        "endLine": 6,
-        "endColumn": 48,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 6,
-        "column": 0,
-        "endLine": 6,
-        "endColumn": 48,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 7,
-        "column": 0,
-        "endLine": 7,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.exception_type'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 7,
-        "column": 0,
-        "endLine": 7,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 33,
-        "column": 0,
-        "endLine": 33,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.config_utils'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "file_writer",
-        "obj": "",
-        "line": 33,
-        "column": 0,
-        "endLine": 33,
-        "endColumn": 64,
-        "path": "src\\battery_analysis\\utils\\file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter",
         "line": 40,
         "column": 0,
@@ -6228,7 +5513,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.__init__",
         "line": 67,
         "column": 15,
@@ -6241,7 +5526,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.__init__",
         "line": 111,
         "column": 16,
@@ -6254,7 +5539,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.__init__",
         "line": 200,
         "column": 8,
@@ -6267,7 +5552,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.__init__",
         "line": 237,
         "column": 15,
@@ -6280,7 +5565,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.__init__",
         "line": 224,
         "column": 12,
@@ -6293,7 +5578,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.__init__",
         "line": 41,
         "column": 4,
@@ -6306,7 +5591,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.__init__",
         "line": 41,
         "column": 4,
@@ -6319,7 +5604,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 493,
         "column": 12,
@@ -6332,7 +5617,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 494,
         "column": 12,
@@ -6345,7 +5630,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 495,
         "column": 12,
@@ -6358,7 +5643,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 503,
         "column": 12,
@@ -6371,7 +5656,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 504,
         "column": 12,
@@ -6384,7 +5669,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 510,
         "column": 12,
@@ -6397,7 +5682,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 511,
         "column": 12,
@@ -6410,7 +5695,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 512,
         "column": 12,
@@ -6423,7 +5708,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 520,
         "column": 12,
@@ -6436,7 +5721,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 521,
         "column": 12,
@@ -6449,7 +5734,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 738,
         "column": 8,
@@ -6462,7 +5747,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 793,
         "column": 55,
@@ -6475,7 +5760,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 807,
         "column": 55,
@@ -6488,7 +5773,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1255,
         "column": 12,
@@ -6501,7 +5786,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1270,
         "column": 16,
@@ -6514,7 +5799,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1285,
         "column": 28,
@@ -6527,7 +5812,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1285,
         "column": 66,
@@ -6540,7 +5825,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1252,
         "column": 8,
@@ -6553,7 +5838,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1307,
         "column": 20,
@@ -6566,7 +5851,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1307,
         "column": 41,
@@ -6579,7 +5864,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1310,
         "column": 20,
@@ -6592,7 +5877,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1310,
         "column": 41,
@@ -6605,7 +5890,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1313,
         "column": 20,
@@ -6618,7 +5903,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1313,
         "column": 41,
@@ -6631,7 +5916,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1316,
         "column": 20,
@@ -6644,7 +5929,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 1316,
         "column": 41,
@@ -6657,7 +5942,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 250,
         "column": 4,
@@ -6670,7 +5955,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 250,
         "column": 4,
@@ -6683,7 +5968,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_XlsxWordCsvWrite",
         "line": 479,
         "column": 12,
@@ -6696,7 +5981,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_Draw",
         "line": 1340,
         "column": 24,
@@ -6709,7 +5994,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_Draw",
         "line": 1335,
         "column": 4,
@@ -6722,7 +6007,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "XlsxWordWriter.UXWW_Draw",
         "line": 1367,
         "column": 12,
@@ -6735,7 +6020,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter",
         "line": 1427,
         "column": 0,
@@ -6748,7 +6033,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.__init__",
         "line": 1439,
         "column": 15,
@@ -6761,7 +6046,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.__init__",
         "line": 1438,
         "column": 16,
@@ -6774,7 +6059,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.__init__",
         "line": 1463,
         "column": 8,
@@ -6787,7 +6072,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.__init__",
         "line": 1471,
         "column": 8,
@@ -6800,7 +6085,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.UJS_FormatJson",
         "line": 1497,
         "column": 12,
@@ -6813,7 +6098,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.UJS_FormatJson",
         "line": 1526,
         "column": 15,
@@ -6826,7 +6111,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.UJS_FormatJson",
         "line": 1517,
         "column": 12,
@@ -6839,7 +6124,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.UJS_FormatJson",
         "line": 1540,
         "column": 13,
@@ -6852,7 +6137,7 @@
     },
     {
         "type": "refactor",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "JsonWriter.UJS_FormatJson",
         "line": 1477,
         "column": 4,
@@ -6865,7 +6150,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "FileWriter.__init__",
         "line": 1550,
         "column": 15,
@@ -6878,7 +6163,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 8,
         "column": 0,
@@ -6891,7 +6176,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 9,
         "column": 0,
@@ -6904,7 +6189,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 10,
         "column": 0,
@@ -6917,7 +6202,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 11,
         "column": 0,
@@ -6930,7 +6215,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 12,
         "column": 0,
@@ -6943,7 +6228,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 13,
         "column": 0,
@@ -6956,7 +6241,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 14,
         "column": 0,
@@ -6969,7 +6254,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 15,
         "column": 0,
@@ -6982,7 +6267,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 16,
         "column": 0,
@@ -6995,7 +6280,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 17,
         "column": 0,
@@ -7008,7 +6293,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 18,
         "column": 0,
@@ -7021,7 +6306,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 19,
         "column": 0,
@@ -7034,7 +6319,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 20,
         "column": 0,
@@ -7047,7 +6332,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 21,
         "column": 0,
@@ -7060,7 +6345,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 22,
         "column": 0,
@@ -7073,7 +6358,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 23,
         "column": 0,
@@ -7086,7 +6371,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 24,
         "column": 0,
@@ -7099,7 +6384,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 25,
         "column": 0,
@@ -7112,7 +6397,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 26,
         "column": 0,
@@ -7125,7 +6410,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 27,
         "column": 0,
@@ -7138,7 +6423,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 28,
         "column": 0,
@@ -7151,7 +6436,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 29,
         "column": 0,
@@ -7164,7 +6449,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 36,
         "column": 0,
@@ -7177,7 +6462,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 32,
         "column": 0,
@@ -7190,7 +6475,7 @@
     },
     {
         "type": "convention",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 36,
         "column": 0,
@@ -7203,7 +6488,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 9,
         "column": 0,
@@ -7216,7 +6501,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 10,
         "column": 0,
@@ -7229,7 +6514,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 11,
         "column": 0,
@@ -7242,7 +6527,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 14,
         "column": 0,
@@ -7255,7 +6540,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 16,
         "column": 0,
@@ -7268,7 +6553,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 20,
         "column": 0,
@@ -7281,7 +6566,7 @@
     },
     {
         "type": "warning",
-        "module": "file_writer",
+        "module": "battery_analysis.utils.file_writer",
         "obj": "",
         "line": 23,
         "column": 0,
@@ -7294,7 +6579,7 @@
     },
     {
         "type": "convention",
-        "module": "numeric_utils",
+        "module": "battery_analysis.utils.numeric_utils",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -7307,7 +6592,7 @@
     },
     {
         "type": "refactor",
-        "module": "numeric_utils",
+        "module": "battery_analysis.utils.numeric_utils",
         "obj": "np_mean",
         "line": 5,
         "column": 4,
@@ -7320,7 +6605,7 @@
     },
     {
         "type": "refactor",
-        "module": "numeric_utils",
+        "module": "battery_analysis.utils.numeric_utils",
         "obj": "np_std",
         "line": 12,
         "column": 4,
@@ -7333,7 +6618,7 @@
     },
     {
         "type": "refactor",
-        "module": "numeric_utils",
+        "module": "battery_analysis.utils.numeric_utils",
         "obj": "np_max",
         "line": 19,
         "column": 4,
@@ -7346,7 +6631,7 @@
     },
     {
         "type": "refactor",
-        "module": "numeric_utils",
+        "module": "battery_analysis.utils.numeric_utils",
         "obj": "np_min",
         "line": 26,
         "column": 4,
@@ -7359,7 +6644,7 @@
     },
     {
         "type": "refactor",
-        "module": "numeric_utils",
+        "module": "battery_analysis.utils.numeric_utils",
         "obj": "np_med",
         "line": 33,
         "column": 4,
@@ -7372,7 +6657,7 @@
     },
     {
         "type": "convention",
-        "module": "plot_utils",
+        "module": "battery_analysis.utils.plot_utils",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -7384,34 +6669,8 @@
         "message-id": "C0114"
     },
     {
-        "type": "error",
-        "module": "plot_utils",
-        "obj": "",
-        "line": 3,
-        "column": 0,
-        "endLine": 3,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\plot_utils.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.exception_type'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "plot_utils",
-        "obj": "",
-        "line": 3,
-        "column": 0,
-        "endLine": 3,
-        "endColumn": 74,
-        "path": "src\\battery_analysis\\utils\\plot_utils.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
         "type": "refactor",
-        "module": "plot_utils",
+        "module": "battery_analysis.utils.plot_utils",
         "obj": "set_plt_axis",
         "line": 6,
         "column": 0,
@@ -7424,7 +6683,7 @@
     },
     {
         "type": "convention",
-        "module": "resource_manager",
+        "module": "battery_analysis.utils.resource_manager",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -7437,7 +6696,7 @@
     },
     {
         "type": "warning",
-        "module": "resource_manager",
+        "module": "battery_analysis.utils.resource_manager",
         "obj": "ResourceManager.get_optimal_process_count",
         "line": 60,
         "column": 15,
@@ -7450,7 +6709,7 @@
     },
     {
         "type": "convention",
-        "module": "resource_manager",
+        "module": "battery_analysis.utils.resource_manager",
         "obj": "ResourceManager.get_optimal_process_count",
         "line": 29,
         "column": 12,
@@ -7463,7 +6722,7 @@
     },
     {
         "type": "convention",
-        "module": "word_utils",
+        "module": "battery_analysis.utils.word_utils",
         "obj": "",
         "line": 1,
         "column": 0,
@@ -7476,7 +6735,7 @@
     },
     {
         "type": "warning",
-        "module": "word_utils",
+        "module": "battery_analysis.utils.word_utils",
         "obj": "table_set_bg_color",
         "line": 8,
         "column": 9,
@@ -7489,7 +6748,7 @@
     },
     {
         "type": "warning",
-        "module": "word_utils",
+        "module": "battery_analysis.utils.word_utils",
         "obj": "get_item",
         "line": 38,
         "column": 11,
@@ -7502,7 +6761,7 @@
     },
     {
         "type": "convention",
-        "module": "word_utils",
+        "module": "battery_analysis.utils.word_utils",
         "obj": "get_item",
         "line": 32,
         "column": 8,
@@ -7515,7 +6774,7 @@
     },
     {
         "type": "warning",
-        "module": "word_utils",
+        "module": "battery_analysis.utils.word_utils",
         "obj": "add_hyperlink",
         "line": 97,
         "column": 4,
@@ -7528,7 +6787,7 @@
     },
     {
         "type": "convention",
-        "module": "word_utils",
+        "module": "battery_analysis.utils.word_utils",
         "obj": "",
         "line": 4,
         "column": 0,
@@ -7551,32 +6810,6 @@
         "symbol": "missing-module-docstring",
         "message": "Missing module docstring",
         "message-id": "C0114"
-    },
-    {
-        "type": "error",
-        "module": "test_main_window",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 50,
-        "path": "tests\\battery_analysis\\main\\test_main_window.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.main.main_window'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "test_main_window",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 50,
-        "path": "tests\\battery_analysis\\main\\test_main_window.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'main' in module 'battery_analysis'",
-        "message-id": "E0611"
     },
     {
         "type": "error",
@@ -7644,123 +6877,6 @@
         "message-id": "C0411"
     },
     {
-        "type": "convention",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": null,
-        "endColumn": null,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "missing-module-docstring",
-        "message": "Missing module docstring",
-        "message-id": "C0114"
-    },
-    {
-        "type": "error",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 5,
-        "column": 0,
-        "endLine": 5,
-        "endColumn": 61,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "import-error",
-        "message": "Unable to import 'battery_analysis.utils.file_writer'",
-        "message-id": "E0401"
-    },
-    {
-        "type": "error",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 5,
-        "column": 0,
-        "endLine": 5,
-        "endColumn": 61,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "no-name-in-module",
-        "message": "No name 'utils' in module 'battery_analysis'",
-        "message-id": "E0611"
-    },
-    {
-        "type": "convention",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 2,
-        "column": 0,
-        "endLine": 2,
-        "endColumn": 11,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "wrong-import-order",
-        "message": "standard import \"import json\" should be placed before \"import pytest\"",
-        "message-id": "C0411"
-    },
-    {
-        "type": "convention",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 3,
-        "column": 0,
-        "endLine": 3,
-        "endColumn": 9,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "wrong-import-order",
-        "message": "standard import \"import os\" should be placed before \"import pytest\"",
-        "message-id": "C0411"
-    },
-    {
-        "type": "convention",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 15,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "wrong-import-order",
-        "message": "standard import \"import tempfile\" should be placed before \"import pytest\"",
-        "message-id": "C0411"
-    },
-    {
-        "type": "warning",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 1,
-        "column": 0,
-        "endLine": 1,
-        "endColumn": 13,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "unused-import",
-        "message": "Unused import pytest",
-        "message-id": "W0611"
-    },
-    {
-        "type": "warning",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 4,
-        "column": 0,
-        "endLine": 4,
-        "endColumn": 15,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "unused-import",
-        "message": "Unused import tempfile",
-        "message-id": "W0611"
-    },
-    {
-        "type": "warning",
-        "module": "test_file_writer",
-        "obj": "",
-        "line": 5,
-        "column": 0,
-        "endLine": 5,
-        "endColumn": 61,
-        "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
-        "symbol": "unused-import",
-        "message": "Unused XlsxWordWriter imported from battery_analysis.utils.file_writer",
-        "message-id": "W0611"
-    },
-    {
         "type": "refactor",
         "module": "test_file_writer",
         "obj": "",
@@ -7770,7 +6886,7 @@
         "endColumn": null,
         "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
         "symbol": "duplicate-code",
-        "message": "Similar lines in 2 files\n==battery_analysis:[25:34]\n==file_writer:[1459:1467]\n        self.listCurrentLevel = listTestInfo[14]\n        self.listVoltageLevel = listTestInfo[15]\n        self.strFileCurrentType = \"\"\n        for c in range(len(self.listCurrentLevel)):\n            self.strFileCurrentType = self.strFileCurrentType + \\\n                f\"{self.listCurrentLevel[c]}-\"\n        self.strFileCurrentType = self.strFileCurrentType[:-1]\n\n        # input .xlsx directory and result txt path",
+        "message": "Similar lines in 2 files\n==battery_analysis.utils.battery_analysis:[25:34]\n==battery_analysis.utils.file_writer:[1459:1467]\n        self.listCurrentLevel = listTestInfo[14]\n        self.listVoltageLevel = listTestInfo[15]\n        self.strFileCurrentType = \"\"\n        for c in range(len(self.listCurrentLevel)):\n            self.strFileCurrentType = self.strFileCurrentType + \\\n                f\"{self.listCurrentLevel[c]}-\"\n        self.strFileCurrentType = self.strFileCurrentType[:-1]\n        # \u4f7f\u7528os.path.join\u786e\u4fdd\u8def\u5f84\u5206\u9694\u7b26\u4e00\u81f4\u6027",
         "message-id": "R0801"
     }
 ]

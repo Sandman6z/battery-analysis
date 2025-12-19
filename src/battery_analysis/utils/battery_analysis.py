@@ -1,4 +1,5 @@
 from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.data_utils import generate_current_type_string
 import xlrd as rd
 import os
 import csv
@@ -25,11 +26,7 @@ class BatteryAnalysis:
         # list for current level and voltage level, next get them in main_window.py
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
-        self.strFileCurrentType = ""
-        for c in range(len(self.listCurrentLevel)):
-            self.strFileCurrentType = self.strFileCurrentType + \
-                f"{self.listCurrentLevel[c]}-"
-        self.strFileCurrentType = self.strFileCurrentType[:-1]
+        self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
 
         # input .xlsx directory and result txt path
         self.strInDataXlsxDir = f"{strInDataXlsxDir}/"
