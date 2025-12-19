@@ -1,9 +1,9 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 13:28:25
-- 总文件数: 23
-- 存在问题的文件数: 23
+- 分析日期: 2025-12-19 14:03:58
+- 总文件数: 22
+- 存在问题的文件数: 22
 
 ## 文件: scripts\build.py
 
@@ -2397,9 +2397,9 @@
 ## 文件: src\battery_analysis\utils\battery_analysis.py
 
 ### 问题统计
-- 问题总数: 27
+- 问题总数: 29
 - 警告(Warning): 2
-- 规范(Convention): 13
+- 规范(Convention): 15
 - 重构(Refactor): 12
 
 ### 详细问题
@@ -2411,155 +2411,167 @@
 
 #### 行 2, 列 0
 - 类型: convention
-- 代码: C0411
-- 描述: third party import "import xlrd as rd" should be placed before "from battery_analysis.utils.exception_type import BatteryAnalysisException"
-- 符号: wrong-import-order
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 3, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import os" should be placed before "import xlrd as rd"
+- 描述: third party import "import xlrd as rd" should be placed before "from battery_analysis.utils.exception_type import BatteryAnalysisException"
 - 符号: wrong-import-order
 
 #### 行 4, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import csv" should be placed before "import xlrd as rd"
+- 描述: standard import "import os" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
 #### 行 5, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import datetime" should be placed before "import xlrd as rd"
+- 描述: standard import "import csv" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
 #### 行 6, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import traceback" should be placed before "import xlrd as rd"
+- 描述: standard import "import datetime" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
 #### 行 7, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import logging" should be placed before "import xlrd as rd"
+- 描述: standard import "import traceback" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
 #### 行 8, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import re" should be placed before "import xlrd as rd"
+- 描述: standard import "import logging" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
 #### 行 9, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import multiprocessing" should be placed before "import xlrd as rd"
+- 描述: standard import "import re" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
 #### 行 10, 列 0
 - 类型: convention
 - 代码: C0411
-- 描述: standard import "import sys" should be placed before "import xlrd as rd"
+- 描述: standard import "import multiprocessing" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
 #### 行 11, 列 0
 - 类型: convention
 - 代码: C0411
+- 描述: standard import "import sys" should be placed before "import xlrd as rd"
+- 符号: wrong-import-order
+
+#### 行 12, 列 0
+- 类型: convention
+- 代码: C0411
 - 描述: standard import "import concurrent.futures" should be placed before "import xlrd as rd"
 - 符号: wrong-import-order
 
-#### 行 23, 列 0
+#### 行 24, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (18/7)
 - 符号: too-many-instance-attributes
 
-#### 行 24, 列 4
+#### 行 25, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (15/12)
+- 描述: Too many branches (14/12)
 - 符号: too-many-branches
 
-#### 行 24, 列 4
+#### 行 25, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (72/50)
+- 描述: Too many statements (70/50)
 - 符号: too-many-statements
 
-#### 行 29, 列 8
+#### 行 27, 列 0
 - 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
-#### 行 96, 列 20
+#### 行 29, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 93, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.resource_manager.ResourceManager)
 - 符号: import-outside-toplevel
 
-#### 行 114, 列 32
+#### 行 111, 列 32
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise BatteryAnalysisException(f'处理失败: {str(e)}') from e'
 - 符号: raise-missing-from
 
-#### 行 127, 列 28
+#### 行 124, 列 28
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise BatteryAnalysisException(f'并行处理失败: {str(e)}') from e'
 - 符号: raise-missing-from
 
-#### 行 157, 列 4
+#### 行 154, 列 4
 - 类型: refactor
 - 代码: R0911
 - 描述: Too many return statements (8/6)
 - 符号: too-many-return-statements
 
-#### 行 157, 列 4
+#### 行 154, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (32/12)
 - 符号: too-many-branches
 
-#### 行 157, 列 4
+#### 行 154, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (76/50)
 - 符号: too-many-statements
 
-#### 行 167, 列 8
+#### 行 164, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (12/5)
 - 符号: too-many-nested-blocks
 
-#### 行 167, 列 8
+#### 行 164, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (11/5)
 - 符号: too-many-nested-blocks
 
-#### 行 167, 列 8
+#### 行 164, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (12/5)
 - 符号: too-many-nested-blocks
 
-#### 行 167, 列 8
+#### 行 164, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (11/5)
 - 符号: too-many-nested-blocks
 
-#### 行 294, 列 4
+#### 行 291, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (19/12)
 - 符号: too-many-branches
 
-#### 行 294, 列 4
+#### 行 291, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (95/50)
@@ -2663,16 +2675,16 @@
 ## 文件: src\battery_analysis\utils\file_writer.py
 
 ### 问题统计
-- 问题总数: 85
+- 问题总数: 88
 - 警告(Warning): 36
-- 规范(Convention): 37
+- 规范(Convention): 40
 - 重构(Refactor): 12
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (1555/1000)
+- 描述: Too many lines in module (1552/1000)
 - 符号: too-many-lines
 
 #### 行 1, 列 0
@@ -2681,269 +2693,275 @@
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
 
-#### 行 8, 列 0
+#### 行 3, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 4, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 9, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx.shared import Pt, Cm" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 9, 列 0
+#### 行 10, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx.oxml.ns import qn" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 9, 列 0
+#### 行 10, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused qn imported from docx.oxml.ns
 - 符号: unused-import
 
-#### 行 10, 列 0
+#### 行 11, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx.oxml import OxmlElement" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 10, 列 0
+#### 行 11, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused OxmlElement imported from docx.oxml
 - 符号: unused-import
 
-#### 行 11, 列 0
+#### 行 12, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx.opc.constants import RELATIONSHIP_TYPE" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 11, 列 0
+#### 行 12, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused RELATIONSHIP_TYPE imported from docx.opc.constants
 - 符号: unused-import
 
-#### 行 12, 列 0
+#### 行 13, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx.enum.text import WD_LINE_SPACING" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 13, 列 0
+#### 行 14, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 14, 列 0
+#### 行 15, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx.enum.dml import MSO_THEME_COLOR_INDEX" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 14, 列 0
+#### 行 15, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused MSO_THEME_COLOR_INDEX imported from docx.enum.dml
 - 符号: unused-import
 
-#### 行 15, 列 0
+#### 行 16, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from docx import Document" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 16, 列 0
+#### 行 17, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from openpyxl.utils import get_column_letter" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 16, 列 0
+#### 行 17, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused get_column_letter imported from openpyxl.utils
 - 符号: unused-import
 
-#### 行 17, 列 0
+#### 行 18, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "from matplotlib.ticker import MultipleLocator" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 18, 列 0
+#### 行 19, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "import matplotlib.pyplot as plt" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 19, 列 0
+#### 行 20, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "import xlsxwriter as xwt" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 20, 列 0
+#### 行 21, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "import numpy as np" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 20, 列 0
+#### 行 21, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused numpy imported as np
 - 符号: unused-import
 
-#### 行 21, 列 0
+#### 行 22, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import os" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 22, 列 0
+#### 行 23, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import csv" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 23, 列 0
+#### 行 24, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import sys" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 23, 列 0
+#### 行 24, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused import sys
 - 符号: unused-import
 
-#### 行 24, 列 0
+#### 行 25, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import json" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 25, 列 0
+#### 行 26, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import math" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 26, 列 0
+#### 行 27, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import datetime" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 27, 列 0
+#### 行 28, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import traceback" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 28, 列 0
+#### 行 29, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import configparser" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 29, 列 0
+#### 行 30, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "import logging" should be placed before "from docx.shared import Pt, Cm"
 - 符号: wrong-import-order
 
-#### 行 32, 列 0
+#### 行 33, 列 0
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package battery_analysis are not grouped
 - 符号: ungrouped-imports
 
-#### 行 36, 列 0
+#### 行 37, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "import matplotlib" should be placed before "from battery_analysis.utils import csv_utils"
 - 符号: wrong-import-order
 
-#### 行 36, 列 0
+#### 行 37, 列 0
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package matplotlib are not grouped
 - 符号: ungrouped-imports
 
-#### 行 40, 列 0
+#### 行 41, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (31/7)
 - 符号: too-many-instance-attributes
 
-#### 行 41, 列 4
+#### 行 42, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (38/12)
 - 符号: too-many-branches
 
-#### 行 41, 列 4
+#### 行 42, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (141/50)
 - 符号: too-many-statements
 
-#### 行 67, 列 15
+#### 行 68, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 111, 列 16
+#### 行 112, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (re)
 - 符号: import-outside-toplevel
 
-#### 行 200, 列 8
+#### 行 201, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (pathlib.Path)
 - 符号: import-outside-toplevel
 
-#### 行 224, 列 12
+#### 行 225, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 237, 列 15
+#### 行 238, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 250, 列 4
+#### 行 251, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (131/12)
 - 符号: too-many-branches
 
-#### 行 250, 列 4
+#### 行 251, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (467/50)
 - 符号: too-many-statements
 
-#### 行 479, 列 12
+#### 行 480, 列 12
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
-
-#### 行 493, 列 12
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
 
 #### 行 494, 列 12
 - 类型: warning
@@ -2957,7 +2975,7 @@
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 503, 列 12
+#### 行 496, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
@@ -2969,7 +2987,7 @@
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 510, 列 12
+#### 行 505, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
@@ -2987,7 +3005,7 @@
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 520, 列 12
+#### 行 513, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
@@ -2999,181 +3017,193 @@
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 738, 列 8
+#### 行 522, 列 12
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 739, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 793, 列 55
+#### 行 794, 列 55
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 807, 列 55
+#### 行 808, 列 55
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 1252, 列 8
+#### 行 1253, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 1255, 列 12
+#### 行 1256, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1270, 列 16
+#### 行 1271, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1285, 列 28
+#### 行 1286, 列 28
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _element of a client class
 - 符号: protected-access
 
-#### 行 1285, 列 66
+#### 行 1286, 列 66
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _element of a client class
 - 符号: protected-access
 
-#### 行 1307, 列 20
+#### 行 1308, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1307, 列 41
+#### 行 1308, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1310, 列 20
+#### 行 1311, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1310, 列 41
+#### 行 1311, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1313, 列 20
+#### 行 1314, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1313, 列 41
+#### 行 1314, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1316, 列 20
+#### 行 1317, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1316, 列 41
+#### 行 1317, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1335, 列 4
+#### 行 1336, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (56/50)
 - 符号: too-many-statements
 
-#### 行 1340, 列 24
+#### 行 1341, 列 24
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"linewidth": 1, "color": 'red'}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 1367, 列 12
+#### 行 1368, 列 12
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 1427, 列 0
+#### 行 1428, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (13/7)
 - 符号: too-many-instance-attributes
 
-#### 行 1438, 列 16
+#### 行 1439, 列 16
 - 类型: warning
 - 代码: W0719
 - 描述: Raising too general exception: Exception
 - 符号: broad-exception-raised
 
-#### 行 1439, 列 15
+#### 行 1440, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1463, 列 8
+#### 行 1461, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 1466, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 1468, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1471, 列 8
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 1477, 列 4
+#### 行 1474, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (13/12)
 - 符号: too-many-branches
 
-#### 行 1497, 列 12
+#### 行 1494, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1517, 列 12
+#### 行 1514, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1526, 列 15
+#### 行 1523, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1540, 列 13
+#### 行 1537, 列 13
 - 类型: warning
 - 代码: W1514
 - 描述: Using open without explicitly specifying an encoding
 - 符号: unspecified-encoding
 
-#### 行 1550, 列 15
+#### 行 1547, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception BaseException
@@ -3316,68 +3346,13 @@
 ## 文件: tests\battery_analysis\main\test_main_window.py
 
 ### 问题统计
-- 问题总数: 6
+- 问题总数: 1
 - 错误(Error): 1
-- 规范(Convention): 4
-- 重构(Refactor): 1
 
 ### 详细问题
-#### 行 1, 列 0
-- 类型: convention
-- 代码: C0114
-- 描述: Missing module docstring
-- 符号: missing-module-docstring
-
-#### 行 2, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import json" should be placed before "import pytest"
-- 符号: wrong-import-order
-
-#### 行 3, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import os" should be placed before "import pytest"
-- 符号: wrong-import-order
-
-#### 行 5, 列 0
+#### 行 8, 列 0
 - 类型: error
 - 代码: E0611
 - 描述: No name 'QApplication' in module 'PyQt6.QtWidgets'
 - 符号: no-name-in-module
-
-#### 行 5, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: third party import "from PyQt6.QtWidgets import QApplication" should be placed before "from battery_analysis.main.main_window import Main"
-- 符号: wrong-import-order
-
-#### 行 49, 列 19
-- 类型: refactor
-- 代码: R1721
-- 描述: Unnecessary use of a comprehension, use list(reported_by_mapping.items()) instead.
-- 符号: unnecessary-comprehension
-
-## 文件: tests\battery_analysis\utils\test_file_writer.py
-
-### 问题统计
-- 问题总数: 1
-- 重构(Refactor): 1
-
-### 详细问题
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==battery_analysis.utils.battery_analysis:[25:34]
-==battery_analysis.utils.file_writer:[1459:1467]
-        self.listCurrentLevel = listTestInfo[14]
-        self.listVoltageLevel = listTestInfo[15]
-        self.strFileCurrentType = ""
-        for c in range(len(self.listCurrentLevel)):
-            self.strFileCurrentType = self.strFileCurrentType + \
-                f"{self.listCurrentLevel[c]}-"
-        self.strFileCurrentType = self.strFileCurrentType[:-1]
-        # 使用os.path.join确保路径分隔符一致性
-- 符号: duplicate-code
 

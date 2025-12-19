@@ -5,10 +5,10 @@
 import json
 import os
 import pytest
-from PyQt6.QtWidgets import QApplication
+import PyQt6.QtWidgets as QW
 from battery_analysis.main.main_window import Main
 
-app = QApplication([])
+app = QW.QApplication([])
 
 # 加载测试数据
 test_data_path = os.path.join(os.path.dirname(
