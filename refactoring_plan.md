@@ -1,88 +1,9 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 09:55:39
-- 总文件数: 25
-- 存在问题的文件数: 25
-
-## 文件: scripts\analyze_all_pylint.py
-
-### 问题统计
-- 问题总数: 12
-- 警告(Warning): 12
-
-### 详细问题
-#### 行 9, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import os
-- 符号: unused-import
-
-#### 行 37, 列 4
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
-#### 行 55, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 56, 列 8
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
-#### 行 68, 列 8
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
-#### 行 73, 列 12
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
-#### 行 75, 列 12
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
-#### 行 77, 列 4
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
-#### 行 87, 列 16
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 95, 列 20
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 116, 列 20
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 146, 列 8
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
+- 分析日期: 2025-12-19 11:01:46
+- 总文件数: 24
+- 存在问题的文件数: 24
 
 ## 文件: scripts\build.py
 
@@ -379,11 +300,10 @@
 ## 文件: scripts\run_pylint.py
 
 ### 问题统计
-- 问题总数: 51
-- 错误(Error): 13
-- 警告(Warning): 27
-- 规范(Convention): 4
-- 重构(Refactor): 7
+- 问题总数: 23
+- 警告(Warning): 16
+- 规范(Convention): 2
+- 重构(Refactor): 5
 
 ### 详细问题
 #### 行 49, 列 4
@@ -485,14 +405,8 @@
 #### 行 317, 列 0
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (33/12)
+- 描述: Too many branches (13/12)
 - 符号: too-many-branches
-
-#### 行 317, 列 0
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (108/50)
-- 符号: too-many-statements
 
 #### 行 324, 列 20
 - 类型: warning
@@ -529,168 +443,6 @@
 - 代码: W1203
 - 描述: Use lazy % formatting in logging functions
 - 符号: logging-fstring-interpolation
-
-#### 行 386, 列 4
-- 类型: warning
-- 代码: W0101
-- 描述: Unreachable code
-- 符号: unreachable
-
-#### 行 386, 列 4
-- 类型: refactor
-- 代码: R1702
-- 描述: Too many nested blocks (9/5)
-- 符号: too-many-nested-blocks
-
-#### 行 388, 列 8
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'result'
-- 符号: unused-variable
-
-#### 行 388, 列 17
-- 类型: warning
-- 代码: W1510
-- 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
-- 符号: subprocess-run-check
-
-#### 行 388, 列 32
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'json_cmd'
-- 符号: undefined-variable
-
-#### 行 391, 列 11
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'json_report'
-- 符号: undefined-variable
-
-#### 行 391, 列 36
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'json_report'
-- 符号: undefined-variable
-
-#### 行 392, 列 55
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'json_report'
-- 符号: undefined-variable
-
-#### 行 401, 列 20
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (importlib.util)
-- 符号: import-outside-toplevel
-
-#### 行 405, 列 24
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (pkg_resources)
-- 符号: import-outside-toplevel
-
-#### 行 418, 列 40
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'json_report'
-- 符号: undefined-variable
-
-#### 行 418, 列 58
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'html_report'
-- 符号: undefined-variable
-
-#### 行 419, 列 50
-- 类型: warning
-- 代码: W1510
-- 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
-- 符号: subprocess-run-check
-
-#### 行 423, 列 57
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'html_report'
-- 符号: undefined-variable
-
-#### 行 426, 列 24
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'e'
-- 符号: unused-variable
-
-#### 行 426, 列 31
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 428, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 435, 列 30
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'json_report'
-- 符号: undefined-variable
-
-#### 行 457, 列 30
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'html_report'
-- 符号: undefined-variable
-
-#### 行 503, 列 43
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'json_report'
-- 符号: undefined-variable
-
-#### 行 509, 列 72
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'html_report'
-- 符号: undefined-variable
-
-#### 行 511, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 520, 列 26
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'html_report'
-- 符号: undefined-variable
-
-#### 行 521, 列 28
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 539, 列 68
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable 'html_report'
-- 符号: undefined-variable
-
-#### 行 540, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 542, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 ## 文件: scripts\run_tests.py
 
@@ -1401,7 +1153,7 @@
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (2147/1000)
+- 描述: Too many lines in module (2150/1000)
 - 符号: too-many-lines
 
 #### 行 12, 列 0
@@ -1782,91 +1534,91 @@
 - 描述: String statement has no effect
 - 符号: pointless-string-statement
 
-#### 行 1614, 列 12
+#### 行 1617, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1677, 列 4
+#### 行 1680, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (21/12)
 - 符号: too-many-branches
 
-#### 行 1677, 列 4
+#### 行 1680, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (83/50)
 - 符号: too-many-statements
 
-#### 行 1777, 列 8
+#### 行 1780, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 1779, 列 4
+#### 行 1782, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (16/12)
 - 符号: too-many-branches
 
-#### 行 1779, 列 4
+#### 行 1782, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (77/50)
 - 符号: too-many-statements
 
-#### 行 1940, 列 4
+#### 行 1943, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (21/12)
 - 符号: too-many-branches
 
-#### 行 1940, 列 4
+#### 行 1943, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (74/50)
 - 符号: too-many-statements
 
-#### 行 1971, 列 23
+#### 行 1974, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1979, 列 20
+#### 行 1982, 列 20
 - 类型: warning
 - 代码: W0632
-- 描述: Possible unbalanced tuple unpacking with sequence defined at line 1946: left side has 4 labels, right side has 0 values
+- 描述: Possible unbalanced tuple unpacking with sequence defined at line 1949: left side has 4 labels, right side has 0 values
 - 符号: unbalanced-tuple-unpacking
 
-#### 行 2017, 列 27
+#### 行 2020, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2023, 列 23
+#### 行 2026, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2040, 列 27
+#### 行 2043, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2045, 列 23
+#### 行 2048, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2049, 列 15
+#### 行 2052, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -1875,9 +1627,9 @@
 ## 文件: src\battery_analysis\main\workers\analysis_worker.py
 
 ### 问题统计
-- 问题总数: 22
+- 问题总数: 27
 - 错误(Error): 6
-- 警告(Warning): 9
+- 警告(Warning): 14
 - 规范(Convention): 3
 - 重构(Refactor): 4
 
@@ -1897,118 +1649,148 @@
 #### 行 69, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (31/12)
+- 描述: Too many branches (39/12)
 - 符号: too-many-branches
 
 #### 行 69, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (113/50)
+- 描述: Too many statements (140/50)
 - 符号: too-many-statements
 
-#### 行 88, 列 8
+#### 行 87, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 90, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 105, 列 12
+#### 行 107, 列 12
 - 类型: error
 - 代码: E0401
 - 描述: Unable to import 'battery_analysis.utils'
 - 符号: import-error
 
-#### 行 105, 列 12
+#### 行 107, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.battery_analysis)
 - 符号: import-outside-toplevel
 
-#### 行 105, 列 12
+#### 行 107, 列 12
 - 类型: error
 - 代码: E0611
 - 描述: No name 'utils' in module 'battery_analysis'
 - 符号: no-name-in-module
 
-#### 行 163, 列 24
+#### 行 165, 列 24
 - 类型: warning
 - 代码: W0702
 - 描述: No exception type(s) specified
 - 符号: bare-except
 
-#### 行 184, 列 32
+#### 行 186, 列 32
 - 类型: warning
 - 代码: W0702
 - 描述: No exception type(s) specified
 - 符号: bare-except
 
-#### 行 192, 列 36
+#### 行 194, 列 36
 - 类型: warning
 - 代码: W0702
 - 描述: No exception type(s) specified
 - 符号: bare-except
 
-#### 行 195, 列 23
+#### 行 197, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 220, 列 16
+#### 行 220, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 233, 列 20
 - 类型: error
 - 代码: E0401
 - 描述: Unable to import 'battery_analysis.utils'
 - 符号: import-error
 
-#### 行 220, 列 16
+#### 行 233, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.file_writer)
 - 符号: import-outside-toplevel
 
-#### 行 220, 列 16
+#### 行 233, 列 20
 - 类型: error
 - 代码: E0611
 - 描述: No name 'utils' in module 'battery_analysis'
 - 符号: no-name-in-module
 
-#### 行 245, 列 15
+#### 行 265, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 281, 列 16
+#### 行 267, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 271, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 290, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 312, 列 16
 - 类型: error
 - 代码: E0401
 - 描述: Unable to import 'battery_analysis.utils.version'
 - 符号: import-error
 
-#### 行 281, 列 16
+#### 行 312, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.version.Version)
 - 符号: import-outside-toplevel
 
-#### 行 281, 列 16
+#### 行 312, 列 16
 - 类型: error
 - 代码: E0611
 - 描述: No name 'utils' in module 'battery_analysis'
 - 符号: no-name-in-module
 
-#### 行 283, 列 19
+#### 行 314, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 305, 列 20
+#### 行 336, 列 20
 - 类型: warning
 - 代码: W1510
 - 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
 - 符号: subprocess-run-check
 
-#### 行 309, 列 23
+#### 行 340, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -3961,11 +3743,11 @@
 ## 文件: tests\battery_analysis\utils\test_file_writer.py
 
 ### 问题统计
-- 问题总数: 12
+- 问题总数: 10
 - 错误(Error): 2
 - 警告(Warning): 3
 - 规范(Convention): 4
-- 重构(Refactor): 3
+- 重构(Refactor): 1
 
 ### 详细问题
 #### 行 1, 列 0
@@ -3984,88 +3766,6 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==analyze_all_pylint:[92:129]
-==run_pylint:[338:374]
-        for file_path, issues in sorted(issues_by_file.items()):
-            f.write(f"## 文件: {file_path}\n\n")
-            f.write(f"### 问题统计\n")
-            f.write(f"- 问题总数: {len(issues)}\n")
-
-            # 统计不同类型的问题
-            error_count = sum(1 for issue in issues if issue['type'] == 'error')
-            warning_count = sum(1 for issue in issues if issue['type'] == 'warning')
-            info_count = sum(1 for issue in issues if issue['type'] == 'info')
-            convention_count = sum(1 for issue in issues if issue['type'] == 'convention')
-            refactor_count = sum(1 for issue in issues if issue['type'] == 'refactor')
-
-            if error_count > 0:
-                f.write(f"- 错误(Error): {error_count}\n")
-            if warning_count > 0:
-                f.write(f"- 警告(Warning): {warning_count}\n")
-            if info_count > 0:
-                f.write(f"- 信息(Info): {info_count}\n")
-            if convention_count > 0:
-                f.write(f"- 规范(Convention): {convention_count}\n")
-            if refactor_count > 0:
-                f.write(f"- 重构(Refactor): {refactor_count}\n")
-
-            f.write(f"\n### 详细问题\n")
-
-            # 按行号排序问题
-            sorted_issues = sorted(issues, key=lambda x: (x['line'], x['column']))
-
-            for issue in sorted_issues:
-                f.write(f"#### 行 {issue['line']}, 列 {issue['column']}\n")
-                f.write(f"- 类型: {issue['type']}\n")
-                f.write(f"- 代码: {issue['message-id']}\n")
-                f.write(f"- 描述: {issue['message']}\n")
-                if issue['symbol']:
-                    f.write(f"- 符号: {issue['symbol']}\n")
-                f.write("\n")
-
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==analyze_all_pylint:[14:42]
-==run_pylint:[26:55]
-logger = logging.getLogger(__name__)
-
-
-def get_all_python_files():
-    """获取所有Python文件"""
-    logger.info("获取所有Python文件...")
-    patterns = [
-        "src/**/*.py",
-        "scripts/**/*.py",
-        "tests/**/*.py"
-    ]
-
-    python_files = []
-    for pattern in patterns:
-        files = glob.glob(pattern, recursive=True)
-        python_files.extend(files)
-
-    # 去重
-    python_files = list(set(python_files))
-    # 排序
-    python_files.sort()
-
-    logger.info(f"找到 {len(python_files)} 个Python文件")
-    return python_files
-
-
-def run_pylint():
-    """运行Pylint分析并显示结果"""
-    # 获取项目根目录
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
 ==battery_analysis:[25:34]
 ==file_writer:[1459:1467]
         self.listCurrentLevel = listTestInfo[14]
@@ -4075,8 +3775,7 @@ def run_pylint():
             self.strFileCurrentType = self.strFileCurrentType + \
                 f"{self.listCurrentLevel[c]}-"
         self.strFileCurrentType = self.strFileCurrentType[:-1]
-
-        # input .xlsx directory and result txt path
+        # 使用os.path.join确保路径分隔符一致性
 - 符号: duplicate-code
 
 #### 行 2, 列 0

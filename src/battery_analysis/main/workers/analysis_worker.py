@@ -84,6 +84,8 @@ class AnalysisWorker(QC.QRunnable):
         except RuntimeError:
             # 处理信号对象已被删除的情况
             pass
+        except Exception as e:
+            logging.error("发送初始运行状态失败: %s", str(e))
 
         try:
             # 发送初始进度
@@ -203,12 +205,22 @@ class AnalysisWorker(QC.QRunnable):
                 # 现在优先使用从文件名提取的正确日期
 
                 # 重命名目录
-                final_dir = f"{self.str_output_path}/{self.str_test_date}_V{self.list_test_info[16]}"
-                if os.path.exists(final_dir):
-                    shutil.rmtree(final_dir)
+                try:
+                    final_dir = f"{self.str_output_path}/{self.str_test_date}_V{self.list_test_info[16]}"
+                    if os.path.exists(final_dir):
+                        shutil.rmtree(final_dir)
 
-                self.signals.rename_path.emit(self.str_test_date)
-                os.rename(version_dir, final_dir)
+                    # 发送重命名路径信号
+                    try:
+                        self.signals.rename_path.emit(self.str_test_date)
+                    except RuntimeError:
+                        logging.warning("信号对象已被删除，无法发送重命名路径信号")
+                    
+                    os.rename(version_dir, final_dir)
+                except Exception as e:
+                    logging.error("目录重命名失败: %s", e)
+                    # 重命名失败时，使用默认目录名继续执行
+                    final_dir = version_dir
 
                 self.progress_value = 60
                 self.signals.progress_update.emit(
@@ -217,33 +229,49 @@ class AnalysisWorker(QC.QRunnable):
                     return
 
                 # 文件写入
-                from battery_analysis.utils import file_writer
+                try:
+                    from battery_analysis.utils import file_writer
 
-                info_file = file_writer.FileWriter(
-                    strResultPath=self.str_output_path,
-                    listTestInfo=self.list_test_info,
-                    listBatteryInfo=list_battery_info
-                )
+                    info_file = file_writer.FileWriter(
+                        strResultPath=self.str_output_path,
+                        listTestInfo=self.list_test_info,
+                        listBatteryInfo=list_battery_info
+                    )
 
-                self.progress_value = 80
-                self.signals.progress_update.emit(
-                    self.progress_value, "生成报告中...")
-                if self.b_cancel_requested:
-                    return
+                    self.progress_value = 80
+                    try:
+                        self.signals.progress_update.emit(
+                            self.progress_value, "生成报告中...")
+                    except RuntimeError:
+                        logging.warning("信号对象已被删除，无法发送进度更新信号")
+                    
+                    if self.b_cancel_requested:
+                        return
 
-                self.str_error_xlsx = info_file.UFW_GetErrorLog()
-                if self.str_error_xlsx != "":
-                    logging.error(self.str_error_xlsx)
-                else:
-                    self.progress_value = 100
-                    self.signals.progress_update.emit(
-                        self.progress_value, "分析完成！")
+                    self.str_error_xlsx = info_file.UFW_GetErrorLog()
+                    if self.str_error_xlsx != "":
+                        logging.error(self.str_error_xlsx)
+                    else:
+                        self.progress_value = 100
+                        try:
+                            self.signals.progress_update.emit(
+                                self.progress_value, "分析完成！")
+                        except RuntimeError:
+                            logging.warning("信号对象已被删除，无法发送进度更新信号")
 
-                # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
-                self._start_visualizer()
+                    # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
+                    try:
+                        self._start_visualizer()
+                    except Exception as e:
+                        logging.error("启动可视化工具失败: %s", e)
+                except Exception as e:
+                    logging.error("文件写入过程中发生错误: %s", e)
+                    self.str_error_xlsx = f"文件写入错误: {str(e)}"
 
         except Exception as e:
             logging.error("线程运行过程中发生错误: %s", e)
+            # 将未捕获的异常信息传递给UI层
+            self.str_error_xlsx = f"线程运行错误: {str(e)}"
         finally:
             self.b_thread_run = False
             # 发送完成状态
@@ -259,6 +287,9 @@ class AnalysisWorker(QC.QRunnable):
             except RuntimeError:
                 # 处理信号对象已被删除的情况
                 logging.warning("信号对象已被删除，无法发送完成状态")
+            except Exception as e:
+                # 捕获所有可能的异常，避免闪退
+                logging.error("发送完成状态时发生错误: %s", e)
 
     def _start_visualizer(self):
         """

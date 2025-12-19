@@ -1609,8 +1609,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.pushButton_Run.setFocus()
 
         def set_item(config_key: str, row: int, col: int):
-            list_item_text = self.tableWidget_TestInformation.item(
-                row, col).text().split(",")
+            item = self.tableWidget_TestInformation.item(row, col)
+            if item is None:
+                self.config.setValue(f"{config_key}", "")
+                return
+            list_item_text = item.text().split(",")
             for i in range(len(list_item_text)):
                 list_item_text[i] = list_item_text[i].strip()
             if len(list_item_text) == 1:
