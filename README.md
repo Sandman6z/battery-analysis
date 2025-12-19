@@ -77,6 +77,34 @@
 ### 安装后脚本入口
 - ` uv run battery-analysis `
 
+## 代码质量检查
+
+项目使用Pylint进行静态代码分析，以确保代码质量和一致性。
+
+### 运行完整代码检查
+
+您可以使用以下命令运行整个工程的代码质量检查：
+
+```bash
+# 使用uv运行pylint脚本
+uv run scripts/run_pylint.py
+
+# 或者直接使用Python运行（确保在虚拟环境中）
+python scripts/run_pylint.py
+```
+
+该脚本会执行以下操作：
+- 递归查找并分析所有Python文件（包括`src`、`scripts`和`tests`目录）
+- 实时显示分析结果
+- 生成JSON格式的详细报告 (`pylint_report.json`)
+- 生成HTML格式的可视化报告 (`pylint_report.html`)
+- 生成Markdown格式的重构计划 (`refactoring_plan.md`)
+
+### 详细使用指南
+
+关于Pylint的详细配置和使用说明，请参考：
+- **[Pylint静态代码分析使用指南](docs/README_PYLINT.md)**
+
 ## 构建与打包
 
 在打包项目之前，请确保：

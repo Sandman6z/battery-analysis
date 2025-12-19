@@ -42,9 +42,11 @@ python scripts/run_pylint.py
 
 这个脚本会：
 - 检查Pylint是否已安装
-- 对`src`目录进行代码分析
+- **递归查找并分析所有Python文件**（包括`src`、`scripts`和`tests`目录）
 - 实时显示分析结果
-- （如果安装了pylint-json2html）生成HTML格式的报告
+- 生成**JSON格式**的详细报告 (`pylint_report.json`)
+- 生成**HTML格式**的可视化报告 (`pylint_report.html`) - 支持`pylint-json2html`和自定义模板
+- 生成**Markdown格式**的详细重构计划 (`refactoring_plan.md`) - 按文件分类的问题列表
 
 ### 3.2 直接运行Pylint
 

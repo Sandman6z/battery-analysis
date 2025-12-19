@@ -132,14 +132,14 @@ class AnalysisWorker(QC.QRunnable):
                 original_cycle_date = list_battery_info[4]
 
                 logging.info(
-                    f"获取到的Test Date: {test_date}, 原始周期日期: {original_cycle_date}")
+                    "获取到的Test Date: %s, 原始周期日期: %s", test_date, original_cycle_date)
 
                 try:
                     # 优先使用从Excel或文件名提取的Test Date（已经是YYYYMMDD格式）
                     if test_date and len(test_date) == 8 and test_date.isdigit():
                         self.str_test_date = test_date
                         logging.info(
-                            f"使用YYYYMMDD格式的Test Date: {self.str_test_date}")
+                            "使用YYYYMMDD格式的Test Date: %s", self.str_test_date)
                     elif test_date:
                         # 如果test_date是其他格式，尝试解析
                         try:
@@ -159,7 +159,7 @@ class AnalysisWorker(QC.QRunnable):
                                 # 尝试作为YYYYMMDD直接使用
                                 self.str_test_date = test_date
                             logging.info(
-                                f"从Test Date解析得到: {self.str_test_date}")
+                                "从Test Date解析得到: %s", self.str_test_date)
                         except:
                             # 解析失败时，尝试使用原始周期日期
                             if original_cycle_date:
@@ -180,7 +180,7 @@ class AnalysisWorker(QC.QRunnable):
                                         # 尝试作为YYYYMMDD直接使用
                                         self.str_test_date = original_cycle_date
                                     logging.info(
-                                        f"从原始周期日期解析得到: {self.str_test_date}")
+                                        "从原始周期日期解析得到: %s", self.str_test_date)
                                 except:
                                     # 最后尝试回退到原有的日期提取方式
                                     try:
@@ -188,16 +188,16 @@ class AnalysisWorker(QC.QRunnable):
                                             0].split("-")
                                         self.str_test_date = f"{sy}{sm}{sd}"
                                         logging.info(
-                                            f"从list_battery_info解析得到: {self.str_test_date}")
+                                            "从list_battery_info解析得到: %s", self.str_test_date)
                                     except:
                                         self.str_test_date = "00000000"
                                         logging.error("所有日期解析方式都失败了")
                 except Exception as e:
-                    logging.error(f"解析测试日期失败: {e}")
+                    logging.error("解析测试日期失败: %s", e)
                     self.str_test_date = "00000000"
 
                 # 日志记录最终使用的日期
-                logging.info(f"最终确定的测试日期: {self.str_test_date}")
+                logging.info("最终确定的测试日期: %s", self.str_test_date)
 
                 # 取消严格的日期比较，避免因为日期格式不一致导致程序退出
                 # 现在优先使用从文件名提取的正确日期
@@ -243,7 +243,7 @@ class AnalysisWorker(QC.QRunnable):
                 self._start_visualizer()
 
         except Exception as e:
-            logging.error(f"线程运行过程中发生错误: {e}")
+            logging.error("线程运行过程中发生错误: %s", e)
         finally:
             self.b_thread_run = False
             # 发送完成状态
@@ -299,7 +299,7 @@ class AnalysisWorker(QC.QRunnable):
         exe_executed = False
         for exe_path in exe_candidates:
             if os.path.exists(exe_path):
-                logging.info(f"启动ImageMaker: {exe_path}")
+                logging.info("启动ImageMaker: %s", exe_path)
                 try:
                     # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行，移除shell=True避免重复启动
                     subprocess.run(
@@ -307,7 +307,7 @@ class AnalysisWorker(QC.QRunnable):
                     exe_executed = True
                     break
                 except Exception as e:
-                    logging.error(f"启动失败 {exe_path}: {e}")
+                    logging.error("启动失败 %s: %s", exe_path, e)
                     continue
 
         if not exe_executed:
@@ -315,4 +315,4 @@ class AnalysisWorker(QC.QRunnable):
             logging.info("候选路径:")
             for path in exe_candidates:
                 logging.info(
-                    f"  - {path}: {'存在' if os.path.exists(path) else '不存在'}")
+                "  - %s: %s", path, '存在' if os.path.exists(path) else '不存在')

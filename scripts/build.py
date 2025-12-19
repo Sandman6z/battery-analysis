@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # 检查PyInstaller是否已安装，如果未安装则提示用户安装build依赖
 try:
     import PyInstaller
-    logger.info(f"PyInstaller已安装: {PyInstaller.__version__}")
+    logger.info("PyInstaller已安装: %s", PyInstaller.__version__)
 except ImportError:
     logger.warning("警告: 未找到PyInstaller模块。请先安装build依赖组:")
     logger.warning("  uv pip install -e '.[build]'")
@@ -56,7 +56,7 @@ class BuildConfig:
             self.version = pyproject_data.get(
                 "project", {}).get("version", "0.0.0")
         except Exception as e:
-            logger.warning(f"无法从pyproject.toml读取版本号: {e}，使用默认版本")
+            logger.warning("无法从pyproject.toml读取版本号: %s，使用默认版本", e)
             self.version = "0.0.0"
 
         # 根据构建类型决定是否显示控制台窗口
@@ -109,7 +109,7 @@ class BuildManager(BuildConfig):
                         f.write(original_init_content)
                     logger.info("已恢复原始__init__.py文件")
                 except Exception as e:
-                    logger.error(f"恢复原始__init__.py文件时出错: {e}")
+                    logger.error("恢复原始__init__.py文件时出错: %s", e)
 
     def embed_version_in_init(self):
         """在构建前将版本号嵌入到__init__.py文件中"""
@@ -132,27 +132,27 @@ class BuildManager(BuildConfig):
             with open(init_file_path, 'w', encoding='utf-8') as f:
                 f.write(updated_content)
 
-            logger.info(f"已将版本号 {self.version} 嵌入到 {init_file_path}")
+            logger.info("已将版本号 %s 嵌入到 %s", self.version, init_file_path)
 
             # 返回原始内容，以便稍后恢复
             return content
         except Exception as e:
-            logger.error(f"嵌入版本号时出错: {e}")
+            logger.error("嵌入版本号时出错: %s", e)
             return None
 
     def clean_build_dirs(self):
         """清理构建目录和缓存"""
-        logger.info(f"开始清理构建目录和缓存...")
+        logger.info("开始清理构建目录和缓存...")
 
         # 清理临时构建目录
         if self.temp_build_dir.exists():
-            logger.info(f"清理临时构建目录: {self.temp_build_dir}")
+            logger.info("清理临时构建目录: %s", self.temp_build_dir)
             shutil.rmtree(self.temp_build_dir)
 
         # 清理最终构建目录（对应当前构建类型）
         final_build_type_dir = self.project_root / 'build' / self.build_type
         if final_build_type_dir.exists():
-            logger.info(f"清理最终构建目录: {final_build_type_dir}")
+            logger.info("清理最终构建目录: %s", final_build_type_dir)
             shutil.rmtree(final_build_type_dir)
 
         # 创建必要的目录
@@ -254,15 +254,15 @@ VSVersionInfo(
         # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
         exe_path = build_dir / dataconverter_exe_name
         if exe_path.exists():
-            logger.info(f"确认: {exe_path} 已在目标目录中")
+            logger.info("确认: %s 已在目标目录中", exe_path)
         else:
-            logger.warning(f"警告: {exe_path} 不存在")
+            logger.warning("警告: %s 不存在", exe_path)
 
         exe_path = build_dir / imagemaker_exe_name
         if exe_path.exists():
-            logger.info(f"确认: {exe_path} 已在目标目录中")
+            logger.info("确认: %s 已在目标目录中", exe_path)
         else:
-            logger.warning(f"警告: {exe_path} 不存在")
+            logger.warning("警告: %s 不存在", exe_path)
 
         # 不再复制pyproject.toml到构建目录，版本号已直接在构建脚本中处理
 
@@ -276,15 +276,15 @@ VSVersionInfo(
                 config.set("PltConfig", "Title", "")
             with open(build_dir / "setting.ini", 'w', encoding='utf-8') as f:
                 config.write(f)
-            logger.info(f"已创建: {build_dir / 'setting.ini'}")
+            logger.info("已创建: %s", build_dir / 'setting.ini')
         else:
-            logger.warning(f"{config_path} 不存在，无法创建setting.ini")
+            logger.warning("%s 不存在，无法创建setting.ini", config_path)
 
         # 清理临时构建目录
         build_path = Path(self.build_path)
         if build_path.exists():
             shutil.rmtree(build_path)
-            logger.info(f"已清理临时构建目录: {build_path}")
+            logger.info("已清理临时构建目录: %s", build_path)
 
     def setup_version(self):
         """设置版本信息"""
@@ -321,12 +321,12 @@ VSVersionInfo(
                         # 增加修订号
                         self.version = f"{version_split[0]}.{version_split[1]}.{int(version_split[2])+1}"
                 except Exception as e:
-                    logger.warning(f"无法获取或解析提交消息: {e}，使用默认版本更新")
+                    logger.warning("无法获取或解析提交消息: %s，使用默认版本更新", e)
                     self.version = f"{version_split[0]}.{version_split[1]}.{int(version_split[2])+1}"
 
                 self._update_version_files()
             except Exception as e:
-                logger.warning(f"Release模式版本更新失败: {e}，使用当前版本继续")
+                logger.warning("Release模式版本更新失败: %s，使用当前版本继续", e)
 
     def _update_version_files(self):
         """更新版本相关文件 - Config_BatteryAnalysis.ini已在初始化时同步"""
@@ -375,7 +375,7 @@ VSVersionInfo(
             # 复制所有SVG文件
             for svg_file in svg_dir.glob("*.svg"):
                 shutil.copy(svg_file, dest_svg_dir)
-                logger.info(f"已复制SVG图标: {svg_file.name}")
+                logger.info("已复制SVG图标: %s", svg_file.name)
         # 确保UI目录存在并复制UI文件
         ui_dest_dir = battery_analysis_dir / "battery_analysis" / "ui" / "resources"
         ui_dest_dir.mkdir(parents=True, exist_ok=True)
@@ -400,7 +400,7 @@ VSVersionInfo(
             # 复制所有SVG文件
             for svg_file in svg_dir.glob("*.svg"):
                 shutil.copy(svg_file, dest_svg_dir_img)
-                logger.info(f"已复制SVG图标到ImageShow: {svg_file.name}")
+                logger.info("已复制SVG图标到ImageShow: %s", svg_file.name)
 
         # 为ImageShow也创建完整的battery_analysis包结构
         battery_analysis_dest_img = image_show_dir / "battery_analysis"
@@ -511,7 +511,7 @@ VSVersionInfo(
             f.write(spec_content)
 
             # 执行 pyinstaller 命令
-            logger.info(f"开始构建 {dataconverter_exe_name}...")
+            logger.info("开始构建 %s...", dataconverter_exe_name)
             # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
             import subprocess
 
@@ -614,11 +614,11 @@ VSVersionInfo(
                     capture_output=True,
                     encoding='utf-8'
                 )
-                logger.info(f"BatteryAnalysis构建结果: {result.returncode}")
+                logger.info("BatteryAnalysis构建结果: %s", result.returncode)
                 if result.stderr:
-                    logger.error(f"错误输出: {result.stderr}")
+                    logger.error("错误输出: %s", result.stderr)
             except Exception as e:
-                logger.error(f"执行命令时出错: {e}")
+                logger.error("执行命令时出错: %s", e)
                 result = subprocess.CompletedProcess(cmd_args, 1)
 
         # 为ImageMaker生成spec文件
@@ -678,7 +678,7 @@ VSVersionInfo(
             f.write(spec_content)
 
         # 执行 pyinstaller 命令
-        logger.info(f"开始构建 {imagemaker_exe_name}...")
+        logger.info("开始构建 %s...", imagemaker_exe_name)
         # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
         import subprocess
 
@@ -689,7 +689,7 @@ VSVersionInfo(
         # 1. 优先检查CI环境变量中设置的DLL路径（用于GitHub Actions）
         ci_dll_path = os.environ.get('PYTHON_DLL_PATH')
         if ci_dll_path and os.path.exists(ci_dll_path):
-            logger.info(f"使用CI环境变量中的Python DLL路径: {ci_dll_path}")
+            logger.info("使用CI环境变量中的Python DLL路径: %s", ci_dll_path)
             python_dll = ci_dll_path
         else:
             logger.info("未找到CI环境变量中的Python DLL路径，尝试本地路径")
@@ -701,9 +701,9 @@ VSVersionInfo(
             ]
 
             for path in basic_paths:
-                logger.debug(f"检查本地DLL路径: {path}")
+                logger.debug("检查本地DLL路径: %s", path)
                 if path.exists():
-                    logger.info(f"找到本地Python DLL: {path}")
+                    logger.info("找到本地Python DLL: %s", path)
                     python_dll = str(path)
                     break
 
@@ -711,7 +711,7 @@ VSVersionInfo(
             if not python_dll:
                 logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
                 logger.warning(
-                    f"尝试过的路径: {', '.join(str(p) for p in basic_paths)}")
+                    "尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
                 # 即使未找到DLL，也继续构建过程，但添加警告
 
         # 构建命令参数列表 - 添加DLL修复参数，不使用spec文件而是直接使用命令行参数
@@ -768,17 +768,17 @@ VSVersionInfo(
                 capture_output=True,
                 encoding='utf-8'
             )
-            logger.info(f"ImageShow构建结果: {result.returncode}")
+            logger.info("ImageShow构建结果: %s", result.returncode)
             if result.stderr:
-                logger.error(f"错误输出: {result.stderr}")
+                logger.error("错误输出: %s", result.stderr)
         except Exception as e:
-            logger.error(f"执行命令时出错: {e}")
+            logger.error("执行命令时出错: %s", e)
             result = subprocess.CompletedProcess(cmd_args, 1)
 
         # 清理临时文件
         if temp_path.exists():
             shutil.rmtree(temp_path)
-        logger.info(f'构建完成，可执行文件位于: {final_build_dir}')
+        logger.info('构建完成，可执行文件位于: %s', final_build_dir)
 
 
 if __name__ == '__main__':
@@ -795,7 +795,7 @@ if __name__ == '__main__':
             sys.exit(0)
         elif build_type not in ['Debug', 'Release']:
             raise ValueError(f"不支持的构建类型: {build_type}。只支持Debug和Release。")
-        logger.info(f"开始{build_type}模式构建...")
+        logger.info("开始%s模式构建...", build_type)
         BuildManager(build_type)
     else:
         logger.info("用法: python -m scripts.build [构建类型]")

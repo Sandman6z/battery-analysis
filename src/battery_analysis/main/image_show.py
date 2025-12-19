@@ -122,7 +122,7 @@ class FIGURE:
 
             logging.warning("未找到配置文件，使用默认配置")
         except Exception as e:
-            logging.error(f"配置读取失败: {e}，使用默认配置")
+            logging.error("配置读取失败: %s，使用默认配置", e)
 
     def _read_configurations(self):
         """
@@ -180,15 +180,15 @@ class FIGURE:
         try:
             if self.config.has_section(section) and self.config.has_option(section, option):
                 value = self.config.get(section, option)
-                logging.debug(f"获取配置 {section}/{option}: {value}")
+                logging.debug("获取配置 %s/%s: %s", section, option, value)
                 return value
             else:
                 logging.warning(
-                    f"未找到配置 {section}/{option}，使用默认值: {default_value}")
+                    "未找到配置 %s/%s，使用默认值: %s", section, option, default_value)
                 return default_value
         except Exception as e:
             logging.error(
-                f"读取配置 {section}/{option} 出错: {e}，使用默认值: {default_value}")
+                "读取配置 %s/%s 出错: %s，使用默认值: %s", section, option, e, default_value)
             return default_value
 
     def _get_config_list(self, section, option):
@@ -197,13 +197,13 @@ class FIGURE:
             if self.config.has_section(section) and self.config.has_option(section, option):
                 list_value = self.config.get(section, option).split(",")
                 cleaned_list = [item.strip() for item in list_value]
-                logging.debug(f"获取配置列表 {section}/{option}: {cleaned_list}")
+                logging.debug("获取配置列表 %s/%s: %s", section, option, cleaned_list)
                 return cleaned_list
             else:
-                logging.warning(f"未找到配置列表 {section}/{option}，使用空列表")
+                logging.warning("未找到配置列表 %s/%s，使用空列表", section, option)
                 return []
         except Exception as e:
-            logging.error(f"读取配置列表 {section}/{option} 出错: {e}，使用空列表")
+            logging.error("读取配置列表 %s/%s 出错: %s，使用空列表", section, option, e)
             return []
 
     def _get_pulse_current_level(self):
@@ -213,16 +213,16 @@ class FIGURE:
                 listPulseCurrentLevel = self.config.get(
                     "BatteryConfig", "PulseCurrent").split(",")
                 result = [int(item.strip()) for item in listPulseCurrentLevel]
-                logging.info(f"使用配置的脉冲电流级别: {result}")
+                logging.info("使用配置的脉冲电流级别: %s", result)
                 return result
             else:
                 default_value = [10, 20, 50]
                 logging.warning(
-                    f"未找到BatteryConfig/PulseCurrent，使用默认值: {default_value}")
+                    "未找到BatteryConfig/PulseCurrent，使用默认值: %s", default_value)
                 return default_value
         except Exception as e:
             default_value = [10, 20, 50]
-            logging.error(f"脉冲电流配置格式错误: {e}，使用默认值: {default_value}")
+            logging.error("脉冲电流配置格式错误: %s，使用默认值: %s", e, default_value)
             return default_value
 
     def _set_plot_title(self):
@@ -236,7 +236,7 @@ class FIGURE:
             return f"Load Voltage over Charge\n{title_content}"
         except Exception as e:
             default_title = "Load Voltage over Charge\nUnknown Battery"
-            logging.error(f"设置图表标题出错: {e}，使用默认标题: {default_title}")
+            logging.error("设置图表标题出错: %s，使用默认标题: %s", e, default_title)
             return default_title
 
     def _read_rules_configuration(self):
@@ -249,7 +249,7 @@ class FIGURE:
             else:
                 logging.warning("未找到BatteryConfig/Rules，使用默认maxXaxis")
         except Exception as e:
-            logging.error(f"读取Rules配置出错: {e}，使用默认maxXaxis")
+            logging.error("读取Rules配置出错: %s，使用默认maxXaxis", e)
 
     def _process_rules(self, listRules):
         """根据规则配置处理maxXaxis"""
@@ -263,13 +263,13 @@ class FIGURE:
                             try:
                                 self.maxXaxis = int(rule_parts[2])
                                 logging.info(
-                                    f"根据规则设置maxXaxis: {self.maxXaxis}")
+                                    "根据规则设置maxXaxis: %s", self.maxXaxis)
                                 break
                             except ValueError:
                                 logging.warning(
-                                    f"规则中的maxXaxis值无效: {rule_parts[2]}")
+                                    "规则中的maxXaxis值无效: %s", rule_parts[2])
         except Exception as e:
-            logging.error(f"处理规则时出错: {e}，保持默认maxXaxis")
+            logging.error("处理规则时出错: %s，保持默认maxXaxis", e)
 
         self.listPlt = []
         self.listBatteryName = []
@@ -338,7 +338,7 @@ class FIGURE:
 
         except BaseException as e:
             self.errorlog = str(e)
-            logging.error(f"处理数据时出错: {e}")
+            logging.error("处理数据时出错: %s", e)
             traceback.print_exc()
 
     def csv_read(self):
@@ -357,19 +357,19 @@ class FIGURE:
         异常处理：捕获读取和处理过程中可能出现的所有异常，并记录详细日志。
         """
         try:
-            logging.info(f"开始读取CSV文件: {self.strInfoImageCsvPath}")
+            logging.info("开始读取CSV文件: %s", self.strInfoImageCsvPath)
 
             # 检查文件是否存在
             csv_path = Path(self.strInfoImageCsvPath)
             if not csv_path.exists():
-                logging.error(f"错误: 找不到CSV文件 {self.strInfoImageCsvPath}")
+                logging.error("错误: 找不到CSV文件 %s", self.strInfoImageCsvPath)
                 self.intBatteryNum = 0
                 return
 
             # 检查文件大小
             file_size = csv_path.stat().st_size
             if file_size == 0:
-                logging.error(f"错误: CSV文件 {self.strInfoImageCsvPath} 为空")
+                logging.error("错误: CSV文件 %s 为空", self.strInfoImageCsvPath)
                 self.intBatteryNum = 0
                 return
 
@@ -383,7 +383,7 @@ class FIGURE:
                 all_rows = list(csvreader)
                 if len(all_rows) < 5:  # 至少需要几行数据才可能包含有效电池信息
                     logging.error(
-                        f"错误: CSV文件 {self.strInfoImageCsvPath} 数据行数不足")
+                        "错误: CSV文件 %s 数据行数不足", self.strInfoImageCsvPath)
                     self.intBatteryNum = 0
                     return
 
@@ -418,16 +418,16 @@ class FIGURE:
                 self.intBatteryNum = 0
                 return
 
-            logging.info(f"成功读取并处理CSV数据，包含{self.intBatteryNum}个电池的真实测试数据")
+            logging.info("成功读取并处理CSV数据，包含%d个电池的真实测试数据", self.intBatteryNum)
         except FileNotFoundError:
-            logging.error(f"错误: 文件未找到: {self.strInfoImageCsvPath}")
+            logging.error("错误: 文件未找到: %s", self.strInfoImageCsvPath)
             self.intBatteryNum = 0
         except PermissionError:
-            logging.error(f"错误: 没有权限访问文件: {self.strInfoImageCsvPath}")
+            logging.error("错误: 没有权限访问文件: %s", self.strInfoImageCsvPath)
             self.intBatteryNum = 0
         except Exception as e:
-            logging.error(f"错误: 读取CSV文件时发生异常: {str(e)}")
-            logging.error(f"错误类型: {type(e).__name__}")
+            logging.error("错误: 读取CSV文件时发生异常: %s", str(e))
+            logging.error("错误类型: %s", type(e).__name__)
             traceback.print_exc()
             self.intBatteryNum = 0
 
@@ -482,7 +482,7 @@ class FIGURE:
                             self.listPlt[current_idx][data_idx].append(
                                 float_data)
                     except (ValueError, IndexError) as e:
-                        logging.warning(f"解析CSV行数据时出错: {e}，跳过此行")
+                        logging.warning("解析CSV行数据时出错: %s，跳过此行", e)
             index += 1
 
     def _parse_battery_names(self):
@@ -513,7 +513,7 @@ class FIGURE:
                         name_parts[-2:]) if len(name_parts) >= 2 else f"Battery_{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
             except Exception as e:
-                logging.warning(f"解析电池名称时出错: {e}，使用默认名称")
+                logging.warning("解析电池名称时出错: %s，使用默认名称", e)
                 strBatteryName = f"Battery_{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
 
@@ -585,7 +585,7 @@ class FIGURE:
                         self.listPlt[c][2], self.listPlt[c][3] = self.filter_data(
                             self.listPlt[c][0], self.listPlt[c][1])
             except Exception as e:
-                logging.error(f"过滤数据时出错 (电流级别 {c}): {e}")
+                logging.error("过滤数据时出错 (电流级别 %s): %s", c, e)
 
     def plt_figure(self):
         """创建并显示电池数据图表，包含交互控件以切换数据显示
@@ -615,7 +615,7 @@ class FIGURE:
                 if fig is None or ax is None:
                     raise ValueError("无法初始化图表或坐标轴")
             except Exception as init_error:
-                logging.error(f"图表初始化失败: {str(init_error)}")
+                logging.error("图表初始化失败: %s", str(init_error))
                 self._show_error_plot()
                 return
 
@@ -628,9 +628,9 @@ class FIGURE:
 
                 if valid_data_found:
                     logging.info(
-                        f"成功绘制了 {len(lines_filtered)} 条过滤曲线和 {len(lines_unfiltered)} 条原始曲线")
+                        "成功绘制了 %d 条过滤曲线和 %d 条原始曲线", len(lines_filtered), len(lines_unfiltered))
             except Exception as plot_error:
-                logging.error(f"绘制电池曲线时出错: {str(plot_error)}")
+                logging.error("绘制电池曲线时出错: %s", str(plot_error))
                 lines_unfiltered, lines_filtered = [], []
                 valid_data_found = False
 
@@ -651,7 +651,7 @@ class FIGURE:
                     fig, ax, lines_filtered, lines_unfiltered, check_filter)
                 logging.info("成功添加图表交互控件")
             except Exception as ui_error:
-                logging.warning(f"添加交互控件时出错: {str(ui_error)}")
+                logging.warning("添加交互控件时出错: %s", str(ui_error))
                 # 即使交互控件添加失败，仍然尝试显示图表
 
             # 添加快捷键提示
@@ -661,8 +661,8 @@ class FIGURE:
             plt.show()
 
         except Exception as e:
-            logging.error(f"严重错误: 绘制图表时发生未预期的异常: {str(e)}")
-            logging.error(f"错误类型: {type(e).__name__}")
+            logging.error("严重错误: 绘制图表时发生未预期的异常: %s", str(e))
+            logging.error("错误类型: %s", type(e).__name__)
             traceback.print_exc()
             self._show_error_plot()
 
@@ -726,17 +726,17 @@ class FIGURE:
                 spine.set_color('#ff5722')
                 spine.set_linewidth(1)
 
-            logging.info(f"显示错误信息图表: {title} - {main_message}")
+            logging.info("显示错误信息图表: %s - %s", title, main_message)
             plt.tight_layout()
             plt.show()
 
         except Exception as e:
-            logging.critical(f"显示错误图表时发生异常: {str(e)}")
+            logging.critical("显示错误图表时发生异常: %s", str(e))
             traceback.print_exc()
             # 如果连错误图表都无法显示，尝试使用简单的文本输出
             logging.error("\n严重错误: 无法显示图形界面的错误信息")
             logging.error(
-                f"错误详情: {title or '未知错误'} - {main_message or '无法加载数据'}")
+                "错误详情: %s - %s", title or '未知错误', main_message or '无法加载数据')
             logging.info("\n请检查以下事项:")
             logging.info("1. Python环境是否正确安装")
             logging.info("2. Matplotlib库是否可用")
@@ -812,7 +812,7 @@ class FIGURE:
                     )
                     lines_filtered.append(fl)
                 except Exception as e:
-                    logging.error(f"绘制电池 {b}, 电流级别 {c} 的曲线时出错: {e}")
+                    logging.error("绘制电池 %s, 电流级别 %s 的曲线时出错: %s", b, c, e)
 
         return lines_unfiltered, lines_filtered
 
@@ -860,7 +860,7 @@ class FIGURE:
 
                 fig.canvas.draw_idle()
             except Exception as e:
-                logging.error(f"执行过滤切换时出错: {e}")
+                logging.error("执行过滤切换时出错: %s", e)
 
         check_filter.on_clicked(func_filter)
         return check_filter
@@ -958,11 +958,11 @@ class FIGURE:
                                     not current_lines[i].get_visible())
                     except Exception as inner_e:
                         # 忽略单个线条处理错误，继续处理其他线条
-                        logging.debug(f"处理线条标签时出错: {inner_e}")
+                        logging.debug("处理线条标签时出错: %s", inner_e)
 
                 fig.canvas.draw_idle()
             except Exception as e:
-                logging.error(f"执行电池选择时出错: {e}")
+                logging.error("执行电池选择时出错: %s", e)
 
         check_buttons.on_clicked(func_line)
         return check_buttons
@@ -1040,7 +1040,7 @@ class FIGURE:
             fig.text(0.01, 0.96, "提示: 将鼠标悬停在数据点上查看详细信息", fontsize=7)
 
         except Exception as e:
-            logging.warning(f"添加悬停功能时出错: {e}")
+            logging.warning("添加悬停功能时出错: %s", e)
 
     # 注意：_show_error_plot方法已在前面定义，此方法已更新为增强版
 

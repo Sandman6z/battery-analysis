@@ -227,7 +227,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 list_value = []
             return list_value
         except Exception as e:
-            logging.error(f"读取配置 {config_key} 失败: {e}")
+            logging.error("读取配置 %s 失败: %s", config_key, e)
             return []
 
     def init_window(self) -> None:
@@ -467,7 +467,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     self.main_controller.set_project_context(
                         output_path=output_path)
         except Exception as e:
-            logging.error(f"加载用户设置失败: {e}")
+            logging.error("加载用户设置失败: %s", e)
 
     def init_combobox(self) -> None:
         self.comboBox_BatteryType.addItems(
@@ -739,7 +739,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.actionShow_Statusbar.setCheckable(True)
                 self.actionShow_Statusbar.setChecked(True)
         except Exception as e:
-            logging.error(f"设置菜单快捷键失败: {e}")
+            logging.error("设置菜单快捷键失败: %s", e)
 
     def show_user_manual(self) -> None:
         """显示用户手册"""
@@ -758,7 +758,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     QW.QMessageBox.StandardButton.Ok
                 )
         except Exception as e:
-            logging.error(f"打开用户手册失败: {e}")
+            logging.error("打开用户手册失败: %s", e)
             QW.QMessageBox.warning(
                 self,
                 "错误",
@@ -773,7 +773,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             help_url = "https://example.com/battery-analyzer-help"
             QG.QDesktopServices.openUrl(QC.QUrl(help_url))
         except Exception as e:
-            logging.error(f"打开在线帮助失败: {e}")
+            logging.error("打开在线帮助失败: %s", e)
             QW.QMessageBox.information(
                 self,
                 "在线帮助",
@@ -976,7 +976,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.statusBar_BatteryAnalysis.showMessage("保存设置失败")
 
         except Exception as e:
-            logging.error(f"保存设置失败: {e}")
+            logging.error("保存设置失败: %s", e)
             QW.QMessageBox.warning(
                 self,
                 "错误",

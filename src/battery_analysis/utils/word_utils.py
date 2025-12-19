@@ -17,13 +17,13 @@ def get_item(config, _strSection: str, _strItem: str, _intBlankspaceNum: int = 0
     try:
         # 检查section是否存在
         if not config.has_section(_strSection):
-            logging.warning(f"配置中找不到section '{_strSection}'，返回空字符串")
+            logging.warning("配置中找不到section '%s'，返回空字符串", _strSection)
             return ""
 
         # 检查item是否存在
         if not config.has_option(_strSection, _strItem):
             logging.warning(
-                f"配置中找不到选项 '{_strItem}' in section '{_strSection}'，返回空字符串")
+                "配置中找不到选项 '%s' in section '%s'，返回空字符串", _strItem, _strSection)
             return ""
 
         # 获取值并处理
@@ -37,7 +37,7 @@ def get_item(config, _strSection: str, _strItem: str, _intBlankspaceNum: int = 0
         return _strValue
     except Exception as e:
         logging.error(
-            f"获取配置项 '{_strItem}' from section '{_strSection}'时出错: {e}")
+            "获取配置项 '%s' from section '%s'时出错: %s", _strItem, _strSection, e)
         return ""
 
 

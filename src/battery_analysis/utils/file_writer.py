@@ -48,7 +48,7 @@ class XlsxWordWriter:
         # 尝试读取配置文件
         if config_path and os.path.exists(config_path):
             self.config.read(config_path, encoding='utf-8')
-            logging.info(f"找到并读取配置文件: {config_path}")
+            logging.info("找到并读取配置文件: %s", config_path)
         else:
             logging.warning("找不到配置文件，使用默认配置")
             # 创建默认的PltConfig部分
@@ -65,7 +65,7 @@ class XlsxWordWriter:
                 # 使用测试信息生成默认标题
                 strImageTitle = f"{listTestInfo[4]} {listTestInfo[2]} {listTestInfo[3]}({listTestInfo[5]}), 默认标题"
         except Exception as e:
-            logging.error(f"获取标题时出错: {e}")
+            logging.error("获取标题时出错: %s", e)
             strImageTitle = "默认电池分析图标题"
 
         # init variables for all files
@@ -75,7 +75,7 @@ class XlsxWordWriter:
             # 优先使用从Excel提取的Test Date（listBatteryInfo[3]）
             if len(self.listBatteryInfo) > 3 and self.listBatteryInfo[3] and self.listBatteryInfo[3] != "00000000":
                 test_date = self.listBatteryInfo[3]
-                logging.info(f"使用从Excel提取的Test Date: {test_date}")
+                logging.info("使用从Excel提取的Test Date: %s", test_date)
                 # 处理YYYYMMDD格式（8位数字）
                 if len(test_date) == 8 and test_date.isdigit():
                     sy = test_date[:4]
@@ -97,15 +97,15 @@ class XlsxWordWriter:
                 if len(self.listBatteryInfo) > 3 and self.listBatteryInfo[3] and self.listBatteryInfo[3] != "00000000":
                     # test_date已经是YYYYMMDD格式的字符串
                     td = self.listBatteryInfo[3]
-                    logging.info(f"使用从Excel提取的Test Date: {td}")
+                    logging.info("使用从Excel提取的Test Date: %s", td)
                 else:
                     raise ValueError("无法从BatteryInfo列表中提取有效日期信息")
             # 验证日期有效性
             if not (len(td) == 8 and td.isdigit() and td != "00000000"):
                 raise ValueError(f"无效的日期格式: {td}")
-            logging.info(f"成功解析日期: {td}")
+            logging.info("成功解析日期: %s", td)
         except (ValueError, IndexError) as e:
-            logging.error(f"日期解析失败: {e}")
+            logging.error("日期解析失败: %s", e)
             # 尝试从文件名中提取日期
             if len(listTestInfo) > 0 and hasattr(listTestInfo[0], 'split'):
                 import re
@@ -118,22 +118,22 @@ class XlsxWordWriter:
                     # 提取前8位作为日期（如果长度足够）
                     if len(last_digit_group) >= 8:
                         td = last_digit_group[:8]
-                        logging.info(f"从文件名最后一组连续数字提取前8位作为日期: {td}")
+                        logging.info("从文件名最后一组连续数字提取前8位作为日期: %s", td)
                     else:
                         # 如果最后一组数字不足8位，尝试匹配任意8位数字
                         match = re.search(r'(\d{8})', filename)
                         if match:
                             td = match.group(1)
-                            logging.info(f"从文件名提取任意8位日期: {td}")
+                            logging.info("从文件名提取任意8位日期: %s", td)
                         else:
                             td = "00000000"
-                            logging.warning(f"无法从文件名提取日期，使用默认值: {td}")
+                            logging.warning("无法从文件名提取日期，使用默认值: %s", td)
                 else:
                     td = "00000000"
-                    logging.warning(f"文件名中没有数字，无法提取日期，使用默认值: {td}")
+                    logging.warning("文件名中没有数字，无法提取日期，使用默认值: %s", td)
             else:
                 td = "00000000"
-                logging.warning(f"无法从文件名提取日期，使用默认值: {td}")
+                logging.warning("无法从文件名提取日期，使用默认值: %s", td)
         # 使用os.path.join确保路径分隔符一致性
         self.strResultPath = os.path.join(
             strResultPath, f"{td}_V{listTestInfo[16]}")
@@ -230,12 +230,12 @@ class XlsxWordWriter:
             if strBatteryType == "":
                 if listBatteryTypeBase:
                     strBatteryType = listBatteryTypeBase[0]
-                    logging.warning(f"未找到精确匹配的电池类型，使用默认值: {strBatteryType}")
+                    logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
                 else:
                     strBatteryType = self.listTestInfo[2]  # 直接使用测试信息中的类型
-                    logging.warning(f"电池类型列表为空，直接使用测试信息: {strBatteryType}")
+                    logging.warning("电池类型列表为空，直接使用测试信息: %s", strBatteryType)
         except Exception as e:
-            logging.error(f"获取电池类型时出错: {e}")
+            logging.error("获取电池类型时出错: %s", e)
             strBatteryType = self.listTestInfo[2]  # 出错时使用测试信息中的类型
         self.listTestInfoForReplace = [self.listTestInfo[2], self.listTestInfo[3], self.listTestInfo[4],
                                        self.listTestInfo[5], self.listTestInfo[7], self.listTestInfo[11], strBatteryType,
@@ -1325,7 +1325,7 @@ class XlsxWordWriter:
         # close word writer
         wdReport.save(self.strReportWordPath)
         # 输出docx文件的完整路径到日志
-        logging.info(f"数据分析完成，生成的docx报告路径: {self.strReportWordPath}")
+        logging.info("数据分析完成，生成的docx报告路径: %s", self.strReportWordPath)
         # close csv writer - 确保缓冲区中的所有数据都被写入
         if csv_buffer:
             csvwriterResultCsvFile.writerows(csv_buffer)
@@ -1433,12 +1433,12 @@ class JsonWriter:
             config_path = find_config_file()
             if config_path and os.path.exists(config_path):
                 self.config.read(config_path, encoding='utf-8')
-                logging.info(f"找到并读取配置文件: {config_path}")
+                logging.info("找到并读取配置文件: %s", config_path)
             else:
                 raise Exception("找不到配置文件")
         except Exception as e:
             # 发生错误时创建基本配置
-            logging.error(f"配置读取失败: {e}，使用默认配置")
+            logging.error("配置读取失败: %s，使用默认配置", e)
             if not self.config.has_section("BatteryConfig"):
                 self.config.add_section("BatteryConfig")
             if not self.config.has_section("PltConfig"):
@@ -1506,7 +1506,7 @@ class JsonWriter:
             if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "SpecificationTypeBase"):
                 listBatteryTypeBase = self.config.get(
                     "BatteryConfig", "SpecificationTypeBase").split(",")
-                logging.info(f"使用配置文件中的电池类型基础规格: {listBatteryTypeBase}")
+                logging.info("使用配置文件中的电池类型基础规格: %s", listBatteryTypeBase)
             else:
                 # 使用默认值
                 listBatteryTypeBase = [
@@ -1522,9 +1522,9 @@ class JsonWriter:
             # 如果没有找到匹配项，使用默认值
             if strBatteryType == "":
                 strBatteryType = "CoinCell"
-                logging.warning(f"未找到精确匹配的电池类型，使用默认值: {strBatteryType}")
+                logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
         except Exception as e:
-            logging.error(f"处理电池类型时出错: {e}，使用默认值")
+            logging.error("处理电池类型时出错: %s，使用默认值", e)
             strBatteryType = "CoinCell"
 
         self.dictJson.update({

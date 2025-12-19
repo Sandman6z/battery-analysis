@@ -60,12 +60,12 @@ def find_config_file(file_name: str = "setting.ini", config_dir: str = "config",
     # 遍历查找第一个存在的配置文件
     for path in possible_config_paths:
         if path.exists():
-            logger.info(f"找到配置文件: {path}")
+            logger.info("找到配置文件: %s", path)
             # 将结果存入缓存
             _config_path_cache[cache_key] = str(path)
             return str(path)
 
-    logger.warning(f"未找到配置文件: {file_name}")
+    logger.warning("未找到配置文件: %s", file_name)
     # 将结果存入缓存
     _config_path_cache[cache_key] = None
     return None
