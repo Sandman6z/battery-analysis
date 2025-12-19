@@ -1,7 +1,7 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 11:01:46
+- 分析日期: 2025-12-19 13:20:16
 - 总文件数: 24
 - 存在问题的文件数: 24
 
@@ -300,18 +300,12 @@
 ## 文件: scripts\run_pylint.py
 
 ### 问题统计
-- 问题总数: 23
-- 警告(Warning): 16
+- 问题总数: 19
+- 警告(Warning): 12
 - 规范(Convention): 2
 - 重构(Refactor): 5
 
 ### 详细问题
-#### 行 49, 列 4
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
 #### 行 92, 列 18
 - 类型: refactor
 - 代码: R1732
@@ -329,12 +323,6 @@
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
-
-#### 行 162, 列 8
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
 
 #### 行 176, 列 4
 - 类型: warning
@@ -432,18 +420,6 @@
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 380, 列 8
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
-#### 行 383, 列 4
-- 类型: warning
-- 代码: W1203
-- 描述: Use lazy % formatting in logging functions
-- 符号: logging-fstring-interpolation
-
 ## 文件: scripts\run_tests.py
 
 ### 问题统计
@@ -473,8 +449,9 @@
 ## 文件: src\battery_analysis\__init__.py
 
 ### 问题统计
-- 问题总数: 2
-- 错误(Error): 2
+- 问题总数: 7
+- 错误(Error): 5
+- 规范(Convention): 2
 
 ### 详细问题
 #### 行 4, 列 0
@@ -489,12 +466,41 @@
 - 描述: No name 'utils' in module 'battery_analysis'
 - 符号: no-name-in-module
 
+#### 行 14, 列 26
+- 类型: error
+- 代码: E0603
+- 描述: Undefined variable name 'utils' in __all__
+- 符号: undefined-all-variable
+
+#### 行 17, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 17, 列 0
+- 类型: error
+- 代码: E0401
+- 描述: Unable to import 'battery_analysis.utils'
+- 符号: import-error
+
+#### 行 17, 列 0
+- 类型: convention
+- 代码: C0413
+- 描述: Import "import battery_analysis.utils" should be placed at the top of the module
+- 符号: wrong-import-position
+
+#### 行 17, 列 0
+- 类型: error
+- 代码: E0611
+- 描述: No name 'utils' in module 'battery_analysis'
+- 符号: no-name-in-module
+
 ## 文件: src\battery_analysis\main\controllers\file_controller.py
 
 ### 问题统计
-- 问题总数: 5
+- 问题总数: 2
 - 错误(Error): 2
-- 警告(Warning): 3
 
 ### 详细问题
 #### 行 12, 列 0
@@ -508,24 +514,6 @@
 - 代码: E0611
 - 描述: No name 'utils' in module 'battery_analysis'
 - 符号: no-name-in-module
-
-#### 行 91, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 140, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 157, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 ## 文件: src\battery_analysis\main\controllers\main_controller.py
 
@@ -3775,7 +3763,8 @@
             self.strFileCurrentType = self.strFileCurrentType + \
                 f"{self.listCurrentLevel[c]}-"
         self.strFileCurrentType = self.strFileCurrentType[:-1]
-        # 使用os.path.join确保路径分隔符一致性
+
+        # input .xlsx directory and result txt path
 - 符号: duplicate-code
 
 #### 行 2, 列 0

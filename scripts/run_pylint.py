@@ -46,7 +46,7 @@ def get_all_python_files():
     # 排序
     python_files.sort()
     
-    logger.info(f"找到 {len(python_files)} 个Python文件")
+    logger.info("找到 %d 个Python文件", len(python_files))
     return python_files
 
 
@@ -159,7 +159,7 @@ def run_pylint_on_files(files, output_format="text", output_file=None):
         
         return result.stdout
     except Exception as e:
-        logger.error(f"运行pylint时出错: {e}")
+        logger.error("运行pylint时出错: %s", e)
         return None
 
 
@@ -377,10 +377,10 @@ def generate_markdown_report(pylint_data, markdown_report):
                 f.write("✅ 代码分析完成，未发现问题！\n")
     
     except Exception as e:
-        logger.error(f"生成Markdown报告时出错: {e}")
+        logger.error("生成Markdown报告时出错: %s", e)
         return False
     
-    logger.info(f"Markdown报告已保存到：{markdown_report}")
+    logger.info("Markdown报告已保存到：%s", markdown_report)
     return True
 
 

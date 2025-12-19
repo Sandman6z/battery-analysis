@@ -88,7 +88,7 @@ class FileController(QC.QObject):
 
             self.config_loaded.emit(config_dict)
             return config_dict
-        except Exception as e:
+        except (configparser.Error, OSError, UnicodeDecodeError) as e:
             error_msg = f"加载配置文件失败: {e}"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
@@ -137,7 +137,7 @@ class FileController(QC.QObject):
             # 检查目录是否可访问
             os.listdir(directory_path)
             return True, ""
-        except Exception as e:
+        except OSError as e:
             return False, f"目录访问失败: {e}"
 
     def ensure_directory_exists(self, directory_path):
@@ -154,7 +154,7 @@ class FileController(QC.QObject):
             if not os.path.exists(directory_path):
                 os.makedirs(directory_path)
             return True, ""
-        except Exception as e:
+        except OSError as e:
             error_msg = f"创建目录失败: {e}"
             logging.error(error_msg)
             return False, error_msg

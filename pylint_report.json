@@ -613,19 +613,6 @@
     {
         "type": "warning",
         "module": "run_pylint",
-        "obj": "get_all_python_files",
-        "line": 49,
-        "column": 4,
-        "endLine": 49,
-        "endColumn": 62,
-        "path": "scripts\\run_pylint.py",
-        "symbol": "logging-fstring-interpolation",
-        "message": "Use lazy % formatting in logging functions",
-        "message-id": "W1203"
-    },
-    {
-        "type": "warning",
-        "module": "run_pylint",
         "obj": "run_pylint",
         "line": 120,
         "column": 11,
@@ -661,19 +648,6 @@
         "symbol": "broad-exception-caught",
         "message": "Catching too general exception Exception",
         "message-id": "W0718"
-    },
-    {
-        "type": "warning",
-        "module": "run_pylint",
-        "obj": "run_pylint_on_files",
-        "line": 162,
-        "column": 8,
-        "endLine": 162,
-        "endColumn": 51,
-        "path": "scripts\\run_pylint.py",
-        "symbol": "logging-fstring-interpolation",
-        "message": "Use lazy % formatting in logging functions",
-        "message-id": "W1203"
     },
     {
         "type": "warning",
@@ -871,32 +845,6 @@
         "message-id": "W1309"
     },
     {
-        "type": "warning",
-        "module": "run_pylint",
-        "obj": "generate_markdown_report",
-        "line": 380,
-        "column": 8,
-        "endLine": 380,
-        "endColumn": 59,
-        "path": "scripts\\run_pylint.py",
-        "symbol": "logging-fstring-interpolation",
-        "message": "Use lazy % formatting in logging functions",
-        "message-id": "W1203"
-    },
-    {
-        "type": "warning",
-        "module": "run_pylint",
-        "obj": "generate_markdown_report",
-        "line": 383,
-        "column": 4,
-        "endLine": 383,
-        "endColumn": 66,
-        "path": "scripts\\run_pylint.py",
-        "symbol": "logging-fstring-interpolation",
-        "message": "Use lazy % formatting in logging functions",
-        "message-id": "W1203"
-    },
-    {
         "type": "refactor",
         "module": "run_pylint",
         "obj": "generate_markdown_report",
@@ -949,6 +897,19 @@
         "message-id": "R1705"
     },
     {
+        "type": "convention",
+        "module": "battery_analysis.__init__",
+        "obj": "",
+        "line": 17,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "src\\battery_analysis\\__init__.py",
+        "symbol": "mixed-line-endings",
+        "message": "Mixed line endings LF and CRLF",
+        "message-id": "C0327"
+    },
+    {
         "type": "error",
         "module": "battery_analysis",
         "obj": "",
@@ -976,6 +937,58 @@
     },
     {
         "type": "error",
+        "module": "battery_analysis",
+        "obj": "",
+        "line": 17,
+        "column": 0,
+        "endLine": 17,
+        "endColumn": 29,
+        "path": "src\\battery_analysis\\__init__.py",
+        "symbol": "import-error",
+        "message": "Unable to import 'battery_analysis.utils'",
+        "message-id": "E0401"
+    },
+    {
+        "type": "convention",
+        "module": "battery_analysis",
+        "obj": "",
+        "line": 17,
+        "column": 0,
+        "endLine": 17,
+        "endColumn": 29,
+        "path": "src\\battery_analysis\\__init__.py",
+        "symbol": "wrong-import-position",
+        "message": "Import \"import battery_analysis.utils\" should be placed at the top of the module",
+        "message-id": "C0413"
+    },
+    {
+        "type": "error",
+        "module": "battery_analysis",
+        "obj": "",
+        "line": 17,
+        "column": 0,
+        "endLine": 17,
+        "endColumn": 29,
+        "path": "src\\battery_analysis\\__init__.py",
+        "symbol": "no-name-in-module",
+        "message": "No name 'utils' in module 'battery_analysis'",
+        "message-id": "E0611"
+    },
+    {
+        "type": "error",
+        "module": "battery_analysis",
+        "obj": "",
+        "line": 14,
+        "column": 26,
+        "endLine": 14,
+        "endColumn": 33,
+        "path": "src\\battery_analysis\\__init__.py",
+        "symbol": "undefined-all-variable",
+        "message": "Undefined variable name 'utils' in __all__",
+        "message-id": "E0603"
+    },
+    {
+        "type": "error",
         "module": "controllers.file_controller",
         "obj": "",
         "line": 12,
@@ -999,45 +1012,6 @@
         "symbol": "no-name-in-module",
         "message": "No name 'utils' in module 'battery_analysis'",
         "message-id": "E0611"
-    },
-    {
-        "type": "warning",
-        "module": "controllers.file_controller",
-        "obj": "FileController.load_config",
-        "line": 91,
-        "column": 15,
-        "endLine": 91,
-        "endColumn": 24,
-        "path": "src\\battery_analysis\\main\\controllers\\file_controller.py",
-        "symbol": "broad-exception-caught",
-        "message": "Catching too general exception Exception",
-        "message-id": "W0718"
-    },
-    {
-        "type": "warning",
-        "module": "controllers.file_controller",
-        "obj": "FileController.validate_directory",
-        "line": 140,
-        "column": 15,
-        "endLine": 140,
-        "endColumn": 24,
-        "path": "src\\battery_analysis\\main\\controllers\\file_controller.py",
-        "symbol": "broad-exception-caught",
-        "message": "Catching too general exception Exception",
-        "message-id": "W0718"
-    },
-    {
-        "type": "warning",
-        "module": "controllers.file_controller",
-        "obj": "FileController.ensure_directory_exists",
-        "line": 157,
-        "column": 15,
-        "endLine": 157,
-        "endColumn": 24,
-        "path": "src\\battery_analysis\\main\\controllers\\file_controller.py",
-        "symbol": "broad-exception-caught",
-        "message": "Catching too general exception Exception",
-        "message-id": "W0718"
     },
     {
         "type": "error",
@@ -7796,7 +7770,7 @@
         "endColumn": null,
         "path": "tests\\battery_analysis\\utils\\test_file_writer.py",
         "symbol": "duplicate-code",
-        "message": "Similar lines in 2 files\n==battery_analysis:[25:34]\n==file_writer:[1459:1467]\n        self.listCurrentLevel = listTestInfo[14]\n        self.listVoltageLevel = listTestInfo[15]\n        self.strFileCurrentType = \"\"\n        for c in range(len(self.listCurrentLevel)):\n            self.strFileCurrentType = self.strFileCurrentType + \\\n                f\"{self.listCurrentLevel[c]}-\"\n        self.strFileCurrentType = self.strFileCurrentType[:-1]\n        # \u4f7f\u7528os.path.join\u786e\u4fdd\u8def\u5f84\u5206\u9694\u7b26\u4e00\u81f4\u6027",
+        "message": "Similar lines in 2 files\n==battery_analysis:[25:34]\n==file_writer:[1459:1467]\n        self.listCurrentLevel = listTestInfo[14]\n        self.listVoltageLevel = listTestInfo[15]\n        self.strFileCurrentType = \"\"\n        for c in range(len(self.listCurrentLevel)):\n            self.strFileCurrentType = self.strFileCurrentType + \\\n                f\"{self.listCurrentLevel[c]}-\"\n        self.strFileCurrentType = self.strFileCurrentType[:-1]\n\n        # input .xlsx directory and result txt path",
         "message-id": "R0801"
     }
 ]
