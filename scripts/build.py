@@ -1,13 +1,17 @@
-from battery_analysis.utils.exception_type import BuildException
+"""
+构建脚本模块，用于构建BatteryAnalysis和ImageMaker应用程序。
+支持Debug和Release两种构建类型，负责处理版本号管理、文件复制和PyInstaller构建流程。
+"""
 import sys
 import os
 import shutil
-import datetime
 import configparser
 import subprocess
-from pathlib import Path
-from git import Repo
 import logging
+from pathlib import Path
+
+# tomllib 仅在 Python 3.11+ 可用，用于读取 pyproject.toml
+import tomllib
 
 # 配置日志记录
 logging.basicConfig(level=logging.INFO,
@@ -41,46 +45,38 @@ class CaseSensitiveConfigParser(configparser.ConfigParser):
 class BuildConfig:
     """构建配置基类"""
 
-    def __init__(self, build_type=None):
-        self.script_dir = Path(__file__).absolute().parent
+    def __init__(self, specified_build_type=None):
         # 项目根目录是scripts的上一级目录
-        self.project_root = self.script_dir.parent
+        self.project_root = Path(__file__).absolute().parent.parent
         self.temp_build_dir = self.project_root / "__temp__"
-        self.final_build_dir = self.project_root / "build"
 
         # 从pyproject.toml读取版本号（版本号中心化管理）
         try:
-            import tomllib
             with open(self.project_root / "pyproject.toml", "rb") as f:
                 pyproject_data = tomllib.load(f)
             self.version = pyproject_data.get(
                 "project", {}).get("version", "0.0.0")
-        except Exception as e:
+        except (FileNotFoundError, PermissionError, OSError, tomllib.TOMLDecodeError) as e:
             logger.warning("无法从pyproject.toml读取版本号: %s，使用默认版本", e)
             self.version = "0.0.0"
 
         # 根据构建类型决定是否显示控制台窗口
         # Debug构建默认显示控制台窗口，Release构建默认不显示控制台窗口
-        self.debug_mode = build_type == "Debug"
-        self.console_mode = self.debug_mode
-        # 补充说明：Release模式下，self.debug_mode为False，因此self.console_mode也为False
+        self.console_mode = specified_build_type == "Debug"
+        # 补充说明：Release模式下，specified_build_type != "Debug"，因此self.console_mode也为False
         # 这样就自动实现了Release模式不显示控制台的功能，无需额外编写Release模式的逻辑
-
-        # 定义构建应用相关目录
-        self.dataconverter_build_dir = self.temp_build_dir / "Build_BatteryAnalysis"
-        self.imagemaker_build_dir = self.temp_build_dir / "Build_ImageShow"
 
 
 class BuildManager(BuildConfig):
     """构建管理器"""
 
-    def __init__(self, build_type):
-        super().__init__(build_type)
+    def __init__(self, specified_build_type):
+        super().__init__(specified_build_type)
         # 只支持Debug和Release两种构建类型
-        if build_type not in ['Debug', 'Release']:
+        if specified_build_type not in ['Debug', 'Release']:
             raise ValueError(
-                f"不支持的构建类型: {build_type}。只支持'Debug'和'Release'，或请检查大小写")
-        self.build_type = build_type
+                f"不支持的构建类型: {specified_build_type}。只支持'Debug'和'Release'，或请检查大小写")
+        self.build_type = specified_build_type
         self.build_path = self.temp_build_dir
         self.console = self.console_mode
 
@@ -108,7 +104,7 @@ class BuildManager(BuildConfig):
                     with open(init_file_path, 'w', encoding='utf-8') as f:
                         f.write(original_init_content)
                     logger.info("已恢复原始__init__.py文件")
-                except Exception as e:
+                except (FileNotFoundError, PermissionError, IsADirectoryError, OSError, UnicodeEncodeError) as e:
                     logger.error("恢复原始__init__.py文件时出错: %s", e)
 
     def embed_version_in_init(self):
@@ -136,7 +132,7 @@ class BuildManager(BuildConfig):
 
             # 返回原始内容，以便稍后恢复
             return content
-        except Exception as e:
+        except (FileNotFoundError, PermissionError, IsADirectoryError, OSError, UnicodeDecodeError) as e:
             logger.error("嵌入版本号时出错: %s", e)
             return None
 
@@ -299,40 +295,14 @@ VSVersionInfo(
             f.write(content)
 
     def update_version_and_commit(self):
-        """更新版本并提交更改"""
-        if not self.git_repo or not self.git_index or not self.git:
-            # 如果没有Git仓库，直接跳过版本更新检查
-            logger.warning("Git仓库未初始化，跳过版本更新检查")
-            return
-
-        version_split = self.version.split(".")
-        # 确保版本号至少有三位
-        while len(version_split) < 3:
-            version_split.append("0")
-
-        if self.build_type == "Release":
-            try:
-                # 更新版本号，使用三位版本号格式
-                try:
-                    if self.git_repo.commit().message and "Release" in self.git_repo.commit().message:
-                        # 保持主版本和次版本不变，修订号重置为0
-                        self.version = f"{version_split[0]}.{version_split[1]}.0"
-                    else:
-                        # 增加修订号
-                        self.version = f"{version_split[0]}.{version_split[1]}.{int(version_split[2])+1}"
-                except Exception as e:
-                    logger.warning("无法获取或解析提交消息: %s，使用默认版本更新", e)
-                    self.version = f"{version_split[0]}.{version_split[1]}.{int(version_split[2])+1}"
-
-                self._update_version_files()
-            except Exception as e:
-                logger.warning("Release模式版本更新失败: %s，使用当前版本继续", e)
+        """更新版本并提交更改 - 该方法已废弃，版本号直接从pyproject.toml读取"""
+        logger.warning("版本号管理已简化，直接从pyproject.toml读取，不再需要更新版本和提交更改")
+        return
 
     def _update_version_files(self):
-        """更新版本相关文件 - Config_BatteryAnalysis.ini已在初始化时同步"""
-        # 确保配置文件在根目录的config文件夹中也保持更新
-        with open(self.config_path, 'w', encoding='utf-8') as f:
-            self.config.write(f)
+        """更新版本相关文件 - 该方法已废弃"""
+        logger.warning("版本号管理已简化，不再需要更新版本文件")
+        return
 
     def copy2dir(self):
         """复制源文件到构建目录"""
@@ -632,7 +602,7 @@ VSVersionInfo(
                 logger.info("BatteryAnalysis构建结果: %s", result.returncode)
                 if result.stderr:
                     logger.error("错误输出: %s", result.stderr)
-            except Exception as e:
+            except (FileNotFoundError, PermissionError, OSError, subprocess.SubprocessError) as e:
                 logger.error("执行命令时出错: %s", e)
                 result = subprocess.CompletedProcess(cmd_args, 1)
 
@@ -795,7 +765,7 @@ VSVersionInfo(
             logger.info("ImageShow构建结果: %s", result.returncode)
             if result.stderr:
                 logger.error("错误输出: %s", result.stderr)
-        except Exception as e:
+        except (FileNotFoundError, PermissionError, OSError, subprocess.SubprocessError) as e:
             logger.error("执行命令时出错: %s", e)
             result = subprocess.CompletedProcess(cmd_args, 1)
 
