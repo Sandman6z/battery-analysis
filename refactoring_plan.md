@@ -1,7 +1,7 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 14:39:06
+- 分析日期: 2025-12-19 15:51:59
 - 总文件数: 19
 - 存在问题的文件数: 19
 
@@ -108,7 +108,7 @@
 #### 行 44, 列 23
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'build_type' from outer scope (line 786)
+- 描述: Redefining name 'build_type' from outer scope (line 810)
 - 符号: redefined-outer-name
 
 #### 行 53, 列 12
@@ -126,7 +126,7 @@
 #### 行 77, 列 23
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'build_type' from outer scope (line 786)
+- 描述: Redefining name 'build_type' from outer scope (line 810)
 - 符号: redefined-outer-name
 
 #### 行 111, 列 23
@@ -210,7 +210,7 @@
 #### 行 411, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (175/50)
+- 描述: Too many statements (192/50)
 - 符号: too-many-statements
 
 #### 行 433, 列 8
@@ -219,67 +219,67 @@
 - 描述: Unused variable 'python_exe'
 - 符号: unused-variable
 
-#### 行 516, 列 12
+#### 行 531, 列 12
 - 类型: warning
 - 代码: W0621
 - 描述: Redefining name 'subprocess' from outer scope (line 7)
 - 符号: redefined-outer-name
 
-#### 行 516, 列 12
+#### 行 531, 列 12
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'subprocess' (imported line 7)
 - 符号: reimported
 
-#### 行 516, 列 12
+#### 行 531, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (subprocess)
 - 符号: import-outside-toplevel
 
-#### 行 550, 列 16
+#### 行 565, 列 16
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 558, 列 16
+#### 行 573, 列 16
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 620, 列 19
+#### 行 635, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 683, 列 8
+#### 行 707, 列 8
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'subprocess' (imported line 7)
 - 符号: reimported
 
-#### 行 683, 列 8
+#### 行 707, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (subprocess)
 - 符号: import-outside-toplevel
 
-#### 行 721, 列 20
+#### 行 745, 列 20
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 726, 列 20
+#### 行 750, 列 20
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 774, 列 15
+#### 行 798, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -288,7 +288,8 @@
 ## 文件: scripts\run_pylint.py
 
 ### 问题统计
-- 问题总数: 19
+- 问题总数: 23
+- 错误(Error): 4
 - 警告(Warning): 12
 - 规范(Convention): 2
 - 重构(Refactor): 5
@@ -348,61 +349,85 @@
 - 描述: Import outside toplevel (pkg_resources)
 - 符号: import-outside-toplevel
 
-#### 行 227, 列 46
+#### 行 235, 列 46
 - 类型: warning
 - 代码: W1510
 - 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
 - 符号: subprocess-run-check
 
-#### 行 233, 列 20
+#### 行 241, 列 20
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'e'
 - 符号: unused-variable
 
-#### 行 233, 列 27
+#### 行 241, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 235, 列 19
+#### 行 243, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 313, 列 11
+#### 行 276, 列 28
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'background'
+- 符号: undefined-variable
+
+#### 行 276, 列 39
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'color'
+- 符号: undefined-variable
+
+#### 行 283, 列 28
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'background'
+- 符号: undefined-variable
+
+#### 行 283, 列 39
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'color'
+- 符号: undefined-variable
+
+#### 行 331, 列 11
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 317, 列 0
+#### 行 335, 列 0
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (13/12)
 - 符号: too-many-branches
 
-#### 行 324, 列 20
+#### 行 342, 列 20
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 341, 列 28
+#### 行 360, 列 28
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 362, 列 28
+#### 行 381, 列 28
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 379, 列 11
+#### 行 398, 列 11
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -521,7 +546,7 @@
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (1054/1000)
+- 描述: Too many lines in module (1063/1000)
 - 符号: too-many-lines
 
 #### 行 25, 列 0
@@ -644,385 +669,385 @@
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 223, 列 15
+#### 行 224, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 237, 列 15
+#### 行 240, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 251, 列 15
+#### 行 255, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 254, 列 4
+#### 行 258, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (30/12)
 - 符号: too-many-branches
 
-#### 行 254, 列 4
+#### 行 258, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (70/50)
 - 符号: too-many-statements
 
-#### 行 256, 列 8
+#### 行 260, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 271, 列 15
+#### 行 275, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 274, 列 8
+#### 行 278, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listPlt' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 275, 列 8
+#### 行 279, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listBatteryName' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 276, 列 8
+#### 行 280, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listBatteryNameSplit' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 277, 列 8
+#### 行 281, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 279, 列 8
+#### 行 283, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 279, 列 8
+#### 行 283, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 279, 列 8
+#### 行 283, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 279, 列 8
+#### 行 283, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 279, 列 8
+#### 行 283, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 289, 列 12
+#### 行 293, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 291, 列 20
+#### 行 295, 列 20
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listAxis' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 292, 列 20
+#### 行 296, 列 20
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listXTicks' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 296, 列 16
+#### 行 300, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 299, 列 24
+#### 行 303, 列 24
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listAxis' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 300, 列 24
+#### 行 304, 列 24
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listXTicks' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 333, 列 16
+#### 行 337, 列 16
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intCurrentLevelNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 334, 列 16
+#### 行 338, 列 16
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intMaxXaxis' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 335, 列 16
+#### 行 339, 列 16
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listXTicks' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 336, 列 16
+#### 行 340, 列 16
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listAxis' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 339, 列 15
+#### 行 343, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception BaseException
 - 符号: broad-exception-caught
 
-#### 行 340, 列 12
+#### 行 344, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'errorlog' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 366, 列 16
+#### 行 370, 列 16
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 373, 列 16
+#### 行 377, 列 16
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 387, 列 20
+#### 行 391, 列 20
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 395, 列 12
+#### 行 399, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 418, 列 16
+#### 行 422, 列 16
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 424, 列 12
+#### 行 428, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 427, 列 12
+#### 行 431, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 428, 列 15
+#### 行 432, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 432, 列 12
+#### 行 436, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'intBatteryNum' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 443, 列 8
+#### 行 447, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listPlt' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 444, 列 8
+#### 行 448, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listBatteryName' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 445, 列 8
+#### 行 449, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listBatteryNameSplit' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 515, 列 19
+#### 行 519, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 540, 列 8
+#### 行 546, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 587, 列 19
+#### 行 594, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 617, 列 19
+#### 行 624, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 632, 列 19
+#### 行 639, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 647, 列 16
+#### 行 654, 列 16
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'check_line1'
 - 符号: unused-variable
 
-#### 行 647, 列 29
+#### 行 654, 列 29
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'check_line2'
 - 符号: unused-variable
 
-#### 行 653, 列 19
+#### 行 660, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 663, 列 15
+#### 行 670, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 719, 列 12
+#### 行 726, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (datetime)
 - 符号: import-outside-toplevel
 
-#### 行 733, 列 15
+#### 行 740, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 814, 列 23
+#### 行 819, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 830, 列 24
+#### 行 836, 列 24
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'label'
 - 符号: unused-argument
 
-#### 行 862, 列 19
+#### 行 868, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 902, 列 33
+#### 行 908, 列 33
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'label'
 - 符号: unused-argument
 
-#### 行 945, 列 16
+#### 行 953, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 959, 列 27
+#### 行 967, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 964, 列 19
+#### 行 972, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 977, 列 21
+#### 行 985, 列 21
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"boxstyle": 'round,pad=0.5', "fc": 'yellow', "alpha": 0.7}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 978, 列 27
+#### 行 986, 列 27
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"arrowstyle": '->'}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 984, 列 16
+#### 行 992, 列 16
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 1010, 列 35
+#### 行 1019, 列 35
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1042, 列 15
+#### 行 1051, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1049, 列 4
+#### 行 1058, 列 4
 - 类型: warning
 - 代码: W0105
 - 描述: String statement has no effect
@@ -1040,7 +1065,7 @@
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (2150/1000)
+- 描述: Too many lines in module (2168/1000)
 - 符号: too-many-lines
 
 #### 行 12, 列 0
@@ -1151,289 +1176,289 @@
 - 描述: third party import "import matplotlib" should be placed before "from battery_analysis.resources import resources_rc"
 - 符号: wrong-import-order
 
-#### 行 134, 列 0
+#### 行 135, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (25/7)
 - 符号: too-many-instance-attributes
 
-#### 行 134, 列 0
+#### 行 135, 列 0
 - 类型: refactor
 - 代码: R0904
 - 描述: Too many public methods (48/20)
 - 符号: too-many-public-methods
 
-#### 行 139, 列 8
+#### 行 140, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.__version__)
 - 符号: import-outside-toplevel
 
-#### 行 166, 列 12
+#### 行 167, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (ctypes)
 - 符号: import-outside-toplevel
 
-#### 行 229, 列 15
+#### 行 230, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 246, 列 15
+#### 行 247, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 309, 列 8
+#### 行 310, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 394, 列 4
+#### 行 395, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (18/12)
 - 符号: too-many-branches
 
-#### 行 469, 列 15
+#### 行 470, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 567, 列 8
+#### 行 568, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.__version__)
 - 符号: import-outside-toplevel
 
-#### 行 679, 列 4
+#### 行 680, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (21/12)
 - 符号: too-many-branches
 
-#### 行 741, 列 15
+#### 行 742, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 760, 列 15
+#### 行 761, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 775, 列 15
+#### 行 776, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 787, 列 11
+#### 行 788, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 793, 列 11
+#### 行 794, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 799, 列 11
+#### 行 800, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 978, 列 15
+#### 行 979, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1142, 列 4
+#### 行 1144, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (17/12)
 - 符号: too-many-branches
 
-#### 行 1164, 列 12
+#### 行 1166, 列 12
 - 类型: refactor
 - 代码: R1723
 - 描述: Unnecessary "elif" after "break", remove the leading "el" from "elif"
 - 符号: no-else-break
 
-#### 行 1204, 列 4
+#### 行 1212, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (13/12)
 - 符号: too-many-branches
 
-#### 行 1204, 列 4
+#### 行 1212, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (54/50)
 - 符号: too-many-statements
 
-#### 行 1281, 列 11
+#### 行 1289, 列 11
 - 类型: refactor
 - 代码: R1714
 - 描述: Consider merging these comparisons with 'in' by using 'current_tester_location in (0, 1)'. Use a set instead if elements are hashable.
 - 符号: consider-using-in
 
-#### 行 1298, 列 4
+#### 行 1306, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (16/12)
 - 符号: too-many-branches
 
-#### 行 1298, 列 4
+#### 行 1306, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (64/50)
 - 符号: too-many-statements
 
-#### 行 1342, 列 16
+#### 行 1351, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1346, 列 16
+#### 行 1355, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1394, 列 4
+#### 行 1404, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (54/50)
 - 符号: too-many-statements
 
-#### 行 1436, 列 20
+#### 行 1446, 列 20
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 1441, 列 16
+#### 行 1451, 列 16
 - 类型: warning
 - 代码: W0632
-- 描述: Possible unbalanced tuple unpacking with sequence defined at line 1435: left side has 4 labels, right side has 0 values
+- 描述: Possible unbalanced tuple unpacking with sequence defined at line 1445: left side has 4 labels, right side has 0 values
 - 符号: unbalanced-tuple-unpacking
 
-#### 行 1456, 列 20
+#### 行 1466, 列 20
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1474, 列 20
+#### 行 1484, 列 20
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 1535, 列 8
+#### 行 1545, 列 8
 - 类型: warning
 - 代码: W0105
 - 描述: String statement has no effect
 - 符号: pointless-string-statement
 
-#### 行 1617, 列 12
+#### 行 1627, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1680, 列 4
+#### 行 1690, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (21/12)
 - 符号: too-many-branches
 
-#### 行 1680, 列 4
+#### 行 1690, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (83/50)
 - 符号: too-many-statements
 
-#### 行 1780, 列 8
+#### 行 1791, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 1782, 列 4
+#### 行 1793, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (16/12)
 - 符号: too-many-branches
 
-#### 行 1782, 列 4
+#### 行 1793, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (77/50)
 - 符号: too-many-statements
 
-#### 行 1943, 列 4
+#### 行 1954, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (21/12)
 - 符号: too-many-branches
 
-#### 行 1943, 列 4
+#### 行 1954, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (74/50)
 - 符号: too-many-statements
 
-#### 行 1974, 列 23
+#### 行 1985, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1982, 列 20
+#### 行 1993, 列 20
 - 类型: warning
 - 代码: W0632
-- 描述: Possible unbalanced tuple unpacking with sequence defined at line 1949: left side has 4 labels, right side has 0 values
+- 描述: Possible unbalanced tuple unpacking with sequence defined at line 1960: left side has 4 labels, right side has 0 values
 - 符号: unbalanced-tuple-unpacking
 
-#### 行 2020, 列 27
+#### 行 2031, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2026, 列 23
+#### 行 2037, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2043, 列 27
+#### 行 2054, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2048, 列 23
+#### 行 2059, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2052, 列 15
+#### 行 2063, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -1496,79 +1521,79 @@
 - 描述: No exception type(s) specified
 - 符号: bare-except
 
-#### 行 186, 列 32
+#### 行 188, 列 32
 - 类型: warning
 - 代码: W0702
 - 描述: No exception type(s) specified
 - 符号: bare-except
 
-#### 行 194, 列 36
+#### 行 196, 列 36
 - 类型: warning
 - 代码: W0702
 - 描述: No exception type(s) specified
 - 符号: bare-except
 
-#### 行 197, 列 23
+#### 行 199, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 220, 列 23
+#### 行 223, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 233, 列 20
+#### 行 236, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.file_writer)
 - 符号: import-outside-toplevel
 
-#### 行 265, 列 27
+#### 行 268, 列 27
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 267, 列 23
+#### 行 270, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 271, 列 15
+#### 行 274, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 290, 列 19
+#### 行 293, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 312, 列 16
+#### 行 315, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.version.Version)
 - 符号: import-outside-toplevel
 
-#### 行 314, 列 19
+#### 行 317, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 336, 列 20
+#### 行 339, 列 20
 - 类型: warning
 - 代码: W1510
 - 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
 - 符号: subprocess-run-check
 
-#### 行 340, 列 23
+#### 行 343, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -2397,9 +2422,9 @@
 ## 文件: src\battery_analysis\utils\battery_analysis.py
 
 ### 问题统计
-- 问题总数: 29
+- 问题总数: 26
 - 警告(Warning): 2
-- 规范(Convention): 15
+- 规范(Convention): 12
 - 重构(Refactor): 12
 
 ### 详细问题
@@ -2408,12 +2433,6 @@
 - 代码: C0114
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
-
-#### 行 2, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
 
 #### 行 3, 列 0
 - 类型: convention
@@ -2493,85 +2512,73 @@
 - 描述: Too many statements (70/50)
 - 符号: too-many-statements
 
-#### 行 27, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 29, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 93, 列 20
+#### 行 97, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.resource_manager.ResourceManager)
 - 符号: import-outside-toplevel
 
-#### 行 111, 列 32
+#### 行 123, 列 32
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise BatteryAnalysisException(f'处理失败: {str(e)}') from e'
 - 符号: raise-missing-from
 
-#### 行 124, 列 28
+#### 行 139, 列 28
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise BatteryAnalysisException(f'并行处理失败: {str(e)}') from e'
 - 符号: raise-missing-from
 
-#### 行 154, 列 4
+#### 行 170, 列 4
 - 类型: refactor
 - 代码: R0911
 - 描述: Too many return statements (8/6)
 - 符号: too-many-return-statements
 
-#### 行 154, 列 4
+#### 行 170, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (32/12)
 - 符号: too-many-branches
 
-#### 行 154, 列 4
+#### 行 170, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (76/50)
 - 符号: too-many-statements
 
-#### 行 164, 列 8
+#### 行 180, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (12/5)
 - 符号: too-many-nested-blocks
 
-#### 行 164, 列 8
+#### 行 180, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (11/5)
 - 符号: too-many-nested-blocks
 
-#### 行 164, 列 8
+#### 行 180, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (12/5)
 - 符号: too-many-nested-blocks
 
-#### 行 164, 列 8
+#### 行 180, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (11/5)
 - 符号: too-many-nested-blocks
 
-#### 行 291, 列 4
+#### 行 315, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (19/12)
 - 符号: too-many-branches
 
-#### 行 291, 列 4
+#### 行 315, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (95/50)
@@ -2628,7 +2635,7 @@
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
 
-#### 行 4, 列 4
+#### 行 10, 列 4
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
@@ -2675,16 +2682,16 @@
 ## 文件: src\battery_analysis\utils\file_writer.py
 
 ### 问题统计
-- 问题总数: 88
+- 问题总数: 84
 - 警告(Warning): 36
-- 规范(Convention): 40
+- 规范(Convention): 36
 - 重构(Refactor): 12
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (1552/1000)
+- 描述: Too many lines in module (1659/1000)
 - 符号: too-many-lines
 
 #### 行 1, 列 0
@@ -2692,18 +2699,6 @@
 - 代码: C0114
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
-
-#### 行 3, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 4, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
 
 #### 行 9, 列 0
 - 类型: convention
@@ -2915,295 +2910,283 @@
 - 描述: Too many statements (141/50)
 - 符号: too-many-statements
 
-#### 行 68, 列 15
+#### 行 72, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 112, 列 16
+#### 行 120, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (re)
 - 符号: import-outside-toplevel
 
-#### 行 201, 列 8
+#### 行 235, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (pathlib.Path)
 - 符号: import-outside-toplevel
 
-#### 行 225, 列 12
+#### 行 266, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 238, 列 15
+#### 行 279, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 251, 列 4
+#### 行 297, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (131/12)
 - 符号: too-many-branches
 
-#### 行 251, 列 4
+#### 行 297, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (467/50)
 - 符号: too-many-statements
 
-#### 行 480, 列 12
+#### 行 526, 列 12
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 494, 列 12
+#### 行 540, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 495, 列 12
+#### 行 541, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 496, 列 12
+#### 行 542, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 504, 列 12
+#### 行 550, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 505, 列 12
+#### 行 551, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 511, 列 12
+#### 行 557, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 512, 列 12
+#### 行 558, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 513, 列 12
+#### 行 559, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 521, 列 12
+#### 行 567, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 522, 列 12
+#### 行 568, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 739, 列 8
+#### 行 795, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 794, 列 55
+#### 行 893, 列 55
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 808, 列 55
+#### 行 909, 列 55
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 1253, 列 8
+#### 行 1359, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 1256, 列 12
+#### 行 1362, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1271, 列 16
+#### 行 1377, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1286, 列 28
+#### 行 1392, 列 28
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _element of a client class
 - 符号: protected-access
 
-#### 行 1286, 列 66
+#### 行 1392, 列 66
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _element of a client class
 - 符号: protected-access
 
-#### 行 1308, 列 20
+#### 行 1414, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1308, 列 41
+#### 行 1414, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1311, 列 20
+#### 行 1417, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1311, 列 41
+#### 行 1417, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1314, 列 20
+#### 行 1420, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1314, 列 41
+#### 行 1420, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1317, 列 20
+#### 行 1423, 列 20
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _p of a client class
 - 符号: protected-access
 
-#### 行 1317, 列 41
+#### 行 1423, 列 41
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1336, 列 4
+#### 行 1442, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (56/50)
 - 符号: too-many-statements
 
-#### 行 1341, 列 24
+#### 行 1447, 列 24
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"linewidth": 1, "color": 'red'}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 1368, 列 12
+#### 行 1474, 列 12
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 1428, 列 0
+#### 行 1534, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (13/7)
 - 符号: too-many-instance-attributes
 
-#### 行 1439, 列 16
+#### 行 1545, 列 16
 - 类型: warning
 - 代码: W0719
 - 描述: Raising too general exception: Exception
 - 符号: broad-exception-raised
 
-#### 行 1440, 列 15
+#### 行 1546, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1461, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 1466, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 1468, 列 8
+#### 行 1574, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1474, 列 4
+#### 行 1580, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (13/12)
 - 符号: too-many-branches
 
-#### 行 1494, 列 12
+#### 行 1600, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1514, 列 12
+#### 行 1621, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1523, 列 15
+#### 行 1630, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1537, 列 13
+#### 行 1644, 列 13
 - 类型: warning
 - 代码: W1514
 - 描述: Using open without explicitly specifying an encoding
 - 符号: unspecified-encoding
 
-#### 行 1547, 列 15
+#### 行 1654, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception BaseException

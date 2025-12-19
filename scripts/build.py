@@ -593,13 +593,9 @@ VSVersionInfo(
                 # 添加配置文件 - 使用绝对路径并确保正确的目标目录结构
                 f'--add-data={os.path.abspath(os.path.join(self.project_root, "config"))};config',
                 # 添加图标资源目录
-                f'--add-data={os.path.abspath(os.path.join(
-                    self.project_root, "config", "resources", "icons"
-                ))};config/resources/icons',
+                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
                 # 额外添加配置文件到根目录，确保file_writer.py能找到
-                f'--add-data={os.path.abspath(os.path.join(
-                    self.project_root, "config", "setting.ini"
-                ))};.',
+                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
                 f'--add-data={os.path.join(self.project_root, "pyproject.toml")};.',
                 # 添加必要的hidden-import，确保模块能被找到
                 '--hidden-import=matplotlib.backends.backend_svg',
