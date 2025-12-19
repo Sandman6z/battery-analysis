@@ -1,8 +1,12 @@
-import pytest
+"""
+测试主窗口类的功能
+主要测试ReportedBy与TesterLocation的匹配逻辑
+"""
 import json
 import os
-from battery_analysis.main.main_window import Main
+import pytest
 from PyQt6.QtWidgets import QApplication
+from battery_analysis.main.main_window import Main
 
 app = QApplication([])
 
@@ -46,8 +50,7 @@ def test_reported_by_matching():
 
 
 # 将映射关系转换为参数化测试所需的格式
-parametrize_data = [(index, reported_by)
-                    for index, reported_by in reported_by_mapping.items()]
+parametrize_data = list(reported_by_mapping.items())
 
 
 @pytest.mark.parametrize("index, expected_reported_by", parametrize_data)
