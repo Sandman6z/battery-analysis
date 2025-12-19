@@ -1,9 +1,9 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 14:03:58
-- 总文件数: 22
-- 存在问题的文件数: 22
+- 分析日期: 2025-12-19 14:39:06
+- 总文件数: 19
+- 存在问题的文件数: 19
 
 ## 文件: scripts\build.py
 
@@ -3209,71 +3209,7 @@
 - 描述: Catching too general exception BaseException
 - 符号: broad-exception-caught
 
-## 文件: src\battery_analysis\utils\numeric_utils.py
-
-### 问题统计
-- 问题总数: 6
-- 规范(Convention): 1
-- 重构(Refactor): 5
-
-### 详细问题
-#### 行 1, 列 0
-- 类型: convention
-- 代码: C0114
-- 描述: Missing module docstring
-- 符号: missing-module-docstring
-
-#### 行 5, 列 4
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 12, 列 4
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 19, 列 4
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 26, 列 4
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 33, 列 4
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
 ## 文件: src\battery_analysis\utils\plot_utils.py
-
-### 问题统计
-- 问题总数: 2
-- 规范(Convention): 1
-- 重构(Refactor): 1
-
-### 详细问题
-#### 行 1, 列 0
-- 类型: convention
-- 代码: C0114
-- 描述: Missing module docstring
-- 符号: missing-module-docstring
-
-#### 行 6, 列 0
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (18/12)
-- 符号: too-many-branches
-
-## 文件: src\battery_analysis\utils\resource_manager.py
 
 ### 问题统计
 - 问题总数: 3
@@ -3287,72 +3223,46 @@
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
 
-#### 行 29, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (psutil)
-- 符号: import-outside-toplevel
-
-#### 行 60, 列 15
+#### 行 6, 列 0
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0105
+- 描述: String statement has no effect
+- 符号: pointless-string-statement
+
+#### 行 46, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\utils\word_utils.py
 
 ### 问题统计
-- 问题总数: 6
-- 警告(Warning): 3
-- 规范(Convention): 3
+- 问题总数: 4
+- 信息(Info): 4
 
 ### 详细问题
-#### 行 1, 列 0
-- 类型: convention
-- 代码: C0114
-- 描述: Missing module docstring
-- 符号: missing-module-docstring
+#### 行 16, 列 0
+- 类型: info
+- 代码: I0011
+- 描述: Locally disabling protected-access (W0212)
+- 符号: locally-disabled
 
-#### 行 4, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import logging" should be placed before "from docx.oxml import OxmlElement"
-- 符号: wrong-import-order
+#### 行 16, 列 0
+- 类型: info
+- 代码: I0020
+- 描述: Suppressed 'protected-access' (from line 16)
+- 符号: suppressed-message
 
-#### 行 8, 列 9
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _tc of a client class
-- 符号: protected-access
+#### 行 107, 列 0
+- 类型: info
+- 代码: I0011
+- 描述: Locally disabling protected-access (W0212)
+- 符号: locally-disabled
 
-#### 行 32, 列 8
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 38, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 97, 列 4
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _p of a client class
-- 符号: protected-access
-
-## 文件: tests\battery_analysis\main\test_main_window.py
-
-### 问题统计
-- 问题总数: 1
-- 错误(Error): 1
-
-### 详细问题
-#### 行 8, 列 0
-- 类型: error
-- 代码: E0611
-- 描述: No name 'QApplication' in module 'PyQt6.QtWidgets'
-- 符号: no-name-in-module
+#### 行 107, 列 0
+- 类型: info
+- 代码: I0020
+- 描述: Suppressed 'protected-access' (from line 107)
+- 符号: suppressed-message
 

@@ -86,7 +86,8 @@ class ProgressDialog(QW.QDialog):
         self.setModal(False)  # 非模态窗口，允许用户同时操作主界面
         self.setFixedSize(400, 120)
         self.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
-                            QC.Qt.WindowType.WindowCloseButtonHint | QC.Qt.WindowType.WindowStaysOnTopHint)
+                            QC.Qt.WindowType.WindowCloseButtonHint | \
+                            QC.Qt.WindowType.WindowStaysOnTopHint)
 
         # 创建布局
         layout = QW.QVBoxLayout()
@@ -1015,7 +1016,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def validate_version(self) -> None:
         """验证版本号格式并提供实时反馈"""
         version_text = self.lineEdit_Version.text()
-        if version_text and not QC.QRegularExpression(r"^\d+(\.\d+){0,2}$").match(version_text).hasMatch():
+        regex = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
+        if version_text and not regex.match(version_text).hasMatch():
             self.statusBar_BatteryAnalysis.showMessage(
                 "[警告]: 版本号格式不正确，应为 x.y.z 格式")
             # 设置错误样式
@@ -1169,9 +1171,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         f"{rule_parts[3]}")
                     listRequiredUseableCapacityPercentage = re.findall(
                         r"(\d+)%", rule_parts[4])
-                    if listRequiredUseableCapacityPercentage != [] and len(listRequiredUseableCapacityPercentage) == 1:
-                        self.lineEdit_RequiredUseableCapacity.setText(
-                            f"{int(int(rule_parts[3])*int(listRequiredUseableCapacityPercentage[0])/100)}")
+                    if (listRequiredUseableCapacityPercentage != [] 
+                        and len(listRequiredUseableCapacityPercentage) == 1):
+                        nominal_capacity = int(rule_parts[3])
+                        percentage = int(listRequiredUseableCapacityPercentage[0])
+                        required_capacity = int(nominal_capacity * percentage / 100)
+                        self.lineEdit_RequiredUseableCapacity.setText(f"{required_capacity}")
                     else:
                         self.lineEdit_RequiredUseableCapacity.setText(
                             f"{rule_parts[4]}")
@@ -1188,9 +1193,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         f"{rule_parts[3]}")
                     listRequiredUseableCapacityPercentage = re.findall(
                         r"(\d+)%", rule_parts[4])
-                    if listRequiredUseableCapacityPercentage != [] and len(listRequiredUseableCapacityPercentage) == 1:
-                        self.lineEdit_RequiredUseableCapacity.setText(
-                            f"{int(int(rule_parts[3])*int(listRequiredUseableCapacityPercentage[0])/100)}")
+                    if (listRequiredUseableCapacityPercentage != [] 
+                        and len(listRequiredUseableCapacityPercentage) == 1):
+                        nominal_capacity = int(rule_parts[3])
+                        percentage = int(listRequiredUseableCapacityPercentage[0])
+                        required_capacity = int(nominal_capacity * percentage / 100)
+                        self.lineEdit_RequiredUseableCapacity.setText(f"{required_capacity}")
                     else:
                         self.lineEdit_RequiredUseableCapacity.setText(
                             f"{rule_parts[4]}")
@@ -1335,8 +1343,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         self.construction_method = self.comboBox_ConstructionMethod.itemText(
                             c)
                         break
-                listAllSpecificationType = self.get_config(
-                    "BatteryConfig/SpecificationTypeCoinCell") + self.get_config("BatteryConfig/SpecificationTypePouchCell")
+                listAllSpecificationType = \
+                    self.get_config("BatteryConfig/SpecificationTypeCoinCell") \
+                    + self.get_config("BatteryConfig/SpecificationTypePouchCell")
                 listAllSpecificationMethod = self.get_config(
                     "BatteryConfig/SpecificationMethod")
                 for t in range(len(listAllSpecificationType)):
@@ -1372,7 +1381,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                             int(float(c.strip())) for c in listPulseCurrent]
                     self.config.setValue(
                         "BatteryConfig/PulseCurrent", listPulseCurrent)
-                    # self.listCurrentLevel = [int(listPulseCurrent[c].strip()) for c in range(len(listPulseCurrent))]
+                    # self.listCurrentLevel = [int(listPulseCurrent[c].strip()) \
+                    #                          for c in range(len(listPulseCurrent))]
                     # self.config.setValue("BatteryConfig/PulseCurrent", listPulseCurrent)
 
                 self.cc_current = ""
@@ -1690,7 +1700,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 warning_info.append("Construction Method")
                 self.label_ConstructionMethod.setStyleSheet(
                     "background-color:red")
-        if self.comboBox_Specification_Type.currentText() == "" or self.comboBox_Specification_Method.currentText() == "":
+        if (self.comboBox_Specification_Type.currentText() == "" 
+            or self.comboBox_Specification_Method.currentText() == ""):
             check_pass_flag = False
             warning_info.append("Specification")
             self.label_Specification.setStyleSheet("background-color:red")
@@ -2056,7 +2067,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def rename_pltPath(self, strTestDate):
         self.config.setValue(
-            "PltConfig/Path", f"{self.lineEdit_OutputPath.text()}/{strTestDate}_V{self.lineEdit_Version.text()}")
+            "PltConfig/Path", f"{self.lineEdit_OutputPath.text()}/" \
+            f"{strTestDate}_V{self.lineEdit_Version.text()}")
 
     def update_config(self, test_info) -> None:
         # 初始化checker_update_config如果不存在
@@ -2077,12 +2089,18 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.cc_current = rule_parts[5]
             if rule_parts[0] == specification_type:
                 self.config.setValue(
-                    "PltConfig/Title", f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), -{test_info[8]}mAh@{self.cc_current}mA, {strPulseCurrent[:-1]}, {test_info[7]}")
+                    "PltConfig/Title", 
+                    f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
+                    f"-{test_info[8]}mAh@{self.cc_current}mA, "
+                    f"{strPulseCurrent[:-1]}, {test_info[7]}")
                 bSetTitle = True
                 break
             if rule_parts[0] in specification_type:
                 self.config.setValue(
-                    "PltConfig/Title", f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), -{test_info[8]}mAh@{self.cc_current}mA, {strPulseCurrent[:-1]}, {test_info[7]}")
+                    "PltConfig/Title", 
+                    f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
+                    f"-{test_info[8]}mAh@{self.cc_current}mA, "
+                    f"{strPulseCurrent[:-1]}, {test_info[7]}")
                 bSetTitle = True
         if not bSetTitle:
             self.checker_update_config.set_error("PltTitle")

@@ -214,8 +214,11 @@ def generate_html_report(project_root, pylint_data, html_report):
                     try:
                         pylint_json2html_path = pkg_resources.get_distribution(
                             "pylint-json2html").location
-                        scripts_dir = os.path.join(pylint_json2html_path, "Scripts") if os.name == 'nt' else os.path.join(
-                            pylint_json2html_path, "bin")
+                        scripts_dir = (
+                            os.path.join(pylint_json2html_path, "Scripts") 
+                            if os.name == 'nt' 
+                            else os.path.join(pylint_json2html_path, "bin")
+                        )
 
                         # 尝试多种可能的脚本名称
                         for script_name in ["pylint-json2html", "pylint_json2html.py"]:
@@ -223,7 +226,12 @@ def generate_html_report(project_root, pylint_data, html_report):
                                 scripts_dir, script_name)
                             if os.path.exists(script_path):
                                 json_report = project_root / "pylint_report.json"
-                                html_cmd = [sys.executable, script_path, str(json_report), str(html_report)]
+                                html_cmd = [
+                                    sys.executable, 
+                                    script_path, 
+                                    str(json_report), 
+                                    str(html_report)
+                                ]
                                 html_result = subprocess.run(
                                     html_cmd, capture_output=True, text=True)
                                 if html_result.returncode == 0:
@@ -264,9 +272,19 @@ def generate_html_report(project_root, pylint_data, html_report):
                         body {{ font-family: Arial, sans-serif; margin: 20px; }}
                         h1 {{ color: #333; }}
                         h2 {{ color: #555; }}
-                        .summary {{ background-color: #f0f7ff; padding: 15px; border-radius: 5px; margin-bottom: 20px; }}
+                        .summary {
+                            background-color: #f0f7ff;
+                            padding: 15px;
+                            border-radius: 5px;
+                            margin-bottom: 20px;
+                        }
                         .metrics {{ display: flex; gap: 20px; margin: 15px 0; }}
-                        .metric-box {{ background-color: #fff; padding: 10px 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
+                        .metric-box {
+                            background-color: #fff;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                        }
                         .metric-box h3 {{ margin: 0 0 5px 0; color: #666; }}
                         .metric-value {{ font-size: 24px; font-weight: bold; }}
                         .metric-error {{ color: #d32f2f; }}
@@ -323,8 +341,9 @@ def generate_markdown_report(pylint_data, markdown_report):
             f.write("# 代码重构计划\n\n")
             f.write(f"## 概述\n")
             f.write(f"- 分析日期: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"- 总文件数: {len(set(item['path'] for item in pylint_data)) if pylint_data else 0}\n")
-            f.write(f"- 存在问题的文件数: {len(set(item['path'] for item in pylint_data)) if pylint_data else 0}\n\n")
+            total_files = len(set(item['path'] for item in pylint_data)) if pylint_data else 0
+            f.write(f"- 总文件数: {total_files}\n")
+            f.write(f"- 存在问题的文件数: {total_files}\n\n")
             
             # 按文件分类写入问题
             if pylint_data:

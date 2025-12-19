@@ -13,7 +13,11 @@ logger = logging.getLogger(__name__)
 _config_path_cache = {}
 
 
-def find_config_file(file_name: str = "setting.ini", config_dir: str = "config", use_cache: bool = True) -> str:
+def find_config_file(
+    file_name: str = "setting.ini", 
+    config_dir: str = "config", 
+    use_cache: bool = True
+) -> str:
     """
     在多个可能的位置查找配置文件，并返回第一个找到的配置文件的路径。
 

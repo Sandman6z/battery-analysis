@@ -470,9 +470,20 @@ VSVersionInfo(
         spec_content += '    pathex=["' + project_root_escaped + \
             '", "' + src_path_escaped + '"],\n'
         spec_content += '    binaries=[],\n'
-        spec_content += '    datas=[("' + src_path_escaped + '", "."), ("' + os.path.join(src_path_escaped, 'battery_analysis').replace('\\', '\\\\') + '", "battery_analysis"), ("' + os.path.join(
-            self.project_root, 'config').replace('\\', '\\\\') + '", "config"), ("' + os.path.join(self.project_root, 'pyproject.toml').replace('\\', '\\\\') + '", ".")],\n'
-        spec_content += '    hiddenimports=["matplotlib.backends.backend_svg", "battery_analysis", "battery_analysis.main", "battery_analysis.ui", "battery_analysis.utils", "docx"],\n'
+        spec_content += '    datas=[\n'
+        spec_content += '        ("' + src_path_escaped + '", "."),\n'
+        spec_content += '        ("' + os.path.join(src_path_escaped, 'battery_analysis') \
+            .replace('\\', '\\\\') + '", "battery_analysis"),\n'
+        spec_content += '        ("' + os.path.join(self.project_root, 'config') \
+            .replace('\\', '\\\\') + '", "config"),\n'
+        spec_content += '        ("' + os.path.join(self.project_root, 'pyproject.toml') \
+            .replace('\\', '\\\\') + '", ".")\n'
+        spec_content += '    ],\n'
+        spec_content += '    hiddenimports=[\n'
+        spec_content += '        "matplotlib.backends.backend_svg", "battery_analysis",\n'
+        spec_content += '        "battery_analysis.main", "battery_analysis.ui",\n'
+        spec_content += '        "battery_analysis.utils", "docx"\n'
+        spec_content += '    ],\n'
         spec_content += '    hookspath=[],\n'
         spec_content += '    hooksconfig={},\n'
         spec_content += '    runtime_hooks=[],\n'
@@ -507,7 +518,11 @@ VSVersionInfo(
         spec_content += '    version="version.txt",\n'
         spec_content += ')'
 
-        with open(os.path.join(self.build_path, 'Build_BatteryAnalysis', 'build.spec'), 'w', encoding='utf-8') as f:
+        with open(
+            os.path.join(self.build_path, 'Build_BatteryAnalysis', 'build.spec'), 
+            'w', 
+            encoding='utf-8'
+        ) as f:
             f.write(spec_content)
 
             # 执行 pyinstaller 命令
@@ -578,9 +593,13 @@ VSVersionInfo(
                 # 添加配置文件 - 使用绝对路径并确保正确的目标目录结构
                 f'--add-data={os.path.abspath(os.path.join(self.project_root, "config"))};config',
                 # 添加图标资源目录
-                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
+                f'--add-data={os.path.abspath(os.path.join(
+                    self.project_root, "config", "resources", "icons"
+                ))};config/resources/icons',
                 # 额外添加配置文件到根目录，确保file_writer.py能找到
-                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
+                f'--add-data={os.path.abspath(os.path.join(
+                    self.project_root, "config", "setting.ini"
+                ))};.',
                 f'--add-data={os.path.join(self.project_root, "pyproject.toml")};.',
                 # 添加必要的hidden-import，确保模块能被找到
                 '--hidden-import=matplotlib.backends.backend_svg',
@@ -637,9 +656,18 @@ VSVersionInfo(
         spec_content += '    pathex=["' + project_root_escaped + \
             '", "' + src_path_escaped + '"],\n'
         spec_content += '    binaries=[],\n'
-        spec_content += '    datas=[("' + src_path_escaped + '", "src"), ("' + os.path.join(self.project_root, 'config').replace(
-            '\\', '\\\\') + '", "config"), ("' + os.path.join(self.project_root, 'pyproject.toml').replace('\\', '\\\\') + '", ".")],\n'
-        spec_content += '    hiddenimports=["matplotlib.backends.backend_svg", "src", "src.battery_analysis", "src.battery_analysis.utils", "docx"],\n'
+        spec_content += '    datas=[\n'
+        spec_content += '        ("' + src_path_escaped + '", "src"),\n'
+        spec_content += '        ("' + os.path.join(self.project_root, 'config') \
+            .replace('\\', '\\\\') + '", "config"),\n'
+        spec_content += '        ("' + os.path.join(self.project_root, 'pyproject.toml') \
+            .replace('\\', '\\\\') + '", ".")\n'
+        spec_content += '    ],\n'
+        spec_content += '    hiddenimports=[\n'
+        spec_content += '        "matplotlib.backends.backend_svg", "src",\n'
+        spec_content += '        "src.battery_analysis", "src.battery_analysis.utils",\n'
+        spec_content += '        "docx"\n'
+        spec_content += '    ],\n'
         spec_content += '    hookspath=[],\n'
         spec_content += '    hooksconfig={},\n'
         spec_content += '    runtime_hooks=[],\n'

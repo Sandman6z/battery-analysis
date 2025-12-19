@@ -46,7 +46,10 @@ def test_reported_by_matching():
 
         # 验证结果
         expected_reported_by = scenario["expected_reported_by"]
-        assert reported_by == expected_reported_by, f"当选择索引{scenario['tester_location_index']}时，ReportedBy应该是'{expected_reported_by}'，但实际是'{reported_by}'"
+        assert reported_by == expected_reported_by, (
+            f"当选择索引{scenario['tester_location_index']}时，"
+            f"ReportedBy应该是'{expected_reported_by}'，但实际是'{reported_by}'"
+        )
 
 
 # 将映射关系转换为参数化测试所需的格式
@@ -68,4 +71,7 @@ def test_reported_by_mapping(index, expected_reported_by):
     reported_by = reported_by_mapping.get(current_tester_location, "")
 
     # 验证结果
-    assert reported_by == expected_reported_by, f"当选择索引{index}时，ReportedBy应该是'{expected_reported_by}'，但实际是'{reported_by}'"
+    assert reported_by == expected_reported_by, (
+        f"当选择索引{index}时，"
+        f"ReportedBy应该是'{expected_reported_by}'，但实际是'{reported_by}'"
+    )

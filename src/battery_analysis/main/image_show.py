@@ -209,7 +209,8 @@ class FIGURE:
     def _get_pulse_current_level(self):
         """获取脉冲电流级别配置"""
         try:
-            if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "PulseCurrent"):
+            if (self.config.has_section("BatteryConfig") 
+                and self.config.has_option("BatteryConfig", "PulseCurrent")):
                 listPulseCurrentLevel = self.config.get(
                     "BatteryConfig", "PulseCurrent").split(",")
                 result = [int(item.strip()) for item in listPulseCurrentLevel]
@@ -229,7 +230,9 @@ class FIGURE:
         """设置图表标题，处理引号情况"""
         try:
             # 尝试移除前后引号（如果存在）
-            if len(self.strPltTitle) >= 2 and self.strPltTitle[0] == '"' and self.strPltTitle[-1] == '"':
+            if (len(self.strPltTitle) >= 2 
+                and self.strPltTitle[0] == '"' 
+                and self.strPltTitle[-1] == '"'):
                 title_content = self.strPltTitle[1:-1]
             else:
                 title_content = self.strPltTitle
@@ -242,7 +245,8 @@ class FIGURE:
     def _read_rules_configuration(self):
         """读取并处理规则配置"""
         try:
-            if self.config.has_section("BatteryConfig") and self.config.has_option("BatteryConfig", "Rules"):
+            if (self.config.has_section("BatteryConfig") 
+                and self.config.has_option("BatteryConfig", "Rules")):
                 listRules = self.config.get(
                     "BatteryConfig", "Rules").split(",")
                 self._process_rules(listRules)
@@ -513,11 +517,13 @@ class FIGURE:
                         name_parts[-2:]) if len(name_parts) >= 2 else f"Battery_{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
             except Exception as e:
-                logging.warning("解析电池名称时出错: %s，使用默认名称", e)
+                logging.warning(
+                    "解析电池名称时出错: %s，使用默认名称", e)
                 strBatteryName = f"Battery_{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
 
-    def filter_data(self, list_plt_charge: list, list_plt_voltage: list, times=5, slope_max=0.2, difference_max=0.05):
+    def filter_data(self, list_plt_charge: list, list_plt_voltage: list, 
+                    times=5, slope_max=0.2, difference_max=0.05):
         """
         过滤数据以去除异常值和噪声
 
@@ -556,7 +562,8 @@ class FIGURE:
                             (voltage_single[c] - voltage_single[c - 1]) / charge_diff)
 
                     # 根据斜率和电压差异进行过滤
-                    if slope < slope_max and abs(voltage_single[c] - voltage_single[c - 1]) < difference_max:
+                    if (slope < slope_max 
+                        and abs(voltage_single[c] - voltage_single[c - 1]) < difference_max):
                         charge_temp.append(charge_single[c])
                         voltage_temp.append(voltage_single[c])
 
@@ -791,8 +798,7 @@ class FIGURE:
                     ul, = ax.plot(
                         self.listPlt[c][0][b],
                         self.listPlt[c][1][b],
-                        color=self.listColor[c] if c < len(
-                            self.listColor) else f'C{c}',
+                        color=self.listColor[c] if c < len(self.listColor) else f'C{c}',
                         label=[f'{self.listBatteryNameSplit[b]}',
                                'Unfiltered'],
                         visible=False,
@@ -804,8 +810,7 @@ class FIGURE:
                     fl, = ax.plot(
                         self.listPlt[c][2][b],
                         self.listPlt[c][3][b],
-                        color=self.listColor[c] if c < len(
-                            self.listColor) else f'C{c}',
+                        color=self.listColor[c] if c < len(self.listColor) else f'C{c}',
                         label=[f'{self.listBatteryNameSplit[b]}', 'Filtered'],
                         visible=True,
                         linewidth=0.5
@@ -816,7 +821,8 @@ class FIGURE:
 
         return lines_unfiltered, lines_filtered
 
-    def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict):
+    def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered, 
+                           title_fontdict, axis_fontdict):
         """添加过滤/未过滤数据切换按钮"""
         labels_filter = ["       Filtered"]
         visibility_filter = [True]
@@ -933,14 +939,16 @@ class FIGURE:
                 # 处理空标签
                 if label == "None":
                     # 确保所有"None"项都处于未选中状态
-                    for i in range(min(self.intBatteryNum, end_idx) - start_idx, end_idx - start_idx):
+                    start_range = min(self.intBatteryNum, end_idx) - start_idx
+                    end_range = end_idx - start_idx
+                    for i in range(start_range, end_range):
                         if check_buttons.get_status()[i]:
                             check_buttons.set_active(i)
                     return
 
                 # 根据当前模式（过滤/未过滤）更新对应线条的可见性
-                current_lines = lines_filtered if check_filter.get_status()[
-                    0] else lines_unfiltered
+                current_lines = lines_filtered \
+                    if check_filter.get_status()[0] else lines_unfiltered
 
                 for i in range(len(current_lines)):
                     try:
@@ -1003,7 +1011,8 @@ class FIGURE:
                                     dist = ((x - event.xdata)**2 +
                                             (y - event.ydata) ** 2)**0.5
                                     # 只考虑一定范围内的点
-                                    if dist < min_dist and dist < 0.05 * (self.maxXaxis - self.listAxis[0]):
+                                    if (dist < min_dist 
+                                        and dist < 0.05 * (self.maxXaxis - self.listAxis[0])):
                                         min_dist = dist
                                         closest_point = (x, y, i)
                                         closest_line_label = line_label

@@ -30,7 +30,11 @@ class BatteryAnalysis:
 
         # input .xlsx directory and result txt path
         self.strInDataXlsxDir = f"{strInDataXlsxDir}/"
-        self.strResultLogTxt = f"{strResultPath}/V{listTestInfo[16]}/{listTestInfo[4]}_{listTestInfo[2]}_{listTestInfo[3]}_{self.strFileCurrentType}_{listTestInfo[7]}.txt"
+        self.strResultLogTxt = (
+            f"{strResultPath}/V{listTestInfo[16]}/"
+            f"{listTestInfo[4]}_{listTestInfo[2]}_{listTestInfo[3]}"
+            f"_{self.strFileCurrentType}_{listTestInfo[7]}.txt"
+        )
 
         # list to store all battery charge
         self.listAllBatteryCharge = []
@@ -96,17 +100,25 @@ class BatteryAnalysis:
                     # 获取适合当前平台的进程上下文
                     ctx = ResourceManager.get_processing_context()
 
-                    with concurrent.futures.ProcessPoolExecutor(max_workers=max_processes, mp_context=ctx) as executor:
+                    with concurrent.futures.ProcessPoolExecutor(
+                        max_workers=max_processes, 
+                        mp_context=ctx
+                    ) as executor:
                         # 提交所有任务
-                        future_to_args = {executor.submit(
-                            self._parallel_process_file, args): args for args in process_args}
+                        future_to_args = {
+                            executor.submit(self._parallel_process_file, args): args 
+                            for args in process_args
+                        }
 
                         # 获取结果
                         for future in concurrent.futures.as_completed(future_to_args):
                             try:
                                 result = future.result()
                                 results.append(result)
-                            except (FileNotFoundError, PermissionError, ValueError, KeyError, IndexError) as e:
+                            except (
+                                FileNotFoundError, PermissionError, ValueError, 
+                                KeyError, IndexError
+                            ) as e:
                                 logging.error("处理文件时出错: %s", e)
                                 raise BatteryAnalysisException(
                                     f"处理失败: {str(e)}")
@@ -118,7 +130,10 @@ class BatteryAnalysis:
                         try:
                             results = pool.map(
                                 self._parallel_process_file, process_args)
-                        except (FileNotFoundError, PermissionError, ValueError, KeyError, IndexError) as e:
+                        except (
+                            FileNotFoundError, PermissionError, ValueError, 
+                            KeyError, IndexError
+                        ) as e:
                             logging.error("并行处理文件时出错: %s", e)
                             pool.terminate()
                             raise BatteryAnalysisException(f"并行处理失败: {str(e)}")
@@ -127,7 +142,8 @@ class BatteryAnalysis:
                             pool.join()
 
                 # 合并结果
-                for battery_name, battery_charge, posi_data, voltage_data, charge_data, timestamp_info in results:
+                for battery_name, battery_charge, posi_data, \
+                           voltage_data, charge_data, timestamp_info in results:
                     self.listBatteryName.append(battery_name)
                     self.listAllBatteryCharge.append(battery_charge)
                     self.listAllPosiForInfoImageCsv.append(posi_data)
@@ -190,7 +206,9 @@ class BatteryAnalysis:
                                                     try:
                                                         day, month, year = parts
                                                         # 确保值可以转换为整数并直接使用
-                                                        return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                        return f"{year.zfill(4)}" \
+                                                                f"{month.zfill(2)}" \
+                                                                f"{day.zfill(2)}"
                                                     except ValueError:
                                                         logging.warning(
                                                             "日期部分无法转换为整数: %s", parts)
@@ -201,7 +219,9 @@ class BatteryAnalysis:
                                                 try:
                                                     year, month, day = parts[:3]
                                                     # 确保值可以转换为整数并直接使用
-                                                    return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                    return f"{year.zfill(4)}" \
+                                                            f"{month.zfill(2)}" \
+                                                            f"{day.zfill(2)}"
                                                 except ValueError:
                                                     logging.warning(
                                                         "日期部分无法转换为整数: %s", parts[:3])
@@ -222,7 +242,9 @@ class BatteryAnalysis:
                                                     try:
                                                         day, month, year = parts
                                                         # 确保值可以转换为整数并直接使用
-                                                        return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                        return f"{year.zfill(4)}" \
+                                                                f"{month.zfill(2)}" \
+                                                                f"{day.zfill(2)}"
                                                     except ValueError:
                                                         logging.warning(
                                                             "日期部分无法转换为整数: %s", parts)
@@ -232,7 +254,9 @@ class BatteryAnalysis:
                                                 try:
                                                     year, month, day = parts[:3]
                                                     # 确保值可以转换为整数并直接使用
-                                                    return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
+                                                    return f"{year.zfill(4)}" \
+                                                            f"{month.zfill(2)}" \
+                                                            f"{day.zfill(2)}"
                                                 except ValueError:
                                                     logging.warning(
                                                         "日期部分无法转换为整数: %s", parts[:3])
@@ -455,7 +479,8 @@ class BatteryAnalysis:
             if len(listChargeForInfoImageCsv[c]) != len(listVoltageForInfoImageCsv[c]):
 
                 raise BatteryAnalysisException(
-                    f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, charge is not equal to voltage")
+                    f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, "
+                    f"charge is not equal to voltage")
 
         # 返回处理结果
         return (
@@ -482,7 +507,10 @@ class BatteryAnalysis:
 
                 if time_part and ":" in time_part:
                     cd2 = time_part.split(":")
-                    return int(f"{int(cd1[0])}{int(cd1[1]):02}{int(cd1[2]):02}{int(cd2[0]):02}{int(cd2[1]):02}{int(cd2[2]):02}")
+                    return int(
+                        f"{int(cd1[0])}{int(cd1[1]):02}{int(cd1[2]):02}"
+                        f"{int(cd2[0]):02}{int(cd2[1]):02}{int(cd2[2]):02}"
+                    )
                 return int(f"{int(cd1[0])}{int(cd1[1]):02}{int(cd1[2]):02}000000")
             except (ValueError, IndexError):
                 return 20000101000000
@@ -566,8 +594,10 @@ class BatteryAnalysis:
 
             self.UBA_Log(f"{current_level}mA - ")
             for v, voltage in enumerate(self.listVoltageLevel):
+                row_value = listLevelToRow[c][v]
+                adjusted_row = row_value + 1 if row_value else row_value
                 self.UBA_Log(
-                    f"{listLevelToVoltage[c][v]}:{listLevelToRow[c][v] and listLevelToRow[c][v] + 1 or listLevelToRow[c][v]}, ")
+                    f"{listLevelToVoltage[c][v]}:{adjusted_row}, ")
             self.UBA_Log("\r")
 
         self.UBA_Log("\r")
@@ -640,7 +670,13 @@ class BatteryAnalysis:
         [3]: 从Test Date提取的日期
         [4]: 从cycleBegin提取的原始日期
         """
-        return [self.listAllBatteryCharge, self.listBatteryName, self.listTimeStamp, self.test_date, self.original_cycle_date]
+        return [
+            self.listAllBatteryCharge, 
+            self.listBatteryName, 
+            self.listTimeStamp, 
+            self.test_date, 
+            self.original_cycle_date
+        ]
 
     def UBA_GetErrorLog(self) -> str:
         return self.strErrorLog

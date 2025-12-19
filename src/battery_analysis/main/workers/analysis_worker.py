@@ -168,14 +168,16 @@ class AnalysisWorker(QC.QRunnable):
                                 try:
                                     # 尝试处理标准日期格式 YYYY-MM-DD
                                     if '-' in original_cycle_date:
-                                        date_part = original_cycle_date.split(
-                                            ' ')[0] if ' ' in original_cycle_date else original_cycle_date
+                                        date_part = original_cycle_date.split(' ')[0] \
+                                            if ' ' in original_cycle_date else \
+                                            original_cycle_date
                                         [sy, sm, sd] = date_part.split("-")
                                         self.str_test_date = f"{sy}{sm}{sd}"
                                     elif '/' in original_cycle_date:
                                         # 尝试处理 YYYY/MM/DD 格式
-                                        date_part = original_cycle_date.split(
-                                            ' ')[0] if ' ' in original_cycle_date else original_cycle_date
+                                        date_part = original_cycle_date.split(' ')[0] \
+                                            if ' ' in original_cycle_date else \
+                                            original_cycle_date
                                         [sy, sm, sd] = date_part.split("/")
                                         self.str_test_date = f"{sy}{sm}{sd}"
                                     else:
@@ -206,7 +208,8 @@ class AnalysisWorker(QC.QRunnable):
 
                 # 重命名目录
                 try:
-                    final_dir = f"{self.str_output_path}/{self.str_test_date}_V{self.list_test_info[16]}"
+                    final_dir = f"{self.str_output_path}/" \
+                        f"{self.str_test_date}_V{self.list_test_info[16]}"
                     if os.path.exists(final_dir):
                         shutil.rmtree(final_dir)
 

@@ -21,7 +21,8 @@ def csv_write(_strMessage, csv_writer, buffer, buffer_size, max_buffer_size):
     buffer_size += 1
 
     # 当缓冲区达到一定大小或写入特定标记时，批量写入文件
-    if buffer_size >= max_buffer_size or (_strMessage and isinstance(_strMessage, str) and "#END HEADER" in _strMessage):
+    if (buffer_size >= max_buffer_size or 
+        (_strMessage and isinstance(_strMessage, str) and "#END HEADER" in _strMessage)):
         csv_writer.writerows(buffer)
         buffer.clear()
         buffer_size = 0

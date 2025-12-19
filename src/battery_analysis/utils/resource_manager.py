@@ -1,5 +1,17 @@
+"""
+资源管理器模块，用于根据系统负载动态调整并行处理的资源使用
+
+提供了获取最优进程数和处理上下文的功能，能够根据CPU使用率和内存情况
+动态调整并行处理的资源分配，以确保系统性能和稳定性。
+"""
 import multiprocessing
 import logging
+
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 
 
 class ResourceManager:
@@ -25,41 +37,39 @@ class ResourceManager:
         # 设置合理的进程数上限
         max_processes = min(cpu_count, max_processes_default)
 
-        try:
-            import psutil
+        if PSUTIL_AVAILABLE:
+            try:
+                # 检测系统CPU使用率（1秒平均值）
+                cpu_usage = psutil.cpu_percent(interval=1, percpu=False)
+                logging.info("当前系统CPU使用率: %.2f%%", cpu_usage)
 
-            # 检测系统CPU使用率（1秒平均值）
-            cpu_usage = psutil.cpu_percent(interval=1, percpu=False)
-            logging.info("当前系统CPU使用率: %.2f%%", cpu_usage)
+                # 根据CPU使用率动态调整进程数
+                if cpu_usage > 80:
+                    # 系统高负载：仅使用较少核心
+                    max_processes = min(max_processes_default, 2)
+                    logging.info("系统高负载，调整进程数为: %d", max_processes)
+                elif cpu_usage > 50:
+                    # 系统中负载：使用一半核心
+                    max_processes = min(max_processes_default,
+                                        max(2, cpu_count // 2))
+                    logging.info("系统中负载，调整进程数为: %d", max_processes)
+                else:
+                    # 系统低负载：使用默认进程数
+                    max_processes = max_processes_default
+                    logging.info("系统低负载，使用进程数: %d", max_processes)
 
-            # 根据CPU使用率动态调整进程数
-            if cpu_usage > 80:
-                # 系统高负载：仅使用较少核心
-                max_processes = min(max_processes_default, 2)
-                logging.info("系统高负载，调整进程数为: %d", max_processes)
-            elif cpu_usage > 50:
-                # 系统中负载：使用一半核心
-                max_processes = min(max_processes_default,
-                                    max(2, cpu_count // 2))
-                logging.info("系统中负载，调整进程数为: %d", max_processes)
-            else:
-                # 系统低负载：使用默认进程数
-                max_processes = max_processes_default
-                logging.info("系统低负载，使用进程数: %d", max_processes)
-
-            # 考虑内存限制（每个进程约100MB内存）
-            available_memory_gb = psutil.virtual_memory().available / (1024 ** 3)
-            memory_based_processes = int(
-                available_memory_gb * 10)  # 每100MB内存一个进程
-            max_processes = min(max_processes, memory_based_processes)
-            logging.info("考虑内存限制后，调整进程数为: %d", max_processes)
-
-        except ImportError:
+                # 考虑内存限制（每个进程约100MB内存）
+                available_memory_gb = psutil.virtual_memory().available / (1024 ** 3)
+                memory_based_processes = int(
+                    available_memory_gb * 10)  # 每100MB内存一个进程
+                max_processes = min(max_processes, memory_based_processes)
+                logging.info("考虑内存限制后，调整进程数为: %d", max_processes)
+            except (psutil.Error, OSError) as e:
+                # 捕获psutil相关的具体异常
+                logging.error("获取系统资源信息时出错: %s", str(e))
+        else:
             # 如果psutil不可用，使用默认值
             logging.warning("psutil库不可用，使用默认进程数")
-        except Exception as e:
-            # 捕获其他异常，避免影响程序运行
-            logging.error("动态调整进程数时出错: %s", str(e))
 
         # 确保进程数在合理范围内
         max_processes = max(max_processes, min_processes)

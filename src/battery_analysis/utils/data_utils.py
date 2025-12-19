@@ -1,4 +1,10 @@
-def filter_data(_listPltCharge: list, _listPltVoltage: list, _intTimes=5, _floatSlopeMax=0.2, _floatDifferenceMax=0.05):
+def filter_data(
+    _listPltCharge: list, 
+    _listPltVoltage: list, 
+    _intTimes=5, 
+    _floatSlopeMax=0.2, 
+    _floatDifferenceMax=0.05
+):
     _listPltChargeFiltered = []
     _listPltVoltageFiltered = []
     for _p in range(len(_listPltCharge)):
@@ -17,7 +23,8 @@ def filter_data(_listPltCharge: list, _listPltVoltage: list, _intTimes=5, _float
                 if slope >= _floatSlopeMax:
                     pass
                 else:
-                    if abs(_listPltVoltageSingle[_c] - _listPltVoltageSingle[_c - 1]) >= _floatDifferenceMax:
+                    if abs(_listPltVoltageSingle[_c] - 
+                           _listPltVoltageSingle[_c - 1]) >= _floatDifferenceMax:
                         pass
                     else:
                         _listPltChargeSingleTemp.append(
