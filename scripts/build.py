@@ -104,7 +104,8 @@ class BuildManager(BuildConfig):
                     with open(init_file_path, 'w', encoding='utf-8') as f:
                         f.write(original_init_content)
                     logger.info("已恢复原始__init__.py文件")
-                except (FileNotFoundError, PermissionError, IsADirectoryError, OSError, UnicodeEncodeError) as e:
+                except (FileNotFoundError, PermissionError, IsADirectoryError,
+                    OSError, UnicodeEncodeError) as e:
                     logger.error("恢复原始__init__.py文件时出错: %s", e)
 
     def embed_version_in_init(self):
@@ -132,7 +133,8 @@ class BuildManager(BuildConfig):
 
             # 返回原始内容，以便稍后恢复
             return content
-        except (FileNotFoundError, PermissionError, IsADirectoryError, OSError, UnicodeDecodeError) as e:
+        except (FileNotFoundError, PermissionError, IsADirectoryError,
+                    OSError, UnicodeDecodeError) as e:
             logger.error("嵌入版本号时出错: %s", e)
             return None
 
@@ -180,8 +182,8 @@ class BuildManager(BuildConfig):
     def _generate_vs_version_info(self, commit_id, app_name):
         """生成Visual Studio版本信息结构"""
         version_split = self.version.split(".")
-        for i in range(len(version_split)):
-            if version_split[i] == "-1":
+        for i, version_part in enumerate(version_split):
+            if version_part == "-1":
                 version_split[i] = "0"
 
         # 确保版本号至少有三位，不足则补0
@@ -245,7 +247,9 @@ VSVersionInfo(
         else:
             # Debug版本：battery-analyzer_2.0.0_x64_debug.exe
             dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}_debug.exe"
-            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}_debug.exe"
+            # 使用字符串拼接代替f-string以减少行长度
+            imagemaker_exe_name = "battery-analysis-visualizer_" + \
+                f"{self.version}_{architecture}_debug.exe"
 
         # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
         exe_path = build_dir / dataconverter_exe_name
@@ -297,12 +301,10 @@ VSVersionInfo(
     def update_version_and_commit(self):
         """更新版本并提交更改 - 该方法已废弃，版本号直接从pyproject.toml读取"""
         logger.warning("版本号管理已简化，直接从pyproject.toml读取，不再需要更新版本和提交更改")
-        return
 
     def _update_version_files(self):
         """更新版本相关文件 - 该方法已废弃"""
         logger.warning("版本号管理已简化，不再需要更新版本文件")
-        return
 
     def copy2dir(self):
         """复制源文件到构建目录"""
@@ -399,8 +401,8 @@ VSVersionInfo(
         final_build_dir = self.project_root / 'build' / self.build_type
         final_build_dir.mkdir(parents=True, exist_ok=True)
 
-        # 获取Python解释器路径
-        python_exe = sys.executable
+        # 获取Python解释器路径（已注释，因为未使用）
+        # python_exe = sys.executable
 
         # 复制必要的图标（如果copy2dir方法未处理）
         icon_path = self.project_root / 'config' / \
@@ -489,8 +491,8 @@ VSVersionInfo(
         spec_content += ')'
 
         with open(
-            os.path.join(self.build_path, 'Build_BatteryAnalysis', 'build.spec'), 
-            'w', 
+            os.path.join(self.build_path, 'Build_BatteryAnalysis', 'build.spec'),
+            'w',
             encoding='utf-8'
         ) as f:
             f.write(spec_content)
@@ -498,7 +500,6 @@ VSVersionInfo(
             # 执行 pyinstaller 命令
             logger.info("开始构建 %s...", dataconverter_exe_name)
             # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
-            import subprocess
 
             # 查找Python DLL路径 - 改进版本，适配GitHub Actions环境
             python_dll = None
@@ -532,7 +533,7 @@ VSVersionInfo(
                 sys.executable, '-m', 'PyInstaller',
                 '-F', 'main_window.py',
                 f'--name={dataconverter_exe_name}',
-                f'--icon=Icon_BatteryAnalysis.ico',
+                '--icon=Icon_BatteryAnalysis.ico',
                 f'--distpath={final_build_dir}',
                 f'--workpath={temp_path}/DataConverter',
                 '--log-level=DEBUG',
@@ -540,7 +541,7 @@ VSVersionInfo(
                 *(['--strip'] if not debug_mode else []),
                 *(['--noconsole'] if not (self.console_mode or debug_mode)
                   else ['--console']),
-                f'--version-file=version.txt',
+                '--version-file=version.txt',
                 # 禁用UPX压缩以避免DLL加载问题
                 '--noupx',
                 # 确保Python DLL正确包含
@@ -563,10 +564,14 @@ VSVersionInfo(
                 # 添加配置文件 - 使用绝对路径并确保正确的目标目录结构
                 f'--add-data={os.path.abspath(os.path.join(self.project_root, "config"))};config',
                 # 添加图标资源目录
-                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
+                '--add-data=' + \
+                os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons")) + \
+                ';config/resources/icons',
                 # 额外添加配置文件到根目录，确保file_writer.py能找到
-                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
-                f'--add-data={os.path.join(self.project_root, "pyproject.toml")};.',
+                '--add-data=' + 
+                os.path.abspath(os.path.join(self.project_root, "config", "setting.ini")) + ';.',
+                '--add-data=' + \
+                os.path.join(self.project_root, "pyproject.toml") + ';.',
                 # 添加必要的hidden-import，确保模块能被找到
                 '--hidden-import=matplotlib.backends.backend_svg',
                 '--hidden-import=docx',
@@ -578,7 +583,7 @@ VSVersionInfo(
                 '--hidden-import=battery_analysis.utils.version',
                 '--hidden-import=battery_analysis.utils.file_writer',
                 '--hidden-import=battery_analysis.utils.battery_analysis',
-                '--hidden-import=battery_analysis.ui.ui_main_window',
+                '--hidden-import=battery_analysis.ui.ui_main_window'
 
                 '--hidden-import=xlsxwriter',
                 '--collect-all=xlsxwriter',
@@ -668,13 +673,13 @@ VSVersionInfo(
         spec_content += '    version="version.txt",\n'
         spec_content += ')'
 
-        with open(os.path.join(self.build_path, 'Build_ImageShow', 'build.spec'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(self.build_path, 'Build_ImageShow', 'build.spec'),
+                  'w', encoding='utf-8') as f:
             f.write(spec_content)
 
         # 执行 pyinstaller 命令
         logger.info("开始构建 %s...", imagemaker_exe_name)
         # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
-        import subprocess
 
         # 简化Python DLL处理，优先使用CI环境变量中的路径
         # 将复杂的环境特定逻辑移至CI配置中，本地构建仍能工作
@@ -712,12 +717,12 @@ VSVersionInfo(
         cmd_args = [sys.executable, '-m', 'PyInstaller', 'image_show.py',
                     f'--name={imagemaker_exe_name}',
                     '--onefile',  # 添加此参数生成单个可执行文件
-                    f'--icon=Icon_ImageShow.ico',
+                    '--icon=Icon_ImageShow.ico',
                     f'--distpath={final_build_dir}',
                     f'--workpath={temp_path}/ImageMaker',
                     '--log-level=DEBUG',
                     '--noupx',
-                    f'--version-file=version.txt',
+                    '--version-file=version.txt',
                     # 移除--runtime-tmpdir参数，让PyInstaller使用默认的临时目录处理机制
                     # 这样可以避免硬编码路径带来的权限和路径格式问题
                     '--collect-all=pywin32']
@@ -732,7 +737,10 @@ VSVersionInfo(
         cmd_args.extend([
             f'--add-data={src_path};src',
             f'--add-data={self.project_root / "config"};config',
-            f'--add-data={self.project_root / "config" / "resources" / "icons"};config/resources/icons',
+            # 拆分长行以符合PEP8规范
+            '--add-data=' + \
+            str(self.project_root / "config" / "resources" / "icons") + \
+            ';config/resources/icons',
             f'--add-data={self.project_root / "pyproject.toml"};.',
             f'--add-data={self.project_root / "config" / "setting.ini"};.',
             '--hidden-import=matplotlib.backends.backend_svg',

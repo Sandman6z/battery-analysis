@@ -1,289 +1,114 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 15:51:59
+- 分析日期: 2025-12-19 16:19:53
 - 总文件数: 19
 - 存在问题的文件数: 19
 
 ## 文件: scripts\build.py
 
 ### 问题统计
-- 问题总数: 45
-- 错误(Error): 7
-- 警告(Warning): 21
-- 规范(Convention): 14
-- 重构(Refactor): 3
+- 问题总数: 16
+- 警告(Warning): 9
+- 规范(Convention): 3
+- 重构(Refactor): 4
 
 ### 详细问题
-#### 行 1, 列 0
-- 类型: convention
-- 代码: C0114
-- 描述: Missing module docstring
-- 符号: missing-module-docstring
-
-#### 行 1, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused BuildException imported from battery_analysis.utils.exception_type
-- 符号: unused-import
-
-#### 行 2, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import sys" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 3, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import os" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 4, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import shutil" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 5, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import datetime" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 5, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import datetime
-- 符号: unused-import
-
-#### 行 6, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import configparser" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 7, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import subprocess" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 8, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "from pathlib import Path" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 9, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: third party import "from git import Repo" should be placed before "from battery_analysis.utils.exception_type import BuildException"
-- 符号: wrong-import-order
-
-#### 行 9, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Repo imported from git
-- 符号: unused-import
-
-#### 行 10, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "import logging" should be placed before "from git import Repo"
-- 符号: wrong-import-order
-
-#### 行 37, 列 4
+#### 行 41, 列 4
 - 类型: warning
 - 代码: W0237
 - 描述: Parameter 'optionstr' has been renamed to 'option_str' in overriding 'CaseSensitiveConfigParser.optionxform' method
 - 符号: arguments-renamed
 
-#### 行 41, 列 0
-- 类型: refactor
-- 代码: R0902
-- 描述: Too many instance attributes (9/7)
-- 符号: too-many-instance-attributes
-
-#### 行 44, 列 23
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'build_type' from outer scope (line 810)
-- 符号: redefined-outer-name
-
-#### 行 53, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (tomllib)
-- 符号: import-outside-toplevel
-
-#### 行 58, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 77, 列 23
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'build_type' from outer scope (line 810)
-- 符号: redefined-outer-name
-
-#### 行 111, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 139, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 187, 列 8
+#### 行 183, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 303, 列 15
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'BuildManager' has no 'git_repo' member
-- 符号: no-member
+#### 行 297, 列 4
+- 类型: refactor
+- 代码: R1711
+- 描述: Useless return at end of function or method
+- 符号: useless-return
 
-#### 行 303, 列 36
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'BuildManager' has no 'git_index' member
-- 符号: no-member
+#### 行 302, 列 4
+- 类型: refactor
+- 代码: R1711
+- 描述: Useless return at end of function or method
+- 符号: useless-return
 
-#### 行 303, 列 58
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'BuildManager' has no 'git' member
-- 符号: no-member
-
-#### 行 317, 列 23
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'BuildManager' has no 'git_repo' member
-- 符号: no-member
-
-#### 行 317, 列 71
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'BuildManager' has no 'git_repo' member
-- 符号: no-member
-
-#### 行 323, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 328, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 334, 列 18
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'BuildManager' has no 'config_path' member
-- 符号: no-member
-
-#### 行 335, 列 12
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'BuildManager' has no 'config' member
-- 符号: no-member
-
-#### 行 411, 列 4
+#### 行 381, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (19/12)
 - 符号: too-many-branches
 
-#### 行 411, 列 4
+#### 行 381, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (192/50)
 - 符号: too-many-statements
 
-#### 行 433, 列 8
+#### 行 403, 列 8
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'python_exe'
 - 符号: unused-variable
 
-#### 行 531, 列 12
+#### 行 501, 列 12
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'subprocess' from outer scope (line 7)
+- 描述: Redefining name 'subprocess' from outer scope (line 9)
 - 符号: redefined-outer-name
 
-#### 行 531, 列 12
+#### 行 501, 列 12
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'subprocess' (imported line 7)
+- 描述: Reimport 'subprocess' (imported line 9)
 - 符号: reimported
 
-#### 行 531, 列 12
+#### 行 501, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (subprocess)
 - 符号: import-outside-toplevel
 
-#### 行 565, 列 16
+#### 行 535, 列 16
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 573, 列 16
+#### 行 543, 列 16
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 635, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 707, 列 8
+#### 行 677, 列 8
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'subprocess' (imported line 7)
+- 描述: Reimport 'subprocess' (imported line 9)
 - 符号: reimported
 
-#### 行 707, 列 8
+#### 行 677, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (subprocess)
 - 符号: import-outside-toplevel
 
-#### 行 745, 列 20
+#### 行 715, 列 20
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 750, 列 20
+#### 行 720, 列 20
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
-
-#### 行 798, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 ## 文件: scripts\run_pylint.py
 
@@ -462,16 +287,10 @@
 ## 文件: src\battery_analysis\__init__.py
 
 ### 问题统计
-- 问题总数: 2
-- 规范(Convention): 2
+- 问题总数: 1
+- 规范(Convention): 1
 
 ### 详细问题
-#### 行 17, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 17, 列 0
 - 类型: convention
 - 代码: C0413
