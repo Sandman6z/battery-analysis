@@ -1,17 +1,16 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 16:19:53
+- 分析日期: 2025-12-19 17:03:30
 - 总文件数: 19
 - 存在问题的文件数: 19
 
 ## 文件: scripts\build.py
 
 ### 问题统计
-- 问题总数: 16
-- 警告(Warning): 9
-- 规范(Convention): 3
-- 重构(Refactor): 4
+- 问题总数: 3
+- 警告(Warning): 1
+- 重构(Refactor): 2
 
 ### 详细问题
 #### 行 41, 列 4
@@ -20,95 +19,17 @@
 - 描述: Parameter 'optionstr' has been renamed to 'option_str' in overriding 'CaseSensitiveConfigParser.optionxform' method
 - 符号: arguments-renamed
 
-#### 行 183, 列 8
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 297, 列 4
-- 类型: refactor
-- 代码: R1711
-- 描述: Useless return at end of function or method
-- 符号: useless-return
-
-#### 行 302, 列 4
-- 类型: refactor
-- 代码: R1711
-- 描述: Useless return at end of function or method
-- 符号: useless-return
-
-#### 行 381, 列 4
+#### 行 383, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (19/12)
 - 符号: too-many-branches
 
-#### 行 381, 列 4
+#### 行 383, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (192/50)
+- 描述: Too many statements (189/50)
 - 符号: too-many-statements
-
-#### 行 403, 列 8
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'python_exe'
-- 符号: unused-variable
-
-#### 行 501, 列 12
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'subprocess' from outer scope (line 9)
-- 符号: redefined-outer-name
-
-#### 行 501, 列 12
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'subprocess' (imported line 9)
-- 符号: reimported
-
-#### 行 501, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (subprocess)
-- 符号: import-outside-toplevel
-
-#### 行 535, 列 16
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 543, 列 16
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 677, 列 8
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'subprocess' (imported line 9)
-- 符号: reimported
-
-#### 行 677, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (subprocess)
-- 符号: import-outside-toplevel
-
-#### 行 715, 列 20
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 720, 列 20
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
 
 ## 文件: scripts\run_pylint.py
 

@@ -380,6 +380,159 @@ VSVersionInfo(
         shutil.copytree(battery_analysis_src,
                         battery_analysis_dest_img, dirs_exist_ok=True)
 
+    def _find_python_dll(self):
+        """查找Python DLL路径"""
+        # 1. 优先检查CI环境变量中设置的DLL路径（用于GitHub Actions）
+        ci_dll_path = os.environ.get('PYTHON_DLL_PATH')
+        if ci_dll_path and os.path.exists(ci_dll_path):
+            logger.info("使用CI环境变量中的Python DLL路径: %s", ci_dll_path)
+            return ci_dll_path
+        else:
+            logger.info("未找到CI环境变量中的Python DLL路径，尝试本地路径")
+            # 2. 本地环境的基本路径查找
+            python_exec_dir = Path(sys.executable).parent
+            basic_paths = [
+                os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'python311.dll'),
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', 'python311.dll'),
+                os.path.join(os.environ.get('PYTHONHOME', ''), 'python311.dll'),
+                python_exec_dir / 'python311.dll',
+                Path(sys.prefix) / 'python311.dll',
+                'python311.dll'  # 让PyInstaller尝试在PATH中查找
+            ]
+
+            for path in basic_paths:
+                logger.debug("检查DLL路径: %s", path)
+                if os.path.exists(path):
+                    logger.info("找到Python DLL: %s", path)
+                    return str(path)
+
+            # 如果未找到DLL，记录警告
+            logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
+            logger.warning("尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
+            return None
+
+    def _generate_spec_content(self, app_name, exe_name, icon_name, main_file, datas_mapping):
+        """生成PyInstaller spec文件内容"""
+        debug_mode = self.build_type == "Debug"
+        project_root_escaped = str(self.project_root).replace('\\', '\\\\')
+        src_path_escaped = str(self.project_root / 'src').replace('\\', '\\\\')
+
+        # 构建hiddenimports
+        hiddenimports = [
+            "matplotlib.backends.backend_svg", "battery_analysis",
+            "battery_analysis.main", "battery_analysis.ui",
+            "battery_analysis.utils", "docx"
+        ]
+        if app_name == "ImageShow":
+            hiddenimports.extend(["src", "src.battery_analysis", "src.battery_analysis.utils"])
+
+        # 构建datas
+        config_path = os.path.join(self.project_root, "config").replace("\\", "\\\\")
+        pyproject_path = os.path.join(self.project_root, "pyproject.toml").replace("\\", "\\\\")
+        
+        # 先构建datas的各个元素
+        datas_elements = [
+            f'"{src_path_escaped}", "{datas_mapping.get("src", ".")}"',
+            f'"{config_path}", "config"',
+            f'"{pyproject_path}", "."'
+        ]
+        
+        if app_name == "BatteryAnalysis":
+            battery_analysis_path = os.path.join(src_path_escaped, "battery_analysis").replace("\\", "\\\\")
+            datas_elements.insert(1, f'"{battery_analysis_path}", "battery_analysis"')
+        
+        # 然后用括号包裹每个元素
+        datas = [f'({elem})' for elem in datas_elements]
+
+        # 构建hiddenimports字符串
+        hiddenimports_str = ', '.join(['"' + imp + '"' for imp in hiddenimports])
+        
+        # 构建控制台模式字符串
+        console_mode = str(self.console_mode or debug_mode).lower()
+        debug_mode_str = str(debug_mode).lower()
+        strip_mode = str(not debug_mode).lower()
+        upx_mode = str(not debug_mode).lower()
+        
+        # 使用字符串格式方法来构建完整的spec_content
+        spec_content = '''# -*- mode: python ; coding: utf-8 -*-
+block_cipher = None
+a = Analysis(
+    [{0}],
+    pathex=["{1}", "{2}"],
+    binaries=[],
+    datas=[
+        {3}
+    ],
+    hiddenimports=[
+        {4}
+    ],
+    hookspath=[],
+    hooksconfig={{}},
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name="{5}",
+    debug={6},
+    bootloader_ignore_signals=False,
+    strip={7},
+    upx={8},
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console={9},
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon="./{10}",
+    version="version.txt",
+)
+'''.format(
+    main_file,
+    project_root_escaped,
+    src_path_escaped,
+    ',\n        '.join(datas),
+    hiddenimports_str,
+    exe_name,
+    debug_mode_str,
+    strip_mode,
+    upx_mode,
+    console_mode,
+    icon_name
+)
+        return spec_content
+
+    def _execute_pyinstaller_command(self, app_dir, cmd_args):
+        """执行PyInstaller命令"""
+        try:
+            result = subprocess.run(
+                cmd_args,
+                cwd=app_dir,
+                check=False,
+                capture_output=True,
+                encoding='utf-8'
+            )
+            logger.info("构建结果: %s", result.returncode)
+            if result.stderr:
+                logger.error("错误输出: %s", result.stderr)
+            return result
+        except (FileNotFoundError, PermissionError, OSError, subprocess.SubprocessError) as e:
+            logger.error("执行命令时出错: %s", e)
+            return subprocess.CompletedProcess(cmd_args, 1)
+
     def build(self):
         """构建应用程序"""
         logger.info('开始构建...')
@@ -391,26 +544,9 @@ VSVersionInfo(
         build_path = Path(self.build_path)
         build_path.mkdir(parents=True, exist_ok=True)
 
-        # 确保 Build_BatteryAnalysis 和 Build_ImageShow 目录存在
-        battery_analysis_dir = build_path / 'Build_BatteryAnalysis'
-        image_show_dir = build_path / 'Build_ImageShow'
-        battery_analysis_dir.mkdir(exist_ok=True)
-        image_show_dir.mkdir(exist_ok=True)
-
         # 确保 build 目录存在并添加构建类型子目录
         final_build_dir = self.project_root / 'build' / self.build_type
         final_build_dir.mkdir(parents=True, exist_ok=True)
-
-        # 获取Python解释器路径（已注释，因为未使用）
-        # python_exe = sys.executable
-
-        # 复制必要的图标（如果copy2dir方法未处理）
-        icon_path = self.project_root / 'config' / \
-            'resources' / 'icons' / 'Icon_BatteryTestGUI.ico'
-        if icon_path.exists():
-            shutil.copy2(icon_path, battery_analysis_dir /
-                         'Icon_BatteryAnalysis.ico')
-            shutil.copy2(icon_path, image_show_dir / 'Icon_ImageShow.ico')
 
         src_path = self.project_root / 'src'
 
@@ -427,355 +563,128 @@ VSVersionInfo(
             dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}_debug"
             imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}_debug"
 
-        # 为DataConverter生成spec文件
-        # 构建参数设置，Debug模式和Release模式有所区别
-        debug_mode = self.build_type == "Debug"
+        # 应用程序配置列表：统一管理BatteryAnalysis和ImageShow参数
+        apps_config = [
+            {
+                "name": "BatteryAnalysis",
+                "build_dir": build_path / "Build_BatteryAnalysis",
+                "exe_name": dataconverter_exe_name,
+                "icon_name": "Icon_BatteryAnalysis.ico",
+                "main_file": '["main_window.py"]',
+                "datas_mapping": {".": ".", "battery_analysis": "battery_analysis"},
+                "spec_hidden_imports": [
+                    "matplotlib.backends.backend_svg", "battery_analysis",
+                    "battery_analysis.main", "battery_analysis.ui",
+                    "battery_analysis.utils", "docx"
+                ],
+                "pyinstaller_args": [
+                    '-F', 'main_window.py',
+                    '--add-data', f'{src_path};.',
+                    '--add-data', f'{os.path.join(src_path, "battery_analysis")};battery_analysis',
+                    '--hidden-import', 'matplotlib.backends.backend_svg',
+                    '--hidden-import', 'docx',
+                    '--hidden-import', 'openpyxl',
+                    '--hidden-import', 'battery_analysis',
+                    '--hidden-import', 'battery_analysis.main',
+                    '--hidden-import', 'battery_analysis.ui',
+                    '--hidden-import', 'battery_analysis.utils',
+                    '--hidden-import', 'battery_analysis.utils.version',
+                    '--hidden-import', 'battery_analysis.utils.file_writer',
+                    '--hidden-import', 'battery_analysis.utils.battery_analysis',
+                    '--hidden-import', 'battery_analysis.ui.ui_main_window'
+                ]
+            },
+            {
+                "name": "ImageShow",
+                "build_dir": build_path / "Build_ImageShow",
+                "exe_name": imagemaker_exe_name,
+                "icon_name": "Icon_ImageShow.ico",
+                "main_file": '["image_show.py", "resources/resources_rc.py"]',
+                "datas_mapping": {"src": "src"},
+                "spec_hidden_imports": [
+                    "matplotlib.backends.backend_svg", "src",
+                    "src.battery_analysis", "src.battery_analysis.utils",
+                    "docx"
+                ],
+                "pyinstaller_args": [
+                    '--onefile', 'image_show.py'
+                ]
+            }
+        ]
 
-        # 使用简单的字符串拼接方式，并处理路径转义
-        project_root_escaped = str(project_root).replace('\\', '\\\\')
-        src_path_escaped = str(src_path).replace('\\', '\\\\')
+        # 复制必要的图标
+        icon_path = self.project_root / 'config' / 'resources' / 'icons' / 'Icon_BatteryTestGUI.ico'
+        if icon_path.exists():
+            for app in apps_config:
+                app["build_dir"].mkdir(exist_ok=True)
+                shutil.copy2(icon_path, app["build_dir"] / app["icon_name"])
 
-        spec_content = '# -*- mode: python ; coding: utf-8 -*-\n'
-        spec_content += 'block_cipher = None\n'
-        spec_content += 'a = Analysis(\n'
-        spec_content += '    ["main_window.py"],\n'
-        spec_content += '    pathex=["' + project_root_escaped + \
-            '", "' + src_path_escaped + '"],\n'
-        spec_content += '    binaries=[],\n'
-        spec_content += '    datas=[\n'
-        spec_content += '        ("' + src_path_escaped + '", "."),\n'
-        spec_content += '        ("' + os.path.join(src_path_escaped, 'battery_analysis') \
-            .replace('\\', '\\\\') + '", "battery_analysis"),\n'
-        spec_content += '        ("' + os.path.join(self.project_root, 'config') \
-            .replace('\\', '\\\\') + '", "config"),\n'
-        spec_content += '        ("' + os.path.join(self.project_root, 'pyproject.toml') \
-            .replace('\\', '\\\\') + '", ".")\n'
-        spec_content += '    ],\n'
-        spec_content += '    hiddenimports=[\n'
-        spec_content += '        "matplotlib.backends.backend_svg", "battery_analysis",\n'
-        spec_content += '        "battery_analysis.main", "battery_analysis.ui",\n'
-        spec_content += '        "battery_analysis.utils", "docx"\n'
-        spec_content += '    ],\n'
-        spec_content += '    hookspath=[],\n'
-        spec_content += '    hooksconfig={},\n'
-        spec_content += '    runtime_hooks=[],\n'
-        spec_content += '    excludes=[],\n'
-        spec_content += '    win_no_prefer_redirects=False,\n'
-        spec_content += '    win_private_assemblies=False,\n'
-        spec_content += '    cipher=block_cipher,\n'
-        spec_content += '    noarchive=False,\n'
-        spec_content += ')\n'
-        spec_content += 'pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)\n'
-        spec_content += 'exe = EXE(\n'
-        spec_content += '    pyz,\n'
-        spec_content += '    a.scripts,\n'
-        spec_content += '    a.binaries,\n'
-        spec_content += '    a.zipfiles,\n'
-        spec_content += '    a.datas,\n'
-        spec_content += '    [],\n'
-        spec_content += '    name="' + dataconverter_exe_name + '",\n'
-        spec_content += f'    debug={debug_mode},\n'
-        spec_content += '    bootloader_ignore_signals=False,\n'
-        spec_content += f'    strip={not debug_mode},\n'
-        spec_content += f'    upx={not debug_mode},\n'
-        spec_content += '    upx_exclude=[],\n'
-        spec_content += '    runtime_tmpdir=None,\n'
-        spec_content += f'    console={self.console_mode or debug_mode},\n'
-        spec_content += '    disable_windowed_traceback=False,\n'
-        spec_content += '    argv_emulation=False,\n'
-        spec_content += '    target_arch=None,\n'
-        spec_content += '    codesign_identity=None,\n'
-        spec_content += '    entitlements_file=None,\n'
-        spec_content += '    icon="./Icon_BatteryAnalysis.ico",\n'
-        spec_content += '    version="version.txt",\n'
-        spec_content += ')'
-
-        with open(
-            os.path.join(self.build_path, 'Build_BatteryAnalysis', 'build.spec'),
-            'w',
-            encoding='utf-8'
-        ) as f:
-            f.write(spec_content)
-
-            # 执行 pyinstaller 命令
-            logger.info("开始构建 %s...", dataconverter_exe_name)
-            # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
-
-            # 查找Python DLL路径 - 改进版本，适配GitHub Actions环境
-            python_dll = None
-
-            # 首先尝试直接从Python安装目录查找
-            python_home = os.path.dirname(os.path.dirname(sys.executable))
-
-            # 添加更多可能的DLL路径，包括GitHub Actions环境中的常见位置
-            possible_dll_paths = [
-                os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
-                os.path.join(python_home, 'python311.dll'),
-                os.path.join(python_home, 'DLLs', 'python311.dll'),
-                os.path.join(os.environ.get(
-                    'PYTHONHOME', ''), 'python311.dll'),
-                'python311.dll'  # 让PyInstaller尝试在PATH中查找
-            ]
-
-            # 查找python311.dll
-            for path in possible_dll_paths:
-                if os.path.exists(path):
-                    python_dll = path
-                    break
-
-            # 如果找到DLL，则添加警告
-            if not python_dll:
-                logger.warning("Could not find python311.dll")
-
-            # 构建命令参数列表（切换为命令行方式，避免 spec 执行异常）
-            # Windows 下 --add-data 使用分号分隔： 源路径;目标目录
+        # 构建两个应用程序
+        for app_config in apps_config:
+            # 生成spec文件内容
+            spec_content = self._generate_spec_content(
+                app_config["name"],
+                app_config["exe_name"],
+                app_config["icon_name"],
+                app_config["main_file"],
+                app_config["datas_mapping"]
+            )
+            
+            # 写入spec文件
+            spec_file_path = app_config["build_dir"] / 'build.spec'
+            with open(spec_file_path, 'w', encoding='utf-8') as f:
+                f.write(spec_content)
+            
+            # 构建PyInstaller命令参数
             cmd_args = [
                 sys.executable, '-m', 'PyInstaller',
-                '-F', 'main_window.py',
-                f'--name={dataconverter_exe_name}',
-                '--icon=Icon_BatteryAnalysis.ico',
+                f'--name={app_config["exe_name"]}',
+                f'--icon={app_config["icon_name"]}',
                 f'--distpath={final_build_dir}',
-                f'--workpath={temp_path}/DataConverter',
+                f'--workpath={temp_path}/{app_config["name"]}',
                 '--log-level=DEBUG',
                 '--noupx',
-                *(['--strip'] if not debug_mode else []),
-                *(['--noconsole'] if not (self.console_mode or debug_mode)
-                  else ['--console']),
                 '--version-file=version.txt',
-                # 禁用UPX压缩以避免DLL加载问题
-                '--noupx',
-                # 确保Python DLL正确包含
-                # 移除--runtime-tmpdir参数，让PyInstaller使用默认的临时目录处理机制
-                # 这样可以避免硬编码路径带来的权限和路径格式问题
-                # 确保所有依赖的DLL都被正确包含
                 '--collect-all=pywin32'
             ]
-
-            # 添加Python DLL路径（如果找到）
-            if python_dll:
-                cmd_args.append('--add-binary=' + python_dll + ';.')
-
-            # 添加其他参数
+            
+            # 添加应用程序特定参数
+            cmd_args.extend(app_config["pyinstaller_args"])
+            
+            # 添加通用参数
             cmd_args.extend([
-                # 确保src目录被正确添加
-                f'--add-data={src_path};.',
-                # 添加battery_analysis包目录
-                f'--add-data={os.path.join(src_path, "battery_analysis")};battery_analysis',
-                # 添加配置文件 - 使用绝对路径并确保正确的目标目录结构
-                f'--add-data={os.path.abspath(os.path.join(self.project_root, "config"))};config',
-                # 添加图标资源目录
-                '--add-data=' + \
-                os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons")) + \
-                ';config/resources/icons',
-                # 额外添加配置文件到根目录，确保file_writer.py能找到
-                '--add-data=' + 
-                os.path.abspath(os.path.join(self.project_root, "config", "setting.ini")) + ';.',
-                '--add-data=' + \
-                os.path.join(self.project_root, "pyproject.toml") + ';.',
-                # 添加必要的hidden-import，确保模块能被找到
-                '--hidden-import=matplotlib.backends.backend_svg',
-                '--hidden-import=docx',
-                '--hidden-import=openpyxl',
-                '--hidden-import=battery_analysis',
-                '--hidden-import=battery_analysis.main',
-                '--hidden-import=battery_analysis.ui',
-                '--hidden-import=battery_analysis.utils',
-                '--hidden-import=battery_analysis.utils.version',
-                '--hidden-import=battery_analysis.utils.file_writer',
-                '--hidden-import=battery_analysis.utils.battery_analysis',
-                '--hidden-import=battery_analysis.ui.ui_main_window'
-
-                '--hidden-import=xlsxwriter',
-                '--collect-all=xlsxwriter',
-                '--collect-all=openpyxl',
-                '--hidden-import=xlrd',
-                '--collect-all=xlrd',
-                # 增加导入路径，确保能找到battery_analysis模块
+                '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config"))};config',
+                '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
+                '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
+                '--add-data', f'{self.project_root / "pyproject.toml"};.',
+                '--hidden-import', 'xlsxwriter',
+                '--collect-all', 'xlsxwriter',
+                '--collect-all', 'openpyxl',
+                '--hidden-import', 'xlrd',
+                '--collect-all', 'xlrd',
                 '--path', f'{src_path}',
                 '--path', f'{self.project_root}'
             ])
-
-            try:
-                # 在指定目录下执行命令
-                result = subprocess.run(
-                    cmd_args,
-                    cwd=os.path.join(self.build_path, 'Build_BatteryAnalysis'),
-                    check=False,
-                    capture_output=True,
-                    encoding='utf-8'
-                )
-                logger.info("BatteryAnalysis构建结果: %s", result.returncode)
-                if result.stderr:
-                    logger.error("错误输出: %s", result.stderr)
-            except (FileNotFoundError, PermissionError, OSError, subprocess.SubprocessError) as e:
-                logger.error("执行命令时出错: %s", e)
-                result = subprocess.CompletedProcess(cmd_args, 1)
-
-        # 为ImageMaker生成spec文件
-        # 构建参数设置，Debug模式和Release模式有所区别
-        debug_mode = self.build_type == "Debug"
-
-        # 使用简单的字符串拼接方式，并处理路径转义
-        # 重新定义转义路径变量，确保在ImageMaker部分也能正确使用
-        project_root_escaped = str(project_root).replace('\\', '\\\\')
-        src_path_escaped = str(src_path).replace('\\', '\\\\')
-
-        spec_content = '# -*- mode: python ; coding: utf-8 -*-\n'
-        spec_content += 'block_cipher = None\n'
-        spec_content += 'a = Analysis(\n'
-        spec_content += '    ["image_show.py", "resources/resources_rc.py"],\n'
-        spec_content += '    pathex=["' + project_root_escaped + \
-            '", "' + src_path_escaped + '"],\n'
-        spec_content += '    binaries=[],\n'
-        spec_content += '    datas=[\n'
-        spec_content += '        ("' + src_path_escaped + '", "src"),\n'
-        spec_content += '        ("' + os.path.join(self.project_root, 'config') \
-            .replace('\\', '\\\\') + '", "config"),\n'
-        spec_content += '        ("' + os.path.join(self.project_root, 'pyproject.toml') \
-            .replace('\\', '\\\\') + '", ".")\n'
-        spec_content += '    ],\n'
-        spec_content += '    hiddenimports=[\n'
-        spec_content += '        "matplotlib.backends.backend_svg", "src",\n'
-        spec_content += '        "src.battery_analysis", "src.battery_analysis.utils",\n'
-        spec_content += '        "docx"\n'
-        spec_content += '    ],\n'
-        spec_content += '    hookspath=[],\n'
-        spec_content += '    hooksconfig={},\n'
-        spec_content += '    runtime_hooks=[],\n'
-        spec_content += '    excludes=[],\n'
-        spec_content += '    win_no_prefer_redirects=False,\n'
-        spec_content += '    win_private_assemblies=False,\n'
-        spec_content += '    cipher=block_cipher,\n'
-        spec_content += '    noarchive=False,\n'
-        spec_content += ')\n'
-        spec_content += 'pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)\n'
-        spec_content += 'exe = EXE(\n'
-        spec_content += '    pyz,\n'
-        spec_content += '    a.scripts,\n'
-        spec_content += '    a.binaries,\n'
-        spec_content += '    a.zipfiles,\n'
-        spec_content += '    a.datas,\n'
-        spec_content += '    [],\n'
-        spec_content += '    name="' + imagemaker_exe_name + '",\n'
-        spec_content += f'    debug={debug_mode},\n'
-        spec_content += '    bootloader_ignore_signals=False,\n'
-        spec_content += f'    strip={not debug_mode},\n'
-        spec_content += f'    upx={not debug_mode},\n'
-        spec_content += '    upx_exclude=[],\n'
-        spec_content += '    runtime_tmpdir=None,\n'
-        spec_content += f'    console={self.console_mode or debug_mode},\n'
-        spec_content += '    disable_windowed_traceback=False,\n'
-        spec_content += '    argv_emulation=False,\n'
-        spec_content += '    target_arch=None,\n'
-        spec_content += '    codesign_identity=None,\n'
-        spec_content += '    entitlements_file=None,\n'
-        spec_content += '    icon="./Icon_ImageShow.ico",\n'
-        spec_content += '    version="version.txt",\n'
-        spec_content += ')'
-
-        with open(os.path.join(self.build_path, 'Build_ImageShow', 'build.spec'),
-                  'w', encoding='utf-8') as f:
-            f.write(spec_content)
-
-        # 执行 pyinstaller 命令
-        logger.info("开始构建 %s...", imagemaker_exe_name)
-        # 在PowerShell中正确处理命令执行，使用subprocess模块自动处理路径中的空格
-
-        # 简化Python DLL处理，优先使用CI环境变量中的路径
-        # 将复杂的环境特定逻辑移至CI配置中，本地构建仍能工作
-        python_dll = None
-
-        # 1. 优先检查CI环境变量中设置的DLL路径（用于GitHub Actions）
-        ci_dll_path = os.environ.get('PYTHON_DLL_PATH')
-        if ci_dll_path and os.path.exists(ci_dll_path):
-            logger.info("使用CI环境变量中的Python DLL路径: %s", ci_dll_path)
-            python_dll = ci_dll_path
-        else:
-            logger.info("未找到CI环境变量中的Python DLL路径，尝试本地路径")
-            # 2. 本地环境的基本路径查找
-            python_exec_dir = Path(sys.executable).parent
-            basic_paths = [
-                python_exec_dir / 'python311.dll',
-                Path(sys.prefix) / 'python311.dll'
-            ]
-
-            for path in basic_paths:
-                logger.debug("检查本地DLL路径: %s", path)
-                if path.exists():
-                    logger.info("找到本地Python DLL: %s", path)
-                    python_dll = str(path)
-                    break
-
-            # 添加错误处理
-            if not python_dll:
-                logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
-                logger.warning(
-                    "尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
-                # 即使未找到DLL，也继续构建过程，但添加警告
-
-        # 构建命令参数列表 - 添加DLL修复参数，不使用spec文件而是直接使用命令行参数
-        cmd_args = [sys.executable, '-m', 'PyInstaller', 'image_show.py',
-                    f'--name={imagemaker_exe_name}',
-                    '--onefile',  # 添加此参数生成单个可执行文件
-                    '--icon=Icon_ImageShow.ico',
-                    f'--distpath={final_build_dir}',
-                    f'--workpath={temp_path}/ImageMaker',
-                    '--log-level=DEBUG',
-                    '--noupx',
-                    '--version-file=version.txt',
-                    # 移除--runtime-tmpdir参数，让PyInstaller使用默认的临时目录处理机制
-                    # 这样可以避免硬编码路径带来的权限和路径格式问题
-                    '--collect-all=pywin32']
-
-        # 如果找到DLL，添加到命令参数
-        if python_dll:
-            cmd_args.append('--add-binary=' + python_dll + ';.')
-        else:
-            logger.warning("Could not find python311.dll")
-
-        # 添加剩余参数
-        cmd_args.extend([
-            f'--add-data={src_path};src',
-            f'--add-data={self.project_root / "config"};config',
-            # 拆分长行以符合PEP8规范
-            '--add-data=' + \
-            str(self.project_root / "config" / "resources" / "icons") + \
-            ';config/resources/icons',
-            f'--add-data={self.project_root / "pyproject.toml"};.',
-            f'--add-data={self.project_root / "config" / "setting.ini"};.',
-            '--hidden-import=matplotlib.backends.backend_svg',
-            '--hidden-import=docx',
-            '--hidden-import=openpyxl',
-            '--hidden-import=battery_analysis',
-            '--hidden-import=battery_analysis.main',
-            '--hidden-import=battery_analysis.ui',
-            '--hidden-import=battery_analysis.utils',
-
-            '--hidden-import=xlsxwriter',
-            '--collect-all=xlsxwriter',
-            '--collect-all=openpyxl',
-            '--hidden-import=xlrd',
-            '--collect-all=xlrd',
-            '--path', f'{src_path}',
-            '--path', f'{self.project_root}',
-            *(['--console'] if self.console_mode or debug_mode else ['--noconsole'])
-        ])
-
-        try:
-            # 在指定目录下执行命令
-            result = subprocess.run(
-                cmd_args,
-                cwd=image_show_dir,
-                check=False,
-                capture_output=True,
-                encoding='utf-8'
-            )
-            logger.info("ImageShow构建结果: %s", result.returncode)
-            if result.stderr:
-                logger.error("错误输出: %s", result.stderr)
-        except (FileNotFoundError, PermissionError, OSError, subprocess.SubprocessError) as e:
-            logger.error("执行命令时出错: %s", e)
-            result = subprocess.CompletedProcess(cmd_args, 1)
+            
+            # 添加调试/控制台参数
+            debug_mode = self.build_type == "Debug"
+            if self.console_mode or debug_mode:
+                cmd_args.append('--console')
+            else:
+                cmd_args.append('--noconsole')
+            
+            if not debug_mode:
+                cmd_args.append('--strip')
+            
+            # 查找Python DLL并添加到命令参数
+            python_dll = self._find_python_dll()
+            if python_dll:
+                cmd_args.append(f'--add-binary={python_dll};.')
+            else:
+                logger.warning("Could not find python311.dll")
+            
+            # 执行PyInstaller命令
+            self._execute_pyinstaller_command(app_config["build_dir"], cmd_args)
 
         # 清理临时文件
         if temp_path.exists():
@@ -783,28 +692,34 @@ VSVersionInfo(
         logger.info('构建完成，可执行文件位于: %s', final_build_dir)
 
 
-if __name__ == '__main__':
-    if len(sys.argv) >= 2:
-        build_type = sys.argv[1]
-        if build_type in ['--help', '-h']:
-            logger.info("用法: python -m scripts.build [构建类型]")
-            logger.info("\n构建类型:")
-            logger.info("  Debug    - 构建调试版本")
-            logger.info("  Release  - 构建发布版本")
-            logger.info("\n示例:")
-            logger.info("  python -m scripts.build Debug")
-            logger.info("  python -m scripts.build Release")
-            sys.exit(0)
-        elif build_type not in ['Debug', 'Release']:
-            raise ValueError(f"不支持的构建类型: {build_type}。只支持Debug和Release。")
-        logger.info("开始%s模式构建...", build_type)
-        BuildManager(build_type)
-    else:
-        logger.info("用法: python -m scripts.build [构建类型]")
-        logger.info("\n构建类型:")
-        logger.info("  Debug    - 构建调试版本")
-        logger.info("  Release  - 构建发布版本")
-        logger.info("\n示例:")
-        logger.info("  python -m scripts.build Debug")
-        logger.info("  python -m scripts.build Release")
+def main():
+    """
+    主函数，处理命令行参数并执行构建流程
+    """
+    import argparse
+    
+    # 创建命令行参数解析器
+    parser = argparse.ArgumentParser(description='构建BatteryAnalysis和ImageMaker应用程序')
+    parser.add_argument('build_type', choices=['Debug', 'Release'], 
+                       help='构建类型: Debug 或 Release')
+    parser.add_argument('--verbose', '-v', action='store_true', 
+                       help='显示详细日志信息')
+    
+    # 解析命令行参数
+    args = parser.parse_args()
+    
+    # 如果请求详细日志，将日志级别设置为DEBUG
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+    
+    try:
+        # 创建BuildManager实例并执行构建
+        build_manager = BuildManager(args.build_type)
+        logger.info(f'{args.build_type} 构建完成')
+    except Exception as e:
+        logger.error(f'构建失败: {e}')
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
