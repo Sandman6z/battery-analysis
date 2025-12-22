@@ -165,19 +165,21 @@ class BuildManager(BuildConfig):
         """生成版本信息文件"""
         # 在构建目录中创建version.txt文件（统一为两个应用生成）
         build_path = Path(self.build_path)
-        if (build_path / 'Build_BatteryAnalysis').exists():
-            self._write_file(
-                self._generate_vs_version_info(
-                    "test", "BatteryTest-DataConverter"),
-                build_path / 'Build_BatteryAnalysis' / 'version.txt'
-            )
-
-        if (build_path / 'Build_ImageShow').exists():
-            self._write_file(
-                self._generate_vs_version_info(
-                    "test", "BatteryTest-ImageMaker"),
-                build_path / 'Build_ImageShow' / 'version.txt'
-            )
+        
+        # 定义应用程序列表，包含目录名和显示名
+        apps = [
+            {'dir_name': 'Build_BatteryAnalysis', 'app_name': 'BatteryTest-DataConverter'},
+            {'dir_name': 'Build_ImageShow', 'app_name': 'BatteryTest-ImageMaker'}
+        ]
+        
+        # 循环处理每个应用程序
+        for app in apps:
+            app_dir = build_path / app['dir_name']
+            if app_dir.exists():
+                self._write_file(
+                    self._generate_vs_version_info("test", app['app_name']),
+                    app_dir / 'version.txt'
+                )
 
     def _generate_vs_version_info(self, commit_id, app_name):
         """生成Visual Studio版本信息结构"""
@@ -306,6 +308,18 @@ VSVersionInfo(
         """更新版本相关文件 - 该方法已废弃"""
         logger.warning("版本号管理已简化，不再需要更新版本文件")
 
+    def _copy_svg_icons(self, target_dir, app_name):
+        """复制SVG图标文件到目标目录"""
+        svg_dir = self.project_root / "config" / "resources" / "icons"
+        if svg_dir.exists():
+            # 创建目标目录
+            dest_svg_dir = target_dir / "config" / "resources" / "icons"
+            dest_svg_dir.mkdir(parents=True, exist_ok=True)
+            # 复制所有SVG文件
+            for svg_file in svg_dir.glob("*.svg"):
+                shutil.copy(svg_file, dest_svg_dir)
+                logger.info("已复制SVG图标到%s: %s", app_name, svg_file.name)
+
     def copy2dir(self):
         """复制源文件到构建目录"""
         build_path = Path(self.build_path)
@@ -335,19 +349,10 @@ VSVersionInfo(
         # 复制BatteryAnalysis的文件
         shutil.copy(main_window_path, battery_analysis_dir)
         shutil.copy(resources_rc_path, battery_analysis_dir / "resources")
-        shutil.copy(icon_path, battery_analysis_dir /
-                    "Icon_BatteryAnalysis.ico")
 
-        # 复制SVG图标文件到构建目录的config/resources/icons文件夹
-        svg_dir = self.project_root / "config" / "resources" / "icons"
-        if svg_dir.exists():
-            # 创建目标目录
-            dest_svg_dir = battery_analysis_dir / "config" / "resources" / "icons"
-            dest_svg_dir.mkdir(parents=True, exist_ok=True)
-            # 复制所有SVG文件
-            for svg_file in svg_dir.glob("*.svg"):
-                shutil.copy(svg_file, dest_svg_dir)
-                logger.info("已复制SVG图标: %s", svg_file.name)
+        # 复制SVG图标文件到构建目录
+        self._copy_svg_icons(battery_analysis_dir, "BatteryAnalysis")
+        
         # 确保UI目录存在并复制UI文件
         ui_dest_dir = battery_analysis_dir / "battery_analysis" / "ui" / "resources"
         ui_dest_dir.mkdir(parents=True, exist_ok=True)
@@ -362,17 +367,9 @@ VSVersionInfo(
         # 复制ImageShow的文件
         shutil.copy(image_show_path, image_show_dir)
         shutil.copy(resources_rc_path, image_show_dir / "resources")
-        shutil.copy(icon_path, image_show_dir / "Icon_ImageShow.ico")
 
-        # 复制SVG图标文件到ImageShow的config/resources/icons文件夹
-        if svg_dir.exists():
-            # 创建目标目录
-            dest_svg_dir_img = image_show_dir / "config" / "resources" / "icons"
-            dest_svg_dir_img.mkdir(parents=True, exist_ok=True)
-            # 复制所有SVG文件
-            for svg_file in svg_dir.glob("*.svg"):
-                shutil.copy(svg_file, dest_svg_dir_img)
-                logger.info("已复制SVG图标到ImageShow: %s", svg_file.name)
+        # 复制SVG图标文件到ImageShow目录
+        self._copy_svg_icons(image_show_dir, "ImageShow")
 
         # 为ImageShow也创建完整的battery_analysis包结构
         battery_analysis_dest_img = image_show_dir / "battery_analysis"
@@ -563,6 +560,12 @@ exe = EXE(
             dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}_debug"
             imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}_debug"
 
+        # 定义共同的隐藏导入
+        common_spec_hidden_imports = [
+            "matplotlib.backends.backend_svg",
+            "docx"
+        ]
+        
         # 应用程序配置列表：统一管理BatteryAnalysis和ImageShow参数
         apps_config = [
             {
@@ -572,10 +575,11 @@ exe = EXE(
                 "icon_name": "Icon_BatteryAnalysis.ico",
                 "main_file": '["main_window.py"]',
                 "datas_mapping": {".": ".", "battery_analysis": "battery_analysis"},
-                "spec_hidden_imports": [
-                    "matplotlib.backends.backend_svg", "battery_analysis",
-                    "battery_analysis.main", "battery_analysis.ui",
-                    "battery_analysis.utils", "docx"
+                "spec_hidden_imports": common_spec_hidden_imports + [
+                    "battery_analysis",
+                    "battery_analysis.main", 
+                    "battery_analysis.ui",
+                    "battery_analysis.utils"
                 ],
                 "pyinstaller_args": [
                     '-F', 'main_window.py',
@@ -601,10 +605,10 @@ exe = EXE(
                 "icon_name": "Icon_ImageShow.ico",
                 "main_file": '["image_show.py", "resources/resources_rc.py"]',
                 "datas_mapping": {"src": "src"},
-                "spec_hidden_imports": [
-                    "matplotlib.backends.backend_svg", "src",
-                    "src.battery_analysis", "src.battery_analysis.utils",
-                    "docx"
+                "spec_hidden_imports": common_spec_hidden_imports + [
+                    "src",
+                    "src.battery_analysis", 
+                    "src.battery_analysis.utils"
                 ],
                 "pyinstaller_args": [
                     '--onefile', 'image_show.py'
@@ -657,13 +661,17 @@ exe = EXE(
                 '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
                 '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
                 '--add-data', f'{self.project_root / "pyproject.toml"};.',
+                '--path', f'{src_path}',
+                '--path', f'{self.project_root}'
+            ])
+            
+            # 添加通用的隐藏导入和收集项
+            cmd_args.extend([
                 '--hidden-import', 'xlsxwriter',
                 '--collect-all', 'xlsxwriter',
                 '--collect-all', 'openpyxl',
                 '--hidden-import', 'xlrd',
-                '--collect-all', 'xlrd',
-                '--path', f'{src_path}',
-                '--path', f'{self.project_root}'
+                '--collect-all', 'xlrd'
             ])
             
             # 添加调试/控制台参数
