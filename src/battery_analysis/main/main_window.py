@@ -40,6 +40,7 @@ logging.basicConfig(level=logging.INFO,
 # 本地模块导入
 # 导入控制器
 # 导入资源文件
+from battery_analysis.resources import resources_rc
 
 
 def calc_md5checksum(file_paths):
@@ -624,6 +625,18 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.actionZoom_In.triggered.connect(self.zoom_in)
         self.actionZoom_Out.triggered.connect(self.zoom_out)
         self.actionReset_Zoom.triggered.connect(self.reset_zoom)
+        
+        # 主题菜单功能连接
+        if hasattr(self, 'actionSystem_Default'):
+            self.actionSystem_Default.triggered.connect(lambda: self.set_theme("System Default"))
+        if hasattr(self, 'actionWindows_11'):
+            self.actionWindows_11.triggered.connect(lambda: self.set_theme("Windows 11"))
+        if hasattr(self, 'actionWindows_Vista'):
+            self.actionWindows_Vista.triggered.connect(lambda: self.set_theme("Windows Vista"))
+        if hasattr(self, 'actionFusion'):
+            self.actionFusion.triggered.connect(lambda: self.set_theme("Fusion"))
+        if hasattr(self, 'actionDark_Theme'):
+            self.actionDark_Theme.triggered.connect(lambda: self.set_theme("Dark Theme"))
 
         # 文件操作连接
         self.actionSave.triggered.connect(self.save_settings)
@@ -1005,6 +1018,117 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             QW.QMessageBox.StandardButton.Ok
         )
         self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+
+    def set_theme(self, theme_name) -> None:
+        """设置应用程序主题"""
+        app = QW.QApplication.instance()
+        
+        # 清除现有的样式表
+        app.setStyleSheet("")
+        
+        # 主题动作映射字典
+        theme_actions = {
+            "System Default": self.actionSystem_Default,
+            "Windows 11": self.actionWindows_11,
+            "Windows Vista": self.actionWindows_Vista,
+            "Fusion": self.actionFusion,
+            "Dark Theme": self.actionDark_Theme
+        }
+        
+        # 确保所有主题动作都是可检查的
+        for action in theme_actions.values():
+            action.setCheckable(True)
+        
+        # 清除所有主题动作的选中状态
+        for action in theme_actions.values():
+            action.setChecked(False)
+        
+        try:
+            if theme_name == "System Default":
+                # 使用系统默认样式
+                app.setStyle(QW.QStyleFactory.create("windowsvista" if sys.platform == "win32" else "fusion"))
+                self.statusBar_BatteryAnalysis.showMessage(f"已切换到系统默认主题")
+            elif theme_name == "Windows 11":
+                # 尝试使用Windows 11样式（如果可用）
+                if sys.platform == "win32":
+                    app.setStyle(QW.QStyleFactory.create("windowsvista"))
+                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Windows 11主题")
+                else:
+                    # 非Windows平台回退到Fusion
+                    app.setStyle(QW.QStyleFactory.create("fusion"))
+                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Fusion主题（Windows 11样式在当前平台不可用）")
+            elif theme_name == "Windows Vista":
+                # 使用Windows Vista样式
+                if sys.platform == "win32":
+                    app.setStyle(QW.QStyleFactory.create("windowsvista"))
+                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Windows Vista主题")
+                else:
+                    # 非Windows平台回退到Fusion
+                    app.setStyle(QW.QStyleFactory.create("fusion"))
+                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Fusion主题（Windows Vista样式在当前平台不可用）")
+            elif theme_name == "Fusion":
+                # 使用Fusion样式（跨平台）
+                app.setStyle(QW.QStyleFactory.create("fusion"))
+                self.statusBar_BatteryAnalysis.showMessage(f"已切换到Fusion主题")
+            elif theme_name == "Dark Theme":
+                # 使用深色主题
+                try:
+                    # 尝试使用QDarkStyleSheet库
+                    import qdarkstyle
+                    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt6())
+                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到深色主题")
+                except ImportError:
+                    # 如果没有安装qdarkstyle，使用简单的深色主题样式表
+                    dark_stylesheet = """.QWidget {
+                        background-color: #2b2b2b;
+                        color: #cccccc;
+                    }
+                    QMenuBar {
+                        background-color: #2b2b2b;
+                        color: #cccccc;
+                    }
+                    QMenu {
+                        background-color: #3a3a3a;
+                        color: #cccccc;
+                    }
+                    QMenu::item:selected {
+                        background-color: #555555;
+                    }
+                    QPushButton {
+                        background-color: #4a4a4a;
+                        border: 1px solid #6a6a6a;
+                        color: #cccccc;
+                    }
+                    QPushButton:hover {
+                        background-color: #555555;
+                    }
+                    QLineEdit, QComboBox, QTextEdit, QSpinBox {
+                        background-color: #3a3a3a;
+                        border: 1px solid #6a6a6a;
+                        color: #cccccc;
+                    }
+                    QTableWidget {
+                        background-color: #3a3a3a;
+                        color: #cccccc;
+                        alternate-background-color: #4a4a4a;
+                    }
+                    QHeaderView::section {
+                        background-color: #4a4a4a;
+                        color: #cccccc;
+                    }
+                    """
+                    app.setStyleSheet(dark_stylesheet)
+                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到简单深色主题")
+        except Exception as e:
+            logging.error(f"切换主题失败: {e}")
+            self.statusBar_BatteryAnalysis.showMessage(f"切换主题失败: {str(e)}")
+        
+        # 设置当前主题动作的选中状态
+        if theme_name in theme_actions:
+            theme_actions[theme_name].setChecked(True)
+
+        # 确保界面立即更新
+        QW.QApplication.processEvents()
 
     def toggle_statusbar(self) -> None:
         """切换状态栏的显示/隐藏状态"""
@@ -2140,6 +2264,8 @@ def main() -> None:
                                               'DejaVu Sans', 'Liberation Sans']
 
     app = QW.QApplication(sys.argv)
+    # 设置应用程序样式为Fusion，确保在不同Windows版本上表现一致
+    app.setStyle(QW.QStyleFactory.create("Fusion"))
     window = Main()
     # 设置窗口最小尺寸为更小的值，确保在小分辨率屏幕上也能显示标题栏
     window.setMinimumSize(800, 600)  # 设置一个合理的最小尺寸
