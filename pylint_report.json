@@ -1,42 +1,16 @@
 [
     {
-        "type": "warning",
+        "type": "error",
         "module": "build",
-        "obj": "CaseSensitiveConfigParser.optionxform",
-        "line": 41,
-        "column": 4,
-        "endLine": 41,
-        "endColumn": 19,
+        "obj": "",
+        "line": 496,
+        "column": 16,
+        "endLine": null,
+        "endColumn": null,
         "path": "scripts\\build.py",
-        "symbol": "arguments-renamed",
-        "message": "Parameter 'optionstr' has been renamed to 'option_str' in overriding 'CaseSensitiveConfigParser.optionxform' method",
-        "message-id": "W0237"
-    },
-    {
-        "type": "refactor",
-        "module": "build",
-        "obj": "BuildManager.build",
-        "line": 383,
-        "column": 4,
-        "endLine": 383,
-        "endColumn": 13,
-        "path": "scripts\\build.py",
-        "symbol": "too-many-branches",
-        "message": "Too many branches (19/12)",
-        "message-id": "R0912"
-    },
-    {
-        "type": "refactor",
-        "module": "build",
-        "obj": "BuildManager.build",
-        "line": 383,
-        "column": 4,
-        "endLine": 383,
-        "endColumn": 13,
-        "path": "scripts\\build.py",
-        "symbol": "too-many-statements",
-        "message": "Too many statements (189/50)",
-        "message-id": "R0915"
+        "symbol": "syntax-error",
+        "message": "Parsing failed: 'f-string: empty expression not allowed (<unknown>, line 496)'",
+        "message-id": "E0001"
     },
     {
         "type": "warning",
@@ -6082,6 +6056,45 @@
         "symbol": "pointless-string-statement",
         "message": "String statement has no effect",
         "message-id": "W0105"
+    },
+    {
+        "type": "info",
+        "module": "battery_analysis.utils.version",
+        "obj": "",
+        "line": 82,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "src\\battery_analysis\\utils\\version.py",
+        "symbol": "locally-disabled",
+        "message": "Locally disabling protected-access (W0212)",
+        "message-id": "I0011"
+    },
+    {
+        "type": "warning",
+        "module": "battery_analysis.utils.version",
+        "obj": "",
+        "line": 82,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "src\\battery_analysis\\utils\\version.py",
+        "symbol": "unknown-option-value",
+        "message": "Unknown option value for 'disable', expected a valid pylint message and got 'attr-defined'",
+        "message-id": "W0012"
+    },
+    {
+        "type": "info",
+        "module": "battery_analysis.utils.version",
+        "obj": "",
+        "line": 82,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "src\\battery_analysis\\utils\\version.py",
+        "symbol": "suppressed-message",
+        "message": "Suppressed 'protected-access' (from line 82)",
+        "message-id": "I0020"
     },
     {
         "type": "info",

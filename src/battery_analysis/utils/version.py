@@ -4,6 +4,7 @@
 """
 
 import sys
+import os
 from pathlib import Path
 import logging
 
@@ -17,9 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# 构建时会被替换的版本常量
-# BUILD_VERSION = "2.0.0"
-BUILD_VERSION = None
+# 版本管理现在统一从pyproject.toml读取
 
 # 兼容性导入：优先使用标准库 tomllib，若不可用则回退到第三方 tomli
 try:
@@ -42,62 +41,64 @@ class Version:
         return cls._instance
 
     def __init__(self):
-        """初始化版本对象，从pyproject.toml读取版本号或使用默认值"""
+        """初始化版本对象，从pyproject.toml读取版本号"""
         # 显式定义version属性，解决pylint no-member错误
         # 仅在第一次初始化时设置，避免重复调用_get_version()
         if not hasattr(self, 'version'):
             self.version = self._get_version()
 
     def _get_version(self) -> str:
-        """获取项目版本号"""
+        """获取项目版本号
+        直接从pyproject.toml读取版本号，适用于所有环境
+        唯一区别是debug环境可能会添加额外后缀
+        """
         try:
-            # 首先检查构建时嵌入的版本号
-            if BUILD_VERSION is not None:
-                logger.info("Using version embedded at build time")
-                return BUILD_VERSION
-            
-            # 然后检查是否在PyInstaller打包环境中
-            if getattr(sys, 'frozen', False):
-                return self._get_version_from_pyinstaller_environment()
-            
-            # 最后在开发环境中读取pyproject.toml
-            return self._get_version_from_development_environment()
-        except (FileNotFoundError, ImportError, IOError) as e:
+            # 从pyproject.toml读取版本号（适用于所有环境）
+            version = self._get_version_from_pyproject_toml()
+
+            # 添加debug后缀（如果是debug环境）
+            if self._is_debug_environment():
+                version += ".debug"
+                logger.info("Debug environment detected, version with suffix: %s", version)
+
+            return version
+        except (FileNotFoundError, ImportError, IOError, PermissionError) as e:
             logger.error("Error reading version: %s", e)
             return self._get_default_version()
 
-    def _get_version_from_pyinstaller_environment(self) -> str:
-        """从PyInstaller打包环境获取版本号
-        读取打包在可执行文件中的pyproject.toml文件
-        """
-        logger.info(
-            "Running in PyInstaller environment, reading version from embedded pyproject.toml")
-        # 在PyInstaller环境中，当前目录是可执行文件所在目录
-        current_dir = Path('.').resolve()
-        pyproject_path = current_dir / "pyproject.toml"
-        logger.info("Looking for embedded pyproject.toml at: %s", pyproject_path)
-        
-        return self._read_version_from_file(pyproject_path)
-
-    def _get_version_from_development_environment(self) -> str:
-        """从开发环境获取版本号，读取pyproject.toml文件
+    def _get_version_from_pyproject_toml(self) -> str:
+        """从pyproject.toml文件获取版本号
+        支持开发环境和PyInstaller打包环境
 
         Returns:
             版本号字符串
         """
-        logger.info(
-            "Running in development environment, reading version from pyproject.toml")
-        # 获取项目根目录（假设这个文件位于src/battery_analysis/utils/下）
-        current_dir = Path(__file__).resolve().parent
-        # src/battery_analysis/utils -> src/battery_analysis -> src -> project_root
-        project_root = current_dir.parent.parent.parent
-        pyproject_path = project_root / "pyproject.toml"
-        logger.info("Looking for pyproject.toml at: %s", pyproject_path)
+        # 确定pyproject.toml文件的路径
+        pyproject_path = None
+
+        # 检查是否在PyInstaller环境中
+        if getattr(sys, '_MEIPASS', False):
+            # PyInstaller 1.6+ 会设置 _MEIPASS 环境变量
+            base_path = Path(sys._MEIPASS)  # pylint: disable=protected-access
+            pyproject_path = base_path / "pyproject.toml"
+            logger.info(
+                "Running in PyInstaller environment, "
+                "looking for pyproject.toml at: %s", pyproject_path
+            )
+        else:
+            # 开发环境：从文件系统路径查找
+            current_dir = Path(__file__).resolve().parent
+            # src/battery_analysis/utils -> src/battery_analysis -> src -> project_root
+            project_root = current_dir.parent.parent.parent
+            pyproject_path = project_root / "pyproject.toml"
+            logger.info(
+                "Running in development environment, "
+                "looking for pyproject.toml at: %s", pyproject_path
+            )
 
         # 检查文件是否存在
         if not pyproject_path.exists():
-            raise FileNotFoundError(
-                f"pyproject.toml not found at: {pyproject_path}")
+            raise FileNotFoundError(f"pyproject.toml not found at: {pyproject_path}")
 
         # 读取pyproject.toml
         if tomllib is None:
@@ -109,12 +110,16 @@ class Version:
     def _read_version_from_file(self, file_path: Path) -> str:
         """从文件中读取版本号"""
         try:
-            with open(file_path, "rb") as f:
-                pyproject_data = tomllib.load(f)
-            version = pyproject_data["project"]["version"]
-            return version
+            # 先尝试按TOML文件读取（开发环境）
+            if "pyproject.toml" in file_path.name:
+                with open(file_path, "rb") as f:
+                    pyproject_data = tomllib.load(f)
+                return pyproject_data["project"]["version"]
+            # 否则按纯文本文件读取（生产环境）
+            with open(file_path, "r", encoding="utf-8") as f:
+                return f.read().strip()
         except (FileNotFoundError, KeyError, tomllib.TOMLDecodeError, OSError) as e:
-            logger.error("Failed to read version from pyproject.toml: %s", e)
+            logger.error("Failed to read version from %s: %s", file_path.name, e)
             logger.info("Using default version")
             return self._get_default_version()
 
@@ -126,3 +131,32 @@ class Version:
         """
         logger.info("Using default version: 2.0.0")
         return "2.0.0"
+
+    def _is_debug_environment(self) -> bool:
+        """检测是否为debug环境
+
+        Returns:
+            True if debug environment, False otherwise
+        """
+        # 检查环境变量
+        if os.environ.get("DEBUG", "").lower() in ("true", "1", "yes"):
+            logger.debug("Debug environment detected via DEBUG environment variable")
+            return True
+
+        if os.environ.get("APP_DEBUG", "").lower() in ("true", "1", "yes"):
+            logger.debug("Debug environment detected via APP_DEBUG environment variable")
+            return True
+
+        # 检查命令行参数
+        if "--debug" in sys.argv:
+            logger.debug("Debug environment detected via --debug command line argument")
+            return True
+
+        # 检查PyInstaller的debug标志
+        if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+            # 在PyInstaller环境中，可以通过检查构建类型来判断
+            # 这里可以根据实际构建过程中的标志来扩展
+            pass
+
+        logger.debug("Not in debug environment")
+        return False

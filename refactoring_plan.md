@@ -1,35 +1,22 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2025-12-19 17:03:30
-- 总文件数: 19
-- 存在问题的文件数: 19
+- 分析日期: 2025-12-23 13:55:54
+- 总文件数: 20
+- 存在问题的文件数: 20
 
 ## 文件: scripts\build.py
 
 ### 问题统计
-- 问题总数: 3
-- 警告(Warning): 1
-- 重构(Refactor): 2
+- 问题总数: 1
+- 错误(Error): 1
 
 ### 详细问题
-#### 行 41, 列 4
-- 类型: warning
-- 代码: W0237
-- 描述: Parameter 'optionstr' has been renamed to 'option_str' in overriding 'CaseSensitiveConfigParser.optionxform' method
-- 符号: arguments-renamed
-
-#### 行 383, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (19/12)
-- 符号: too-many-branches
-
-#### 行 383, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (189/50)
-- 符号: too-many-statements
+#### 行 496, 列 16
+- 类型: error
+- 代码: E0001
+- 描述: Parsing failed: 'f-string: empty expression not allowed (<unknown>, line 496)'
+- 符号: syntax-error
 
 ## 文件: scripts\run_pylint.py
 
@@ -2957,6 +2944,32 @@
 - 代码: C0327
 - 描述: Mixed line endings LF and CRLF
 - 符号: mixed-line-endings
+
+## 文件: src\battery_analysis\utils\version.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 1
+- 信息(Info): 2
+
+### 详细问题
+#### 行 82, 列 0
+- 类型: info
+- 代码: I0011
+- 描述: Locally disabling protected-access (W0212)
+- 符号: locally-disabled
+
+#### 行 82, 列 0
+- 类型: warning
+- 代码: W0012
+- 描述: Unknown option value for 'disable', expected a valid pylint message and got 'attr-defined'
+- 符号: unknown-option-value
+
+#### 行 82, 列 0
+- 类型: info
+- 代码: I0020
+- 描述: Suppressed 'protected-access' (from line 82)
+- 符号: suppressed-message
 
 ## 文件: src\battery_analysis\utils\word_utils.py
 

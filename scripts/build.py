@@ -13,6 +13,15 @@ from pathlib import Path
 # tomllib 仅在 Python 3.11+ 可用，用于读取 pyproject.toml
 import tomllib
 
+# 导入Version类，统一版本管理
+# 添加sys.path以确保可以导入battery_analysis模块
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+try:
+    from battery_analysis.utils.version import Version
+except ImportError as e:
+    logger.error("无法导入Version类: %s", e)
+    sys.exit(1)
+
 # 配置日志记录
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -50,14 +59,12 @@ class BuildConfig:
         self.project_root = Path(__file__).absolute().parent.parent
         self.temp_build_dir = self.project_root / "__temp__"
 
-        # 从pyproject.toml读取版本号（版本号中心化管理）
+        # 使用Version类获取版本号（版本号中心化管理）
         try:
-            with open(self.project_root / "pyproject.toml", "rb") as f:
-                pyproject_data = tomllib.load(f)
-            self.version = pyproject_data.get(
-                "project", {}).get("version", "0.0.0")
-        except (FileNotFoundError, PermissionError, OSError, tomllib.TOMLDecodeError) as e:
-            logger.warning("无法从pyproject.toml读取版本号: %s，使用默认版本", e)
+            self.version = Version().version
+            logger.info("从Version类获取的版本号: %s", self.version)
+        except Exception as e:
+            logger.warning("无法从Version类获取版本号: %s，使用默认版本", e)
             self.version = "0.0.0"
 
         # 根据构建类型决定是否显示控制台窗口
@@ -78,25 +85,31 @@ class BuildManager(BuildConfig):
                 f"不支持的构建类型: {specified_build_type}。只支持'Debug'和'Release'，或请检查大小写")
         self.build_type = specified_build_type
         self.build_path = self.temp_build_dir
-        self.console = self.console_mode
         
+        # 统一Debug环境处理：设置DEBUG环境变量，使version.py能检测到Debug环境
+        if self.build_type == "Debug":
+            os.environ["DEBUG"] = "true"
+            logger.info("设置DEBUG环境变量为'true'，表示Debug构建环境")
+        self.console = self.console_mode
+
         # 定义共享的应用程序配置列表：统一管理BatteryAnalysis和ImageShow参数
         self.apps_config = self._get_apps_config()
-        
+
         # 清理构建目录和缓存
         self.clean_build_dirs()
-    
+
     def _get_apps_config(self):
         """获取应用程序配置列表
-        
+
         Returns:
             list: 应用程序配置列表
         """
         build_path = Path(self.build_path)
-        
+
         # 定义共同的隐藏导入
-        common_spec_hidden_imports = ["matplotlib.backends.backend_svg", "docx"]
-        
+        common_spec_hidden_imports = [
+            "matplotlib.backends.backend_svg", "docx"]
+
         return [
             {
                 "name": "BatteryAnalysis",
@@ -108,12 +121,12 @@ class BuildManager(BuildConfig):
                 "icon_name": "Icon_BatteryAnalysis.ico",
                 "datas_mapping": {"src": ".", "battery_analysis": "battery_analysis"},
                 "spec_hidden_imports": common_spec_hidden_imports + [
-                    "battery_analysis", "battery_analysis.main", 
+                    "battery_analysis", "battery_analysis.main",
                     "battery_analysis.ui", "battery_analysis.utils"
                 ],
                 "additional_hidden_imports": [
                     "openpyxl", "battery_analysis.utils.version",
-                    "battery_analysis.utils.file_writer", 
+                    "battery_analysis.utils.file_writer",
                     "battery_analysis.utils.battery_analysis",
                     "battery_analysis.ui.ui_main_window"
                 ],
@@ -138,94 +151,22 @@ class BuildManager(BuildConfig):
 
     def run_build(self):
         """执行完整的构建流程
-        
-        包括版本号嵌入、文件复制、版本信息生成、构建和文件移动等步骤
+
+        包括文件复制、构建和文件移动等步骤
         """
-        # 保存原始version.py内容，以便构建后恢复
-        original_version_content = None
-
         try:
-            # 在构建前将版本号嵌入到version.py文件中
-            original_version_content = self.embed_version_in_version_py()
-
             # 执行构建流程
             self.copy2dir()
-            self.generate_version_info()
             self.build()
             self.move_programs()
-            
+
             # 构建完成后自动打开exe所在文件夹
             final_build_dir = self.project_root / 'build' / self.build_type
             logger.info("正在打开构建文件夹: %s", final_build_dir)
             import os
             os.startfile(final_build_dir)
-        finally:
-            # 构建完成后恢复原始version.py文件
-            if original_version_content:
-                try:
-                    version_file_path = self.project_root / "src" / "battery_analysis" / "utils" / "version.py"
-                    with open(version_file_path, 'w', encoding='utf-8') as f:
-                        f.write(original_version_content)
-                    logger.info("已恢复原始version.py文件")
-                except (FileNotFoundError, PermissionError, IsADirectoryError,
-                    OSError, UnicodeEncodeError) as e:
-                    logger.error("恢复原始version.py文件时出错: %s", e)
-
-    def embed_version_in_version_py(self):
-        """在构建前将版本号嵌入到version.py文件中"""
-        version_file_path = self.project_root / "src" / "battery_analysis" / "utils" / "version.py"
-
-        try:
-            # 读取原始文件内容
-            with open(version_file_path, 'r', encoding='utf-8') as f:
-                original_content = f.read()
-
-            # 替换BUILD_VERSION常量
-            updated_content = original_content.replace(
-                'BUILD_VERSION = None', f'BUILD_VERSION = "{self.version}"')
-
-            # 写回文件
-            with open(version_file_path, 'w', encoding='utf-8') as f:
-                f.write(updated_content)
-
-            logger.info("已将版本号 %s 嵌入到 %s", self.version, version_file_path)
-
-            # 返回原始内容，以便稍后恢复
-            return original_content
-        except (FileNotFoundError, PermissionError, IsADirectoryError,
-                    OSError, UnicodeDecodeError) as e:
-            logger.error("嵌入版本号到version.py时出错: %s", e)
-            return None
-
-    def embed_version_in_init(self):
-        """在构建前将版本号嵌入到__init__.py文件中"""
-        init_file_path = self.project_root / "src" / "battery_analysis" / "__init__.py"
-
-        try:
-            # 读取原始文件内容
-            with open(init_file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-
-            # 替换版本号占位符 - 使用更健壮的方式匹配和替换
-            # 分别替换两行，避免因为不可见字符导致的精确匹配失败
-            content = content.replace('# 版本号将在构建时被替换为实际值', '# 构建时嵌入的实际版本号')
-            content = content.replace(
-                'return "2.0.0"', f'return "{self.version}"')
-
-            updated_content = content
-
-            # 写回文件
-            with open(init_file_path, 'w', encoding='utf-8') as f:
-                f.write(updated_content)
-
-            logger.info("已将版本号 %s 嵌入到 %s", self.version, init_file_path)
-
-            # 返回原始内容，以便稍后恢复
-            return content
-        except (FileNotFoundError, PermissionError, IsADirectoryError,
-                    OSError, UnicodeDecodeError) as e:
-            logger.error("嵌入版本号时出错: %s", e)
-            return None
+        except Exception as e:
+            logger.error("构建过程中出错: %s", e)
 
     def clean_build_dirs(self):
         """清理构建目录和缓存"""
@@ -245,69 +186,6 @@ class BuildManager(BuildConfig):
         # 创建必要的目录
         self.temp_build_dir.mkdir(parents=True, exist_ok=True)
         logger.info("构建目录清理完成")
-
-    
-
-    def generate_version_info(self):
-        """生成版本信息文件"""
-        # 在构建目录中创建version.txt文件（统一为两个应用生成）
-        
-        # 使用self.apps_config循环处理每个应用程序
-        for app_config in self.apps_config:
-            app_dir = app_config["build_dir"]
-            if app_dir.exists():
-                # 获取应用程序的显示名
-                app_display_name = app_config.get("display_name", app_config["name"])
-                self._write_file(
-                    self._generate_vs_version_info("test", app_display_name),
-                    app_dir / 'version.txt'
-                )
-
-    def _generate_vs_version_info(self, commit_id, app_name):
-        """生成Visual Studio版本信息结构"""
-        version_split = self.version.split(".")
-        for i, version_part in enumerate(version_split):
-            if version_part == "-1":
-                version_split[i] = "0"
-
-        # 确保版本号至少有三位，不足则补0
-        while len(version_split) < 3:
-            version_split.append("0")
-
-        # Windows版本信息需要四位数字，第四位使用0或构建号
-        build_number = "0"
-        if len(version_split) > 3:
-            build_number = version_split[3]
-
-        return f"""# UTF-8
-VSVersionInfo(
-    ffi=FixedFileInfo(
-        #filevers和prodvers应该始终是包含四个项的元组:(1、2、3、4),将不需要的项设置为0
-        filevers=({version_split[0]}, {version_split[1]}, {version_split[2]}, {build_number}),  # 文件版本
-        prodvers=({version_split[0]}, {version_split[1]}, {version_split[2]}, {build_number}), # 产品版本
-        mask=0x3f, # 两个位掩码
-        flags=0x0,
-        OS=0x4, # 为其设计此文件的操作系统,0x4-NT
-        fileType=0x1, # 文件的常规类型, 0x1-该文件是一个应用程序
-        subtype=0x0, # 文件的功能, 0x0表示该文件类型未定义
-        date=(0, 0) # 创建日期和时间戳
-    ),
-    kids=[
-        StringFileInfo([
-            StringTable(
-                u'040904B0', 
-                [
-                    StringStruct(u'CompanyName', u'BOE Digital Technology Co., Ltd.'),
-                    StringStruct(u'FileDescription', u'{app_name}'),
-                    StringStruct(u'LegalCopyright', u'Copyright (C) 2023 BOE Digital Technology Co., Ltd.'),
-                    StringStruct(u'ProductName', u'{app_name}'),
-                    StringStruct(u'ProductVersion', u'{self.build_type}_{commit_id}')
-                ]
-            )
-        ]),
-        VarFileInfo([VarStruct(u'Translation', [1033, 1200])]) # 语言, USA
-    ]
-)"""
 
     
 
@@ -379,21 +257,23 @@ VSVersionInfo(
 
     def _copy_app_resources(self, build_dir, app_name, main_file_path):
         """复制单个应用的资源文件到构建目录
-        
+
         Args:
             build_dir: 构建目录路径
             app_name: 应用名称
             main_file_path: 主程序文件路径
         """
         # 定义源文件路径
-        resources_rc_path = self.project_root / "src" / "battery_analysis" / "resources" / "resources_rc.py"
-        ui_path = self.project_root / "src" / "battery_analysis" / "ui" / "resources" / "ui_battery_analysis.ui"
+        resources_rc_path = self.project_root / "src" / \
+            "battery_analysis" / "resources" / "resources_rc.py"
+        ui_path = self.project_root / "src" / "battery_analysis" / \
+            "ui" / "resources" / "ui_battery_analysis.ui"
         battery_analysis_src = self.project_root / "src" / "battery_analysis"
 
         # 复制主程序文件
         shutil.copy(main_file_path, build_dir)
         logger.info("已复制主程序文件到%s: %s", app_name, main_file_path.name)
-        
+
         # 复制资源文件
         resources_dest = build_dir / "resources"
         resources_dest.mkdir(exist_ok=True)
@@ -412,7 +292,8 @@ VSVersionInfo(
 
         # 创建完整的battery_analysis包结构
         battery_analysis_dest = build_dir / "battery_analysis"
-        shutil.copytree(battery_analysis_src, battery_analysis_dest, dirs_exist_ok=True)
+        shutil.copytree(battery_analysis_src,
+                        battery_analysis_dest, dirs_exist_ok=True)
         logger.info("已复制battery_analysis包结构到%s", app_name)
 
     def copy2dir(self):
@@ -427,7 +308,7 @@ VSVersionInfo(
             # 创建构建目录
             app_config["build_dir"].mkdir(parents=True, exist_ok=True)
             logger.info("创建应用构建目录: %s", app_config["name"])
-            
+
             # 复制应用资源
             self._copy_app_resources(
                 app_config["build_dir"],
@@ -448,9 +329,12 @@ VSVersionInfo(
             python_exec_dir = Path(sys.executable).parent
             basic_paths = [
                 os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'python311.dll'),
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', 'python311.dll'),
-                os.path.join(os.environ.get('PYTHONHOME', ''), 'python311.dll'),
+                os.path.join(os.path.dirname(
+                    os.path.dirname(sys.executable)), 'python311.dll'),
+                os.path.join(os.path.dirname(os.path.dirname(
+                    sys.executable)), 'DLLs', 'python311.dll'),
+                os.path.join(os.environ.get(
+                    'PYTHONHOME', ''), 'python311.dll'),
                 python_exec_dir / 'python311.dll',
                 Path(sys.prefix) / 'python311.dll',
                 'python311.dll'  # 让PyInstaller尝试在PATH中查找
@@ -464,43 +348,116 @@ VSVersionInfo(
 
             # 如果未找到DLL，记录警告
             logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
-            logger.warning("尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
+            logger.warning("尝试过的路径: %s", ', '.join(str(p)
+                           for p in basic_paths))
             return None
 
     def _generate_spec_content(self, app_name, exe_name, icon_name, main_file, datas_mapping, spec_hidden_imports):
         """生成PyInstaller spec文件内容"""
         debug_mode = self.build_type == "Debug"
-        
+
+        # 获取应用程序的显示名
+        app_display_name = None
+        for config in self.apps_config:
+            if config["name"] == app_name:
+                app_display_name = config.get("display_name", config["name"])
+                break
+        if app_display_name is None:
+            app_display_name = app_name
+
         # 使用pathlib的as_posix()方法自动处理路径分隔符
         project_root_posix = self.project_root.as_posix()
         src_path = self.project_root / 'src'
         src_path_posix = src_path.as_posix()
         config_path_posix = (self.project_root / 'config').as_posix()
-        pyproject_path_posix = (self.project_root / 'pyproject.toml').as_posix()
+        pyproject_path_posix = (
+            self.project_root / 'pyproject.toml').as_posix()
 
         # 构建datas
         datas = []
-        datas.append(f'("{src_path_posix}", "{datas_mapping.get("src", ".")}")')
-        
+        datas.append(
+            f'("{src_path_posix}", "{datas_mapping.get("src", ".")}")')
+
         if app_name == "BatteryAnalysis":
-            battery_analysis_path_posix = (src_path / "battery_analysis").as_posix()
-            datas.append(f'("{battery_analysis_path_posix}", "battery_analysis")')
-        
+            battery_analysis_path_posix = (
+                src_path / "battery_analysis").as_posix()
+            datas.append(
+                f'("{battery_analysis_path_posix}", "battery_analysis")')
+
         datas.append(f'("{config_path_posix}", "config")')
         datas.append(f'("{pyproject_path_posix}", ".")')
         datas_str = ',\n        '.join(datas)
 
         # 构建hiddenimports字符串
-        hiddenimports_str = ', '.join(f'"{imp}"' for imp in spec_hidden_imports)
-        
+        hiddenimports_str = ', '.join(
+            f'"{imp}"' for imp in spec_hidden_imports)
+
         # 构建控制台模式字符串
         console_mode = str(self.console_mode or debug_mode).lower()
         debug_mode_str = str(debug_mode).lower()
         strip_mode = str(not debug_mode).lower()
         upx_mode = str(not debug_mode).lower()
+
+        # 先处理版本号分割，以便在spec模板中使用
+        # 确保版本号严格按照pyproject.toml中的3位语义化格式处理
+        version_split = self.version.split(".")
+        # 只保留前3位（MAJOR.MINOR.PATCH），移除任何额外的后缀（如.debug）
+        if len(version_split) > 3:
+            version_split = version_split[:3]
+        while len(version_split) < 3:
+            version_split.append("0")
+        # Windows VERSIONINFO需要4位版本号，但我们固定build number为0
+        # 确保不影响用户看到的3位语义化版本格式
+        build_number = "0"
+            
+        # 使用字符串拼接构建spec_content，确保变量正确解析
+        # 先定义VSVersionInfo模板
+        vs_version_info_template = '''VSVersionInfo(
+    ffi=FixedFileInfo(
+        filevers=({0}, {1}, {2}, {3}),
+        prodvers=({0}, {1}, {2}, {3}),
+        mask=0x3f,
+        flags=0x0,
+        OS=0x4,
+        fileType=0x1,
+        subtype=0x0,
+        date=(0, 0)
+    ),
+    kids=[
+        StringFileInfo([
+            StringTable(
+                u'040904B0',
+                [
+                    StringStruct(u'CompanyName',
+                                 u'BOE Digital Technology Co., Ltd.'),
+                    StringStruct(u'FileDescription', u'{4}'),
+                    StringStruct(
+                        u'LegalCopyright', u'Copyright (C) 2023 BOE Digital Technology Co., Ltd.'),
+                    StringStruct(u'ProductName', u'{4}'),
+                    StringStruct(u'ProductVersion', version)
+                ]
+            )
+        ]),
+        VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
+    ]
+)'''
         
-        # 使用f-string构建完整的spec_content，提高可读性
-        spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
+        # 格式化VSVersionInfo模板
+        vs_version_info = vs_version_info_template.format(
+            version_split[0], version_split[1], version_split[2], build_number, app_name
+        )
+        
+        # 构建完整的spec_content
+        spec_content = '''# -*- mode: python ; coding: utf-8 -*-
+
+# 生成Windows可执行文件的版本资源信息（不是VSCode配置）
+# 这段代码用于创建Windows文件属性中显示的版本信息
+def generate_version_info(app_name):
+    version = "{version_str}"
+    return '''"""
+{vs_version_info}
+"""'''
+
 block_cipher = None
 a = Analysis(
     [{main_file}],
@@ -513,7 +470,8 @@ a = Analysis(
         {hiddenimports_str}
     ],
     hookspath=[],
-    hooksconfig={{}},
+    hooksconfig={{
+    }},
     runtime_hooks=[],
     excludes=[],
     win_no_prefer_redirects=False,
@@ -543,8 +501,23 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon="./{icon_name}",
-    version="version.txt",
-)'''
+    version=generate_version_info("{app_display_name}"),
+)'''.format(
+            version_str=self.version,
+            vs_version_info=vs_version_info,
+            app_display_name=app_display_name,
+            main_file=main_file,
+            project_root_posix=project_root_posix,
+            src_path_posix=src_path_posix,
+            datas_str=datas_str,
+            hiddenimports_str=hiddenimports_str,
+            exe_name=exe_name,
+            debug_mode_str=debug_mode_str,
+            strip_mode=strip_mode,
+            upx_mode=upx_mode,
+            console_mode=console_mode,
+            icon_name=icon_name
+        )
         return spec_content
 
     def _execute_pyinstaller_command(self, app_dir, cmd_args):
@@ -595,7 +568,6 @@ exe = EXE(
             sys.executable, '-m', 'PyInstaller',
             '--log-level=DEBUG',
             '--noupx',
-            '--version-file=version.txt',
             '--collect-all=pywin32',
             f'--name={app_config["exe_name"]}',
             f'--icon={app_config["icon_name"]}',
@@ -625,7 +597,6 @@ exe = EXE(
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config"))};config',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
-            '--add-data', f'{self.project_root / "pyproject.toml"};.',
             '--path', f'{src_path}',
             '--path', f'{self.project_root}'
         ])
