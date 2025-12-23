@@ -141,12 +141,12 @@ class BuildManager(BuildConfig):
         
         包括版本号嵌入、文件复制、版本信息生成、构建和文件移动等步骤
         """
-        # 保存原始__init__.py内容，以便构建后恢复
-        original_init_content = None
+        # 保存原始version.py内容，以便构建后恢复
+        original_version_content = None
 
         try:
-            # 在构建前嵌入版本号
-            original_init_content = self.embed_version_in_init()
+            # 在构建前将版本号嵌入到version.py文件中
+            original_version_content = self.embed_version_in_version_py()
 
             # 执行构建流程
             self.copy2dir()
@@ -160,16 +160,42 @@ class BuildManager(BuildConfig):
             import os
             os.startfile(final_build_dir)
         finally:
-            # 构建完成后恢复原始__init__.py文件
-            if original_init_content:
+            # 构建完成后恢复原始version.py文件
+            if original_version_content:
                 try:
-                    init_file_path = self.project_root / "src" / "battery_analysis" / "__init__.py"
-                    with open(init_file_path, 'w', encoding='utf-8') as f:
-                        f.write(original_init_content)
-                    logger.info("已恢复原始__init__.py文件")
+                    version_file_path = self.project_root / "src" / "battery_analysis" / "utils" / "version.py"
+                    with open(version_file_path, 'w', encoding='utf-8') as f:
+                        f.write(original_version_content)
+                    logger.info("已恢复原始version.py文件")
                 except (FileNotFoundError, PermissionError, IsADirectoryError,
                     OSError, UnicodeEncodeError) as e:
-                    logger.error("恢复原始__init__.py文件时出错: %s", e)
+                    logger.error("恢复原始version.py文件时出错: %s", e)
+
+    def embed_version_in_version_py(self):
+        """在构建前将版本号嵌入到version.py文件中"""
+        version_file_path = self.project_root / "src" / "battery_analysis" / "utils" / "version.py"
+
+        try:
+            # 读取原始文件内容
+            with open(version_file_path, 'r', encoding='utf-8') as f:
+                original_content = f.read()
+
+            # 替换BUILD_VERSION常量
+            updated_content = original_content.replace(
+                'BUILD_VERSION = None', f'BUILD_VERSION = "{self.version}"')
+
+            # 写回文件
+            with open(version_file_path, 'w', encoding='utf-8') as f:
+                f.write(updated_content)
+
+            logger.info("已将版本号 %s 嵌入到 %s", self.version, version_file_path)
+
+            # 返回原始内容，以便稍后恢复
+            return original_content
+        except (FileNotFoundError, PermissionError, IsADirectoryError,
+                    OSError, UnicodeDecodeError) as e:
+            logger.error("嵌入版本号到version.py时出错: %s", e)
+            return None
 
     def embed_version_in_init(self):
         """在构建前将版本号嵌入到__init__.py文件中"""

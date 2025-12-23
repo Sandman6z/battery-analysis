@@ -17,6 +17,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# 构建时会被替换的版本常量
+# BUILD_VERSION = "2.0.0"
+BUILD_VERSION = None
+
 # 兼容性导入：优先使用标准库 tomllib，若不可用则回退到第三方 tomli
 try:
     import tomllib  # Python 3.11+
@@ -47,9 +51,16 @@ class Version:
     def _get_version(self) -> str:
         """获取项目版本号"""
         try:
-            # 首先检查是否在PyInstaller打包环境中
+            # 首先检查构建时嵌入的版本号
+            if BUILD_VERSION is not None:
+                logger.info("Using version embedded at build time")
+                return BUILD_VERSION
+            
+            # 然后检查是否在PyInstaller打包环境中
             if getattr(sys, 'frozen', False):
                 return self._get_version_from_pyinstaller_environment()
+            
+            # 最后在开发环境中读取pyproject.toml
             return self._get_version_from_development_environment()
         except (FileNotFoundError, ImportError, IOError) as e:
             logger.error("Error reading version: %s", e)
@@ -57,13 +68,16 @@ class Version:
 
     def _get_version_from_pyinstaller_environment(self) -> str:
         """从PyInstaller打包环境获取版本号
-        不再依赖pyproject.toml文件，而是直接返回默认版本号
-        这个默认版本号应该在构建时与pyproject.toml保持一致
+        读取打包在可执行文件中的pyproject.toml文件
         """
         logger.info(
-            "Running in PyInstaller environment, using version from build configuration")
-        # 这个版本号应该与pyproject.toml中的版本保持一致
-        return self._get_default_version()
+            "Running in PyInstaller environment, reading version from embedded pyproject.toml")
+        # 在PyInstaller环境中，当前目录是可执行文件所在目录
+        current_dir = Path('.').resolve()
+        pyproject_path = current_dir / "pyproject.toml"
+        logger.info("Looking for embedded pyproject.toml at: %s", pyproject_path)
+        
+        return self._read_version_from_file(pyproject_path)
 
     def _get_version_from_development_environment(self) -> str:
         """从开发环境获取版本号，读取pyproject.toml文件
