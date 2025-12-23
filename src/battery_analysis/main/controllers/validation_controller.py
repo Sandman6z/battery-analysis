@@ -5,7 +5,6 @@
 """
 import os
 import re
-import logging
 from PyQt6 import QtCore as QC
 
 

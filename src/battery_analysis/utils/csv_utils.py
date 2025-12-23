@@ -1,4 +1,3 @@
-import csv
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 
 

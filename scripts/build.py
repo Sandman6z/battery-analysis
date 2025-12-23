@@ -303,6 +303,13 @@ class BuildManager(BuildConfig):
             shutil.rmtree(build_path)
         build_path.mkdir(parents=True, exist_ok=True)
 
+        # 复制pyproject.toml到临时目录，确保Version类能读取到正确的版本号
+        pyproject_src = self.project_root / "pyproject.toml"
+        pyproject_dest = build_path / "pyproject.toml"
+        if pyproject_src.exists():
+            shutil.copy2(pyproject_src, pyproject_dest)
+            logger.info("已将pyproject.toml复制到构建目录: %s", pyproject_dest)
+
         # 复制所有应用的资源
         for app_config in self.apps_config:
             # 创建构建目录
@@ -324,21 +331,30 @@ class BuildManager(BuildConfig):
             logger.info("使用CI环境变量中的Python DLL路径: %s", ci_dll_path)
             return ci_dll_path
         else:
-            logger.info("未找到CI环境变量中的Python DLL路径，尝试本地路径")
-            # 2. 本地环境的基本路径查找
+            logger.debug("未找到CI环境变量中的Python DLL路径，尝试本地路径")
+            # 2. 本地环境的基本路径查找，包括更全面的可能路径
             python_exec_dir = Path(sys.executable).parent
             basic_paths = [
+                # Python可执行文件所在目录
                 os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
-                os.path.join(os.path.dirname(
-                    os.path.dirname(sys.executable)), 'python311.dll'),
-                os.path.join(os.path.dirname(os.path.dirname(
-                    sys.executable)), 'DLLs', 'python311.dll'),
-                os.path.join(os.environ.get(
-                    'PYTHONHOME', ''), 'python311.dll'),
                 python_exec_dir / 'python311.dll',
+                # Python安装根目录
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'python311.dll'),
+                # DLLs目录
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', 'python311.dll'),
+                # PYTHONHOME环境变量指定的目录
+                os.path.join(os.environ.get('PYTHONHOME', ''), 'python311.dll'),
                 Path(sys.prefix) / 'python311.dll',
-                'python311.dll'  # 让PyInstaller尝试在PATH中查找
+                # CI环境中常见的Python安装路径
+                r'C:\Program Files\Python311\python311.dll',
+                r'C:\Program Files (x86)\Python311\python311.dll',
+                r'D:\Python311\python311.dll',
+                # 让PyInstaller尝试在PATH中查找
+                'python311.dll'
             ]
+
+            # 去重路径列表
+            basic_paths = list(set(basic_paths))
 
             for path in basic_paths:
                 logger.debug("检查DLL路径: %s", path)
@@ -348,8 +364,7 @@ class BuildManager(BuildConfig):
 
             # 如果未找到DLL，记录警告
             logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
-            logger.warning("尝试过的路径: %s", ', '.join(str(p)
-                           for p in basic_paths))
+            logger.debug("尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
             return None
 
     def _generate_spec_content(self, app_name, exe_name, icon_name, main_file, datas_mapping, spec_hidden_imports):
@@ -450,7 +465,6 @@ class BuildManager(BuildConfig):
         # 构建完整的spec_content
         spec_content = '''# -*- mode: python ; coding: utf-8 -*-
 
-# 生成Windows可执行文件的版本资源信息（不是VSCode配置）
 # 这段代码用于创建Windows文件属性中显示的版本信息
 def generate_version_info(app_name):
     version = "{version_str}"
@@ -566,7 +580,7 @@ exe = EXE(
         # 构建通用PyInstaller参数
         cmd_args = [
             sys.executable, '-m', 'PyInstaller',
-            '--log-level=DEBUG',
+            '--log-level=INFO',
             '--noupx',
             '--collect-all=pywin32',
             f'--name={app_config["exe_name"]}',
@@ -597,6 +611,7 @@ exe = EXE(
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config"))};config',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
+            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "pyproject.toml"))};.',
             '--path', f'{src_path}',
             '--path', f'{self.project_root}'
         ])

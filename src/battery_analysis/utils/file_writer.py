@@ -7,21 +7,14 @@ from battery_analysis.utils import excel_utils
 from battery_analysis.utils import numeric_utils
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 from docx.shared import Pt, Cm
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
-from docx.opc.constants import RELATIONSHIP_TYPE
 from docx.enum.text import WD_LINE_SPACING
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.enum.dml import MSO_THEME_COLOR_INDEX
 from docx import Document
-from openpyxl.utils import get_column_letter
 from matplotlib.ticker import MultipleLocator
 import matplotlib.pyplot as plt
 import xlsxwriter as xwt
-import numpy as np
 import os
 import csv
-import sys
 import json
 import math
 import datetime

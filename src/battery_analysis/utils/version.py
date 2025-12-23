@@ -86,15 +86,35 @@ class Version:
                 "looking for pyproject.toml at: %s", pyproject_path
             )
         else:
-            # 开发环境：从文件系统路径查找
-            current_dir = Path(__file__).resolve().parent
-            # src/battery_analysis/utils -> src/battery_analysis -> src -> project_root
-            project_root = current_dir.parent.parent.parent
-            pyproject_path = project_root / "pyproject.toml"
-            logger.info(
-                "Running in development environment, "
-                "looking for pyproject.toml at: %s", pyproject_path
-            )
+            # 开发环境或构建环境：从文件系统路径查找
+            # 尝试多种可能的路径
+            possible_paths = [
+                # 1. 当前脚本所在目录的上级目录（开发环境）
+                Path(__file__).resolve().parent.parent.parent / "pyproject.toml",
+                # 2. 当前工作目录
+                Path.cwd() / "pyproject.toml",
+                # 3. 构建过程中的临时目录
+                Path("__temp__") / "pyproject.toml",
+                # 4. 构建脚本所在目录的上级目录
+                Path(sys.argv[0]).resolve().parent.parent / "pyproject.toml"
+            ]
+            
+            for path in possible_paths:
+                if path.exists():
+                    pyproject_path = path
+                    logger.info(
+                        "Found pyproject.toml at: %s", pyproject_path
+                    )
+                    break
+            
+            # 如果没有找到，使用默认路径
+            if pyproject_path is None:
+                current_dir = Path(__file__).resolve().parent
+                project_root = current_dir.parent.parent.parent
+                pyproject_path = project_root / "pyproject.toml"
+                logger.info(
+                    "Defaulting to pyproject.toml at: %s", pyproject_path
+                )
 
         # 检查文件是否存在
         if not pyproject_path.exists():

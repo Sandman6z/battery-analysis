@@ -9,12 +9,10 @@
 """
 
 # 标准库导入
-from battery_analysis.resources import resources_rc
 from battery_analysis.main.controllers.validation_controller import ValidationController
 from battery_analysis.main.controllers.file_controller import FileController
 from battery_analysis.main.controllers.main_controller import MainController
 from battery_analysis.utils.config_utils import find_config_file
-from battery_analysis.utils import version
 from battery_analysis.ui import ui_main_window
 import os
 import re

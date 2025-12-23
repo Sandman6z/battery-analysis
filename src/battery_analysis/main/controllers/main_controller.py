@@ -3,7 +3,6 @@
 主控制器模块
 负责处理核心业务逻辑和协调各个组件
 """
-import os
 from PyQt6 import QtCore as QC
 from battery_analysis.main.workers.analysis_worker import AnalysisWorker
 

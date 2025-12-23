@@ -5,7 +5,6 @@
 import os
 import sys
 import re
-import time
 import shutil
 import subprocess
 import logging

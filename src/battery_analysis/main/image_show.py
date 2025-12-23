@@ -22,13 +22,12 @@
 """
 
 from battery_analysis.utils.config_utils import find_config_file
-from battery_analysis.utils.exception_type import BatteryAnalysisException
+
 from matplotlib.widgets import CheckButtons
 from matplotlib.ticker import MultipleLocator
 import matplotlib.pyplot as plt
 import os
 import csv
-import sys
 import math
 import traceback
 import configparser
@@ -651,7 +650,7 @@ class FIGURE:
             try:
                 check_filter = self._add_filter_button(
                     fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict)
-                check_line1, check_line2 = self._add_battery_selection_buttons(
+                self._add_battery_selection_buttons(
                     fig, check_filter, lines_unfiltered, lines_filtered
                 )
                 self._add_hover_functionality(
