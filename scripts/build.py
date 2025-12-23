@@ -122,7 +122,8 @@ class BuildManager(BuildConfig):
                 "datas_mapping": {"src": ".", "battery_analysis": "battery_analysis"},
                 "spec_hidden_imports": common_spec_hidden_imports + [
                     "battery_analysis", "battery_analysis.main",
-                    "battery_analysis.ui", "battery_analysis.utils"
+                    "battery_analysis.ui", "battery_analysis.utils",
+                    "battery_analysis.main.image_show"
                 ],
                 "additional_hidden_imports": [
                     "openpyxl", "battery_analysis.utils.version",
@@ -130,21 +131,6 @@ class BuildManager(BuildConfig):
                     "battery_analysis.utils.battery_analysis",
                     "battery_analysis.ui.ui_main_window"
                 ],
-                "pyinstaller_args": []
-            },
-            {
-                "name": "ImageShow",
-                "display_name": "BatteryTest-ImageMaker",
-                "build_dir": build_path / "Build_ImageShow",
-                "main_file_path": self.project_root / "src" / "battery_analysis" / "main" / "image_show.py",
-                "main_file": '["image_show.py", "resources/resources_rc.py"]',
-                "base_exe_name": "battery-analysis-visualizer",
-                "icon_name": "Icon_ImageShow.ico",
-                "datas_mapping": {"src": "src"},
-                "spec_hidden_imports": common_spec_hidden_imports + [
-                    "src", "src.battery_analysis", "src.battery_analysis.utils"
-                ],
-                "additional_hidden_imports": [],
                 "pyinstaller_args": []
             }
         ]

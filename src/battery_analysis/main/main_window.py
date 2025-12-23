@@ -41,6 +41,8 @@ logging.basicConfig(level=logging.INFO,
 # 导入控制器
 # 导入资源文件
 from battery_analysis.resources import resources_rc
+# 导入可视化模块
+from battery_analysis.main import image_show
 
 
 def calc_md5checksum(file_paths):
@@ -50,6 +52,22 @@ def calc_md5checksum(file_paths):
             data = file.read()
             md5_hash.update(data)
     return md5_hash.hexdigest()
+
+
+def run_visualizer_function():
+    """在模块级别定义的可视化工具运行函数"""
+    try:
+        from battery_analysis.main import image_show
+        # 创建FIGURE类实例
+        visualizer = image_show.FIGURE()
+        # 调用plt_figure方法显示图表
+        visualizer.plt_figure()
+        return True
+    except Exception as e:
+        logging.error("启动可视化工具时出错: %s", str(e))
+        import traceback
+        traceback.print_exc()
+        return False
 
 
 class Checker:
@@ -618,6 +636,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 工具菜单功能连接
         self.actionCalculate_Battery.triggered.connect(self.calculate_battery)
         self.actionAnalyze_Data.triggered.connect(self.analyze_data)
+        self.actionVisualizer.triggered.connect(self.run_visualizer)
         self.actionGenerate_Report.triggered.connect(self.generate_report)
         self.actionBatch_Processing.triggered.connect(self.batch_processing)
 
@@ -864,6 +883,37 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self,
             "生成报告",
             "报告将被生成到指定的输出路径。\n\n点击'运行'按钮开始完整的电池分析流程。",
+            QW.QMessageBox.StandardButton.Ok
+        )
+        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+
+    def run_visualizer(self) -> None:
+        """运行可视化工具"""
+        self.statusBar_BatteryAnalysis.showMessage("启动可视化工具...")
+        
+        try:
+            # 直接在主线程中运行可视化工具，确保Matplotlib GUI能正常显示
+            visualizer = image_show.FIGURE()
+            # 调用plt_figure方法显示图表
+            visualizer.plt_figure()
+            # 更新状态栏
+            self.statusBar_BatteryAnalysis.showMessage("可视化工具已启动")
+        except Exception as e:
+            logging.error("启动可视化工具时出错: %s", str(e))
+            QW.QMessageBox.error(
+                self,
+                "错误",
+                f"启动可视化工具时出错: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        
+    def show_visualizer_error(self, error_msg: str):
+        """在主线程中显示可视化工具错误消息"""
+        QW.QMessageBox.error(
+            self,
+            "错误",
+            f"启动可视化工具时出错: {error_msg}",
             QW.QMessageBox.StandardButton.Ok
         )
         self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
@@ -2258,7 +2308,8 @@ def main() -> None:
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
 
     # 优化matplotlib配置，避免font cache构建警告
-    matplotlib.use('Agg')  # 使用非交互式后端
+    # 使用Qt5Agg后端，与PyQt6兼容且支持交互式图表显示
+    matplotlib.use('Qt5Agg')
     matplotlib.rcParams['font.family'] = 'sans-serif'
     matplotlib.rcParams['font.sans-serif'] = ['Arial',
                                               'DejaVu Sans', 'Liberation Sans']

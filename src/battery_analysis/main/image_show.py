@@ -23,9 +23,17 @@
 
 from battery_analysis.utils.config_utils import find_config_file
 
+# 配置matplotlib后端
+import matplotlib
+# 先尝试使用Qt5Agg后端，它与PyQt6更兼容
+matplotlib.use('Qt5Agg')
+
 from matplotlib.widgets import CheckButtons
 from matplotlib.ticker import MultipleLocator
 import matplotlib.pyplot as plt
+
+# 开启Matplotlib的交互模式
+plt.ion()
 import os
 import csv
 import math
@@ -664,7 +672,8 @@ class FIGURE:
             fig.text(0.01, 0.98, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=8)
 
             logging.info("图表创建完成，显示CSV文件中的真实电池测试数据")
-            plt.show()
+            # 在交互模式下，使用非阻塞方式显示图表
+            plt.show(block=True)
 
         except Exception as e:
             logging.error("严重错误: 绘制图表时发生未预期的异常: %s", str(e))
@@ -757,8 +766,13 @@ class FIGURE:
 
         # 创建图表并设置标题
         fig = plt.figure(figsize=(15, 6))
-        fig.canvas.manager.window.setWindowTitle(
-            "Filtered Load Voltage over Charge")
+        # 尝试设置窗口标题（添加错误处理以兼容不同后端）
+        try:
+            if hasattr(fig.canvas.manager, 'window'):
+                fig.canvas.manager.window.setWindowTitle(
+                    "Filtered Load Voltage over Charge")
+        except Exception as e:
+            logging.warning("无法设置图表窗口标题: %s", str(e))
 
         # 清理并设置网格布局
         plt.clf()

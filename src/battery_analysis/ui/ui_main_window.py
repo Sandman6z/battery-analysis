@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'src/battery_analysis/ui/resources/ui_battery_analysis.ui'
+# Form implementation generated from reading ui file './src/battery_analysis/ui/resources/ui_battery_analysis.ui'
 #
 # Created by: PyQt6 UI code generator 6.10.0
 #
@@ -1307,6 +1307,8 @@ class Ui_MainWindow(object):
         self.actionOnline_Help.setObjectName("actionOnline_Help")
         self.actionAbout = QtGui.QAction(parent=MainWindow)
         self.actionAbout.setObjectName("actionAbout")
+        self.actionVisualizer = QtGui.QAction(parent=MainWindow)
+        self.actionVisualizer.setObjectName("actionVisualizer")
         self.toolBar.addAction(self.actionRun_Analysis)
         self.toolBar.addAction(self.actionOpen_File)
         self.toolBar.addAction(self.actionSave_Results)
@@ -1336,6 +1338,7 @@ class Ui_MainWindow(object):
         self.menuView.addAction(self.actionReset_Zoom)
         self.menuTools.addAction(self.actionCalculate_Battery)
         self.menuTools.addAction(self.actionAnalyze_Data)
+        self.menuTools.addAction(self.actionVisualizer)
         self.menuTools.addAction(self.actionGenerate_Report)
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionBatch_Processing)
@@ -1435,3 +1438,5 @@ class Ui_MainWindow(object):
         self.actionUser_Mannual.setText(_translate("MainWindow", "User Mannual"))
         self.actionOnline_Help.setText(_translate("MainWindow", "Online Help"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
+        self.actionVisualizer.setText(_translate("MainWindow", "Visualizer"))
+        self.actionVisualizer.setIconText(_translate("MainWindow", "Visualizer"))

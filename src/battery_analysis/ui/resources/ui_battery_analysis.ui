@@ -2645,6 +2645,7 @@ QPushButton#pushButton_Run:pressed {
     </property>
     <addaction name="actionCalculate_Battery"/>
     <addaction name="actionAnalyze_Data"/>
+    <addaction name="actionVisualizer"/>
     <addaction name="actionGenerate_Report"/>
     <addaction name="separator"/>
     <addaction name="actionBatch_Processing"/>
@@ -2865,6 +2866,14 @@ QPushButton#pushButton_Run:pressed {
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionVisualizer">
+   <property name="text">
+    <string>Visualizer</string>
+   </property>
+   <property name="iconText">
+    <string>Visualizer</string>
    </property>
   </action>
  </widget>
