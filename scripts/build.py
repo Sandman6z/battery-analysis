@@ -79,10 +79,68 @@ class BuildManager(BuildConfig):
         self.build_type = specified_build_type
         self.build_path = self.temp_build_dir
         self.console = self.console_mode
-
+        
+        # 定义共享的应用程序配置列表：统一管理BatteryAnalysis和ImageShow参数
+        self.apps_config = self._get_apps_config()
+        
         # 清理构建目录和缓存
         self.clean_build_dirs()
+    
+    def _get_apps_config(self):
+        """获取应用程序配置列表
+        
+        Returns:
+            list: 应用程序配置列表
+        """
+        build_path = Path(self.build_path)
+        
+        # 定义共同的隐藏导入
+        common_spec_hidden_imports = ["matplotlib.backends.backend_svg", "docx"]
+        
+        return [
+            {
+                "name": "BatteryAnalysis",
+                "display_name": "BatteryTest-DataConverter",
+                "build_dir": build_path / "Build_BatteryAnalysis",
+                "main_file_path": self.project_root / "src" / "battery_analysis" / "main" / "main_window.py",
+                "main_file": '["main_window.py"]',
+                "base_exe_name": "battery-analyzer",
+                "icon_name": "Icon_BatteryAnalysis.ico",
+                "datas_mapping": {"src": ".", "battery_analysis": "battery_analysis"},
+                "spec_hidden_imports": common_spec_hidden_imports + [
+                    "battery_analysis", "battery_analysis.main", 
+                    "battery_analysis.ui", "battery_analysis.utils"
+                ],
+                "additional_hidden_imports": [
+                    "openpyxl", "battery_analysis.utils.version",
+                    "battery_analysis.utils.file_writer", 
+                    "battery_analysis.utils.battery_analysis",
+                    "battery_analysis.ui.ui_main_window"
+                ],
+                "pyinstaller_args": []
+            },
+            {
+                "name": "ImageShow",
+                "display_name": "BatteryTest-ImageMaker",
+                "build_dir": build_path / "Build_ImageShow",
+                "main_file_path": self.project_root / "src" / "battery_analysis" / "main" / "image_show.py",
+                "main_file": '["image_show.py", "resources/resources_rc.py"]',
+                "base_exe_name": "battery-analysis-visualizer",
+                "icon_name": "Icon_ImageShow.ico",
+                "datas_mapping": {"src": "src"},
+                "spec_hidden_imports": common_spec_hidden_imports + [
+                    "src", "src.battery_analysis", "src.battery_analysis.utils"
+                ],
+                "additional_hidden_imports": [],
+                "pyinstaller_args": []
+            }
+        ]
 
+    def run_build(self):
+        """执行完整的构建流程
+        
+        包括版本号嵌入、文件复制、版本信息生成、构建和文件移动等步骤
+        """
         # 保存原始__init__.py内容，以便构建后恢复
         original_init_content = None
 
@@ -91,11 +149,16 @@ class BuildManager(BuildConfig):
             original_init_content = self.embed_version_in_init()
 
             # 执行构建流程
-            self.setup_version()
-            self.copy_source_files()
+            self.copy2dir()
             self.generate_version_info()
-            self.build_applications()
+            self.build()
             self.move_programs()
+            
+            # 构建完成后自动打开exe所在文件夹
+            final_build_dir = self.project_root / 'build' / self.build_type
+            logger.info("正在打开构建文件夹: %s", final_build_dir)
+            import os
+            os.startfile(final_build_dir)
         finally:
             # 构建完成后恢复原始__init__.py文件
             if original_init_content:
@@ -157,27 +220,20 @@ class BuildManager(BuildConfig):
         self.temp_build_dir.mkdir(parents=True, exist_ok=True)
         logger.info("构建目录清理完成")
 
-    def copy_source_files(self):
-        """复制源代码文件到构建目录"""
-        return self.copy2dir()
+    
 
     def generate_version_info(self):
         """生成版本信息文件"""
         # 在构建目录中创建version.txt文件（统一为两个应用生成）
-        build_path = Path(self.build_path)
         
-        # 定义应用程序列表，包含目录名和显示名
-        apps = [
-            {'dir_name': 'Build_BatteryAnalysis', 'app_name': 'BatteryTest-DataConverter'},
-            {'dir_name': 'Build_ImageShow', 'app_name': 'BatteryTest-ImageMaker'}
-        ]
-        
-        # 循环处理每个应用程序
-        for app in apps:
-            app_dir = build_path / app['dir_name']
+        # 使用self.apps_config循环处理每个应用程序
+        for app_config in self.apps_config:
+            app_dir = app_config["build_dir"]
             if app_dir.exists():
+                # 获取应用程序的显示名
+                app_display_name = app_config.get("display_name", app_config["name"])
                 self._write_file(
-                    self._generate_vs_version_info("test", app['app_name']),
+                    self._generate_vs_version_info("test", app_display_name),
                     app_dir / 'version.txt'
                 )
 
@@ -227,9 +283,7 @@ VSVersionInfo(
     ]
 )"""
 
-    def build_applications(self):
-        """构建应用程序"""
-        return self.build()
+    
 
     def move_programs(self):
         """移动构建好的程序到最终位置"""
@@ -241,30 +295,19 @@ VSVersionInfo(
         # 确定系统架构
         architecture = "x64"
 
-        # 根据构建类型生成相应的文件名格式
-        if self.build_type == "Release":
-            # Release版本：battery-analyzer_2.0.0_x64.exe
-            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}.exe"
-            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}.exe"
-        else:
-            # Debug版本：battery-analyzer_2.0.0_x64_debug.exe
-            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}_debug.exe"
-            # 使用字符串拼接代替f-string以减少行长度
-            imagemaker_exe_name = "battery-analysis-visualizer_" + \
-                f"{self.version}_{architecture}_debug.exe"
+        # 使用_generate_exe_name方法生成文件名，避免重复逻辑
+        exe_names = []
+        for app_config in self.apps_config:
+            exe_name = f"{self._generate_exe_name(app_config['base_exe_name'], architecture)}.exe"
+            exe_names.append(exe_name)
 
         # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
-        exe_path = build_dir / dataconverter_exe_name
-        if exe_path.exists():
-            logger.info("确认: %s 已在目标目录中", exe_path)
-        else:
-            logger.warning("警告: %s 不存在", exe_path)
-
-        exe_path = build_dir / imagemaker_exe_name
-        if exe_path.exists():
-            logger.info("确认: %s 已在目标目录中", exe_path)
-        else:
-            logger.warning("警告: %s 不存在", exe_path)
+        for exe_name in exe_names:
+            exe_path = build_dir / exe_name
+            if exe_path.exists():
+                logger.info("确认: %s 已在目标目录中", exe_path)
+            else:
+                logger.warning("警告: %s 不存在", exe_path)
 
         # 不再复制pyproject.toml到构建目录，版本号已直接在构建脚本中处理
 
@@ -288,10 +331,6 @@ VSVersionInfo(
             shutil.rmtree(build_path)
             logger.info("已清理临时构建目录: %s", build_path)
 
-    def setup_version(self):
-        """设置版本信息"""
-        # 无论是Debug还是Release模式，版本号都直接从pyproject.toml读取，不进行版本更新操作
-
     def _write_file(self, content, file_path):
         """写入文件的辅助方法"""
         # 确保目录存在
@@ -299,14 +338,6 @@ VSVersionInfo(
         file_path_obj.parent.mkdir(parents=True, exist_ok=True)
         with open(file_path_obj, "w", encoding='utf-8') as f:
             f.write(content)
-
-    def update_version_and_commit(self):
-        """更新版本并提交更改 - 该方法已废弃，版本号直接从pyproject.toml读取"""
-        logger.warning("版本号管理已简化，直接从pyproject.toml读取，不再需要更新版本和提交更改")
-
-    def _update_version_files(self):
-        """更新版本相关文件 - 该方法已废弃"""
-        logger.warning("版本号管理已简化，不再需要更新版本文件")
 
     def _copy_svg_icons(self, target_dir, app_name):
         """复制SVG图标文件到目标目录"""
@@ -320,6 +351,44 @@ VSVersionInfo(
                 shutil.copy(svg_file, dest_svg_dir)
                 logger.info("已复制SVG图标到%s: %s", app_name, svg_file.name)
 
+    def _copy_app_resources(self, build_dir, app_name, main_file_path):
+        """复制单个应用的资源文件到构建目录
+        
+        Args:
+            build_dir: 构建目录路径
+            app_name: 应用名称
+            main_file_path: 主程序文件路径
+        """
+        # 定义源文件路径
+        resources_rc_path = self.project_root / "src" / "battery_analysis" / "resources" / "resources_rc.py"
+        ui_path = self.project_root / "src" / "battery_analysis" / "ui" / "resources" / "ui_battery_analysis.ui"
+        battery_analysis_src = self.project_root / "src" / "battery_analysis"
+
+        # 复制主程序文件
+        shutil.copy(main_file_path, build_dir)
+        logger.info("已复制主程序文件到%s: %s", app_name, main_file_path.name)
+        
+        # 复制资源文件
+        resources_dest = build_dir / "resources"
+        resources_dest.mkdir(exist_ok=True)
+        shutil.copy(resources_rc_path, resources_dest)
+        logger.info("已复制资源文件到%s: %s", app_name, resources_rc_path.name)
+
+        # 复制SVG图标文件
+        self._copy_svg_icons(build_dir, app_name)
+
+        # 确保UI目录存在并复制UI文件
+        if app_name == "BatteryAnalysis":
+            ui_dest_dir = build_dir / "battery_analysis" / "ui" / "resources"
+            ui_dest_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy(ui_path, ui_dest_dir)
+            logger.info("已复制UI文件到%s: %s", app_name, ui_path.name)
+
+        # 创建完整的battery_analysis包结构
+        battery_analysis_dest = build_dir / "battery_analysis"
+        shutil.copytree(battery_analysis_src, battery_analysis_dest, dirs_exist_ok=True)
+        logger.info("已复制battery_analysis包结构到%s", app_name)
+
     def copy2dir(self):
         """复制源文件到构建目录"""
         build_path = Path(self.build_path)
@@ -327,55 +396,18 @@ VSVersionInfo(
             shutil.rmtree(build_path)
         build_path.mkdir(parents=True, exist_ok=True)
 
-        # 创建两个应用的构建目录
-        battery_analysis_dir = build_path / "Build_BatteryAnalysis"
-        image_show_dir = build_path / "Build_ImageShow"
-        battery_analysis_dir.mkdir()
-        image_show_dir.mkdir()
-
-        # 定义源文件路径
-        main_window_path = self.project_root / "src" / \
-            "battery_analysis" / "main" / "main_window.py"
-        image_show_path = self.project_root / "src" / \
-            "battery_analysis" / "main" / "image_show.py"
-        resources_rc_path = self.project_root / "src" / \
-            "battery_analysis" / "resources" / "resources_rc.py"
-        icon_path = self.project_root / "config" / \
-            "resources" / "icons" / "Icon_BatteryTestGUI.ico"
-        ui_path = self.project_root / "src" / "battery_analysis" / \
-            "ui" / "resources" / "ui_battery_analysis.ui"
-        battery_analysis_src = self.project_root / "src" / "battery_analysis"
-
-        # 复制BatteryAnalysis的文件
-        shutil.copy(main_window_path, battery_analysis_dir)
-        shutil.copy(resources_rc_path, battery_analysis_dir / "resources")
-
-        # 复制SVG图标文件到构建目录
-        self._copy_svg_icons(battery_analysis_dir, "BatteryAnalysis")
-        
-        # 确保UI目录存在并复制UI文件
-        ui_dest_dir = battery_analysis_dir / "battery_analysis" / "ui" / "resources"
-        ui_dest_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy(ui_path, ui_dest_dir)
-
-        # 创建完整的battery_analysis包结构
-        battery_analysis_dest = battery_analysis_dir / "battery_analysis"
-        # 使用dirs_exist_ok=True参数来允许目标目录存在
-        shutil.copytree(battery_analysis_src,
-                        battery_analysis_dest, dirs_exist_ok=True)
-
-        # 复制ImageShow的文件
-        shutil.copy(image_show_path, image_show_dir)
-        shutil.copy(resources_rc_path, image_show_dir / "resources")
-
-        # 复制SVG图标文件到ImageShow目录
-        self._copy_svg_icons(image_show_dir, "ImageShow")
-
-        # 为ImageShow也创建完整的battery_analysis包结构
-        battery_analysis_dest_img = image_show_dir / "battery_analysis"
-        # 使用dirs_exist_ok=True参数来允许目标目录存在
-        shutil.copytree(battery_analysis_src,
-                        battery_analysis_dest_img, dirs_exist_ok=True)
+        # 复制所有应用的资源
+        for app_config in self.apps_config:
+            # 创建构建目录
+            app_config["build_dir"].mkdir(parents=True, exist_ok=True)
+            logger.info("创建应用构建目录: %s", app_config["name"])
+            
+            # 复制应用资源
+            self._copy_app_resources(
+                app_config["build_dir"],
+                app_config["name"],
+                app_config["main_file_path"]
+            )
 
     def _find_python_dll(self):
         """查找Python DLL路径"""
@@ -409,41 +441,31 @@ VSVersionInfo(
             logger.warning("尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
             return None
 
-    def _generate_spec_content(self, app_name, exe_name, icon_name, main_file, datas_mapping):
+    def _generate_spec_content(self, app_name, exe_name, icon_name, main_file, datas_mapping, spec_hidden_imports):
         """生成PyInstaller spec文件内容"""
         debug_mode = self.build_type == "Debug"
-        project_root_escaped = str(self.project_root).replace('\\', '\\\\')
-        src_path_escaped = str(self.project_root / 'src').replace('\\', '\\\\')
-
-        # 构建hiddenimports
-        hiddenimports = [
-            "matplotlib.backends.backend_svg", "battery_analysis",
-            "battery_analysis.main", "battery_analysis.ui",
-            "battery_analysis.utils", "docx"
-        ]
-        if app_name == "ImageShow":
-            hiddenimports.extend(["src", "src.battery_analysis", "src.battery_analysis.utils"])
+        
+        # 使用pathlib的as_posix()方法自动处理路径分隔符
+        project_root_posix = self.project_root.as_posix()
+        src_path = self.project_root / 'src'
+        src_path_posix = src_path.as_posix()
+        config_path_posix = (self.project_root / 'config').as_posix()
+        pyproject_path_posix = (self.project_root / 'pyproject.toml').as_posix()
 
         # 构建datas
-        config_path = os.path.join(self.project_root, "config").replace("\\", "\\\\")
-        pyproject_path = os.path.join(self.project_root, "pyproject.toml").replace("\\", "\\\\")
-        
-        # 先构建datas的各个元素
-        datas_elements = [
-            f'"{src_path_escaped}", "{datas_mapping.get("src", ".")}"',
-            f'"{config_path}", "config"',
-            f'"{pyproject_path}", "."'
-        ]
+        datas = []
+        datas.append(f'("{src_path_posix}", "{datas_mapping.get("src", ".")}")')
         
         if app_name == "BatteryAnalysis":
-            battery_analysis_path = os.path.join(src_path_escaped, "battery_analysis").replace("\\", "\\\\")
-            datas_elements.insert(1, f'"{battery_analysis_path}", "battery_analysis"')
+            battery_analysis_path_posix = (src_path / "battery_analysis").as_posix()
+            datas.append(f'("{battery_analysis_path_posix}", "battery_analysis")')
         
-        # 然后用括号包裹每个元素
-        datas = [f'({elem})' for elem in datas_elements]
+        datas.append(f'("{config_path_posix}", "config")')
+        datas.append(f'("{pyproject_path_posix}", ".")')
+        datas_str = ',\n        '.join(datas)
 
         # 构建hiddenimports字符串
-        hiddenimports_str = ', '.join(['"' + imp + '"' for imp in hiddenimports])
+        hiddenimports_str = ', '.join(f'"{imp}"' for imp in spec_hidden_imports)
         
         # 构建控制台模式字符串
         console_mode = str(self.console_mode or debug_mode).lower()
@@ -451,18 +473,18 @@ VSVersionInfo(
         strip_mode = str(not debug_mode).lower()
         upx_mode = str(not debug_mode).lower()
         
-        # 使用字符串格式方法来构建完整的spec_content
-        spec_content = '''# -*- mode: python ; coding: utf-8 -*-
+        # 使用f-string构建完整的spec_content，提高可读性
+        spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
 block_cipher = None
 a = Analysis(
-    [{0}],
-    pathex=["{1}", "{2}"],
+    [{main_file}],
+    pathex=["{project_root_posix}", "{src_path_posix}"],
     binaries=[],
     datas=[
-        {3}
+        {datas_str}
     ],
     hiddenimports=[
-        {4}
+        {hiddenimports_str}
     ],
     hookspath=[],
     hooksconfig={{}},
@@ -481,35 +503,22 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="{5}",
-    debug={6},
+    name="{exe_name}",
+    debug={debug_mode_str},
     bootloader_ignore_signals=False,
-    strip={7},
-    upx={8},
+    strip={strip_mode},
+    upx={upx_mode},
     upx_exclude=[],
     runtime_tmpdir=None,
-    console={9},
+    console={console_mode},
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon="./{10}",
+    icon="./{icon_name}",
     version="version.txt",
-)
-'''.format(
-    main_file,
-    project_root_escaped,
-    src_path_escaped,
-    ',\n        '.join(datas),
-    hiddenimports_str,
-    exe_name,
-    debug_mode_str,
-    strip_mode,
-    upx_mode,
-    console_mode,
-    icon_name
-)
+)'''
         return spec_content
 
     def _execute_pyinstaller_command(self, app_dir, cmd_args):
@@ -530,166 +539,146 @@ exe = EXE(
             logger.error("执行命令时出错: %s", e)
             return subprocess.CompletedProcess(cmd_args, 1)
 
+    def _generate_exe_name(self, base_name, architecture):
+        """生成可执行文件名
+        
+        Args:
+            base_name: 基础文件名
+            architecture: 系统架构
+            
+        Returns:
+            完整的可执行文件名（不带.exe后缀）
+        """
+        suffix = "_debug" if self.build_type != "Release" else ""
+        return f"{base_name}_{self.version}_{architecture}{suffix}"
+
+    def _build_pyinstaller_args(self, app_config, temp_path, src_path, final_build_dir):
+        """构建PyInstaller命令参数
+        
+        Args:
+            app_config: 应用程序配置
+            temp_path: 临时目录路径
+            src_path: 源代码目录路径
+            final_build_dir: 最终构建目录路径
+            
+        Returns:
+            list: PyInstaller命令参数列表
+        """
+        # 构建通用PyInstaller参数
+        cmd_args = [
+            sys.executable, '-m', 'PyInstaller',
+            '--log-level=DEBUG',
+            '--noupx',
+            '--version-file=version.txt',
+            '--collect-all=pywin32',
+            f'--name={app_config["exe_name"]}',
+            f'--icon={app_config["icon_name"]}',
+            f'--distpath={final_build_dir}',
+            f'--workpath={temp_path}/{app_config["name"]}',
+            '--onefile',  # 使用统一的单文件模式
+            f'--add-data={src_path};.'
+        ]
+        
+        # 添加应用特定的数据文件
+        if app_config["name"] == "BatteryAnalysis":
+            cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis")};battery_analysis')
+        
+        # 添加所有隐藏导入
+        for hidden_import in app_config["spec_hidden_imports"] + app_config["additional_hidden_imports"]:
+            cmd_args.append(f'--hidden-import={hidden_import}')
+        
+        # 添加main文件
+        main_files = eval(app_config["main_file"])
+        cmd_args.append(main_files[0])
+        
+        # 添加应用程序特定参数
+        cmd_args.extend(app_config["pyinstaller_args"])
+        
+        # 添加通用参数
+        cmd_args.extend([
+            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config"))};config',
+            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
+            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
+            '--add-data', f'{self.project_root / "pyproject.toml"};.',
+            '--path', f'{src_path}',
+            '--path', f'{self.project_root}'
+        ])
+        
+        # 添加通用的隐藏导入和收集项
+        cmd_args.extend([
+            '--hidden-import', 'xlsxwriter',
+            '--collect-all', 'xlsxwriter',
+            '--collect-all', 'openpyxl',
+            '--hidden-import', 'xlrd',
+            '--collect-all', 'xlrd'
+        ])
+        
+        # 添加调试/控制台参数
+        debug_mode = self.build_type == "Debug"
+        if self.console_mode or debug_mode:
+            cmd_args.append('--console')
+        else:
+            cmd_args.append('--noconsole')
+        
+        if not debug_mode:
+            cmd_args.append('--strip')
+        
+        # 查找Python DLL并添加到命令参数
+        python_dll = self._find_python_dll()
+        if python_dll:
+            cmd_args.append(f'--add-binary={python_dll};.')
+        else:
+            logger.warning("Could not find python311.dll")
+        
+        return cmd_args
+    
     def build(self):
         """构建应用程序"""
         logger.info('开始构建...')
         # 确保临时目录存在
-        temp_path = self.project_root / '__temp__'
+        temp_path = self.temp_build_dir
         temp_path.mkdir(parents=True, exist_ok=True)
 
         # 确保构建目录存在
         build_path = Path(self.build_path)
         build_path.mkdir(parents=True, exist_ok=True)
 
-        # 确保 build 目录存在并添加构建类型子目录
+        # 确保最终构建目录存在
         final_build_dir = self.project_root / 'build' / self.build_type
         final_build_dir.mkdir(parents=True, exist_ok=True)
 
         src_path = self.project_root / 'src'
-
-        # 确定系统架构
         architecture = "x64"
-
-        # 根据构建类型生成相应的文件名格式（注意：这里不带.exe后缀，PyInstaller会自动添加）
-        if self.build_type == "Release":
-            # Release版本：battery-analyzer_2.0.0_x64
-            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}"
-            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}"
-        else:
-            # Debug版本：battery-analyzer_2.0.0_x64_debug
-            dataconverter_exe_name = f"battery-analyzer_{self.version}_{architecture}_debug"
-            imagemaker_exe_name = f"battery-analysis-visualizer_{self.version}_{architecture}_debug"
-
-        # 定义共同的隐藏导入
-        common_spec_hidden_imports = [
-            "matplotlib.backends.backend_svg",
-            "docx"
-        ]
-        
-        # 应用程序配置列表：统一管理BatteryAnalysis和ImageShow参数
-        apps_config = [
-            {
-                "name": "BatteryAnalysis",
-                "build_dir": build_path / "Build_BatteryAnalysis",
-                "exe_name": dataconverter_exe_name,
-                "icon_name": "Icon_BatteryAnalysis.ico",
-                "main_file": '["main_window.py"]',
-                "datas_mapping": {".": ".", "battery_analysis": "battery_analysis"},
-                "spec_hidden_imports": common_spec_hidden_imports + [
-                    "battery_analysis",
-                    "battery_analysis.main", 
-                    "battery_analysis.ui",
-                    "battery_analysis.utils"
-                ],
-                "pyinstaller_args": [
-                    '-F', 'main_window.py',
-                    '--add-data', f'{src_path};.',
-                    '--add-data', f'{os.path.join(src_path, "battery_analysis")};battery_analysis',
-                    '--hidden-import', 'matplotlib.backends.backend_svg',
-                    '--hidden-import', 'docx',
-                    '--hidden-import', 'openpyxl',
-                    '--hidden-import', 'battery_analysis',
-                    '--hidden-import', 'battery_analysis.main',
-                    '--hidden-import', 'battery_analysis.ui',
-                    '--hidden-import', 'battery_analysis.utils',
-                    '--hidden-import', 'battery_analysis.utils.version',
-                    '--hidden-import', 'battery_analysis.utils.file_writer',
-                    '--hidden-import', 'battery_analysis.utils.battery_analysis',
-                    '--hidden-import', 'battery_analysis.ui.ui_main_window'
-                ]
-            },
-            {
-                "name": "ImageShow",
-                "build_dir": build_path / "Build_ImageShow",
-                "exe_name": imagemaker_exe_name,
-                "icon_name": "Icon_ImageShow.ico",
-                "main_file": '["image_show.py", "resources/resources_rc.py"]',
-                "datas_mapping": {"src": "src"},
-                "spec_hidden_imports": common_spec_hidden_imports + [
-                    "src",
-                    "src.battery_analysis", 
-                    "src.battery_analysis.utils"
-                ],
-                "pyinstaller_args": [
-                    '--onefile', 'image_show.py'
-                ]
-            }
-        ]
 
         # 复制必要的图标
         icon_path = self.project_root / 'config' / 'resources' / 'icons' / 'Icon_BatteryTestGUI.ico'
         if icon_path.exists():
-            for app in apps_config:
-                app["build_dir"].mkdir(exist_ok=True)
+            for app in self.apps_config:
                 shutil.copy2(icon_path, app["build_dir"] / app["icon_name"])
+                logger.info("已复制图标文件到%s: %s", app["name"], app["icon_name"])
 
         # 构建两个应用程序
-        for app_config in apps_config:
+        for app_config in self.apps_config:
+            # 生成可执行文件名
+            app_config["exe_name"] = self._generate_exe_name(app_config["base_exe_name"], architecture)
+            
             # 生成spec文件内容
             spec_content = self._generate_spec_content(
                 app_config["name"],
                 app_config["exe_name"],
                 app_config["icon_name"],
                 app_config["main_file"],
-                app_config["datas_mapping"]
+                app_config["datas_mapping"],
+                app_config["spec_hidden_imports"]
             )
             
             # 写入spec文件
             spec_file_path = app_config["build_dir"] / 'build.spec'
-            with open(spec_file_path, 'w', encoding='utf-8') as f:
-                f.write(spec_content)
+            self._write_file(spec_content, spec_file_path)
+            logger.info("已生成spec文件: %s", spec_file_path)
             
             # 构建PyInstaller命令参数
-            cmd_args = [
-                sys.executable, '-m', 'PyInstaller',
-                f'--name={app_config["exe_name"]}',
-                f'--icon={app_config["icon_name"]}',
-                f'--distpath={final_build_dir}',
-                f'--workpath={temp_path}/{app_config["name"]}',
-                '--log-level=DEBUG',
-                '--noupx',
-                '--version-file=version.txt',
-                '--collect-all=pywin32'
-            ]
-            
-            # 添加应用程序特定参数
-            cmd_args.extend(app_config["pyinstaller_args"])
-            
-            # 添加通用参数
-            cmd_args.extend([
-                '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config"))};config',
-                '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
-                '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
-                '--add-data', f'{self.project_root / "pyproject.toml"};.',
-                '--path', f'{src_path}',
-                '--path', f'{self.project_root}'
-            ])
-            
-            # 添加通用的隐藏导入和收集项
-            cmd_args.extend([
-                '--hidden-import', 'xlsxwriter',
-                '--collect-all', 'xlsxwriter',
-                '--collect-all', 'openpyxl',
-                '--hidden-import', 'xlrd',
-                '--collect-all', 'xlrd'
-            ])
-            
-            # 添加调试/控制台参数
-            debug_mode = self.build_type == "Debug"
-            if self.console_mode or debug_mode:
-                cmd_args.append('--console')
-            else:
-                cmd_args.append('--noconsole')
-            
-            if not debug_mode:
-                cmd_args.append('--strip')
-            
-            # 查找Python DLL并添加到命令参数
-            python_dll = self._find_python_dll()
-            if python_dll:
-                cmd_args.append(f'--add-binary={python_dll};.')
-            else:
-                logger.warning("Could not find python311.dll")
+            cmd_args = self._build_pyinstaller_args(app_config, temp_path, src_path, final_build_dir)
             
             # 执行PyInstaller命令
             self._execute_pyinstaller_command(app_config["build_dir"], cmd_args)
@@ -723,6 +712,7 @@ def main():
     try:
         # 创建BuildManager实例并执行构建
         build_manager = BuildManager(args.build_type)
+        build_manager.run_build()  # 调用run_build方法执行完整构建流程
         logger.info(f'{args.build_type} 构建完成')
     except Exception as e:
         logger.error(f'构建失败: {e}')
