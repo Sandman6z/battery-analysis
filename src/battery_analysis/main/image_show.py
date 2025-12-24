@@ -21,8 +21,8 @@
 - math: 用于数学计算
 """
 
-from tkinter import filedialog
-import tkinter as tk
+
+from PyQt6.QtWidgets import QFileDialog
 import logging
 from pathlib import Path
 import configparser
@@ -848,24 +848,19 @@ class FIGURE:
             
             data_dir = None
             
-            # 使用tkinter的文件对话框（Python标准库，不需要额外安装）
-            logging.info("尝试使用tkinter文件对话框")
+            # 使用Qt的文件对话框
+            logging.info("尝试使用Qt文件对话框")
             try:
-                import tkinter as tk
-                from tkinter import filedialog
-                logging.info("成功导入tkinter和filedialog")
-                
-                # 创建Tkinter根窗口并隐藏
-                root = tk.Tk()
-                root.withdraw()
-                logging.info("成功创建并隐藏Tkinter根窗口")
-                
                 # 打开目录选择对话框
-                data_dir = filedialog.askdirectory(title="选择数据目录")
-                logging.info(f"使用tkinter文件对话框成功，返回值: {data_dir}")
-                root.destroy()
-            except Exception as tk_error:
-                logging.error(f"tkinter文件对话框失败: {tk_error}")
+                data_dir = QFileDialog.getExistingDirectory(
+                    None,  # 父窗口
+                    "选择数据目录",  # 对话框标题
+                    self.strPltPath or ".",  # 默认目录
+                    QFileDialog.Option.ShowDirsOnly  # 只显示目录
+                )
+                logging.info(f"使用Qt文件对话框成功，返回值: {data_dir}")
+            except Exception as qt_error:
+                logging.error(f"Qt文件对话框失败: {qt_error}")
 
             if data_dir:
                 logging.info(f"用户选择的数据目录: {data_dir}")
