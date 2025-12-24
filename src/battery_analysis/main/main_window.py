@@ -2314,8 +2314,9 @@ def main() -> None:
     # 使用Qt5Agg后端，与PyQt6兼容且支持交互式图表显示
     matplotlib.use('Qt5Agg')
     matplotlib.rcParams['font.family'] = 'sans-serif'
-    matplotlib.rcParams['font.sans-serif'] = ['Arial',
-                                              'DejaVu Sans', 'Liberation Sans']
+    matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial',
+                                              'DejaVu Sans', 'Liberation Sans', 'Times New Roman']
+    matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
     app = QW.QApplication(sys.argv)
     # 设置应用程序样式为Fusion，确保在不同Windows版本上表现一致

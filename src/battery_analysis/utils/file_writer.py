@@ -12,6 +12,11 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx import Document
 from matplotlib.ticker import MultipleLocator
 import matplotlib.pyplot as plt
+
+# 配置matplotlib支持中文显示
+plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
 import xlsxwriter as xwt
 import os
 import csv

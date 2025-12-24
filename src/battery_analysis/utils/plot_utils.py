@@ -1,5 +1,10 @@
 import math
 import matplotlib.pyplot as plt
+
+# 配置matplotlib支持中文显示
+plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 
 

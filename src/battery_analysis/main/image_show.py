@@ -28,6 +28,10 @@ import matplotlib
 # 先尝试使用Qt5Agg后端，它与PyQt6更兼容
 matplotlib.use('Qt5Agg')
 
+# 配置matplotlib支持中文显示
+matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
 from matplotlib.widgets import CheckButtons
 from matplotlib.ticker import MultipleLocator
 import matplotlib.pyplot as plt
