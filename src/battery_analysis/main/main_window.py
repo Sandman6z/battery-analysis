@@ -2327,7 +2327,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 def main() -> None:
     # 解决PyInstaller打包后multiprocessing导致的递归启动问题
     multiprocessing.freeze_support()
-    # 抑制PyQt5的deprecation warning
+    # 优化PyQt6的警告处理
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
 
     # 优化matplotlib配置，避免font cache构建警告

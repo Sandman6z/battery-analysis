@@ -1,31 +1,43 @@
-import os
-import sys
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+测试可视化器功能的脚本
+用于验证无XML启动时file-open菜单是否能正常工作
+"""
+
 import logging
-from battery_analysis.main.controllers.visualizer_controller import VisualizerController
+import sys
+import os
 
 # 设置日志级别
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def test_visualizer():
-    """测试可视化器修复是否成功"""
+# 添加项目根目录到Python路径
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
+def test_visualizer_no_xml():
+    """
+    测试无XML启动时的可视化器功能
+    """
     try:
-        # 创建可视化器控制器
-        controller = VisualizerController()
+        logging.info("开始测试无XML启动的可视化器功能...")
         
-        # 模拟选择一个不存在的XML路径（应该创建空的visualizer）
-        xml_path = "test.xml"
-        visualizer = controller.create_visualizer(xml_path)
+        # 导入可视化器模块
+        from src.battery_analysis.main.image_show import FIGURE
+        
+        # 创建可视化器实例（不提供XML路径）
+        visualizer = FIGURE()
         
         # 显示图表
-        logging.info("显示可视化图表...")
-        # 注意：这里不会实际显示图表，因为我们没有图形界面
-        # visualizer.plt_figure()
+        visualizer.plt_figure()
         
-        logging.info("测试完成，可视化器创建成功")
+        logging.info("可视化器显示完成")
         return True
     except Exception as e:
-        logging.error("测试失败: %s", str(e))
+        logging.error(f"测试失败: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 if __name__ == "__main__":
-    test_visualizer()
+    test_visualizer_no_xml()

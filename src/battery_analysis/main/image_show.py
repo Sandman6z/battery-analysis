@@ -83,9 +83,9 @@ class FIGURE:
         """
         def __init__(self):
             # 默认坐标轴范围
-            self.axis_default = [0, 1000, 0, 5]  # [xmin, xmax, ymin, ymax]
+            self.axis_default = [10, 600, 0, 5]  # [xmin, xmax, ymin, ymax]
             # 特殊规则下的坐标轴范围
-            self.axis_special = [10, 1000, 1, 3]  # [xmin, xmax, ymin, ymax]
+            self.axis_special = [10, 600, 1, 3]  # [xmin, xmax, ymin, ymax]
 
     def __init__(self, data_path=None):
         """
@@ -753,8 +753,8 @@ class FIGURE:
             fig.text(0.01, 0.98, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=8)
 
             logging.info("图表创建完成，显示CSV文件中的真实电池测试数据")
-            # 在交互模式下，使用非阻塞方式显示图表
-            plt.show(block=True)
+            # 在PyQt应用中，使用非阻塞方式显示图表，避免与PyQt事件循环冲突
+            plt.show(block=False)
 
         except Exception as e:
             logging.error("严重错误: 绘制图表时发生未预期的异常: %s", str(e))
@@ -817,9 +817,13 @@ class FIGURE:
                 spine.set_color('#ff5722')
                 spine.set_linewidth(1)
 
+            # 添加菜单栏（包括Open功能）
+            self._add_menu_bar(fig)
+
             logging.info("显示错误信息图表: %s - %s", title, main_message)
             plt.tight_layout()
-            plt.show(block=True)
+            # 在PyQt应用中，使用非阻塞方式显示图表，避免与PyQt事件循环冲突
+            plt.show(block=False)
 
         except Exception as e:
             logging.critical("显示错误图表时发生异常: %s", str(e))
@@ -838,16 +842,30 @@ class FIGURE:
         """
         打开文件对话框，允许用户选择数据文件
         """
+        logging.info("=== _open_file_dialog方法开始执行 ===")
         try:
-            logging.info("打开文件对话框，选择数据目录")
-
-            # 创建Tkinter根窗口并隐藏
-            root = tk.Tk()
-            root.withdraw()
-
-            # 打开目录选择对话框
-            data_dir = filedialog.askdirectory(title="选择数据目录")
-            root.destroy()
+            logging.info("尝试打开文件对话框，选择数据目录")
+            
+            data_dir = None
+            
+            # 使用tkinter的文件对话框（Python标准库，不需要额外安装）
+            logging.info("尝试使用tkinter文件对话框")
+            try:
+                import tkinter as tk
+                from tkinter import filedialog
+                logging.info("成功导入tkinter和filedialog")
+                
+                # 创建Tkinter根窗口并隐藏
+                root = tk.Tk()
+                root.withdraw()
+                logging.info("成功创建并隐藏Tkinter根窗口")
+                
+                # 打开目录选择对话框
+                data_dir = filedialog.askdirectory(title="选择数据目录")
+                logging.info(f"使用tkinter文件对话框成功，返回值: {data_dir}")
+                root.destroy()
+            except Exception as tk_error:
+                logging.error(f"tkinter文件对话框失败: {tk_error}")
 
             if data_dir:
                 logging.info(f"用户选择的数据目录: {data_dir}")
@@ -874,8 +892,10 @@ class FIGURE:
             fig: matplotlib Figure对象
         """
         try:
+            logging.info("_add_menu_bar方法开始执行")
             # 获取图表窗口的manager
             manager = fig.canvas.manager
+            logging.info(f"成功获取manager: {type(manager)}")
 
             # 尝试使用Qt的方式添加菜单（兼容PyQt5、PyQt6和PySide）
             try:
@@ -885,11 +905,17 @@ class FIGURE:
                     # 添加File菜单
                     file_menu = menubar.addMenu('File')
 
-                    # 添加Open菜单项
-                    open_action = manager.window.addAction('Open')
-                    open_action.triggered.connect(self._open_file_dialog)
-                    file_menu.addAction(open_action)
-                    logging.info("成功使用Qt方式添加菜单")
+                    # 添加Open菜单项 - 使用更安全的方式创建action
+                open_action = file_menu.addAction('Open')
+                # 使用匿名函数包装，增加调试信息
+                def on_open_clicked():
+                    logging.info("Open菜单项被点击 - 进入匿名函数")
+                    self._open_file_dialog()
+                    logging.info("Open菜单项被点击 - 离开匿名函数")
+                
+                open_action.triggered.connect(on_open_clicked)
+                logging.info(f"Qt菜单添加成功，Open action已连接到on_open_clicked匿名函数")
+                logging.info("成功使用Qt方式添加菜单")
             except Exception as e:
                 logging.warning("Qt菜单添加失败，尝试使用Tk方式: %s", str(e))
 
