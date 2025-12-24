@@ -21,37 +21,36 @@
 - math: 用于数学计算
 """
 
+from tkinter import filedialog
+import tkinter as tk
+import logging
+from pathlib import Path
+import configparser
+import traceback
+import math
+import csv
+import os
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+from matplotlib.widgets import CheckButtons
 from battery_analysis.utils.config_utils import find_config_file
 
-# 配置matplotlib后端
-import matplotlib
-# 先尝试使用Qt5Agg后端，它与PyQt6更兼容
-matplotlib.use('Qt5Agg')
+
+# 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）
+matplotlib.use('QtAgg')
 
 # 配置matplotlib支持中文显示
-matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+matplotlib.rcParams['font.sans-serif'] = ['SimHei',
+                                          'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
 matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
-
-from matplotlib.widgets import CheckButtons
-from matplotlib.ticker import MultipleLocator
-import matplotlib.pyplot as plt
 
 # 开启Matplotlib的交互模式
 plt.ion()
-import os
-import csv
-import math
-import traceback
-import configparser
-from pathlib import Path
-import logging
 
 # 配置日志
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-# 导入异常类
 
 
 class FIGURE:
@@ -79,7 +78,7 @@ class FIGURE:
 
         初始化图表参数，读取配置文件，并设置默认值。如果配置文件不存在，
         将使用硬编码的默认值。
-        
+
         Args:
             data_path: 可选，指定要加载数据的目录路径
         """
@@ -97,41 +96,54 @@ class FIGURE:
         # 加载配置文件
         self._load_config_file()
 
-        # 读取配置项
-        self._read_configurations()
-
         # 设置其他初始化参数
         self.listColor = ['#DF7040', '#0675BE', '#EDB120',
                           '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
         self.maxXaxis = 1000  # 默认最大值
         self.intBatteryNum = 0  # 默认没有电池数据
-        
-        # 只有在提供了数据路径时才加载数据
+
+        # 初始化坐标轴范围和刻度
+        # [xmin, xmax, ymin, ymax]
+        self.listAxis = [0, self.maxXaxis, 2.5, 4.5]
+        self.listXTicks = list(range(0, self.maxXaxis + 1, 100))  # X轴刻度值
+
+        # 先初始化默认数据结构
+        self.listPlt = []
+        self.listBatteryName = []
+        self.listBatteryNameSplit = []
+        self.strPltPath = None
+        self.strInfoImageCsvPath = None
+
+        # 读取配置项
+        self._read_configurations()
+
+        # 如果提供了数据路径，覆盖配置文件中的路径
         if data_path is not None:
+            logging.info(f"初始化时接收到数据路径: {data_path}")
             self.set_data_path(data_path)
-            self.load_data()
+            success = self.load_data()
+            logging.info(f"初始化数据加载{'成功' if success else '失败'}")
         else:
             # 默认不加载任何数据，只初始化基本参数
-            self.listPlt = []
-            self.listBatteryName = []
-            self.listBatteryNameSplit = []
-            self.strPltPath = None
-            self.strInfoImageCsvPath = None
+            logging.info("初始化时未提供数据路径，不加载数据")
 
     def set_data_path(self, data_path):
         """
         设置数据路径并更新CSV文件路径
-        
+
         Args:
             data_path: 要设置的数据目录路径
         """
+        logging.info(f"设置数据路径: {data_path}")
         self.strPltPath = data_path
-        self.strInfoImageCsvPath = os.path.join(self.strPltPath, "Info_Image.csv")
+        self.strInfoImageCsvPath = os.path.join(
+            self.strPltPath, "Info_Image.csv")
+        logging.info(f"更新后的CSV文件路径: {self.strInfoImageCsvPath}")
 
     def load_data(self):
         """
         加载数据并处理，为绘制图表做准备
-        
+
         Returns:
             bool: 是否成功加载数据
         """
@@ -262,7 +274,8 @@ class FIGURE:
             if self.config.has_section(section) and self.config.has_option(section, option):
                 list_value = self.config.get(section, option).split(",")
                 cleaned_list = [item.strip() for item in list_value]
-                logging.debug("获取配置列表 %s/%s: %s", section, option, cleaned_list)
+                logging.debug("获取配置列表 %s/%s: %s", section,
+                              option, cleaned_list)
                 return cleaned_list
             else:
                 logging.warning("未找到配置列表 %s/%s，使用空列表", section, option)
@@ -274,8 +287,8 @@ class FIGURE:
     def _get_pulse_current_level(self):
         """获取脉冲电流级别配置"""
         try:
-            if (self.config.has_section("BatteryConfig") 
-                and self.config.has_option("BatteryConfig", "PulseCurrent")):
+            if (self.config.has_section("BatteryConfig")
+                    and self.config.has_option("BatteryConfig", "PulseCurrent")):
                 listPulseCurrentLevel = self.config.get(
                     "BatteryConfig", "PulseCurrent").split(",")
                 result = [int(item.strip()) for item in listPulseCurrentLevel]
@@ -295,9 +308,9 @@ class FIGURE:
         """设置图表标题，处理引号情况"""
         try:
             # 尝试移除前后引号（如果存在）
-            if (len(self.strPltTitle) >= 2 
-                and self.strPltTitle[0] == '"' 
-                and self.strPltTitle[-1] == '"'):
+            if (len(self.strPltTitle) >= 2
+                and self.strPltTitle[0] == '"'
+                    and self.strPltTitle[-1] == '"'):
                 title_content = self.strPltTitle[1:-1]
             else:
                 title_content = self.strPltTitle
@@ -310,8 +323,8 @@ class FIGURE:
     def _read_rules_configuration(self):
         """读取并处理规则配置"""
         try:
-            if (self.config.has_section("BatteryConfig") 
-                and self.config.has_option("BatteryConfig", "Rules")):
+            if (self.config.has_section("BatteryConfig")
+                    and self.config.has_option("BatteryConfig", "Rules")):
                 listRules = self.config.get(
                     "BatteryConfig", "Rules").split(",")
                 self._process_rules(listRules)
@@ -333,6 +346,10 @@ class FIGURE:
                                 self.maxXaxis = int(rule_parts[2])
                                 logging.info(
                                     "根据规则设置maxXaxis: %s", self.maxXaxis)
+                                # 同步更新坐标轴范围和刻度
+                                self.listAxis = [0, self.maxXaxis, 2.5, 4.5]
+                                self.listXTicks = list(
+                                    range(0, self.maxXaxis + 1, 100))
                                 break
                             except ValueError:
                                 logging.warning(
@@ -517,7 +534,7 @@ class FIGURE:
                 strBatteryName = f"Battery_{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
 
-    def filter_data(self, list_plt_charge: list, list_plt_voltage: list, 
+    def filter_data(self, list_plt_charge: list, list_plt_voltage: list,
                     times=5, slope_max=0.2, difference_max=0.05):
         """
         过滤数据以去除异常值和噪声
@@ -557,8 +574,8 @@ class FIGURE:
                             (voltage_single[c] - voltage_single[c - 1]) / charge_diff)
 
                     # 根据斜率和电压差异进行过滤
-                    if (slope < slope_max 
-                        and abs(voltage_single[c] - voltage_single[c - 1]) < difference_max):
+                    if (slope < slope_max
+                            and abs(voltage_single[c] - voltage_single[c - 1]) < difference_max):
                         charge_temp.append(charge_single[c])
                         voltage_temp.append(voltage_single[c])
 
@@ -592,22 +609,23 @@ class FIGURE:
     def plt_figure(self):
         """创建并显示电池数据图表，包含交互控件以切换数据显示
 
-        重要说明：此方法只使用CSV文件中的真实数据，不会生成或显示任何模拟数据。
+        重要说明：此方法只使用CSV文件中的真实数据，
         如果没有有效的电池数据或绘图过程中出错，会显示详细的错误信息和故障排除建议。
         """
         try:
-            logging.info("开始绘制图表，仅使用CSV文件中的真实数据")
+            # 关闭所有现有图表，避免弹出多个窗口
+            plt.close('all')
+            logging.info("开始绘制图表")
 
             # 执行多层次的数据有效性检查
             if self.intBatteryNum <= 0:
-                logging.error("严重错误: 没有有效的电池数据可供显示")
-                logging.warning("请注意: 此程序仅使用CSV文件中的真实数据，不会生成模拟数据")
+                logging.error("错误: 没有有效的电池数据可供显示")
                 self._show_error_plot()
                 return
 
             # 检查必要的数据结构是否有效
             if not hasattr(self, 'listPlt') or not self.listPlt:
-                logging.error("严重错误: 电池数据结构未初始化或为空")
+                logging.error("错误: 电池数据结构未初始化或为空")
                 self._show_error_plot()
                 return
 
@@ -616,6 +634,9 @@ class FIGURE:
                 fig, ax, title_fontdict, axis_fontdict = self._initialize_figure()
                 if fig is None or ax is None:
                     raise ValueError("无法初始化图表或坐标轴")
+
+                # 添加菜单栏
+                self._add_menu_bar(fig)
             except Exception as init_error:
                 logging.error("图表初始化失败: %s", str(init_error))
                 self._show_error_plot()
@@ -705,7 +726,6 @@ class FIGURE:
             full_text += "检查步骤:\n"
             full_text += details
 
-
             # 显示错误日志信息（如果有）
             if hasattr(self, 'errorlog') and self.errorlog:
                 full_text += f"\n\n错误详情: {str(self.errorlog)}"
@@ -727,7 +747,7 @@ class FIGURE:
 
             logging.info("显示错误信息图表: %s - %s", title, main_message)
             plt.tight_layout()
-            plt.show()
+            plt.show(block=True)
 
         except Exception as e:
             logging.critical("显示错误图表时发生异常: %s", str(e))
@@ -741,6 +761,101 @@ class FIGURE:
             logging.info("2. Matplotlib库是否可用")
             logging.info("3. CSV文件是否存在且格式正确")
             logging.info("4. 系统是否有足够的资源显示图形")
+
+    def _open_file_dialog(self):
+        """
+        打开文件对话框，允许用户选择数据文件
+        """
+        try:
+            logging.info("打开文件对话框，选择数据目录")
+
+            # 创建Tkinter根窗口并隐藏
+            root = tk.Tk()
+            root.withdraw()
+
+            # 打开目录选择对话框
+            data_dir = filedialog.askdirectory(title="选择数据目录")
+            root.destroy()
+
+            if data_dir:
+                logging.info(f"用户选择的数据目录: {data_dir}")
+                # 设置数据路径并重新加载数据
+                self.set_data_path(data_dir)
+                success = self.load_data()
+                if success:
+                    logging.info("数据加载成功，重新绘制图表")
+                    # 关闭当前图表
+                    plt.close('all')
+                    # 重新绘制图表
+                    self.plt_figure()
+                else:
+                    logging.error("数据加载失败，无法显示图表")
+        except Exception as e:
+            logging.error("打开文件对话框时出错: %s", str(e))
+            traceback.print_exc()
+
+    def _add_menu_bar(self, fig):
+        """
+        为图表添加菜单栏
+
+        Args:
+            fig: matplotlib Figure对象
+        """
+        try:
+            # 获取图表窗口的manager
+            manager = fig.canvas.manager
+
+            # 尝试使用Qt的方式添加菜单（兼容PyQt5、PyQt6和PySide）
+            try:
+                if hasattr(manager, 'window') and hasattr(manager.window, 'menuBar'):
+                    menubar = manager.window.menuBar()
+
+                    # 添加File菜单
+                    file_menu = menubar.addMenu('File')
+
+                    # 添加Open菜单项
+                    open_action = manager.window.addAction('Open')
+                    open_action.triggered.connect(self._open_file_dialog)
+                    file_menu.addAction(open_action)
+                    logging.info("成功使用Qt方式添加菜单")
+            except Exception as e:
+                logging.warning("Qt菜单添加失败，尝试使用Tk方式: %s", str(e))
+
+                # 尝试使用Tk的方式添加菜单
+                try:
+                    from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
+                    toolbar = fig.canvas.toolbar
+                    if hasattr(toolbar, 'window'):
+                        tk_window = toolbar.window
+                        menubar = tk.Menu(tk_window)
+                        tk_window.config(menu=menubar)
+
+                        # 添加File菜单
+                        file_menu = tk.Menu(menubar, tearoff=0)
+                        menubar.add_cascade(label="File", menu=file_menu)
+
+                        # 添加Open菜单项
+                        file_menu.add_command(
+                            label="Open", command=self._open_file_dialog)
+                        logging.info("成功使用Tk方式添加菜单")
+                except Exception as tk_error:
+                    logging.warning("Tk菜单添加失败: %s", str(tk_error))
+
+                    # 作为最后手段，尝试使用matplotlib的toolbar添加按钮
+                    try:
+                        from matplotlib.widgets import Button
+                        # 在工具栏区域添加一个Open按钮，使用传入的fig对象而不是plt全局对象
+                        # [x, y, width, height]
+                        ax_open = fig.add_axes([0.9, 0.01, 0.05, 0.05])
+                        btn_open = Button(ax_open, 'Open')
+                        btn_open.on_clicked(
+                            lambda event: self._open_file_dialog())
+                        logging.info("成功添加Open按钮到工具栏区域")
+                    except Exception as btn_error:
+                        logging.warning("添加Open按钮失败: %s", str(btn_error))
+        except Exception as e:
+            logging.error("添加菜单栏时出错: %s", str(e))
+            traceback.print_exc()
 
     def _initialize_figure(self):
         """初始化图表设置和布局"""
@@ -795,7 +910,8 @@ class FIGURE:
                     ul, = ax.plot(
                         self.listPlt[c][0][b],
                         self.listPlt[c][1][b],
-                        color=self.listColor[c] if c < len(self.listColor) else f'C{c}',
+                        color=self.listColor[c] if c < len(
+                            self.listColor) else f'C{c}',
                         label=[f'{self.listBatteryNameSplit[b]}',
                                'Unfiltered'],
                         visible=False,
@@ -807,7 +923,8 @@ class FIGURE:
                     fl, = ax.plot(
                         self.listPlt[c][2][b],
                         self.listPlt[c][3][b],
-                        color=self.listColor[c] if c < len(self.listColor) else f'C{c}',
+                        color=self.listColor[c] if c < len(
+                            self.listColor) else f'C{c}',
                         label=[f'{self.listBatteryNameSplit[b]}', 'Filtered'],
                         visible=True,
                         linewidth=0.5
@@ -818,7 +935,7 @@ class FIGURE:
 
         return lines_unfiltered, lines_filtered
 
-    def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered, 
+    def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered,
                            title_fontdict, axis_fontdict):
         """添加过滤/未过滤数据切换按钮"""
         labels_filter = ["       Filtered"]
@@ -1008,8 +1125,8 @@ class FIGURE:
                                     dist = ((x - event.xdata)**2 +
                                             (y - event.ydata) ** 2)**0.5
                                     # 只考虑一定范围内的点
-                                    if (dist < min_dist 
-                                        and dist < 0.05 * (self.maxXaxis - self.listAxis[0])):
+                                    if (dist < min_dist
+                                            and dist < 0.05 * (self.maxXaxis - self.listAxis[0])):
                                         min_dist = dist
                                         closest_point = (x, y, i)
                                         closest_line_label = line_label

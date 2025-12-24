@@ -41,7 +41,6 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-
 def calc_md5checksum(file_paths):
     md5_hash = hashlib.md5()
     for file_path in file_paths:
@@ -55,13 +54,13 @@ def run_visualizer_function():
     """在模块级别定义的可视化工具运行函数"""
     try:
         from battery_analysis.main.controllers.visualizer_controller import VisualizerController
-        
+
         # 创建可视化器控制器实例
         visualizer_controller = VisualizerController()
-        
+
         # 创建并显示可视化器
         visualizer_controller.run_visualizer()
-        
+
         return True
     except Exception as e:
         logging.error("启动可视化工具时出错: %s", str(e))
@@ -902,13 +901,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         try:
             # 创建可视化器控制器实例
             visualizer_controller = VisualizerController()
-            
+
             # 获取XML文件路径
             xml_path = self.lineEdit_TestProfile.text()
-            
+
             # 创建并显示可视化器
             visualizer_controller.run_visualizer(xml_path)
-            
+
             # 更新状态栏
             self.statusBar_BatteryAnalysis.showMessage("可视化工具已启动")
         except Exception as e:
@@ -2332,8 +2331,8 @@ def main() -> None:
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
 
     # 优化matplotlib配置，避免font cache构建警告
-    # 使用Qt5Agg后端，与PyQt6兼容且支持交互式图表显示
-    matplotlib.use('Qt5Agg')
+    # 使用QtAgg后端，自动检测Qt绑定（兼容PyQt6）
+    matplotlib.use('QtAgg')
     matplotlib.rcParams['font.family'] = 'sans-serif'
     matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial',
                                               'DejaVu Sans', 'Liberation Sans', 'Times New Roman']
