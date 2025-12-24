@@ -104,7 +104,7 @@ class FIGURE:
 
         # 初始化坐标轴范围和刻度
         # [xmin, xmax, ymin, ymax]
-        self.listAxis = [0, self.maxXaxis, 2.5, 4.5]
+        self.listAxis = [0, self.maxXaxis, 0, 5]  # Y轴从0开始
         self.listXTicks = list(range(0, self.maxXaxis + 1, 100))  # X轴刻度值
 
         # 先初始化默认数据结构
@@ -347,7 +347,7 @@ class FIGURE:
                                 logging.info(
                                     "根据规则设置maxXaxis: %s", self.maxXaxis)
                                 # 同步更新坐标轴范围和刻度
-                                self.listAxis = [0, self.maxXaxis, 2.5, 4.5]
+                                self.listAxis = [10, self.maxXaxis, 1, 3]
                                 self.listXTicks = list(
                                     range(0, self.maxXaxis + 1, 100))
                                 break
