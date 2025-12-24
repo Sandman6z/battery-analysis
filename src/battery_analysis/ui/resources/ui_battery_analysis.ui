@@ -2643,9 +2643,9 @@ QPushButton#pushButton_Run:pressed {
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionVisualizer"/>
     <addaction name="actionCalculate_Battery"/>
     <addaction name="actionAnalyze_Data"/>
-    <addaction name="actionVisualizer"/>
     <addaction name="actionGenerate_Report"/>
     <addaction name="separator"/>
     <addaction name="actionBatch_Processing"/>

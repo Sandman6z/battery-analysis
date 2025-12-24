@@ -765,7 +765,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 为菜单项添加视觉提示
             if hasattr(self, 'actionShow_Toolbar'):
                 self.actionShow_Toolbar.setCheckable(True)
-                self.actionShow_Toolbar.setChecked(True)
+                self.actionShow_Toolbar.setChecked(False)
+                # 确保toolbar的可见性与action状态一致
+                if hasattr(self, 'toolBar'):
+                    self.toolBar.setVisible(False)
             if hasattr(self, 'actionShow_Statusbar'):
                 self.actionShow_Statusbar.setCheckable(True)
                 self.actionShow_Statusbar.setChecked(True)
