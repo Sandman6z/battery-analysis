@@ -73,12 +73,15 @@ class FIGURE:
         listXTicks: X轴刻度值
     """
 
-    def __init__(self):
+    def __init__(self, data_path=None):
         """
         初始化FIGURE类，设置默认配置并加载用户配置
 
         初始化图表参数，读取配置文件，并设置默认值。如果配置文件不存在，
         将使用硬编码的默认值。
+        
+        Args:
+            data_path: 可选，指定要加载数据的目录路径
         """
         self.config = configparser.ConfigParser()
 
@@ -101,7 +104,58 @@ class FIGURE:
         self.listColor = ['#DF7040', '#0675BE', '#EDB120',
                           '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
         self.maxXaxis = 1000  # 默认最大值
-        self._read_rules_configuration()
+        self.intBatteryNum = 0  # 默认没有电池数据
+        
+        # 只有在提供了数据路径时才加载数据
+        if data_path is not None:
+            self.set_data_path(data_path)
+            self.load_data()
+        else:
+            # 默认不加载任何数据，只初始化基本参数
+            self.listPlt = []
+            self.listBatteryName = []
+            self.listBatteryNameSplit = []
+            self.strPltPath = None
+            self.strInfoImageCsvPath = None
+
+    def set_data_path(self, data_path):
+        """
+        设置数据路径并更新CSV文件路径
+        
+        Args:
+            data_path: 要设置的数据目录路径
+        """
+        self.strPltPath = data_path
+        self.strInfoImageCsvPath = os.path.join(self.strPltPath, "Info_Image.csv")
+
+    def load_data(self):
+        """
+        加载数据并处理，为绘制图表做准备
+        
+        Returns:
+            bool: 是否成功加载数据
+        """
+        self.listPlt = []
+        self.listBatteryName = []
+        self.listBatteryNameSplit = []
+        self.intBatteryNum = 0
+
+        try:
+            self.csv_read()
+
+            # 检查是否有有效的电池数据，只有在有数据时才继续处理
+            if self.intBatteryNum <= 0:
+                logging.error("没有有效的电池数据，无法生成图表")
+                return False
+
+            # 读取并处理规则配置
+            self._read_rules_configuration()
+            return True
+        except Exception as e:
+            self.errorlog = str(e)
+            logging.error("加载数据时出错: %s", e)
+            traceback.print_exc()
+            return False
 
     def _load_config_file(self):
         """
@@ -285,76 +339,6 @@ class FIGURE:
                                     "规则中的maxXaxis值无效: %s", rule_parts[2])
         except Exception as e:
             logging.error("处理规则时出错: %s，保持默认maxXaxis", e)
-
-        self.listPlt = []
-        self.listBatteryName = []
-        self.listBatteryNameSplit = []
-        self.intBatteryNum = 0
-
-        try:
-            self.csv_read()
-
-            # 检查是否有有效的电池数据，只有在有数据时才继续处理
-            if self.intBatteryNum <= 0:
-                logging.error("没有有效的电池数据，无法生成图表")
-                return
-
-            bMatchSpecificationType = False
-            strSpecificationType = self.strPltName.split(" ")[4]
-            for c in range(len(self.listCoinCell)):
-                if self.listCoinCell[c] == strSpecificationType:
-                    self.listAxis = [10, 600, 1, 3]
-                    self.listXTicks = [10, 100, 200, 300, 400, 500, 600]
-                    bMatchSpecificationType = True
-                    break
-            if not bMatchSpecificationType:
-                for p in range(len(self.listPouchCell)):
-                    if self.listPouchCell[p] == strSpecificationType:
-                        maxTicks = math.ceil(self.maxXaxis/100)*100
-                        self.listAxis = [20, maxTicks, 1, 3]
-                        self.listXTicks = [20]
-                        if maxTicks <= 1000:
-                            for i in range(1, 11):
-                                self.listXTicks.append(i*100)
-                                if i*100 >= maxTicks:
-                                    break
-                        elif maxTicks <= 2000:
-                            for i in range(1, 11):
-                                self.listXTicks.append(i*200)
-                                if i*200 >= maxTicks:
-                                    break
-                        elif maxTicks <= 3000:
-                            for i in range(1, 11):
-                                self.listXTicks.append(i*300)
-                                if i*300 >= maxTicks:
-                                    break
-                        elif maxTicks <= 4000:
-                            for i in range(1, 11):
-                                self.listXTicks.append(i*400)
-                                if i*400 >= maxTicks:
-                                    break
-                        else:
-                            for i in range(1, 11):
-                                self.listXTicks.append(i*500)
-                                if i*500 >= maxTicks:
-                                    break
-                        bMatchSpecificationType = True
-                        break
-            if bMatchSpecificationType:
-                self.plt_figure()
-            else:
-                logging.warning("未找到匹配的规格类型，使用默认配置继续展示")
-                # 设置默认的规格参数
-                self.intCurrentLevelNum = 3
-                self.intMaxXaxis = 5000
-                self.listXTicks = list(range(0, 5001, 500))
-                self.listAxis = [0, self.intMaxXaxis, 2.5, 4.5]  # 设置默认坐标轴范围
-                self.plt_figure()
-
-        except BaseException as e:
-            self.errorlog = str(e)
-            logging.error("处理数据时出错: %s", e)
-            traceback.print_exc()
 
     def csv_read(self):
         """
@@ -701,10 +685,10 @@ class FIGURE:
             if main_message is None:
                 main_message = "无法加载或显示电池数据"
             if details is None:
-                details = "1. CSV文件是否存在且格式正确\n"
-                details += "2. 配置文件是否正确配置\n"
+                details = "1. csv文件是否存在且格式正确\n"
+                details += "2. 配置文件是否正确选择\n"
                 details += "3. 文件路径是否包含中文字符或特殊字符\n"
-                details += "4. CSV文件是否包含有效的电池测试数据"
+                details += "4. csv文件是否包含有效的电池测试数据"
 
             # 创建错误图表
             fig, ax = plt.subplots(figsize=(10, 6))
@@ -718,13 +702,9 @@ class FIGURE:
 
             # 构建完整的错误信息文本
             full_text = f"{main_message}\n\n"
-            full_text += "故障排除步骤:\n"
+            full_text += "检查步骤:\n"
             full_text += details
 
-            # 添加重要提示
-            full_text += "\n\n"
-            full_text += "重要提示: 此程序仅使用CSV文件中的真实数据，"
-            full_text += "不会生成或使用任何模拟数据。"
 
             # 显示错误日志信息（如果有）
             if hasattr(self, 'errorlog') and self.errorlog:

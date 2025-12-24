@@ -9,9 +9,12 @@
 """
 
 # 标准库导入
+from battery_analysis.main import image_show
+from battery_analysis.resources import resources_rc
 from battery_analysis.main.controllers.validation_controller import ValidationController
 from battery_analysis.main.controllers.file_controller import FileController
 from battery_analysis.main.controllers.main_controller import MainController
+from battery_analysis.main.controllers.visualizer_controller import VisualizerController
 from battery_analysis.utils.config_utils import find_config_file
 from battery_analysis.ui import ui_main_window
 import os
@@ -37,12 +40,6 @@ import matplotlib
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-# 本地模块导入
-# 导入控制器
-# 导入资源文件
-from battery_analysis.resources import resources_rc
-# 导入可视化模块
-from battery_analysis.main import image_show
 
 
 def calc_md5checksum(file_paths):
@@ -57,11 +54,14 @@ def calc_md5checksum(file_paths):
 def run_visualizer_function():
     """在模块级别定义的可视化工具运行函数"""
     try:
-        from battery_analysis.main import image_show
-        # 创建FIGURE类实例
-        visualizer = image_show.FIGURE()
-        # 调用plt_figure方法显示图表
-        visualizer.plt_figure()
+        from battery_analysis.main.controllers.visualizer_controller import VisualizerController
+        
+        # 创建可视化器控制器实例
+        visualizer_controller = VisualizerController()
+        
+        # 创建并显示可视化器
+        visualizer_controller.run_visualizer()
+        
         return True
     except Exception as e:
         logging.error("启动可视化工具时出错: %s", str(e))
@@ -103,7 +103,7 @@ class ProgressDialog(QW.QDialog):
         self.setModal(False)  # 非模态窗口，允许用户同时操作主界面
         self.setFixedSize(400, 120)
         self.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
-                            QC.Qt.WindowType.WindowCloseButtonHint | \
+                            QC.Qt.WindowType.WindowCloseButtonHint |
                             QC.Qt.WindowType.WindowStaysOnTopHint)
 
         # 创建布局
@@ -644,18 +644,23 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.actionZoom_In.triggered.connect(self.zoom_in)
         self.actionZoom_Out.triggered.connect(self.zoom_out)
         self.actionReset_Zoom.triggered.connect(self.reset_zoom)
-        
+
         # 主题菜单功能连接
         if hasattr(self, 'actionSystem_Default'):
-            self.actionSystem_Default.triggered.connect(lambda: self.set_theme("System Default"))
+            self.actionSystem_Default.triggered.connect(
+                lambda: self.set_theme("System Default"))
         if hasattr(self, 'actionWindows_11'):
-            self.actionWindows_11.triggered.connect(lambda: self.set_theme("Windows 11"))
+            self.actionWindows_11.triggered.connect(
+                lambda: self.set_theme("Windows 11"))
         if hasattr(self, 'actionWindows_Vista'):
-            self.actionWindows_Vista.triggered.connect(lambda: self.set_theme("Windows Vista"))
+            self.actionWindows_Vista.triggered.connect(
+                lambda: self.set_theme("Windows Vista"))
         if hasattr(self, 'actionFusion'):
-            self.actionFusion.triggered.connect(lambda: self.set_theme("Fusion"))
+            self.actionFusion.triggered.connect(
+                lambda: self.set_theme("Fusion"))
         if hasattr(self, 'actionDark_Theme'):
-            self.actionDark_Theme.triggered.connect(lambda: self.set_theme("Dark Theme"))
+            self.actionDark_Theme.triggered.connect(
+                lambda: self.set_theme("Dark Theme"))
 
         # 文件操作连接
         self.actionSave.triggered.connect(self.save_settings)
@@ -893,12 +898,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def run_visualizer(self) -> None:
         """运行可视化工具"""
         self.statusBar_BatteryAnalysis.showMessage("启动可视化工具...")
-        
+
         try:
-            # 直接在主线程中运行可视化工具，确保Matplotlib GUI能正常显示
-            visualizer = image_show.FIGURE()
-            # 调用plt_figure方法显示图表
-            visualizer.plt_figure()
+            # 创建可视化器控制器实例
+            visualizer_controller = VisualizerController()
+            
+            # 获取XML文件路径
+            xml_path = self.lineEdit_TestProfile.text()
+            
+            # 创建并显示可视化器
+            visualizer_controller.run_visualizer(xml_path)
+            
             # 更新状态栏
             self.statusBar_BatteryAnalysis.showMessage("可视化工具已启动")
         except Exception as e:
@@ -910,7 +920,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 QW.QMessageBox.StandardButton.Ok
             )
             self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-        
+
     def show_visualizer_error(self, error_msg: str):
         """在主线程中显示可视化工具错误消息"""
         QW.QMessageBox.error(
@@ -1075,10 +1085,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def set_theme(self, theme_name) -> None:
         """设置应用程序主题"""
         app = QW.QApplication.instance()
-        
+
         # 清除现有的样式表
         app.setStyleSheet("")
-        
+
         # 主题动作映射字典
         theme_actions = {
             "System Default": self.actionSystem_Default,
@@ -1087,38 +1097,43 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             "Fusion": self.actionFusion,
             "Dark Theme": self.actionDark_Theme
         }
-        
+
         # 确保所有主题动作都是可检查的
         for action in theme_actions.values():
             action.setCheckable(True)
-        
+
         # 清除所有主题动作的选中状态
         for action in theme_actions.values():
             action.setChecked(False)
-        
+
         try:
             if theme_name == "System Default":
                 # 使用系统默认样式
-                app.setStyle(QW.QStyleFactory.create("windowsvista" if sys.platform == "win32" else "fusion"))
+                app.setStyle(QW.QStyleFactory.create(
+                    "windowsvista" if sys.platform == "win32" else "fusion"))
                 self.statusBar_BatteryAnalysis.showMessage(f"已切换到系统默认主题")
             elif theme_name == "Windows 11":
                 # 尝试使用Windows 11样式（如果可用）
                 if sys.platform == "win32":
                     app.setStyle(QW.QStyleFactory.create("windowsvista"))
-                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Windows 11主题")
+                    self.statusBar_BatteryAnalysis.showMessage(
+                        f"已切换到Windows 11主题")
                 else:
                     # 非Windows平台回退到Fusion
                     app.setStyle(QW.QStyleFactory.create("fusion"))
-                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Fusion主题（Windows 11样式在当前平台不可用）")
+                    self.statusBar_BatteryAnalysis.showMessage(
+                        f"已切换到Fusion主题（Windows 11样式在当前平台不可用）")
             elif theme_name == "Windows Vista":
                 # 使用Windows Vista样式
                 if sys.platform == "win32":
                     app.setStyle(QW.QStyleFactory.create("windowsvista"))
-                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Windows Vista主题")
+                    self.statusBar_BatteryAnalysis.showMessage(
+                        f"已切换到Windows Vista主题")
                 else:
                     # 非Windows平台回退到Fusion
                     app.setStyle(QW.QStyleFactory.create("fusion"))
-                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到Fusion主题（Windows Vista样式在当前平台不可用）")
+                    self.statusBar_BatteryAnalysis.showMessage(
+                        f"已切换到Fusion主题（Windows Vista样式在当前平台不可用）")
             elif theme_name == "Fusion":
                 # 使用Fusion样式（跨平台）
                 app.setStyle(QW.QStyleFactory.create("fusion"))
@@ -1175,7 +1190,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         except Exception as e:
             logging.error(f"切换主题失败: {e}")
             self.statusBar_BatteryAnalysis.showMessage(f"切换主题失败: {str(e)}")
-        
+
         # 设置当前主题动作的选中状态
         if theme_name in theme_actions:
             theme_actions[theme_name].setChecked(True)
@@ -1346,12 +1361,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         f"{rule_parts[3]}")
                     listRequiredUseableCapacityPercentage = re.findall(
                         r"(\d+)%", rule_parts[4])
-                    if (listRequiredUseableCapacityPercentage != [] 
-                        and len(listRequiredUseableCapacityPercentage) == 1):
+                    if (listRequiredUseableCapacityPercentage != []
+                            and len(listRequiredUseableCapacityPercentage) == 1):
                         nominal_capacity = int(rule_parts[3])
-                        percentage = int(listRequiredUseableCapacityPercentage[0])
-                        required_capacity = int(nominal_capacity * percentage / 100)
-                        self.lineEdit_RequiredUseableCapacity.setText(f"{required_capacity}")
+                        percentage = int(
+                            listRequiredUseableCapacityPercentage[0])
+                        required_capacity = int(
+                            nominal_capacity * percentage / 100)
+                        self.lineEdit_RequiredUseableCapacity.setText(
+                            f"{required_capacity}")
                     else:
                         self.lineEdit_RequiredUseableCapacity.setText(
                             f"{rule_parts[4]}")
@@ -1368,12 +1386,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         f"{rule_parts[3]}")
                     listRequiredUseableCapacityPercentage = re.findall(
                         r"(\d+)%", rule_parts[4])
-                    if (listRequiredUseableCapacityPercentage != [] 
-                        and len(listRequiredUseableCapacityPercentage) == 1):
+                    if (listRequiredUseableCapacityPercentage != []
+                            and len(listRequiredUseableCapacityPercentage) == 1):
                         nominal_capacity = int(rule_parts[3])
-                        percentage = int(listRequiredUseableCapacityPercentage[0])
-                        required_capacity = int(nominal_capacity * percentage / 100)
-                        self.lineEdit_RequiredUseableCapacity.setText(f"{required_capacity}")
+                        percentage = int(
+                            listRequiredUseableCapacityPercentage[0])
+                        required_capacity = int(
+                            nominal_capacity * percentage / 100)
+                        self.lineEdit_RequiredUseableCapacity.setText(
+                            f"{required_capacity}")
                     else:
                         self.lineEdit_RequiredUseableCapacity.setText(
                             f"{rule_parts[4]}")
@@ -1875,8 +1896,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 warning_info.append("Construction Method")
                 self.label_ConstructionMethod.setStyleSheet(
                     "background-color:red")
-        if (self.comboBox_Specification_Type.currentText() == "" 
-            or self.comboBox_Specification_Method.currentText() == ""):
+        if (self.comboBox_Specification_Type.currentText() == ""
+                or self.comboBox_Specification_Method.currentText() == ""):
             check_pass_flag = False
             warning_info.append("Specification")
             self.label_Specification.setStyleSheet("background-color:red")
@@ -2242,7 +2263,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def rename_pltPath(self, strTestDate):
         self.config.setValue(
-            "PltConfig/Path", f"{self.lineEdit_OutputPath.text()}/" \
+            "PltConfig/Path", f"{self.lineEdit_OutputPath.text()}/"
             f"{strTestDate}_V{self.lineEdit_Version.text()}")
 
     def update_config(self, test_info) -> None:
@@ -2264,7 +2285,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.cc_current = rule_parts[5]
             if rule_parts[0] == specification_type:
                 self.config.setValue(
-                    "PltConfig/Title", 
+                    "PltConfig/Title",
                     f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
                     f"-{test_info[8]}mAh@{self.cc_current}mA, "
                     f"{strPulseCurrent[:-1]}, {test_info[7]}")
@@ -2272,7 +2293,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 break
             if rule_parts[0] in specification_type:
                 self.config.setValue(
-                    "PltConfig/Title", 
+                    "PltConfig/Title",
                     f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
                     f"-{test_info[8]}mAh@{self.cc_current}mA, "
                     f"{strPulseCurrent[:-1]}, {test_info[7]}")
