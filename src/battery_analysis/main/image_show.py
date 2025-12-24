@@ -70,7 +70,22 @@ class FIGURE:
         intCurrentLevelNum: 电流级别数量
         listAxis: 坐标轴范围
         listXTicks: X轴刻度值
+        plot_config: 图表配置对象
     """
+
+    class PlotConfig:
+        """
+        图表配置类，用于存储可配置的图表参数
+        
+        属性:
+            axis_default: 默认坐标轴范围 [xmin, xmax, ymin, ymax]
+            axis_special: 特殊规则下的坐标轴范围 [xmin, xmax, ymin, ymax]
+        """
+        def __init__(self):
+            # 默认坐标轴范围
+            self.axis_default = [0, 1000, 0, 5]  # [xmin, xmax, ymin, ymax]
+            # 特殊规则下的坐标轴范围
+            self.axis_special = [10, 1000, 1, 3]  # [xmin, xmax, ymin, ymax]
 
     def __init__(self, data_path=None):
         """
@@ -96,15 +111,18 @@ class FIGURE:
         # 加载配置文件
         self._load_config_file()
 
+        # 初始化图表配置对象
+        self.plot_config = self.PlotConfig()
+        
         # 设置其他初始化参数
         self.listColor = ['#DF7040', '#0675BE', '#EDB120',
                           '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
-        self.maxXaxis = 1000  # 默认最大值
+        self.maxXaxis = self.plot_config.axis_default[1]  # 默认最大值
         self.intBatteryNum = 0  # 默认没有电池数据
 
         # 初始化坐标轴范围和刻度
         # [xmin, xmax, ymin, ymax]
-        self.listAxis = [0, self.maxXaxis, 0, 5]  # Y轴从0开始
+        self.listAxis = [self.plot_config.axis_default[0], self.maxXaxis, self.plot_config.axis_default[2], self.plot_config.axis_default[3]]  # 使用配置的坐标轴范围
         self.listXTicks = list(range(0, self.maxXaxis + 1, 100))  # X轴刻度值
 
         # 先初始化默认数据结构
@@ -239,6 +257,60 @@ class FIGURE:
         # 设置图表标题
         self.strPltName = self._set_plot_title()
 
+    def get_axis_default(self):
+        """
+        获取默认坐标轴范围
+        
+        Returns:
+            list: 默认坐标轴范围 [xmin, xmax, ymin, ymax]
+        """
+        return self.plot_config.axis_default
+    
+    def set_axis_default(self, xmin, xmax, ymin, ymax):
+        """
+        设置默认坐标轴范围
+        
+        Args:
+            xmin: X轴最小值
+            xmax: X轴最大值
+            ymin: Y轴最小值
+            ymax: Y轴最大值
+        """
+        self.plot_config.axis_default = [xmin, xmax, ymin, ymax]
+        # 如果当前使用的是默认范围，同步更新当前listAxis
+        if self.listAxis[0] == self.plot_config.axis_default[0] and self.listAxis[2] == self.plot_config.axis_default[2] and self.listAxis[3] == self.plot_config.axis_default[3]:
+            self.listAxis = [xmin, self.maxXaxis, ymin, ymax]
+    
+    def get_axis_special(self):
+        """
+        获取特殊规则下的坐标轴范围
+        
+        Returns:
+            list: 特殊规则下的坐标轴范围 [xmin, xmax, ymin, ymax]
+        """
+        return self.plot_config.axis_special
+    
+    def set_axis_special(self, xmin, xmax, ymin, ymax):
+        """
+        设置特殊规则下的坐标轴范围
+        
+        Args:
+            xmin: X轴最小值
+            xmax: X轴最大值
+            ymin: Y轴最小值
+            ymax: Y轴最大值
+        """
+        self.plot_config.axis_special = [xmin, xmax, ymin, ymax]
+    
+    def get_plot_config(self):
+        """
+        获取整个图表配置对象
+        
+        Returns:
+            PlotConfig: 图表配置对象
+        """
+        return self.plot_config
+    
     def _get_config_value(self, section, option, default_value):
         """
         安全获取配置值，如果不存在则返回默认值
@@ -347,7 +419,7 @@ class FIGURE:
                                 logging.info(
                                     "根据规则设置maxXaxis: %s", self.maxXaxis)
                                 # 同步更新坐标轴范围和刻度
-                                self.listAxis = [10, self.maxXaxis, 1, 3]
+                                self.listAxis = [self.plot_config.axis_special[0], self.maxXaxis, self.plot_config.axis_special[2], self.plot_config.axis_special[3]]
                                 self.listXTicks = list(
                                     range(0, self.maxXaxis + 1, 100))
                                 break
