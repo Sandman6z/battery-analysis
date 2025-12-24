@@ -424,8 +424,8 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="editable">
-            <bool>false</bool>
-           </property>
+         <bool>true</bool>
+        </property>
           </widget>
          </item>
         </layout>
@@ -741,8 +741,8 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="editable">
-            <bool>false</bool>
-           </property>
+         <bool>true</bool>
+        </property>
            <property name="currentIndex">
             <number>-1</number>
            </property>
@@ -856,8 +856,8 @@ QComboBox::down-arrow:on {
 </string>
            </property>
            <property name="editable">
-            <bool>false</bool>
-           </property>
+         <bool>true</bool>
+        </property>
           </widget>
          </item>
         </layout>
@@ -994,8 +994,8 @@ QComboBox::down-arrow:on {
 </string>
              </property>
              <property name="editable">
-              <bool>false</bool>
-             </property>
+         <bool>true</bool>
+        </property>
             </widget>
            </item>
            <item>
@@ -1060,8 +1060,8 @@ QComboBox::down-arrow:on {
 </string>
              </property>
              <property name="editable">
-              <bool>false</bool>
-             </property>
+         <bool>true</bool>
+        </property>
              <property name="insertPolicy">
               <enum>QComboBox::InsertPolicy::InsertAtBottom</enum>
              </property>
@@ -1621,7 +1621,7 @@ QComboBox::down-arrow:on {
 </string>
         </property>
         <property name="editable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>

@@ -470,6 +470,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     index = self.comboBox_TestedBy.findText(tested_by)
                     if index >= 0:
                         self.comboBox_TestedBy.setCurrentIndex(index)
+                    else:
+                        # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
+                        self.comboBox_TestedBy.setCurrentText(tested_by)
 
                 # 加载温度设置
                 temperature = user_settings.value("UserConfig/Temperature")

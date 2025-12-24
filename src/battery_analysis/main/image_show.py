@@ -31,14 +31,15 @@ import math
 import csv
 import os
 import matplotlib
+
+# 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）
+# 必须在导入pyplot之前设置后端
+matplotlib.use('QtAgg')
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.widgets import CheckButtons
 from battery_analysis.utils.config_utils import find_config_file
-
-
-# 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）
-matplotlib.use('QtAgg')
 
 # 配置matplotlib支持中文显示
 matplotlib.rcParams['font.sans-serif'] = ['SimHei',
@@ -203,11 +204,10 @@ class FIGURE:
             if setting_ini_path and os.path.exists(setting_ini_path):
                 self.config.read(setting_ini_path, encoding='utf-8')
                 logging.info("成功读取setting.ini配置")
-            else:
-                logging.warning("未找到setting.ini配置文件")
+                # setting.ini存在时，不检查Config_BatteryAnalysis.ini
                 return
 
-            # 回退到Config_BatteryAnalysis.ini（兼容旧版本）
+            # 如果setting.ini不存在，尝试查找Config_BatteryAnalysis.ini（兼容旧版本）
             config_battery_path = find_config_file(
                 "Config_BatteryAnalysis.ini")
             if config_battery_path and os.path.exists(config_battery_path):
@@ -755,6 +755,8 @@ class FIGURE:
             logging.info("图表创建完成，显示CSV文件中的真实电池测试数据")
             # 在PyQt应用中，使用非阻塞方式显示图表，避免与PyQt事件循环冲突
             plt.show(block=False)
+            # 添加pause确保窗口正确渲染
+            plt.pause(0.001)
 
         except Exception as e:
             logging.error("严重错误: 绘制图表时发生未预期的异常: %s", str(e))
@@ -901,14 +903,14 @@ class FIGURE:
                     file_menu = menubar.addMenu('File')
 
                     # 添加Open菜单项 - 使用更安全的方式创建action
-                open_action = file_menu.addAction('Open')
-                # 使用匿名函数包装，增加调试信息
-                def on_open_clicked():
-                    logging.info("Open菜单项被点击 - 进入匿名函数")
-                    self._open_file_dialog()
-                    logging.info("Open菜单项被点击 - 离开匿名函数")
-                
-                open_action.triggered.connect(on_open_clicked)
+                    open_action = file_menu.addAction('Open')
+                    # 使用匿名函数包装，增加调试信息
+                    def on_open_clicked():
+                        logging.info("Open菜单项被点击 - 进入匿名函数")
+                        self._open_file_dialog()
+                        logging.info("Open菜单项被点击 - 离开匿名函数")
+                    
+                    open_action.triggered.connect(on_open_clicked)
                 logging.info(f"Qt菜单添加成功，Open action已连接到on_open_clicked匿名函数")
                 logging.info("成功使用Qt方式添加菜单")
             except Exception as e:

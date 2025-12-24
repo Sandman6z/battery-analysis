@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file './src/battery_analysis/ui/resources/ui_battery_analysis.ui'
+# Form implementation generated from reading ui file 'c:\Users\boe\Desktop\battery-analysis\src\battery_analysis\ui\resources\ui_battery_analysis.ui'
 #
 # Created by: PyQt6 UI code generator 6.10.0
 #
@@ -196,7 +196,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_Manufacturer.setEditable(False)
+        self.comboBox_Manufacturer.setEditable(True)
         self.comboBox_Manufacturer.setObjectName("comboBox_Manufacturer")
         self.horizontalLayout_Manufacturer.addWidget(self.comboBox_Manufacturer)
         self.verticalLayout_5.addLayout(self.horizontalLayout_Manufacturer)
@@ -346,7 +346,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_BatteryType.setEditable(False)
+        self.comboBox_BatteryType.setEditable(True)
         self.comboBox_BatteryType.setObjectName("comboBox_BatteryType")
         self.horizontalLayout_BatteryType.addWidget(self.comboBox_BatteryType)
         self.verticalLayout_7.addLayout(self.horizontalLayout_BatteryType)
@@ -412,7 +412,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_ConstructionMethod.setEditable(False)
+        self.comboBox_ConstructionMethod.setEditable(True)
         self.comboBox_ConstructionMethod.setObjectName("comboBox_ConstructionMethod")
         self.horizontalLayout_ConstructionMethod.addWidget(self.comboBox_ConstructionMethod)
         self.verticalLayout_7.addLayout(self.horizontalLayout_ConstructionMethod)
@@ -484,7 +484,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_Specification_Method.setEditable(False)
+        self.comboBox_Specification_Method.setEditable(True)
         self.comboBox_Specification_Method.setObjectName("comboBox_Specification_Method")
         self.verticalLayout_4.addWidget(self.comboBox_Specification_Method)
         self.comboBox_Specification_Type = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_4)
@@ -533,7 +533,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_Specification_Type.setEditable(False)
+        self.comboBox_Specification_Type.setEditable(True)
         self.comboBox_Specification_Type.setInsertPolicy(QtWidgets.QComboBox.InsertPolicy.InsertAtBottom)
         self.comboBox_Specification_Type.setObjectName("comboBox_Specification_Type")
         self.verticalLayout_4.addWidget(self.comboBox_Specification_Type)
@@ -793,7 +793,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_TestedBy.setEditable(False)
+        self.comboBox_TestedBy.setEditable(True)
         self.comboBox_TestedBy.setObjectName("comboBox_TestedBy")
         self.horizontalLayout_TestedBy.addWidget(self.comboBox_TestedBy)
         self.horizontalLayoutWidget_9 = QtWidgets.QWidget(parent=self.groupBox_TestConfig)

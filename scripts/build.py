@@ -173,7 +173,6 @@ class BuildManager(BuildConfig):
         self.temp_build_dir.mkdir(parents=True, exist_ok=True)
         logger.info("构建目录清理完成")
 
-    
 
     def move_programs(self):
         """移动构建好的程序到最终位置"""
