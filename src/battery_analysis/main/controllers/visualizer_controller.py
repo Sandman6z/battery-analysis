@@ -200,6 +200,10 @@ class VisualizerController:
         """
         if not self.visualizer:
             raise Exception("可视化器未初始化")
+        
+        # 关闭所有现有图表，确保新图表能正确初始化
+        import matplotlib.pyplot as plt
+        plt.close('all')
             
         self.visualizer.plt_figure()
     
