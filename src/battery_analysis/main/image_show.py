@@ -781,7 +781,6 @@ class FIGURE:
                     
                     # 设置窗口标志
                     window.setWindowFlags(Qt.WindowType.Window | 
-                                        Qt.WindowType.WindowStaysOnTopHint | 
                                         Qt.WindowType.WindowMinimizeButtonHint | 
                                         Qt.WindowType.WindowMaximizeButtonHint | 
                                         Qt.WindowType.WindowCloseButtonHint)
