@@ -200,10 +200,6 @@ class VisualizerController:
         """
         if not self.visualizer:
             raise Exception("可视化器未初始化")
-        
-        # 关闭所有现有图表，确保新图表能正确初始化
-        import matplotlib.pyplot as plt
-        plt.close('all')
             
         self.visualizer.plt_figure()
     
@@ -214,5 +210,24 @@ class VisualizerController:
         Args:
             xml_path: 可选，指定XML文件路径
         """
+        # 更彻底地清理Matplotlib状态，确保新的可视化器能正常工作
+        import matplotlib
+        import matplotlib.pyplot as plt
+        
+        # 关闭所有现有图表
+        plt.close('all')
+        
+        # 重置Matplotlib的内部状态
+        matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+        
+        # 重新配置中文字体支持，避免重置后丢失
+        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+        matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+        
+        # 确保使用正确的后端
+        if matplotlib.get_backend() != 'QtAgg':
+            logging.info(f"当前Matplotlib后端: {matplotlib.get_backend()}, 切换到QtAgg后端")
+            matplotlib.use('QtAgg')
+        
         self.create_visualizer(xml_path)
         self.show_figure()

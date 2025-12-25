@@ -697,8 +697,16 @@ class FIGURE:
         如果没有有效的电池数据或绘图过程中出错，会显示详细的错误信息和故障排除建议。
         """
         try:
-            # 关闭所有现有图表，避免弹出多个窗口
+            # 在创建新图表前，彻底清理Matplotlib状态
+            logging.info("开始清理现有图表和Matplotlib状态")
+            
+            # 关闭所有现有图表
             plt.close('all')
+            
+            # 强制触发事件循环更新
+            plt.pause(0.001)
+            
+            # 开始绘制图表
             logging.info("开始绘制图表")
 
             # 执行多层次的数据有效性检查
@@ -1072,8 +1080,7 @@ class FIGURE:
         except Exception as e:
             logging.warning("无法设置图表窗口标题: %s", str(e))
 
-        # 清理并设置网格布局
-        plt.clf()
+        # 设置网格布局
         gs = fig.add_gridspec(1, 40)
         ax = fig.add_subplot(gs[:, 5:])  # 留出左侧空间给按钮
 
@@ -1157,10 +1164,17 @@ class FIGURE:
                     ax.set_ylabel(
                         "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
-                    # 更新线条可见性
+                    # 更新线条可见性 - 保持相同电池的可见性一致
                     for i in range(min(len(lines_unfiltered), len(lines_filtered))):
-                        lines_filtered[i].set_visible(
-                            lines_unfiltered[i].get_visible())
+                        # 获取当前电池的可见性状态（基于最后一次设置）
+                        # 对于每个电池，所有电流级别的可见性应该保持一致
+                        battery_index = i % self.intBatteryNum
+                        # 检查该电池是否有任何可见的线条
+                        battery_visible = any(lines_unfiltered[battery_index + j * self.intBatteryNum].get_visible() 
+                                            for j in range(self.intCurrentLevelNum))
+                        
+                        # 设置该电池所有电流级别的过滤线条可见性
+                        lines_filtered[i].set_visible(battery_visible)
                         lines_unfiltered[i].set_visible(False)
                 else:
                     # 切换到未过滤模式
@@ -1171,10 +1185,16 @@ class FIGURE:
                     ax.set_ylabel(
                         "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
-                    # 更新线条可见性
+                    # 更新线条可见性 - 保持相同电池的可见性一致
                     for i in range(min(len(lines_filtered), len(lines_unfiltered))):
-                        lines_unfiltered[i].set_visible(
-                            lines_filtered[i].get_visible())
+                        # 获取当前电池的可见性状态（基于最后一次设置）
+                        battery_index = i % self.intBatteryNum
+                        # 检查该电池是否有任何可见的线条
+                        battery_visible = any(lines_filtered[battery_index + j * self.intBatteryNum].get_visible() 
+                                            for j in range(self.intCurrentLevelNum))
+                        
+                        # 设置该电池所有电流级别的原始线条可见性
+                        lines_unfiltered[i].set_visible(battery_visible)
                         lines_filtered[i].set_visible(False)
 
                 fig.canvas.draw_idle()
@@ -1249,6 +1269,7 @@ class FIGURE:
         # 回调函数
         def func_line(label):
             try:
+                logging.debug(f"func_line被调用，label: {label}")
                 # 处理空标签
                 if label == "None":
                     # 确保所有"None"项都处于未选中状态
@@ -1260,28 +1281,53 @@ class FIGURE:
                     return
 
                 # 根据当前模式（过滤/未过滤）更新对应线条的可见性
-                current_lines = lines_filtered \
-                    if check_filter.get_status()[0] else lines_unfiltered
-
+                is_filtered = check_filter.get_status()[0]
+                logging.debug(f"当前模式: {'过滤' if is_filtered else '未过滤'}")
+                
+                # 找到当前点击的电池索引
+                battery_index = None
+                for i in range(start_idx, min(self.intBatteryNum, end_idx)):
+                    if self.listBatteryNameSplit[i] == label:
+                        battery_index = i
+                        break
+                
+                if battery_index is None:
+                    logging.debug(f"未找到标签为 {label} 的电池")
+                    return
+                
+                # 更新所有相同电池的线条（所有电流级别）
+                updated = False
+                
+                # 检查该电池当前的可见性状态（基于当前模式下的线条）
+                current_lines = lines_filtered if is_filtered else lines_unfiltered
+                battery_visible = False
                 for i in range(len(current_lines)):
-                    try:
-                        # 安全地获取和比较标签
-                        line_label = current_lines[i].get_label()
-                        if isinstance(line_label, list) and len(line_label) > 0:
-                            # 处理标签为列表的情况
-                            if label == line_label[0]:
-                                current_lines[i].set_visible(
-                                    not current_lines[i].get_visible())
-                        elif isinstance(line_label, str):
-                            # 处理标签为字符串的情况
-                            if label in line_label:
-                                current_lines[i].set_visible(
-                                    not current_lines[i].get_visible())
-                    except Exception as inner_e:
-                        # 忽略单个线条处理错误，继续处理其他线条
-                        logging.debug("处理线条标签时出错: %s", inner_e)
+                    if i % self.intBatteryNum == battery_index:
+                        battery_visible = current_lines[i].get_visible()
+                        break
+                
+                new_visibility = not battery_visible
+                
+                # 更新当前模式下该电池的所有线条
+                for i in range(len(current_lines)):
+                    if i % self.intBatteryNum == battery_index:
+                        current_lines[i].set_visible(new_visibility)
+                        updated = True
+                        logging.debug(f"线条 {i} 可见性更新: {battery_visible} -> {new_visibility}")
+                
+                # 同时更新另一种模式下该电池的所有线条，保持一致性
+                other_lines = lines_unfiltered if is_filtered else lines_filtered
+                for i in range(len(other_lines)):
+                    if i % self.intBatteryNum == battery_index:
+                        other_lines[i].set_visible(new_visibility)
+                        logging.debug(f"另一模式下的线条 {i} 可见性也更新为: {new_visibility}")
 
-                fig.canvas.draw_idle()
+                if updated:
+                    logging.debug("调用fig.canvas.draw_idle()刷新图表")
+                    # 使用draw_idle替代draw，提高性能并确保在正确的事件循环中更新
+                    fig.canvas.draw_idle()
+                else:
+                    logging.debug("没有找到匹配的线条")
             except Exception as e:
                 logging.error("执行电池选择时出错: %s", e)
 
