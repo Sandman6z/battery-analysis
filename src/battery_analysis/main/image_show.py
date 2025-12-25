@@ -23,6 +23,8 @@
 
 
 from PyQt6.QtWidgets import QFileDialog
+from PyQt6 import QtCore as QC
+from PyQt6.QtCore import Qt
 import logging
 from pathlib import Path
 import configparser
@@ -30,6 +32,7 @@ import traceback
 import math
 import csv
 import os
+import sys
 import matplotlib
 
 # 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）
@@ -120,6 +123,7 @@ class FIGURE:
                           '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
         self.maxXaxis = self.plot_config.axis_default[1]  # 默认最大值
         self.intBatteryNum = 0  # 默认没有电池数据
+        self.loaded_data = False  # 数据加载状态标记
 
         # 初始化坐标轴范围和刻度
         # [xmin, xmax, ymin, ymax]
@@ -141,10 +145,18 @@ class FIGURE:
             logging.info(f"初始化时接收到数据路径: {data_path}")
             self.set_data_path(data_path)
             success = self.load_data()
-            logging.info(f"初始化数据加载{'成功' if success else '失败'}")
+            if success:
+                self.loaded_data = True
+                logging.info(f"初始化数据加载成功")
+            else:
+                logging.warning(f"初始化数据加载失败")
+                # 尝试查找其他可能的数据文件
+                self._search_for_data_files()
         else:
             # 默认不加载任何数据，只初始化基本参数
             logging.info("初始化时未提供数据路径，不加载数据")
+            # 尝试查找其他可能的数据文件
+            self._search_for_data_files()
 
     def set_data_path(self, data_path):
         """
@@ -753,16 +765,99 @@ class FIGURE:
             fig.text(0.01, 0.98, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=8)
 
             logging.info("图表创建完成，显示CSV文件中的真实电池测试数据")
-            # 在PyQt应用中，使用非阻塞方式显示图表，避免与PyQt事件循环冲突
+            
+            # 在PyQt应用中显示图表，确保与Qt事件循环兼容
+            # 设置为交互模式
+            plt.ion()
+            
+            # 确保窗口始终在最前面并正确显示
             plt.show(block=False)
-            # 添加pause确保窗口正确渲染
-            plt.pause(0.001)
+            
+            # 确保窗口在最前面显示并获得焦点
+            try:
+                if hasattr(fig.canvas.manager, 'window'):
+                    # 对于Qt后端
+                    window = fig.canvas.manager.window
+                    
+                    # 设置窗口标志
+                    window.setWindowFlags(Qt.WindowType.Window | 
+                                        Qt.WindowType.WindowStaysOnTopHint | 
+                                        Qt.WindowType.WindowMinimizeButtonHint | 
+                                        Qt.WindowType.WindowMaximizeButtonHint | 
+                                        Qt.WindowType.WindowCloseButtonHint)
+                    
+                    # 激活并显示窗口
+                    window.showNormal()  # 确保窗口不是最小化状态
+                    window.show()
+                    window.activateWindow()
+                    window.raise_()
+                    
+                    # 确保窗口可见
+                    window.setWindowState(Qt.WindowState.WindowActive)
+                    
+                    # 设置窗口位置在屏幕中央
+                    screen = window.screen().availableGeometry()
+                    window.move(int((screen.width() - window.width()) / 2), 
+                              int((screen.height() - window.height()) / 2))
+                    
+                    # 强制刷新窗口
+                    window.repaint()
+                    window.update()
+            except Exception as e:
+                logging.warning("无法将窗口置于最前面: %s", str(e))
+            
+            # 增加暂停时间确保窗口正确渲染
+            plt.pause(0.5)
+            
+            # 显式更新图表
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+            
+            # 再次更新以确保窗口稳定显示
+            fig.canvas.draw()
+            fig.canvas.flush_events()
 
         except Exception as e:
             logging.error("严重错误: 绘制图表时发生未预期的异常: %s", str(e))
             logging.error("错误类型: %s", type(e).__name__)
             traceback.print_exc()
             self._show_error_plot()
+
+    def _search_for_data_files(self):
+        """
+        搜索项目中可能存在的Info_Image.csv文件
+        
+        这个方法会在项目根目录下搜索所有可能的Info_Image.csv文件，
+        如果找到，会自动加载该文件。
+        """
+        try:
+            logging.info("开始搜索项目中的Info_Image.csv文件...")
+            
+            # 在项目根目录下搜索
+            for root, dirs, files in os.walk(self.project_root):
+                # 跳过隐藏目录和venv目录
+                if ".venv" in root or ".git" in root or "__pycache__" in root:
+                    continue
+                    
+                if "Info_Image.csv" in files:
+                    info_image_csv = os.path.join(root, "Info_Image.csv")
+                    logging.info(f"在项目中找到Info_Image.csv文件: {info_image_csv}")
+                    
+                    # 设置数据路径并尝试加载
+                    self.set_data_path(os.path.dirname(info_image_csv))
+                    success = self.load_data()
+                    if success:
+                        self.loaded_data = True
+                        logging.info("成功加载找到的数据文件")
+                        return
+                    else:
+                        logging.warning("找到数据文件但加载失败")
+            
+            logging.warning("在项目中未找到任何有效的Info_Image.csv文件")
+        except Exception as e:
+            logging.error("搜索数据文件时出错: %s", str(e))
+            import traceback
+            traceback.print_exc()
 
     def _show_error_plot(self, title=None, main_message=None, details=None):
         """
@@ -824,8 +919,18 @@ class FIGURE:
 
             logging.info("显示错误信息图表: %s - %s", title, main_message)
             plt.tight_layout()
-            # 在PyQt应用中，使用非阻塞方式显示图表，避免与PyQt事件循环冲突
+            
+            # 在PyQt应用中显示错误图表，确保与Qt事件循环兼容
+            # 检查是否已经在交互模式
+            if not plt.isinteractive():
+                plt.ion()
+            
             plt.show(block=False)
+            plt.pause(0.1)  # 增加暂停时间确保窗口正确渲染
+            
+            # 显式更新画布
+            fig.canvas.draw()
+            fig.canvas.flush_events()
 
         except Exception as e:
             logging.critical("显示错误图表时发生异常: %s", str(e))
@@ -1268,5 +1373,31 @@ if __name__ == '__main__':
     主程序入口
 
     创建FIGURE类实例，自动执行初始化、数据读取和图表显示操作。
+    
+    支持命令行参数：
+    - 第一个参数：可选，指定数据目录路径
     """
-    FIGURE()
+    import sys
+    from PyQt6.QtWidgets import QApplication
+    
+    # 创建Qt应用程序实例
+    app = QApplication(sys.argv)
+    
+    data_path = None
+    if len(sys.argv) > 1:
+        data_path = sys.argv[1]
+        logging.info(f"从命令行接收数据路径: {data_path}")
+    
+    # 创建FIGURE实例
+    figure = FIGURE(data_path=data_path)
+    
+    # 如果是通过命令行传递了数据路径，自动显示图表
+    if data_path:
+        logging.info(f"通过命令行传递了数据路径，尝试显示图表")
+        figure.plt_figure()
+    else:
+        logging.info(f"未通过命令行传递数据路径，不自动显示图表")
+    
+    # 启动事件循环
+    logging.info(f"启动Qt事件循环")
+    sys.exit(app.exec())

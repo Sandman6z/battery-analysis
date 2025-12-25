@@ -1,43 +1,42 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-测试可视化器功能的脚本
-用于验证无XML启动时file-open菜单是否能正常工作
+测试可视化工具修复效果的脚本
 """
-
 import logging
 import sys
 import os
 
-# 设置日志级别
+# 设置日志级别为DEBUG
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 添加项目根目录到Python路径
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-def test_visualizer_no_xml():
-    """
-    测试无XML启动时的可视化器功能
-    """
-    try:
-        logging.info("开始测试无XML启动的可视化器功能...")
-        
-        # 导入可视化器模块
-        from src.battery_analysis.main.image_show import FIGURE
-        
-        # 创建可视化器实例（不提供XML路径）
-        visualizer = FIGURE()
-        
-        # 显示图表
-        visualizer.plt_figure()
-        
-        logging.info("可视化器显示完成")
-        return True
-    except Exception as e:
-        logging.error(f"测试失败: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+from PyQt6 import QtWidgets
+from battery_analysis.main.main_window import Main
 
 if __name__ == "__main__":
-    test_visualizer_no_xml()
+    app = QtWidgets.QApplication(sys.argv)
+    
+    # 创建主窗口实例
+    main_window = Main()
+    
+    # 测试1: 模拟QAction的triggered信号传递True值
+    logging.info("\n=== 测试1: 模拟QAction的triggered信号传递True值 ===")
+    main_window.run_visualizer(True)
+    
+    # 测试2: 模拟QAction的triggered信号传递False值
+    logging.info("\n=== 测试2: 模拟QAction的triggered信号传递False值 ===")
+    main_window.run_visualizer(False)
+    
+    # 测试3: 传递None值
+    logging.info("\n=== 测试3: 传递None值 ===")
+    main_window.run_visualizer(None)
+    
+    # 测试4: 传递有效路径
+    logging.info("\n=== 测试4: 传递有效路径 ===")
+    main_window.run_visualizer(os.path.abspath(__file__))
+    
+    logging.info("\n所有测试完成")
+    sys.exit(0)

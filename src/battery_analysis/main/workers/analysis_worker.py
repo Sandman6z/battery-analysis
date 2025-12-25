@@ -25,6 +25,7 @@ class AnalysisWorker(QC.QRunnable):
         thread_end = QC.pyqtSignal()
         rename_path = QC.pyqtSignal(str)
         progress_update = QC.pyqtSignal(int, str)  # 进度更新信号：进度值(0-100)，状态文本
+        start_visualizer = QC.pyqtSignal()  # 通知主线程启动可视化工具的信号
 
     def __init__(self):
         """
@@ -296,56 +297,19 @@ class AnalysisWorker(QC.QRunnable):
     def _start_visualizer(self):
         """
         启动可视化工具的内部方法
+        发送信号通知主线程启动可视化工具，确保环境一致
         """
-        # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
-        exe_dir = os.path.dirname(sys.executable)
-        build_type = "Debug" if "Debug" in exe_dir else "Release"
-
-        # 从当前运行的 analyzer 可执行文件名中解析版本（形如 battery-analyzer_1_0_1.exe）
-        analyzer_exe_name = os.path.basename(sys.executable)
-        m = re.search(r"battery-analyzer_(\d+_\d+_\d+)\.exe",
-                      analyzer_exe_name, re.IGNORECASE)
-        version_us = None
-        if m:
-            version_us = m.group(1)
-        else:
-            # 回退：从项目版本读取，并转换为下划线格式
-            try:
-                from battery_analysis.utils.version import Version
-                version_us = Version().version.replace('.', '_')
-            except Exception:
-                version_us = "2_0_0"  # 与项目默认版本保持一致
-
-        # 仅使用与 analyzer 同版本的候选路径
-        exe_candidates = [
-            # 可执行文件所在目录（打包/本地运行）
-            os.path.join(
-                exe_dir, f"battery-analysis-visualizer_{version_us}.exe"),
-            # 项目根目录（少数场景可能存在）
-            os.path.join(
-                self.str_path, f"battery-analysis-visualizer_{version_us}.exe"),
-            # 项目构建目录（Debug/Release）
-            os.path.join(self.str_path, "build", build_type,
-                         f"battery-analysis-visualizer_{version_us}.exe"),
-        ]
-
-        exe_executed = False
-        for exe_path in exe_candidates:
-            if os.path.exists(exe_path):
-                logging.info("启动ImageMaker: %s", exe_path)
-                try:
-                    # 使用CREATE_NEW_CONSOLE标志启动，以便新窗口中运行，移除shell=True避免重复启动
-                    subprocess.run(
-                        [exe_path], creationflags=subprocess.CREATE_NEW_CONSOLE)
-                    exe_executed = True
-                    break
-                except Exception as e:
-                    logging.error("启动失败 %s: %s", exe_path, e)
-                    continue
-
-        if not exe_executed:
-            logging.warning("未找到battery-analysis-visualizer可执行文件")
-            logging.info("候选路径:")
-            for path in exe_candidates:
-                logging.info(
-                "  - %s: %s", path, '存在' if os.path.exists(path) else '不存在')
+        logging.info("[调试] 进入_start_visualizer方法，准备发送启动可视化工具信号")
+        try:
+            # 检查信号对象是否存在
+            if hasattr(self, 'signals'):
+                logging.info("[调试] 信号对象存在，准备发射start_visualizer信号")
+                self.signals.start_visualizer.emit()
+                logging.info("[调试] 可视化工具启动信号发送成功")
+            else:
+                logging.error("[调试] 信号对象不存在，无法发送信号")
+        except RuntimeError as e:
+            logging.warning("[调试] 信号对象已被删除，无法发送启动可视化工具信号: %s", e)
+        except Exception as e:
+            logging.error("[调试] 发送启动可视化工具信号时出错: %s", e)
+        logging.info("[调试] _start_visualizer方法执行完毕")

@@ -276,6 +276,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.main_controller.status_changed.connect(self.get_threadinfo)
         self.main_controller.analysis_completed.connect(self.set_version)
         self.main_controller.path_renamed.connect(self.rename_pltPath)
+        self.main_controller.start_visualizer.connect(self.run_visualizer)
 
         # 文件控制器信号连接
         self.file_controller.config_loaded.connect(self._on_config_loaded)
@@ -897,24 +898,43 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         )
         self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
 
-    def run_visualizer(self) -> None:
+    def run_visualizer(self, xml_path=None) -> None:
         """运行可视化工具"""
+        logging.info("[调试] 进入main_window.run_visualizer方法")
+        
+        # 检查xml_path是否为布尔值，如果是，则忽略（可能来自QAction的triggered信号）
+        if isinstance(xml_path, bool):
+            logging.info("[调试] 检测到布尔类型的xml_path参数，忽略它")
+            xml_path = None
+        
+        # 如果没有传入xml_path参数，则从界面获取
+        if xml_path is None:
+            logging.info("[调试] 没有传入xml_path，尝试从界面获取")
+            xml_path = self.lineEdit_TestProfile.text() if hasattr(self, 'lineEdit_TestProfile') else None
+            logging.info(f"[调试] 从界面获取的xml_path: {xml_path}")
+        else:
+            logging.info(f"[调试] 传入的xml_path: {xml_path}")
+        
         self.statusBar_BatteryAnalysis.showMessage("启动可视化工具...")
 
         try:
             # 创建可视化器控制器实例
+            logging.info("[调试] 准备创建VisualizerController实例")
             visualizer_controller = VisualizerController()
-
-            # 获取XML文件路径
-            xml_path = self.lineEdit_TestProfile.text()
+            logging.info("[调试] VisualizerController实例创建成功")
 
             # 创建并显示可视化器
+            logging.info(f"[调试] 准备调用run_visualizer，参数: xml_path={xml_path}")
             visualizer_controller.run_visualizer(xml_path)
+            logging.info("[调试] visualizer_controller.run_visualizer调用成功")
 
             # 更新状态栏
             self.statusBar_BatteryAnalysis.showMessage("可视化工具已启动")
+            logging.info("[调试] 可视化工具启动完成")
         except Exception as e:
-            logging.error("启动可视化工具时出错: %s", str(e))
+            logging.error("[调试] 启动可视化工具时出错: %s", str(e))
+            import traceback
+            logging.error("[调试] 异常堆栈: %s", traceback.format_exc())
             QW.QMessageBox.error(
                 self,
                 "错误",

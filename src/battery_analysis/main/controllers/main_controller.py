@@ -3,6 +3,7 @@
 主控制器模块
 负责处理核心业务逻辑和协调各个组件
 """
+import logging
 from PyQt6 import QtCore as QC
 from battery_analysis.main.workers.analysis_worker import AnalysisWorker
 
@@ -17,6 +18,7 @@ class MainController(QC.QObject):
     status_changed = QC.pyqtSignal(bool, int, str)  # 状态变化信号
     analysis_completed = QC.pyqtSignal()  # 分析完成信号
     path_renamed = QC.pyqtSignal(str)  # 路径重命名信号
+    start_visualizer = QC.pyqtSignal()  # 启动可视化工具信号
 
     def __init__(self):
         """
@@ -84,6 +86,7 @@ class MainController(QC.QObject):
         self.current_worker.signals.thread_end.connect(
             self._on_analysis_completed)
         self.current_worker.signals.rename_path.connect(self._on_path_renamed)
+        self.current_worker.signals.start_visualizer.connect(self._on_start_visualizer)
 
         # 启动工作线程
         self.thread_pool.start(self.current_worker)
@@ -145,3 +148,21 @@ class MainController(QC.QObject):
             test_date: 测试日期
         """
         self.path_renamed.emit(test_date)
+
+    def _on_start_visualizer(self):
+        """
+        启动可视化工具回调
+        转发信号给主窗口
+        """
+        logging.info("[调试] 进入main_controller._on_start_visualizer方法")
+        try:
+            # 检查信号是否存在
+            if hasattr(self, 'start_visualizer'):
+                logging.info("[调试] main_controller.start_visualizer信号存在，准备转发")
+                self.start_visualizer.emit()
+                logging.info("[调试] 启动可视化工具信号转发成功")
+            else:
+                logging.error("[调试] main_controller.start_visualizer信号不存在，无法转发")
+        except Exception as e:
+            logging.error("[调试] 转发启动可视化工具信号时出错: %s", e)
+        logging.info("[调试] main_controller._on_start_visualizer方法执行完毕")
