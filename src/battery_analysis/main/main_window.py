@@ -16,6 +16,8 @@ from battery_analysis.main.controllers.file_controller import FileController
 from battery_analysis.main.controllers.main_controller import MainController
 from battery_analysis.main.controllers.visualizer_controller import VisualizerController
 from battery_analysis.utils.config_utils import find_config_file
+from battery_analysis.i18n.language_manager import get_language_manager, _
+from battery_analysis.i18n.preferences_dialog import PreferencesDialog
 from battery_analysis.ui import ui_main_window
 import os
 import re
@@ -156,6 +158,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         from battery_analysis import __version__
         self.version = __version__
 
+        # 初始化语言管理器
+        self.language_manager = get_language_manager()
+        
+        # 初始化日志记录器
+        self.logger = logging.getLogger(__name__)
+        
         # 初始化控制器
         self.main_controller = MainController()
         self.file_controller = FileController()
@@ -215,6 +223,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         self.setupUi(self)
 
+        # 连接语言管理器信号
+        self._connect_language_signals()
+
         self.init_window()
         self.init_widget()
 
@@ -248,8 +259,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             return []
 
     def init_window(self) -> None:
-        # 在窗口标题中显示应用程序名称和版本号
-        self.setWindowTitle(f"battery-analyzer v{self.version}")
+        # 在窗口标题中显示应用程序名称和版本号（支持国际化）
+        window_title = _("window_title", f"battery-analyzer v{self.version}")
+        self.setWindowTitle(window_title)
+        
         # 使用配置目录下的图标文件
         try:
             # 使用实际存在的ico图标文件
@@ -357,6 +370,55 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 关闭进度条
         self._close_progress_dialog()
         QW.QMessageBox.critical(self, "错误", error_msg)
+
+    def _connect_language_signals(self):
+        """连接语言管理器的信号"""
+        self.language_manager.language_changed.connect(self._on_language_changed)
+
+    def _on_language_changed(self, language_code):
+        """语言切换处理"""
+        # 更新窗口标题
+        window_title = _("window_title", f"battery-analyzer v{self.version}")
+        self.setWindowTitle(window_title)
+        
+        # 更新UI文本
+        self._update_ui_texts()
+        
+        # 更新状态栏消息
+        self._update_statusbar_messages()
+        
+        # 刷新所有对话框
+        self._refresh_dialogs()
+        
+        logging.info(f"界面语言已切换到: {language_code}")
+
+    def _update_ui_texts(self):
+        """更新UI文本为当前语言"""
+        # 更新进度对话框标题
+        if hasattr(self, 'progress_dialog') and self.progress_dialog:
+            self.progress_dialog.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
+            self.progress_dialog.status_label.setText(_("progress_ready", "Ready to start analysis..."))
+    
+    def _update_statusbar_messages(self):
+        """更新状态栏消息为当前语言"""
+        # 保存当前消息，以便切换语言后恢复
+        current_message = self.statusBar_BatteryAnalysis.currentMessage()
+        
+        # 获取翻译后的状态消息
+        status_ready = _("status_ready", "状态:就绪")
+        
+        # 更新状态栏
+        if current_message == "状态:就绪" or current_message == "Ready":
+            self.statusBar_BatteryAnalysis.showMessage(status_ready)
+        
+        # 更新其他可能需要翻译的消息
+        # 添加更多状态栏消息的翻译
+    
+    def _refresh_dialogs(self):
+        """刷新所有对话框以应用新语言"""
+        # 关闭并重新创建首选项对话框（如果正在显示）
+        # 如果需要刷新其他对话框，也在这里处理
+        pass
 
     def init_widget(self) -> None:
         if self.b_has_config:
@@ -629,6 +691,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.actionPaste.triggered.connect(self.paste_text)
         self.actionCut.triggered.connect(self.cut_selected_text)
 
+        # 首选项对话框连接
+        self.actionPreferences.triggered.connect(self.show_preferences)
+
         # 工具栏和状态栏显示/隐藏功能连接
         if hasattr(self, 'actionShow_Toolbar'):
             self.actionShow_Toolbar.triggered.connect(self.toggle_toolbar_safe)
@@ -696,6 +761,35 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             '关于 Battery Analyzer',
             about_text
         )
+
+    def show_preferences(self) -> None:
+        """显示首选项对话框"""
+        try:
+            preferences_dialog = PreferencesDialog(self)
+            
+            # 连接首选项应用信号
+            preferences_dialog.preferences_applied.connect(self.on_preferences_applied)
+            
+            # 显示对话框
+            preferences_dialog.exec()
+            
+        except Exception as e:
+            self.logger.error(f"显示首选项对话框时出错: {e}")
+            QW.QMessageBox.critical(
+                self,
+                _("error", "错误"),
+                f"{_('show_preferences_failed', '显示首选项对话框失败')}: {str(e)}"
+            )
+
+    def on_preferences_applied(self) -> None:
+        """首选项应用后的处理"""
+        try:
+            # 这里可以添加首选项应用后的特殊处理
+            # 比如重新加载某些设置、更新界面等
+            self.logger.info("首选项已应用")
+            
+        except Exception as e:
+            self.logger.error(f"应用首选项后处理出错: {e}")
 
     def toggle_toolbar_safe(self) -> None:
         """安全地切换工具栏的显示/隐藏状态"""
@@ -803,8 +897,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             logging.error("打开用户手册失败: %s", e)
             QW.QMessageBox.warning(
                 self,
-                "错误",
-                f"无法打开用户手册: {str(e)}",
+                _("error", "错误"),
+                f"{_('cannot_open_user_manual', '无法打开用户手册')}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
 
@@ -844,7 +938,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def calculate_battery(self) -> None:
         """执行电池计算"""
         # 这里可以实现电池计算的逻辑，或连接到现有的计算功能
-        self.statusBar_BatteryAnalysis.showMessage("执行电池计算...")
+        self.statusBar_BatteryAnalysis.showMessage(_("calculating_battery", "执行电池计算..."))
         # 模拟计算过程
         QW.QMessageBox.information(
             self,
@@ -852,7 +946,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             "电池计算功能将根据输入的参数进行计算。\n\n点击'运行'按钮开始完整的电池分析流程。",
             QW.QMessageBox.StandardButton.Ok
         )
-        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def analyze_data(self) -> None:
         """分析数据"""
@@ -860,13 +954,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if not self.lineEdit_InputPath.text():
             QW.QMessageBox.warning(
                 self,
-                "警告",
+                _("warning", "警告"),
                 "请先设置输入路径后再分析数据。",
                 QW.QMessageBox.StandardButton.Ok
             )
             return
 
-        self.statusBar_BatteryAnalysis.showMessage("分析数据中...")
+        self.statusBar_BatteryAnalysis.showMessage(_("analyzing_data", "分析数据中..."))
         # 这里可以连接到现有的数据分析功能
         QW.QMessageBox.information(
             self,
@@ -874,7 +968,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             "数据分析功能将处理输入路径中的数据文件。\n\n点击'运行'按钮开始完整的电池分析流程。",
             QW.QMessageBox.StandardButton.Ok
         )
-        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def generate_report(self) -> None:
         """生成报告"""
@@ -882,13 +976,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if not self.lineEdit_OutputPath.text():
             QW.QMessageBox.warning(
                 self,
-                "警告",
+                _("warning", "警告"),
                 "请先设置输出路径后再生成报告。",
                 QW.QMessageBox.StandardButton.Ok
             )
             return
 
-        self.statusBar_BatteryAnalysis.showMessage("生成报告中...")
+        self.statusBar_BatteryAnalysis.showMessage(_("generating_report", "生成报告中..."))
         # 这里可以连接到现有的报告生成功能
         QW.QMessageBox.information(
             self,
@@ -896,7 +990,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             "报告将被生成到指定的输出路径。\n\n点击'运行'按钮开始完整的电池分析流程。",
             QW.QMessageBox.StandardButton.Ok
         )
-        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def run_visualizer(self, xml_path=None) -> None:
         """运行可视化工具"""
@@ -915,7 +1009,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         else:
             logging.info(f"[调试] 传入的xml_path: {xml_path}")
         
-        self.statusBar_BatteryAnalysis.showMessage("启动可视化工具...")
+        self.statusBar_BatteryAnalysis.showMessage(_("starting_visualizer", "启动可视化工具..."))
 
         try:
             # 创建可视化器控制器实例
@@ -929,7 +1023,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             logging.info("[调试] visualizer_controller.run_visualizer调用成功")
 
             # 更新状态栏
-            self.statusBar_BatteryAnalysis.showMessage("可视化工具已启动")
+            self.statusBar_BatteryAnalysis.showMessage(_("visualizer_started", "可视化工具已启动"))
             logging.info("[调试] 可视化工具启动完成")
         except Exception as e:
             logging.error("[调试] 启动可视化工具时出错: %s", str(e))
@@ -937,32 +1031,32 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             logging.error("[调试] 异常堆栈: %s", traceback.format_exc())
             QW.QMessageBox.error(
                 self,
-                "错误",
-                f"启动可视化工具时出错: {str(e)}",
+                _("error", "错误"),
+            f"{_('visualizer_start_error', '启动可视化工具时出错')}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
-            self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+            self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def show_visualizer_error(self, error_msg: str):
         """在主线程中显示可视化工具错误消息"""
         QW.QMessageBox.error(
             self,
-            "错误",
-            f"启动可视化工具时出错: {error_msg}",
+            _("error", "错误"),
+            f"{_('visualizer_start_error', '启动可视化工具时出错')}: {error_msg}",
             QW.QMessageBox.StandardButton.Ok
         )
-        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def batch_processing(self) -> None:
         """批量处理"""
-        self.statusBar_BatteryAnalysis.showMessage("准备批量处理...")
+        self.statusBar_BatteryAnalysis.showMessage(_("preparing_batch_processing", "准备批量处理..."))
         QW.QMessageBox.information(
             self,
             "批量处理",
             "批量处理功能允许您同时分析多个电池数据集。\n\n此功能正在开发中，敬请期待。",
             QW.QMessageBox.StandardButton.Ok
         )
-        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def zoom_in(self) -> None:
         """放大界面元素"""
@@ -993,7 +1087,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """保存当前设置到用户配置文件"""
         try:
             # 显示保存状态
-            self.statusBar_BatteryAnalysis.showMessage("正在保存设置...")
+            self.statusBar_BatteryAnalysis.showMessage(_("saving_settings", "正在保存设置..."))
 
             # 创建用户配置文件路径（与原始配置文件同目录，使用不同名称）
             user_config_path = os.path.join(os.path.dirname(
@@ -1055,7 +1149,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 # 同步保存到内存中的配置实例
                 self.config = user_settings
 
-                self.statusBar_BatteryAnalysis.showMessage("设置已保存")
+                self.statusBar_BatteryAnalysis.showMessage(_("settings_saved", "设置已保存"))
                 QW.QMessageBox.information(
                     self,
                     "保存设置",
@@ -1070,7 +1164,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     "无法找到配置文件路径，无法保存设置。",
                     QW.QMessageBox.StandardButton.Ok
                 )
-                self.statusBar_BatteryAnalysis.showMessage("保存设置失败")
+                self.statusBar_BatteryAnalysis.showMessage(_("save_settings_failed", "保存设置失败"))
 
         except Exception as e:
             logging.error("保存设置失败: %s", e)
@@ -1080,7 +1174,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 f"无法保存设置: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
-            self.statusBar_BatteryAnalysis.showMessage("保存设置失败")
+            self.statusBar_BatteryAnalysis.showMessage(_("save_settings_failed", "保存设置失败"))
 
     def export_report(self) -> None:
         """导出报告"""
@@ -1088,13 +1182,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if not self.lineEdit_OutputPath.text():
             QW.QMessageBox.warning(
                 self,
-                "警告",
+                _("warning", "警告"),
                 "请先设置输出路径后再导出报告。",
                 QW.QMessageBox.StandardButton.Ok
             )
             return
 
-        self.statusBar_BatteryAnalysis.showMessage("导出报告中...")
+        self.statusBar_BatteryAnalysis.showMessage(_("exporting_report", "导出报告中..."))
         # 这里可以连接到现有的报告导出功能
         QW.QMessageBox.information(
             self,
@@ -1102,7 +1196,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             "报告将被导出到指定的输出路径。\n\n点击'运行'按钮开始完整的电池分析流程。",
             QW.QMessageBox.StandardButton.Ok
         )
-        self.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def set_theme(self, theme_name) -> None:
         """设置应用程序主题"""
@@ -1133,7 +1227,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 # 使用系统默认样式
                 app.setStyle(QW.QStyleFactory.create(
                     "windowsvista" if sys.platform == "win32" else "fusion"))
-                self.statusBar_BatteryAnalysis.showMessage(f"已切换到系统默认主题")
+                self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_default", f"已切换到系统默认主题"))
             elif theme_name == "Windows 11":
                 # 尝试使用Windows 11样式（如果可用）
                 if sys.platform == "win32":
@@ -1159,14 +1253,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             elif theme_name == "Fusion":
                 # 使用Fusion样式（跨平台）
                 app.setStyle(QW.QStyleFactory.create("fusion"))
-                self.statusBar_BatteryAnalysis.showMessage(f"已切换到Fusion主题")
+                self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_fusion", f"已切换到Fusion主题"))
             elif theme_name == "Dark Theme":
                 # 使用深色主题
                 try:
                     # 尝试使用QDarkStyleSheet库
                     import qdarkstyle
                     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt6())
-                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到深色主题")
+                    self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_dark", f"已切换到深色主题"))
                 except ImportError:
                     # 如果没有安装qdarkstyle，使用简单的深色主题样式表
                     dark_stylesheet = """.QWidget {
@@ -1208,10 +1302,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     }
                     """
                     app.setStyleSheet(dark_stylesheet)
-                    self.statusBar_BatteryAnalysis.showMessage(f"已切换到简单深色主题")
+                    self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_simple_dark", f"已切换到简单深色主题"))
         except Exception as e:
             logging.error(f"切换主题失败: {e}")
-            self.statusBar_BatteryAnalysis.showMessage(f"切换主题失败: {str(e)}")
+            self.statusBar_BatteryAnalysis.showMessage(_("theme_switch_failed", f"切换主题失败: {str(e)}"))
 
         # 设置当前主题动作的选中状态
         if theme_name in theme_actions:
@@ -1231,7 +1325,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         regex = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
         if version_text and not regex.match(version_text).hasMatch():
             self.statusBar_BatteryAnalysis.showMessage(
-                "[警告]: 版本号格式不正确，应为 x.y.z 格式")
+                f"{_('warning', '警告')}: {_('version_format_invalid', '版本号格式不正确，应为 x.y.z 格式')}")
             # 设置错误样式
             self.lineEdit_Version.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
@@ -1246,7 +1340,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """验证输入路径是否存在"""
         path = self.lineEdit_InputPath.text()
         if path and not os.path.exists(path):
-            self.statusBar_BatteryAnalysis.showMessage("[警告]: 输入路径不存在")
+            self.statusBar_BatteryAnalysis.showMessage(f"{_('warning', '警告')}: {_('input_path_not_exists', '输入路径不存在')}")
             self.lineEdit_InputPath.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
         else:
@@ -1289,7 +1383,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         if empty_fields:
             self.statusBar_BatteryAnalysis.showMessage(
-                f"[警告]: 以下必填字段为空: {', '.join(empty_fields)}")
+                f"{_('warning', '警告')}: {_('required_fields_empty', '以下必填字段为空')}: {', '.join(empty_fields)}")
         else:
             # 如果所有验证都通过，显示正常状态
             if self.checker_battery_type.b_check_pass:

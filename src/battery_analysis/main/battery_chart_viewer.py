@@ -45,6 +45,7 @@ from matplotlib.widgets import CheckButtons
 from matplotlib.patches import Rectangle, FancyBboxPatch
 from matplotlib.colors import to_rgba
 from battery_analysis.utils.config_utils import find_config_file
+from battery_analysis.i18n.language_manager import get_language_manager, _
 
 # 配置matplotlib支持中文显示
 matplotlib.rcParams['font.sans-serif'] = ['SimHei',
@@ -136,6 +137,10 @@ class BatteryChartViewer:
         """
         self.config = configparser.ConfigParser()
 
+        # 初始化语言管理器
+        self.language_manager = get_language_manager()
+        self.language_manager.language_changed.connect(self._on_language_changed)
+        
         # 初始化默认配置
         if not self.config.has_section("PltConfig"):
             self.config.add_section("PltConfig")
@@ -191,6 +196,45 @@ class BatteryChartViewer:
             logging.info("初始化时未提供数据路径，不加载数据")
             # 尝试查找其他可能的数据文件
             self._search_for_data_files()
+    
+    def _on_language_changed(self, language_code):
+        """语言切换处理"""
+        # 更新图表标题
+        self._update_chart_title()
+        
+        # 重新绘制图表以应用新的语言
+        if self.current_fig is not None:
+            self.redraw_chart()
+        
+        logging.info(f"电池图表查看器语言已切换到: {language_code}")
+    
+    def _update_chart_title(self):
+        """更新图表标题"""
+        # 根据当前语言更新图表标题
+        if hasattr(self, 'strPltTitle'):
+            # 尝试移除前后引号（如果存在）
+            if (len(self.strPltTitle) >= 2
+                and self.strPltTitle[0] == '"'
+                    and self.strPltTitle[-1] == '"'):
+                title_content = self.strPltTitle[1:-1]
+            else:
+                title_content = self.strPltTitle
+            
+            self.strPltName = f"{_('load_voltage_over_charge', 'Load Voltage over Charge')}\n{title_content}"
+    
+    def redraw_chart(self):
+        """重新绘制图表"""
+        if hasattr(self, 'current_fig') and self.current_fig is not None:
+            try:
+                # 关闭当前图表
+                plt.close(self.current_fig)
+                
+                # 创建新图表
+                self.create_visualization()
+            except Exception as e:
+                logging.error(f"重新绘制图表时出错: {e}")
+                import traceback
+                traceback.print_exc()
 
     def set_data_path(self, data_path):
         """
@@ -904,16 +948,15 @@ class BatteryChartViewer:
             details (str, optional): 详细错误信息和故障排除建议
         """
         try:
-            # 设置默认错误信息
             if title is None:
-                title = "数据错误"
+                title = _("data_error_title", "数据错误")
             if main_message is None:
-                main_message = "无法加载或显示电池数据"
+                main_message = _("data_error_message", "无法加载或显示电池数据")
             if details is None:
-                details = "1. csv文件是否存在且格式正确\n"
-                details += "2. 配置文件是否正确选择\n"
-                details += "3. 文件路径是否包含中文字符或特殊字符\n"
-                details += "4. csv文件是否包含有效的电池测试数据"
+                details = _("data_error_details", "1. csv文件是否存在且格式正确\n"
+                                    "2. 配置文件是否正确选择\n"
+                                    "3. 文件路径是否包含中文字符或特殊字符\n"
+                                    "4. csv文件是否包含有效的电池测试数据")
 
             # 创建错误图表
             fig, ax = plt.subplots(figsize=(10, 6))
@@ -1195,7 +1238,7 @@ class BatteryChartViewer:
         try:
             if hasattr(fig.canvas.manager, 'window'):
                 fig.canvas.manager.window.setWindowTitle(
-                    "Filtered Load Voltage over Charge")
+                    _("filtered_load_voltage_over_charge", "Filtered Load Voltage over Charge"))
         except Exception as e:
             logging.warning("无法设置图表窗口标题: %s", str(e))
 
@@ -1213,10 +1256,10 @@ class BatteryChartViewer:
         ax.yaxis.set_major_locator(y_major_locator)
 
         # 设置标题和标签
-        ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
+        ax.set_title(_("filtered", f"Filtered") + " " + self.strPltName, fontdict=title_fontdict)
         ax.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
         ax.set_ylabel(
-            "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+            _("filtered_battery_load_voltage", "Filtered Battery Load Voltage") + " [V]", fontdict=axis_fontdict)
 
         # 添加网格线
         ax.grid(linestyle="--", alpha=0.3)
@@ -1238,7 +1281,7 @@ class BatteryChartViewer:
                         color=self.listColor[c] if c < len(
                             self.listColor) else f'C{c}',
                         label=[f'{self.listBatteryNameSplit[b]}',
-                               'Unfiltered'],
+                               _("unfiltered", "Unfiltered")],
                         visible=False,
                         linewidth=0.5
                     )
@@ -1250,7 +1293,7 @@ class BatteryChartViewer:
                         self.listPlt[c][3][b],
                         color=self.listColor[c] if c < len(
                             self.listColor) else f'C{c}',
-                        label=[f'{self.listBatteryNameSplit[b]}', 'Filtered'],
+                        label=[f'{self.listBatteryNameSplit[b]}', _("filtered", "Filtered")],
                         visible=True,
                         linewidth=0.5
                     )
@@ -1498,17 +1541,17 @@ class BatteryChartViewer:
                     
                     # 更新按钮文本
                     if button_state_ref['button_state']:
-                        new_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
+                        new_text = _("button_filtered", "🔍 Filtered") if is_filtered['value'] else _("button_all_data", "📊 All Data")
                         button_state_ref['button_state']['text'].set_text(new_text)
                     
                     if is_filtered['value']:
                         # 切换到过滤模式
                         fig.canvas.manager.window.setWindowTitle(
-                            "Filtered Load Voltage over Charge")
+                            _("filtered_load_voltage_over_charge", "Filtered Load Voltage over Charge"))
                         ax.set_title(
-                            f"Filtered {self.strPltName}", fontdict=title_fontdict)
+                            _("filtered", f"Filtered") + " " + self.strPltName, fontdict=title_fontdict)
                         ax.set_ylabel(
-                            "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+                            _("filtered_battery_load_voltage", "Filtered Battery Load Voltage") + " [V]", fontdict=axis_fontdict)
 
                         # 更新线条可见性 - 保持相同电池的可见性一致
                         for i in range(min(len(lines_unfiltered), len(lines_filtered))):
@@ -1525,11 +1568,11 @@ class BatteryChartViewer:
                     else:
                         # 切换到未过滤模式
                         fig.canvas.manager.window.setWindowTitle(
-                            "Unfiltered Load Voltage over Charge")
+                            _("unfiltered_load_voltage_over_charge", "Unfiltered Load Voltage over Charge"))
                         ax.set_title(
-                            f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
+                            _("unfiltered", f"Unfiltered") + " " + self.strPltName, fontdict=title_fontdict)
                         ax.set_ylabel(
-                            "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
+                            _("unfiltered_battery_load_voltage", "Unfiltered Battery Load Voltage") + " [V]", fontdict=axis_fontdict)
 
                         # 更新线条可见性 - 保持相同电池的可见性一致
                         for i in range(min(len(lines_filtered), len(lines_unfiltered))):
@@ -1548,7 +1591,7 @@ class BatteryChartViewer:
                     logging.error("执行过滤切换时出错: %s", e)
             
             # 创建现代化过滤按钮
-            button_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
+            button_text = _("button_filtered", "🔍 Filtered") if is_filtered['value'] else _("button_all_data", "📊 All Data")
             button_state = self._create_modern_button(
                 ax_filter, 0.02, 0.15, 0.96, 0.7,
                 button_text, toggle_filter_mode,
