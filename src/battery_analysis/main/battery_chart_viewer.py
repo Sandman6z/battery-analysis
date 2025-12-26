@@ -42,12 +42,45 @@ matplotlib.use('QtAgg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.widgets import CheckButtons
+from matplotlib.patches import Rectangle, FancyBboxPatch
+from matplotlib.colors import to_rgba
 from battery_analysis.utils.config_utils import find_config_file
 
 # 配置matplotlib支持中文显示
 matplotlib.rcParams['font.sans-serif'] = ['SimHei',
                                           'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
 matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+# 现代化按钮样式配置
+MODERN_BUTTON_STYLE = {
+    # 按钮状态颜色
+    'active_color': '#2196F3',      # 现代蓝色 - 激活状态
+    'inactive_color': '#FFFFFF',    # 纯白背景 - 未激活状态
+    'hover_color': '#1976D2',       # 深蓝色 - 悬停状态
+    'pressed_color': '#0D47A1',     # 更深蓝色 - 按下状态
+    
+    # 文字颜色
+    'active_text_color': '#FFFFFF',  # 激活时白色文字
+    'inactive_text_color': '#424242', # 未激活时深灰文字
+    'hover_text_color': '#FFFFFF',    # 悬停时白色文字
+    
+    # 边框样式
+    'border_color': '#E0E0E0',       # 浅灰边框
+    'border_width': 1,
+    'border_radius': 6,              # 圆角半径
+    
+    # 阴影效果
+    'shadow_color': '0.2',
+    'shadow_offset': (0, 1),
+    
+    # 字体样式
+    'font_size': 8,                  # 减小字体以适应按钮
+    'font_weight': 'medium',         # 中等字重
+    
+    # 布局参数
+    'padding': 3,                    # 内部边距
+    'spacing': 1                     # 按钮间距
+}
 
 # 开启Matplotlib的交互模式
 plt.ion()
@@ -1227,203 +1260,414 @@ class BatteryChartViewer:
 
         return lines_unfiltered, lines_filtered
 
+    def _create_modern_button(self, ax, x, y, width, height, text, callback, 
+                             is_toggle=False, initial_state=False):
+        """
+        创建现代化按钮
+        
+        Args:
+            ax: matplotlib轴对象
+            x, y: 按钮位置
+            width, height: 按钮尺寸
+            text: 按钮文本
+            callback: 点击回调函数
+            is_toggle: 是否为切换按钮（保存状态）
+            initial_state: 初始状态
+        """
+        try:
+            # 创建按钮背景
+            button_bg = FancyBboxPatch(
+                (x, y), width, height,
+                boxstyle=f"round,pad={MODERN_BUTTON_STYLE['padding']/100}",
+                facecolor=MODERN_BUTTON_STYLE['inactive_color'],
+                edgecolor=MODERN_BUTTON_STYLE['border_color'],
+                linewidth=MODERN_BUTTON_STYLE['border_width'],
+                alpha=0.95,
+                transform=ax.transAxes
+            )
+            ax.add_patch(button_bg)
+            
+            # 创建按钮文本
+            button_text = ax.text(
+                x + width/2, y + height/2, text,
+                ha='center', va='center',
+                fontsize=MODERN_BUTTON_STYLE['font_size'],
+                color=MODERN_BUTTON_STYLE['inactive_text_color'],
+                weight=MODERN_BUTTON_STYLE['font_weight'] if is_toggle else 'normal',
+                transform=ax.transAxes
+            )
+            
+            # 按钮状态
+            state = {'active': initial_state, 'bg': button_bg, 'text': button_text, 'hover': False}
+            
+            # 初始化按钮样式
+            self._update_button_style(state)
+            
+            def on_button_hover(event):
+                """鼠标悬停处理"""
+                if event.inaxes != ax:
+                    # 鼠标移出按钮区域，重置悬停状态
+                    if state['hover']:
+                        state['hover'] = False
+                        self._update_button_style(state)
+                    return
+                    
+                # 检查鼠标是否在按钮范围内 - 统一检测范围
+                is_in_button = (x <= event.xdata <= x + width and 
+                              y - 0.01 <= event.ydata <= y + height + 0.01)
+                
+                if is_in_button and not state['hover']:
+                    # 鼠标进入按钮区域
+                    state['hover'] = True
+                    self._update_button_style(state, hover=True)
+                    ax.figure.canvas.draw_idle()
+                elif not is_in_button and state['hover']:
+                    # 鼠标离开按钮区域
+                    state['hover'] = False
+                    self._update_button_style(state)
+                    ax.figure.canvas.draw_idle()
+
+            def on_button_click(event):
+                if event.inaxes != ax:
+                    return
+                    
+                # 检查点击是否在按钮范围内 - 修复点击位置偏移
+                if (x <= event.xdata <= x + width and 
+                    y - 0.01 <= event.ydata <= y + height + 0.01):
+                    
+                    if is_toggle:
+                        # 切换按钮状态
+                        state['active'] = not state['active']
+                        self._update_button_style(state)
+                    else:
+                        # 单次按钮，执行后重置样式
+                        self._update_button_style(state, pressed=True)
+                        # 延迟重置
+                        self._reset_button_after_delay(state, delay=0.1)
+                    
+                    # 执行回调
+                    try:
+                        callback()
+                    except Exception as e:
+                        logging.error("按钮回调执行出错: %s", e)
+                    
+                    # 重绘
+                    ax.figure.canvas.draw_idle()
+            
+            # 连接事件
+            ax.figure.canvas.mpl_connect('motion_notify_event', on_button_hover)
+            ax.figure.canvas.mpl_connect('button_press_event', on_button_click)
+            
+            return state
+            
+        except Exception as e:
+            logging.error("创建现代化按钮时出错: %s", e)
+            return None
+    
+    def _update_button_style(self, state, pressed=False, hover=False):
+        """更新按钮样式"""
+        try:
+            if pressed:
+                # 按下状态
+                state['bg'].set_facecolor(MODERN_BUTTON_STYLE['pressed_color'])
+                state['text'].set_color(MODERN_BUTTON_STYLE['active_text_color'])
+                state['text'].set_weight(MODERN_BUTTON_STYLE['font_weight'])
+            elif hover:
+                # 悬停状态
+                if state['active']:
+                    state['bg'].set_facecolor(MODERN_BUTTON_STYLE['hover_color'])
+                    state['text'].set_color(MODERN_BUTTON_STYLE['hover_text_color'])
+                else:
+                    state['bg'].set_facecolor(MODERN_BUTTON_STYLE['hover_color'])
+                    state['text'].set_color(MODERN_BUTTON_STYLE['inactive_text_color'])
+                state['text'].set_weight(MODERN_BUTTON_STYLE['font_weight'])
+            elif state['active']:
+                # 激活状态
+                state['bg'].set_facecolor(MODERN_BUTTON_STYLE['active_color'])
+                state['text'].set_color(MODERN_BUTTON_STYLE['active_text_color'])
+                state['text'].set_weight(MODERN_BUTTON_STYLE['font_weight'])
+            else:
+                # 未激活状态
+                state['bg'].set_facecolor(MODERN_BUTTON_STYLE['inactive_color'])
+                state['text'].set_color(MODERN_BUTTON_STYLE['inactive_text_color'])
+                state['text'].set_weight('normal')
+        except Exception as e:
+            logging.error("更新按钮样式时出错: %s", e)
+    
+    def _reset_button_after_delay(self, state, delay=0.1):
+        """延迟重置按钮状态"""
+        import threading
+        timer = threading.Timer(delay, lambda: self._update_button_style(state))
+        timer.start()
+    
+    def _create_modern_toggle_group(self, ax, x, y, width, height, buttons_config):
+        """
+        创建现代化切换按钮组
+        
+        Args:
+            ax: matplotlib轴对象
+            x, y: 按钮组位置
+            width, height: 按钮组尺寸
+            buttons_config: 按钮配置列表 [{'text': '文本', 'callback': 函数, 'initial': 状态}]
+        """
+        try:
+            button_states = []
+            button_width = width / len(buttons_config)
+            
+            for i, config in enumerate(buttons_config):
+                btn_x = x + i * button_width
+                btn_state = self._create_modern_button(
+                    ax, btn_x, y, button_width - 0.005, height,
+                    config['text'], config['callback'],
+                    is_toggle=True, initial_state=config.get('initial', False)
+                )
+                if btn_state:
+                    button_states.append(btn_state)
+            
+            return button_states
+            
+        except Exception as e:
+            logging.error("创建现代化切换按钮组时出错: %s", e)
+            return []
+
     def _add_file_operation_buttons(self, fig):
         """添加文件操作按钮区域（打开文件和退出按钮）"""
         try:
             # 创建文件操作按钮区域
-            rax_file = plt.axes([0.001, 0.90, 0.17, 0.062])
+            ax_file = fig.add_axes([0.001, 0.90, 0.17, 0.062])
+            ax_file.set_xlim(0, 1)
+            ax_file.set_ylim(0, 1)
+            ax_file.axis('off')
             
-            # 创建文件操作按钮
-            file_buttons = CheckButtons(rax_file, ['📁 Open', '❌ Exit'], [False, False])
+            # 按钮配置
+            buttons_config = [
+                {
+                    'text': '📁 Open',
+                    'callback': lambda: self._open_file_dialog(),
+                    'initial': False
+                },
+                {
+                    'text': '❌ Exit',
+                    'callback': lambda: self._close_viewer(),
+                    'initial': False
+                }
+            ]
             
-            # 文件操作按钮回调函数
-            def func_file_operation(label):
-                try:
-                    if label == '📁 Open':
-                        logging.info("文件操作按钮：Open被点击")
-                        self._open_file_dialog()
-                    elif label == '❌ Exit':
-                        logging.info("文件操作按钮：Exit被点击，关闭visualizer窗口")
-                        # 只关闭当前的visualizer窗口，不退出整个应用
-                        if self.current_fig is not None:
-                            plt.close(self.current_fig)
-                            self.current_fig = None
-                            logging.info("已关闭visualizer窗口")
-                        else:
-                            logging.warning("当前没有打开的visualizer窗口")
-                    
-                    # 重置按钮状态（确保按钮显示为未选中状态）
-                    # 找到对应按钮的索引并重置
-                    if label == '📁 Open':
-                        file_buttons.set_active(0)  # 重置Open按钮为未选中
-                    elif label == '❌ Exit':
-                        file_buttons.set_active(1)  # 重置Exit按钮为未选中
-                        
-                except Exception as e:
-                    logging.error("执行文件操作时出错: %s", e)
+            # 创建现代化按钮组
+            self.file_button_states = self._create_modern_toggle_group(
+                ax_file, 0.02, 0.15, 0.96, 0.7, buttons_config
+            )
             
-            file_buttons.on_clicked(func_file_operation)
-            logging.info("成功添加文件操作按钮区域")
+            logging.info("成功添加现代化文件操作按钮区域")
             
         except Exception as e:
             logging.error("创建文件操作按钮时出错: %s", e)
+    
+    def _close_viewer(self):
+        """关闭viewer窗口"""
+        try:
+            logging.info("文件操作按钮：Exit被点击，关闭visualizer窗口")
+            # 只关闭当前的visualizer窗口，不退出整个应用
+            if self.current_fig is not None:
+                plt.close(self.current_fig)
+                self.current_fig = None
+                logging.info("已关闭visualizer窗口")
+            else:
+                logging.warning("当前没有打开的visualizer窗口")
+        except Exception as e:
+            logging.error("关闭viewer窗口时出错: %s", e)
 
     def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered,
                            title_fontdict, axis_fontdict):
         """添加过滤/未过滤数据切换按钮"""
-        labels_filter = ["       Filtered"]
-        visibility_filter = [True]
+        try:
+            # 创建按钮区域 - 移至左上角，通道区域上方
+            ax_filter = fig.add_axes([0.001, 0.92, 0.12, 0.05])
+            ax_filter.set_xlim(0, 1)
+            ax_filter.set_ylim(0, 1)
+            ax_filter.axis('off')
+            
+            # 按钮状态变量
+            is_filtered = {'value': True}
+            button_state_ref = {'button_state': None}
+            
+            # 切换过滤模式的回调函数
+            def toggle_filter_mode():
+                try:
+                    is_filtered['value'] = not is_filtered['value']
+                    
+                    # 更新按钮文本
+                    if button_state_ref['button_state']:
+                        new_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
+                        button_state_ref['button_state']['text'].set_text(new_text)
+                    
+                    if is_filtered['value']:
+                        # 切换到过滤模式
+                        fig.canvas.manager.window.setWindowTitle(
+                            "Filtered Load Voltage over Charge")
+                        ax.set_title(
+                            f"Filtered {self.strPltName}", fontdict=title_fontdict)
+                        ax.set_ylabel(
+                            "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
-        # 创建按钮区域
-        rax_filter = plt.axes([0.001, 0.70, 0.16, 0.062])
-        check_filter = CheckButtons(
-            rax_filter, labels_filter, visibility_filter)
+                        # 更新线条可见性 - 保持相同电池的可见性一致
+                        for i in range(min(len(lines_unfiltered), len(lines_filtered))):
+                            # 获取当前电池的可见性状态（基于最后一次设置）
+                            # 对于每个电池，所有电流级别的可见性应该保持一致
+                            battery_index = i % self.intBatteryNum
+                            # 检查该电池是否有任何可见的线条
+                            battery_visible = any(lines_unfiltered[battery_index + j * self.intBatteryNum].get_visible() 
+                                                for j in range(self.intCurrentLevelNum))
+                            
+                            # 设置该电池所有电流级别的过滤线条可见性
+                            lines_filtered[i].set_visible(battery_visible)
+                            lines_unfiltered[i].set_visible(False)
+                    else:
+                        # 切换到未过滤模式
+                        fig.canvas.manager.window.setWindowTitle(
+                            "Unfiltered Load Voltage over Charge")
+                        ax.set_title(
+                            f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
+                        ax.set_ylabel(
+                            "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
-        # 回调函数：处理过滤/未过滤切换
-        def func_filter(label):
-            try:
-                if check_filter.get_status()[0]:
-                    # 切换到过滤模式
-                    fig.canvas.manager.window.setWindowTitle(
-                        "Filtered Load Voltage over Charge")
-                    ax.set_title(
-                        f"Filtered {self.strPltName}", fontdict=title_fontdict)
-                    ax.set_ylabel(
-                        "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
-
-                    # 更新线条可见性 - 保持相同电池的可见性一致
-                    for i in range(min(len(lines_unfiltered), len(lines_filtered))):
-                        # 获取当前电池的可见性状态（基于最后一次设置）
-                        # 对于每个电池，所有电流级别的可见性应该保持一致
-                        battery_index = i % self.intBatteryNum
-                        # 检查该电池是否有任何可见的线条
-                        battery_visible = any(lines_unfiltered[battery_index + j * self.intBatteryNum].get_visible() 
-                                            for j in range(self.intCurrentLevelNum))
-                        
-                        # 设置该电池所有电流级别的过滤线条可见性
-                        lines_filtered[i].set_visible(battery_visible)
-                        lines_unfiltered[i].set_visible(False)
-                else:
-                    # 切换到未过滤模式
-                    fig.canvas.manager.window.setWindowTitle(
-                        "Unfiltered Load Voltage over Charge")
-                    ax.set_title(
-                        f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
-                    ax.set_ylabel(
-                        "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
-
-                    # 更新线条可见性 - 保持相同电池的可见性一致
-                    for i in range(min(len(lines_filtered), len(lines_unfiltered))):
-                        # 获取当前电池的可见性状态（基于最后一次设置）
-                        battery_index = i % self.intBatteryNum
-                        # 检查该电池是否有任何可见的线条
-                        battery_visible = any(lines_filtered[battery_index + j * self.intBatteryNum].get_visible() 
-                                            for j in range(self.intCurrentLevelNum))
-                        
-                        # 设置该电池所有电流级别的原始线条可见性
-                        lines_unfiltered[i].set_visible(battery_visible)
-                        lines_filtered[i].set_visible(False)
-
-                fig.canvas.draw_idle()
-            except Exception as e:
-                logging.error("执行过滤切换时出错: %s", e)
-
-        check_filter.on_clicked(func_filter)
-        return check_filter
+                        # 更新线条可见性 - 保持相同电池的可见性一致
+                        for i in range(min(len(lines_filtered), len(lines_unfiltered))):
+                            # 获取当前电池的可见性状态（基于最后一次设置）
+                            battery_index = i % self.intBatteryNum
+                            # 检查该电池是否有任何可见的线条
+                            battery_visible = any(lines_filtered[battery_index + j * self.intBatteryNum].get_visible() 
+                                                for j in range(self.intCurrentLevelNum))
+                            
+                            # 设置该电池所有电流级别的原始线条可见性
+                            lines_unfiltered[i].set_visible(battery_visible)
+                            lines_filtered[i].set_visible(False)
+                    
+                    fig.canvas.draw_idle()
+                except Exception as e:
+                    logging.error("执行过滤切换时出错: %s", e)
+            
+            # 创建现代化过滤按钮
+            button_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
+            button_state = self._create_modern_button(
+                ax_filter, 0.02, 0.15, 0.96, 0.7,
+                button_text, toggle_filter_mode,
+                is_toggle=True, initial_state=True
+            )
+            
+            # 保存按钮状态引用
+            button_state_ref['button_state'] = button_state
+            self.filter_button_state = button_state
+            
+            logging.info("成功添加现代化过滤按钮")
+            
+        except Exception as e:
+            logging.error("创建过滤按钮时出错: %s", e)
 
     def _add_battery_selection_buttons(self, fig, check_filter, lines_unfiltered, lines_filtered):
-        """添加电池选择按钮，用于显示/隐藏特定电池的数据曲线"""
+        """添加电池选择现代化按钮，用于显示/隐藏特定电池的数据曲线"""
         # 初始化默认值
-        check_line1 = None
-        check_line2 = None
+        button_states_line1 = None
+        button_states_line2 = None
 
         # 根据电池数量创建不同的按钮布局
         if self.intBatteryNum > 32:
-            # 创建第一个按钮区域（前32个电池）
-            check_line1 = self._create_battery_check_buttons(
-                fig, [0.001, 0.005, 0.08, 0.029*32], 0, 32,
+            # 创建第一个按钮区域（前32个电池）- 宽度减半
+            button_states_line1 = self._create_battery_check_buttons(
+                fig, [0.001, 0.005, 0.04, 0.029*32], 0, 32,
                 check_filter, lines_unfiltered, lines_filtered
             )
 
-            # 创建第二个按钮区域（剩余电池，最多32个）
-            check_line2 = self._create_battery_check_buttons(
-                fig, [0.081, 0.005, 0.08, 0.029*32], 32, 64,
+            # 创建第二个按钮区域（剩余电池，最多32个）- 宽度减半，位置紧凑
+            button_states_line2 = self._create_battery_check_buttons(
+                fig, [0.041, 0.005, 0.04, 0.029*32], 32, 64,
                 check_filter, lines_unfiltered, lines_filtered
             )
         else:
-            # 创建单个按钮区域
-            check_line1 = self._create_battery_check_buttons(
-                fig, [0.001, 0.005, 0.08, 0.029*32], 0, 32,
+            # 创建单个按钮区域 - 宽度减半
+            button_states_line1 = self._create_battery_check_buttons(
+                fig, [0.001, 0.005, 0.04, 0.029*32], 0, 32,
                 check_filter, lines_unfiltered, lines_filtered
             )
 
-            # 创建空的第二个按钮区域
-            rax_line2 = plt.axes([0.081, 0.005, 0.08, 0.029*32])
-            labels_line2 = ["None"] * 32
-            visibility_line2 = [False] * 32
-            check_line2 = CheckButtons(
-                rax_line2, labels_line2, visibility_line2)
+            # 创建空的第二个按钮区域（占位）- 宽度减半，位置紧凑
+            ax_empty = fig.add_axes([0.041, 0.005, 0.04, 0.029*32])
+            ax_empty.set_xlim(0, 1)
+            ax_empty.set_ylim(0, 1)
+            ax_empty.axis('off')
+            
+            # 添加占位文本
+            ax_empty.text(0.5, 0.5, 'Empty', ha='center', va='center', 
+                         fontsize=8, alpha=0.5, transform=ax_empty.transAxes)
+            
+            button_states_line2 = []
 
-            # 空按钮区域的回调函数
-            def func_line2_empty(label):
-                for i in range(0, 32):
-                    if check_line2.get_status()[i]:
-                        check_line2.set_active(i)
+        # 存储所有按钮状态引用
+        self.battery_button_states = {
+            'line1': button_states_line1,
+            'line2': button_states_line2
+        }
 
-            check_line2.on_clicked(func_line2_empty)
-
-        return check_line1, check_line2
+        logging.info("成功添加现代化电池选择按钮")
+        return button_states_line1, button_states_line2
 
     def _create_battery_check_buttons(self, fig, rect, start_idx, end_idx,
                                       check_filter, lines_unfiltered, lines_filtered):
-        """创建电池选择检查按钮"""
-        labels_line = []
-        visibility_line = []
+        """创建电池选择现代化按钮"""
+        # 创建现代化按钮轴
+        ax_buttons = fig.add_axes(rect)
+        ax_buttons.set_xlim(0, 1)
+        ax_buttons.set_ylim(0, 1)
+        ax_buttons.axis('off')
 
-        # 准备按钮标签和初始可见性
+        # 准备电池信息和按钮状态 - 改为正序
+        battery_info = []
         for i in range(start_idx, end_idx):
             if i < self.intBatteryNum:
-                labels_line.append(self.listBatteryNameSplit[i])
-                visibility_line.append(True)
+                battery_info.append({
+                    'name': self.listBatteryNameSplit[i],
+                    'index': i,
+                    'initial_state': True,
+                    'is_none': False
+                })
             else:
-                labels_line.append("None")
-                visibility_line.append(False)
+                battery_info.append({
+                    'name': f"Battery {start_idx + 1}",
+                    'index': i,
+                    'initial_state': False,
+                    'is_none': True
+                })
+        
+        # 按索引正序排列（确保正序显示）
+        battery_info.sort(key=lambda x: x['index'])
 
-        # 创建按钮区域
-        rax = plt.axes(rect)
-        check_buttons = CheckButtons(rax, labels_line, visibility_line)
+        # 计算按钮布局参数 - 适配紧凑布局
+        num_valid_batteries = min(self.intBatteryNum - start_idx, end_idx - start_idx)
+        if num_valid_batteries > 0:
+            button_height = 0.92 / num_valid_batteries
+            button_spacing = 0.04 / (num_valid_batteries + 1)
+        else:
+            button_height = 0.1
+            button_spacing = 0.45
 
-        # 回调函数
-        def func_line(label):
+        # 存储按钮状态引用
+        button_states = []
+
+        # 电池切换回调函数
+        def toggle_battery_visibility(battery_idx, button_state):
             try:
-                logging.debug(f"func_line被调用，label: {label}")
+                logging.debug(f"切换电池 {battery_idx} 的可见性")
+                
                 # 处理空标签
-                if label == "None":
-                    # 确保所有"None"项都处于未选中状态
-                    start_range = min(self.intBatteryNum, end_idx) - start_idx
-                    end_range = end_idx - start_idx
-                    for i in range(start_range, end_range):
-                        if check_buttons.get_status()[i]:
-                            check_buttons.set_active(i)
+                if battery_info[battery_idx - start_idx].get('is_none', False):
                     return
 
                 # 根据当前模式（过滤/未过滤）更新对应线条的可见性
-                is_filtered = check_filter.get_status()[0]
+                is_filtered = self.filter_button_state['active'] if hasattr(self, 'filter_button_state') else True
                 logging.debug(f"当前模式: {'过滤' if is_filtered else '未过滤'}")
                 
                 # 找到当前点击的电池索引
-                battery_index = None
-                for i in range(start_idx, min(self.intBatteryNum, end_idx)):
-                    if self.listBatteryNameSplit[i] == label:
-                        battery_index = i
-                        break
-                
-                if battery_index is None:
-                    logging.debug(f"未找到标签为 {label} 的电池")
-                    return
-                
-                # 更新所有相同电池的线条（所有电流级别）
-                updated = False
+                battery_index = battery_info[battery_idx - start_idx]['index']
                 
                 # 检查该电池当前的可见性状态（基于当前模式下的线条）
                 current_lines = lines_filtered if is_filtered else lines_unfiltered
@@ -1436,6 +1680,7 @@ class BatteryChartViewer:
                 new_visibility = not battery_visible
                 
                 # 更新当前模式下该电池的所有线条
+                updated = False
                 for i in range(len(current_lines)):
                     if i % self.intBatteryNum == battery_index:
                         current_lines[i].set_visible(new_visibility)
@@ -1449,17 +1694,39 @@ class BatteryChartViewer:
                         other_lines[i].set_visible(new_visibility)
                         logging.debug(f"另一模式下的线条 {i} 可见性也更新为: {new_visibility}")
 
+                # 更新按钮状态
+                button_state['active'] = new_visibility
+                self._update_button_style(button_state)
+
                 if updated:
                     logging.debug("调用fig.canvas.draw_idle()刷新图表")
-                    # 使用draw_idle替代draw，提高性能并确保在正确的事件循环中更新
                     fig.canvas.draw_idle()
                 else:
                     logging.debug("没有找到匹配的线条")
             except Exception as e:
                 logging.error("执行电池选择时出错: %s", e)
 
-        check_buttons.on_clicked(func_line)
-        return check_buttons
+        # 创建现代化按钮
+        for i, battery in enumerate(battery_info):
+            if battery['is_none']:
+                continue
+                
+            y_pos = button_spacing + i * (button_height + button_spacing)
+            
+            # 创建现代化按钮 - 适配紧凑布局
+            button_state = self._create_modern_button(
+                ax_buttons, 0.02, y_pos, 0.96, button_height,
+                battery['name'][:12] + '...' if len(battery['name']) > 12 else battery['name'], 
+                lambda idx=battery['index']: toggle_battery_visibility(idx, button_state),
+                is_toggle=True, 
+                initial_state=battery['initial_state']
+            )
+            
+            if button_state:
+                button_states.append((battery['index'], button_state))
+
+        logging.info(f"成功创建现代化电池选择按钮组 ({start_idx}-{end_idx})")
+        return button_states
 
     def _add_help_text(self, fig):
         """添加帮助文本到图表右上角"""
