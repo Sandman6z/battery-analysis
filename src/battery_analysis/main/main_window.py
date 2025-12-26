@@ -9,7 +9,7 @@
 """
 
 # 标准库导入
-from battery_analysis.main import image_show
+from battery_analysis.main import battery_chart_viewer
 from battery_analysis.resources import resources_rc
 from battery_analysis.main.controllers.validation_controller import ValidationController
 from battery_analysis.main.controllers.file_controller import FileController
@@ -639,7 +639,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 工具菜单功能连接
         self.actionCalculate_Battery.triggered.connect(self.calculate_battery)
         self.actionAnalyze_Data.triggered.connect(self.analyze_data)
-        self.actionVisualizer.triggered.connect(self.run_visualizer)
+        self.actionBatteryChartViewer.triggered.connect(self.run_visualizer)
         self.actionGenerate_Report.triggered.connect(self.generate_report)
         self.actionBatch_Processing.triggered.connect(self.batch_processing)
 

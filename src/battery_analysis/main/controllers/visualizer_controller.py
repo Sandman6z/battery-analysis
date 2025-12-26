@@ -9,7 +9,7 @@ import os
 import logging
 
 # 导入可视化器模块
-from battery_analysis.main import image_show
+from battery_analysis.main import battery_chart_viewer
 
 
 class VisualizerController:
@@ -32,7 +32,7 @@ class VisualizerController:
             xml_path: 可选，指定XML文件路径
 
         Returns:
-            image_show.FIGURE: 可视化器实例
+            battery_chart_viewer.BatteryChartViewer: 可视化器实例
         """
         try:
             # 强制设置Matplotlib使用QtAgg后端
@@ -179,12 +179,12 @@ class VisualizerController:
             
             if data_path:
                 # 使用找到的数据路径
-                self.visualizer = image_show.FIGURE(data_path=data_path)
+                self.visualizer = battery_chart_viewer.BatteryChartViewer(data_path=data_path)
                 logging.info(f"成功创建可视化器实例，数据路径: {data_path}")
             else:
                 logging.warning("未找到任何包含Info_Image.csv的目录，将创建空的可视化器实例")
                 # 如果找不到有效数据路径，创建空的visualizer实例
-                self.visualizer = image_show.FIGURE()
+                self.visualizer = battery_chart_viewer.BatteryChartViewer()
 
             return self.visualizer
         except Exception as e:

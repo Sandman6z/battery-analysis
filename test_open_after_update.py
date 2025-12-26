@@ -7,7 +7,7 @@ import time
 sys.path.append(os.path.abspath('.'))
 
 from src.battery_analysis.main.controllers.visualizer_controller import VisualizerController
-from src.battery_analysis.main.image_show import FIGURE
+from src.battery_analysis.main.battery_chart_viewer import BatteryChartViewer
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -22,9 +22,10 @@
 """
 
 
-from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
 from PyQt6 import QtCore as QC
 from PyQt6.QtCore import Qt
+import sys
 import logging
 from pathlib import Path
 import configparser
@@ -32,7 +33,6 @@ import traceback
 import math
 import csv
 import os
-import sys
 import matplotlib
 
 # 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）
@@ -57,7 +57,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-class FIGURE:
+class BatteryChartViewer:
     """
     图表生成和数据可视化类
 
@@ -93,7 +93,7 @@ class FIGURE:
 
     def __init__(self, data_path=None):
         """
-        初始化FIGURE类，设置默认配置并加载用户配置
+        初始化BatteryChartViewer类，设置默认配置并加载用户配置
 
         初始化图表参数，读取配置文件，并设置默认值。如果配置文件不存在，
         将使用硬编码的默认值。
@@ -759,13 +759,13 @@ class FIGURE:
                 )
                 self._add_hover_functionality(
                     fig, ax, lines_filtered, lines_unfiltered, check_filter)
+                self._add_help_text(fig)
                 logging.info("成功添加图表交互控件")
             except Exception as ui_error:
                 logging.warning("添加交互控件时出错: %s", str(ui_error))
                 # 即使交互控件添加失败，仍然尝试显示图表
 
-            # 添加快捷键提示
-            fig.text(0.01, 0.98, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=8)
+
 
             logging.info("图表创建完成，显示CSV文件中的真实电池测试数据")
             
@@ -911,7 +911,7 @@ class FIGURE:
             # 添加版本信息和时间戳
             import datetime
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            fig.text(0.01, 0.01, f"Battery Analysis Tool v1.0 | {current_time}",
+            fig.text(0.85, 0.01, f"Battery Analysis Tool v1.0 | {current_time}",
                      fontsize=8, color='gray')
 
             # 添加边框和样式
@@ -1020,76 +1020,135 @@ class FIGURE:
             logging.error("打开文件对话框时出错: %s", str(e))
             traceback.print_exc()
 
+    def _show_about_dialog(self):
+        """
+        显示About对话框
+        """
+        try:
+            # 获取版本信息
+            try:
+                import datetime
+                current_time = datetime.datetime.now().strftime("%Y")
+            except:
+                current_time = "2024"
+            
+            # 读取pyproject.toml获取版本信息
+            version_info = "v2.1.1"
+            try:
+                import configparser
+                config = configparser.ConfigParser()
+                pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+                if pyproject_path.exists():
+                    config.read(pyproject_path, encoding='utf-8')
+                    if 'project' in config and 'version' in config['project']:
+                        version_info = config['project']['version']
+            except:
+                pass
+            
+            # 创建About信息文本
+            about_text = f"""Battery Analysis Tool
+版本: {version_info}
+
+电池测试数据可视化分析应用
+支持多种数据格式导入与图表生成
+
+功能特点:
+• 支持CSV文件数据导入
+• 交互式图表显示和操作
+• 数据过滤和未过滤切换
+• 电池选择和通道控制
+• 悬停显示详细信息
+
+开发者: Ewin电池分析团队
+版权: © {current_time} MIT License
+
+感谢使用Battery Analysis Tool!"""
+            
+            # 显示About对话框
+            msg_box = QMessageBox()
+            msg_box.setWindowTitle("About")
+            msg_box.setText(about_text)
+            msg_box.setIcon(QMessageBox.Icon.Information)
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            msg_box.exec()
+            
+            logging.info("About对话框显示完成")
+            
+        except Exception as e:
+            logging.error(f"显示About对话框失败: {e}")
+            # 如果对话框失败，至少打印到日志
+            print(f"Battery Analysis Tool v2.1.1\n开发者: Ewin电池分析团队")
+
     def _add_menu_bar(self, fig):
         """
-        为图表添加菜单栏
+        为图表添加菜单栏（统一使用PyQt6）
 
         Args:
             fig: matplotlib Figure对象
         """
         try:
-            logging.info("_add_menu_bar方法开始执行")
+            logging.info("开始添加PyQt6菜单栏")
+            
             # 获取图表窗口的manager
             manager = fig.canvas.manager
-            logging.info(f"成功获取manager: {type(manager)}")
-
-            # 尝试使用Qt的方式添加菜单（兼容PyQt5、PyQt6和PySide）
-            try:
-                if hasattr(manager, 'window') and hasattr(manager.window, 'menuBar'):
-                    menubar = manager.window.menuBar()
-
-                    # 添加File菜单
-                    file_menu = menubar.addMenu('File')
-
-                    # 添加Open菜单项 - 使用更安全的方式创建action
-                    open_action = file_menu.addAction('Open')
-                    # 使用匿名函数包装，增加调试信息
-                    def on_open_clicked():
-                        logging.info("Open菜单项被点击 - 进入匿名函数")
-                        self._open_file_dialog()
-                        logging.info("Open菜单项被点击 - 离开匿名函数")
-                    
-                    open_action.triggered.connect(on_open_clicked)
-                logging.info(f"Qt菜单添加成功，Open action已连接到on_open_clicked匿名函数")
-                logging.info("成功使用Qt方式添加菜单")
-            except Exception as e:
-                logging.warning("Qt菜单添加失败，尝试使用Tk方式: %s", str(e))
-
-                # 尝试使用Tk的方式添加菜单
-                try:
-                    from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
-                    toolbar = fig.canvas.toolbar
-                    if hasattr(toolbar, 'window'):
-                        tk_window = toolbar.window
-                        menubar = tk.Menu(tk_window)
-                        tk_window.config(menu=menubar)
-
-                        # 添加File菜单
-                        file_menu = tk.Menu(menubar, tearoff=0)
-                        menubar.add_cascade(label="File", menu=file_menu)
-
-                        # 添加Open菜单项
-                        file_menu.add_command(
-                            label="Open", command=self._open_file_dialog)
-                        logging.info("成功使用Tk方式添加菜单")
-                except Exception as tk_error:
-                    logging.warning("Tk菜单添加失败: %s", str(tk_error))
-
-                    # 作为最后手段，尝试使用matplotlib的toolbar添加按钮
-                    try:
-                        from matplotlib.widgets import Button
-                        # 在工具栏区域添加一个Open按钮，使用传入的fig对象而不是plt全局对象
-                        # [x, y, width, height]
-                        ax_open = fig.add_axes([0.9, 0.01, 0.05, 0.05])
-                        btn_open = Button(ax_open, 'Open')
-                        btn_open.on_clicked(
-                            lambda event: self._open_file_dialog())
-                        logging.info("成功添加Open按钮到工具栏区域")
-                    except Exception as btn_error:
-                        logging.warning("添加Open按钮失败: %s", str(btn_error))
+            if not hasattr(manager, 'window'):
+                raise RuntimeError("无法获取matplotlib窗口管理器")
+            
+            # 添加PyQt6菜单栏
+            if hasattr(manager.window, 'menuBar'):
+                menubar = manager.window.menuBar()
+                
+                # 添加File菜单
+                file_menu = menubar.addMenu('File')
+                
+                # 添加Open菜单项
+                open_action = file_menu.addAction('Open')
+                
+                def on_open_clicked():
+                    logging.info("Open菜单项被点击")
+                    self._open_file_dialog()
+                
+                open_action.triggered.connect(on_open_clicked)
+                
+                # 添加分割线
+                file_menu.addSeparator()
+                
+                # 添加Exit菜单项
+                exit_action = file_menu.addAction('Exit')
+                
+                def on_exit_clicked():
+                    logging.info("Exit菜单项被点击，关闭visualizer窗口")
+                    # 只关闭当前的visualizer窗口，不退出整个应用
+                    if self.current_fig is not None:
+                        plt.close(self.current_fig)
+                        self.current_fig = None
+                        logging.info("已关闭visualizer窗口")
+                    else:
+                        logging.warning("当前没有打开的visualizer窗口")
+                
+                exit_action.triggered.connect(on_exit_clicked)
+                
+                # 添加Help菜单
+                help_menu = menubar.addMenu('Help')
+                
+                # 添加About菜单项
+                about_action = help_menu.addAction('About')
+                
+                def on_about_clicked():
+                    logging.info("About菜单项被点击")
+                    self._show_about_dialog()
+                
+                about_action.triggered.connect(on_about_clicked)
+                logging.info("成功添加PyQt6菜单栏")
+            else:
+                raise RuntimeError("窗口不支持菜单栏")
+                
+        except ImportError as e:
+            raise ImportError(f"PyQt6依赖缺失: {e}. 请确保已正确安装PyQt6")
         except Exception as e:
-            logging.error("添加菜单栏时出错: %s", str(e))
-            traceback.print_exc()
+            logging.error(f"添加菜单栏失败: {e}")
+            # 不再静默失败，直接抛出错误
+            raise RuntimeError(f"菜单栏初始化失败: {e}") from e
 
     def _initialize_figure(self):
         """初始化图表设置和布局"""
@@ -1168,6 +1227,47 @@ class FIGURE:
 
         return lines_unfiltered, lines_filtered
 
+    def _add_file_operation_buttons(self, fig):
+        """添加文件操作按钮区域（打开文件和退出按钮）"""
+        try:
+            # 创建文件操作按钮区域
+            rax_file = plt.axes([0.001, 0.90, 0.17, 0.062])
+            
+            # 创建文件操作按钮
+            file_buttons = CheckButtons(rax_file, ['📁 Open', '❌ Exit'], [False, False])
+            
+            # 文件操作按钮回调函数
+            def func_file_operation(label):
+                try:
+                    if label == '📁 Open':
+                        logging.info("文件操作按钮：Open被点击")
+                        self._open_file_dialog()
+                    elif label == '❌ Exit':
+                        logging.info("文件操作按钮：Exit被点击，关闭visualizer窗口")
+                        # 只关闭当前的visualizer窗口，不退出整个应用
+                        if self.current_fig is not None:
+                            plt.close(self.current_fig)
+                            self.current_fig = None
+                            logging.info("已关闭visualizer窗口")
+                        else:
+                            logging.warning("当前没有打开的visualizer窗口")
+                    
+                    # 重置按钮状态（确保按钮显示为未选中状态）
+                    # 找到对应按钮的索引并重置
+                    if label == '📁 Open':
+                        file_buttons.set_active(0)  # 重置Open按钮为未选中
+                    elif label == '❌ Exit':
+                        file_buttons.set_active(1)  # 重置Exit按钮为未选中
+                        
+                except Exception as e:
+                    logging.error("执行文件操作时出错: %s", e)
+            
+            file_buttons.on_clicked(func_file_operation)
+            logging.info("成功添加文件操作按钮区域")
+            
+        except Exception as e:
+            logging.error("创建文件操作按钮时出错: %s", e)
+
     def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered,
                            title_fontdict, axis_fontdict):
         """添加过滤/未过滤数据切换按钮"""
@@ -1175,7 +1275,7 @@ class FIGURE:
         visibility_filter = [True]
 
         # 创建按钮区域
-        rax_filter = plt.axes([0.001, 0.933, 0.16, 0.062])
+        rax_filter = plt.axes([0.001, 0.70, 0.16, 0.062])
         check_filter = CheckButtons(
             rax_filter, labels_filter, visibility_filter)
 
@@ -1361,6 +1461,15 @@ class FIGURE:
         check_buttons.on_clicked(func_line)
         return check_buttons
 
+    def _add_help_text(self, fig):
+        """添加帮助文本到图表右上角"""
+        try:
+            fig.text(0.98, 0.85, "提示: 将鼠标悬停在数据点上查看详细信息", fontsize=7, ha='right')
+            fig.text(0.98, 0.78, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=7, ha='right')
+            logging.info("成功添加帮助文本")
+        except Exception as e:
+            logging.warning("添加帮助文本时出错: %s", e)
+
     def _add_hover_functionality(self, fig, ax, lines_filtered, lines_unfiltered, check_filter):
         """添加鼠标悬停功能，显示数据点信息"""
         try:
@@ -1431,9 +1540,6 @@ class FIGURE:
             # 连接事件
             fig.canvas.mpl_connect('motion_notify_event', on_hover)
 
-            # 添加提示文本
-            fig.text(0.01, 0.96, "提示: 将鼠标悬停在数据点上查看详细信息", fontsize=7)
-
         except Exception as e:
             logging.warning("添加悬停功能时出错: %s", e)
 
@@ -1444,7 +1550,7 @@ if __name__ == '__main__':
     """
     主程序入口
 
-    创建FIGURE类实例，自动执行初始化、数据读取和图表显示操作。
+    创建BatteryChartViewer类实例，自动执行初始化、数据读取和图表显示操作。
     
     支持命令行参数：
     - 第一个参数：可选，指定数据目录路径
@@ -1460,8 +1566,8 @@ if __name__ == '__main__':
         data_path = sys.argv[1]
         logging.info(f"从命令行接收数据路径: {data_path}")
     
-    # 创建FIGURE实例
-    figure = FIGURE(data_path=data_path)
+    # 创建BatteryChartViewer实例
+    figure = BatteryChartViewer(data_path=data_path)
     
     # 如果是通过命令行传递了数据路径，自动显示图表
     if data_path:

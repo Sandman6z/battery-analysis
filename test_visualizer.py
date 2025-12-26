@@ -27,11 +27,11 @@ def test_visualizer_direct():
     """直接测试visualizer功能"""
     logging.info("=== 直接测试visualizer功能 ===")
     
-    from battery_analysis.main.image_show import FIGURE
+    from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
     
     try:
-        # 创建FIG实例
-        figure = FIGURE()
+        # 创建BatteryChartViewer实例
+        figure = BatteryChartViewer()
         
         # 检查是否有数据可显示
         if figure.loaded_data:

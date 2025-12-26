@@ -92,7 +92,7 @@ class BuildManager(BuildConfig):
             logger.info("设置DEBUG环境变量为'true'，表示Debug构建环境")
         self.console = self.console_mode
 
-        # 定义共享的应用程序配置列表：统一管理BatteryAnalysis和ImageShow参数
+        # 定义共享的应用程序配置列表：统一管理BatteryAnalysis和BatteryChartViewer参数
         self.apps_config = self._get_apps_config()
 
         # 清理构建目录和缓存
@@ -123,7 +123,7 @@ class BuildManager(BuildConfig):
                 "spec_hidden_imports": common_spec_hidden_imports + [
                     "battery_analysis", "battery_analysis.main",
                     "battery_analysis.ui", "battery_analysis.utils",
-                    "battery_analysis.main.image_show"
+                    "battery_analysis.main.battery_chart_viewer"
                 ],
                 "additional_hidden_imports": [
                     "openpyxl", "battery_analysis.utils.version",

@@ -472,7 +472,7 @@ class BatteryAnalysis:
                 charge = calculate_charge(listLevelToRow[c][v])
                 listOneBatteryCharge.append(charge)
 
-        # for Main_ImageShow.py to draw line chart
+        # for BatteryChartViewer to draw line chart
         for c, posi_list in enumerate(listPosiForInfoImageCsv):
             listChargeForInfoImageCsv[c] = calculate_charge(
                 posi_list, is_single=False)

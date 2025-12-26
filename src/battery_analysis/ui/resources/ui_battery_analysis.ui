@@ -2643,7 +2643,7 @@ QPushButton#pushButton_Run:pressed {
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionVisualizer"/>
+    <addaction name="actionBatteryChartViewer"/>
     <addaction name="actionCalculate_Battery"/>
     <addaction name="actionAnalyze_Data"/>
     <addaction name="actionGenerate_Report"/>
@@ -2868,12 +2868,12 @@ QPushButton#pushButton_Run:pressed {
     <string>About</string>
    </property>
   </action>
-  <action name="actionVisualizer">
+  <action name="actionBatteryChartViewer">
    <property name="text">
-    <string>Visualizer</string>
+    <string>BatteryChartViewer</string>
    </property>
    <property name="iconText">
-    <string>Visualizer</string>
+    <string>BatteryChartViewer</string>
    </property>
   </action>
  </widget>
