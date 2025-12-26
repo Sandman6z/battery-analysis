@@ -124,6 +124,7 @@ class FIGURE:
         self.maxXaxis = self.plot_config.axis_default[1]  # 默认最大值
         self.intBatteryNum = 0  # 默认没有电池数据
         self.loaded_data = False  # 数据加载状态标记
+        self.current_fig = None  # 当前图表实例引用
 
         # 初始化坐标轴范围和刻度
         # [xmin, xmax, ymin, ymax]
@@ -697,15 +698,6 @@ class FIGURE:
         如果没有有效的电池数据或绘图过程中出错，会显示详细的错误信息和故障排除建议。
         """
         try:
-            # 在创建新图表前，彻底清理Matplotlib状态
-            logging.info("开始清理现有图表和Matplotlib状态")
-            
-            # 关闭所有现有图表
-            plt.close('all')
-            
-            # 强制触发事件循环更新
-            plt.pause(0.001)
-            
             # 开始绘制图表
             logging.info("开始绘制图表")
 
@@ -726,6 +718,9 @@ class FIGURE:
                 fig, ax, title_fontdict, axis_fontdict = self._initialize_figure()
                 if fig is None or ax is None:
                     raise ValueError("无法初始化图表或坐标轴")
+                
+                # 保存当前图表实例引用
+                self.current_fig = fig
 
                 # 添加菜单栏
                 self._add_menu_bar(fig)
@@ -889,6 +884,9 @@ class FIGURE:
 
             # 创建错误图表
             fig, ax = plt.subplots(figsize=(10, 6))
+            
+            # 保存当前图表实例引用
+            self.current_fig = fig
 
             # 设置图表标题
             ax.set_title(title, fontsize=16,
@@ -952,6 +950,28 @@ class FIGURE:
             logging.info("3. CSV文件是否存在且格式正确")
             logging.info("4. 系统是否有足够的资源显示图形")
 
+    def _cleanup_matplotlib_state(self):
+        """
+        清理Matplotlib状态，确保新的图表能正常工作
+        """
+        logging.info("开始清理Matplotlib状态")
+        import matplotlib
+        import matplotlib.pyplot as plt
+        
+        # 重置Matplotlib的内部状态（不关闭当前图表，避免事件绑定失效）
+        matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+        
+        # 重新配置中文字体支持，避免重置后丢失
+        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+        matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+        
+        # 确保使用正确的后端
+        if matplotlib.get_backend() != 'QtAgg':
+            logging.info(f"当前Matplotlib后端: {matplotlib.get_backend()}, 切换到QtAgg后端")
+            matplotlib.use('QtAgg')
+        
+        logging.info("Matplotlib状态清理完成")
+        
     def _open_file_dialog(self):
         """
         打开文件对话框，允许用户选择数据文件
@@ -983,8 +1003,15 @@ class FIGURE:
                 success = self.load_data()
                 if success:
                     logging.info("数据加载成功，重新绘制图表")
-                    # 关闭当前图表
-                    plt.close('all')
+                    
+                    # 清理Matplotlib状态（确保新图表有正确的事件绑定）
+                    self._cleanup_matplotlib_state()
+                    
+                    # 关闭当前的图表实例（如果存在），确保新创建的图表实例是唯一的
+                    if self.current_fig is not None:
+                        plt.close(self.current_fig)
+                        self.current_fig = None
+                    
                     # 重新绘制图表
                     self.plt_figure()
                 else:

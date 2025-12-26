@@ -2,7 +2,8 @@
 
 # Resource object code
 #
-# Created by: The Resource Compiler for PyQt5 (Qt v5.15.2)
+# Created by: The Resource Compiler for PyQt6 (Qt v6.x)
+# Originally generated with PyQt5, updated for PyQt6 compatibility
 #
 # WARNING! All changes made in this file will be lost!
 

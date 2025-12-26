@@ -214,10 +214,7 @@ class VisualizerController:
         import matplotlib
         import matplotlib.pyplot as plt
         
-        # 关闭所有现有图表
-        plt.close('all')
-        
-        # 重置Matplotlib的内部状态
+        # 重置Matplotlib的内部状态（不关闭当前图表，避免事件绑定失效）
         matplotlib.rcParams.update(matplotlib.rcParamsDefault)
         
         # 重新配置中文字体支持，避免重置后丢失
