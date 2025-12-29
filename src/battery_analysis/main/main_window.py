@@ -31,11 +31,11 @@ import win32con
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _, get_language_manager
 from battery_analysis.i18n.preferences_dialog import PreferencesDialog
-from battery_analysis.main import battery_chart_viewer
 from battery_analysis.main.controllers.file_controller import FileController
 from battery_analysis.main.controllers.main_controller import MainController
 from battery_analysis.main.controllers.validation_controller import ValidationController
-from battery_analysis.main.controllers.visualizer_controller import VisualizerController
+from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
+from battery_analysis.main.interfaces.ivisualizer import IVisualizer
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils.config_utils import find_config_file
@@ -56,22 +56,11 @@ def calc_md5checksum(file_paths):
 
 
 def run_visualizer_function():
-    """在模块级别定义的可视化工具运行函数"""
-    try:
-        from battery_analysis.main.controllers.visualizer_controller import VisualizerController
-
-        # 创建可视化器控制器实例
-        visualizer_controller = VisualizerController()
-
-        # 创建并显示可视化器
-        visualizer_controller.run_visualizer()
-
-        return True
-    except Exception as e:
-        logging.error("启动可视化工具whenerror occurred: %s", str(e))
-        import traceback
-        traceback.print_exc()
-        return False
+    """在模块级别定义的可视化工具运行函数（已废弃，使用工厂模式）"""
+    # 此函数已废弃，现在通过 Main 类的 run_visualizer 方法使用工厂模式
+    # 保留以保持向后兼容性
+    logging.warning("run_visualizer_function 已废弃，请使用 Main.run_visualizer 方法")
+    return False
 
 
 class Checker:
@@ -175,6 +164,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.main_controller = MainController()
         self.file_controller = FileController()
         self.validation_controller = ValidationController()
+
+        # 初始化可视化器工厂
+        self.visualizer_factory = VisualizerFactory()
+        self.current_visualizer = None
 
         # 进度条相关属性
         self.progress_dialog = None
@@ -1110,43 +1103,60 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def run_visualizer(self, xml_path=None) -> None:
-        """运行可视化工具，提供友好的错误恢复选项"""
-        logging.info("[调试] 进入main_window.run_visualizer方法")
+        """运行可视化工具，使用工厂模式解耦依赖"""
+        logging.info("进入main_window.run_visualizer方法")
         
         # 检查xml_path是否为布尔值，如果是，则忽略（可能来自QAction的triggered信号）
         if isinstance(xml_path, bool):
-            logging.info("[调试] 检测到布尔类型的xml_path参数，忽略它")
+            logging.info("检测到布尔类型的xml_path参数，忽略它")
             xml_path = None
         
         # 如果没有传入xml_path参数，则从界面获取
         if xml_path is None:
-            logging.info("[调试] 没有传入xml_path，尝试从界面获取")
+            logging.info("没有传入xml_path，尝试从界面获取")
             xml_path = self.lineEdit_TestProfile.text() if hasattr(self, 'lineEdit_TestProfile') else None
-            logging.info(f"[调试] 从界面获取的xml_path: {xml_path}")
+            logging.info(f"从界面获取的xml_path: {xml_path}")
         else:
-            logging.info(f"[调试] 传入的xml_path: {xml_path}")
+            logging.info(f"传入的xml_path: {xml_path}")
         
         self.statusBar_BatteryAnalysis.showMessage(_("starting_visualizer", "启动可视化工具..."))
 
         try:
-            # 创建可视化器控制器实例
-            logging.info("[调试] 准备创建VisualizerController实例")
-            visualizer_controller = VisualizerController()
-            logging.info("[调试] VisualizerController实例创建成功")
+            # 使用工厂模式创建可视化器
+            logging.info("使用工厂模式创建可视化器")
+            self.current_visualizer = self.visualizer_factory.create_visualizer("battery_chart")
+            
+            if self.current_visualizer is None:
+                raise RuntimeError("无法创建可视化器实例")
 
-            # 创建并显示可视化器
-            logging.info(f"[调试] 准备调用run_visualizer，参数: xml_path={xml_path}")
-            visualizer_controller.run_visualizer(xml_path)
-            logging.info("[调试] visualizer_controller.run_visualizer调用成功")
+            # 检查是否有有效的数据路径
+            if xml_path and os.path.exists(xml_path):
+                # 如果有有效的数据路径，先加载数据
+                logging.info(f"加载数据: {xml_path}")
+                success = self.current_visualizer.load_data(xml_path)
+                if not success:
+                    logging.warning("数据加载失败，将显示空图表")
+            else:
+                logging.info("没有有效的数据路径，将显示提示信息")
+                # 清除任何可能已加载的数据
+                self.current_visualizer.clear_data()
 
-            # 更新状态栏
-            self.statusBar_BatteryAnalysis.showMessage(_("visualizer_started", "可视化工具已启动"))
-            logging.info("[调试] 可视化工具启动完成")
+            # 显示可视化
+            logging.info("显示可视化")
+            show_success = self.current_visualizer.show_figure(xml_path)
+            
+            if show_success:
+                # 更新状态栏
+                self.statusBar_BatteryAnalysis.showMessage(_("visualizer_started", "可视化工具已启动"))
+                logging.info("可视化工具启动完成")
+            else:
+                raise RuntimeError("显示可视化失败")
+
         except Exception as e:
             error_msg = str(e)
-            logging.error("[调试] 启动可视化工具时出错: %s", error_msg)
+            logging.error("启动可视化工具时出错: %s", error_msg)
             import traceback
-            logging.error("[调试] 异常堆栈: %s", traceback.format_exc())
+            logging.error("异常堆栈: %s", traceback.format_exc())
             
             # 判断是否为数据相关错误
             data_error_keywords = ['data', 'csv', 'load', 'file', 'path', 'config', 'info_image', '数据']
@@ -1157,7 +1167,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self._handle_data_error_recovery(error_msg)
             else:
                 # 对于其他错误，显示标准错误对话框
-                QW.QMessageBox.error(
+                QW.QMessageBox.critical(
                     self,
                     "错误",
                     f"启动可视化工具时出错:\n\n{error_msg}\n\n请检查配置文件或联系技术支持。",
