@@ -6,10 +6,7 @@
 import os
 import sys
 import logging
-import configparser
 from PyQt6 import QtCore as QC
-
-from battery_analysis.utils.config_utils import find_config_file
 
 
 class FileController(QC.QObject):
@@ -26,6 +23,15 @@ class FileController(QC.QObject):
         初始化文件控制器
         """
         super().__init__()
+        
+        # 获取服务容器
+        from battery_analysis.main.services.service_container import get_service_container
+        self.service_container = get_service_container()
+        
+        # 获取文件服务
+        self.file_service = self.service_container.get("file")
+        self.config_service = self.service_container.get("config")
+        
         self.project_path = self._get_project_path()
         self.config = None
 
@@ -65,30 +71,38 @@ class FileController(QC.QObject):
         Returns:
             dict: 配置信息字典，如果加载失败返回None
         """
-        # 使用通用配置文件查找函数
-        config_path = find_config_file(config_file_name)
-
-        if not config_path or not os.path.exists(config_path):
-            error_msg = f"未找到配置文件: {config_file_name}"
+        # 使用配置服务加载配置文件
+        if not self.config_service:
+            error_msg = "配置服务不可用"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
             return None
 
         try:
-            config = configparser.ConfigParser()
-            config.read(config_path, encoding="utf-8")
-            self.config = config
+            # 使用配置服务加载配置
+            success = self.config_service.load_config(config_file_name)
+            if not success:
+                error_msg = f"未找到配置文件: {config_file_name}"
+                logging.error(error_msg)
+                self.error_occurred.emit(error_msg)
+                return None
 
-            # 将配置转换为字典
+            # 获取配置字典
             config_dict = {}
-            for section in config.sections():
-                config_dict[section] = {}
-                for option in config.options(section):
-                    config_dict[section][option] = config.get(section, option)
+            
+            # 获取所有配置节
+            config = self.config_service.get_all_sections()
+            for section_name in config:
+                section_dict = {}
+                section_options = self.config_service.get_section_options(section_name)
+                for option in section_options:
+                    value = self.config_service.get_config_value(f"{section_name}/{option}")
+                    section_dict[option] = value
+                config_dict[section_name] = section_dict
 
             self.config_loaded.emit(config_dict)
             return config_dict
-        except (configparser.Error, OSError, UnicodeDecodeError) as e:
+        except Exception as e:
             error_msg = f"加载配置文件失败: {e}"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
@@ -106,12 +120,13 @@ class FileController(QC.QObject):
         Returns:
             str: 配置值，如果不存在返回默认值
         """
-        if not self.config:
+        if not self.config_service:
             return default
 
         try:
-            return self.config.get(section, option)
-        except (configparser.NoSectionError, configparser.NoOptionError):
+            return self.config_service.get_config_value(f"{section}/{option}", default)
+        except Exception as e:
+            logging.warning(f"获取配置值失败: {e}")
             return default
 
     def validate_directory(self, directory_path):

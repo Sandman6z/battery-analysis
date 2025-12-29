@@ -973,7 +973,9 @@ class BatteryChartViewer:
                 spine.set_linewidth(1)
 
             # 添加菜单栏（包括Open功能）
-            self._add_menu_bar(fig)
+            menu_added = self._add_menu_bar(fig)
+            if not menu_added:
+                logging.warning("无法添加菜单栏，将使用默认方式显示错误图表")
 
             logging.info("显示错误信息图表: %s - %s", title, main_message)
             plt.tight_layout()
@@ -1144,8 +1146,11 @@ class BatteryChartViewer:
             
             # 获取图表窗口的manager
             manager = fig.canvas.manager
-            if not hasattr(manager, 'window'):
-                raise RuntimeError("无法获取matplotlib窗口管理器")
+            
+            # 检查manager和window是否存在
+            if not manager or not hasattr(manager, 'window'):
+                logging.warning("无法获取matplotlib窗口管理器，跳过菜单栏添加")
+                return False
             
             # 添加PyQt6菜单栏
             if hasattr(manager.window, 'menuBar'):

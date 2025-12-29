@@ -19,27 +19,22 @@ import sys
 import time
 import warnings
 from pathlib import Path
+from typing import Any
 
 # 第三方库导入
 import matplotlib
 import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
-import win32api
-import win32con
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _, get_language_manager
 from battery_analysis.i18n.preferences_dialog import PreferencesDialog
-from battery_analysis.main.controllers.file_controller import FileController
-from battery_analysis.main.controllers.main_controller import MainController
-from battery_analysis.main.controllers.validation_controller import ValidationController
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
+from battery_analysis.main.services.service_container import get_service_container
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
-from battery_analysis.utils.config_utils import find_config_file
-from battery_analysis.utils.environment_utils import get_environment_detector, EnvironmentType
 
 # 配置日志
 logging.basicConfig(level=logging.INFO,
@@ -149,21 +144,42 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         super().__init__()
         from battery_analysis import __version__
         self.version = __version__
-
-        # 初始化环境检测器
-        self.env_detector = get_environment_detector()
-        self.env_info = self.env_detector.get_environment_info()
-        
-        # 初始化语言管理器
-        self.language_manager = get_language_manager()
         
         # 初始化日志记录器
         self.logger = logging.getLogger(__name__)
         
-        # 初始化控制器
-        self.main_controller = MainController()
-        self.file_controller = FileController()
-        self.validation_controller = ValidationController()
+        # 获取服务容器
+        self.service_container = get_service_container()
+        
+        # 获取核心服务
+        self.config_service = self.service_container.get("config")
+        self.event_bus = self.service_container.get("event_bus")
+        self.environment_service = self.service_container.get("environment")
+        self.i18n_service = self.service_container.get("i18n")
+        self.file_service = self.service_container.get("file")
+        self.progress_service = self.service_container.get("progress")
+        
+        # 获取控制器（通过服务容器）
+        self.main_controller = self.service_container.get("main_controller")
+        self.file_controller = self.service_container.get("file_controller")
+        self.validation_controller = self.service_container.get("validation_controller")
+        self.visualizer_controller = self.service_container.get("visualizer_controller")
+        
+        # 获取环境检测器（通过服务容器）
+        if self.environment_service:
+            # 尝试初始化环境服务以确保env_detector可用
+            try:
+                if hasattr(self.environment_service, 'initialize'):
+                    self.environment_service.initialize()
+                self.env_detector = self.environment_service.get_environment_detector()
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize environment service: {e}")
+                self.env_detector = None
+        else:
+            self.env_detector = None
+        
+        # 初始化语言管理器
+        self.language_manager = None
 
         # 初始化可视化器工厂
         self.visualizer_factory = VisualizerFactory()
@@ -187,6 +203,30 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.md5_checksum = ""
         self.md5_checksum_run = ""
 
+        # 初始化环境信息
+        self.env_info = {}
+        try:
+            if self.environment_service:
+                if hasattr(self.environment_service, 'env_info'):
+                    self.env_info = self.environment_service.env_info
+                elif hasattr(self.environment_service, 'initialize'):
+                    if self.environment_service.initialize():
+                        if hasattr(self.environment_service, 'env_info'):
+                            self.env_info = self.environment_service.env_info
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize environment service: {e}")
+        
+        # 确保环境信息包含必要的键
+        if 'environment_type' not in self.env_info:
+            if self.environment_service and hasattr(self.environment_service, 'EnvironmentType'):
+                self.env_info['environment_type'] = self.environment_service.EnvironmentType.DEVELOPMENT
+            else:
+                # 降级到直接导入
+                from battery_analysis.utils.environment_utils import EnvironmentType
+                self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+        if 'gui_available' not in self.env_info:
+            self.env_info['gui_available'] = True
+        
         # 环境适配处理
         self._handle_environment_adaptation()
 
@@ -194,8 +234,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
-        # 改进的配置文件路径查找逻辑
-        self.config_path = find_config_file()
+        # 改进的配置文件路径查找逻辑（使用配置服务）
+        if self.config_service:
+            config_path_result = self.config_service.find_config_file()
+            self.config_path = str(config_path_result) if config_path_result else None
+        else:
+            # 降级到直接导入
+            from battery_analysis.utils.config_utils import find_config_file
+            self.config_path = find_config_file()
 
         project_root = Path(__file__).resolve().parent.parent.parent
 
@@ -215,11 +261,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.path = str(project_root)
 
         # 设置控制器的项目上下文
-        self.main_controller.set_project_context(
-            project_path=self.path,
-            input_path="",  # 初始empty，后续会更新
-            output_path=""  # 初始empty，后续会更新
-        )
+        if hasattr(self.main_controller, 'set_project_context'):
+            self.main_controller.set_project_context(
+                project_path=self.path,
+                input_path="",  # 初始empty，后续会更新
+                output_path=""  # 初始empty，后续会更新
+            )
 
         # 连接控制器信号
         self._connect_controllers()
@@ -244,6 +291,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         处理环境适配逻辑
         """
         env_type = self.env_info['environment_type']
+        
+        # 通过环境服务获取 EnvironmentType
+        if self.environment_service and hasattr(self.environment_service, 'EnvironmentType'):
+            EnvironmentType = self.environment_service.EnvironmentType
+        else:
+            # 降级到直接导入
+            from battery_analysis.utils.environment_utils import EnvironmentType
         
         # 根据环境类型进行适配
         if env_type == EnvironmentType.IDE:
@@ -338,15 +392,21 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             QIcon: 应用程序图标
         """
         try:
-            # 尝试多个可能的图标路径
-            icon_paths = [
-                # 基于配置目录的标准路径
-                self.env_detector.get_resource_path("config/resources/icons/Icon_BatteryTestGUI.ico"),
-                # 备用路径
-                self.env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
-                # 相对路径尝试
+            # 尝试多个可能的图标路径（优先使用环境检测器，否则使用固定路径）
+            icon_paths = []
+            
+            # 如果环境检测器可用，使用它来解析路径
+            if self.env_detector:
+                icon_paths = [
+                    self.env_detector.get_resource_path("config/resources/icons/Icon_BatteryTestGUI.ico"),
+                    self.env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
+                ]
+            
+            # 始终尝试相对路径（工程中的图标）
+            icon_paths.extend([
                 Path(self.current_directory) / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-            ]
+                Path(self.current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
+            ])
             
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:
@@ -367,21 +427,41 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         连接控制器信号和槽函数
         """
-        # 主控制器信号连接
-        self.main_controller.progress_updated.connect(
-            self._on_progress_updated)
-        self.main_controller.status_changed.connect(self.get_threadinfo)
-        self.main_controller.analysis_completed.connect(self.set_version)
-        self.main_controller.path_renamed.connect(self.rename_pltPath)
-        self.main_controller.start_visualizer.connect(self.run_visualizer)
+        # 连接主控制器信号到事件总线
+        if self.main_controller:
+            if hasattr(self.main_controller, 'progress_updated'):
+                self.main_controller.progress_updated.connect(self._on_progress_updated)
+            if hasattr(self.main_controller, 'status_changed'):
+                self.main_controller.status_changed.connect(self.get_threadinfo)
+            if hasattr(self.main_controller, 'analysis_completed'):
+                self.main_controller.analysis_completed.connect(self.set_version)
+            if hasattr(self.main_controller, 'path_renamed'):
+                self.main_controller.path_renamed.connect(self.rename_pltPath)
+            if hasattr(self.main_controller, 'start_visualizer'):
+                self.main_controller.start_visualizer.connect(self.run_visualizer)
 
-        # 文件控制器信号连接
-        self.file_controller.config_loaded.connect(self._on_config_loaded)
-        self.file_controller.error_occurred.connect(self._on_controller_error)
+        # 连接文件控制器信号
+        if self.file_controller:
+            if hasattr(self.file_controller, 'config_loaded'):
+                self.file_controller.config_loaded.connect(self._on_config_loaded)
+            if hasattr(self.file_controller, 'error_occurred'):
+                self.file_controller.error_occurred.connect(self._on_controller_error)
 
-        # 验证控制器信号连接
-        self.validation_controller.validation_error.connect(
-            self._on_controller_error)
+        # 连接验证控制器信号
+        if self.validation_controller:
+            if hasattr(self.validation_controller, 'validation_error'):
+                self.validation_controller.validation_error.connect(self._on_controller_error)
+
+        # 连接事件总线事件
+        if self.event_bus:
+            # 订阅进度更新事件
+            self.event_bus.subscribe("progress_updated", self._on_event_progress_updated)
+            # 订阅状态变化事件
+            self.event_bus.subscribe("status_changed", self._on_event_status_changed)
+            # 订阅文件选择事件
+            self.event_bus.subscribe("file_selected", self._on_file_selected)
+            # 订阅配置变更事件
+            self.event_bus.subscribe("config_changed", self._on_config_changed)
 
     def _on_progress_updated(self, progress, status_text):
         """
@@ -413,6 +493,53 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 如果任务完成，关闭弹出式进度条
         if progress >= 100:
             self._close_progress_dialog()
+
+    def _on_event_progress_updated(self, progress: int, status: str):
+        """
+        事件总线进度更新处理
+
+        Args:
+            progress: 进度值
+            status: 状态文本
+        """
+        # 使用进度服务更新进度
+        if self.progress_service:
+            self.progress_service.update_progress(progress, status)
+        
+        # 继续使用原有的进度更新处理
+        self._on_progress_updated(progress, status)
+
+    def _on_event_status_changed(self, status: bool, code: int, message: str):
+        """
+        事件总线状态变化处理
+
+        Args:
+            status: 状态布尔值
+            code: 状态码
+            message: 状态消息
+        """
+        self.logger.info(f"Status changed: {status}, Code: {code}, Message: {message}")
+
+    def _on_file_selected(self, file_path: str):
+        """
+        事件总线文件选择处理
+
+        Args:
+            file_path: 文件路径
+        """
+        self.logger.info(f"File selected via event bus: {file_path}")
+
+    def _on_config_changed(self, key: str, value: Any):
+        """
+        事件总线配置变更处理
+
+        Args:
+            key: 配置键
+            value: 配置值
+        """
+        self.logger.debug(f"Config changed: {key} = {value}")
+        if self.config_service:
+            self.config_service.set(key, value)
 
     def _on_config_loaded(self, config_dict):
         """
@@ -457,7 +584,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def _connect_language_signals(self):
         """连接语言管理器的信号"""
-        self.language_manager.language_changed.connect(self._on_language_changed)
+        try:
+            # 初始化语言管理器
+            self.language_manager = get_language_manager()
+            if self.language_manager:
+                self.language_manager.language_changed.connect(self._on_language_changed)
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize language manager: {e}")
 
     def _on_language_changed(self, language_code):
         """语言切换处理"""
@@ -2086,8 +2219,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 csvMD5Writer.writerow(["0"])
                 f.close()
                 self.lineEdit_Version.setText("1.0")
-            win32api.SetFileAttributes(
-                strCsvMd5Path, win32con.FILE_ATTRIBUTE_HIDDEN)
+            # 使用文件服务设置文件隐藏属性
+            if self.file_service:
+                self.file_service.hide_file(strCsvMd5Path)
+            else:
+                # 降级到直接调用
+                try:
+                    import win32api
+                    import win32con
+                    win32api.SetFileAttributes(strCsvMd5Path, win32con.FILE_ATTRIBUTE_HIDDEN)
+                except ImportError:
+                    self.logger.warning("文件服务不可用，无法设置文件隐藏属性")
         else:
             self.lineEdit_Version.setText("")
 
@@ -2700,12 +2842,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         temp_file.replace(md5_file)  # 替换文件
 
                     # 尝试设置隐藏属性，但不抛出异常
-                    try:
-                        win32api.SetFileAttributes(
-                            str(md5_file), win32con.FILE_ATTRIBUTE_HIDDEN)
-                    except Exception:
-                        # 忽略设置隐藏属性失败的错误
-                        pass
+                    if self.file_service:
+                        success, error_msg = self.file_service.hide_file(str(md5_file))
+                        if not success:
+                            self.logger.warning(f"无法设置MD5文件隐藏属性: {error_msg}")
+                    else:
+                        # 降级到直接调用
+                        try:
+                            import win32api
+                            import win32con
+                            win32api.SetFileAttributes(str(md5_file), win32con.FILE_ATTRIBUTE_HIDDEN)
+                        except Exception:
+                            # 忽略设置隐藏属性失败的错误
+                            pass
                 except PermissionError:
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Permission denied writing to {output_path}")
