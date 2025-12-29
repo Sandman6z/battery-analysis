@@ -894,14 +894,16 @@ class BatteryChartViewer:
             import traceback
             traceback.print_exc()
 
-    def _show_error_plot(self, title=None, main_message=None, details=None):
+    def _show_error_plot(self, title=None, main_message=None, details=None, allow_file_selection=True):
         """
         显示详细的错误信息图表，提供清晰的错误反馈和故障排除建议
+        并可选择性地提供数据文件选择功能
 
         Args:
             title (str, optional): 错误标题，默认为"数据错误"
             main_message (str, optional): 主要错误信息，默认为"无法加载或显示电池数据"
             details (str, optional): 详细错误信息和故障排除建议
+            allow_file_selection (bool): 是否允许用户选择数据文件
         """
         try:
             # 设置默认错误信息
@@ -916,7 +918,7 @@ class BatteryChartViewer:
                 details += "4. csv文件是否包含有效的电池测试数据"
 
             # 创建错误图表
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig, ax = plt.subplots(figsize=(12, 8))
             
             # 保存当前图表实例引用
             self.current_fig = fig
@@ -932,6 +934,13 @@ class BatteryChartViewer:
             full_text = f"{main_message}\n\n"
             full_text += "检查步骤:\n"
             full_text += details
+            
+            # 添加重新加载提示
+            if allow_file_selection:
+                full_text += "\n\n解决方案:\n"
+                full_text += "1. 点击菜单栏'File' -> 'Open Data'选择数据目录\n"
+                full_text += "2. 或按Ctrl+O键打开文件对话框\n"
+                full_text += "3. 选择包含Info_Image.csv文件的目录"
 
             # 显示错误日志信息（如果有）
             if hasattr(self, 'errorlog') and self.errorlog:
@@ -1753,8 +1762,16 @@ class BatteryChartViewer:
             def on_hover(event):
                 if event.inaxes == ax:
                     # 获取当前可见的线条
-                    current_lines = lines_filtered if check_filter.get_status()[
-                        0] else lines_unfiltered
+                    # 检查check_filter是否存在，如果不存在则默认使用过滤数据
+                    if check_filter is not None:
+                        try:
+                            current_lines = lines_filtered if check_filter.get_status()[0] else lines_unfiltered
+                        except (AttributeError, IndexError):
+                            # 如果get_status方法不存在或返回错误，使用默认的过滤数据
+                            current_lines = lines_filtered
+                    else:
+                        # 如果check_filter为None，默认使用过滤数据
+                        current_lines = lines_filtered
 
                     # 查找最近的数据点
                     min_dist = float('inf')
