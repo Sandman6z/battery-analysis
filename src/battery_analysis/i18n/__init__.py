@@ -199,19 +199,26 @@ def detect_system_locale() -> str:
     try:
         # Try to get system locale
         try:
-            locale_result = locale.getdefaultlocale()
-            
-            # Handle different possible return types from getdefaultlocale()
-            if isinstance(locale_result, tuple):
-                if len(locale_result) >= 2:
-                    system_locale = locale_result[0]  # First element is usually the locale
-                elif len(locale_result) == 1:
-                    system_locale = locale_result[0] if locale_result[0] else None
+            # 使用推荐的替代方法获取系统区域设置
+            try:
+                # Python 3.11+ 推荐的方法
+                import locale
+                system_locale = locale.getlocale()[0]
+            except (AttributeError, TypeError):
+                # 降级到旧方法（仍然支持向后兼容）
+                locale_result = locale.getdefaultlocale()
+                
+                # Handle different possible return types from getdefaultlocale()
+                if isinstance(locale_result, tuple):
+                    if len(locale_result) >= 2:
+                        system_locale = locale_result[0]  # First element is usually the locale
+                    elif len(locale_result) == 1:
+                        system_locale = locale_result[0] if locale_result[0] else None
+                    else:
+                        system_locale = None
                 else:
-                    system_locale = None
-            else:
-                # Handle case where getdefaultlocale() returns a single value
-                system_locale = locale_result if locale_result else None
+                    # Handle case where getdefaultlocale() returns a single value
+                    system_locale = locale_result if locale_result else None
                 
         except ValueError:
             # getdefaultlocale() can throw ValueError on some systems
@@ -282,19 +289,25 @@ def initialize_default_locale() -> bool:
     """
     # Try to detect system locale
     try:
-        locale_result = locale.getdefaultlocale()
-        
-        # Handle different possible return types from getdefaultlocale()
-        if isinstance(locale_result, tuple):
-            if len(locale_result) >= 2:
-                system_locale = locale_result[0]
-            elif len(locale_result) == 1:
-                system_locale = locale_result[0] if locale_result[0] else None
+        # 使用推荐的替代方法获取系统区域设置
+        try:
+            # Python 3.11+ 推荐的方法
+            system_locale = locale.getlocale()[0]
+        except (AttributeError, TypeError):
+            # 降级到旧方法（仍然支持向后兼容）
+            locale_result = locale.getdefaultlocale()
+            
+            # Handle different possible return types from getdefaultlocale()
+            if isinstance(locale_result, tuple):
+                if len(locale_result) >= 2:
+                    system_locale = locale_result[0]
+                elif len(locale_result) == 1:
+                    system_locale = locale_result[0] if locale_result[0] else None
+                else:
+                    system_locale = None
             else:
-                system_locale = None
-        else:
-            # Handle case where getdefaultlocale() returns a single value
-            system_locale = locale_result if locale_result else None
+                # Handle case where getdefaultlocale() returns a single value
+                system_locale = locale_result if locale_result else None
             
     except ValueError:
         # getdefaultlocale() can throw ValueError on some systems
