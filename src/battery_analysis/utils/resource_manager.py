@@ -66,7 +66,7 @@ class ResourceManager:
                 logging.info("考虑内存限制后，调整进程数为: %d", max_processes)
             except (psutil.Error, OSError) as e:
                 # 捕获psutil相关的具体异常
-                logging.error("获取系统资源信息时出错: %s", str(e))
+                logging.error("获取系统资源信息whenerror occurred: %s", str(e))
         else:
             # 如果psutil不可用，使用默认值
             logging.warning("psutil库不可用，使用默认进程数")

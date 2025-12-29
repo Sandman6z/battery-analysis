@@ -45,7 +45,7 @@ def get_item(config, _strSection: str, _strItem: str, _intBlankspaceNum: int = 0
         return _strValue
     except (AttributeError, ValueError, IndexError) as e:
         logging.error(
-            "获取section '%s'中的配置项 '%s'时出错: %s", _strSection, _strItem, e)
+            "获取section '%s'中的配置项 '%s'whenerror occurred: %s", _strSection, _strItem, e)
         return ""
 
 

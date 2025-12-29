@@ -137,7 +137,7 @@ class AnalysisWorker(QC.QRunnable):
                     "获取到的Test Date: %s, 原始周期日期: %s", test_date, original_cycle_date)
 
                 try:
-                    # 优先使用从Excel或文件名提取的Test Date（已经是YYYYMMDD格式）
+                    # 优先使用从Excelor文件名提取的Test Date（已经是YYYYMMDD格式）
                     if test_date and len(test_date) == 8 and test_date.isdigit():
                         self.str_test_date = test_date
                         logging.info(
@@ -163,7 +163,7 @@ class AnalysisWorker(QC.QRunnable):
                             logging.info(
                                 "从Test Date解析得到: %s", self.str_test_date)
                         except:
-                            # 解析失败时，尝试使用原始周期日期
+                            # 解析失败when，尝试使用原始周期日期
                             if original_cycle_date:
                                 try:
                                     # 尝试处理标准日期格式 YYYY-MM-DD
@@ -204,7 +204,7 @@ class AnalysisWorker(QC.QRunnable):
                 logging.info("最终确定的测试日期: %s", self.str_test_date)
 
                 # 取消严格的日期比较，避免因为日期格式不一致导致程序退出
-                # 现在优先使用从文件名提取的正确日期
+                # 现在优先使用从文件名提取的correct日期
 
                 # 重命名目录
                 try:
@@ -222,7 +222,7 @@ class AnalysisWorker(QC.QRunnable):
                     os.rename(version_dir, final_dir)
                 except Exception as e:
                     logging.error("目录重命名失败: %s", e)
-                    # 重命名失败时，使用默认目录名继续执行
+                    # 重命名失败when，使用默认目录名继续执行
                     final_dir = version_dir
 
                 self.progress_value = 60
@@ -292,7 +292,7 @@ class AnalysisWorker(QC.QRunnable):
                 logging.warning("信号对象已被删除，无法发送完成状态")
             except Exception as e:
                 # 捕获所有可能的异常，避免闪退
-                logging.error("发送完成状态时发生错误: %s", e)
+                logging.error("发送完成状态when发生错误: %s", e)
 
     def _start_visualizer(self):
         """
@@ -311,5 +311,5 @@ class AnalysisWorker(QC.QRunnable):
         except RuntimeError as e:
             logging.warning("[调试] 信号对象已被删除，无法发送启动可视化工具信号: %s", e)
         except Exception as e:
-            logging.error("[调试] 发送启动可视化工具信号时出错: %s", e)
+            logging.error("[调试] 发送启动可视化工具信号whenerror occurred: %s", e)
         logging.info("[调试] _start_visualizer方法执行完毕")

@@ -90,7 +90,7 @@ class BatteryAnalysis:
                 is_frozen = getattr(sys, 'frozen', False)
 
                 if is_frozen or sys.platform.startswith('win'):
-                    # 在Windows或PyInstaller环境下，使用进程池但避免递归启动问题
+                    # 在WindowsorPyInstaller环境下，使用进程池但避免递归启动问题
                     logging.info("使用进程池并行处理")
 
                     # 使用资源管理器获取最优进程数
@@ -119,7 +119,7 @@ class BatteryAnalysis:
                                 FileNotFoundError, PermissionError, ValueError, 
                                 KeyError, IndexError
                             ) as e:
-                                logging.error("处理文件时出错: %s", e)
+                                logging.error("处理文件whenerror occurred: %s", e)
                                 raise BatteryAnalysisException(
                                     f"处理失败: {str(e)}")
                 else:
@@ -134,7 +134,7 @@ class BatteryAnalysis:
                             FileNotFoundError, PermissionError, ValueError, 
                             KeyError, IndexError
                         ) as e:
-                            logging.error("并行处理文件时出错: %s", e)
+                            logging.error("并行处理文件whenerror occurred: %s", e)
                             pool.terminate()
                             raise BatteryAnalysisException(f"并行处理失败: {str(e)}")
                         finally:
@@ -150,11 +150,11 @@ class BatteryAnalysis:
                     self.listAllVoltageForInfoImageCsv.append(voltage_data)
                     self.listAllChargeForInfoImageCsv.append(charge_data)
 
-                    # 处理时间戳
+                    # 处理when间戳
                     if not self.listTimeStamp:
                         self.listTimeStamp = timestamp_info
                     else:
-                        # 更新最早和最晚时间
+                        # 更新最早和最晚when间
                         self.listTimeStamp[0] = self._str_compare_date(
                             timestamp_info[0], self.listTimeStamp[0], True)
                         self.listTimeStamp[1] = self._str_compare_date(
@@ -366,7 +366,7 @@ class BatteryAnalysis:
         recordVoltage = recordTable.col_values(3)
         recordCharge = recordTable.col_values(4)
 
-        # 处理时间戳
+        # 处理when间戳
         listTimeStamp = [cycleBegin[2], cycleEnd[-1]]
 
         def b_is_in_range_milli_ampere(_floatInput, _floatStandard):
@@ -425,7 +425,7 @@ class BatteryAnalysis:
 
         # 3. 合并posi2_charge和list_posi2_charge功能，减少代码重复
         def calculate_charge(positions, is_single=True):
-            """统一计算单个或多个位置的充电量"""
+            """统一计算单个or多个位置的充电量"""
             if is_single:
                 positions = [positions]
                 results = []
@@ -495,7 +495,7 @@ class BatteryAnalysis:
     def _str_compare_date(self, strDate1, strDate2, bEarlier):
         """日期比较辅助方法"""
         def int_convert_date(strDate):
-            # 日期时间转换函数
+            # 日期when间转换函数
             try:
                 if " " in strDate:
                     date_part, time_part = strDate.split(" ")
@@ -548,7 +548,7 @@ class BatteryAnalysis:
         self.listAllVoltageForInfoImageCsv.append(voltage_data)
         self.listAllChargeForInfoImageCsv.append(charge_data)
 
-        # 处理时间戳
+        # 处理when间戳
         if not self.listTimeStamp:
             self.listTimeStamp = timestamp_info
             # 尝试提取原始cycle日期
@@ -563,7 +563,7 @@ class BatteryAnalysis:
                 except (ValueError, IndexError) as e:
                     logging.error("解析原始cycle日期失败: %s", e)
         else:
-            # 更新最早和最晚时间
+            # 更新最早和最晚when间
             self.listTimeStamp[0] = self._str_compare_date(
                 timestamp_info[0], self.listTimeStamp[0], True)
             self.listTimeStamp[1] = self._str_compare_date(
@@ -636,7 +636,7 @@ class BatteryAnalysis:
         self._log_buffer.append(_data)
         self._log_buffer_size += len(_data)
 
-        # 当缓冲区达到一定大小时写入文件
+        # 当缓冲区达到一定大小when写入文件
         if self._log_buffer_size >= self._max_buffer_size:
             self._flush_log_buffer()
 
@@ -666,7 +666,7 @@ class BatteryAnalysis:
         返回电池信息列表，包含以下内容：
         [0]: 所有电池电荷数据
         [1]: 电池名称列表
-        [2]: 时间戳列表
+        [2]: when间戳列表
         [3]: 从Test Date提取的日期
         [4]: 从cycleBegin提取的原始日期
         """

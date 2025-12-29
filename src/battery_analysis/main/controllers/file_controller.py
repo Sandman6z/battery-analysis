@@ -125,7 +125,7 @@ class FileController(QC.QObject):
             tuple: (是否有效, 错误消息)
         """
         if not directory_path:
-            return False, "目录路径不能为空"
+            return False, "目录路径不能empty"
 
         if not os.path.exists(directory_path):
             return False, f"目录不存在: {directory_path}"

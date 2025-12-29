@@ -164,5 +164,5 @@ class MainController(QC.QObject):
             else:
                 logging.error("[调试] main_controller.start_visualizer信号不存在，无法转发")
         except Exception as e:
-            logging.error("[调试] 转发启动可视化工具信号时出错: %s", e)
+            logging.error("[调试] 转发启动可视化工具信号whenerror occurred: %s", e)
         logging.info("[调试] main_controller._on_start_visualizer方法执行完毕")

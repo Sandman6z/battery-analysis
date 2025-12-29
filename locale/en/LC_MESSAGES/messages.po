@@ -1,0 +1,330 @@
+# English translations for Battery Analysis application
+# Copyright (C) 2025 Battery Analysis
+# This file is distributed under the same license as the Battery Analysis package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Battery Analysis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-26 12:00+0000\n"
+"PO-Revision-Date: 2025-12-26 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Main Window
+msgid "battery-analyzer"
+msgstr "Battery Analyzer"
+
+msgid "Preferences"
+msgstr "Preferences"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "English"
+msgstr "English"
+
+msgid "Chinese (Simplified)"
+msgstr "Chinese (Simplified)"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Apply"
+msgstr "Apply"
+
+# Menu Items
+msgid "&File"
+msgstr "&File"
+
+msgid "File"
+msgstr "File"
+
+msgid "&Edit"
+msgstr "&Edit"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "&Help"
+msgstr "&Help"
+
+msgid "Help"
+msgstr "Help"
+
+msgid "&New"
+msgstr "&New"
+
+msgid "&Open"
+msgstr "&Open"
+
+msgid "&Save"
+msgstr "&Save"
+
+msgid "Save &As..."
+msgstr "Save &As..."
+
+msgid "E&xit"
+msgstr "E&xit"
+
+msgid "&Undo"
+msgstr "&Undo"
+
+msgid "&Redo"
+msgstr "&Redo"
+
+msgid "&Cut"
+msgstr "&Cut"
+
+msgid "&Copy"
+msgstr "&Copy"
+
+msgid "&Paste"
+msgstr "&Paste"
+
+msgid "&About"
+msgstr "&About"
+
+# Battery Configuration
+msgid "Battery Configuration"
+msgstr "Battery Configuration"
+
+msgid "Battery Type"
+msgstr "Battery Type"
+
+msgid "Construction Method"
+msgstr "Construction Method"
+
+msgid "Specification Type"
+msgstr "Specification Type"
+
+msgid "Specification Method"
+msgstr "Specification Method"
+
+msgid "Manufacturer"
+msgstr "Manufacturer"
+
+msgid "Test Information"
+msgstr "Test Information"
+
+msgid "Batch Date Code"
+msgstr "Batch Date Code"
+
+msgid "Samples Quantity"
+msgstr "Samples Quantity"
+
+msgid "Temperature"
+msgstr "Temperature"
+
+msgid "Tester Location"
+msgstr "Tester Location"
+
+msgid "Tested By"
+msgstr "Tested By"
+
+msgid "Data Processing Platforms"
+msgstr "Data Processing Platforms"
+
+msgid "Accelerated Aging"
+msgstr "Accelerated Aging"
+
+msgid "Required Useable Capacity (mAh)"
+msgstr "Required Useable Capacity (mAh)"
+
+msgid "Calculation Nominal Capacity (mAh)"
+msgstr "Calculation Nominal Capacity (mAh)"
+
+msgid "Datasheet Nominal Capacity (mAh)"
+msgstr "Datasheet Nominal Capacity (mAh)"
+
+msgid "Test Profile"
+msgstr "Test Profile"
+
+# File Operations
+msgid "Version"
+msgstr "Version"
+
+msgid "Input Path"
+msgstr "Input Path"
+
+msgid "Browse"
+msgstr "Browse"
+
+msgid "Output Path"
+msgstr "Output Path"
+
+msgid "Data File"
+msgstr "Data File"
+
+msgid "Open File"
+msgstr "Open File"
+
+msgid "File Path"
+msgstr "File Path"
+
+msgid "Run"
+msgstr "Run"
+
+msgid "Clear Table"
+msgstr "Clear Table"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Progress"
+msgstr "Progress"
+
+# Status Messages
+msgid "Ready"
+msgstr "Ready"
+
+msgid "Processing..."
+msgstr "Processing..."
+
+msgid "Completed"
+msgstr "Completed"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Success"
+msgstr "Success"
+
+msgid "Failed"
+msgstr "Failed"
+
+msgid "Warning"
+msgstr "Warning"
+
+msgid "Information"
+msgstr "Information"
+
+# Progress Dialog
+msgid "progress_title"
+msgstr "Battery Analysis Progress"
+
+msgid "progress_ready"
+msgstr "Ready to start analysis..."
+
+# Preferences Dialog
+msgid "preferences_title"
+msgstr "Preferences"
+
+msgid "general_settings"
+msgstr "General Settings"
+
+msgid "auto_save"
+msgstr "Auto-save settings"
+
+msgid "auto_save_tooltip"
+msgstr "Automatically save settings when changes are made"
+
+msgid "confirm_exit"
+msgstr "Confirm before exiting"
+
+msgid "confirm_exit_tooltip"
+msgstr "Show confirmation dialog when exiting the application"
+
+msgid "display_settings"
+msgstr "Display Settings"
+
+msgid "theme"
+msgstr "Theme:"
+
+msgid "theme_light"
+msgstr "Light"
+
+msgid "theme_dark"
+msgstr "Dark"
+
+msgid "theme_system"
+msgstr "System"
+
+msgid "font_size"
+msgstr "Font Size:"
+
+msgid "general"
+msgstr "General"
+
+msgid "language_settings"
+msgstr "Language Settings"
+
+msgid "current_language"
+msgstr "Current Language:"
+
+msgid "select_language"
+msgstr "Select Language:"
+
+msgid "apply_language"
+msgstr "Apply Language"
+
+msgid "language"
+msgstr "Language"
+
+msgid "translation_status"
+msgstr "Translation Status"
+
+msgid "translation_info"
+msgstr "Translation information will be displayed here."
+
+msgid "translation_status_text"
+msgstr "Translation coverage: {0}/{1} keys translated"
+
+msgid "translation_complete"
+msgstr "✓ Translation is complete"
+
+msgid "translation_incomplete"
+msgstr "⚠ Some translations are missing"
+
+msgid "language_change_failed"
+msgstr "Failed to change language"
+
+msgid "language_change_error"
+msgstr "Language change error"
+
+msgid "settings_applied"
+msgstr "Settings have been applied successfully."
+
+msgid "settings_apply_error"
+msgstr "Settings apply error"
+
+msgid "Confirm"
+msgstr "Confirm"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Load"
+msgstr "Load"
+
+msgid "Select"
+msgstr "Select"
+
+msgid "Open"
+msgstr "Open"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Exit"
+msgstr "Exit"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "Help"
+msgstr "Help"
+
+msgid "About"
+msgstr "About"
