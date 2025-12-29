@@ -1,248 +1,360 @@
+#!/usr/bin/env python3
 """
-首选项对话框模块
+Preferences Dialog Module
 
-提供用户界面来配置应用程序首选项，包括：
-- 语言选择
-- 应用设置
-- 首选项保存和恢复
+This module implements the preferences dialog for language and other application settings.
 """
 
 import logging
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, 
-    QLabel, QComboBox, QPushButton, QMessageBox,
-    QTabWidget, QWidget, QCheckBox, QSpinBox,
-    QFormLayout, QDialogButtonBox
-)
-from battery_analysis.i18n.language_manager import get_language_manager, _
+from typing import Optional
+
+import PyQt6.QtCore as QC
+import PyQt6.QtGui as QG
+import PyQt6.QtWidgets as QW
+
+from . import _, get_available_locales, set_locale, get_current_locale
+from .language_manager import get_language_manager
 
 
-class PreferencesDialog(QDialog):
-    """首选项对话框类"""
+class PreferencesDialog(QW.QDialog):
+    """Preferences dialog for application settings"""
     
-    preferences_applied = pyqtSignal()  # 首选项应用信号
+    # Signal emitted when preferences are applied
+    preferences_applied = QC.pyqtSignal()
     
     def __init__(self, parent=None):
+        """Initialize the preferences dialog"""
         super().__init__(parent)
         self.logger = logging.getLogger(__name__)
+        
+        # Get language manager
         self.language_manager = get_language_manager()
         
-        # 保存原始语言设置
-        self.original_language = self.language_manager.get_current_language()
-        
-        self.init_ui()
-        self.load_current_settings()
-        
-    def init_ui(self):
-        """初始化用户界面"""
-        self.setWindowTitle(_("preferences", "首选项"))
+        # Set dialog properties
+        self.setWindowTitle(_("preferences_title", "Preferences"))
         self.setModal(True)
-        self.resize(400, 300)
+        self.setMinimumSize(500, 400)
         
-        # 创建主布局
-        main_layout = QVBoxLayout(self)
+        # Initialize UI
+        self._setup_ui()
+        self._load_settings()
         
-        # 创建选项卡控件
-        self.tab_widget = QTabWidget()
+        self.logger.info("Preferences dialog initialized")
+    
+    def _setup_ui(self):
+        """Setup the user interface"""
+        # Create main layout
+        main_layout = QW.QVBoxLayout(self)
+        
+        # Create tab widget
+        self.tab_widget = QW.QTabWidget()
         main_layout.addWidget(self.tab_widget)
         
-        # 创建语言选项卡
-        self.create_language_tab()
+        # Create General tab
+        self._create_general_tab()
         
-        # 创建常规选项卡
-        self.create_general_tab()
+        # Create Language tab
+        self._create_language_tab()
         
-        # 创建按钮框
-        self.button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | 
-            QDialogButtonBox.StandardButton.Cancel |
-            QDialogButtonBox.StandardButton.Apply,
-            Qt.Orientation.Horizontal,
-            self
-        )
+        # Create buttons
+        self._create_buttons(main_layout)
+    
+    def _create_general_tab(self):
+        """Create the general preferences tab"""
+        general_widget = QW.QWidget()
+        general_layout = QW.QVBoxLayout(general_widget)
         
-        # 连接按钮信号
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
+        # General settings group
+        general_group = QW.QGroupBox(_("general_settings", "General Settings"))
+        general_group_layout = QW.QVBoxLayout(general_group)
         
-        # 为Apply按钮单独连接
-        apply_btn = self.button_box.button(QDialogButtonBox.StandardButton.Apply)
-        apply_btn.clicked.connect(self.apply_preferences)
+        # Auto-save option
+        self.auto_save_checkbox = QW.QCheckBox(_("auto_save", "Auto-save settings"))
+        self.auto_save_checkbox.setToolTip(_("auto_save_tooltip", "Automatically save settings when changes are made"))
+        general_group_layout.addWidget(self.auto_save_checkbox)
         
-        main_layout.addWidget(self.button_box)
+        # Confirmation on exit
+        self.confirm_exit_checkbox = QW.QCheckBox(_("confirm_exit", "Confirm before exiting"))
+        self.confirm_exit_checkbox.setToolTip(_("confirm_exit_tooltip", "Show confirmation dialog when exiting the application"))
+        general_group_layout.addWidget(self.confirm_exit_checkbox)
         
-    def create_language_tab(self):
-        """创建语言选项卡"""
-        language_widget = QWidget()
-        layout = QVBoxLayout(language_widget)
+        general_layout.addWidget(general_group)
         
-        # 语言设置组
-        language_group = QGroupBox(_("language_settings", "语言设置"))
-        language_layout = QFormLayout(language_group)
+        # Display settings group
+        display_group = QW.QGroupBox(_("display_settings", "Display Settings"))
+        display_group_layout = QW.QVBoxLayout(display_group)
         
-        # 语言选择
-        self.language_combo = QComboBox()
-        available_languages = self.language_manager.get_available_languages()
-        for lang_code, lang_name in available_languages.items():
-            self.language_combo.addItem(lang_name, lang_code)
-            
-        language_layout.addRow(_("select_language", "选择语言:"), self.language_combo)
+        # Theme selection
+        theme_layout = QW.QHBoxLayout()
+        theme_layout.addWidget(QW.QLabel(_("theme", "Theme:")))
+        self.theme_combo = QW.QComboBox()
+        self.theme_combo.addItems([
+            _("theme_light", "Light"),
+            _("theme_dark", "Dark"),
+            _("theme_system", "System")
+        ])
+        theme_layout.addWidget(self.theme_combo)
+        theme_layout.addStretch()
+        display_group_layout.addLayout(theme_layout)
         
-        # 当前语言显示
-        current_lang_layout = QHBoxLayout()
-        self.current_language_label = QLabel()
-        current_lang_layout.addWidget(QLabel(_("current_language", "当前语言:")))
+        # Font size
+        font_layout = QW.QHBoxLayout()
+        font_layout.addWidget(QW.QLabel(_("font_size", "Font Size:")))
+        self.font_size_spinbox = QW.QSpinBox()
+        self.font_size_spinbox.setRange(8, 24)
+        self.font_size_spinbox.setSuffix(" pt")
+        font_layout.addWidget(self.font_size_spinbox)
+        font_layout.addStretch()
+        display_group_layout.addLayout(font_layout)
+        
+        general_layout.addWidget(display_group)
+        
+        # Add stretch to push groups to top
+        general_layout.addStretch()
+        
+        # Add tab
+        self.tab_widget.addTab(general_widget, _("general", "General"))
+    
+    def _create_language_tab(self):
+        """Create the language preferences tab"""
+        language_widget = QW.QWidget()
+        language_layout = QW.QVBoxLayout(language_widget)
+        
+        # Language selection group
+        language_group = QW.QGroupBox(_("language_settings", "Language Settings"))
+        language_group_layout = QW.QVBoxLayout(language_group)
+        
+        # Current language display
+        current_lang_layout = QW.QHBoxLayout()
+        current_lang_layout.addWidget(QW.QLabel(_("current_language", "Current Language:")))
+        self.current_language_label = QW.QLabel()
         current_lang_layout.addWidget(self.current_language_label)
         current_lang_layout.addStretch()
+        language_group_layout.addLayout(current_lang_layout)
         
-        language_layout.addRow("", current_lang_layout)
+        # Language selection
+        lang_selection_layout = QW.QHBoxLayout()
+        lang_selection_layout.addWidget(QW.QLabel(_("select_language", "Select Language:")))
+        self.language_combo = QW.QComboBox()
+        self._populate_language_combo()
+        lang_selection_layout.addWidget(self.language_combo)
+        lang_selection_layout.addStretch()
+        language_group_layout.addLayout(lang_selection_layout)
         
-        # 语言说明
-        language_info = QLabel(_("language_restart_info", 
-                               "语言更改将在重启应用程序后生效。"))
-        language_info.setWordWrap(True)
-        language_layout.addRow("", language_info)
+        # Apply button
+        apply_lang_button = QW.QPushButton(_("apply_language", "Apply Language"))
+        apply_lang_button.clicked.connect(self._apply_language)
+        language_group_layout.addWidget(apply_lang_button)
         
-        layout.addWidget(language_group)
-        layout.addStretch()
+        language_layout.addWidget(language_group)
         
-        # 添加到选项卡
-        self.tab_widget.addTab(language_widget, _("language", "语言"))
+        # Translation status group
+        status_group = QW.QGroupBox(_("translation_status", "Translation Status"))
+        status_layout = QW.QVBoxLayout(status_group)
         
-        # 连接语言选择信号
-        self.language_combo.currentIndexChanged.connect(self.on_language_changed)
+        # Status text
+        self.status_text = QW.QLabel(_("translation_info", "Translation information will be displayed here."))
+        self.status_text.setWordWrap(True)
+        status_layout.addWidget(self.status_text)
         
-    def create_general_tab(self):
-        """创建常规选项卡"""
-        general_widget = QWidget()
-        layout = QVBoxLayout(general_widget)
+        language_layout.addWidget(status_group)
         
-        # 界面设置组
-        interface_group = QGroupBox(_("interface_settings", "界面设置"))
-        interface_layout = QFormLayout(interface_group)
+        # Add stretch
+        language_layout.addStretch()
         
-        # 自动保存设置
-        self.auto_save_checkbox = QCheckBox(_("auto_save_settings", "自动保存设置"))
-        interface_layout.addRow("", self.auto_save_checkbox)
+        # Add tab
+        self.tab_widget.addTab(language_widget, _("language", "Language"))
+    
+    def _populate_language_combo(self):
+        """Populate the language combo box with available languages"""
+        self.language_combo.clear()
         
-        # 显示工具提示
-        self.show_tooltips_checkbox = QCheckBox(_("show_tooltips", "显示工具提示"))
-        interface_layout.addRow("", self.show_tooltips_checkbox)
+        # Get installed locales
+        installed_locales = self.language_manager.get_installed_locales()
         
-        layout.addWidget(interface_group)
+        for locale_code, display_name in installed_locales.items():
+            self.language_combo.addItem(display_name, locale_code)
         
-        # 行为设置组
-        behavior_group = QGroupBox(_("behavior_settings", "行为设置"))
-        behavior_layout = QFormLayout(behavior_group)
-        
-        # 确认对话框
-        self.confirm_dialogs_checkbox = QCheckBox(_("confirm_dialogs", "显示确认对话框"))
-        behavior_layout.addRow("", self.confirm_dialogs_checkbox)
-        
-        # 启动时检查更新
-        self.check_updates_checkbox = QCheckBox(_("check_updates", "启动时检查更新"))
-        behavior_layout.addRow("", self.check_updates_checkbox)
-        
-        layout.addWidget(behavior_group)
-        layout.addStretch()
-        
-        # 添加到选项卡
-        self.tab_widget.addTab(general_widget, _("general", "常规"))
-        
-    def load_current_settings(self):
-        """加载当前设置"""
-        # 加载语言设置
-        current_language = self.language_manager.get_current_language()
+        # Set current selection
+        current_locale = get_current_locale()
         for i in range(self.language_combo.count()):
-            if self.language_combo.itemData(i) == current_language:
+            if self.language_combo.itemData(i) == current_locale:
                 self.language_combo.setCurrentIndex(i)
                 break
-                
-        # 更新当前语言显示
-        self.update_current_language_display()
+    
+    def _create_buttons(self, main_layout):
+        """Create dialog buttons"""
+        button_layout = QW.QHBoxLayout()
+        button_layout.addStretch()
         
-        # TODO: 从配置文件加载其他设置
-        self.load_general_settings()
+        # OK button
+        self.ok_button = QW.QPushButton(_("ok", "OK"))
+        self.ok_button.clicked.connect(self.accept)
         
-    def load_general_settings(self):
-        """加载常规设置（待实现）"""
-        # 这里可以从配置文件加载其他首选项
-        # 目前使用默认值
-        self.auto_save_checkbox.setChecked(True)
-        self.show_tooltips_checkbox.setChecked(True)
-        self.confirm_dialogs_checkbox.setChecked(True)
-        self.check_updates_checkbox.setChecked(False)
+        # Cancel button
+        self.cancel_button = QW.QPushButton(_("cancel", "Cancel"))
+        self.cancel_button.clicked.connect(self.reject)
         
-    def on_language_changed(self, index):
-        """语言选择改变处理"""
-        self.update_current_language_display()
+        # Apply button
+        self.apply_button = QW.QPushButton(_("apply", "Apply"))
+        self.apply_button.clicked.connect(self._apply_settings)
         
-    def update_current_language_display(self):
-        """更新当前语言显示"""
-        if self.language_combo.currentData():
-            lang_code = self.language_combo.currentData()
-            lang_name = self.language_manager.get_language_display_name(lang_code)
-            self.current_language_label.setText(lang_name)
-            
-    def apply_preferences(self):
-        """应用首选项"""
+        button_layout.addWidget(self.apply_button)
+        button_layout.addWidget(self.cancel_button)
+        button_layout.addWidget(self.ok_button)
+        
+        main_layout.addLayout(button_layout)
+    
+    def _load_settings(self):
+        """Load current settings"""
         try:
-            # 应用语言设置
-            selected_language = self.language_combo.currentData()
-            if selected_language != self.original_language:
-                if self.language_manager.set_language(selected_language):
-                    self.logger.info(f"语言已切换到: {selected_language}")
-                    # 显示语言切换成功消息
-                    QMessageBox.information(
-                        self, 
-                        _("success", "成功"),
-                        _("language_change_restart", "语言已更改。请重启应用程序以使更改生效。")
-                    )
-                else:
-                    QMessageBox.warning(
-                        self,
-                        _("warning", "警告"),
-                        _("language_change_failed", "语言切换失败。")
-                    )
-                    
-            # TODO: 应用其他设置
-            self.save_general_settings()
+            # Load general settings
+            settings = QC.QSettings()
             
-            # 发送首选项应用信号
-            self.preferences_applied.emit()
-            
-            self.logger.info("首选项已应用")
-            
-        except Exception as e:
-            self.logger.error(f"应用首选项时出错: {e}")
-            QMessageBox.critical(
-                self,
-                _("error", "错误"),
-                _("apply_preferences_failed", f"应用首选项失败: {str(e)}")
+            # Auto-save
+            self.auto_save_checkbox.setChecked(
+                settings.value("general/auto_save", True, type=bool)
             )
             
-    def save_general_settings(self):
-        """保存常规设置（待实现）"""
-        # 这里可以将设置保存到配置文件
-        # 目前只是记录日志
-        self.logger.info("常规设置已保存")
+            # Confirm exit
+            self.confirm_exit_checkbox.setChecked(
+                settings.value("general/confirm_exit", True, type=bool)
+            )
+            
+            # Theme
+            theme = settings.value("display/theme", "light")
+            theme_map = {"light": 0, "dark": 1, "system": 2}
+            self.theme_combo.setCurrentIndex(theme_map.get(theme, 0))
+            
+            # Font size
+            font_size = settings.value("display/font_size", 10, type=int)
+            self.font_size_spinbox.setValue(font_size)
+            
+            # Load current language info
+            current_locale = get_current_locale()
+            current_language_name = self.language_manager.get_locale_info(current_locale).get("name", current_locale)
+            self.current_language_label.setText(current_language_name)
+            
+            # Update translation status
+            self._update_translation_status(current_locale)
+            
+            self.logger.debug("Settings loaded successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to load settings: {e}")
+    
+    def _update_translation_status(self, locale_code):
+        """Update the translation status display"""
+        try:
+            # Get validation results
+            validation = self.language_manager.validate_translations(locale_code)
+            
+            total_keys = len(validation)
+            translated_keys = sum(1 for translated in validation.values() if translated)
+            
+            status_text = _(
+                "translation_status_text", 
+                f"Translation coverage: {translated_keys}/{total_keys} keys translated"
+            )
+            
+            if translated_keys == total_keys:
+                status_text += f"\n{_('translation_complete', '✓ Translation is complete')}"
+            else:
+                status_text += f"\n{_('translation_incomplete', '⚠ Some translations are missing')}"
+            
+            self.status_text.setText(status_text)
+            
+        except Exception as e:
+            self.logger.error(f"Failed to update translation status: {e}")
+    
+    def _apply_language(self):
+        """Apply the selected language"""
+        try:
+            # Get selected locale
+            current_index = self.language_combo.currentIndex()
+            if current_index >= 0:
+                selected_locale = self.language_combo.itemData(current_index)
+                
+                # Set the locale
+                if self.language_manager.set_locale(selected_locale):
+                    # Update current language display
+                    current_language_name = self.language_manager.get_locale_info(selected_locale).get("name", selected_locale)
+                    self.current_language_label.setText(current_language_name)
+                    
+                    # Update translation status
+                    self._update_translation_status(selected_locale)
+                    
+                    self.logger.info(f"Language applied: {selected_locale}")
+                else:
+                    QW.QMessageBox.warning(
+                        self,
+                        _("warning", "Warning"),
+                        _("language_change_failed", "Failed to change language")
+                    )
         
+        except Exception as e:
+            self.logger.error(f"Failed to apply language: {e}")
+            QW.QMessageBox.critical(
+                self,
+                _("error", "Error"),
+                f"{_('language_change_error', 'Language change error')}: {str(e)}"
+            )
+    
+    def _apply_settings(self):
+        """Apply current settings"""
+        try:
+            settings = QC.QSettings()
+            
+            # Save general settings
+            settings.setValue("general/auto_save", self.auto_save_checkbox.isChecked())
+            settings.setValue("general/confirm_exit", self.confirm_exit_checkbox.isChecked())
+            
+            # Save display settings
+            theme_map = {0: "light", 1: "dark", 2: "system"}
+            settings.setValue("display/theme", theme_map.get(self.theme_combo.currentIndex(), "light"))
+            settings.setValue("display/font_size", self.font_size_spinbox.value())
+            
+            # Save language preference
+            current_index = self.language_combo.currentIndex()
+            if current_index >= 0:
+                selected_locale = self.language_combo.itemData(current_index)
+                settings.setValue("language/locale", selected_locale)
+            
+            settings.sync()
+            
+            self.logger.info("Settings applied successfully")
+            
+            # Emit signal that preferences have been applied
+            self.preferences_applied.emit()
+            
+            # Show confirmation
+            QW.QMessageBox.information(
+                self,
+                _("information", "Information"),
+                _("settings_applied", "Settings have been applied successfully.")
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Failed to apply settings: {e}")
+            QW.QMessageBox.critical(
+                self,
+                _("error", "Error"),
+                f"{_('settings_apply_error', 'Settings apply error')}: {str(e)}"
+            )
+    
     def accept(self):
-        """确认按钮处理"""
-        self.apply_preferences()
+        """Handle OK button clicked"""
+        self._apply_settings()
         super().accept()
-        
+    
     def reject(self):
-        """取消按钮处理"""
-        # 恢复原始语言设置
-        if self.language_manager.get_current_language() != self.original_language:
-            self.language_manager.set_language(self.original_language)
+        """Handle Cancel button clicked"""
         super().reject()
-        
+    
     def closeEvent(self, event):
-        """关闭事件处理"""
-        # 如果对话框被关闭（不是通过按钮），则恢复语言设置
-        if self.language_manager.get_current_language() != self.original_language:
-            self.language_manager.set_language(self.original_language)
-        event.accept()
+        """Handle dialog close event"""
+        # Save any pending changes
+        if hasattr(self, 'auto_save_checkbox') and self.auto_save_checkbox.isChecked():
+            self._apply_settings()
+        
+        super().closeEvent(event)

@@ -1,380 +1,387 @@
 """
-语言管理模块
+Standard Language Manager for Battery Analysis application
 
-提供应用程序的国际化支持，包括：
-- 多语言翻译文件管理
-- 动态语言切换
-- 翻译文本获取
-- 语言偏好设置保存和加载
+This module provides a comprehensive language management system following
+international standards and best practices for Python GUI applications.
 """
 
-import json
 import os
 import logging
-import locale
-import platform
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 from PyQt6.QtCore import QObject, pyqtSignal, QSettings
+from PyQt6.QtWidgets import QApplication
+
+from . import (
+    _, ngettext, pgettext, set_locale, get_current_locale, 
+    get_available_locales, detect_system_locale
+)
 
 
 class LanguageManager(QObject):
-    """语言管理器类，负责管理应用程序的多语言支持"""
+    """Language Manager following international standards"""
     
-    # 信号定义
-    language_changed = pyqtSignal(str)  # 语言切换信号
+    # Signals for language changes
+    language_changed = pyqtSignal(str)  # Emitted when language changes
+    locale_changed = pyqtSignal(str)    # Emitted when locale changes
+    
+    # Supported locales with display names
+    SUPPORTED_LOCALES = {
+        "en": "English",
+        "zh_CN": "中文(简体)",
+        "zh_TW": "中文(繁體)",
+        "ja": "日本語",
+        "ko": "한국어",
+        "fr": "Français",
+        "de": "Deutsch",
+        "es": "Español",
+        "it": "Italiano",
+        "pt": "Português",
+        "ru": "Русский",
+        "ar": "العربية",
+        "hi": "हिन्दी"
+    }
     
     def __init__(self):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        self.translations: Dict[str, Dict[str, str]] = {}
-        self.current_language = "en"
-        self.supported_languages = {
-            "en": "English",
-            "zh_CN": "简体中文"
-        }
-        
-        # 初始化设置
         self.settings = QSettings()
         
-        # 加载翻译文件
-        self._load_translations()
+        # Connect to application instance
+        self.app = QApplication.instance()
         
-        # 初始化语言设置（首次启动检测系统语言）
-        self._initialize_language_settings()
+        # Initialize locale settings
+        self._initialize_settings()
         
-        # 设置默认语言
-        self._set_default_language()
-    
-    def _load_settings(self):
-        """从设置中加载语言偏好"""
-        try:
-            saved_language = self.settings.value("language", None)
-            if saved_language and saved_language in self.supported_languages:
-                self.current_language = saved_language
-                self.logger.info(f"已加载保存的语言设置: {self.current_language}")
-                return True
-        except Exception as e:
-            self.logger.error(f"加载语言设置失败: {e}")
-        return False
-    
-    def _initialize_language_settings(self):
-        """初始化语言设置 - 首次启动时使用英文作为默认语言"""
-        # 首先尝试加载保存的设置
-        if self._load_settings():
-            # 有保存的设置，使用保存的语言
-            return
+        # Connect signals
+        self.language_changed.connect(self._on_language_changed)
         
-        # 没有保存的设置，默认使用英文
-        self.current_language = "en"
-        self.logger.info("首次启动，使用默认语言: en")
+        self.logger.info("Language Manager initialized")
+    
+    def _initialize_settings(self):
+        """Initialize language settings from configuration"""
+        # Get saved language preference or detect system locale
+        saved_locale = self.settings.value("language/locale", "")
         
-        # 标记已完成首次启动设置
-        self._save_settings()
-    
-    def _detect_system_language(self) -> Optional[str]:
-        """检测系统默认语言"""
-        try:
-            # 尝试多种方法检测系统语言
-            system_lang = None
-            
-            # 方法1: 使用locale模块
-            try:
-                # 获取系统默认locale
-                system_locale = locale.getdefaultlocale()[0]
-                if system_locale:
-                    # 将 locale 转换为语言代码
-                    if system_locale.startswith('zh'):
-                        system_lang = 'zh_CN'
-                    elif system_locale.startswith('en'):
-                        system_lang = 'en'
-                    self.logger.debug(f"通过locale检测到系统语言: {system_locale} -> {system_lang}")
-            except Exception as e:
-                self.logger.debug(f"locale语言检测失败: {e}")
-            
-            # 方法2: 使用platform模块（Windows特定）
-            if not system_lang and platform.system() == "Windows":
-                try:
-                    import ctypes
-                    # 获取系统默认UI语言
-                    user_language = ctypes.windll.kernel32.GetUserDefaultUILanguage()
-                    if user_language == 2052:  # 中文(简体) LCID
-                        system_lang = 'zh_CN'
-                    elif user_language == 1033:  # 英语(美国) LCID
-                        system_lang = 'en'
-                    self.logger.debug(f"通过Windows API检测到系统语言: {user_language} -> {system_lang}")
-                except Exception as e:
-                    self.logger.debug(f"Windows API语言检测失败: {e}")
-            
-            # 方法3: 环境变量
-            if not system_lang:
-                env_lang = os.environ.get('LANG', os.environ.get('LC_ALL', ''))
-                if env_lang:
-                    if env_lang.startswith('zh'):
-                        system_lang = 'zh_CN'
-                    elif env_lang.startswith('en'):
-                        system_lang = 'en'
-                    self.logger.debug(f"通过环境变量检测到系统语言: {env_lang} -> {system_lang}")
-            
-            # 方法4: 系统区域设置（Windows）
-            if not system_lang and platform.system() == "Windows":
-                try:
-                    import ctypes
-                    # 获取系统默认语言
-                    system_language = ctypes.windll.kernel32.GetSystemDefaultLangID()
-                    if system_language == 2052:  # 中文(简体) LCID
-                        system_lang = 'zh_CN'
-                    elif system_language == 1033:  # 英语(美国) LCID
-                        system_lang = 'en'
-                    self.logger.debug(f"通过系统默认语言检测到: {system_language} -> {system_lang}")
-                except Exception as e:
-                    self.logger.debug(f"系统默认语言检测失败: {e}")
-            
-            return system_lang
-            
-        except Exception as e:
-            self.logger.error(f"检测系统语言时发生错误: {e}")
-            return None
-    
-    def _save_settings(self):
-        """保存语言偏好到设置"""
-        try:
-            self.settings.setValue("language", self.current_language)
-            self.logger.info(f"已保存语言设置: {self.current_language}")
-        except Exception as e:
-            self.logger.error(f"保存语言设置失败: {e}")
-    
-    def _load_translations(self):
-        """加载所有翻译文件"""
-        i18n_dir = Path(__file__).parent
-        self.logger.info(f"正在加载翻译文件，目录: {i18n_dir}")
+        if not saved_locale:
+            # Detect system locale on first run
+            saved_locale = detect_system_locale()
+            self.settings.setValue("language/locale", saved_locale)
         
-        for lang_code in self.supported_languages.keys():
-            translation_file = i18n_dir / f"{lang_code}.json"
+        # Set the detected/saved locale
+        if self.set_locale(saved_locale):
+            self.logger.info(f"Language Manager initialized with locale: {saved_locale}")
+        else:
+            self.logger.warning(f"Failed to set locale to {saved_locale}, falling back to English")
+            self.set_locale("en")
+    
+    def get_available_locales(self) -> Dict[str, str]:
+        """
+        Get all available locales.
+        
+        Returns:
+            Dictionary mapping locale codes to display names
+        """
+        return self.SUPPORTED_LOCALES
+    
+    def get_installed_locales(self) -> Dict[str, str]:
+        """
+        Get only locales that have translation files installed.
+        
+        Returns:
+            Dictionary mapping locale codes to display names
+        """
+        installed = {}
+        for locale_code, display_name in self.SUPPORTED_LOCALES.items():
+            if self._has_translation_file(locale_code):
+                installed[locale_code] = display_name
+        
+        return installed
+    
+    def _has_translation_file(self, locale_code: str) -> bool:
+        """Check if translation file exists for locale"""
+        locale_dir = Path(__file__).parent.parent.parent.parent / "locale" / locale_code / "LC_MESSAGES"
+        mo_file = locale_dir / "messages.mo"
+        return mo_file.exists()
+    
+    def get_current_locale(self) -> str:
+        """
+        Get current locale code.
+        
+        Returns:
+            Current locale code
+        """
+        return get_current_locale()
+    
+    def set_locale(self, locale_code: str) -> bool:
+        """
+        Set the current locale and update translations.
+        
+        Args:
+            locale_code: Locale code to set
             
-            if translation_file.exists():
-                try:
-                    with open(translation_file, 'r', encoding='utf-8') as f:
-                        self.translations[lang_code] = json.load(f)
-                    self.logger.info(f"成功加载翻译文件: {translation_file}")
-                except Exception as e:
-                    self.logger.error(f"加载翻译文件失败 {translation_file}: {e}")
-                    self.translations[lang_code] = {}
-            else:
-                self.logger.warning(f"翻译文件不存在: {translation_file}")
-                self.translations[lang_code] = {}
-    
-    def _set_default_language(self):
-        """设置默认语言"""
-        if self.current_language not in self.translations:
-            self.logger.warning(f"当前语言 {self.current_language} 没有翻译文件，使用英语")
-            self.current_language = "en"
-    
-    def get_available_languages(self) -> Dict[str, str]:
-        """获取支持的语言列表"""
-        return self.supported_languages.copy()
-    
-    def get_current_language(self) -> str:
-        """获取当前语言代码"""
-        return self.current_language
-    
-    def get_current_language_name(self) -> str:
-        """获取当前语言显示名称"""
-        return self.supported_languages.get(self.current_language, self.current_language)
-    
-    def set_language(self, language_code: str) -> bool:
-        """设置当前语言"""
-        if language_code not in self.supported_languages:
-            self.logger.error(f"不支持的语言代码: {language_code}")
+        Returns:
+            True if locale was set successfully
+        """
+        if locale_code not in self.SUPPORTED_LOCALES:
+            self.logger.warning(f"Unsupported locale: {locale_code}")
             return False
         
-        if language_code not in self.translations:
-            self.logger.error(f"语言 {language_code} 的翻译文件不存在")
+        if not self._has_translation_file(locale_code):
+            self.logger.warning(f"No translation file for locale: {locale_code}")
             return False
         
-        if language_code == self.current_language:
+        # Set locale using standard gettext
+        if set_locale(locale_code):
+            self.settings.setValue("language/locale", locale_code)
+            self.language_changed.emit(locale_code)
+            self.locale_changed.emit(locale_code)
+            self.logger.info(f"Locale set to: {locale_code}")
             return True
-        
-        old_language = self.current_language
-        self.current_language = language_code
-        self._save_settings()
-        
-        self.logger.info(f"语言已切换: {old_language} -> {language_code}")
-        self.language_changed.emit(language_code)
-        return True
+        else:
+            self.logger.error(f"Failed to set locale to: {locale_code}")
+            return False
     
-    def translate(self, key: str, default: str = None) -> str:
+    def get_text(self, text: str, context: Optional[str] = None) -> str:
         """
-        获取翻译文本
+        Get translated text.
         
         Args:
-            key: 翻译键名
-            default: 默认文本（当翻译不存在时使用）
-        
+            text: Text to translate
+            context: Optional context for disambiguation
+            
         Returns:
-            翻译后的文本
+            Translated text
         """
-        # 首先尝试当前语言
-        translation = self.translations.get(self.current_language, {}).get(key)
-        
-        # 如果当前语言没有翻译，尝试英语
-        if translation is None and self.current_language != "en":
-            translation = self.translations.get("en", {}).get(key)
-        
-        # 如果都没有找到，返回默认值或键名
-        if translation is None:
-            if default is not None:
-                return default
-            self.logger.warning(f"翻译键 '{key}' 不存在")
-            return key
-        
-        return translation
+        if context:
+            return pgettext(context, text)
+        else:
+            # Use direct translation from gettext instead of global _ function
+            return self._direct_translate(text)
     
-    def translate_with_context(self, key: str, context: str, default: str = None) -> str:
+    def _direct_translate(self, text: str) -> str:
         """
-        获取带上下文的翻译文本
+        Direct translation using the same mechanism as i18n module.
         
         Args:
-            key: 翻译键名
-            context: 上下文信息
-            default: 默认文本
-        
+            text: Text to translate
+            
         Returns:
-            翻译后的文本
+            Translated text
         """
-        # 构建上下文键名
-        context_key = f"{key}_{context}"
-        translation = self.translate(context_key, default)
-        
-        # 如果上下文翻译不存在，使用普通翻译
-        if translation == context_key and default is None:
-            return self.translate(key)
-        
-        return translation
+        try:
+            # Import the same SimplePOTranslator used in i18n module
+            from . import _po_translator
+            return _po_translator._(text)
+        except Exception as e:
+            self.logger.warning(f"Translation failed for '{text}': {e}")
+            return text
     
-    def get_translation_dict(self, language_code: str = None) -> Dict[str, str]:
+    def get_plural_text(self, singular: str, plural: str, n: int) -> str:
         """
-        获取指定语言的完整翻译字典
+        Get translated plural text.
         
         Args:
-            language_code: 语言代码，默认为当前语言
-        
+            singular: Singular form
+            plural: Plural form
+            n: Number to determine form
+            
         Returns:
-            翻译字典
+            Translated text in appropriate form
         """
-        if language_code is None:
-            language_code = self.current_language
-        
-        return self.translations.get(language_code, {}).copy()
+        return ngettext(singular, plural, n)
     
-    def has_translation(self, key: str, language_code: str = None) -> bool:
+    def format_translation(self, template: str, **kwargs) -> str:
         """
-        检查指定语言是否有指定的翻译
+        Format a translated string with placeholders.
         
         Args:
-            key: 翻译键名
-            language_code: 语言代码，默认为当前语言
-        
+            template: Template string with {placeholders}
+            **kwargs: Values to insert into placeholders
+            
         Returns:
-            是否存在翻译
+            Formatted translated string
         """
-        if language_code is None:
-            language_code = self.current_language
+        translated = _(template)
+        try:
+            return translated.format(**kwargs)
+        except (KeyError, ValueError) as e:
+            self.logger.warning(f"Translation formatting error: {e}")
+            return translated
+    
+    def _on_language_changed(self, locale_code: str):
+        """Handle language change signal"""
+        self.logger.info(f"Language changed to: {locale_code}")
         
-        return key in self.translations.get(language_code, {})
+        # Update UI language if needed
+        self._update_ui_language(locale_code)
+    
+    def _update_ui_language(self, locale_code: str):
+        """Update UI language elements"""
+        try:
+            # Trigger UI updates by emitting signals that widgets can connect to
+            # This allows UI elements to refresh their translations
+            
+            # For Qt Designer UI files, they need to be recompiled with translations
+            # or use dynamic translation updates
+            
+            pass  # Placeholder for UI-specific language updates
+            
+        except Exception as e:
+            self.logger.error(f"Failed to update UI language: {e}")
     
     def reload_translations(self) -> bool:
-        """重新加载所有翻译文件"""
-        try:
-            self.translations.clear()
-            self._load_translations()
-            self.logger.info("翻译文件重新加载完成")
-            return True
-        except Exception as e:
-            self.logger.error(f"重新加载翻译文件失败: {e}")
-            return False
-    
-    def export_translations(self, language_code: str, output_file: str) -> bool:
         """
-        导出指定语言的翻译到文件
-        
-        Args:
-            language_code: 语言代码
-            output_file: 输出文件路径
+        Reload translations for current locale.
         
         Returns:
-            是否导出成功
+            True if reload successful
+        """
+        current_locale = self.get_current_locale()
+        return self.set_locale(current_locale)
+    
+    def save_preferences(self):
+        """Save current language preferences"""
+        self.settings.sync()
+        self.logger.debug("Language preferences saved")
+    
+    def load_preferences(self):
+        """Load language preferences"""
+        # This is called during initialization
+        pass
+    
+    def reset_to_default(self):
+        """Reset to system default language"""
+        system_locale = detect_system_locale()
+        if self.set_locale(system_locale):
+            self.logger.info(f"Reset to system default: {system_locale}")
+        else:
+            self.logger.warning("Failed to reset to system default")
+    
+    def get_locale_info(self, locale_code: str) -> Dict[str, Any]:
+        """
+        Get detailed information about a locale.
+        
+        Args:
+            locale_code: Locale code
+            
+        Returns:
+            Dictionary with locale information
+        """
+        if locale_code not in self.SUPPORTED_LOCALES:
+            return {}
+        
+        return {
+            "code": locale_code,
+            "name": self.SUPPORTED_LOCALES[locale_code],
+            "installed": self._has_translation_file(locale_code),
+            "current": self.get_current_locale() == locale_code
+        }
+    
+    # Alias methods for backward compatibility and ease of use
+    def get_available_languages(self) -> Dict[str, str]:
+        """Alias for get_available_locales()"""
+        return self.get_available_locales()
+    
+    def get_installed_languages(self) -> Dict[str, str]:
+        """Alias for get_installed_locales()"""
+        return self.get_installed_locales()
+    
+    def get_current_language(self) -> str:
+        """Alias for get_current_locale()"""
+        return self.get_current_locale()
+    
+    def set_language(self, language_code: str) -> bool:
+        """Alias for set_locale()"""
+        return self.set_locale(language_code)
+    
+    def export_translations(self, locale_code: str, output_path: str) -> bool:
+        """
+        Export translations for a locale to JSON format.
+        
+        Args:
+            locale_code: Locale to export
+            output_path: Output file path
+            
+        Returns:
+            True if export successful
         """
         try:
-            translations = self.translations.get(language_code, {})
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(translations, f, ensure_ascii=False, indent=2)
-            self.logger.info(f"成功导出翻译文件: {output_file}")
-            return True
+            import json
+            
+            # This would require parsing the .po file
+            # For now, return False as this is a complex operation
+            self.logger.warning("Translation export not implemented yet")
+            return False
+            
         except Exception as e:
-            self.logger.error(f"导出翻译文件失败: {e}")
+            self.logger.error(f"Failed to export translations: {e}")
             return False
     
-    def get_language_display_name(self, language_code: str) -> str:
-        """获取语言的显示名称"""
-        return self.supported_languages.get(language_code, language_code)
-    
-    def reset_to_system_language(self) -> bool:
-        """重置为系统语言"""
-        system_language = self._detect_system_language()
-        if system_language and system_language in self.supported_languages:
-            return self.set_language(system_language)
-        return False
-    
-    def is_first_launch(self) -> bool:
-        """检查是否为首次启动"""
-        return not self.settings.contains("language")
-    
-    def get_system_language_info(self) -> Dict[str, Any]:
-        """获取系统语言信息"""
-        system_lang = self._detect_system_language()
-        return {
-            "detected_language": system_lang,
-            "is_supported": system_lang in self.supported_languages if system_lang else False,
-            "display_name": self.supported_languages.get(system_lang, system_lang) if system_lang else None,
-            "is_first_launch": self.is_first_launch()
-        }
+    def validate_translations(self, locale_code: str) -> Dict[str, bool]:
+        """
+        Validate that translations exist for common UI elements.
+        
+        Args:
+            locale_code: Locale to validate
+            
+        Returns:
+            Dictionary mapping translation keys to existence status
+        """
+        common_keys = [
+            "OK", "Cancel", "Apply", "Save", "Open", "Close",
+            "File", "Edit", "Help", "About", "Preferences",
+            "Language", "Error", "Warning", "Information"
+        ]
+        
+        validation = {}
+        old_locale = self.get_current_locale()
+        
+        try:
+            # Temporarily switch to target locale for validation
+            if self.set_locale(locale_code):
+                for key in common_keys:
+                    translated = _(key)
+                    validation[key] = translated != key
+                
+                # Switch back
+                self.set_locale(old_locale)
+        
+        except Exception as e:
+            self.logger.error(f"Translation validation failed: {e}")
+            validation = {key: False for key in common_keys}
+        
+        return validation
 
 
-# 全局语言管理器实例
-_language_manager_instance: Optional[LanguageManager] = None
+# Global language manager instance
+_language_manager: Optional[LanguageManager] = None
 
 
 def get_language_manager() -> LanguageManager:
-    """获取全局语言管理器实例"""
-    global _language_manager_instance
-    if _language_manager_instance is None:
-        _language_manager_instance = LanguageManager()
-    return _language_manager_instance
-
-
-def _(key: str, default: str = None) -> str:
     """
-    简化的翻译函数
-    
-    Args:
-        key: 翻译键名
-        default: 默认文本
+    Get the global language manager instance.
     
     Returns:
-        翻译后的文本
+        Global LanguageManager instance
     """
-    return get_language_manager().translate(key, default)
+    global _language_manager
+    
+    if _language_manager is None:
+        _language_manager = LanguageManager()
+    
+    return _language_manager
 
 
-def set_language(language_code: str) -> bool:
+def _(text: str, context: Optional[str] = None) -> str:
     """
-    设置当前语言
+    Convenience function for getting translated text.
     
     Args:
-        language_code: 语言代码
-    
+        text: Text to translate
+        context: Optional context for disambiguation
+        
     Returns:
-        是否设置成功
+        Translated text
     """
-    return get_language_manager().set_language(language_code)
+    return get_language_manager().get_text(text, context)

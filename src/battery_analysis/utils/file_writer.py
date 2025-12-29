@@ -68,7 +68,7 @@ class XlsxWordWriter:
                     f"({listTestInfo[5]}), 默认标题"
                 )
         except Exception as e:
-            logging.error("获取标题时出错: %s", e)
+            logging.error("获取标题whenerror occurred: %s", e)
             strImageTitle = "默认电池分析图标题"
 
         # init variables for all files
@@ -266,17 +266,17 @@ class XlsxWordWriter:
                     strBatteryType = listBatteryTypeBase[b]
                     break
 
-            # 如果没有匹配到，使用列表中的第一个或直接使用测试信息
+            # 如果没有匹配到，使用列表中的第一个or直接使用测试信息
             if strBatteryType == "":
                 if listBatteryTypeBase:
                     strBatteryType = listBatteryTypeBase[0]
                     logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
                 else:
                     strBatteryType = self.listTestInfo[2]  # 直接使用测试信息中的类型
-                    logging.warning("电池类型列表为空，直接使用测试信息: %s", strBatteryType)
+                    logging.warning("电池类型列表empty，直接使用测试信息: %s", strBatteryType)
         except Exception as e:
-            logging.error("获取电池类型时出错: %s", e)
-            strBatteryType = self.listTestInfo[2]  # 出错时使用测试信息中的类型
+            logging.error("获取电池类型whenerror occurred: %s", e)
+            strBatteryType = self.listTestInfo[2]  # error occurredwhen使用测试信息中的类型
         self.listTestInfoForReplace = [
             self.listTestInfo[2], self.listTestInfo[3], self.listTestInfo[4],
             self.listTestInfo[5], self.listTestInfo[7], self.listTestInfo[11], 
@@ -672,7 +672,7 @@ class XlsxWordWriter:
         test_info_headers = [
             "Test Equipment",
             "Software Versions",
-            "Middle Machines",
+            "middle Machines",
             "Test Units",
             "Data Processing Platforms"
         ]
@@ -690,11 +690,11 @@ class XlsxWordWriter:
             f"BTSDA (Data Analysis) Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSDAVersion')}"
         )))
         test_info_data.append((2, lambda: (
-            f"Model: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.Model', 6)}\n"
-            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.HardwareVersion', 14)}\n"
-            f"Serial Number: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.SerialNumber', 12)}\n"
-            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.FirmwareVersion', 14)}\n"
-            f"Device Type: {word_utils.get_item(self.config, 'TestInformation', 'MiddleMachines.DeviceType', 10)}"
+            f"Model: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.Model', 6)}\n"
+            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.HardwareVersion', 14)}\n"
+            f"Serial Number: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.SerialNumber', 12)}\n"
+            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.FirmwareVersion', 14)}\n"
+            f"Device Type: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.DeviceType', 10)}"
         )))
         test_info_data.append((3, lambda: (
             f"Model: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.Model', 6)}\n"
@@ -1346,7 +1346,7 @@ class XlsxWordWriter:
                     run.font.size = Pt(9)
         tableOverview.cell(0, 0).width = Cm(27)
 
-        # 合并三次文档遍历时为一次，减少I/O操作
+        # 合并三次文档遍历when为一次，减少I/O操作
         # wdResult replace TypeA-TypeF, StrA-StrF, Image and insert tables in one pass
         bInsertOverview = False
         bInsertVersionHistory = False
@@ -1371,7 +1371,7 @@ class XlsxWordWriter:
                         paragraph.text = paragraph.text.replace(
                             self.listTextToReplace[t], f"{self.listTestInfoForReplace[t]}")
 
-            if not modified:  # 只有当段落未被修改时才处理图片，避免重复处理
+            if not modified:  # 只有当段落未被修改when才处理图片，避免重复处理
                 for i in range(len(self.listImageToReplace)):
                     if self.listImageToReplace[i] in paragraph.text:
                         paragraph.text = paragraph.text.replace(
@@ -1542,7 +1542,7 @@ class JsonWriter:
             else:
                 raise Exception("找不到配置文件")
         except Exception as e:
-            # 发生错误时创建基本配置
+            # 发生错误when创建基本配置
             logging.error("配置读取失败: %s，使用默认配置", e)
             if not self.config.has_section("BatteryConfig"):
                 self.config.add_section("BatteryConfig")
@@ -1626,7 +1626,7 @@ class JsonWriter:
                 strBatteryType = "CoinCell"
                 logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
         except Exception as e:
-            logging.error("处理电池类型时出错: %s，使用默认值", e)
+            logging.error("处理电池类型whenerror occurred: %s，使用默认值", e)
             strBatteryType = "CoinCell"
 
         self.dictJson.update({

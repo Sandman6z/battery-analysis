@@ -1,0 +1,19 @@
+# Test translations
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "battery-analyzer"
+msgstr "Battery Analyzer"
+
+msgid "Preferences"
+msgstr "Preferences"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Cancel"
+msgstr "Cancel"

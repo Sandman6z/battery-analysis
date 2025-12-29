@@ -34,7 +34,7 @@ class ValidationController(QC.QObject):
             tuple: (是否有效, 错误消息)
         """
         if not test_info:
-            error_msg = "测试信息不能为空"
+            error_msg = "测试信息不能empty"
             self.validation_error.emit(error_msg)
             return False, error_msg
 
@@ -48,7 +48,7 @@ class ValidationController(QC.QObject):
 
         for index, field_name in required_fields:
             if index >= len(test_info) or not test_info[index]:
-                error_msg = f"{field_name}不能为空"
+                error_msg = f"{field_name}不能empty"
                 self.validation_error.emit(error_msg)
                 return False, error_msg
 
@@ -60,7 +60,7 @@ class ValidationController(QC.QObject):
 
         # 验证软件版本格式
         if not self._is_valid_version(test_info[16]):
-            error_msg = "软件版本格式不正确，应为X.X.X格式"
+            error_msg = "软件版本格式不correct，应为X.X.X格式"
             self.validation_error.emit(error_msg)
             return False, error_msg
 
@@ -78,7 +78,7 @@ class ValidationController(QC.QObject):
             tuple: (是否有效, 错误消息)
         """
         if not input_path:
-            error_msg = "输入数据路径不能为空"
+            error_msg = "输入数据路径不能empty"
             self.validation_error.emit(error_msg)
             return False, error_msg
 
@@ -95,11 +95,11 @@ class ValidationController(QC.QObject):
         # 检查目录中是否包含必要的文件
         try:
             files = os.listdir(input_path)
-            # 检查是否至少有一个xlsx或csv文件
+            # 检查是否至少有一个xlsxorcsv文件
             has_data_file = any(file.endswith('.xlsx')
                                 or file.endswith('.csv') for file in files)
             if not has_data_file:
-                error_msg = f"输入目录中未找到数据文件(.xlsx或.csv)"
+                error_msg = f"输入目录中未找到数据文件(.xlsxor.csv)"
                 self.validation_error.emit(error_msg)
                 return False, error_msg
         except Exception as e:
@@ -121,7 +121,7 @@ class ValidationController(QC.QObject):
             tuple: (是否有效, 错误消息)
         """
         if not output_path:
-            error_msg = "输出路径不能为空"
+            error_msg = "输出路径不能empty"
             self.validation_error.emit(error_msg)
             return False, error_msg
 
@@ -191,20 +191,20 @@ class ValidationController(QC.QObject):
 
     def _is_valid_version(self, version):
         """
-        检查版本格式是否正确（X.X.X）
+        检查版本格式是否correct（X.X.X）
 
         Args:
             version: 版本字符串
 
         Returns:
-            bool: 格式是否正确
+            bool: 格式是否correct
         """
         pattern = r'^\d+\.\d+\.\d+$'
         return bool(re.match(pattern, version))
 
     def sanitize_file_name(self, file_name):
         """
-        清理文件名，移除或替换无效字符
+        清理文件名，移除or替换无效字符
 
         Args:
             file_name: 原始文件名
@@ -226,7 +226,7 @@ class ValidationController(QC.QObject):
             date_str: 日期字符串
 
         Returns:
-            bool: 格式是否正确
+            bool: 格式是否correct
         """
         # 检查YYYY-MM-DD格式
         pattern = r'^\d{4}-\d{2}-\d{2}$'

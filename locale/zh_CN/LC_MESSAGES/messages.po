@@ -1,0 +1,330 @@
+# Chinese (Simplified) translations for Battery Analysis application
+# Copyright (C) 2025 Battery Analysis
+# This file is distributed under the same license as the Battery Analysis package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Battery Analysis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-26 12:00+0000\n"
+"PO-Revision-Date: 2025-12-26 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# Main Window
+msgid "battery-analyzer"
+msgstr "电池分析器"
+
+msgid "Preferences"
+msgstr "首选项"
+
+msgid "Language"
+msgstr "语言"
+
+msgid "English"
+msgstr "英语"
+
+msgid "Chinese (Simplified)"
+msgstr "简体中文"
+
+msgid "OK"
+msgstr "确定"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Apply"
+msgstr "应用"
+
+# Menu Items
+msgid "&File"
+msgstr "文件(&F)"
+
+msgid "File"
+msgstr "文件"
+
+msgid "&Edit"
+msgstr "编辑(&E)"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "&Help"
+msgstr "帮助(&H)"
+
+msgid "Help"
+msgstr "帮助"
+
+msgid "&New"
+msgstr "新建(&N)"
+
+msgid "&Open"
+msgstr "打开(&O)"
+
+msgid "&Save"
+msgstr "保存(&S)"
+
+msgid "Save &As..."
+msgstr "另存为(&A)..."
+
+msgid "E&xit"
+msgstr "退出(&X)"
+
+msgid "&Undo"
+msgstr "撤销(&U)"
+
+msgid "&Redo"
+msgstr "重做(&R)"
+
+msgid "&Cut"
+msgstr "剪切(&T)"
+
+msgid "&Copy"
+msgstr "复制(&C)"
+
+msgid "&Paste"
+msgstr "粘贴(&P)"
+
+msgid "&About"
+msgstr "关于(&A)"
+
+# Battery Configuration
+msgid "Battery Configuration"
+msgstr "电池配置"
+
+msgid "Battery Type"
+msgstr "电池类型"
+
+msgid "Construction Method"
+msgstr "结构方法"
+
+msgid "Specification Type"
+msgstr "规格类型"
+
+msgid "Specification Method"
+msgstr "规格方法"
+
+msgid "Manufacturer"
+msgstr "制造商"
+
+msgid "Test Information"
+msgstr "测试信息"
+
+msgid "Batch Date Code"
+msgstr "批次日期代码"
+
+msgid "Samples Quantity"
+msgstr "样品数量"
+
+msgid "Temperature"
+msgstr "温度"
+
+msgid "Tester Location"
+msgstr "测试地点"
+
+msgid "Tested By"
+msgstr "测试人员"
+
+msgid "Data Processing Platforms"
+msgstr "数据处理平台"
+
+msgid "Accelerated Aging"
+msgstr "加速老化"
+
+msgid "Required Useable Capacity (mAh)"
+msgstr "所需可用容量 (mAh)"
+
+msgid "Calculation Nominal Capacity (mAh)"
+msgstr "计算标称容量 (mAh)"
+
+msgid "Datasheet Nominal Capacity (mAh)"
+msgstr "数据表标称容量 (mAh)"
+
+msgid "Test Profile"
+msgstr "测试配置文件"
+
+# File Operations
+msgid "Version"
+msgstr "版本"
+
+msgid "Input Path"
+msgstr "输入路径"
+
+msgid "Browse"
+msgstr "浏览"
+
+msgid "Output Path"
+msgstr "输出路径"
+
+msgid "Data File"
+msgstr "数据文件"
+
+msgid "Open File"
+msgstr "打开文件"
+
+msgid "File Path"
+msgstr "文件路径"
+
+msgid "Run"
+msgstr "运行"
+
+msgid "Clear Table"
+msgstr "清空表格"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Progress"
+msgstr "进度"
+
+# Status Messages
+msgid "Ready"
+msgstr "就绪"
+
+msgid "Processing..."
+msgstr "处理中..."
+
+msgid "Completed"
+msgstr "完成"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Failed"
+msgstr "失败"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Information"
+msgstr "信息"
+
+# Progress Dialog
+msgid "progress_title"
+msgstr "电池分析进度"
+
+msgid "progress_ready"
+msgstr "准备开始分析..."
+
+# Preferences Dialog
+msgid "preferences_title"
+msgstr "首选项"
+
+msgid "general_settings"
+msgstr "常规设置"
+
+msgid "auto_save"
+msgstr "自动保存设置"
+
+msgid "auto_save_tooltip"
+msgstr "更改时自动保存设置"
+
+msgid "confirm_exit"
+msgstr "退出前确认"
+
+msgid "confirm_exit_tooltip"
+msgstr "退出应用程序时显示确认对话框"
+
+msgid "display_settings"
+msgstr "显示设置"
+
+msgid "theme"
+msgstr "主题"
+
+msgid "theme_light"
+msgstr "浅色"
+
+msgid "theme_dark"
+msgstr "深色"
+
+msgid "theme_system"
+msgstr "系统"
+
+msgid "font_size"
+msgstr "字体大小："
+
+msgid "general"
+msgstr "常规"
+
+msgid "language_settings"
+msgstr "语言设置"
+
+msgid "current_language"
+msgstr "当前语言："
+
+msgid "select_language"
+msgstr "选择语言"
+
+msgid "apply_language"
+msgstr "应用语言"
+
+msgid "language"
+msgstr "语言"
+
+msgid "translation_status"
+msgstr "翻译状态"
+
+msgid "translation_info"
+msgstr "翻译信息将在这里显示。"
+
+msgid "translation_status_text"
+msgstr "翻译覆盖率：{0}/{1} 个键已翻译"
+
+msgid "translation_complete"
+msgstr "✓ 翻译已完成"
+
+msgid "translation_incomplete"
+msgstr "⚠ 部分翻译缺失"
+
+msgid "language_change_failed"
+msgstr "语言切换失败"
+
+msgid "language_change_error"
+msgstr "语言切换错误"
+
+msgid "settings_applied"
+msgstr "设置已成功应用。"
+
+msgid "settings_apply_error"
+msgstr "设置应用错误"
+
+msgid "Confirm"
+msgstr "确认"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Load"
+msgstr "加载"
+
+msgid "Select"
+msgstr "选择"
+
+msgid "Open"
+msgstr "打开"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Exit"
+msgstr "退出"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Configuration"
+msgstr "配置"
+
+msgid "Help"
+msgstr "帮助"
+
+msgid "About"
+msgstr "关于"

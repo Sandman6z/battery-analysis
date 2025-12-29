@@ -9,34 +9,37 @@
 """
 
 # 标准库导入
-from battery_analysis.main import battery_chart_viewer
-from battery_analysis.resources import resources_rc
-from battery_analysis.main.controllers.validation_controller import ValidationController
-from battery_analysis.main.controllers.file_controller import FileController
-from battery_analysis.main.controllers.main_controller import MainController
-from battery_analysis.main.controllers.visualizer_controller import VisualizerController
-from battery_analysis.utils.config_utils import find_config_file
-from battery_analysis.i18n.language_manager import get_language_manager, _
-from battery_analysis.i18n.preferences_dialog import PreferencesDialog
-from battery_analysis.ui import ui_main_window
-import os
-import re
 import csv
-import sys
-import time
 import hashlib
 import logging
+import multiprocessing
+import os
+import re
+import sys
+import time
 import warnings
 from pathlib import Path
-import multiprocessing
 
 # 第三方库导入
-import PyQt6.QtGui as QG
+import matplotlib
 import PyQt6.QtCore as QC
+import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 import win32api
 import win32con
-import matplotlib
+
+# 本地应用/库导入
+from battery_analysis.i18n.language_manager import _, get_language_manager
+from battery_analysis.i18n.preferences_dialog import PreferencesDialog
+from battery_analysis.main import battery_chart_viewer
+from battery_analysis.main.controllers.file_controller import FileController
+from battery_analysis.main.controllers.main_controller import MainController
+from battery_analysis.main.controllers.validation_controller import ValidationController
+from battery_analysis.main.controllers.visualizer_controller import VisualizerController
+from battery_analysis.resources import resources_rc
+from battery_analysis.ui import ui_main_window
+from battery_analysis.utils.config_utils import find_config_file
+from battery_analysis.utils.environment_utils import get_environment_detector, EnvironmentType
 
 # 配置日志
 logging.basicConfig(level=logging.INFO,
@@ -65,7 +68,7 @@ def run_visualizer_function():
 
         return True
     except Exception as e:
-        logging.error("启动可视化工具时出错: %s", str(e))
+        logging.error("启动可视化工具whenerror occurred: %s", str(e))
         import traceback
         traceback.print_exc()
         return False
@@ -89,7 +92,7 @@ class ProgressDialog(QW.QDialog):
     """
     弹出式进度条对话框类
 
-    用于显示详细的进度信息，适合长时间运行的任务
+    用于显示详细的进度信息，适合长when间运行的任务
     """
 
     def __init__(self, parent=None):
@@ -100,8 +103,8 @@ class ProgressDialog(QW.QDialog):
             parent: 父窗口
         """
         super().__init__(parent)
-        self.setWindowTitle("电池分析进度")
-        self.setModal(False)  # 非模态窗口，允许用户同时操作主界面
+        self.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
+        self.setModal(False)  # Non-modal window, allows user to operate main interface
         self.setFixedSize(400, 120)
         self.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
                             QC.Qt.WindowType.WindowCloseButtonHint |
@@ -111,7 +114,7 @@ class ProgressDialog(QW.QDialog):
         layout = QW.QVBoxLayout()
 
         # 添加状态文本标签
-        self.status_label = QW.QLabel("准备开始分析...")
+        self.status_label = QW.QLabel(_("progress_ready", "Ready to start analysis..."))
         self.status_label.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
         self.status_label.setWordWrap(True)
         layout.addWidget(self.status_label)
@@ -136,7 +139,7 @@ class ProgressDialog(QW.QDialog):
         self.progress_bar.setValue(progress)
         self.status_label.setText(status_text)
 
-        # 确保界面实时更新
+        # 确保界面实when更新
         QW.QApplication.processEvents()
 
     def closeEvent(self, event):
@@ -146,7 +149,7 @@ class ProgressDialog(QW.QDialog):
         Args:
             event: 关闭事件
         """
-        # 这里可以添加关闭时的处理逻辑
+        # 这里可以添加关闭when的处理逻辑
         event.accept()
 
 
@@ -158,6 +161,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         from battery_analysis import __version__
         self.version = __version__
 
+        # 初始化环境检测器
+        self.env_detector = get_environment_detector()
+        self.env_info = self.env_detector.get_environment_info()
+        
         # 初始化语言管理器
         self.language_manager = get_language_manager()
         
@@ -173,7 +180,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.progress_dialog = None
         self.progress_start_time = None
         self.show_popup_progress = False
-        self.task_duration_threshold = 30  # 任务时长阈值（秒），超过这个时间显示弹出式进度条
+        self.task_duration_threshold = 30  # 任务when长阈值（秒），超过这个when间显示弹出式进度条
 
         self.b_has_config = True
         self.checker_battery_type = Checker()
@@ -186,6 +193,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.cc_current = ""
         self.md5_checksum = ""
         self.md5_checksum_run = ""
+
+        # 环境适配处理
+        self._handle_environment_adaptation()
 
         if sys.platform == "win32":
             import ctypes
@@ -214,8 +224,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 设置控制器的项目上下文
         self.main_controller.set_project_context(
             project_path=self.path,
-            input_path="",  # 初始为空，后续会更新
-            output_path=""  # 初始为空，后续会更新
+            input_path="",  # 初始empty，后续会更新
+            output_path=""  # 初始empty，后续会更新
         )
 
         # 连接控制器信号
@@ -235,6 +245,65 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                                  for c in range(len(listPulseCurrent))]
         self.listVoltageLevel = [
             float(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
+
+    def _handle_environment_adaptation(self):
+        """
+        处理环境适配逻辑
+        """
+        env_type = self.env_info['environment_type']
+        
+        # 根据环境类型进行适配
+        if env_type == EnvironmentType.IDE:
+            self.logger.debug("IDE环境：调整UI行为以适应开发环境")
+            self._adapt_for_ide_environment()
+        elif env_type == EnvironmentType.CONTAINER:
+            self.logger.debug("容器环境：调整UI行为以适应容器环境")
+            self._adapt_for_container_environment()
+        elif env_type == EnvironmentType.PRODUCTION:
+            self.logger.debug("生产环境：优化UI性能")
+            self._adapt_for_production_environment()
+        
+        # GUI可用性检查
+        if not self.env_info['gui_available']:
+            self.logger.warning("GUI环境不可用，应用可能无法正常显示")
+            self._handle_gui_unavailable()
+
+    def _adapt_for_ide_environment(self):
+        """
+        IDE环境适配
+        """
+        # 在IDE中可能没有显示，添加调试信息
+        self.logger.debug("在IDE环境中运行，某些功能可能受限")
+        
+        # 调整任务阈值，在IDE中通常任务较快
+        self.task_duration_threshold = 15
+
+    def _adapt_for_container_environment(self):
+        """
+        容器环境适配
+        """
+        self.logger.debug("在容器环境中运行，调整路径和资源管理")
+        
+        # 容器环境中的资源路径可能不同
+        # 禁用某些容器中可能不支持的功能
+        self.task_duration_threshold = 45
+
+    def _adapt_for_production_environment(self):
+        """
+        生产环境适配
+        """
+        self.logger.debug("在生产环境中运行，优化性能和稳定性")
+        
+        # 生产环境中启用更多优化
+        self.task_duration_threshold = 30
+
+    def _handle_gui_unavailable(self):
+        """
+        处理GUI不可用的情况
+        """
+        self.logger.error("GUI环境不可用，尝试使用无头模式")
+        # 在GUI不可用时，可以考虑切换到命令行模式
+        # 或者显示错误信息并退出
 
     def get_config(self, config_key):
         # 获取配置值并处理为列表格式，移除所有DEBUG打印以避免UI卡死
@@ -263,21 +332,43 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         window_title = _("window_title", f"battery-analyzer v{self.version}")
         self.setWindowTitle(window_title)
         
-        # 使用配置目录下的图标文件
-        try:
-            # 使用实际存在的ico图标文件
-            icon_path = Path(self.current_directory) / "config" / \
-                "resources" / "icons" / "Icon_BatteryTestGUI.ico"
-            if icon_path.exists():
-                icon = QG.QIcon(str(icon_path))
-            else:
-                # 如果文件不存在，使用默认图标
-                icon = QG.QIcon()
-        except Exception:
-            # 捕获所有异常，确保应用能正常启动
-            icon = QG.QIcon()
+        # 使用环境检测器获取正确的图标路径
+        icon = self._load_application_icon()
 
         self.setWindowIcon(icon)
+
+    def _load_application_icon(self) -> QG.QIcon:
+        """
+        加载应用程序图标，使用环境检测器来找到正确的路径
+        
+        Returns:
+            QIcon: 应用程序图标
+        """
+        try:
+            # 尝试多个可能的图标路径
+            icon_paths = [
+                # 基于配置目录的标准路径
+                self.env_detector.get_resource_path("config/resources/icons/Icon_BatteryTestGUI.ico"),
+                # 备用路径
+                self.env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
+                # 相对路径尝试
+                Path(self.current_directory) / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
+            ]
+            
+            # 遍历所有可能的路径，找到第一个存在的
+            for icon_path in icon_paths:
+                if icon_path.exists():
+                    self.logger.debug(f"找到应用图标: {icon_path}")
+                    return QG.QIcon(str(icon_path))
+            
+            # 如果都找不到，使用默认图标
+            self.logger.warning("未找到应用图标文件，使用默认图标")
+            return QG.QIcon()
+            
+        except Exception as e:
+            # 捕获所有异常，确保应用能正常启动
+            self.logger.error(f"加载应用图标失败: {e}")
+            return QG.QIcon()
 
     def _connect_controllers(self):
         """
@@ -452,7 +543,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         validator = QG.QRegularExpressionValidator(self)
         validator.setRegularExpression(reg)
         self.lineEdit_Version.setValidator(validator)
-        # 添加版本号实时验证
+        # 添加版本号实when验证
         self.lineEdit_Version.textChanged.connect(self.validate_version)
 
         # 为输入路径添加存在性验证
@@ -592,7 +683,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.tableWidget_TestInformation.verticalHeader().setSectionResizeMode(
             QW.QHeaderView.ResizeMode.ResizeToContents)
 
-        # 暂时断开cellChanged信号的连接，避免在初始化时触发保存操作
+        # 暂when断开cellChanged信号的连接，避免在初始化when触发保存操作
         try:
             self.tableWidget_TestInformation.cellChanged.disconnect()
         except TypeError:
@@ -602,7 +693,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         def set_span_item(item_text: str, row: int, col: int,
                           row_span: int = 1, col_span: int = 1,
                           editable: bool = False) -> None:
-            # 只有当跨度大于1时才调用setSpan，避免单个单元格跨度的警告
+            # 只有当跨度大于1when才调用setSpan，避免单个单元格跨度的警告
             if row_span > 1 or col_span > 1:
                 self.tableWidget_TestInformation.setSpan(
                     row, col, row_span, col_span)
@@ -625,7 +716,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         set_span_item("", 2, 2, editable=True)
         set_span_item("", 3, 2, editable=True)
 
-        set_span_item("Middle Machines", 4, 0, 5, 1)
+        set_span_item("middle Machines", 4, 0, 5, 1)
         set_span_item("Model", 4, 1)
         set_span_item("Hardware Version", 5, 1)
         set_span_item("Serial Number", 6, 1)
@@ -774,7 +865,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             preferences_dialog.exec()
             
         except Exception as e:
-            self.logger.error(f"显示首选项对话框时出错: {e}")
+            self.logger.error(f"显示首选项对话框whenerror occurred: {e}")
             QW.QMessageBox.critical(
                 self,
                 _("error", "错误"),
@@ -789,7 +880,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.info("首选项已应用")
             
         except Exception as e:
-            self.logger.error(f"应用首选项后处理出错: {e}")
+            self.logger.error(f"应用首选项后处理error occurred: {e}")
 
     def toggle_toolbar_safe(self) -> None:
         """安全地切换工具栏的显示/隐藏状态"""
@@ -880,21 +971,47 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def show_user_manual(self) -> None:
         """显示用户手册"""
         try:
-            # 尝试打开用户手册文件
-            manual_path = Path(self.current_directory) / \
-                "docs" / "user_manual.pdf"
-            if manual_path.exists():
-                os.startfile(str(manual_path))
-            else:
-                # 如果找不到手册文件，显示提示
+            # 首先尝试从当前目录查找手册
+            manual_paths = [
+                # 相对路径
+                Path(self.current_directory) / "docs" / "user_manual.pdf",
+                Path(self.current_directory) / "user_manual.pdf",
+                # 绝对路径 - 项目目录
+                Path(__file__).parent.parent.parent / "docs" / "user_manual.pdf",
+                Path(__file__).parent.parent.parent / "user_manual.pdf",
+                # 常见的文档位置
+                Path(os.getcwd()) / "docs" / "user_manual.pdf",
+                Path(os.getcwd()) / "user_manual.pdf",
+            ]
+            
+            manual_found = False
+            for manual_path in manual_paths:
+                if manual_path.exists() and manual_path.is_file():
+                    try:
+                        # 使用安全的文件打开方式
+                        os.startfile(str(manual_path))
+                        manual_found = True
+                        self.logger.info(f"成功打开用户手册: {manual_path}")
+                        break
+                    except Exception as open_error:
+                        self.logger.warning(f"打开手册文件失败 {manual_path}: {open_error}")
+                        continue
+            
+            if not manual_found:
+                # 如果找不到手册文件，显示提示并提供解决方案
                 QW.QMessageBox.information(
                     self,
                     "用户手册",
-                    "未找到用户手册文件。请联系技术支持获取最新版本文档。",
+                    "未找到用户手册文件。\n\n"
+                    "请确保以下文件存在：\n"
+                    "• docs/user_manual.pdf\n"
+                    "• user_manual.pdf\n\n"
+                    "如需帮助，请联系技术支持。",
                     QW.QMessageBox.StandardButton.Ok
                 )
+                
         except Exception as e:
-            logging.error("打开用户手册失败: %s", e)
+            self.logger.error(f"打开用户手册失败: {e}")
             QW.QMessageBox.warning(
                 self,
                 _("error", "错误"),
@@ -913,7 +1030,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             QW.QMessageBox.information(
                 self,
                 "在线帮助",
-                "无法打开在线帮助。请检查网络连接或联系技术支持。\n\n帮助中心网址: https://example.com/battery-analyzer-help",
+                "无法打开在线帮助。请检查网络连接or联系技术支持。\n\n帮助中心网址: https://example.com/battery-analyzer-help",
                 QW.QMessageBox.StandardButton.Ok
             )
 
@@ -937,7 +1054,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def calculate_battery(self) -> None:
         """执行电池计算"""
-        # 这里可以实现电池计算的逻辑，或连接到现有的计算功能
+        # 这里可以实现电池计算的逻辑，or连接到现有的计算功能
         self.statusBar_BatteryAnalysis.showMessage(_("calculating_battery", "执行电池计算..."))
         # 模拟计算过程
         QW.QMessageBox.information(
@@ -1026,23 +1143,23 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.statusBar_BatteryAnalysis.showMessage(_("visualizer_started", "可视化工具已启动"))
             logging.info("[调试] 可视化工具启动完成")
         except Exception as e:
-            logging.error("[调试] 启动可视化工具时出错: %s", str(e))
+            logging.error("[调试] 启动可视化工具whenerror occurred: %s", str(e))
             import traceback
             logging.error("[调试] 异常堆栈: %s", traceback.format_exc())
-            QW.QMessageBox.error(
+            QW.QMessageBox.critical(
                 self,
                 _("error", "错误"),
-            f"{_('visualizer_start_error', '启动可视化工具时出错')}: {str(e)}",
+                f"{_('visualizer_start_error', '启动可视化工具时发生错误')}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
             self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def show_visualizer_error(self, error_msg: str):
         """在主线程中显示可视化工具错误消息"""
-        QW.QMessageBox.error(
+        QW.QMessageBox.critical(
             self,
             _("error", "错误"),
-            f"{_('visualizer_start_error', '启动可视化工具时出错')}: {error_msg}",
+            f"{_('visualizer_start_error', '启动可视化工具时发生错误')}: {error_msg}",
             QW.QMessageBox.StandardButton.Ok
         )
         self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
@@ -1053,7 +1170,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         QW.QMessageBox.information(
             self,
             "批量处理",
-            "批量处理功能允许您同时分析多个电池数据集。\n\n此功能正在开发中，敬请期待。",
+            "批量处理功能允许您同when分析多个电池数据集。\n\n此功能正在开发中，敬请期待。",
             QW.QMessageBox.StandardButton.Ok
         )
         self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
@@ -1320,12 +1437,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.actionShow_Statusbar.isChecked())
 
     def validate_version(self) -> None:
-        """验证版本号格式并提供实时反馈"""
+        """验证版本号格式并提供实when反馈"""
         version_text = self.lineEdit_Version.text()
         regex = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
         if version_text and not regex.match(version_text).hasMatch():
             self.statusBar_BatteryAnalysis.showMessage(
-                f"{_('warning', '警告')}: {_('version_format_invalid', '版本号格式不正确，应为 x.y.z 格式')}")
+                f"{_('warning', '警告')}: {_('version_format_invalid', '版本号格式不correct，应为 x.y.z 格式')}")
             # 设置错误样式
             self.lineEdit_Version.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
@@ -1350,7 +1467,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.statusBar_BatteryAnalysis.showMessage("status:ok")
 
     def validate_required_fields(self) -> None:
-        """验证必填字段是否为空"""
+        """验证必填字段是否empty"""
         empty_fields = []
 
         if not self.lineEdit_SamplesQty.text():
@@ -1383,7 +1500,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         if empty_fields:
             self.statusBar_BatteryAnalysis.showMessage(
-                f"{_('warning', '警告')}: {_('required_fields_empty', '以下必填字段为空')}: {', '.join(empty_fields)}")
+                f"{_('warning', '警告')}: {_('required_fields_empty', '以下必填字段empty')}: {', '.join(empty_fields)}")
         else:
             # 如果所有验证都通过，显示正常状态
             if self.checker_battery_type.b_check_pass:
@@ -1524,8 +1641,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def set_table(self) -> None:
         self.checker_table.clear()
         # 不再重新创建QSettings实例，而是重新读取配置
-        # 这样可以确保使用与初始化时相同的配置文件路径和设置
-        self.config.sync()  # 确保配置文件被正确加载
+        # 这样可以确保使用与初始化when相同的配置文件路径和设置
+        self.config.sync()  # 确保配置文件被correct加载
 
         test_information_groups = []
         child_groups = self.config.childGroups()
@@ -1579,15 +1696,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         set_item(self.get_config(
             f"{self.test_information}/SoftwareVersions.BTSDAVersion"), 3, 2)
         set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.Model"), 4, 2)
+            f"{self.test_information}/middleMachines.Model"), 4, 2)
         set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.HardwareVersion"), 5, 2)
+            f"{self.test_information}/middleMachines.HardwareVersion"), 5, 2)
         set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.SerialNumber"), 6, 2)
+            f"{self.test_information}/middleMachines.SerialNumber"), 6, 2)
         set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.FirmwareVersion"), 7, 2)
+            f"{self.test_information}/middleMachines.FirmwareVersion"), 7, 2)
         set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.DeviceType"), 8, 2)
+            f"{self.test_information}/middleMachines.DeviceType"), 8, 2)
         set_item(self.get_config(
             f"{self.test_information}/TestUnits.Model"), 9, 2)
         set_item(self.get_config(
@@ -1724,7 +1841,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         工作流程：
         1. 从UI获取输入和输出目录路径
         2. 检查目录是否存在
-        3. 收集输入目录中所有有效的.xlsx文件（排除临时文件）
+        3. 收集输入目录中所有有效的.xlsx文件（排除临when文件）
         4. 计算这些文件的MD5校验和
         5. 读取MD5.csv文件（如果存在）来获取历史记录
         6. 根据MD5校验和匹配确定版本号
@@ -1733,11 +1850,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         9. 将版本号显示在UI中
 
         版本号格式：
-        - 主版本号：当输入文件内容发生变化时增加
+        - 主版本号：当输入文件内容发生变化when增加
         - 次版本号：同一内容的重复运行计数
 
         错误处理：
-        - 如果输入或输出目录不存在，清空版本号显示
+        - 如果输入or输出目录不存在，清空版本号显示
         - 如果输入目录中没有XLSX文件，清空版本号显示
 
         返回值：
@@ -1807,28 +1924,106 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.lineEdit_Version.setText("")
 
     def select_testprofile(self) -> None:
-        self.current_directory, _ = QW.QFileDialog.getOpenFileName(
+        selected_file, _ = QW.QFileDialog.getOpenFileName(
             self, "Select Test Profile", self.current_directory, "XML Files(*.xml)")
-        if self.current_directory != "":
-            self.lineEdit_TestProfile.setText(self.current_directory)
-            # 获取Test Profile的父目录
-            test_profile_dir = os.path.dirname(self.current_directory)
-            # 获取父目录的上级目录（同级目录的根目录）
-            parent_dir = os.path.dirname(test_profile_dir)
-            # 自动设置input path为同级的2_xlsx文件夹
-            input_path = os.path.join(parent_dir, "2_xlsx")
-            if os.path.exists(input_path):
-                self.lineEdit_InputPath.setText(input_path)
+        
+        if selected_file and selected_file.strip():
+            try:
+                # 验证文件是否存在
+                if not os.path.exists(selected_file):
+                    QW.QMessageBox.warning(
+                        self,
+                        "文件错误",
+                        f"选择的文件不存在:\n{selected_file}",
+                        QW.QMessageBox.StandardButton.Ok
+                    )
+                    return
+                
+                # 验证文件扩展名
+                if not selected_file.lower().endswith('.xml'):
+                    QW.QMessageBox.warning(
+                        self,
+                        "文件格式错误",
+                        "请选择XML格式的Test Profile文件",
+                        QW.QMessageBox.StandardButton.Ok
+                    )
+                    return
+                
+                # 显示选中的文件路径
+                self.lineEdit_TestProfile.setText(selected_file)
+                
+                # 获取Test Profile的目录
+                test_profile_dir = os.path.dirname(selected_file)
+                
+                # 验证目录是否有效
+                if not test_profile_dir or not os.path.exists(test_profile_dir):
+                    self.logger.error(f"无效的Test Profile目录: {test_profile_dir}")
+                    return
+                
+                # 获取父目录（项目根目录）
+                parent_dir = os.path.dirname(test_profile_dir)
+                
+                # 验证父目录是否存在
+                if not parent_dir or not os.path.exists(parent_dir):
+                    self.logger.error(f"无效的父目录: {parent_dir}")
+                    return
+                
+                # 自动设置input path为同级的2_xlsx文件夹
+                input_path = os.path.join(parent_dir, "2_xlsx")
+                if os.path.exists(input_path) and os.path.isdir(input_path):
+                    self.lineEdit_InputPath.setText(input_path)
+                    self.sigSetVersion.emit()
+                    self.logger.info(f"自动设置输入路径: {input_path}")
+                else:
+                    self.logger.info(f"未找到输入目录: {input_path}")
+                
+                # 自动设置output path为同级的3_analysis results文件夹
+                output_path = os.path.join(parent_dir, "3_analysis results")
+                if os.path.exists(output_path) and os.path.isdir(output_path):
+                    self.lineEdit_OutputPath.setText(output_path)
+                else:
+                    # 如果输出目录不存在，询问用户是否创建
+                    reply = QW.QMessageBox.question(
+                        self,
+                        "创建输出目录",
+                        f"输出目录不存在，是否创建？\n\n路径: {output_path}",
+                        QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
+                        QW.QMessageBox.StandardButton.Yes
+                    )
+                    
+                    if reply == QW.QMessageBox.StandardButton.Yes:
+                        try:
+                            os.makedirs(output_path, exist_ok=True)
+                            self.lineEdit_OutputPath.setText(output_path)
+                            self.logger.info(f"创建并设置输出目录: {output_path}")
+                        except Exception as e:
+                            self.logger.error(f"创建输出目录失败: {e}")
+                            QW.QMessageBox.critical(
+                                self,
+                                "创建失败",
+                                f"无法创建输出目录:\n{str(e)}",
+                                QW.QMessageBox.StandardButton.Ok
+                            )
+                            return
+                    else:
+                        # 用户选择不创建，手动设置路径但不创建目录
+                        self.lineEdit_OutputPath.setText(output_path)
+                        self.logger.info(f"手动设置输出目录（未创建）: {output_path}")
+                
                 self.sigSetVersion.emit()
-            # 自动设置output path为同级的3_analysis results文件夹
-            output_path = os.path.join(parent_dir, "3_analysis results")
-            if not os.path.exists(output_path):
-                # 如果输出目录不存在，创建它
-                os.makedirs(output_path)
-            self.lineEdit_OutputPath.setText(output_path)
-            self.sigSetVersion.emit()
-            # 更新current_directory
-            self.current_directory = parent_dir
+                
+                # 更新current_directory为项目根目录
+                self.current_directory = parent_dir
+                self.logger.info(f"设置当前目录为项目根目录: {parent_dir}")
+                
+            except Exception as e:
+                self.logger.error(f"选择Test Profilewhen发生错误: {e}")
+                QW.QMessageBox.critical(
+                    self,
+                    "错误",
+                    f"处理Test Profilewhen发生错误:\n{str(e)}",
+                    QW.QMessageBox.StandardButton.Ok
+                )
 
     def select_inputpath(self) -> None:
         self.current_directory = QW.QFileDialog.getExistingDirectory(
@@ -1898,12 +2093,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         ]
         # 简化验证，只验证必要的路径
         if not self.lineEdit_InputPath.text():
-            QW.QMessageBox.critical(self, "输入验证失败", "输入数据路径不能为空")
+            QW.QMessageBox.critical(self, "输入验证失败", "输入数据路径不能empty")
             self.pushButton_Run.setEnabled(True)
             return
 
         if not self.lineEdit_OutputPath.text():
-            QW.QMessageBox.critical(self, "输入验证失败", "输出路径不能为空")
+            QW.QMessageBox.critical(self, "输入验证失败", "输出路径不能empty")
             self.pushButton_Run.setEnabled(True)
             return
 
@@ -1951,14 +2146,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 f"{self.test_information}/SoftwareVersions.BTSClientVersion", 2, 2)
             set_item(
                 f"{self.test_information}/SoftwareVersions.BTSDAVersion", 3, 2)
-            set_item(f"{self.test_information}/MiddleMachines.Model", 4, 2)
+            set_item(f"{self.test_information}/middleMachines.Model", 4, 2)
             set_item(
-                f"{self.test_information}/MiddleMachines.HardwareVersion", 5, 2)
+                f"{self.test_information}/middleMachines.HardwareVersion", 5, 2)
             set_item(
-                f"{self.test_information}/MiddleMachines.SerialNumber", 6, 2)
+                f"{self.test_information}/middleMachines.SerialNumber", 6, 2)
             set_item(
-                f"{self.test_information}/MiddleMachines.FirmwareVersion", 7, 2)
-            set_item(f"{self.test_information}/MiddleMachines.DeviceType", 8, 2)
+                f"{self.test_information}/middleMachines.FirmwareVersion", 7, 2)
+            set_item(f"{self.test_information}/middleMachines.DeviceType", 8, 2)
             set_item(f"{self.test_information}/TestUnits.Model", 9, 2)
             set_item(
                 f"{self.test_information}/TestUnits.HardwareVersion", 10, 2)
@@ -1969,11 +2164,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         set_item("TestInformation/SoftwareVersions.BTSServerVersion", 1, 2)
         set_item("TestInformation/SoftwareVersions.BTSClientVersion", 2, 2)
         set_item("TestInformation/SoftwareVersions.BTSDAVersion", 3, 2)
-        set_item("TestInformation/MiddleMachines.Model", 4, 2)
-        set_item("TestInformation/MiddleMachines.HardwareVersion", 5, 2)
-        set_item("TestInformation/MiddleMachines.SerialNumber", 6, 2)
-        set_item("TestInformation/MiddleMachines.FirmwareVersion", 7, 2)
-        set_item("TestInformation/MiddleMachines.DeviceType", 8, 2)
+        set_item("TestInformation/middleMachines.Model", 4, 2)
+        set_item("TestInformation/middleMachines.HardwareVersion", 5, 2)
+        set_item("TestInformation/middleMachines.SerialNumber", 6, 2)
+        set_item("TestInformation/middleMachines.FirmwareVersion", 7, 2)
+        set_item("TestInformation/middleMachines.DeviceType", 8, 2)
         set_item("TestInformation/TestUnits.Model", 9, 2)
         set_item("TestInformation/TestUnits.HardwareVersion", 10, 2)
         set_item("TestInformation/TestUnits.FirmwareVersion", 11, 2)
@@ -2043,7 +2238,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             warning_info.append("Calculation Nominal Capacity")
             self.label_CalculationNominalCapacity.setStyleSheet(
                 "background-color:red")
-        # QSpinBox总是有一个值（0-10），所以不需要检查是否为空
+        # QSpinBox总是有一个值（0-10），所以不需要检查是否empty
         # 但我们仍然可以检查值是否在有效范围内（虽然控件已经限制了）
         aging_value = self.spinBox_AcceleratedAging.value()
         if aging_value < 0 or aging_value > 10:
@@ -2157,7 +2352,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
                 # 构建日期不一致错误的具体建议
                 suggestions = [
-                    "请检查Excel文件中的Test Date字段是否正确",
+                    "请检查Excel文件中的Test Date字段是否correct",
                     "确保Test Date与实际测试日期一致",
                     "修正日期后重新运行分析"
                 ]
@@ -2188,13 +2383,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
                 # 增强的错误消息处理
                 error_title = "电池分析错误"
-                error_msg = "分析电池数据时出现错误。"
+                error_msg = "分析电池数据when出现错误。"
                 error_details = threadinfo
 
                 # 根据错误内容提供更具体的建议
                 suggestions = []
                 if "input path" in error_details.lower() or "找不到文件" in error_details:
-                    suggestions.append("请检查输入路径是否正确")
+                    suggestions.append("请检查输入路径是否correct")
                     suggestions.append("确保包含必要的数据文件")
                 if "格式" in error_details or "format" in error_details.lower():
                     suggestions.append("检查数据文件格式是否符合要求")
@@ -2232,7 +2427,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.pushButton_Run.setEnabled(True)
 
                 error_title = "报告生成错误"
-                error_msg = "生成分析报告时出现错误。"
+                error_msg = "生成分析报告when出现错误。"
                 error_details = threadinfo
 
                 suggestions = [
@@ -2304,7 +2499,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 try:
                     [_, list_checksum, _, list_times] = list_md5_reader
 
-                    # 创建临时文件避免权限问题
+                    # 创建临when文件避免权限问题
                     temp_file = output_path / "MD5_temp.csv"
                     with temp_file.open(mode='w', newline='', encoding='utf-8') as f:
                         csv_md5_writer = csv.writer(f)
@@ -2330,7 +2525,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         except PermissionError:
                             self.statusBar_BatteryAnalysis.showMessage(
                                 "[Warning]: Cannot remove existing MD5 file, using new location")
-                            md5_file = temp_file  # 使用临时文件作为新的MD5文件
+                            md5_file = temp_file  # 使用临when文件作为新的MD5文件
                             temp_file = None
 
                     if temp_file:
@@ -2350,7 +2545,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Failed to write MD5 file: {str(write_error)}")
             else:
-                # 如果文件不存在或格式不正确，创建新文件
+                # 如果文件不存在or格式不correct，创建新文件
                 try:
                     with md5_file.open(mode='w', newline='', encoding='utf-8') as f:
                         csv_md5_writer = csv.writer(f)
@@ -2420,7 +2615,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 f"[Error]: No rules for {specification_type}")
 
     def resizeEvent(self, event):
-        """窗口大小改变时的事件处理函数"""
+        """窗口大小改变when的事件处理函数"""
         # 调用父类的resizeEvent以确保正常的事件处理
         super().resizeEvent(event)
 

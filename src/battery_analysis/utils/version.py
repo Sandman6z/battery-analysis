@@ -1,6 +1,7 @@
 """版本管理模块
 
 该模块负责获取项目的版本号，支持开发环境和PyInstaller打包环境。
+已优化为支持多种环境（开发、IDE、容器、PyInstaller打包）
 """
 
 import sys
@@ -30,6 +31,14 @@ except ImportError:
         tomllib = None
         logger.warning("Neither tomllib nor tomli is available")
 
+# 导入环境检测工具
+try:
+    from battery_analysis.utils.environment_utils import get_environment_detector, EnvironmentType
+except ImportError:
+    # 如果环境检测模块不可用，使用备用方案
+    get_environment_detector = None
+    EnvironmentType = None
+
 
 class Version:
     _instance = None
@@ -37,15 +46,35 @@ class Version:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Version, cls).__new__(cls)
-            cls._instance.version = cls._instance._get_version()
+            # 延迟版本获取，避免在__init__之前调用依赖env_detector的方法
+            cls._instance._pending_version = True
         return cls._instance
 
     def __init__(self):
         """初始化版本对象，从pyproject.toml读取版本号"""
-        # 显式定义version属性，解决pylint no-member错误
-        # 仅在第一次初始化时设置，避免重复调用_get_version()
-        if not hasattr(self, 'version'):
+        # 初始化环境检测器
+        self.env_detector = None
+        self.env_info = None
+        self._init_environment_detection()
+        
+        # 如果需要获取版本（在__new__中延迟）
+        if hasattr(self, '_pending_version') and self._pending_version:
             self.version = self._get_version()
+            self._pending_version = False
+
+    def _init_environment_detection(self):
+        """
+        初始化环境检测器
+        """
+        try:
+            if get_environment_detector:
+                self.env_detector = get_environment_detector()
+                self.env_info = self.env_detector.get_environment_info()
+                logger.debug(f"环境检测成功: {self.env_info['environment_type']}")
+        except Exception as e:
+            logger.warning(f"环境检测失败: {e}")
+            self.env_detector = None
+            self.env_info = {}
 
     def _get_version(self) -> str:
         """获取项目版本号
@@ -76,45 +105,67 @@ class Version:
         # 确定pyproject.toml文件的路径
         pyproject_path = None
 
-        # 检查是否在PyInstaller环境中
-        if getattr(sys, '_MEIPASS', False):
-            # PyInstaller 1.6+ 会设置 _MEIPASS 环境变量
-            base_path = Path(sys._MEIPASS)  # pylint: disable=protected-access
-            pyproject_path = base_path / "pyproject.toml"
-            logger.info(
-                "Running in PyInstaller environment, "
-                "looking for pyproject.toml at: %s", pyproject_path
-            )
-        else:
-            # 开发环境或构建环境：从文件系统路径查找
-            # 尝试多种可能的路径
-            possible_paths = [
-                # 1. 当前脚本所在目录的上级目录（开发环境）
-                Path(__file__).resolve().parent.parent.parent / "pyproject.toml",
-                # 2. 当前工作目录
-                Path.cwd() / "pyproject.toml",
-                # 3. 构建过程中的临时目录
-                Path("__temp__") / "pyproject.toml",
-                # 4. 构建脚本所在目录的上级目录
-                Path(sys.argv[0]).resolve().parent.parent / "pyproject.toml"
-            ]
-            
-            for path in possible_paths:
-                if path.exists():
-                    pyproject_path = path
-                    logger.info(
-                        "Found pyproject.toml at: %s", pyproject_path
-                    )
-                    break
-            
-            # 如果没有找到，使用默认路径
-            if pyproject_path is None:
-                current_dir = Path(__file__).resolve().parent
-                project_root = current_dir.parent.parent.parent
-                pyproject_path = project_root / "pyproject.toml"
+        # 优先使用环境检测器
+        if self.env_detector:
+            try:
+                # 尝试多个可能的路径
+                possible_paths = [
+                    self.env_detector.get_resource_path("pyproject.toml"),
+                    self.env_detector.get_project_root() / "pyproject.toml",
+                    Path(__file__).resolve().parent.parent.parent / "pyproject.toml",
+                    Path.cwd() / "pyproject.toml",
+                ]
+                
+                for path in possible_paths:
+                    if path.exists():
+                        pyproject_path = path
+                        logger.info(f"使用环境检测器找到 pyproject.toml: {pyproject_path}")
+                        break
+                        
+            except Exception as e:
+                logger.warning(f"环境检测器查找配置文件失败: {e}")
+
+        # 如果环境检测器不可用或没有找到文件，使用原有逻辑
+        if not pyproject_path:
+            # 检查是否在PyInstaller环境中
+            if getattr(sys, '_MEIPASS', False):
+                # PyInstaller 1.6+ 会设置 _MEIPASS 环境变量
+                base_path = Path(sys._MEIPASS)  # pylint: disable=protected-access
+                pyproject_path = base_path / "pyproject.toml"
                 logger.info(
-                    "Defaulting to pyproject.toml at: %s", pyproject_path
+                    "Running in PyInstaller environment, "
+                    "looking for pyproject.toml at: %s", pyproject_path
                 )
+            else:
+                # 开发环境or构建环境：从文件系统路径查找
+                # 尝试多种可能的路径
+                possible_paths = [
+                    # 1. 当前脚本所在目录的上级目录（开发环境）
+                    Path(__file__).resolve().parent.parent.parent / "pyproject.toml",
+                    # 2. 当前工作目录
+                    Path.cwd() / "pyproject.toml",
+                    # 3. 构建过程中的临时目录
+                    Path("__temp__") / "pyproject.toml",
+                    # 4. 构建脚本所在目录的上级目录
+                    Path(sys.argv[0]).resolve().parent.parent / "pyproject.toml"
+                ]
+                
+                for path in possible_paths:
+                    if path.exists():
+                        pyproject_path = path
+                        logger.info(
+                            "Found pyproject.toml at: %s", pyproject_path
+                        )
+                        break
+                
+                # 如果没有找到，使用默认路径
+                if pyproject_path is None:
+                    current_dir = Path(__file__).resolve().parent
+                    project_root = current_dir.parent.parent.parent
+                    pyproject_path = project_root / "pyproject.toml"
+                    logger.info(
+                        "Defaulting to pyproject.toml at: %s", pyproject_path
+                    )
 
         # 检查文件是否存在
         if not pyproject_path.exists():
