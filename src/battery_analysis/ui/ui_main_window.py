@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(970, 885)
+        MainWindow.resize(970, 896)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1164,7 +1164,7 @@ class Ui_MainWindow(object):
         self.progressBar.setGeometry(QtCore.QRect(5, 5, 201, 25))
         self.progressBar.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.progressBar.setAutoFillBackground(False)
-        self.progressBar.setProperty("value", 100)
+        self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setObjectName("progressBar")
         self.verticalLayout_RunAndVersion.addWidget(self.frame_6)

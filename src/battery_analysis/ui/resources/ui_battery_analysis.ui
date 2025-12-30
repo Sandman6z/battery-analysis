@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>970</width>
-    <height>885</height>
+    <height>896</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2467,7 +2467,7 @@ QPushButton#pushButton_Run:pressed {
           <bool>false</bool>
          </property>
          <property name="value">
-          <number>100</number>
+          <number>0</number>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
