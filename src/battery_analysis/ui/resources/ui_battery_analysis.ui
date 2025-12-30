@@ -177,10 +177,10 @@
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
            </property>
@@ -390,15 +390,15 @@
             <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">/* 1) Frame corner radius */
+            <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* Right padding reserved for arrow */
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
     background: #F6F6F6;
 }
 
-/* 2) Remove frame from right button area, keep only corner transitions */
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -409,23 +409,23 @@ QComboBox::drop-down {
     border-bottom-right-radius: 6px;
 }
 
-/* 3) Specify custom small triangle */
+/* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
     image: url(:/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
-    margin-right: 4px; /* Prevent touching edge, adjust as needed */
+    margin-right: 4px; /* 让它别贴边，可按需调 */
 }
 
-/* (Optional) Use upward triangle when dropdown expands */
+/* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
 </string>
            </property>
            <property name="editable">
-         <bool>true</bool>
-        </property>
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -494,10 +494,10 @@ QComboBox::down-arrow:on {
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
            </property>
@@ -575,10 +575,10 @@ QComboBox::down-arrow:on {
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
            </property>
@@ -707,15 +707,15 @@ QComboBox::down-arrow:on {
             <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">/* 1) Frame corner radius */
+            <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* Right padding reserved for arrow */
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
     background: #F6F6F6;
 }
 
-/* 2) Remove frame from right button area, keep only corner transitions */
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -726,23 +726,23 @@ QComboBox::drop-down {
     border-bottom-right-radius: 6px;
 }
 
-/* 3) Specify custom small triangle */
+/* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
     image: url(:/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
-    margin-right: 4px; /* Prevent touching edge, adjust as needed */
+    margin-right: 4px; /* 让它别贴边，可按需调 */
 }
 
-/* (Optional) Use upward triangle when dropdown expands */
+/* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
 </string>
            </property>
            <property name="editable">
-         <bool>true</bool>
-        </property>
+            <bool>false</bool>
+           </property>
            <property name="currentIndex">
             <number>-1</number>
            </property>
@@ -822,15 +822,15 @@ QComboBox::down-arrow:on {
             <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">/* 1) Frame corner radius */
+            <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* Right padding reserved for arrow */
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
     background: #F6F6F6;
 }
 
-/* 2) Remove frame from right button area, keep only corner transitions */
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -841,23 +841,23 @@ QComboBox::drop-down {
     border-bottom-right-radius: 6px;
 }
 
-/* 3) Specify custom small triangle */
+/* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
     image: url(:/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
-    margin-right: 4px; /* Prevent touching edge, adjust as needed */
+    margin-right: 4px; /* 让它别贴边，可按需调 */
 }
 
-/* (Optional) Use upward triangle when dropdown expands */
+/* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
 </string>
            </property>
            <property name="editable">
-         <bool>true</bool>
-        </property>
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -960,15 +960,15 @@ QComboBox::down-arrow:on {
               <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="styleSheet">
-              <string notr="true">/* 1) Frame corner radius */
+              <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* Right padding reserved for arrow */
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
     background: #F6F6F6;
 }
 
-/* 2) Remove frame from right button area, keep only corner transitions */
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -979,23 +979,23 @@ QComboBox::drop-down {
     border-bottom-right-radius: 6px;
 }
 
-/* 3) Specify custom small triangle */
+/* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
     image: url(:/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
-    margin-right: 4px; /* Prevent touching edge, adjust as needed */
+    margin-right: 4px; /* 让它别贴边，可按需调 */
 }
 
-/* (Optional) Use upward triangle when dropdown expands */
+/* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
 </string>
              </property>
              <property name="editable">
-         <bool>true</bool>
-        </property>
+              <bool>false</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -1026,15 +1026,15 @@ QComboBox::down-arrow:on {
               <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="styleSheet">
-              <string notr="true">/* 1) Frame corner radius */
+              <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* Right padding reserved for arrow */
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
     background: #F6F6F6;
 }
 
-/* 2) Remove frame from right button area, keep only corner transitions */
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -1045,23 +1045,23 @@ QComboBox::drop-down {
     border-bottom-right-radius: 6px;
 }
 
-/* 3) Specify custom small triangle */
+/* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
     image: url(:/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
-    margin-right: 4px; /* Prevent touching edge, adjust as needed */
+    margin-right: 4px; /* 让它别贴边，可按需调 */
 }
 
-/* (Optional) Use upward triangle when dropdown expands */
+/* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
 </string>
              </property>
              <property name="editable">
-         <bool>true</bool>
-        </property>
+              <bool>false</bool>
+             </property>
              <property name="insertPolicy">
               <enum>QComboBox::InsertPolicy::InsertAtBottom</enum>
              </property>
@@ -1175,10 +1175,10 @@ QComboBox::down-arrow:on {
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
            </property>
@@ -1250,10 +1250,10 @@ QComboBox::down-arrow:on {
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
            </property>
@@ -1328,10 +1328,10 @@ QComboBox::down-arrow:on {
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
            </property>
@@ -1464,10 +1464,10 @@ QComboBox::down-arrow:on {
         </property>
         <property name="styleSheet">
          <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
         </property>
@@ -1587,15 +1587,15 @@ QComboBox::down-arrow:on {
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">/* 1) Frame corner radius */
+         <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* Right padding reserved for arrow */
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
     background: #F6F6F6;
 }
 
-/* 2) Remove frame from right button area, keep only corner transitions */
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -1606,22 +1606,22 @@ QComboBox::drop-down {
     border-bottom-right-radius: 6px;
 }
 
-/* 3) Specify custom small triangle */
+/* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
     image: url(:/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
-    margin-right: 4px; /* Prevent touching edge, adjust as needed */
+    margin-right: 4px; /* 让它别贴边，可按需调 */
 }
 
-/* (Optional) Use upward triangle when dropdown expands */
+/* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
 </string>
         </property>
         <property name="editable">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -1711,15 +1711,15 @@ QComboBox::down-arrow:on {
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">/* 1) Frame corner radius */
+         <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* Right padding reserved for arrow */
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
     background: #F6F6F6;
 }
 
-/* 2) Remove frame from right button area, keep only corner transitions */
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -1730,15 +1730,15 @@ QComboBox::drop-down {
     border-bottom-right-radius: 6px;
 }
 
-/* 3) Specify custom small triangle */
+/* 3) 指定自定义小三角 */
 QComboBox::down-arrow {
     image: url(:/icons/chevron-down.svg);
     width: 12px;
     height: 12px;
-    margin-right: 4px; /* Prevent touching edge, adjust as needed */
+    margin-right: 4px; /* 让它别贴边，可按需调 */
 }
 
-/* (Optional) Use upward triangle when dropdown expands */
+/* （可选）下拉展开时用向上三角 */
 QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
@@ -1850,10 +1850,10 @@ QComboBox::down-arrow:on {
         </property>
         <property name="styleSheet">
          <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
         </property>
@@ -1969,10 +1969,10 @@ QComboBox::down-arrow:on {
         </property>
         <property name="styleSheet">
          <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
         </property>
@@ -2385,19 +2385,19 @@ QComboBox::down-arrow:on {
          </property>
          <property name="styleSheet">
           <string notr="true">QPushButton#pushButton_Run {
-  background-color: #00990C;     /* Background color */
-  color: #FFFFFF;                /* Text color */
+  background-color: #00990C;     /* 背景色 */
+  color: #FFFFFF;                /* 文本颜色 */
   border-style: solid;           
   border-width: 2px;
   border-color: #005F77;
-  border-radius: 6px;           /* Border radius */
-  padding: 6px;                  /* Inner padding, prevent content from touching edges */
+  border-radius: 6px;           /* 圆角半径 */
+  padding: 6px;                  /* 内边距，让内容不贴边 */
 }
 QPushButton#pushButton_Run:hover {
-  background-color: #FF7A99;     /* Hover effect */
+  background-color: #FF7A99;     /* 悬停效果 */
 }
 QPushButton#pushButton_Run:pressed {
-  background-color: #005F77;     /* Press effect */
+  background-color: #005F77;     /* 按下效果 */
 }</string>
          </property>
          <property name="text">
@@ -2467,7 +2467,7 @@ QPushButton#pushButton_Run:pressed {
           <bool>false</bool>
          </property>
          <property name="value">
-          <number>0</number>
+          <number>100</number>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -2547,10 +2547,10 @@ QPushButton#pushButton_Run:pressed {
             </property>
             <property name="styleSheet">
              <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* Green border */
-    border-radius: 6px;          /* Border radius */
-    padding: 2px 6px;            /* Inner padding, prevent text from touching edges */
-    background-color: #F0F0F0;   /* Background color */
+    border: 1px solid #4CAF50;   /* 绿色边框 */
+    border-radius: 6px;          /* 圆角半径 */
+    padding: 2px 6px;            /* 内边距，让文字不贴边 */
+    background-color: #F0F0F0;   /* 背景颜色 */
 }
 </string>
             </property>
@@ -2569,28 +2569,6 @@ QPushButton#pushButton_Run:pressed {
      </layout>
     </widget>
    </widget>
-  </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>Toolbar</string>
-   </property>
-   <property name="movable">
-    <bool>true</bool>
-   </property>
-   <property name="floatable">
-    <bool>true</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionRun_Analysis"/>
-   <addaction name="actionOpen_File"/>
-   <addaction name="actionSave_Results"/>
-   <addaction name="actionSettings"/>
-   <addaction name="actionHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar_BatteryAnalysis"/>
   <widget class="QMenuBar" name="menuBar">
@@ -2644,13 +2622,12 @@ QPushButton#pushButton_Run:pressed {
      <string>Tools</string>
     </property>
     <addaction name="actionBatteryChartViewer"/>
+    <addaction name="separator"/>
     <addaction name="actionCalculate_Battery"/>
     <addaction name="actionAnalyze_Data"/>
     <addaction name="actionGenerate_Report"/>
-    <addaction name="separator"/>
     <addaction name="actionBatch_Processing"/>
     <addaction name="separator"/>
-    <addaction name="menuTheme"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -2666,16 +2643,6 @@ QPushButton#pushButton_Run:pressed {
    <addaction name="menuView"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
-  </widget>
-  <widget class="QMenu" name="menuTheme">
-   <property name="title">
-    <string>Theme</string>
-   </property>
-   <addaction name="actionSystem_Default"/>
-   <addaction name="actionWindows_11"/>
-   <addaction name="actionWindows_Vista"/>
-   <addaction name="actionFusion"/>
-   <addaction name="actionDark_Theme"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -2738,57 +2705,11 @@ QPushButton#pushButton_Run:pressed {
    </property>
   </action>
   <action name="actionShow_Toolbar">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Show Toolbar</string>
    </property>
   </action>
-  <action name="actionRun_Analysis">
-   <property name="text">
-    <string>Run Analysis</string>
-   </property>
-   <property name="iconText">
-    <string>Run</string>
-   </property>
-  </action>
-  <action name="actionOpen_File">
-   <property name="text">
-    <string>Open File</string>
-   </property>
-   <property name="iconText">
-    <string>Open</string>
-   </property>
-  </action>
-  <action name="actionSave_Results">
-   <property name="text">
-    <string>Save Results</string>
-   </property>
-   <property name="iconText">
-    <string>Save</string>
-   </property>
-  </action>
-  <action name="actionSettings">
-   <property name="text">
-    <string>Settings</string>
-   </property>
-  </action>
-  <action name="actionHelp">
-   <property name="text">
-    <string>Help</string>
-   </property>
-  </action>
   <action name="actionShow_Statusbar">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Show Statusbar</string>
    </property>
@@ -2806,31 +2727,6 @@ QPushButton#pushButton_Run:pressed {
   <action name="actionReset_Zoom">
    <property name="text">
     <string>Reset Zoom</string>
-   </property>
-  </action>
-  <action name="actionSystem_Default">
-   <property name="text">
-    <string>System Default</string>
-   </property>
-  </action>
-  <action name="actionWindows_11">
-   <property name="text">
-    <string>Windows 11</string>
-   </property>
-  </action>
-  <action name="actionWindows_Vista">
-   <property name="text">
-    <string>Windows Vista</string>
-   </property>
-  </action>
-  <action name="actionFusion">
-   <property name="text">
-    <string>Fusion</string>
-   </property>
-  </action>
-  <action name="actionDark_Theme">
-   <property name="text">
-    <string>Dark Theme</string>
    </property>
   </action>
   <action name="actionCalculate_Battery">
@@ -2870,9 +2766,6 @@ QPushButton#pushButton_Run:pressed {
   </action>
   <action name="actionBatteryChartViewer">
    <property name="text">
-    <string>BatteryChartViewer</string>
-   </property>
-   <property name="iconText">
     <string>BatteryChartViewer</string>
    </property>
   </action>

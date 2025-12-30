@@ -191,12 +191,12 @@ class Ui_MainWindow(object):
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
 "}\n"
 "\n"
-"/* （可选）下拉展开when用向上三角 */\n"
+"/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_Manufacturer.setEditable(True)
+        self.comboBox_Manufacturer.setEditable(False)
         self.comboBox_Manufacturer.setObjectName("comboBox_Manufacturer")
         self.horizontalLayout_Manufacturer.addWidget(self.comboBox_Manufacturer)
         self.verticalLayout_5.addLayout(self.horizontalLayout_Manufacturer)
@@ -341,12 +341,12 @@ class Ui_MainWindow(object):
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
 "}\n"
 "\n"
-"/* （可选）下拉展开when用向上三角 */\n"
+"/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_BatteryType.setEditable(True)
+        self.comboBox_BatteryType.setEditable(False)
         self.comboBox_BatteryType.setObjectName("comboBox_BatteryType")
         self.horizontalLayout_BatteryType.addWidget(self.comboBox_BatteryType)
         self.verticalLayout_7.addLayout(self.horizontalLayout_BatteryType)
@@ -407,12 +407,12 @@ class Ui_MainWindow(object):
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
 "}\n"
 "\n"
-"/* （可选）下拉展开when用向上三角 */\n"
+"/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_ConstructionMethod.setEditable(True)
+        self.comboBox_ConstructionMethod.setEditable(False)
         self.comboBox_ConstructionMethod.setObjectName("comboBox_ConstructionMethod")
         self.horizontalLayout_ConstructionMethod.addWidget(self.comboBox_ConstructionMethod)
         self.verticalLayout_7.addLayout(self.horizontalLayout_ConstructionMethod)
@@ -479,12 +479,12 @@ class Ui_MainWindow(object):
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
 "}\n"
 "\n"
-"/* （可选）下拉展开when用向上三角 */\n"
+"/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_Specification_Method.setEditable(True)
+        self.comboBox_Specification_Method.setEditable(False)
         self.comboBox_Specification_Method.setObjectName("comboBox_Specification_Method")
         self.verticalLayout_4.addWidget(self.comboBox_Specification_Method)
         self.comboBox_Specification_Type = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_4)
@@ -528,12 +528,12 @@ class Ui_MainWindow(object):
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
 "}\n"
 "\n"
-"/* （可选）下拉展开when用向上三角 */\n"
+"/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_Specification_Type.setEditable(True)
+        self.comboBox_Specification_Type.setEditable(False)
         self.comboBox_Specification_Type.setInsertPolicy(QtWidgets.QComboBox.InsertPolicy.InsertAtBottom)
         self.comboBox_Specification_Type.setObjectName("comboBox_Specification_Type")
         self.verticalLayout_4.addWidget(self.comboBox_Specification_Type)
@@ -788,12 +788,12 @@ class Ui_MainWindow(object):
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
 "}\n"
 "\n"
-"/* （可选）下拉展开when用向上三角 */\n"
+"/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_TestedBy.setEditable(True)
+        self.comboBox_TestedBy.setEditable(False)
         self.comboBox_TestedBy.setObjectName("comboBox_TestedBy")
         self.horizontalLayout_TestedBy.addWidget(self.comboBox_TestedBy)
         self.horizontalLayoutWidget_9 = QtWidgets.QWidget(parent=self.groupBox_TestConfig)
@@ -859,7 +859,7 @@ class Ui_MainWindow(object):
 "    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
 "}\n"
 "\n"
-"/* （可选）下拉展开when用向上三角 */\n"
+"/* （可选）下拉展开时用向上三角 */\n"
 "QComboBox::down-arrow:on {\n"
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
@@ -1164,7 +1164,7 @@ class Ui_MainWindow(object):
         self.progressBar.setGeometry(QtCore.QRect(5, 5, 201, 25))
         self.progressBar.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.progressBar.setAutoFillBackground(False)
-        self.progressBar.setProperty("value", 0)
+        self.progressBar.setProperty("value", 100)
         self.progressBar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setObjectName("progressBar")
         self.verticalLayout_RunAndVersion.addWidget(self.frame_6)
@@ -1211,11 +1211,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_RunAndVersion.setStretch(2, 1)
         self.verticalLayout_RunAndVersion.setStretch(4, 1)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.toolBar = QtWidgets.QToolBar(parent=MainWindow)
-        self.toolBar.setMovable(True)
-        self.toolBar.setFloatable(True)
-        self.toolBar.setObjectName("toolBar")
-        MainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.toolBar)
         self.statusBar_BatteryAnalysis = QtWidgets.QStatusBar(parent=MainWindow)
         self.statusBar_BatteryAnalysis.setObjectName("statusBar_BatteryAnalysis")
         MainWindow.setStatusBar(self.statusBar_BatteryAnalysis)
@@ -1233,8 +1228,6 @@ class Ui_MainWindow(object):
         self.menuHelp = QtWidgets.QMenu(parent=self.menuBar)
         self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menuBar)
-        self.menuTheme = QtWidgets.QMenu(parent=MainWindow)
-        self.menuTheme.setObjectName("menuTheme")
         self.actionNew = QtGui.QAction(parent=MainWindow)
         self.actionNew.setObjectName("actionNew")
         self.actionOpen = QtGui.QAction(parent=MainWindow)
@@ -1260,22 +1253,8 @@ class Ui_MainWindow(object):
         self.actionPreferences = QtGui.QAction(parent=MainWindow)
         self.actionPreferences.setObjectName("actionPreferences")
         self.actionShow_Toolbar = QtGui.QAction(parent=MainWindow)
-        self.actionShow_Toolbar.setCheckable(True)
-        self.actionShow_Toolbar.setChecked(True)
         self.actionShow_Toolbar.setObjectName("actionShow_Toolbar")
-        self.actionRun_Analysis = QtGui.QAction(parent=MainWindow)
-        self.actionRun_Analysis.setObjectName("actionRun_Analysis")
-        self.actionOpen_File = QtGui.QAction(parent=MainWindow)
-        self.actionOpen_File.setObjectName("actionOpen_File")
-        self.actionSave_Results = QtGui.QAction(parent=MainWindow)
-        self.actionSave_Results.setObjectName("actionSave_Results")
-        self.actionSettings = QtGui.QAction(parent=MainWindow)
-        self.actionSettings.setObjectName("actionSettings")
-        self.actionHelp = QtGui.QAction(parent=MainWindow)
-        self.actionHelp.setObjectName("actionHelp")
         self.actionShow_Statusbar = QtGui.QAction(parent=MainWindow)
-        self.actionShow_Statusbar.setCheckable(True)
-        self.actionShow_Statusbar.setChecked(True)
         self.actionShow_Statusbar.setObjectName("actionShow_Statusbar")
         self.actionZoom_In = QtGui.QAction(parent=MainWindow)
         self.actionZoom_In.setObjectName("actionZoom_In")
@@ -1283,16 +1262,6 @@ class Ui_MainWindow(object):
         self.actionZoom_Out.setObjectName("actionZoom_Out")
         self.actionReset_Zoom = QtGui.QAction(parent=MainWindow)
         self.actionReset_Zoom.setObjectName("actionReset_Zoom")
-        self.actionSystem_Default = QtGui.QAction(parent=MainWindow)
-        self.actionSystem_Default.setObjectName("actionSystem_Default")
-        self.actionWindows_11 = QtGui.QAction(parent=MainWindow)
-        self.actionWindows_11.setObjectName("actionWindows_11")
-        self.actionWindows_Vista = QtGui.QAction(parent=MainWindow)
-        self.actionWindows_Vista.setObjectName("actionWindows_Vista")
-        self.actionFusion = QtGui.QAction(parent=MainWindow)
-        self.actionFusion.setObjectName("actionFusion")
-        self.actionDark_Theme = QtGui.QAction(parent=MainWindow)
-        self.actionDark_Theme.setObjectName("actionDark_Theme")
         self.actionCalculate_Battery = QtGui.QAction(parent=MainWindow)
         self.actionCalculate_Battery.setObjectName("actionCalculate_Battery")
         self.actionAnalyze_Data = QtGui.QAction(parent=MainWindow)
@@ -1309,11 +1278,6 @@ class Ui_MainWindow(object):
         self.actionAbout.setObjectName("actionAbout")
         self.actionBatteryChartViewer = QtGui.QAction(parent=MainWindow)
         self.actionBatteryChartViewer.setObjectName("actionBatteryChartViewer")
-        self.toolBar.addAction(self.actionRun_Analysis)
-        self.toolBar.addAction(self.actionOpen_File)
-        self.toolBar.addAction(self.actionSave_Results)
-        self.toolBar.addAction(self.actionSettings)
-        self.toolBar.addAction(self.actionHelp)
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -1337,13 +1301,12 @@ class Ui_MainWindow(object):
         self.menuView.addAction(self.actionZoom_Out)
         self.menuView.addAction(self.actionReset_Zoom)
         self.menuTools.addAction(self.actionBatteryChartViewer)
+        self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionCalculate_Battery)
         self.menuTools.addAction(self.actionAnalyze_Data)
         self.menuTools.addAction(self.actionGenerate_Report)
-        self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionBatch_Processing)
         self.menuTools.addSeparator()
-        self.menuTools.addAction(self.menuTheme.menuAction())
         self.menuHelp.addAction(self.actionUser_Mannual)
         self.menuHelp.addAction(self.actionOnline_Help)
         self.menuHelp.addSeparator()
@@ -1353,11 +1316,6 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuView.menuAction())
         self.menuBar.addAction(self.menuTools.menuAction())
         self.menuBar.addAction(self.menuHelp.menuAction())
-        self.menuTheme.addAction(self.actionSystem_Default)
-        self.menuTheme.addAction(self.actionWindows_11)
-        self.menuTheme.addAction(self.actionWindows_Vista)
-        self.menuTheme.addAction(self.actionFusion)
-        self.menuTheme.addAction(self.actionDark_Theme)
 
         self.retranslateUi(MainWindow)
         self.comboBox_BatteryType.setCurrentIndex(-1)
@@ -1394,13 +1352,11 @@ class Ui_MainWindow(object):
         self.tableWidget_TestInformation.setSortingEnabled(__sortingEnabled)
         self.pushButton_Run.setText(_translate("MainWindow", "Run"))
         self.label_Version.setText(_translate("MainWindow", "Report Version"))
-        self.toolBar.setWindowTitle(_translate("MainWindow", "工具栏"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.menuView.setTitle(_translate("MainWindow", "View"))
         self.menuTools.setTitle(_translate("MainWindow", "Tools"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
-        self.menuTheme.setTitle(_translate("MainWindow", "Theme"))
         self.actionNew.setText(_translate("MainWindow", "New"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
@@ -1414,23 +1370,10 @@ class Ui_MainWindow(object):
         self.actionPaste.setText(_translate("MainWindow", "Paste"))
         self.actionPreferences.setText(_translate("MainWindow", "Preferences"))
         self.actionShow_Toolbar.setText(_translate("MainWindow", "Show Toolbar"))
-        self.actionRun_Analysis.setText(_translate("MainWindow", "Run Analysis"))
-        self.actionRun_Analysis.setIconText(_translate("MainWindow", "Run"))
-        self.actionOpen_File.setText(_translate("MainWindow", "Open File"))
-        self.actionOpen_File.setIconText(_translate("MainWindow", "Open"))
-        self.actionSave_Results.setText(_translate("MainWindow", "Save Results"))
-        self.actionSave_Results.setIconText(_translate("MainWindow", "Save"))
-        self.actionSettings.setText(_translate("MainWindow", "Settings"))
-        self.actionHelp.setText(_translate("MainWindow", "Help"))
         self.actionShow_Statusbar.setText(_translate("MainWindow", "Show Statusbar"))
         self.actionZoom_In.setText(_translate("MainWindow", "Zoom In"))
         self.actionZoom_Out.setText(_translate("MainWindow", "Zoom Out"))
         self.actionReset_Zoom.setText(_translate("MainWindow", "Reset Zoom"))
-        self.actionSystem_Default.setText(_translate("MainWindow", "System Default"))
-        self.actionWindows_11.setText(_translate("MainWindow", "Windows 11"))
-        self.actionWindows_Vista.setText(_translate("MainWindow", "Windows Vista"))
-        self.actionFusion.setText(_translate("MainWindow", "Fusion"))
-        self.actionDark_Theme.setText(_translate("MainWindow", "Dark Theme"))
         self.actionCalculate_Battery.setText(_translate("MainWindow", "Calculate Battery"))
         self.actionAnalyze_Data.setText(_translate("MainWindow", "Analyze Data"))
         self.actionGenerate_Report.setText(_translate("MainWindow", "Generate Report"))
@@ -1439,4 +1382,3 @@ class Ui_MainWindow(object):
         self.actionOnline_Help.setText(_translate("MainWindow", "Online Help"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionBatteryChartViewer.setText(_translate("MainWindow", "BatteryChartViewer"))
-        self.actionBatteryChartViewer.setIconText(_translate("MainWindow", "BatteryChartViewer"))
