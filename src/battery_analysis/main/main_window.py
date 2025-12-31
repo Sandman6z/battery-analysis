@@ -281,8 +281,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         listPulseCurrent = self.get_config("BatteryConfig/PulseCurrent")
         listCutoffVoltage = self.get_config("BatteryConfig/CutoffVoltage")
-        self.listCurrentLevel = [int(listPulseCurrent[c].strip())
-                                 for c in range(len(listPulseCurrent))]
+        
+        # 处理可能包含浮点数的电流值
+        try:
+            self.listCurrentLevel = [int(float(listPulseCurrent[c].strip()))
+                                     for c in range(len(listPulseCurrent))]
+        except (ValueError, TypeError):
+            # 如果转换失败，使用默认值
+            self.listCurrentLevel = [0] * len(listPulseCurrent)
+            
         self.listVoltageLevel = [
             float(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
 

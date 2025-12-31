@@ -415,7 +415,12 @@ class BatteryChartViewer:
                     and self.config.has_option("BatteryConfig", "PulseCurrent")):
                 listPulseCurrentLevel = self.config.get(
                     "BatteryConfig", "PulseCurrent").split(",")
-                result = [int(item.strip()) for item in listPulseCurrentLevel]
+                # 处理可能包含浮点数的电流值
+                try:
+                    result = [int(float(item.strip())) for item in listPulseCurrentLevel]
+                except (ValueError, TypeError):
+                    # 如果转换失败，使用默认值
+                    result = [10, 20, 50]
                 logging.info("使用配置的脉冲电流级别: %s", result)
                 return result
             else:
