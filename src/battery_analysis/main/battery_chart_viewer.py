@@ -1224,7 +1224,7 @@ class BatteryChartViewer:
         try:
             if hasattr(fig.canvas.manager, 'window'):
                 fig.canvas.manager.window.setWindowTitle(
-                    "Filtered Load Voltage over Charge")
+                    f"Filtered {self.strPltName}")
         except Exception as e:
             logging.warning("无法设置图表窗口标题: %s", str(e))
 
@@ -1533,7 +1533,7 @@ class BatteryChartViewer:
                     if is_filtered['value']:
                         # 切换到过滤模式
                         fig.canvas.manager.window.setWindowTitle(
-                            "Filtered Load Voltage over Charge")
+                            f"Filtered {self.strPltName}")
                         ax.set_title(
                             f"Filtered {self.strPltName}", fontdict=title_fontdict)
                         ax.set_ylabel(
@@ -1554,7 +1554,7 @@ class BatteryChartViewer:
                     else:
                         # 切换到未过滤模式
                         fig.canvas.manager.window.setWindowTitle(
-                            "Unfiltered Load Voltage over Charge")
+                            f"Unfiltered {self.strPltName}")
                         ax.set_title(
                             f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
                         ax.set_ylabel(

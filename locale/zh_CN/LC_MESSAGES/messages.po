@@ -17,6 +17,9 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 # Main Window
+msgid "window_title"
+msgstr "电池分析器 v{version}"
+
 msgid "battery-analyzer"
 msgstr "电池分析器"
 

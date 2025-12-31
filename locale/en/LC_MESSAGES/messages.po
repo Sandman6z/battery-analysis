@@ -17,6 +17,9 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # Main Window
+msgid "window_title"
+msgstr "Battery Analyzer v{version}"
+
 msgid "battery-analyzer"
 msgstr "Battery Analyzer"
 
