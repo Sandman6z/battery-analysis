@@ -282,16 +282,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         listPulseCurrent = self.get_config("BatteryConfig/PulseCurrent")
         listCutoffVoltage = self.get_config("BatteryConfig/CutoffVoltage")
         
+        # 使用新的配置解析工具
+        from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
+        
         # 处理可能包含浮点数的电流值
         try:
-            self.listCurrentLevel = [int(float(listPulseCurrent[c].strip()))
+            self.listCurrentLevel = [safe_int_convert(listPulseCurrent[c].strip())
                                      for c in range(len(listPulseCurrent))]
         except (ValueError, TypeError):
             # 如果转换失败，使用默认值
             self.listCurrentLevel = [0] * len(listPulseCurrent)
             
         self.listVoltageLevel = [
-            float(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
+            safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
 
     def _handle_environment_adaptation(self):
         """

@@ -35,9 +35,10 @@ import csv
 import os
 import matplotlib
 
-# 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）
-# 必须在导入pyplot之前设置后端
-matplotlib.use('QtAgg')
+# 使用新的配置解析工具
+from battery_analysis.utils.config_parser import parse_pulse_current_config
+
+
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
@@ -45,6 +46,10 @@ from matplotlib.widgets import CheckButtons
 from matplotlib.patches import Rectangle, FancyBboxPatch
 from matplotlib.colors import to_rgba
 from battery_analysis.utils.config_utils import find_config_file
+
+# 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）
+# 必须在导入pyplot之前设置后端
+matplotlib.use('QtAgg')
 
 # 配置matplotlib支持中文显示
 matplotlib.rcParams['font.sans-serif'] = ['SimHei',
@@ -413,14 +418,8 @@ class BatteryChartViewer:
         try:
             if (self.config.has_section("BatteryConfig")
                     and self.config.has_option("BatteryConfig", "PulseCurrent")):
-                listPulseCurrentLevel = self.config.get(
-                    "BatteryConfig", "PulseCurrent").split(",")
-                # 处理可能包含浮点数的电流值
-                try:
-                    result = [int(float(item.strip())) for item in listPulseCurrentLevel]
-                except (ValueError, TypeError):
-                    # 如果转换失败，使用默认值
-                    result = [10, 20, 50]
+                
+                result = parse_pulse_current_config(self.config)
                 logging.info("使用配置的脉冲电流级别: %s", result)
                 return result
             else:
