@@ -17,7 +17,8 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                            QCheckBox, QSpinBox, QGroupBox, QTextEdit, QFileDialog,
                            QMessageBox, QApplication)
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QThread, pyqtSlot
-from PyQt6.QtGui import QFont, QIcon, QKeySequence, QAction as QGuiAction
+from PyQt6.QtGui import QFont, QIcon, QKeySequence, QAction
+from PyQt6.QtGui import QAction as QGuiAction
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,7 +26,23 @@ import numpy as np
 from ..ui.modern_theme import modern_theme, ModernColorScheme
 from ..ui.modern_chart_widget import ModernChartWidget
 from ..ui.styles import style_manager, create_styled_button, create_styled_groupbox
-from .battery_chart_viewer import BatteryChartViewer
+
+# 使用绝对导入而不是相对导入
+import sys
+from pathlib import Path
+if __name__ == "__main__":
+    # 如果是直接运行此模块，使用绝对路径
+    current_dir = Path(__file__).parent
+    src_dir = current_dir.parent.parent
+    if str(src_dir) not in sys.path:
+        sys.path.insert(0, str(src_dir))
+else:
+    # 如果是作为模块导入，使用模块路径
+    project_root = Path(__file__).parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
 
 
 class ModernBatteryViewer(QMainWindow):
@@ -62,6 +79,15 @@ class ModernBatteryViewer(QMainWindow):
         # 如果提供了数据路径，自动加载
         if self.data_path and os.path.exists(self.data_path):
             QTimer.singleShot(100, lambda: self.load_data(self.data_path))
+            
+        # 记录初始化完成
+        logging.info("ModernBatteryViewer初始化完成")
+    
+    def _apply_modern_styles(self):
+        """应用现代化样式"""
+        # 这个方法现在只用于保持接口一致性
+        # 实际样式由QSS文件提供，不需要额外的Python代码
+        pass
     
     def _setup_ui(self):
         """设置用户界面"""
@@ -155,34 +181,7 @@ class ModernBatteryViewer(QMainWindow):
         
         # 加载按钮
         self.load_button = QPushButton("📂 加载数据")
-        self.load_button.setStyleSheet(f"""
-            QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {self.colors.SUCCESS},
-                    stop:1 #27ae60);
-                color: white;
-                border: 2px solid {self.colors.SUCCESS};
-                border-radius: 8px;
-                padding: 12px 16px;
-                font-weight: bold;
-                font-size: 11px;
-                min-height: 16px;
-                text-align: center;
-            }}
-            QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #27ae60,
-                    stop:1 #2ecc71);
-                border-color: #2ecc71;
-                transform: translateY(-1px);
-            }}
-            QPushButton:pressed {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #27ae60,
-                    stop:1 {self.colors.SUCCESS});
-                transform: translateY(0px);
-            }}
-        """)
+        self.load_button.setProperty("button-type", "load")
         self.load_button.setMinimumHeight(40)
         self.load_button.clicked.connect(self.load_data)
         
@@ -292,34 +291,7 @@ class ModernBatteryViewer(QMainWindow):
         
         # 应用按钮
         self.apply_button = QPushButton("⚡ 应用处理")
-        self.apply_button.setStyleSheet(f"""
-            QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {self.colors.WARNING},
-                    stop:1 #e67e22);
-                color: white;
-                border: 2px solid {self.colors.WARNING};
-                border-radius: 8px;
-                padding: 10px 14px;
-                font-weight: bold;
-                font-size: 10px;
-                min-height: 16px;
-                text-align: center;
-            }}
-            QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #e67e22,
-                    stop:1 #f39c12);
-                border-color: #f39c12;
-                transform: translateY(-1px);
-            }}
-            QPushButton:pressed {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #e67e22,
-                    stop:1 {self.colors.WARNING});
-                transform: translateY(0px);
-            }}
-        """)
+        self.apply_button.setProperty("button-type", "apply")
         self.apply_button.setMinimumHeight(36)
         self.apply_button.clicked.connect(self._apply_processing)
         
@@ -339,20 +311,13 @@ class ModernBatteryViewer(QMainWindow):
         
         # 数据状态
         self.data_status_label = QLabel("未加载数据")
-        self.data_status_label.setStyleSheet(f"color: {self.colors.WARNING}; font-weight: bold;")
+        self.data_status_label.setObjectName("data-status-warning")
         
         # 详细信息
         self.data_details_text = QTextEdit()
         self.data_details_text.setMaximumHeight(150)
         self.data_details_text.setReadOnly(True)
-        self.data_details_text.setStyleSheet(f"""
-            QTextEdit {{
-                background-color: {self.colors.SURFACE};
-                border: 1px solid {self.colors.SURFACE_VARIANT};
-                border-radius: 4px;
-                padding: 5px;
-            }}
-        """)
+        self.data_details_text.setObjectName("data-details-text")
         
         # 统计信息
         self.stats_label = QLabel("统计信息: 暂无")
@@ -374,44 +339,7 @@ class ModernBatteryViewer(QMainWindow):
         
         # 标签页控件
         self.tabs = QTabWidget()
-        self.tabs.setStyleSheet(f"""
-            QTabWidget::pane {{
-                border: 2px solid {self.colors.PRIMARY_LIGHT};
-                border-radius: 12px;
-                background-color: {self.colors.SURFACE};
-                margin: 2px;
-            }}
-            QTabBar::tab {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {self.colors.SURFACE_VARIANT},
-                    stop:1 {self.colors.SURFACE});
-                color: {self.colors.ON_SURFACE};
-                padding: 12px 20px;
-                margin-right: 3px;
-                margin-top: 3px;
-                border-top-left-radius: 10px;
-                border-top-right-radius: 10px;
-                border: 1px solid {self.colors.SURFACE_VARIANT};
-                border-bottom: none;
-                font-weight: bold;
-                font-size: 11px;
-                min-width: 100px;
-            }}
-            QTabBar::tab:selected {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {self.colors.PRIMARY},
-                    stop:1 {self.colors.PRIMARY_LIGHT});
-                color: white;
-                border-color: {self.colors.PRIMARY};
-                border-bottom: 2px solid {self.colors.PRIMARY};
-            }}
-            QTabBar::tab:hover:!selected {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {self.colors.PRIMARY_LIGHT},
-                    stop:1 {self.colors.SURFACE_VARIANT});
-                color: {self.colors.ON_PRIMARY};
-            }}
-        """)
+        self.tabs.setObjectName("main-tabs")
         
         # 图表标签页
         self.chart_widget = ModernChartWidget()
@@ -442,34 +370,7 @@ class ModernBatteryViewer(QMainWindow):
         self.analysis_type_combo.addItems(["趋势分析", "相关性分析", "异常检测", "统计摘要"])
         
         self.run_analysis_button = QPushButton("🔍 运行分析")
-        self.run_analysis_button.setStyleSheet(f"""
-            QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {self.colors.PRIMARY},
-                    stop:1 {self.colors.PRIMARY_LIGHT});
-                color: white;
-                border: 2px solid {self.colors.PRIMARY};
-                border-radius: 8px;
-                padding: 10px 16px;
-                font-weight: bold;
-                font-size: 10px;
-                min-height: 16px;
-                text-align: center;
-            }}
-            QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {self.colors.PRIMARY_LIGHT},
-                    stop:1 #3498db);
-                border-color: #3498db;
-                transform: translateY(-1px);
-            }}
-            QPushButton:pressed {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #3498db,
-                    stop:1 {self.colors.PRIMARY});
-                transform: translateY(0px);
-            }}
-        """)
+        self.run_analysis_button.setProperty("button-type", "analyze")
         self.run_analysis_button.setMinimumHeight(36)
         self.run_analysis_button.clicked.connect(self._run_analysis)
         
@@ -563,26 +464,7 @@ class ModernBatteryViewer(QMainWindow):
         main_toolbar.addAction(export_tool_action)
         
         # 设置工具栏样式
-        main_toolbar.setStyleSheet(f"""
-            QToolBar {{
-                background-color: {self.colors.SURFACE};
-                border-bottom: 1px solid {self.colors.SURFACE_VARIANT};
-                spacing: 5px;
-                padding: 5px;
-            }}
-            QToolBar QToolButton {{
-                background-color: {self.colors.SURFACE};
-                border: 1px solid {self.colors.SURFACE_VARIANT};
-                border-radius: 4px;
-                padding: 5px;
-                min-width: 30px;
-                min-height: 30px;
-            }}
-            QToolBar QToolButton:hover {{
-                background-color: {self.colors.PRIMARY_LIGHT};
-                color: white;
-            }}
-        """)
+        main_toolbar.setObjectName("main_toolbar")
     
     def _setup_statusbar(self):
         """设置状态栏"""
@@ -591,7 +473,7 @@ class ModernBatteryViewer(QMainWindow):
         
         # 添加状态指示器
         self.data_status_indicator = QLabel("未加载数据")
-        self.data_status_indicator.setStyleSheet(f"color: {self.colors.WARNING};")
+        self.data_status_indicator.setObjectName("data-status-warning")
         self.statusBar().addPermanentWidget(self.data_status_indicator)
         
         # 添加进度条（隐藏状态）
@@ -604,55 +486,7 @@ class ModernBatteryViewer(QMainWindow):
         if self.chart_widget:
             self.chart_widget.data_changed.connect(self._on_chart_data_changed)
     
-    def _apply_modern_styles(self):
-        """应用现代化样式"""
-        
-        self.setStyleSheet(f"""
-            QMainWindow {{
-                background-color: {self.colors.BACKGROUND};
-                color: {self.colors.ON_SURFACE};
-                font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
-            }}
-            
-            QMenuBar {{
-                background-color: {self.colors.SURFACE};
-                border-bottom: 1px solid {self.colors.SURFACE_VARIANT};
-                padding: 2px;
-            }}
-            
-            QMenuBar::item {{
-                background-color: transparent;
-                padding: 6px 12px;
-                border-radius: 4px;
-            }}
-            
-            QMenuBar::item:selected {{
-                background-color: {self.colors.PRIMARY_LIGHT};
-                color: white;
-            }}
-            
-            QMenu {{
-                background-color: {self.colors.SURFACE};
-                border: 1px solid {self.colors.SURFACE_VARIANT};
-                border-radius: 4px;
-                padding: 5px;
-            }}
-            
-            QMenu::item {{
-                padding: 6px 20px;
-                border-radius: 2px;
-            }}
-            
-            QMenu::item:selected {{
-                background-color: {self.colors.PRIMARY_LIGHT};
-                color: white;
-            }}
-            
-            QStatusBar {{
-                background-color: {self.colors.SURFACE};
-                border-top: 1px solid {self.colors.SURFACE_VARIANT};
-            }}
-        """)
+
     
     # 槽函数实现
     

@@ -25,7 +25,14 @@ class StyleManager(QObject):
         super().__init__(parent)
         self._current_theme = "modern"
         self._style_cache = {}
-        self._font_database = QFontDatabase()
+        # 注意：在某些情况下，QFontDatabase 可能不可用
+        # 这不会影响样式管理功能
+        try:
+            from PyQt6.QtGui import QFontDatabase
+            self._font_database = QFontDatabase()
+        except Exception as e:
+            logging.warning(f"无法初始化QFontDatabase: {e}")
+            self._font_database = None
         
         # 样式文件路径
         self._style_dir = Path(__file__).parent
@@ -35,7 +42,8 @@ class StyleManager(QObject):
         """加载可用的样式文件"""
         
         style_files = {
-            "modern": "modern_viewer.qss",
+            "battery_analyzer": "battery_analyzer.qss",  # 统一电池分析器样式
+            "modern": "battery_analyzer.qss",  # 使用统一样式
             "dark": "dark_theme.qss",
             "light": "light_theme.qss",
             "high_contrast": "high_contrast.qss"
@@ -68,6 +76,23 @@ class StyleManager(QObject):
         
         if theme is None:
             theme = self._current_theme
+        
+        # 特殊处理battery_analyzer主题 - 优先使用新的统一样式文件
+        if theme == "battery_analyzer":
+            unified_style_path = self._style_dir / "battery_analyzer.qss"
+            if unified_style_path.exists():
+                try:
+                    with open(unified_style_path, 'r', encoding='utf-8') as f:
+                        unified_style = f.read()
+                        app.setStyleSheet(unified_style)
+                        self._current_theme = theme
+                        self.theme_changed.emit(theme)
+                        logging.info("已应用统一电池分析器样式 (通过StyleManager)")
+                        return
+                except Exception as e:
+                    logging.error(f"加载统一样式文件失败: {e}")
+            else:
+                logging.warning(f"未找到统一样式文件: {unified_style_path}")
         
         if theme in self._style_cache:
             app.setStyleSheet(self._style_cache[theme])

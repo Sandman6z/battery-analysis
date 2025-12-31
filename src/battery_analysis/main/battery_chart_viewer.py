@@ -56,35 +56,53 @@ matplotlib.rcParams['font.sans-serif'] = ['SimHei',
                                           'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
 matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
-# 现代化按钮样式配置
+# 现代化按钮样式配置 - 增强版 v4.1
 MODERN_BUTTON_STYLE = {
-    # 按钮状态颜色
-    'active_color': '#2196F3',      # 现代蓝色 - 激活状态
-    'inactive_color': '#FFFFFF',    # 纯白背景 - 未激活状态
-    'hover_color': '#1976D2',       # 深蓝色 - 悬停状态
-    'pressed_color': '#0D47A1',     # 更深蓝色 - 按下状态
+    # 按钮状态颜色 - 更现代的配色方案
+    'active_color': '#4CAF50',       # 现代绿色 - 激活状态
+    'inactive_color': '#FAFAFA',     # 极浅灰白 - 未激活状态
+    'hover_color': '#66BB6A',        # 中等绿色 - 悬停状态
+    'pressed_color': '#2E7D32',      # 深绿色 - 按下状态
     
-    # 文字颜色
-    'active_text_color': '#FFFFFF',  # 激活时白色文字
-    'inactive_text_color': '#424242', # 未激活时深灰文字
+    # 文字颜色 - 增强对比度
+    'active_text_color': '#FFFFFF',   # 激活时白色文字
+    'inactive_text_color': '#424242', # 深灰文字 - 未激活状态
     'hover_text_color': '#FFFFFF',    # 悬停时白色文字
+    'pressed_text_color': '#FFFFFF',  # 按下时白色文字
     
-    # 边框样式
-    'border_color': '#E0E0E0',       # 浅灰边框
-    'border_width': 1,
-    'border_radius': 6,              # 圆角半径
+    # 边框样式 - 现代化边框
+    'border_color': '#E0E0E0',        # 浅灰边框
+    'border_width': 1.5,              # 稍加粗边框
+    'border_radius': 8,               # 更大圆角半径
     
-    # 阴影效果
-    'shadow_color': '0.2',
-    'shadow_offset': (0, 1),
+    # 阴影效果 - 更明显的阴影
+    'shadow_color': '0.15',
+    'shadow_offset': (0, 2),
+    'shadow_blur': 3,
     
-    # 字体样式
-    'font_size': 8,                  # 减小字体以适应按钮
-    'font_weight': 'medium',         # 中等字重
+    # 字体样式 - 现代化字体
+    'font_size': 9,                   # 适中字体大小
+    'font_weight': '600',             # 更粗字重
     
-    # 布局参数
-    'padding': 3,                    # 内部边距
-    'spacing': 1                     # 按钮间距
+    # 布局参数 - 优化间距
+    'padding': 4,                     # 增加内部边距
+    'spacing': 2,                     # 适中间距
+    
+    # 新增：渐变效果
+    'gradient_start': 'rgba(255,255,255,0.9)',   # 渐变开始颜色
+    'gradient_end': 'rgba(250,250,250,0.9)',     # 渐变结束颜色
+    'active_gradient_start': 'rgba(76,175,80,0.9)', # 激活渐变开始
+    'active_gradient_end': 'rgba(102,187,106,0.9)', # 激活渐变结束
+    
+    # 新增：特殊按钮颜色
+    'success_color': '#4CAF50',       # 成功按钮（绿）
+    'warning_color': '#FF9800',       # 警告按钮（橙）
+    'info_color': '#2196F3',          # 信息按钮（蓝）
+    'danger_color': '#F44336',        # 危险按钮（红）
+    
+    # 新增：状态指示
+    'selected_indicator': '#FFD54F',   # 选中指示器颜色
+    'focus_outline': '#2196F3',       # 焦点轮廓颜色
 }
 
 # 开启Matplotlib的交互模式
@@ -932,15 +950,19 @@ class BatteryChartViewer:
                 details += "3. 文件路径是否包含中文字符或特殊字符\n"
                 details += "4. csv文件是否包含有效的电池测试数据"
 
-            # 创建错误图表
+            # 创建错误图表 - 应用现代化样式
             fig, ax = plt.subplots(figsize=(12, 8))
             
             # 保存当前图表实例引用
             self.current_fig = fig
 
-            # 设置图表标题
-            ax.set_title(title, fontsize=16,
-                         fontweight='bold', color='#d32f2f')
+            # 应用现代化图表样式
+            self._apply_modern_plot_style(fig, ax)
+
+            # 设置现代化标题
+            title_color = MODERN_BUTTON_STYLE['active_color']  # 使用现代绿色作为标题色
+            ax.set_title(title, fontsize=18, fontweight='bold', 
+                        color=title_color, pad=20)
 
             # 隐藏坐标轴
             ax.axis('off')
@@ -961,20 +983,44 @@ class BatteryChartViewer:
             if hasattr(self, 'errorlog') and self.errorlog:
                 full_text += f"\n\n错误详情: {str(self.errorlog)}"
 
-            # 显示错误信息
-            ax.text(0.5, 0.5, full_text, fontsize=12, ha='center', va='center',
-                    wrap=True, linespacing=1.4)
+            # 显示错误信息 - 使用现代化字体和颜色
+            text_color = MODERN_BUTTON_STYLE['inactive_text_color']  # 使用现代深灰文字
+            main_text_color = MODERN_BUTTON_STYLE['active_color']    # 使用现代绿色强调
+            
+            # 主标题文字（使用绿色强调）
+            main_text = f"{main_message}\n\n"
+            ax.text(0.5, 0.75, main_text, fontsize=14, ha='center', va='center',
+                    color=main_text_color, weight='bold', linespacing=1.4)
+            
+            # 检查步骤（使用深灰色）
+            check_text = "检查步骤:\n" + details
+            ax.text(0.5, 0.55, check_text, fontsize=11, ha='center', va='center',
+                    color=text_color, linespacing=1.4)
+            
+            # 解决方案（如果允许文件选择）
+            if allow_file_selection:
+                solution_text = "\n\n解决方案:\n" + "1. 点击菜单栏'File' -> 'Open Data'选择数据目录\n" + \
+                               "2. 或按Ctrl+O键打开文件对话框\n" + "3. 选择包含Info_Image.csv文件的目录"
+                ax.text(0.5, 0.35, solution_text, fontsize=11, ha='center', va='center',
+                        color=MODERN_BUTTON_STYLE['hover_color'], weight='bold', linespacing=1.4)
 
-            # 添加版本信息和时间戳
+            # 显示错误日志信息（如果有）
+            if hasattr(self, 'errorlog') and self.errorlog:
+                error_text = f"\n错误详情: {str(self.errorlog)}"
+                ax.text(0.5, 0.15, error_text, fontsize=10, ha='center', va='center',
+                        color='#d32f2f', style='italic', linespacing=1.3)
+
+            # 添加版本信息和时间戳 - 现代化样式
             import datetime
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            fig.text(0.85, 0.01, f"Battery Analysis Tool v1.0 | {current_time}",
-                     fontsize=8, color='gray')
+            fig.text(0.02, 0.01, f"Battery Analysis Tool v1.0 | {current_time}",
+                     fontsize=9, color='#6c757d', alpha=0.8)
 
-            # 添加边框和样式
+            # 添加现代化边框和样式
             for spine in ax.spines.values():
-                spine.set_color('#ff5722')
-                spine.set_linewidth(1)
+                spine.set_color(MODERN_BUTTON_STYLE['border_color'])
+                spine.set_linewidth(1.5)
+                spine.set_alpha(0.8)
 
             # 添加菜单栏（包括Open功能）
             menu_added = self._add_menu_bar(fig)
@@ -1158,13 +1204,25 @@ class BatteryChartViewer:
             
             # 添加PyQt6菜单栏
             if hasattr(manager.window, 'menuBar'):
+                # 确保窗口有现代样式
+                self._apply_window_modern_style(manager.window)
+                
                 menubar = manager.window.menuBar()
+                
+                # 重新应用菜单栏样式
+                self._apply_menubar_style(menubar)
                 
                 # 添加File菜单
                 file_menu = menubar.addMenu('File')
                 
+                # 为菜单添加现代化样式
+                self._apply_menu_style(file_menu)
+                
                 # 添加Open菜单项
                 open_action = file_menu.addAction('Open')
+                
+                # 为菜单项添加样式
+                open_action.setProperty('menu_action', 'open')
                 
                 def on_open_clicked():
                     logging.info("Open菜单项被点击")
@@ -1177,6 +1235,9 @@ class BatteryChartViewer:
                 
                 # 添加Exit菜单项
                 exit_action = file_menu.addAction('Exit')
+                
+                # 为菜单项添加样式
+                exit_action.setProperty('menu_action', 'exit')
                 
                 def on_exit_clicked():
                     logging.info("Exit菜单项被点击，关闭visualizer窗口")
@@ -1193,8 +1254,14 @@ class BatteryChartViewer:
                 # 添加Help菜单
                 help_menu = menubar.addMenu('Help')
                 
+                # 为菜单添加现代化样式
+                self._apply_menu_style(help_menu)
+                
                 # 添加About菜单项
                 about_action = help_menu.addAction('About')
+                
+                # 为菜单项添加样式
+                about_action.setProperty('menu_action', 'about')
                 
                 def on_about_clicked():
                     logging.info("About菜单项被点击")
@@ -1394,32 +1461,61 @@ class BatteryChartViewer:
             return None
     
     def _update_button_style(self, state, pressed=False, hover=False):
-        """更新按钮样式"""
+        """更新按钮样式 - 增强版 v4.1"""
         try:
+            # 更新边框样式 - 现代化边框
+            state['bg'].set_linewidth(MODERN_BUTTON_STYLE['border_width'])
+            state['bg'].set_edgecolor(MODERN_BUTTON_STYLE['border_color'])
+            
+            # 更新圆角半径 - 简化处理
+            try:
+                if hasattr(state['bg'], 'set_boxstyle'):
+                    state['bg'].set_boxstyle(f"round,pad={MODERN_BUTTON_STYLE['padding']/100}")
+            except Exception as box_error:
+                # 如果boxstyle更新失败，不影响其他样式更新
+                logging.debug(f"boxstyle更新失败: {box_error}")
+                pass
+            
             if pressed:
-                # 按下状态
+                # 按下状态 - 深色强调
                 state['bg'].set_facecolor(MODERN_BUTTON_STYLE['pressed_color'])
-                state['text'].set_color(MODERN_BUTTON_STYLE['active_text_color'])
+                state['text'].set_color(MODERN_BUTTON_STYLE['pressed_text_color'])
                 state['text'].set_weight(MODERN_BUTTON_STYLE['font_weight'])
+                # 按下时增强边框
+                state['bg'].set_linewidth(MODERN_BUTTON_STYLE['border_width'] + 0.5)
+                state['bg'].set_edgecolor(MODERN_BUTTON_STYLE['pressed_color'])
+                
             elif hover:
-                # 悬停状态
+                # 悬停状态 - 亮度提升
                 if state['active']:
                     state['bg'].set_facecolor(MODERN_BUTTON_STYLE['hover_color'])
                     state['text'].set_color(MODERN_BUTTON_STYLE['hover_text_color'])
                 else:
-                    state['bg'].set_facecolor(MODERN_BUTTON_STYLE['hover_color'])
+                    state['bg'].set_facecolor('#F5F5F5')  # 悬停时轻微提亮
                     state['text'].set_color(MODERN_BUTTON_STYLE['inactive_text_color'])
                 state['text'].set_weight(MODERN_BUTTON_STYLE['font_weight'])
+                # 悬停时边框颜色变亮
+                state['bg'].set_edgecolor('#BDBDBD')
+                
             elif state['active']:
-                # 激活状态
+                # 激活状态 - 绿色主题
                 state['bg'].set_facecolor(MODERN_BUTTON_STYLE['active_color'])
                 state['text'].set_color(MODERN_BUTTON_STYLE['active_text_color'])
                 state['text'].set_weight(MODERN_BUTTON_STYLE['font_weight'])
+                # 激活时边框颜色与背景匹配
+                state['bg'].set_edgecolor(MODERN_BUTTON_STYLE['active_color'])
+                
             else:
-                # 未激活状态
+                # 未激活状态 - 简洁现代
                 state['bg'].set_facecolor(MODERN_BUTTON_STYLE['inactive_color'])
                 state['text'].set_color(MODERN_BUTTON_STYLE['inactive_text_color'])
                 state['text'].set_weight('normal')
+                # 默认边框
+                state['bg'].set_edgecolor(MODERN_BUTTON_STYLE['border_color'])
+                
+            # 增强透明度 - 更现代的半透明效果
+            state['bg'].set_alpha(0.95)
+            
         except Exception as e:
             logging.error("更新按钮样式时出错: %s", e)
     
@@ -1428,6 +1524,129 @@ class BatteryChartViewer:
         import threading
         timer = threading.Timer(delay, lambda: self._update_button_style(state))
         timer.start()
+    
+    def _apply_modern_plot_style(self, fig, ax):
+        """为图表应用现代化样式"""
+        try:
+            # 设置现代化背景颜色
+            fig.patch.set_facecolor('#f8f9fa')  # 现代浅灰色背景
+            ax.set_facecolor('#ffffff')  # 白色图表区域
+            
+            # 设置现代化标题样式
+            if hasattr(ax, 'title'):
+                ax.title.set_fontsize(18)
+                ax.title.set_fontweight('bold')
+                ax.title.set_color(MODERN_BUTTON_STYLE['active_color'])
+            
+            # 设置现代化坐标轴样式
+            ax.tick_params(colors='#6c757d', labelsize=10)
+            ax.spines['top'].set_color('#e9ecef')
+            ax.spines['right'].set_color('#e9ecef')
+            ax.spines['bottom'].set_color('#e9ecef')
+            ax.spines['left'].set_color('#e9ecef')
+            
+            # 设置网格样式（如果需要）
+            ax.grid(True, alpha=0.3, color='#e9ecef', linestyle='-', linewidth=0.5)
+            
+            logging.info("已应用现代化图表样式")
+            
+        except Exception as e:
+            logging.warning(f"应用现代化图表样式失败: {e}")
+    
+    def _apply_window_modern_style(self, window):
+        """为PyQt6窗口应用现代化样式"""
+        try:
+            # 确保窗口有现代化样式
+            modern_style = """
+                QMainWindow {
+                    background-color: #f8f9fa;
+                    color: #212529;
+                    font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+                }
+            """
+            window.setStyleSheet(modern_style)
+            logging.info("已应用窗口现代化样式")
+            
+        except Exception as e:
+            logging.warning(f"应用窗口现代化样式失败: {e}")
+    
+    def _apply_menubar_style(self, menubar):
+        """为菜单栏应用现代化样式"""
+        try:
+            # 强制应用菜单栏样式
+            menubar_style = """
+                QMenuBar {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #ffffff,
+                        stop:1 #f8f9fa);
+                    border-bottom: 1px solid #e9ecef;
+                    padding: 2px;
+                }
+                QMenuBar::item {
+                    background-color: transparent;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    color: #495057;
+                    font-weight: 500;
+                    font-size: 12px;
+                }
+                QMenuBar::item:hover {
+                    background-color: #e9ecef;
+                    color: #495057;
+                }
+                QMenuBar::item:selected {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #3498db,
+                        stop:1 #2980b9);
+                    color: white;
+                }
+            """
+            menubar.setStyleSheet(menubar_style)
+            logging.info("已应用菜单栏现代化样式")
+            
+        except Exception as e:
+            logging.warning(f"应用菜单栏现代化样式失败: {e}")
+    
+    def _apply_menu_style(self, menu):
+        """为菜单应用现代化样式"""
+        try:
+            # 强制应用菜单样式
+            menu_style = """
+                QMenu {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #ffffff,
+                        stop:1 #f8f9fa);
+                    border: 1px solid #e9ecef;
+                    border-radius: 6px;
+                    padding: 5px;
+                    min-width: 150px;
+                }
+                QMenu::item {
+                    padding: 6px 20px;
+                    border-radius: 3px;
+                    color: #495057;
+                }
+                QMenu::item:hover {
+                    background-color: #3498db;
+                    color: white;
+                }
+                QMenu::item:selected {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #3498db,
+                        stop:1 #2980b9);
+                    color: white;
+                }
+                QMenu::separator {
+                    height: 1px;
+                    background-color: #e9ecef;
+                    margin: 4px 8px;
+                }
+            """
+            menu.setStyleSheet(menu_style)
+            logging.info("已应用菜单现代化样式")
+            
+        except Exception as e:
+            logging.warning(f"应用菜单现代化样式失败: {e}")
     
     def _create_modern_toggle_group(self, ax, x, y, width, height, buttons_config):
         """
@@ -1865,6 +2084,41 @@ if __name__ == '__main__':
     # 创建Qt应用程序实例
     app = QApplication(sys.argv)
     
+    # 应用样式表
+    try:
+        from battery_analysis.ui.styles.style_manager import StyleManager, apply_modern_theme
+        style_manager = StyleManager()
+        
+        # 统一加载样式文件 - 使用新的battery_analyzer.qss
+        unified_style_path = Path(__file__).parent.parent / "ui" / "styles" / "battery_analyzer.qss"
+        
+        # 输出调试信息
+        logging.info(f"尝试加载统一样式文件: {unified_style_path}")
+        
+        if unified_style_path.exists():
+            with open(unified_style_path, 'r', encoding='utf-8') as f:
+                unified_style = f.read()
+                app.setStyleSheet(unified_style)
+                logging.info("已应用统一电池分析器样式")
+        else:
+            # 如果统一样式文件不存在，尝试使用标准样式
+            logging.warning(f"未找到统一样式文件: {unified_style_path}")
+            try:
+                style_manager = StyleManager()
+                style_manager.apply_global_style(app, "modern")
+                logging.info("已应用备用全局主题样式")
+            except Exception as e2:
+                logging.error(f"备用样式应用失败: {e2}")
+    except Exception as e:
+        logging.error(f"应用样式失败: {e}")
+        # 尝试使用标准样式作为最后备用方案
+        try:
+            style_manager = StyleManager()
+            style_manager.apply_global_style(app, "modern")
+            logging.info("最终备用样式已应用")
+        except Exception as e3:
+            logging.error(f"最终备用样式应用也失败: {e3}")
+    
     data_path = None
     if len(sys.argv) > 1:
         data_path = sys.argv[1]
@@ -1873,12 +2127,9 @@ if __name__ == '__main__':
     # 创建BatteryChartViewer实例
     figure = BatteryChartViewer(data_path=data_path)
     
-    # 如果是通过命令行传递了数据路径，自动显示图表
-    if data_path:
-        logging.info(f"通过命令行传递了数据路径，尝试显示图表")
-        figure.plt_figure()
-    else:
-        logging.info(f"未通过命令行传递数据路径，不自动显示图表")
+    # 总是尝试显示图表（无论是正常数据还是错误图表），这样菜单栏样式就会被应用
+    logging.info(f"尝试显示图表（无论是否有数据）")
+    figure.plt_figure()
     
     # 启动事件循环
     logging.info(f"启动Qt事件循环")
