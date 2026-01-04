@@ -111,14 +111,14 @@ class ProgressService(QObject, IProgressService):
             progress: 进度值
             status: 状态文本
         """
-        self.logger.debug(f"Progress changed: {progress}% - {status}")
+        self.logger.debug("Progress changed: %s% - %s", progress, status)
         
         # 调用注册的回调函数
         for callback in self._progress_callbacks.values():
             try:
                 callback(progress, status)
             except Exception as e:
-                self.logger.error(f"Error in progress callback: {e}")
+                self.logger.error("Error in progress callback: %s", e)
     
     @pyqtSlot()
     def _on_progress_completed(self):
@@ -155,7 +155,7 @@ class ProgressService(QObject, IProgressService):
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to initialize ProgressService: {e}")
+            self.logger.error("Failed to initialize ProgressService: %s", e)
             return False
     
     def update_progress(self, progress: int, status: str = "") -> bool:
@@ -189,7 +189,7 @@ class ProgressService(QObject, IProgressService):
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to update progress: {e}")
+            self.logger.error("Failed to update progress: %s", e)
             return False
     
     def get_progress(self) -> int:
@@ -227,7 +227,7 @@ class ProgressService(QObject, IProgressService):
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to reset progress: {e}")
+            self.logger.error("Failed to reset progress: %s", e)
             return False
     
     def is_completed(self) -> bool:
@@ -261,11 +261,11 @@ class ProgressService(QObject, IProgressService):
         """
         try:
             self._progress_callbacks[callback_id] = callback
-            self.logger.debug(f"Progress callback registered: {callback_id}")
+            self.logger.debug("Progress callback registered: %s", callback_id)
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to register progress callback {callback_id}: {e}")
+            self.logger.error("Failed to register progress callback %s: %s", callback_id, e)
             return False
     
     def unregister_callback(self, callback_id: str) -> bool:
@@ -281,14 +281,14 @@ class ProgressService(QObject, IProgressService):
         try:
             if callback_id in self._progress_callbacks:
                 del self._progress_callbacks[callback_id]
-                self.logger.debug(f"Progress callback unregistered: {callback_id}")
+                self.logger.debug("Progress callback unregistered: %s", callback_id)
                 return True
             else:
-                self.logger.warning(f"Callback not found: {callback_id}")
+                self.logger.warning("Callback not found: %s", callback_id)
                 return False
                 
         except Exception as e:
-            self.logger.error(f"Failed to unregister progress callback {callback_id}: {e}")
+            self.logger.error("Failed to unregister progress callback %s: %s", callback_id, e)
             return False
     
     def set_indeterminate(self, status: str = "Processing...") -> bool:
@@ -313,7 +313,7 @@ class ProgressService(QObject, IProgressService):
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to set indeterminate progress: {e}")
+            self.logger.error("Failed to set indeterminate progress: %s", e)
             return False
     
     def is_indeterminate(self) -> bool:

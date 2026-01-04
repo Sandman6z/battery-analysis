@@ -40,7 +40,7 @@ class VisualizerFactory:
             raise ValueError(f"类 {visualizer_class.__name__} 必须实现 IVisualizer 接口")
         
         self._visualizers[name] = visualizer_class
-        self.logger.debug(f"注册可视化器: {name} -> {visualizer_class.__name__}")
+        self.logger.debug("注册可视化器: %s -> %s", name, visualizer_class.__name__)
 
     def create_visualizer(self, name: str, **kwargs) -> Optional[IVisualizer]:
         """
@@ -54,16 +54,16 @@ class VisualizerFactory:
             可视化器实例或None（如果不存在）
         """
         if name not in self._visualizers:
-            self.logger.error(f"未找到可视化器: {name}")
+            self.logger.error("未找到可视化器: %s", name)
             return None
 
         try:
             visualizer_class = self._visualizers[name]
             instance = visualizer_class(**kwargs)
-            self.logger.debug(f"创建可视化器实例: {name}")
+            self.logger.debug("创建可视化器实例: %s", name)
             return instance
         except Exception as e:
-            self.logger.error(f"创建可视化器 {name} 失败: {e}")
+            self.logger.error("创建可视化器 %s 失败: %s", name, e)
             return None
 
     def get_available_visualizers(self) -> list:
@@ -99,7 +99,7 @@ class BatteryChartViewerWrapper(IVisualizer):
         # 如果提供了有效的数据路径，先设置路径但不自动加载
         if data_path and os.path.exists(data_path):
             self._viewer.set_data_path(data_path)
-            self.logger.info(f"设置数据路径: {data_path}")
+            self.logger.info("设置数据路径: %s", data_path)
             # 不自动加载数据，由调用者决定何时加载
     
 
@@ -131,7 +131,7 @@ class BatteryChartViewerWrapper(IVisualizer):
             
             return success
         except Exception as e:
-            self.logger.error(f"显示图表时出错: {e}")
+            self.logger.error("显示图表时出错: %s", e)
             return False
 
     def load_data(self, data_path: str) -> bool:
@@ -149,14 +149,14 @@ class BatteryChartViewerWrapper(IVisualizer):
             success = self._viewer.load_data()
             if success:
                 self._viewer.loaded_data = True
-                self.logger.info(f"数据加载成功: {data_path}")
+                self.logger.info("数据加载成功: %s", data_path)
             else:
                 self._viewer.loaded_data = False
-                self.logger.warning(f"数据加载失败: {data_path}")
+                self.logger.warning("数据加载失败: %s", data_path)
             
             return success
         except Exception as e:
-            self.logger.error(f"加载数据时出错: {e}")
+            self.logger.error("加载数据时出错: %s", e)
             self._viewer.loaded_data = False
             return False
 
@@ -177,7 +177,7 @@ class BatteryChartViewerWrapper(IVisualizer):
             
             self.logger.info("数据已清除")
         except Exception as e:
-            self.logger.error(f"清除数据时出错: {e}")
+            self.logger.error("清除数据时出错: %s", e)
 
     def is_data_loaded(self) -> bool:
         """
@@ -210,7 +210,7 @@ class BatteryChartViewerWrapper(IVisualizer):
             config: 配置字典
         """
         self._config.update(config)
-        self.logger.debug(f"配置已更新: {config}")
+        self.logger.debug("配置已更新: %s", config)
 
     def get_config(self) -> dict:
         """

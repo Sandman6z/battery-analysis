@@ -45,11 +45,11 @@ class EnvironmentService:
             self._handle_environment_adaptation()
             
             self.is_initialized = True
-            self.logger.info(f"EnvironmentService initialized for {self.env_info.get('environment_type', 'unknown')}")
+            self.logger.info("EnvironmentService initialized for %s", self.env_info.get('environment_type', 'unknown'))
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to initialize EnvironmentService: {e}")
+            self.logger.error("Failed to initialize EnvironmentService: %s", e)
             return False
     
     def _handle_environment_adaptation(self):

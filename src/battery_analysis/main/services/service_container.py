@@ -150,9 +150,9 @@ class ServiceContainer(IServiceContainer):
             for name, service_class in services_to_register:
                 try:
                     self.register(name, service_class)
-                    self.logger.debug(f"Service registered: {name}")
+                    self.logger.debug("Service registered: %s", name)
                 except Exception as e:
-                    self.logger.error(f"Failed to register service {name}: {e}")
+                    self.logger.error("Failed to register service %s: %s", name, e)
             
             # 延迟导入控制器
             try:
@@ -173,16 +173,16 @@ class ServiceContainer(IServiceContainer):
                 for name, controller_class in controllers_to_register:
                     try:
                         self.register(name, controller_class)
-                        self.logger.debug(f"Controller registered: {name}")
+                        self.logger.debug("Controller registered: %s", name)
                     except Exception as e:
-                        self.logger.error(f"Failed to register controller {name}: {e}")
+                        self.logger.error("Failed to register controller %s: %s", name, e)
             except ImportError as e:
-                self.logger.warning(f"Failed to import controllers: {e}")
+                self.logger.warning("Failed to import controllers: %s", e)
             
             self.logger.info("Default services and controllers initialized")
             
         except ImportError as e:
-            self.logger.warning(f"Failed to import services: {e}")
+            self.logger.warning("Failed to import services: %s", e)
     
     def register(self, name: str, implementation: Type[T], singleton: bool = True) -> bool:
         """
@@ -210,11 +210,11 @@ class ServiceContainer(IServiceContainer):
             if name in self._instances:
                 del self._instances[name]
             
-            self.logger.debug(f"Service registered: {name} ({implementation.__name__})")
+            self.logger.debug("Service registered: %s (%s)", name, implementation.__name__)
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to register service {name}: {e}")
+            self.logger.error("Failed to register service %s: %s", name, e)
             return False
     
     def register_instance(self, name: str, instance: T) -> bool:
@@ -238,11 +238,11 @@ class ServiceContainer(IServiceContainer):
             self._instances[name] = instance
             self._singletons[name] = True
             
-            self.logger.debug(f"Service instance registered: {name}")
+            self.logger.debug("Service instance registered: %s", name)
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to register service instance {name}: {e}")
+            self.logger.error("Failed to register service instance %s: %s", name, e)
             return False
     
     def get(self, name: str) -> Optional[T]:
@@ -262,7 +262,7 @@ class ServiceContainer(IServiceContainer):
             
             # 如果没有注册该服务，返回None
             if name not in self._services:
-                self.logger.warning(f"Service not found: {name}")
+                self.logger.warning("Service not found: %s", name)
                 return None
             
             # 获取服务类
@@ -272,7 +272,7 @@ class ServiceContainer(IServiceContainer):
             try:
                 instance = service_class()
             except Exception as e:
-                self.logger.error(f"Failed to create service instance {name}: {e}")
+                self.logger.error("Failed to create service instance %s: %s", name, e)
                 return None
             
             # 如果是单例，缓存实例
@@ -282,7 +282,7 @@ class ServiceContainer(IServiceContainer):
             return instance
             
         except Exception as e:
-            self.logger.error(f"Failed to get service {name}: {e}")
+            self.logger.error("Failed to get service %s: %s", name, e)
             return None
     
     def has(self, name: str) -> bool:
@@ -325,12 +325,12 @@ class ServiceContainer(IServiceContainer):
                 del self._singletons[name]
             
             if removed:
-                self.logger.debug(f"Service unregistered: {name}")
+                self.logger.debug("Service unregistered: %s", name)
             
             return removed
             
         except Exception as e:
-            self.logger.error(f"Failed to unregister service {name}: {e}")
+            self.logger.error("Failed to unregister service %s: %s", name, e)
             return False
     
     def get_all_services(self) -> Dict[str, Any]:
@@ -354,7 +354,7 @@ class ServiceContainer(IServiceContainer):
                     if instance:
                         result[name] = instance
                 except Exception as e:
-                    self.logger.error(f"Failed to instantiate service {name}: {e}")
+                    self.logger.error("Failed to instantiate service %s: %s", name, e)
         
         return result
     
@@ -373,9 +373,9 @@ class ServiceContainer(IServiceContainer):
                 try:
                     if hasattr(instance, 'shutdown'):
                         instance.shutdown()
-                        self.logger.debug(f"Service {name} shutdown")
+                        self.logger.debug("Service %s shutdown", name)
                 except Exception as e:
-                    self.logger.error(f"Failed to shutdown service {name}: {e}")
+                    self.logger.error("Failed to shutdown service %s: %s", name, e)
             
             # 清空所有注册
             self._services.clear()
@@ -387,7 +387,7 @@ class ServiceContainer(IServiceContainer):
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to shutdown ServiceContainer: {e}")
+            self.logger.error("Failed to shutdown ServiceContainer: %s", e)
             return False
     
     def clear_instances(self):
@@ -401,13 +401,13 @@ class ServiceContainer(IServiceContainer):
                     if hasattr(instance, 'shutdown'):
                         instance.shutdown()
                 except Exception as e:
-                    self.logger.error(f"Failed to shutdown service {name}: {e}")
+                    self.logger.error("Failed to shutdown service %s: %s", name, e)
             
             self._instances.clear()
             self.logger.info("All service instances cleared")
             
         except Exception as e:
-            self.logger.error(f"Failed to clear service instances: {e}")
+            self.logger.error("Failed to clear service instances: %s", e)
     
     def get_service_info(self) -> Dict[str, Dict[str, Any]]:
         """

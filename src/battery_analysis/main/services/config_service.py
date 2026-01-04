@@ -64,11 +64,11 @@ class ConfigService(IConfigService):
                 else:
                     return value
             else:
-                self.logger.warning(f"配置键 '{key}' 不存在，返回默认值: {default}")
+                self.logger.warning("配置键 '%s' 不存在，返回默认值: %s", key, default)
                 return default
                 
         except Exception as e:
-            self.logger.error(f"获取配置值失败: {e}")
+            self.logger.error("获取配置值失败: %s", e)
             return default
     
     def set_config_value(self, key: str, value: Any) -> bool:
@@ -100,11 +100,11 @@ class ConfigService(IConfigService):
             # 设置值
             self._config.set(section, option, str_value)
             
-            self.logger.debug(f"设置配置: {key} = {value}")
+            self.logger.debug("设置配置: %s = %s", key, value)
             return True
             
         except Exception as e:
-            self.logger.error(f"设置配置值失败: {e}")
+            self.logger.error("设置配置值失败: %s", e)
             return False
     
     def save_config(self) -> bool:
@@ -123,14 +123,14 @@ class ConfigService(IConfigService):
                 with open(self._config_path, 'w', encoding='utf-8') as f:
                     self._config.write(f)
                 
-                self.logger.info(f"配置已保存到: {self._config_path}")
+                self.logger.info("配置已保存到: %s", self._config_path)
                 return True
             else:
                 self.logger.warning("无法保存配置：未指定配置路径或配置未加载")
                 return False
                 
         except Exception as e:
-            self.logger.error(f"保存配置失败: {e}")
+            self.logger.error("保存配置失败: %s", e)
             return False
     
     def load_config(self, config_path: Optional[str] = None) -> bool:
@@ -151,7 +151,7 @@ class ConfigService(IConfigService):
                 self._config_path = self.find_config_file()
             
             if not self._config_path or not self._config_path.exists():
-                self.logger.warning(f"配置文件不存在: {self._config_path}")
+                self.logger.warning("配置文件不存在: %s", self._config_path)
                 self._loaded = False
                 return False
             
@@ -162,11 +162,11 @@ class ConfigService(IConfigService):
             self._config.read(self._config_path, encoding='utf-8')
             
             self._loaded = True
-            self.logger.info(f"配置已加载: {self._config_path}")
+            self.logger.info("配置已加载: %s", self._config_path)
             return True
             
         except Exception as e:
-            self.logger.error(f"加载配置失败: {e}")
+            self.logger.error("加载配置失败: %s", e)
             self._loaded = False
             return False
     
@@ -182,7 +182,7 @@ class ConfigService(IConfigService):
                 self.load_config()
             return self._config.sections()
         except Exception as e:
-            self.logger.error(f"获取配置节失败: {e}")
+            self.logger.error("获取配置节失败: %s", e)
             return []
     
     def get_all_sections(self) -> List[str]:
@@ -213,7 +213,7 @@ class ConfigService(IConfigService):
             
             return self._config.options(section)
         except Exception as e:
-            self.logger.error(f"获取配置节选项失败: {e}")
+            self.logger.error("获取配置节选项失败: %s", e)
             return []
     
     def get_section_config(self, section: str) -> Dict[str, Any]:
@@ -235,7 +235,7 @@ class ConfigService(IConfigService):
             
             return dict(self._config.items(section))
         except Exception as e:
-            self.logger.error(f"获取配置节失败: {e}")
+            self.logger.error("获取配置节失败: %s", e)
             return {}
     
     def has_config_key(self, key: str) -> bool:
@@ -261,7 +261,7 @@ class ConfigService(IConfigService):
             
             return self._config.has_section(section) and self._config.has_option(section, option)
         except Exception as e:
-            self.logger.error(f"检查配置键失败: {e}")
+            self.logger.error("检查配置键失败: %s", e)
             return False
     
     def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
@@ -279,7 +279,7 @@ class ConfigService(IConfigService):
             result = find_config_file(file_name)
             return Path(result) if result else None
         except Exception as e:
-            self.logger.error(f"查找配置文件失败: {e}")
+            self.logger.error("查找配置文件失败: %s", e)
             return None
     
     def _is_float(self, value: str) -> bool:

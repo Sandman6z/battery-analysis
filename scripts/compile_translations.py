@@ -61,7 +61,7 @@ def compile_po_to_mo(po_file: Path, mo_file: Path) -> bool:
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            logger.info(f"Successfully compiled: {po_file} -> {mo_file}")
+            logger.info("Successfully compiled: %s -> %s", po_file, mo_file)
             return True
         
         # Fallback to python msgfmt
@@ -71,10 +71,10 @@ def compile_po_to_mo(po_file: Path, mo_file: Path) -> bool:
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            logger.info(f"Successfully compiled (python): {po_file} -> {mo_file}")
+            logger.info("Successfully compiled (python): %s -> %s", po_file, mo_file)
             return True
         
-        logger.error(f"Failed to compile {po_file}: {result.stderr}")
+        logger.error("Failed to compile %s: %s", po_file, result.stderr)
         return False
         
     except FileNotFoundError:
@@ -82,7 +82,7 @@ def compile_po_to_mo(po_file: Path, mo_file: Path) -> bool:
         logger.info("On Windows, install gettext from: https://mlocati.github.io/gettext-iconv-windows/")
         return False
     except Exception as e:
-        logger.error(f"Unexpected error compiling {po_file}: {e}")
+        logger.error("Unexpected error compiling %s: %s", po_file, e)
         return False
 
 
@@ -182,14 +182,14 @@ def update_pot_file(po_files: List[Path], pot_file: Path) -> bool:
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            logger.info(f"Successfully created .pot file: {pot_file}")
+            logger.info("Successfully created .pot file: %s", pot_file)
             return True
         else:
-            logger.error(f"Failed to create .pot file: {result.stderr}")
+            logger.error("Failed to create .pot file: %s", result.stderr)
             return False
     
     except Exception as e:
-        logger.error(f"Error updating .pot file: {e}")
+        logger.error("Error updating .pot file: %s", e)
         return False
 
 
@@ -201,10 +201,10 @@ def main():
     locale_dir = project_root / "locale"
     
     if not locale_dir.exists():
-        logger.error(f"Locale directory not found: {locale_dir}")
+        logger.error("Locale directory not found: %s", locale_dir)
         sys.exit(1)
     
-    logger.info(f"Compiling translations from: {locale_dir}")
+    logger.info("Compiling translations from: %s", locale_dir)
     
     # Find all .po files
     po_files = find_po_files(locale_dir)
@@ -213,29 +213,29 @@ def main():
         logger.warning("No .po files found")
         return
     
-    logger.info(f"Found {len(po_files)} .po files")
+    logger.info("Found %s .po files", len(po_files))
     
     # Validate and compile each file
     success_count = 0
     total_count = len(po_files)
     
     for po_file in po_files:
-        logger.info(f"Processing: {po_file}")
+        logger.info("Processing: %s", po_file)
         
         # Validate
         validation = validate_po_file(po_file)
         
         if not validation['valid']:
-            logger.error(f"Validation failed for {po_file}")
+            logger.error("Validation failed for %s", po_file)
             for error in validation['errors']:
-                logger.error(f"  Error: {error}")
+                logger.error("  Error: %s", error)
             for warning in validation['warnings']:
-                logger.warning(f"  Warning: {warning}")
+                logger.warning("  Warning: %s", warning)
             continue
         
         if validation['warnings']:
             for warning in validation['warnings']:
-                logger.warning(f"  {po_file.name}: {warning}")
+                logger.warning("  %s: %s", po_file.name, warning)
         
         # Compile to .mo
         mo_file = po_file.with_suffix('.mo')
@@ -243,13 +243,13 @@ def main():
         if compile_po_to_mo(po_file, mo_file):
             success_count += 1
         else:
-            logger.error(f"Failed to compile: {po_file}")
+            logger.error("Failed to compile: %s", po_file)
     
     # Summary
-    logger.info(f"\nCompilation Summary:")
-    logger.info(f"  Total files: {total_count}")
-    logger.info(f"  Successful: {success_count}")
-    logger.info(f"  Failed: {total_count - success_count}")
+    logger.info("\nCompilation Summary:")
+    logger.info("  Total files: %s", total_count)
+    logger.info("  Successful: %s", success_count)
+    logger.info("  Failed: %s", total_count - success_count)
     
     if success_count == total_count:
         logger.info("All translations compiled successfully!")

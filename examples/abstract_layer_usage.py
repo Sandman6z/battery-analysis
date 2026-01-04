@@ -38,7 +38,7 @@ class UIController:
             return True
             
         except Exception as e:
-            self.logger.error(f"UI应用程序初始化失败: {e}")
+            self.logger.error("UI应用程序初始化失败: %s", e)
             return False
     
     def show_main_window(self) -> None:
@@ -48,7 +48,7 @@ class UIController:
                 self.main_window.show()
                 self.logger.info("主窗口显示成功")
         except Exception as e:
-            self.logger.error(f"显示主窗口失败: {e}")
+            self.logger.error("显示主窗口失败: %s", e)
     
     def show_message(self, title: str, message: str, msg_type: MessageBoxType) -> Any:
         """显示消息框
@@ -67,7 +67,7 @@ class UIController:
                 self.main_window, title, message, msg_type
             )
         except Exception as e:
-            self.logger.error(f"显示消息框失败: {e}")
+            self.logger.error("显示消息框失败: %s", e)
             return None
     
     def show_error(self, message: str) -> None:
@@ -89,7 +89,7 @@ class UIController:
             # 根据UI框架的实现，返回适当的布尔值
             return result in [True, "Yes", "yes", "Y", "y"]
         except Exception as e:
-            self.logger.error(f"询问用户问题失败: {e}")
+            self.logger.error("询问用户问题失败: %s", e)
             return False
     
     def select_file(self, caption: str = "选择文件", 
@@ -121,7 +121,7 @@ class UIController:
                 return file_dialog if file_dialog else None
                 
         except Exception as e:
-            self.logger.error(f"选择文件失败: {e}")
+            self.logger.error("选择文件失败: %s", e)
             return None
     
     def create_progress_dialog(self) -> Any:
@@ -130,7 +130,7 @@ class UIController:
             self.progress_dialog = self.ui_framework.create_progress_dialog(self.main_window)
             return self.progress_dialog
         except Exception as e:
-            self.logger.error(f"创建进度对话框失败: {e}")
+            self.logger.error("创建进度对话框失败: %s", e)
             return None
     
     def update_progress(self, value: int, text: str = "") -> None:
@@ -148,7 +148,7 @@ class UIController:
                 if hasattr(self.progress_dialog, 'setLabelText') and text:
                     self.progress_dialog.setLabelText(text)
         except Exception as e:
-            self.logger.error(f"更新进度失败: {e}")
+            self.logger.error("更新进度失败: %s", e)
     
     def close_progress_dialog(self) -> None:
         """关闭进度对话框"""
@@ -157,7 +157,7 @@ class UIController:
                 self.progress_dialog.close()
                 self.progress_dialog = None
         except Exception as e:
-            self.logger.error(f"关闭进度对话框失败: {e}")
+            self.logger.error("关闭进度对话框失败: %s", e)
     
     def run_application(self) -> int:
         """运行应用程序
@@ -169,7 +169,7 @@ class UIController:
             app = self.ui_framework.create_application()
             return self.ui_framework.exec_application(app)
         except Exception as e:
-            self.logger.error(f"运行应用程序失败: {e}")
+            self.logger.error("运行应用程序失败: %s", e)
             return 1
 
 
@@ -200,7 +200,7 @@ class UIControllerFactory:
             return UIController(ui_framework)
             
         except Exception as e:
-            logging.error(f"创建UI控制器失败: {e}")
+            logging.error("创建UI控制器失败: %s", e)
             raise
 
 

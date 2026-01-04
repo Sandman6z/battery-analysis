@@ -152,7 +152,7 @@ def run_visualizer(self, xml_path=None):
         else:
             self._run_classic_visualizer(xml_path)
     except Exception as e:
-        logging.error(f"可视化器运行失败: {e}")
+        logging.error("可视化器运行失败: %s", e)
         # 回退到经典模式
         self._run_classic_visualizer(xml_path)
 

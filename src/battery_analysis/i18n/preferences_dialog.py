@@ -241,7 +241,7 @@ class PreferencesDialog(QW.QDialog):
             self.logger.debug("Settings loaded successfully")
             
         except Exception as e:
-            self.logger.error(f"Failed to load settings: {e}")
+            self.logger.error("Failed to load settings: %s", e)
     
     def _update_translation_status(self, locale_code):
         """Update the translation status display"""
@@ -265,7 +265,7 @@ class PreferencesDialog(QW.QDialog):
             self.status_text.setText(status_text)
             
         except Exception as e:
-            self.logger.error(f"Failed to update translation status: {e}")
+            self.logger.error("Failed to update translation status: %s", e)
     
     def _apply_language(self):
         """Apply the selected language"""
@@ -284,7 +284,7 @@ class PreferencesDialog(QW.QDialog):
                     # Update translation status
                     self._update_translation_status(selected_locale)
                     
-                    self.logger.info(f"Language applied: {selected_locale}")
+                    self.logger.info("Language applied: %s", selected_locale)
                 else:
                     QW.QMessageBox.warning(
                         self,
@@ -293,7 +293,7 @@ class PreferencesDialog(QW.QDialog):
                     )
         
         except Exception as e:
-            self.logger.error(f"Failed to apply language: {e}")
+            self.logger.error("Failed to apply language: %s", e)
             QW.QMessageBox.critical(
                 self,
                 _("error", "Error"),
@@ -335,7 +335,7 @@ class PreferencesDialog(QW.QDialog):
             )
             
         except Exception as e:
-            self.logger.error(f"Failed to apply settings: {e}")
+            self.logger.error("Failed to apply settings: %s", e)
             QW.QMessageBox.critical(
                 self,
                 _("error", "Error"),

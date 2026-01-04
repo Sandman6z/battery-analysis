@@ -31,7 +31,7 @@ def main():
             # 使用新的统一样式文件
             unified_style_path = Path(__file__).parent / "src" / "battery_analysis" / "ui" / "styles" / "battery_analyzer.qss"
             
-            logging.info(f"尝试加载统一样式文件: {unified_style_path}")
+            logging.info("尝试加载统一样式文件: %s", unified_style_path)
             
             if unified_style_path.exists():
                 with open(unified_style_path, 'r', encoding='utf-8') as f:
@@ -39,12 +39,12 @@ def main():
                     app.setStyleSheet(style)
                     logging.info("已应用统一电池分析器样式")
             else:
-                logging.warning(f"统一样式文件不存在: {unified_style_path}")
+                logging.warning("统一样式文件不存在: %s", unified_style_path)
                 # 使用标准样式
                 style_manager.apply_global_style(app, "battery_analyzer")
                 logging.info("已应用全局主题样式")
         except Exception as e:
-            logging.error(f"应用样式失败: {e}")
+            logging.error("应用样式失败: %s", e)
             # 尝试使用标准样式
             try:
                 from battery_analysis.ui.styles.style_manager import StyleManager
@@ -52,7 +52,7 @@ def main():
                 style_manager.apply_global_style(app, "modern")
                 logging.info("备用样式已应用")
             except Exception as e2:
-                logging.error(f"备用样式应用也失败: {e2}")
+                logging.error("备用样式应用也失败: %s", e2)
         
         # 创建现代化电池查看器
         try:
@@ -62,7 +62,7 @@ def main():
             data_path = None
             if len(sys.argv) > 1:
                 data_path = sys.argv[1]
-                logging.info(f"从命令行接收数据路径: {data_path}")
+                logging.info("从命令行接收数据路径: %s", data_path)
             
             viewer = ModernBatteryViewer(data_path=data_path)
             viewer.show()
@@ -73,7 +73,7 @@ def main():
             sys.exit(app.exec())
             
         except Exception as e:
-            logging.error(f"创建现代化电池查看器失败: {e}")
+            logging.error("创建现代化电池查看器失败: %s", e)
             import traceback
             traceback.print_exc()
             
@@ -97,7 +97,7 @@ def main():
             sys.exit(app.exec())
             
     except Exception as e:
-        logging.error(f"应用程序启动失败: {e}")
+        logging.error("应用程序启动失败: %s", e)
         import traceback
         traceback.print_exc()
         return 1

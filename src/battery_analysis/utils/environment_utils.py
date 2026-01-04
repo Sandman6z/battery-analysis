@@ -109,7 +109,7 @@ class EnvironmentDetector:
         
         for indicator in ide_indicators:
             if os.environ.get(indicator):
-                logger.debug(f"IDE environment detected via {indicator}")
+                logger.debug("IDE environment detected via %s", indicator)
                 return True
         
         # 检查是否在Trae IDE中
@@ -132,14 +132,14 @@ class EnvironmentDetector:
         # 检查文件系统标识
         for indicator in container_indicators:
             if os.path.exists(f'/{indicator}'):
-                logger.debug(f"Container environment detected via /{indicator}")
+                logger.debug("Container environment detected via /%s", indicator)
                 return True
         
         # 检查环境变量
         env_vars = ['CONTAINER', 'DOCKER', 'KUBERNETES_SERVICE_HOST']
         for var in env_vars:
             if os.environ.get(var):
-                logger.debug(f"Container environment detected via {var}")
+                logger.debug("Container environment detected via %s", var)
                 return True
         
         return False
@@ -162,7 +162,7 @@ class EnvironmentDetector:
         project_root = self._find_project_root()
         for indicator in dev_indicators:
             if (project_root / indicator).exists():
-                logger.debug(f"Development environment detected: found {indicator}")
+                logger.debug("Development environment detected: found %s", indicator)
                 return True
         
         return False
@@ -181,14 +181,14 @@ class EnvironmentDetector:
             if hasattr(QGuiApplication, 'screens'):
                 screens = QGuiApplication.screens()
                 if screens:
-                    logger.debug(f"GUI available: {len(screens)} screen(s) detected")
+                    logger.debug("GUI available: %s screen(s) detected", len(screens))
                     self._gui_available = True
                     return True
             
             # 检查DISPLAY环境变量（Linux）
             display = os.environ.get('DISPLAY')
             if display:
-                logger.debug(f"GUI available: DISPLAY={display}")
+                logger.debug("GUI available: DISPLAY=%s", display)
                 self._gui_available = True
                 return True
             
@@ -203,11 +203,11 @@ class EnvironmentDetector:
             return False
             
         except ImportError as e:
-            logger.debug(f"GUI not available: PyQt6 import failed: {e}")
+            logger.debug("GUI not available: PyQt6 import failed: %s", e)
             self._gui_available = False
             return False
         except Exception as e:
-            logger.debug(f"GUI detection error: {e}")
+            logger.debug("GUI detection error: %s", e)
             self._gui_available = False
             return False
     
@@ -280,10 +280,10 @@ class EnvironmentDetector:
         
         for path in possible_paths:
             if path.exists():
-                logger.debug(f"Config file found: {path}")
+                logger.debug("Config file found: %s", path)
                 return path
         
-        logger.warning(f"Config file not found: {config_file}")
+        logger.warning("Config file not found: %s", config_file)
         return None
     
     def get_locale_path(self, locale_file: str = "messages.po") -> Optional[Path]:
@@ -304,10 +304,10 @@ class EnvironmentDetector:
             for locale_name in locale_variants:
                 locale_path = locale_dir / locale_name / "LC_MESSAGES" / locale_file
                 if locale_path.exists():
-                    logger.debug(f"Locale file found: {locale_path}")
+                    logger.debug("Locale file found: %s", locale_path)
                     return locale_path
         
-        logger.warning(f"Locale file not found: {locale_file}")
+        logger.warning("Locale file not found: %s", locale_file)
         return None
 
 

@@ -56,11 +56,11 @@ class SimplePOTranslator:
                 
                 translations[msgid] = msgstr
             
-            logger.info(f"Parsed {len(translations)} translations from {po_file_path}")
+            logger.info("Parsed %s translations from %s", len(translations), po_file_path)
             return translations
             
         except Exception as e:
-            logger.error(f"Error parsing {po_file_path}: {e}")
+            logger.error("Error parsing %s: %s", po_file_path, e)
             return {}
     
     def load_locale(self, locale_code: str):
@@ -68,13 +68,13 @@ class SimplePOTranslator:
         po_file = LOCALEDIR / locale_code / "LC_MESSAGES" / "messages.po"
         
         if not po_file.exists():
-            logger.warning(f"Translation file not found: {po_file}")
+            logger.warning("Translation file not found: %s", po_file)
             return False
         
         self.translations = self.parse_po_file(po_file)
         self.current_locale = locale_code
         
-        logger.info(f"Loaded {len(self.translations)} translations for {locale_code}")
+        logger.info("Loaded %s translations for %s", len(self.translations), locale_code)
         return True
     
     def _(self, text: str, context: Optional[str] = None):
@@ -99,7 +99,7 @@ def get_available_locales() -> List[str]:
     locale_dir = LOCALEDIR
     
     if not locale_dir.exists():
-        logger.warning(f"Locale directory not found: {locale_dir}")
+        logger.warning("Locale directory not found: %s", locale_dir)
         return available
     
     for locale_path in locale_dir.iterdir():
@@ -123,26 +123,26 @@ def set_locale(locale_code: str) -> bool:
     """
     global _current_locale
     
-    logger.info(f"Setting locale to: {locale_code}")
+    logger.info("Setting locale to: %s", locale_code)
     
     if locale_code not in get_available_locales():
-        logger.warning(f"Locale '{locale_code}' not available")
+        logger.warning("Locale '%s' not available", locale_code)
         return False
     
     try:
         # Load translation using PO translator
-        logger.info(f"Loading translation for {locale_code}")
+        logger.info("Loading translation for %s", locale_code)
         if _po_translator.load_locale(locale_code):
             _translations[locale_code] = _po_translator.translations
             _current_locale = locale_code
-            logger.info(f"Locale set to: {locale_code}")
+            logger.info("Locale set to: %s", locale_code)
             return True
         else:
-            logger.error(f"Failed to load translations for {locale_code}")
+            logger.error("Failed to load translations for %s", locale_code)
             return False
         
     except Exception as e:
-        logger.error(f"Failed to set locale '{locale_code}': {e}")
+        logger.error("Failed to set locale '%s': %s", locale_code, e)
         import traceback
         traceback.print_exc()
         return False
@@ -163,7 +163,7 @@ def _(text: str, context: Optional[str] = None) -> str:
         # Use the PO translator to get the translation
         return _po_translator._(text, context)
     except Exception as e:
-        logging.warning(f"Translation error for '{text}': {e}")
+        logging.warning("Translation error for '%s': %s", text, e)
         return text
 
 
@@ -181,7 +181,7 @@ def pgettext(context: str, text: str) -> str:
     try:
         return _(text, context)
     except Exception as e:
-        logging.warning(f"Context translation error for '{context}:{text}': {e}")
+        logging.warning("Context translation error for '%s:%s': %s", context, text, e)
         return text
 
 
@@ -243,7 +243,7 @@ def detect_system_locale() -> str:
                     elif 'TW' in system_locale:
                         return 'zh_TW'
     except Exception as e:
-        logger.error(f"Failed to detect system locale: {e}")
+        logger.error("Failed to detect system locale: %s", e)
     
     # Fallback to English
     return 'en'
@@ -265,7 +265,7 @@ def ngettext(singular: str, plural: str, n: int) -> str:
         if _current_locale in _translations:
             return _translations[_current_locale].ngettext(singular, plural, n)
     except Exception as e:
-        logging.warning(f"Translation error for plural '{singular}/{plural}': {e}")
+        logging.warning("Translation error for plural '%s/%s': %s", singular, plural, e)
     
     return singular if n == 1 else plural
 
@@ -339,4 +339,4 @@ _po_translator = SimplePOTranslator()
 # Initialize with default locale
 initialize_default_locale()
 
-logger.info(f"i18n module initialized with locale: {_current_locale}")
+logger.info("i18n module initialized with locale: %s", _current_locale)

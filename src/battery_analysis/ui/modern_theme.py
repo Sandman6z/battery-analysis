@@ -114,7 +114,7 @@ class ModernTheme:
                 'interactive': True
             })
         except Exception as e:
-            logging.warning(f"部分matplotlib参数设置失败，使用默认值: {e}")
+            logging.warning("部分matplotlib参数设置失败，使用默认值: %s", e)
             # 使用基本配置
             mpl.rcParams.update({
                 'font.size': 11,

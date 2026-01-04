@@ -70,9 +70,9 @@ class LanguageManager(QObject):
         
         # Set the detected/saved locale
         if self.set_locale(saved_locale):
-            self.logger.info(f"Language Manager initialized with locale: {saved_locale}")
+            self.logger.info("Language Manager initialized with locale: %s", saved_locale)
         else:
-            self.logger.warning(f"Failed to set locale to {saved_locale}, falling back to English")
+            self.logger.warning("Failed to set locale to %s, falling back to English", saved_locale)
             self.set_locale("en")
     
     def get_available_locales(self) -> Dict[str, str]:
@@ -124,11 +124,11 @@ class LanguageManager(QObject):
             True if locale was set successfully
         """
         if locale_code not in self.SUPPORTED_LOCALES:
-            self.logger.warning(f"Unsupported locale: {locale_code}")
+            self.logger.warning("Unsupported locale: %s", locale_code)
             return False
         
         if not self._has_translation_file(locale_code):
-            self.logger.warning(f"No translation file for locale: {locale_code}")
+            self.logger.warning("No translation file for locale: %s", locale_code)
             return False
         
         # Set locale using standard gettext
@@ -136,10 +136,10 @@ class LanguageManager(QObject):
             self.settings.setValue("language/locale", locale_code)
             self.language_changed.emit(locale_code)
             self.locale_changed.emit(locale_code)
-            self.logger.info(f"Locale set to: {locale_code}")
+            self.logger.info("Locale set to: %s", locale_code)
             return True
         else:
-            self.logger.error(f"Failed to set locale to: {locale_code}")
+            self.logger.error("Failed to set locale to: %s", locale_code)
             return False
     
     def get_text(self, text: str, context: Optional[str] = None) -> str:
@@ -174,7 +174,7 @@ class LanguageManager(QObject):
             from . import _po_translator
             return _po_translator._(text)
         except Exception as e:
-            self.logger.warning(f"Translation failed for '{text}': {e}")
+            self.logger.warning("Translation failed for '%s': %s", text, e)
             return text
     
     def get_plural_text(self, singular: str, plural: str, n: int) -> str:
@@ -206,12 +206,12 @@ class LanguageManager(QObject):
         try:
             return translated.format(**kwargs)
         except (KeyError, ValueError) as e:
-            self.logger.warning(f"Translation formatting error: {e}")
+            self.logger.warning("Translation formatting error: %s", e)
             return translated
     
     def _on_language_changed(self, locale_code: str):
         """Handle language change signal"""
-        self.logger.info(f"Language changed to: {locale_code}")
+        self.logger.info("Language changed to: %s", locale_code)
         
         # Update UI language if needed
         self._update_ui_language(locale_code)
@@ -228,7 +228,7 @@ class LanguageManager(QObject):
             pass  # Placeholder for UI-specific language updates
             
         except Exception as e:
-            self.logger.error(f"Failed to update UI language: {e}")
+            self.logger.error("Failed to update UI language: %s", e)
     
     def reload_translations(self) -> bool:
         """
@@ -254,7 +254,7 @@ class LanguageManager(QObject):
         """Reset to system default language"""
         system_locale = detect_system_locale()
         if self.set_locale(system_locale):
-            self.logger.info(f"Reset to system default: {system_locale}")
+            self.logger.info("Reset to system default: %s", system_locale)
         else:
             self.logger.warning("Failed to reset to system default")
     
@@ -315,7 +315,7 @@ class LanguageManager(QObject):
             return False
             
         except Exception as e:
-            self.logger.error(f"Failed to export translations: {e}")
+            self.logger.error("Failed to export translations: %s", e)
             return False
     
     def validate_translations(self, locale_code: str) -> Dict[str, bool]:
@@ -348,7 +348,7 @@ class LanguageManager(QObject):
                 self.set_locale(old_locale)
         
         except Exception as e:
-            self.logger.error(f"Translation validation failed: {e}")
+            self.logger.error("Translation validation failed: %s", e)
             validation = {key: False for key in common_keys}
         
         return validation

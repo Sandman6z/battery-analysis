@@ -69,9 +69,9 @@ class FinalEnvironmentValidator:
         self.test_results.append(result)
         
         if self.detailed or not success or is_critical:
-            logger.info(f"{status} {marker} [{test_category}] {test_name}: {details}")
+            logger.info("%s %s [%s] %s: %s", status, marker, test_category, test_name, details)
         else:
-            logger.info(f"{status} {marker} [{test_category}] {test_name}")
+            logger.info("%s %s [%s] %s", status, marker, test_category, test_name)
     
     def validate_core_functionality(self) -> bool:
         """验证核心功能"""
@@ -489,36 +489,36 @@ class FinalEnvironmentValidator:
         logger.info("=" * 80)
         
         summary = report['validation_summary']
-        logger.info(f"📊 总体结果:")
-        logger.info(f"   总测试数: {summary['total_tests']}")
-        logger.info(f"   通过测试: {summary['passed_tests']}")
-        logger.info(f"   失败测试: {summary['failed_tests']}")
-        logger.info(f"   成功率: {summary['success_rate']}")
-        logger.info(f"   关键测试: {summary['critical_tests_passed']}/{summary['critical_tests_total']}")
-        logger.info(f"   整体状态: {summary['overall_status']}")
+        logger.info("📊 总体结果:")
+        logger.info("   总测试数: %s", summary['total_tests'])
+        logger.info("   通过测试: %s", summary['passed_tests'])
+        logger.info("   失败测试: %s", summary['failed_tests'])
+        logger.info("   成功率: %s", summary['success_rate'])
+        logger.info("   关键测试: %s/%s", summary['critical_tests_passed'], summary['critical_tests_total'])
+        logger.info("   整体状态: %s", summary['overall_status'])
         
-        logger.info(f"\n📂 各功能模块结果:")
+        logger.info("\n📂 各功能模块结果:")
         for category_name, category_result in report['categories'].items():
             success_rate = (category_result['passed'] / category_result['total'] * 100) if category_result['total'] > 0 else 0
             critical_rate = (category_result['critical_passed'] / category_result['total'] * 100) if category_result['total'] > 0 else 0
-            logger.info(f"   {category_name}: {category_result['passed']}/{category_result['total']} ({success_rate:.1f}%) - 关键测试: {category_result['critical_passed']}/{category_result['total']} ({critical_rate:.1f}%)")
+            logger.info("   %s: %s/%s (%s%) - 关键测试: %s/%s (%s%)", category_name, category_result['passed'], category_result['total'], success_rate:.1f, category_result['critical_passed'], category_result['total'], critical_rate:.1f)
         
-        logger.info(f"\n🌍 当前环境信息:")
+        logger.info("\n🌍 当前环境信息:")
         env_info = report['environment_info']
-        logger.info(f"   平台: {env_info['platform'].value}")
-        logger.info(f"   环境类型: {env_info['environment_type'].value}")
-        logger.info(f"   GUI可用: {env_info['gui_available']}")
-        logger.info(f"   冻结环境: {env_info['is_frozen']}")
-        logger.info(f"   Python路径: {env_info['python_executable']}")
+        logger.info("   平台: %s", env_info['platform'].value)
+        logger.info("   环境类型: %s", env_info['environment_type'].value)
+        logger.info("   GUI可用: %s", env_info['gui_available'])
+        logger.info("   冻结环境: %s", env_info['is_frozen'])
+        logger.info("   Python路径: %s", env_info['python_executable'])
         
-        logger.info(f"\n🎯 验证结论:")
+        logger.info("\n🎯 验证结论:")
         for i, conclusion in enumerate(report['conclusions'], 1):
-            logger.info(f"   {i}. {conclusion}")
+            logger.info("   %s. %s", i, conclusion)
         
         if report['recommendations']:
-            logger.info(f"\n💡 改进建议:")
+            logger.info("\n💡 改进建议:")
             for i, recommendation in enumerate(report['recommendations'], 1):
-                logger.info(f"   {i}. {recommendation}")
+                logger.info("   %s. %s", i, recommendation)
         
         logger.info("=" * 80)
 
@@ -552,7 +552,7 @@ def main():
             if not validation_method():
                 all_passed = False
         except Exception as e:
-            logger.error(f"验证方法 {validation_method.__name__} 执行失败: {e}")
+            logger.error("验证方法 %s 执行失败: %s", validation_method.__name__, e)
             all_passed = False
     
     # 生成和显示报告
@@ -564,9 +564,9 @@ def main():
         try:
             with open(args.save_report, 'w', encoding='utf-8') as f:
                 json.dump(report, f, indent=2, ensure_ascii=False, default=str)
-            logger.info(f"📄 验证报告已保存到: {args.save_report}")
+            logger.info("📄 验证报告已保存到: %s", args.save_report)
         except Exception as e:
-            logger.error(f"保存验证报告失败: {e}")
+            logger.error("保存验证报告失败: %s", e)
     
     # 返回适当的退出码
     if report['validation_summary']['overall_status'] == 'PASS':

@@ -40,7 +40,7 @@ def safe_int_convert(value: str, default: int = 0) -> int:
     try:
         return int(float(value.strip()))
     except (ValueError, TypeError) as e:
-        logging.warning(f"无法将值 '{value}' 转换为整数: {e}")
+        logging.warning("无法将值 '%s' 转换为整数: %s", value, e)
         return default
 
 
@@ -66,7 +66,7 @@ def safe_float_convert(value: str, default: float = 0.0) -> float:
     try:
         return float(value.strip())
     except (ValueError, TypeError) as e:
-        logging.warning(f"无法将值 '{value}' 转换为浮点数: {e}")
+        logging.warning("无法将值 '%s' 转换为浮点数: %s", value, e)
         return default
 
 
@@ -94,7 +94,7 @@ def safe_bool_convert(value: str, default: bool = False) -> bool:
     elif value in ("false", "0", "no", "off"):
         return False
     else:
-        logging.warning(f"无法将值 '{value}' 转换为布尔值，使用默认值: {default}")
+        logging.warning("无法将值 '%s' 转换为布尔值，使用默认值: %s", value, default)
         return default
 
 
@@ -122,13 +122,13 @@ def parse_config_list(config: ConfigParser, section: str, option: str,
     """
     if not config.has_section(section):
         if default is not None:
-            logging.warning(f"配置段 '{section}' 不存在，使用默认值: {default}")
+            logging.warning("配置段 '%s' 不存在，使用默认值: %s", section, default)
             return default
         raise ConfigParseError(f"配置段 '{section}' 不存在")
     
     if not config.has_option(section, option):
         if default is not None:
-            logging.warning(f"配置项 '{section}/{option}' 不存在，使用默认值: {default}")
+            logging.warning("配置项 '%s/%s' 不存在，使用默认值: %s", section, option, default)
             return default
         raise ConfigParseError(f"配置项 '{section}/{option}' 不存在")
     
@@ -143,18 +143,18 @@ def parse_config_list(config: ConfigParser, section: str, option: str,
                 converted_item = converter(item)
                 result.append(converted_item)
             except (ValueError, TypeError) as e:
-                logging.warning(f"无法转换元素 '{item}': {e}")
+                logging.warning("无法转换元素 '%s': %s", item, e)
                 if default is not None:
                     result.extend(default if isinstance(default, list) else [default])
                 else:
                     result.append(converter.__defaults__[0] if hasattr(converter, '__defaults__') and converter.__defaults__ else None)
         
-        logging.debug(f"成功解析配置 {section}/{option}: {result}")
+        logging.debug("成功解析配置 %s/%s: %s", section, option, result)
         return result
         
     except Exception as e:
         if default is not None:
-            logging.error(f"解析配置 {section}/{option} 失败: {e}，使用默认值: {default}")
+            logging.error("解析配置 %s/%s 失败: %s，使用默认值: %s", section, option, e, default)
             return default
         raise ConfigParseError(f"解析配置 {section}/{option} 失败: {e}")
 

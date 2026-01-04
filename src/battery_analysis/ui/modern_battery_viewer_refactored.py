@@ -517,7 +517,7 @@ class ModernBatteryViewerRefactored(QMainWindow):
             self.data_loaded.emit(data_path)
             
         except Exception as e:
-            logging.error(f"加载数据失败: {e}")
+            logging.error("加载数据失败: %s", e)
             QMessageBox.critical(self, "错误", f"加载数据失败: {str(e)}")
             self.statusBar().showMessage('数据加载失败')
     

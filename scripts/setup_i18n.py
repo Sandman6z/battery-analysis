@@ -29,7 +29,7 @@ def backup_old_i18n_files():
             shutil.rmtree(backup_dir)
         
         shutil.copytree(old_i18n_dir, backup_dir)
-        logger.info(f"Backed up old i18n files to: {backup_dir}")
+        logger.info("Backed up old i18n files to: %s", backup_dir)
 
 
 def create_new_i18n_structure():
@@ -62,7 +62,7 @@ def update_main_window_i18n():
     main_window_file = Path(__file__).parent.parent / "src" / "battery_analysis" / "main" / "main_window.py"
     
     if not main_window_file.exists():
-        logger.warning(f"main_window.py not found: {main_window_file}")
+        logger.warning("main_window.py not found: %s", main_window_file)
         return
     
     try:
@@ -118,13 +118,13 @@ def update_main_window_i18n():
             with open(main_window_file, 'w', encoding='utf-8') as f:
                 f.write(content)
             
-            logger.info(f"Updated main_window.py with {changes_made} i18n replacements")
-            logger.info(f"Original backed up to: {backup_file}")
+            logger.info("Updated main_window.py with %s i18n replacements", changes_made)
+            logger.info("Original backed up to: %s", backup_file)
         else:
             logger.info("No i18n updates needed for main_window.py")
     
     except Exception as e:
-        logger.error(f"Error updating main_window.py: {e}")
+        logger.error("Error updating main_window.py: %s", e)
 
 
 def update_battery_chart_viewer_i18n():
@@ -132,7 +132,7 @@ def update_battery_chart_viewer_i18n():
     chart_viewer_file = Path(__file__).parent.parent / "src" / "battery_analysis" / "main" / "battery_chart_viewer.py"
     
     if not chart_viewer_file.exists():
-        logger.warning(f"battery_chart_viewer.py not found: {chart_viewer_file}")
+        logger.warning("battery_chart_viewer.py not found: %s", chart_viewer_file)
         return
     
     try:
@@ -176,13 +176,13 @@ def update_battery_chart_viewer_i18n():
             with open(chart_viewer_file, 'w', encoding='utf-8') as f:
                 f.write(content)
             
-            logger.info(f"Updated battery_chart_viewer.py with {changes_made} i18n replacements")
-            logger.info(f"Original backed up to: {backup_file}")
+            logger.info("Updated battery_chart_viewer.py with %s i18n replacements", changes_made)
+            logger.info("Original backed up to: %s", backup_file)
         else:
             logger.info("No i18n updates needed for battery_chart_viewer.py")
     
     except Exception as e:
-        logger.error(f"Error updating battery_chart_viewer.py: {e}")
+        logger.error("Error updating battery_chart_viewer.py: %s", e)
 
 
 def create_i18n_test():
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     with open(test_script, 'w', encoding='utf-8') as f:
         f.write(test_content)
     
-    logger.info(f"Created i18n test script: {test_script}")
+    logger.info("Created i18n test script: %s", test_script)
 
 
 def create_documentation():
@@ -339,7 +339,7 @@ This implementation follows:
     with open(doc_file, 'w', encoding='utf-8') as f:
         f.write(doc_content)
     
-    logger.info(f"Created i18n documentation: {doc_file}")
+    logger.info("Created i18n documentation: %s", doc_file)
 
 
 def main():

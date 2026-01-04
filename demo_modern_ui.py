@@ -160,7 +160,7 @@ def main():
         return 0
     except Exception as e:
         print(f"\n\n❌ 演示过程中出现错误: {e}")
-        logging.error(f"演示错误: {e}", exc_info=True)
+        logging.error("演示错误: %s", e, exc_info=True)
         return 1
 
 

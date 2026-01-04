@@ -37,7 +37,7 @@ class FileService(IFileService):
         try:
             directory = Path(path)
             directory.mkdir(parents=True, exist_ok=True)
-            self.logger.info(f"Directory created: {path}")
+            self.logger.info("Directory created: %s", path)
             return True, ""
             
         except Exception as e:
@@ -69,7 +69,7 @@ class FileService(IFileService):
             else:
                 dir_path.rmdir()
             
-            self.logger.info(f"Directory deleted: {path}")
+            self.logger.info("Directory deleted: %s", path)
             return True, ""
             
         except Exception as e:
@@ -91,7 +91,7 @@ class FileService(IFileService):
         try:
             dir_path = Path(directory)
             if not dir_path.exists() or not dir_path.is_dir():
-                self.logger.error(f"Directory not found: {directory}")
+                self.logger.error("Directory not found: %s", directory)
                 return []
             
             if pattern:
@@ -102,7 +102,7 @@ class FileService(IFileService):
             return files
             
         except Exception as e:
-            self.logger.error(f"Failed to list files in {directory}: {e}")
+            self.logger.error("Failed to list files in %s: %s", directory, e)
             return []
     
     def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
@@ -123,7 +123,7 @@ class FileService(IFileService):
                 return None
                 
         except Exception as e:
-            self.logger.error(f"Failed to get file size for {file_path}: {e}")
+            self.logger.error("Failed to get file size for %s: %s", file_path, e)
             return None
     
     def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
@@ -148,7 +148,7 @@ class FileService(IFileService):
             self.logger.warning("win32api不可用，无法检查文件隐藏属性")
             return False
         except Exception as e:
-            self.logger.error(f"检查文件隐藏属性失败: {e}")
+            self.logger.error("检查文件隐藏属性失败: %s", e)
             return False
     
     def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
@@ -169,7 +169,7 @@ class FileService(IFileService):
             
             # 复制文件
             shutil.copy2(source, destination)
-            self.logger.info(f"文件复制成功: {source} -> {destination}")
+            self.logger.info("文件复制成功: %s -> %s", source, destination)
             return True, ""
             
         except Exception as e:
@@ -195,7 +195,7 @@ class FileService(IFileService):
             
             # 移动文件
             shutil.move(str(source), str(destination))
-            self.logger.info(f"文件移动成功: {source} -> {destination}")
+            self.logger.info("文件移动成功: %s -> %s", source, destination)
             return True, ""
             
         except Exception as e:
@@ -222,7 +222,7 @@ class FileService(IFileService):
                 return False, f"路径不是文件: {file_path}"
             
             path.unlink()
-            self.logger.info(f"文件删除成功: {file_path}")
+            self.logger.info("文件删除成功: %s", file_path)
             return True, ""
             
         except Exception as e:
@@ -255,7 +255,7 @@ class FileService(IFileService):
                 current_attrs = win32api.GetFileAttributes(path)
                 win32api.SetFileAttributes(path, current_attrs | win32con.FILE_ATTRIBUTE_READONLY)
             
-            self.logger.info(f"File attributes set for {file_path}: {attributes}")
+            self.logger.info("File attributes set for %s: %s", file_path, attributes)
             return True, ""
             
         except ImportError:
@@ -306,7 +306,7 @@ class FileService(IFileService):
             }
             
         except Exception as e:
-            self.logger.error(f"Failed to get directory info for {directory}: {e}")
+            self.logger.error("Failed to get directory info for %s: %s", directory, e)
             return {}
     
     def get_file_info(self, file_path: str) -> Dict[str, Any]:
@@ -338,5 +338,5 @@ class FileService(IFileService):
             }
             
         except Exception as e:
-            self.logger.error(f"Failed to get file info for {file_path}: {e}")
+            self.logger.error("Failed to get file info for %s: %s", file_path, e)
             return {}

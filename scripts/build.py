@@ -710,9 +710,9 @@ def main():
         # 创建BuildManager实例并执行构建
         build_manager = BuildManager(args.build_type)
         build_manager.run_build()  # 调用run_build方法执行完整构建流程
-        logger.info(f'{args.build_type} 构建完成')
+        logger.info('%s 构建完成', args.build_type)
     except Exception as e:
-        logger.error(f'构建失败: {e}')
+        logger.error("构建失败: %s", e)
         sys.exit(1)
 
 

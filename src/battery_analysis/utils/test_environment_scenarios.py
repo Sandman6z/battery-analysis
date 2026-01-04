@@ -50,13 +50,13 @@ class EnvironmentScenarioTester:
     def setup_temp_environment(self):
         """设置临时测试环境"""
         self.temp_dir = tempfile.mkdtemp(prefix="env_test_")
-        logger.info(f"创建临时测试环境: {self.temp_dir}")
+        logger.info("创建临时测试环境: %s", self.temp_dir)
         
     def cleanup_temp_environment(self):
         """清理临时测试环境"""
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
-            logger.info(f"清理临时测试环境: {self.temp_dir}")
+            logger.info("清理临时测试环境: %s", self.temp_dir)
     
     def restore_original_environment(self):
         """恢复原始环境变量"""
@@ -79,7 +79,7 @@ class EnvironmentScenarioTester:
             'status': status
         }
         self.test_results.append(result)
-        logger.info(f"{status} [{scenario}] {test_name}: {details}")
+        logger.info("%s [%s] %s: %s", status, scenario, test_name, details)
     
     def test_ide_environment_scenarios(self):
         """测试IDE环境场景"""
@@ -462,19 +462,19 @@ class EnvironmentScenarioTester:
         logger.info("=" * 60)
         
         summary = report['summary']
-        logger.info(f"总场景测试数: {summary['total_tests']}")
-        logger.info(f"通过测试: {summary['passed_tests']}")
-        logger.info(f"失败测试: {summary['failed_tests']}")
-        logger.info(f"成功率: {summary['success_rate']}")
+        logger.info("总场景测试数: %s", summary['total_tests'])
+        logger.info("通过测试: %s", summary['passed_tests'])
+        logger.info("失败测试: %s", summary['failed_tests'])
+        logger.info("成功率: %s", summary['success_rate'])
         
         logger.info("\n各场景组结果:")
         for scenario_name, scenario_result in report['scenarios'].items():
             success_rate = (scenario_result['passed'] / scenario_result['total'] * 100) if scenario_result['total'] > 0 else 0
-            logger.info(f"  {scenario_name}: {scenario_result['passed']}/{scenario_result['total']} ({success_rate:.1f}%)")
+            logger.info("  %s: %s/%s (%s%)", scenario_name, scenario_result['passed'], scenario_result['total'], success_rate:.1f)
         
         logger.info("\n结论和建议:")
         for i, conclusion in enumerate(report['conclusions'], 1):
-            logger.info(f"  {i}. {conclusion}")
+            logger.info("  %s. %s", i, conclusion)
 
 
 def main():
@@ -504,7 +504,7 @@ def main():
             try:
                 test_method()
             except Exception as e:
-                logger.error(f"场景测试方法 {test_method.__name__} 执行失败: {e}")
+                logger.error("场景测试方法 %s 执行失败: %s", test_method.__name__, e)
         
         # 生成和显示报告
         report = tester.generate_scenario_report()
@@ -513,7 +513,7 @@ def main():
         # 返回适当的退出码
         failed_tests = sum(1 for result in tester.test_results if not result['success'])
         if failed_tests > 0:
-            logger.warning(f"检测到 {failed_tests} 个失败的场景测试")
+            logger.warning("检测到 %s 个失败的场景测试", failed_tests)
             sys.exit(1)
         else:
             logger.info("所有场景测试通过！")

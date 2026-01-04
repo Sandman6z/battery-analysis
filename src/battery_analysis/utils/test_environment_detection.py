@@ -59,9 +59,9 @@ class EnvironmentDetectionTester:
         self.test_results.append(result)
         
         if self.verbose or not success:
-            logger.info(f"{status} - {test_name}: {message}")
+            logger.info("%s - %s: %s", status, test_name, message)
         else:
-            logger.info(f"{status} - {test_name}")
+            logger.info("%s - %s", status, test_name)
     
     def test_basic_environment_detection(self) -> bool:
         """测试基础环境检测功能"""
@@ -406,29 +406,29 @@ class EnvironmentDetectionTester:
         logger.info("=" * 60)
         
         summary = report['summary']
-        logger.info(f"总测试数: {summary['total_tests']}")
-        logger.info(f"通过测试: {summary['passed_tests']}")
-        logger.info(f"失败测试: {summary['failed_tests']}")
-        logger.info(f"成功率: {summary['success_rate']}")
+        logger.info("总测试数: %s", summary['total_tests'])
+        logger.info("通过测试: %s", summary['passed_tests'])
+        logger.info("失败测试: %s", summary['failed_tests'])
+        logger.info("成功率: %s", summary['success_rate'])
         
         logger.info("\n各测试组结果:")
         for group_name, group_result in report['test_groups'].items():
             success_rate = (group_result['passed'] / group_result['total'] * 100) if group_result['total'] > 0 else 0
-            logger.info(f"  {group_name}: {group_result['passed']}/{group_result['total']} ({success_rate:.1f}%)")
+            logger.info("  %s: %s/%s (%s%)", group_name, group_result['passed'], group_result['total'], success_rate:.1f)
         
         logger.info("\n环境信息:")
         env_info = report['environment_info']
-        logger.info(f"  平台: {env_info['platform'].value}")
-        logger.info(f"  环境类型: {env_info['environment_type'].value}")
-        logger.info(f"  GUI可用: {env_info['gui_available']}")
-        logger.info(f"  冻结环境: {env_info['is_frozen']}")
-        logger.info(f"  Python路径: {env_info['python_executable']}")
-        logger.info(f"  工作目录: {env_info['working_directory']}")
+        logger.info("  平台: %s", env_info['platform'].value)
+        logger.info("  环境类型: %s", env_info['environment_type'].value)
+        logger.info("  GUI可用: %s", env_info['gui_available'])
+        logger.info("  冻结环境: %s", env_info['is_frozen'])
+        logger.info("  Python路径: %s", env_info['python_executable'])
+        logger.info("  工作目录: %s", env_info['working_directory'])
         
         if report['recommendations']:
             logger.info("\n改进建议:")
             for i, rec in enumerate(report['recommendations'], 1):
-                logger.info(f"  {i}. {rec}")
+                logger.info("  %s. %s", i, rec)
     
     def save_report(self, report: Dict[str, Any], output_file: str = None):
         """保存测试报告到文件"""
@@ -442,10 +442,10 @@ class EnvironmentDetectionTester:
             with open(report_path, 'w', encoding='utf-8') as f:
                 json.dump(report, f, indent=2, ensure_ascii=False, default=str)
             
-            logger.info(f"测试报告已保存到: {report_path}")
+            logger.info("测试报告已保存到: %s", report_path)
             return str(report_path)
         except Exception as e:
-            logger.error(f"保存测试报告失败: {e}")
+            logger.error("保存测试报告失败: %s", e)
             return None
 
 
@@ -459,7 +459,7 @@ def main():
     args = parser.parse_args()
     
     logger.info("开始环境检测功能验证")
-    logger.info(f"命令行参数: {args}")
+    logger.info("命令行参数: %s", args)
     
     # 创建测试器
     tester = EnvironmentDetectionTester(verbose=args.verbose)
@@ -479,7 +479,7 @@ def main():
         try:
             test_method()
         except Exception as e:
-            logger.error(f"测试方法 {test_method.__name__} 执行失败: {e}")
+            logger.error("测试方法 %s 执行失败: %s", test_method.__name__, e)
     
     # 生成和显示报告
     report = tester.generate_test_report()
@@ -494,7 +494,7 @@ def main():
     # 返回适当的退出码
     failed_tests = sum(1 for result in tester.test_results if not result['success'])
     if failed_tests > 0:
-        logger.warning(f"检测到 {failed_tests} 个失败的测试")
+        logger.warning("检测到 %s 个失败的测试", failed_tests)
         sys.exit(1)
     else:
         logger.info("所有测试通过！")

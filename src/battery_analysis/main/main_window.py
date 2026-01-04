@@ -173,7 +173,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     self.environment_service.initialize()
                 self.env_detector = self.environment_service.get_environment_detector()
             except Exception as e:
-                self.logger.warning(f"Failed to initialize environment service: {e}")
+                self.logger.warning("Failed to initialize environment service: %s", e)
                 self.env_detector = None
         else:
             self.env_detector = None
@@ -214,7 +214,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         if hasattr(self.environment_service, 'env_info'):
                             self.env_info = self.environment_service.env_info
         except Exception as e:
-            self.logger.warning(f"Failed to initialize environment service: {e}")
+            self.logger.warning("Failed to initialize environment service: %s", e)
         
         # 确保环境信息包含必要的键
         if 'environment_type' not in self.env_info:
@@ -430,7 +430,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:
                 if icon_path.exists():
-                    self.logger.debug(f"找到应用图标: {icon_path}")
+                    self.logger.debug("找到应用图标: %s", icon_path)
                     return QG.QIcon(str(icon_path))
             
             # 如果都找不到，使用默认图标
@@ -439,7 +439,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             
         except Exception as e:
             # 捕获所有异常，确保应用能正常启动
-            self.logger.error(f"加载应用图标失败: {e}")
+            self.logger.error("加载应用图标失败: %s", e)
             return QG.QIcon()
 
     def _connect_controllers(self):
@@ -537,7 +537,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             code: 状态码
             message: 状态消息
         """
-        self.logger.info(f"Status changed: {status}, Code: {code}, Message: {message}")
+        self.logger.info("Status changed: %s, Code: %s, Message: %s", status, code, message)
 
     def _on_file_selected(self, file_path: str):
         """
@@ -546,7 +546,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         Args:
             file_path: 文件路径
         """
-        self.logger.info(f"File selected via event bus: {file_path}")
+        self.logger.info("File selected via event bus: %s", file_path)
 
     def _on_config_changed(self, key: str, value: Any):
         """
@@ -556,7 +556,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             key: 配置键
             value: 配置值
         """
-        self.logger.debug(f"Config changed: {key} = {value}")
+        self.logger.debug("Config changed: %s = %s", key, value)
         if self.config_service:
             self.config_service.set(key, value)
 
@@ -609,7 +609,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             if self.language_manager:
                 self.language_manager.language_changed.connect(self._on_language_changed)
         except Exception as e:
-            self.logger.warning(f"Failed to initialize language manager: {e}")
+            self.logger.warning("Failed to initialize language manager: %s", e)
 
     def _on_language_changed(self, language_code):
         """语言切换处理"""
@@ -635,7 +635,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 刷新所有对话框
         self._refresh_dialogs()
         
-        logging.info(f"界面语言已切换到: {language_code}")
+        logging.info("界面语言已切换到: %s", language_code)
 
     def _update_ui_texts(self):
         """更新UI文本为当前语言"""
@@ -1019,7 +1019,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             preferences_dialog.exec()
             
         except Exception as e:
-            self.logger.error(f"显示首选项对话框whenerror occurred: {e}")
+            self.logger.error("显示首选项对话框whenerror occurred: %s", e)
             QW.QMessageBox.critical(
                 self,
                 _("error", "错误"),
@@ -1034,7 +1034,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.info("首选项已应用")
             
         except Exception as e:
-            self.logger.error(f"应用首选项后处理error occurred: {e}")
+            self.logger.error("应用首选项后处理error occurred: %s", e)
 
     def toggle_toolbar_safe(self) -> None:
         """安全地切换工具栏的显示/隐藏状态"""
@@ -1145,10 +1145,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         # 使用安全的文件打开方式
                         os.startfile(str(manual_path))
                         manual_found = True
-                        self.logger.info(f"成功打开用户手册: {manual_path}")
+                        self.logger.info("成功打开用户手册: %s", manual_path)
                         break
                     except Exception as open_error:
-                        self.logger.warning(f"打开手册文件失败 {manual_path}: {open_error}")
+                        self.logger.warning("打开手册文件失败 %s: %s", manual_path, open_error)
                         continue
             
             if not manual_found:
@@ -1165,7 +1165,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 )
                 
         except Exception as e:
-            self.logger.error(f"打开用户手册失败: {e}")
+            self.logger.error("打开用户手册失败: %s", e)
             QW.QMessageBox.warning(
                 self,
                 _("error", "错误"),
@@ -1276,9 +1276,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if xml_path is None:
             logging.info("没有传入xml_path，尝试从界面获取")
             xml_path = self.lineEdit_TestProfile.text() if hasattr(self, 'lineEdit_TestProfile') else None
-            logging.info(f"从界面获取的xml_path: {xml_path}")
+            logging.info("从界面获取的xml_path: %s", xml_path)
         else:
-            logging.info(f"传入的xml_path: {xml_path}")
+            logging.info("传入的xml_path: %s", xml_path)
         
         self.statusBar_BatteryAnalysis.showMessage(_("starting_visualizer", "启动可视化工具..."))
 
@@ -1293,7 +1293,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 检查是否有有效的数据路径
             if xml_path and os.path.exists(xml_path):
                 # 如果有有效的数据路径，先加载数据
-                logging.info(f"加载数据: {xml_path}")
+                logging.info("加载数据: %s", xml_path)
                 success = self.current_visualizer.load_data(xml_path)
                 if not success:
                     logging.warning("数据加载失败，将显示空图表")
@@ -1750,7 +1750,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     app.setStyleSheet(dark_stylesheet)
                     self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_simple_dark", f"已切换到简单深色主题"))
         except Exception as e:
-            logging.error(f"切换主题失败: {e}")
+            logging.error("切换主题失败: %s", e)
             self.statusBar_BatteryAnalysis.showMessage(_("theme_switch_failed", f"切换主题失败: {str(e)}"))
 
         # 设置当前主题动作的选中状态
@@ -2295,7 +2295,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 
                 # 验证目录是否有效
                 if not test_profile_dir or not os.path.exists(test_profile_dir):
-                    self.logger.error(f"无效的Test Profile目录: {test_profile_dir}")
+                    self.logger.error("无效的Test Profile目录: %s", test_profile_dir)
                     return
                 
                 # 获取父目录（项目根目录）
@@ -2303,7 +2303,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 
                 # 验证父目录是否存在
                 if not parent_dir or not os.path.exists(parent_dir):
-                    self.logger.error(f"无效的父目录: {parent_dir}")
+                    self.logger.error("无效的父目录: %s", parent_dir)
                     return
                 
                 # 自动设置input path为同级的2_xlsx文件夹
@@ -2311,9 +2311,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 if os.path.exists(input_path) and os.path.isdir(input_path):
                     self.lineEdit_InputPath.setText(input_path)
                     self.sigSetVersion.emit()
-                    self.logger.info(f"自动设置输入路径: {input_path}")
+                    self.logger.info("自动设置输入路径: %s", input_path)
                 else:
-                    self.logger.info(f"未找到输入目录: {input_path}")
+                    self.logger.info("未找到输入目录: %s", input_path)
                 
                 # 自动设置output path为同级的3_analysis results文件夹
                 output_path = os.path.join(parent_dir, "3_analysis results")
@@ -2333,9 +2333,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         try:
                             os.makedirs(output_path, exist_ok=True)
                             self.lineEdit_OutputPath.setText(output_path)
-                            self.logger.info(f"创建并设置输出目录: {output_path}")
+                            self.logger.info("创建并设置输出目录: %s", output_path)
                         except Exception as e:
-                            self.logger.error(f"创建输出目录失败: {e}")
+                            self.logger.error("创建输出目录失败: %s", e)
                             QW.QMessageBox.critical(
                                 self,
                                 "创建失败",
@@ -2346,16 +2346,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     else:
                         # 用户选择不创建，手动设置路径但不创建目录
                         self.lineEdit_OutputPath.setText(output_path)
-                        self.logger.info(f"手动设置输出目录（未创建）: {output_path}")
+                        self.logger.info("手动设置输出目录（未创建）: %s", output_path)
                 
                 self.sigSetVersion.emit()
                 
                 # 更新current_directory为项目根目录
                 self.current_directory = parent_dir
-                self.logger.info(f"设置当前目录为项目根目录: {parent_dir}")
+                self.logger.info("设置当前目录为项目根目录: %s", parent_dir)
                 
             except Exception as e:
-                self.logger.error(f"选择Test Profilewhen发生错误: {e}")
+                self.logger.error("选择Test Profilewhen发生错误: %s", e)
                 QW.QMessageBox.critical(
                     self,
                     "错误",
@@ -2873,7 +2873,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     if self.file_service:
                         success, error_msg = self.file_service.hide_file(str(md5_file))
                         if not success:
-                            self.logger.warning(f"无法设置MD5文件隐藏属性: {error_msg}")
+                            self.logger.warning("无法设置MD5文件隐藏属性: %s", error_msg)
                     else:
                         # 降级到直接调用
                         try:

@@ -126,7 +126,7 @@ class FileController(QC.QObject):
         try:
             return self.config_service.get_config_value(f"{section}/{option}", default)
         except Exception as e:
-            logging.warning(f"获取配置值失败: {e}")
+            logging.warning("获取配置值失败: %s", e)
             return default
 
     def validate_directory(self, directory_path):

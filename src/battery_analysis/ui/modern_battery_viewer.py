@@ -549,7 +549,7 @@ class ModernBatteryViewer(QMainWindow):
                 raise Exception("数据加载失败")
                 
         except Exception as e:
-            logging.error(f"加载数据失败: {e}")
+            logging.error("加载数据失败: %s", e)
             QMessageBox.critical(self, "错误", f"加载数据失败:\n{str(e)}")
             
             self.data_status_label.setText("数据加载失败")
@@ -560,7 +560,7 @@ class ModernBatteryViewer(QMainWindow):
     def _on_chart_type_changed(self, chart_type):
         """图表类型变化处理"""
         
-        logging.info(f"图表类型变更为: {chart_type}")
+        logging.info("图表类型变更为: %s", chart_type)
         self.visualization_changed.emit(chart_type)
     
     @pyqtSlot(int)
@@ -601,7 +601,7 @@ class ModernBatteryViewer(QMainWindow):
             self.statusBar().showMessage('数据处理完成')
             
         except Exception as e:
-            logging.error(f"数据处理失败: {e}")
+            logging.error("数据处理失败: %s", e)
             QMessageBox.warning(self, "警告", f"数据处理失败:\n{str(e)}")
     
     @pyqtSlot()
@@ -638,7 +638,7 @@ class ModernBatteryViewer(QMainWindow):
             self.analysis_result_text.setPlainText(result_text)
             
         except Exception as e:
-            logging.error(f"分析失败: {e}")
+            logging.error("分析失败: %s", e)
             self.analysis_result_text.setPlainText(f"分析失败: {str(e)}")
     
     @pyqtSlot()

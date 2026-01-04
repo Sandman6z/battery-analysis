@@ -126,7 +126,7 @@ class ApplicationService:
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to initialize ApplicationService: {e}")
+            self.logger.error("Failed to initialize ApplicationService: %s", e)
             return False
 
     def _setup_controller_contexts(self):
@@ -164,7 +164,7 @@ class ApplicationService:
             status: 状态文本
         """
         self.progress_service.update_progress(progress, status)
-        self.logger.debug(f"Progress updated: {progress}% - {status}")
+        self.logger.debug("Progress updated: %s% - %s", progress, status)
 
     def _on_status_changed(self, status: bool, code: int, message: str):
         """
@@ -175,7 +175,7 @@ class ApplicationService:
             code: 状态码
             message: 状态消息
         """
-        self.logger.info(f"Status changed: {status}, Code: {code}, Message: {message}")
+        self.logger.info("Status changed: %s, Code: %s, Message: %s", status, code, message)
 
     def _on_analysis_completed(self):
         """
@@ -201,9 +201,9 @@ class ApplicationService:
         
         self.current_visualizer = self.visualizer_factory.create_visualizer(name, **kwargs)
         if self.current_visualizer:
-            self.logger.info(f"Created visualizer: {name}")
+            self.logger.info("Created visualizer: %s", name)
         else:
-            self.logger.error(f"Failed to create visualizer: {name}")
+            self.logger.error("Failed to create visualizer: %s", name)
         
         return self.current_visualizer
 

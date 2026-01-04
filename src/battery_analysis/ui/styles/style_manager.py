@@ -31,7 +31,7 @@ class StyleManager(QObject):
             from PyQt6.QtGui import QFontDatabase
             self._font_database = QFontDatabase()
         except Exception as e:
-            logging.warning(f"无法初始化QFontDatabase: {e}")
+            logging.warning("无法初始化QFontDatabase: %s", e)
             self._font_database = None
         
         # 样式文件路径
@@ -55,9 +55,9 @@ class StyleManager(QObject):
                 try:
                     with open(style_path, 'r', encoding='utf-8') as f:
                         self._style_cache[theme_name] = f.read()
-                        logging.info(f"样式文件已加载: {filename}")
+                        logging.info("样式文件已加载: %s", filename)
                 except Exception as e:
-                    logging.error(f"加载样式文件失败 {filename}: {e}")
+                    logging.error("加载样式文件失败 %s: %s", filename, e)
     
     def apply_style(self, widget: QWidget, theme: Optional[str] = None):
         """应用样式到指定控件"""
@@ -67,9 +67,9 @@ class StyleManager(QObject):
         
         if theme in self._style_cache:
             widget.setStyleSheet(self._style_cache[theme])
-            logging.debug(f"已应用主题样式: {theme}")
+            logging.debug("已应用主题样式: %s", theme)
         else:
-            logging.warning(f"未找到主题样式: {theme}")
+            logging.warning("未找到主题样式: %s", theme)
     
     def apply_global_style(self, app: QApplication, theme: Optional[str] = None):
         """应用全局样式"""
@@ -90,17 +90,17 @@ class StyleManager(QObject):
                         logging.info("已应用统一电池分析器样式 (通过StyleManager)")
                         return
                 except Exception as e:
-                    logging.error(f"加载统一样式文件失败: {e}")
+                    logging.error("加载统一样式文件失败: %s", e)
             else:
-                logging.warning(f"未找到统一样式文件: {unified_style_path}")
+                logging.warning("未找到统一样式文件: %s", unified_style_path)
         
         if theme in self._style_cache:
             app.setStyleSheet(self._style_cache[theme])
             self._current_theme = theme
             self.theme_changed.emit(theme)
-            logging.info(f"已应用全局主题: {theme}")
+            logging.info("已应用全局主题: %s", theme)
         else:
-            logging.error(f"未找到主题样式: {theme}")
+            logging.error("未找到主题样式: %s", theme)
     
     def load_custom_style(self, file_path: str) -> bool:
         """加载自定义样式文件"""
@@ -109,10 +109,10 @@ class StyleManager(QObject):
             with open(file_path, 'r', encoding='utf-8') as f:
                 custom_style = f.read()
                 self._style_cache["custom"] = custom_style
-                logging.info(f"已加载自定义样式: {file_path}")
+                logging.info("已加载自定义样式: %s", file_path)
                 return True
         except Exception as e:
-            logging.error(f"加载自定义样式失败: {e}")
+            logging.error("加载自定义样式失败: %s", e)
             return False
     
     def get_style_variables(self, theme: Optional[str] = None) -> Dict[str, Any]:
@@ -166,11 +166,11 @@ class StyleManager(QObject):
                 font_families = self._font_database.applicationFontFamilies(font_id)
                 if font_families:
                     family_name = family_name or font_families[0]
-                    logging.info(f"字体已注册: {family_name}")
+                    logging.info("字体已注册: %s", family_name)
                     return True
             return False
         except Exception as e:
-            logging.error(f"注册字体失败: {e}")
+            logging.error("注册字体失败: %s", e)
             return False
     
     def set_application_font(self, app: QApplication, font_family: str, size: int = 11):
@@ -179,9 +179,9 @@ class StyleManager(QObject):
         try:
             font = QFont(font_family, size)
             app.setFont(font)
-            logging.info(f"应用程序字体已设置: {font_family} {size}pt")
+            logging.info("应用程序字体已设置: %s %spt", font_family, size)
         except Exception as e:
-            logging.error(f"设置字体失败: {e}")
+            logging.error("设置字体失败: %s", e)
     
     def create_themed_button(self, parent, text: str, action_type: str, 
                            callback=None, **kwargs) -> 'QPushButton':

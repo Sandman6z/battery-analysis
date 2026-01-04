@@ -85,7 +85,7 @@ def extract_translatable_strings(python_file: Path) -> Set[str]:
             translatable_strings.add(plural)
         
     except Exception as e:
-        logger.warning(f"Error processing {python_file}: {e}")
+        logger.warning("Error processing %s: %s", python_file, e)
     
     return translatable_strings
 
@@ -125,10 +125,10 @@ def extract_with_xgettext(python_files: List[Path], output_file: Path) -> bool:
         result = subprocess.run(cmd, capture_output=True, text=True)
         
         if result.returncode == 0:
-            logger.info(f"Successfully extracted translations to: {output_file}")
+            logger.info("Successfully extracted translations to: %s", output_file)
             return True
         else:
-            logger.error(f"xgettext failed: {result.stderr}")
+            logger.error("xgettext failed: %s", result.stderr)
             return False
     
     except FileNotFoundError:
@@ -136,7 +136,7 @@ def extract_with_xgettext(python_files: List[Path], output_file: Path) -> bool:
         logger.info("On Windows, install gettext from: https://mlocati.github.io/gettext-iconv-windows/")
         return False
     except Exception as e:
-        logger.error(f"Error running xgettext: {e}")
+        logger.error("Error running xgettext: %s", e)
         return False
 
 
@@ -188,11 +188,11 @@ msgstr ""
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(pot_content)
         
-        logger.info(f"Created .pot template: {output_file}")
+        logger.info("Created .pot template: %s", output_file)
         return True
     
     except Exception as e:
-        logger.error(f"Error creating .pot file: {e}")
+        logger.error("Error creating .pot file: %s", e)
         return False
 
 
@@ -231,7 +231,7 @@ def analyze_ui_files(source_dir: Path) -> Dict[str, List[str]]:
             ui_strings[str(ui_file)] = strings
         
         except Exception as e:
-            logger.warning(f"Error processing UI file {ui_file}: {e}")
+            logger.warning("Error processing UI file %s: %s", ui_file, e)
     
     return ui_strings
 
@@ -246,14 +246,14 @@ def main():
     pot_file = locale_dir / "messages.pot"
     
     if not source_dir.exists():
-        logger.error(f"Source directory not found: {source_dir}")
+        logger.error("Source directory not found: %s", source_dir)
         sys.exit(1)
     
     if not locale_dir.exists():
-        logger.error(f"Locale directory not found: {locale_dir}")
+        logger.error("Locale directory not found: %s", locale_dir)
         sys.exit(1)
     
-    logger.info(f"Extracting translations from: {source_dir}")
+    logger.info("Extracting translations from: %s", source_dir)
     
     # Find Python files
     python_files = find_python_files(source_dir)
@@ -262,7 +262,7 @@ def main():
         logger.warning("No Python files found")
         return
     
-    logger.info(f"Found {len(python_files)} Python files")
+    logger.info("Found %s Python files", len(python_files))
     
     # Extract strings using xgettext
     logger.info("Attempting extraction with xgettext...")
@@ -279,7 +279,7 @@ def main():
             strings = extract_translatable_strings(python_file)
             all_strings.update(strings)
             if strings:
-                logger.debug(f"Found {len(strings)} strings in {python_file}")
+                logger.debug("Found %s strings in %s", len(strings), python_file)
         
         # Analyze UI files
         logger.info("Analyzing UI files...")
@@ -288,7 +288,7 @@ def main():
         for ui_file, strings in ui_strings.items():
             all_strings.update(strings)
             if strings:
-                logger.info(f"Found {len(strings)} strings in UI file: {ui_file}")
+                logger.info("Found %s strings in UI file: %s", len(strings), ui_file)
         
         # Create .pot file manually
         if all_strings:
@@ -301,7 +301,7 @@ def main():
     po_files = list(locale_dir.rglob("*.po"))
     
     if po_files:
-        logger.info(f"Found {len(po_files)} .po files to update")
+        logger.info("Found %s .po files to update", len(po_files))
         
         for po_file in po_files:
             update_po_file(po_file, pot_file)
@@ -327,17 +327,17 @@ def update_po_file(po_file: Path, pot_file: Path) -> bool:
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            logger.info(f"Updated: {po_file}")
+            logger.info("Updated: %s", po_file)
             return True
         else:
-            logger.error(f"Failed to update {po_file}: {result.stderr}")
+            logger.error("Failed to update %s: %s", po_file, result.stderr)
             return False
     
     except FileNotFoundError:
         logger.warning("msgmerge not found. Please install gettext package.")
         return False
     except Exception as e:
-        logger.error(f"Error updating {po_file}: {e}")
+        logger.error("Error updating %s: %s", po_file, e)
         return False
 
 

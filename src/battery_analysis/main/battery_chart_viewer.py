@@ -203,14 +203,14 @@ class BatteryChartViewer:
 
         # 如果提供了数据路径，覆盖配置文件中的路径
         if data_path is not None:
-            logging.info(f"初始化时接收到数据路径: {data_path}")
+            logging.info("初始化时接收到数据路径: %s", data_path)
             self.set_data_path(data_path)
             success = self.load_data()
             if success:
                 self.loaded_data = True
-                logging.info(f"初始化数据加载成功")
+                logging.info("初始化数据加载成功")
             else:
-                logging.warning(f"初始化数据加载失败")
+                logging.warning("初始化数据加载失败")
                 # 仅当auto_search为True时才搜索
                 if auto_search:
                     self._search_for_data_files()
@@ -228,11 +228,11 @@ class BatteryChartViewer:
         Args:
             data_path: 要设置的数据目录路径
         """
-        logging.info(f"设置数据路径: {data_path}")
+        logging.info("设置数据路径: %s", data_path)
         self.strPltPath = data_path
         self.strInfoImageCsvPath = os.path.join(
             self.strPltPath, "Info_Image.csv")
-        logging.info(f"更新后的CSV文件路径: {self.strInfoImageCsvPath}")
+        logging.info("更新后的CSV文件路径: %s", self.strInfoImageCsvPath)
 
     def load_data(self):
         """
@@ -909,7 +909,7 @@ class BatteryChartViewer:
                     
                 if "Info_Image.csv" in files:
                     info_image_csv = os.path.join(root, "Info_Image.csv")
-                    logging.info(f"在项目中找到Info_Image.csv文件: {info_image_csv}")
+                    logging.info("在项目中找到Info_Image.csv文件: %s", info_image_csv)
                     
                     # 设置数据路径并尝试加载
                     self.set_data_path(os.path.dirname(info_image_csv))
@@ -1072,7 +1072,7 @@ class BatteryChartViewer:
         
         # 确保使用正确的后端
         if matplotlib.get_backend() != 'QtAgg':
-            logging.info(f"当前Matplotlib后端: {matplotlib.get_backend()}, 切换到QtAgg后端")
+            logging.info("当前Matplotlib后端: %s, 切换到QtAgg后端", matplotlib.get_backend())
             matplotlib.use('QtAgg')
         
         logging.info("Matplotlib状态清理完成")
@@ -1097,12 +1097,12 @@ class BatteryChartViewer:
                     self.strPltPath or ".",  # 默认目录
                     QFileDialog.Option.ShowDirsOnly  # 只显示目录
                 )
-                logging.info(f"使用Qt文件对话框成功，返回值: {data_dir}")
+                logging.info("使用Qt文件对话框成功，返回值: %s", data_dir)
             except Exception as qt_error:
-                logging.error(f"Qt文件对话框失败: {qt_error}")
+                logging.error("Qt文件对话框失败: %s", qt_error)
 
             if data_dir:
-                logging.info(f"用户选择的数据目录: {data_dir}")
+                logging.info("用户选择的数据目录: %s", data_dir)
                 # 设置数据路径并重新加载数据
                 self.set_data_path(data_dir)
                 success = self.load_data()
@@ -1180,7 +1180,7 @@ class BatteryChartViewer:
             logging.info("About对话框显示完成")
             
         except Exception as e:
-            logging.error(f"显示About对话框失败: {e}")
+            logging.error("显示About对话框失败: %s", e)
             # 如果对话框失败，至少打印到日志
             print(f"Battery Analysis Tool v2.1.1\n开发者: Ewin电池分析团队")
 
@@ -1275,7 +1275,7 @@ class BatteryChartViewer:
         except ImportError as e:
             raise ImportError(f"PyQt6依赖缺失: {e}. 请确保已正确安装PyQt6")
         except Exception as e:
-            logging.error(f"添加菜单栏失败: {e}")
+            logging.error("添加菜单栏失败: %s", e)
             # 不再静默失败，直接抛出错误
             raise RuntimeError(f"菜单栏初始化失败: {e}") from e
 
@@ -1473,7 +1473,7 @@ class BatteryChartViewer:
                     state['bg'].set_boxstyle(f"round,pad={MODERN_BUTTON_STYLE['padding']/100}")
             except Exception as box_error:
                 # 如果boxstyle更新失败，不影响其他样式更新
-                logging.debug(f"boxstyle更新失败: {box_error}")
+                logging.debug("boxstyle更新失败: %s", box_error)
                 pass
             
             if pressed:
@@ -1551,7 +1551,7 @@ class BatteryChartViewer:
             logging.info("已应用现代化图表样式")
             
         except Exception as e:
-            logging.warning(f"应用现代化图表样式失败: {e}")
+            logging.warning("应用现代化图表样式失败: %s", e)
     
     def _apply_window_modern_style(self, window):
         """为PyQt6窗口应用现代化样式"""
@@ -1568,7 +1568,7 @@ class BatteryChartViewer:
             logging.info("已应用窗口现代化样式")
             
         except Exception as e:
-            logging.warning(f"应用窗口现代化样式失败: {e}")
+            logging.warning("应用窗口现代化样式失败: %s", e)
     
     def _apply_menubar_style(self, menubar):
         """为菜单栏应用现代化样式"""
@@ -1605,7 +1605,7 @@ class BatteryChartViewer:
             logging.info("已应用菜单栏现代化样式")
             
         except Exception as e:
-            logging.warning(f"应用菜单栏现代化样式失败: {e}")
+            logging.warning("应用菜单栏现代化样式失败: %s", e)
     
     def _apply_menu_style(self, menu):
         """为菜单应用现代化样式"""
@@ -1646,7 +1646,7 @@ class BatteryChartViewer:
             logging.info("已应用菜单现代化样式")
             
         except Exception as e:
-            logging.warning(f"应用菜单现代化样式失败: {e}")
+            logging.warning("应用菜单现代化样式失败: %s", e)
     
     def _create_modern_toggle_group(self, ax, x, y, width, height, buttons_config):
         """
@@ -1904,7 +1904,7 @@ class BatteryChartViewer:
         # 电池切换回调函数
         def toggle_battery_visibility(battery_idx, button_state):
             try:
-                logging.debug(f"切换电池 {battery_idx} 的可见性")
+                logging.debug("切换电池 %s 的可见性", battery_idx)
                 
                 # 处理空标签
                 if battery_info[battery_idx - start_idx].get('is_none', False):
@@ -1912,7 +1912,7 @@ class BatteryChartViewer:
 
                 # 根据当前模式（过滤/未过滤）更新对应线条的可见性
                 is_filtered = self.filter_button_state['active'] if hasattr(self, 'filter_button_state') else True
-                logging.debug(f"当前模式: {'过滤' if is_filtered else '未过滤'}")
+                logging.debug("当前模式: %s", '过滤' if is_filtered else '未过滤')
                 
                 # 找到当前点击的电池索引
                 battery_index = battery_info[battery_idx - start_idx]['index']
@@ -1933,14 +1933,14 @@ class BatteryChartViewer:
                     if i % self.intBatteryNum == battery_index:
                         current_lines[i].set_visible(new_visibility)
                         updated = True
-                        logging.debug(f"线条 {i} 可见性更新: {battery_visible} -> {new_visibility}")
+                        logging.debug("线条 %s 可见性更新: %s -> %s", i, battery_visible, new_visibility)
                 
                 # 同时更新另一种模式下该电池的所有线条，保持一致性
                 other_lines = lines_unfiltered if is_filtered else lines_filtered
                 for i in range(len(other_lines)):
                     if i % self.intBatteryNum == battery_index:
                         other_lines[i].set_visible(new_visibility)
-                        logging.debug(f"另一模式下的线条 {i} 可见性也更新为: {new_visibility}")
+                        logging.debug("另一模式下的线条 %s 可见性也更新为: %s", i, new_visibility)
 
                 # 更新按钮状态
                 button_state['active'] = new_visibility
@@ -1973,7 +1973,7 @@ class BatteryChartViewer:
             if button_state:
                 button_states.append((battery['index'], button_state))
 
-        logging.info(f"成功创建现代化电池选择按钮组 ({start_idx}-{end_idx})")
+        logging.info("成功创建现代化电池选择按钮组 (%s-%s)", start_idx, end_idx)
         return button_states
 
     def _add_help_text(self, fig):
@@ -2093,7 +2093,7 @@ if __name__ == '__main__':
         unified_style_path = Path(__file__).parent.parent / "ui" / "styles" / "battery_analyzer.qss"
         
         # 输出调试信息
-        logging.info(f"尝试加载统一样式文件: {unified_style_path}")
+        logging.info("尝试加载统一样式文件: %s", unified_style_path)
         
         if unified_style_path.exists():
             with open(unified_style_path, 'r', encoding='utf-8') as f:
@@ -2102,35 +2102,35 @@ if __name__ == '__main__':
                 logging.info("已应用统一电池分析器样式")
         else:
             # 如果统一样式文件不存在，尝试使用标准样式
-            logging.warning(f"未找到统一样式文件: {unified_style_path}")
+            logging.warning("未找到统一样式文件: %s", unified_style_path)
             try:
                 style_manager = StyleManager()
                 style_manager.apply_global_style(app, "modern")
                 logging.info("已应用备用全局主题样式")
             except Exception as e2:
-                logging.error(f"备用样式应用失败: {e2}")
+                logging.error("备用样式应用失败: %s", e2)
     except Exception as e:
-        logging.error(f"应用样式失败: {e}")
+        logging.error("应用样式失败: %s", e)
         # 尝试使用标准样式作为最后备用方案
         try:
             style_manager = StyleManager()
             style_manager.apply_global_style(app, "modern")
             logging.info("最终备用样式已应用")
         except Exception as e3:
-            logging.error(f"最终备用样式应用也失败: {e3}")
+            logging.error("最终备用样式应用也失败: %s", e3)
     
     data_path = None
     if len(sys.argv) > 1:
         data_path = sys.argv[1]
-        logging.info(f"从命令行接收数据路径: {data_path}")
+        logging.info("从命令行接收数据路径: %s", data_path)
     
     # 创建BatteryChartViewer实例
     figure = BatteryChartViewer(data_path=data_path)
     
     # 总是尝试显示图表（无论是正常数据还是错误图表），这样菜单栏样式就会被应用
-    logging.info(f"尝试显示图表（无论是否有数据）")
+    logging.info("尝试显示图表（无论是否有数据）")
     figure.plt_figure()
     
     # 启动事件循环
-    logging.info(f"启动Qt事件循环")
+    logging.info("启动Qt事件循环")
     sys.exit(app.exec())

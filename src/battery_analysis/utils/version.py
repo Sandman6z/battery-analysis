@@ -70,9 +70,9 @@ class Version:
             if get_environment_detector:
                 self.env_detector = get_environment_detector()
                 self.env_info = self.env_detector.get_environment_info()
-                logger.debug(f"环境检测成功: {self.env_info['environment_type']}")
+                logger.debug("环境检测成功: %s", self.env_info['environment_type'])
         except Exception as e:
-            logger.warning(f"环境检测失败: {e}")
+            logger.warning("环境检测失败: %s", e)
             self.env_detector = None
             self.env_info = {}
 
@@ -119,11 +119,11 @@ class Version:
                 for path in possible_paths:
                     if path.exists():
                         pyproject_path = path
-                        logger.info(f"使用环境检测器找到 pyproject.toml: {pyproject_path}")
+                        logger.info("使用环境检测器找到 pyproject.toml: %s", pyproject_path)
                         break
                         
             except Exception as e:
-                logger.warning(f"环境检测器查找配置文件失败: {e}")
+                logger.warning("环境检测器查找配置文件失败: %s", e)
 
         # 如果环境检测器不可用或没有找到文件，使用原有逻辑
         if not pyproject_path:

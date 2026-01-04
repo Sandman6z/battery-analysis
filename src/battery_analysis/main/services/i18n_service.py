@@ -88,7 +88,7 @@ class I18nService(II18nService):
                 self._language_manager = get_language_manager()
                 self.logger.info("I18nService initialized with language manager")
             except ImportError as e:
-                self.logger.warning(f"Language manager not available: {e}")
+                self.logger.warning("Language manager not available: %s", e)
                 # 使用简单的内部实现
                 self._current_language = "zh_CN"
                 self.is_initialized = True
@@ -99,7 +99,7 @@ class I18nService(II18nService):
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to initialize I18nService: {e}")
+            self.logger.error("Failed to initialize I18nService: %s", e)
             return False
     
     def _(self, text: str, context: Optional[str] = None) -> str:
@@ -124,7 +124,7 @@ class I18nService(II18nService):
                 return text
                 
         except Exception as e:
-            self.logger.error(f"Translation error for '{text}': {e}")
+            self.logger.error("Translation error for '%s': %s", text, e)
             return text
     
     def set_language(self, language_code: str) -> bool:
@@ -142,18 +142,18 @@ class I18nService(II18nService):
                 success = self._language_manager.set_locale(language_code)
                 if success:
                     self._current_language = language_code
-                    self.logger.info(f"Language set to: {language_code}")
+                    self.logger.info("Language set to: %s", language_code)
                     return True
                 else:
-                    self.logger.error(f"Failed to set language: {language_code}")
+                    self.logger.error("Failed to set language: %s", language_code)
                     return False
             else:
                 self._current_language = language_code
-                self.logger.info(f"Language set to (simple): {language_code}")
+                self.logger.info("Language set to (simple): %s", language_code)
                 return True
                 
         except Exception as e:
-            self.logger.error(f"Failed to set language {language_code}: {e}")
+            self.logger.error("Failed to set language %s: %s", language_code, e)
             return False
     
     def get_current_language(self) -> str:
@@ -170,7 +170,7 @@ class I18nService(II18nService):
                 return self._current_language
                 
         except Exception as e:
-            self.logger.error(f"Failed to get current language: {e}")
+            self.logger.error("Failed to get current language: %s", e)
             return self._current_language
     
     def get_available_languages(self) -> List[str]:
@@ -188,7 +188,7 @@ class I18nService(II18nService):
                 return ["zh_CN", "en"]
                 
         except Exception as e:
-            self.logger.error(f"Failed to get available languages: {e}")
+            self.logger.error("Failed to get available languages: %s", e)
             return ["zh_CN", "en"]
     
     def reload_translations(self) -> bool:
@@ -206,7 +206,7 @@ class I18nService(II18nService):
                 return True
                 
         except Exception as e:
-            self.logger.error(f"Failed to reload translations: {e}")
+            self.logger.error("Failed to reload translations: %s", e)
             return False
     
     def translate_ui_text(self, ui_element: str, default_text: str = "") -> str:

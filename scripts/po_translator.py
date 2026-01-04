@@ -46,11 +46,11 @@ class SimpleTranslator:
                 
                 translations[msgid] = msgstr
             
-            logger.info(f"Parsed {len(translations)} translations from {po_file_path}")
+            logger.info("Parsed %s translations from %s", len(translations), po_file_path)
             return translations
             
         except Exception as e:
-            logger.error(f"Error parsing {po_file_path}: {e}")
+            logger.error("Error parsing %s: %s", po_file_path, e)
             return {}
     
     def load_locale(self, locale_code):
@@ -59,13 +59,13 @@ class SimpleTranslator:
         po_file = locale_dir / locale_code / "LC_MESSAGES" / "messages.po"
         
         if not po_file.exists():
-            logger.warning(f"Translation file not found: {po_file}")
+            logger.warning("Translation file not found: %s", po_file)
             return False
         
         self.translations = self.parse_po_file(po_file)
         self.current_locale = locale_code
         
-        logger.info(f"Loaded {len(self.translations)} translations for {locale_code}")
+        logger.info("Loaded %s translations for %s", len(self.translations), locale_code)
         return True
     
     def _(self, text, context=None):
@@ -81,10 +81,10 @@ class SimpleTranslator:
     def set_locale(self, locale_code):
         """Set the current locale"""
         if self.load_locale(locale_code):
-            logger.info(f"Successfully set locale to: {locale_code}")
+            logger.info("Successfully set locale to: %s", locale_code)
             return True
         else:
-            logger.error(f"Failed to set locale to: {locale_code}")
+            logger.error("Failed to set locale to: %s", locale_code)
             return False
     
     def get_available_locales(self):
@@ -149,7 +149,7 @@ def initialize_i18n():
     
     # Set locale
     if set_locale(locale_code):
-        logger.info(f"i18n initialized with locale: {locale_code}")
+        logger.info("i18n initialized with locale: %s", locale_code)
         return locale_code
     else:
         logger.warning("Failed to initialize i18n, using default")

@@ -150,11 +150,11 @@ class EventBus(QObject):
                 self._subscribers[event_name] = []
             
             self._subscribers[event_name].append(callback)
-            self.logger.debug(f"Subscribed to event: {event_name}")
+            self.logger.debug("Subscribed to event: %s", event_name)
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to subscribe to event {event_name}: {e}")
+            self.logger.error("Failed to subscribe to event %s: %s", event_name, e)
             return False
     
     def unsubscribe(self, event_name: str, callback: Callable) -> bool:
@@ -171,14 +171,14 @@ class EventBus(QObject):
         try:
             if event_name in self._subscribers and callback in self._subscribers[event_name]:
                 self._subscribers[event_name].remove(callback)
-                self.logger.debug(f"Unsubscribed from event: {event_name}")
+                self.logger.debug("Unsubscribed from event: %s", event_name)
                 return True
             else:
-                self.logger.warning(f"Callback not found for event: {event_name}")
+                self.logger.warning("Callback not found for event: %s", event_name)
                 return False
                 
         except Exception as e:
-            self.logger.error(f"Failed to unsubscribe from event {event_name}: {e}")
+            self.logger.error("Failed to unsubscribe from event %s: %s", event_name, e)
             return False
     
     def emit(self, event_name: str, *args, **kwargs):
@@ -196,12 +196,12 @@ class EventBus(QObject):
                     try:
                         callback(*args, **kwargs)
                     except Exception as e:
-                        self.logger.error(f"Error in event callback for {event_name}: {e}")
+                        self.logger.error("Error in event callback for %s: %s", event_name, e)
             
-            self.logger.debug(f"Event emitted: {event_name}")
+            self.logger.debug("Event emitted: %s", event_name)
             
         except Exception as e:
-            self.logger.error(f"Failed to emit event {event_name}: {e}")
+            self.logger.error("Failed to emit event %s: %s", event_name, e)
     
     def _emit_event(self, event_name: str, *args, **kwargs):
         """
@@ -245,7 +245,7 @@ class EventBus(QObject):
         if event_name:
             if event_name in self._subscribers:
                 self._subscribers[event_name].clear()
-                self.logger.debug(f"Cleared subscribers for event: {event_name}")
+                self.logger.debug("Cleared subscribers for event: %s", event_name)
         else:
             self._subscribers.clear()
             self.logger.debug("Cleared all subscribers")

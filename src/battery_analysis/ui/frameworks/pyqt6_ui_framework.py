@@ -36,10 +36,10 @@ class PyQt6UIFramework(IUIFramework):
             return self._app
             
         except ImportError as e:
-            self.logger.error(f"PyQt6未安装或无法导入: {e}")
+            self.logger.error("PyQt6未安装或无法导入: %s", e)
             raise
         except Exception as e:
-            self.logger.error(f"创建PyQt6应用程序实例失败: {e}")
+            self.logger.error("创建PyQt6应用程序实例失败: %s", e)
             raise
     
     def create_main_window(self) -> Any:
@@ -52,10 +52,10 @@ class PyQt6UIFramework(IUIFramework):
             return main_window
             
         except ImportError as e:
-            self.logger.error(f"PyQt6组件无法导入: {e}")
+            self.logger.error("PyQt6组件无法导入: %s", e)
             raise
         except Exception as e:
-            self.logger.error(f"创建PyQt6主窗口失败: {e}")
+            self.logger.error("创建PyQt6主窗口失败: %s", e)
             raise
     
     def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
@@ -74,7 +74,7 @@ class PyQt6UIFramework(IUIFramework):
             return progress_dialog
             
         except Exception as e:
-            self.logger.error(f"创建PyQt6进度对话框失败: {e}")
+            self.logger.error("创建PyQt6进度对话框失败: %s", e)
             raise
     
     def show_message_box(self, 
@@ -105,11 +105,11 @@ class PyQt6UIFramework(IUIFramework):
             
             message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
             
-            self.logger.info(f"PyQt6消息框显示: {title}")
+            self.logger.info("PyQt6消息框显示: %s", title)
             return message_box
             
         except Exception as e:
-            self.logger.error(f"创建PyQt6消息框失败: {e}")
+            self.logger.error("创建PyQt6消息框失败: %s", e)
             raise
     
     def create_file_dialog(self, 
@@ -126,11 +126,11 @@ class PyQt6UIFramework(IUIFramework):
             
             file_dialog = QFileDialog(parent, caption, directory, filter_pattern)
             
-            self.logger.info(f"PyQt6文件对话框创建成功: {caption}")
+            self.logger.info("PyQt6文件对话框创建成功: %s", caption)
             return file_dialog
             
         except Exception as e:
-            self.logger.error(f"创建PyQt6文件对话框失败: {e}")
+            self.logger.error("创建PyQt6文件对话框失败: %s", e)
             raise
     
     def create_label(self, parent: Any, text: str) -> Any:
@@ -139,11 +139,11 @@ class PyQt6UIFramework(IUIFramework):
             from PyQt6.QtWidgets import QLabel
             
             label = QLabel(text, parent)
-            self.logger.info(f"PyQt6标签创建成功: {text}")
+            self.logger.info("PyQt6标签创建成功: %s", text)
             return label
             
         except Exception as e:
-            self.logger.error(f"创建PyQt6标签失败: {e}")
+            self.logger.error("创建PyQt6标签失败: %s", e)
             raise
     
     def create_button(self, parent: Any, text: str) -> Any:
@@ -152,11 +152,11 @@ class PyQt6UIFramework(IUIFramework):
             from PyQt6.QtWidgets import QPushButton
             
             button = QPushButton(text, parent)
-            self.logger.info(f"PyQt6按钮创建成功: {text}")
+            self.logger.info("PyQt6按钮创建成功: %s", text)
             return button
             
         except Exception as e:
-            self.logger.error(f"创建PyQt6按钮失败: {e}")
+            self.logger.error("创建PyQt6按钮失败: %s", e)
             raise
     
     def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
@@ -168,11 +168,11 @@ class PyQt6UIFramework(IUIFramework):
             if placeholder:
                 line_edit.setPlaceholderText(placeholder)
             
-            self.logger.info(f"PyQt6输入框创建成功: {placeholder}")
+            self.logger.info("PyQt6输入框创建成功: %s", placeholder)
             return line_edit
             
         except Exception as e:
-            self.logger.error(f"创建PyQt6输入框失败: {e}")
+            self.logger.error("创建PyQt6输入框失败: %s", e)
             raise
     
     def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
@@ -181,11 +181,11 @@ class PyQt6UIFramework(IUIFramework):
             from PyQt6.QtWidgets import QTableWidget
             
             table = QTableWidget(rows, columns, parent)
-            self.logger.info(f"PyQt6表格创建成功: {rows}x{columns}")
+            self.logger.info("PyQt6表格创建成功: %sx%s", rows, columns)
             return table
             
         except Exception as e:
-            self.logger.error(f"创建PyQt6表格失败: {e}")
+            self.logger.error("创建PyQt6表格失败: %s", e)
             raise
     
     def set_layout(self, parent: Any, layout: Any) -> None:
@@ -194,7 +194,7 @@ class PyQt6UIFramework(IUIFramework):
             parent.setLayout(layout)
             self.logger.info("PyQt6布局设置成功")
         except Exception as e:
-            self.logger.error(f"设置PyQt6布局失败: {e}")
+            self.logger.error("设置PyQt6布局失败: %s", e)
             raise
     
     def exec_application(self, app: Any) -> int:
@@ -204,7 +204,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6应用程序运行结束")
             return result
         except Exception as e:
-            self.logger.error(f"运行PyQt6应用程序失败: {e}")
+            self.logger.error("运行PyQt6应用程序失败: %s", e)
             raise
 
 
@@ -226,10 +226,10 @@ class TkinterUIFramework(IUIFramework):
             return self._root
             
         except ImportError as e:
-            self.logger.error(f"Tkinter无法导入: {e}")
+            self.logger.error("Tkinter无法导入: %s", e)
             raise
         except Exception as e:
-            self.logger.error(f"创建Tkinter应用程序实例失败: {e}")
+            self.logger.error("创建Tkinter应用程序实例失败: %s", e)
             raise
     
     def create_main_window(self) -> Any:
@@ -261,7 +261,7 @@ class TkinterUIFramework(IUIFramework):
             return dialog
             
         except Exception as e:
-            self.logger.error(f"创建Tkinter进度对话框失败: {e}")
+            self.logger.error("创建Tkinter进度对话框失败: %s", e)
             raise
     
     def show_message_box(self, 
@@ -289,11 +289,11 @@ class TkinterUIFramework(IUIFramework):
             else:
                 result = messagebox.showinfo(title, message, parent=parent)
             
-            self.logger.info(f"Tkinter消息框显示: {title}")
+            self.logger.info("Tkinter消息框显示: %s", title)
             return result
             
         except Exception as e:
-            self.logger.error(f"创建Tkinter消息框失败: {e}")
+            self.logger.error("创建Tkinter消息框失败: %s", e)
             raise
     
     def create_file_dialog(self, 
@@ -314,11 +314,11 @@ class TkinterUIFramework(IUIFramework):
                 initialdir=directory
             )
             
-            self.logger.info(f"Tkinter文件对话框创建成功: {caption}")
+            self.logger.info("Tkinter文件对话框创建成功: %s", caption)
             return file_path
             
         except Exception as e:
-            self.logger.error(f"创建Tkinter文件对话框失败: {e}")
+            self.logger.error("创建Tkinter文件对话框失败: %s", e)
             raise
     
     def create_label(self, parent: Any, text: str) -> Any:
@@ -327,11 +327,11 @@ class TkinterUIFramework(IUIFramework):
             import tkinter as tk
             
             label = tk.Label(parent, text=text)
-            self.logger.info(f"Tkinter标签创建成功: {text}")
+            self.logger.info("Tkinter标签创建成功: %s", text)
             return label
             
         except Exception as e:
-            self.logger.error(f"创建Tkinter标签失败: {e}")
+            self.logger.error("创建Tkinter标签失败: %s", e)
             raise
     
     def create_button(self, parent: Any, text: str) -> Any:
@@ -340,11 +340,11 @@ class TkinterUIFramework(IUIFramework):
             import tkinter as tk
             
             button = tk.Button(parent, text=text)
-            self.logger.info(f"Tkinter按钮创建成功: {text}")
+            self.logger.info("Tkinter按钮创建成功: %s", text)
             return button
             
         except Exception as e:
-            self.logger.error(f"创建Tkinter按钮失败: {e}")
+            self.logger.error("创建Tkinter按钮失败: %s", e)
             raise
     
     def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
@@ -360,11 +360,11 @@ class TkinterUIFramework(IUIFramework):
                 entry.bind('<FocusIn>', lambda e: self._clear_placeholder(entry, placeholder))
                 entry.bind('<FocusOut>', lambda e: self._set_placeholder(entry, placeholder))
             
-            self.logger.info(f"Tkinter输入框创建成功: {placeholder}")
+            self.logger.info("Tkinter输入框创建成功: %s", placeholder)
             return entry
             
         except Exception as e:
-            self.logger.error(f"创建Tkinter输入框失败: {e}")
+            self.logger.error("创建Tkinter输入框失败: %s", e)
             raise
     
     def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
@@ -380,11 +380,11 @@ class TkinterUIFramework(IUIFramework):
             for i in range(columns):
                 tree.heading(f'#{i}', text=f'列{i+1}')
             
-            self.logger.info(f"Tkinter表格创建成功: {rows}x{columns}")
+            self.logger.info("Tkinter表格创建成功: %sx%s", rows, columns)
             return tree
             
         except Exception as e:
-            self.logger.error(f"创建Tkinter表格失败: {e}")
+            self.logger.error("创建Tkinter表格失败: %s", e)
             raise
     
     def set_layout(self, parent: Any, layout: Any) -> None:
@@ -393,7 +393,7 @@ class TkinterUIFramework(IUIFramework):
             layout.pack(fill='both', expand=True)
             self.logger.info("Tkinter布局设置成功")
         except Exception as e:
-            self.logger.error(f"设置Tkinter布局失败: {e}")
+            self.logger.error("设置Tkinter布局失败: %s", e)
             raise
     
     def exec_application(self, app: Any) -> int:
@@ -403,7 +403,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter应用程序运行结束")
             return 0
         except Exception as e:
-            self.logger.error(f"运行Tkinter应用程序失败: {e}")
+            self.logger.error("运行Tkinter应用程序失败: %s", e)
             raise
     
     def _clear_placeholder(self, entry: Any, placeholder: str):
