@@ -48,11 +48,11 @@ class ValidationController(QC.QObject):
             else:
                 self.validation_success.emit()
             return is_valid, error_msg
-        else:
-            # 降级到原来的逻辑
-            error_msg = "验证服务不可用"
-            self.validation_error.emit(error_msg)
-            return False, error_msg
+        
+        # 降级到原来的逻辑
+        error_msg = "验证服务不可用"
+        self.validation_error.emit(error_msg)
+        return False, error_msg
 
     def validate_input_data(self, input_path):
         """

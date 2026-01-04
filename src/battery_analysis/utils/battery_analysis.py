@@ -65,7 +65,7 @@ class BatteryAnalysis:
             self.listAllInXlsx = [self.strInDataXlsxDir + f for f in os.listdir(
                 self.strInDataXlsxDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
 
-            if len(self.listAllInXlsx) == 0:
+            if not self.listAllInXlsx:
                 raise BatteryAnalysisException(
                     "[Input Path Error]: has no data file")
 

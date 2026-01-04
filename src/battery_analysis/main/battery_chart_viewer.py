@@ -22,9 +22,7 @@
 """
 
 
-from PyQt6.QtWidgets import QFileDialog, QMessageBox
-from PyQt6 import QtCore as QC
-from PyQt6.QtCore import Qt
+# 标准库导入
 import sys
 import logging
 from pathlib import Path
@@ -33,18 +31,20 @@ import traceback
 import math
 import csv
 import os
+
+# 第三方库导入
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
+from PyQt6 import QtCore as QC
+from PyQt6.QtCore import Qt
 import matplotlib
-
-# 使用新的配置解析工具
-from battery_analysis.utils.config_parser import parse_pulse_current_config
-
-
-
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.widgets import CheckButtons
 from matplotlib.patches import Rectangle, FancyBboxPatch
 from matplotlib.colors import to_rgba
+
+# 本地库导入
+from battery_analysis.utils.config_parser import parse_pulse_current_config
 from battery_analysis.utils.config_utils import find_config_file
 
 # 使用QtAgg后端，它会自动检测可用的Qt绑定（包括PyQt6）

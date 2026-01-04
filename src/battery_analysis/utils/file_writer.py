@@ -12,6 +12,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx import Document
 from matplotlib.ticker import MultipleLocator
 import matplotlib.pyplot as plt
+import re
 
 # 配置matplotlib支持中文显示
 plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
@@ -115,7 +116,6 @@ class XlsxWordWriter:
             logging.error("日期解析失败: %s", e)
             # 尝试从文件名中提取日期
             if len(listTestInfo) > 0 and hasattr(listTestInfo[0], 'split'):
-                import re
                 filename = str(listTestInfo[0])
                 # 匹配文件名中所有连续的数字组
                 digit_groups = re.findall(r'(\d+)', filename)
@@ -267,7 +267,7 @@ class XlsxWordWriter:
                     break
 
             # 如果没有匹配到，使用列表中的第一个or直接使用测试信息
-            if strBatteryType == "":
+            if not strBatteryType:
                 if listBatteryTypeBase:
                     strBatteryType = listBatteryTypeBase[0]
                     logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
@@ -1016,7 +1016,7 @@ class XlsxWordWriter:
         except ValueError:
             strRelProfilePath = self.listTestInfo[13]
 
-        if self.listTestInfo[5] == "":
+        if not self.listTestInfo[5]:
             strBatchDateCode = "n.a."
         else:
             strBatchDateCode = self.listTestInfo[5]
@@ -1622,7 +1622,7 @@ class JsonWriter:
                     break
 
             # 如果没有找到匹配项，使用默认值
-            if strBatteryType == "":
+            if not strBatteryType:
                 strBatteryType = "CoinCell"
                 logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
         except Exception as e:

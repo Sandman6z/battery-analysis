@@ -1,103 +1,108 @@
 # 代码重构计划
 
+## 目录
+
+### 错误(Error) - 需要立即修复
+- **undefined-variable**: 使用了未定义的变量，可能导致运行时错误
+
+### 警告(Warning) - 建议修复
+- **broad-exception-caught**: 捕获过于宽泛的 Exception，建议捕获更具体的异常类型
+- **unused-import**: 导入了但未使用的模块，增加了不必要的加载时间
+- **unused-variable**: 声明了但未使用的变量，应该删除
+- **unused-argument**: 函数参数未使用，可能是遗漏或设计问题
+- **redefined-outer-name**: 重新定义了外部作用域的变量名，可能导致混淆
+- **global-statement**: 使用 global 关键字，可能破坏函数的封装性
+- **deprecated-method**: 使用了已废弃的方法，应该使用替代方案
+- **subprocess-run-check**: subprocess.run 未设置 check 参数，可能忽略错误
+- **raise-missing-from**: 重新抛出异常时未使用 from 子句，丢失异常链
+- **unnecessary-pass**: 使用了不必要的 pass 语句，可以用 ... 替代或重构
+- **redefined-builtin**: 重新定义了 Python 内置函数，可能导致问题
+- **attribute-defined-outside-init**: 属性在 __init__ 之外定义，应该在 __init__ 中初始化
+- **unnecessary-ellipsis**: 不必要的省略号常量，在非抽象方法中应使用 pass 或删除
+- **bare-except**: 使用了不带异常类型的 except，可能捕获意外异常
+- **reimported**: 重复导入同一模块，应该避免
+- **f-string-without-interpolation**: f-string 没有插值变量，应该使用普通字符串
+- **locally-disabled**: 在代码中禁用了某个检查项的警告
+- **suppressed-message**: 被抑制的消息
+- **protected-access**: 访问了受保护的成员
+
+### 规范(Convention) - 代码风格问题
+- **wrong-import-order**: 导入顺序不正确，标准库应在最前，其次是第三方库，最后是本地库
+- **wrong-import-position**: 导入语句位置不正确，应该放在模块顶部
+- **import-outside-toplevel**: 在函数/方法内部进行导入，应该在模块顶部导入
+- **missing-final-newline**: 文件末尾缺少换行符
+- **trailing-newlines**: 文件末尾有多余的换行符
+- **mixed-line-endings**: 混合使用不同的行尾符（LF 和 CRLF），应统一使用一种
+- **ungrouped-imports**: 来自同一包的导入没有分组
+- **use-implicit-booleaness-not-comparison-to-string**: 与空字符串比较应简化为隐式布尔值判断
+- **use-implicit-booleaness-not-comparison-to-zero**: 与零比较应简化为隐式布尔值判断
+- **consider-using-f-string**: 可以使用 f-string 格式化字符串
+- **unspecified-encoding**: 打开文件时未明确指定编码
+- **missing-module-docstring**: 缺少模块文档字符串
+
+### 重构(Refactor) - 代码结构优化
+- **no-else-return**: return 语句后不必要的 else 块，可以简化
+- **too-many-positional-arguments**: 函数位置参数过多，考虑使用命名参数或对象
+- **too-many-branches**: 分支过多（超过12个），应考虑重构
+- **too-many-statements**: 函数语句过多（超过50条），应拆分
+- **too-many-nested-blocks**: 嵌套层数过多，应重构以减少嵌套
+- **too-many-instance-attributes**: 实例属性过多（超过7个），应考虑拆分
+- **too-many-public-methods**: 公开方法过多，应考虑封装
+- **inconsistent-return-statements**: return 语句不一致，有些返回值有些不返回
+- **consider-using-enumerate**: 迭代时可以使用 enumerate 替代 range(len())
+- **use-dict-literal**: 可以使用字典字面量替代 dict() 调用
+- **consider-using-with**: 可以使用 with 语句管理资源
+- **too-many-return-statements**: return 语句过多，应考虑简化
+
 ## 概述
-- 分析日期: 2026-01-04 12:15:47
-- 总文件数: 66
-- 存在问题的文件数: 66
+- 分析日期: 2026-01-04 15:20:29
+- 总文件数: 65
+- 存在问题的文件数: 65
 
 ## 文件: scripts\build.py
 
 ### 问题统计
-- 问题总数: 14
-- 错误(Error): 1
-- 警告(Warning): 8
+- 问题总数: 6
+- 警告(Warning): 1
 - 规范(Convention): 3
 - 重构(Refactor): 2
 
 ### 详细问题
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import tomllib
-- 符号: unused-import
-
-#### 行 22, 列 4
-- 类型: error
-- 代码: E0601
-- 描述: Using variable 'logger' before assignment
-- 符号: used-before-assignment
-
 #### 行 50, 列 4
 - 类型: warning
 - 代码: W0237
 - 描述: Parameter 'optionstr' has been renamed to 'option_str' in overriding 'CaseSensitiveConfigParser.optionxform' method
 - 符号: arguments-renamed
 
-#### 行 66, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 152, 列 12
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'os' from outer scope (line 6)
-- 符号: redefined-outer-name
-
-#### 行 152, 列 12
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'os' (imported line 6)
-- 符号: reimported
-
-#### 行 152, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (os)
-- 符号: import-outside-toplevel
-
-#### 行 154, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 315, 列 8
+#### 行 314, 列 8
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 355, 列 4
+#### 行 354, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (7/5)
 - 符号: too-many-positional-arguments
 
-#### 行 451, 列 23
+#### 行 450, 列 23
 - 类型: convention
 - 代码: C0209
 - 描述: Formatting a regular string which could be an f-string
 - 符号: consider-using-f-string
 
-#### 行 588, 列 21
-- 类型: warning
-- 代码: W0123
-- 描述: Use of eval
-- 符号: eval-used
+#### 行 587, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (ast)
+- 符号: import-outside-toplevel
 
 #### 行 693, 列 4
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (argparse)
 - 符号: import-outside-toplevel
-
-#### 行 714, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 ## 文件: scripts\compile_translations.py
 
@@ -307,55 +312,31 @@
 ## 文件: scripts\po_translator.py
 
 ### 问题统计
-- 问题总数: 8
-- 警告(Warning): 5
-- 规范(Convention): 1
-- 重构(Refactor): 2
+- 问题总数: 4
+- 警告(Warning): 1
+- 规范(Convention): 2
+- 重构(Refactor): 1
 
 ### 详细问题
-#### 行 7, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import sys
-- 符号: unused-import
-
 #### 行 8, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused import os
 - 符号: unused-import
 
-#### 行 52, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 20, 列 0
+- 类型: convention
+- 代码: C0413
+- 描述: Import "from battery_analysis.i18n import _ as main_translate, set_locale as main_set_locale, get_available_locales as main_get_available_locales, get_current_locale as main_get_current_locale, detect_system_locale as main_detect_system_locale" should be placed at the top of the module
+- 符号: wrong-import-position
 
-#### 行 83, 列 8
+#### 行 65, 列 4
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 130, 列 17
-- 类型: warning
-- 代码: W4902
-- 描述: Using deprecated method getdefaultlocale()
-- 符号: deprecated-method
-
-#### 行 134, 列 4
-- 类型: warning
-- 代码: W0702
-- 描述: No exception type(s) specified
-- 符号: bare-except
-
-#### 行 151, 列 4
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 195, 列 0
+#### 行 109, 列 0
 - 类型: convention
 - 代码: C0304
 - 描述: Final newline missing
@@ -603,9 +584,8 @@
 ## 文件: src\battery_analysis\chart\interfaces\ichart_manager.py
 
 ### 问题统计
-- 问题总数: 15
+- 问题总数: 14
 - 警告(Warning): 14
-- 规范(Convention): 1
 
 ### 详细问题
 #### 行 10, 列 0
@@ -622,33 +602,33 @@
 
 #### 行 47, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 60, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 70, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 81, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 90, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 93, 列 53
 - 类型: warning
@@ -658,45 +638,39 @@
 
 #### 行 105, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 117, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 126, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 140, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 150, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
-
-#### 行 160, 列 0
-- 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 #### 行 160, 列 8
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W2301
+- 描述: Unnecessary ellipsis constant
+- 符号: unnecessary-ellipsis
 
 ## 文件: src\battery_analysis\data\interfaces\idataprocessor.py
 
@@ -798,9 +772,9 @@
 
 #### 行 220, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 220, 列 8
 - 类型: warning
@@ -931,17 +905,16 @@
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 342, 列 0
+#### 行 339, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\i18n\language_manager.py
 
 ### 问题统计
-- 问题总数: 19
-- 错误(Error): 1
+- 问题总数: 18
 - 警告(Warning): 13
 - 规范(Convention): 3
 - 重构(Refactor): 2
@@ -1049,23 +1022,17 @@
 - 描述: Using the global statement
 - 符号: global-statement
 
-#### 行 376, 列 0
-- 类型: error
-- 代码: E0102
-- 描述: function already defined line 15
-- 符号: function-redefined
-
-#### 行 387, 列 0
+#### 行 375, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0305
+- 描述: Trailing newlines
+- 符号: trailing-newlines
 
 ## 文件: src\battery_analysis\i18n\preferences_dialog.py
 
 ### 问题统计
-- 问题总数: 21
-- 警告(Warning): 19
+- 问题总数: 10
+- 警告(Warning): 8
 - 规范(Convention): 1
 - 重构(Refactor): 1
 
@@ -1100,237 +1067,80 @@
 - 描述: Too many instance attributes (13/7)
 - 符号: too-many-instance-attributes
 
-#### 行 72, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'auto_save_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 77, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'confirm_exit_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 90, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'theme_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 103, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'font_size_spinbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 130, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'current_language_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 138, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'language_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 156, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'status_text' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 191, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'ok_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 195, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'cancel_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 199, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'apply_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 243, 列 15
+#### 行 256, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 267, 列 15
+#### 行 280, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 295, 列 15
+#### 行 308, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 337, 列 15
+#### 行 350, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 350, 列 4
-- 类型: warning
-- 代码: W0246
-- 描述: Useless parent or super() delegation in method 'reject'
-- 符号: useless-parent-delegation
-
-#### 行 360, 列 0
+#### 行 371, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\main\battery_chart_viewer.py
 
 ### 问题统计
-- 问题总数: 131
-- 错误(Error): 2
+- 问题总数: 114
 - 警告(Warning): 75
-- 规范(Convention): 34
+- 规范(Convention): 19
 - 重构(Refactor): 20
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (2136/1000)
+- 描述: Too many lines in module (2141/1000)
 - 符号: too-many-lines
 
-#### 行 26, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QtCore imported from PyQt6 as QC
-- 符号: unused-import
-
-#### 行 28, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "sys" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
-
-#### 行 29, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "logging" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
-
-#### 行 30, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "pathlib.Path" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
-
 #### 行 31, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "configparser" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
-
-#### 行 32, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "traceback" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
-
-#### 行 33, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "math" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
-
-#### 行 33, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused import math
 - 符号: unused-import
 
-#### 行 34, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "csv" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
+#### 行 37, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused QtCore imported from PyQt6 as QC
+- 符号: unused-import
 
-#### 行 35, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "os" should be placed before third party imports "PyQt6.QtWidgets.QFileDialog", "PyQt6.QtCore", "PyQt6.QtCore.Qt"
-- 符号: wrong-import-order
-
-#### 行 43, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: third party import "matplotlib.pyplot" should be placed before first party import "battery_analysis.utils.config_parser.parse_pulse_current_config" 
-- 符号: wrong-import-order
-
-#### 行 43, 列 0
-- 类型: convention
-- 代码: C0412
-- 描述: Imports from package matplotlib are not grouped
-- 符号: ungrouped-imports
-
-#### 行 44, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: third party import "matplotlib.ticker.MultipleLocator" should be placed before first party import "battery_analysis.utils.config_parser.parse_pulse_current_config" 
-- 符号: wrong-import-order
-
-#### 行 45, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: third party import "matplotlib.widgets.CheckButtons" should be placed before first party import "battery_analysis.utils.config_parser.parse_pulse_current_config" 
-- 符号: wrong-import-order
-
-#### 行 45, 列 0
+#### 行 42, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused CheckButtons imported from matplotlib.widgets
 - 符号: unused-import
 
-#### 行 46, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: third party import "matplotlib.patches.Rectangle" should be placed before first party import "battery_analysis.utils.config_parser.parse_pulse_current_config" 
-- 符号: wrong-import-order
-
-#### 行 46, 列 0
+#### 行 43, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Rectangle imported from matplotlib.patches
 - 符号: unused-import
 
-#### 行 47, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: third party import "matplotlib.colors.to_rgba" should be placed before first party import "battery_analysis.utils.config_parser.parse_pulse_current_config" 
-- 符号: wrong-import-order
-
-#### 行 47, 列 0
+#### 行 44, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused to_rgba imported from matplotlib.colors
 - 符号: unused-import
-
-#### 行 48, 列 0
-- 类型: convention
-- 代码: C0412
-- 描述: Imports from package battery_analysis are not grouped
-- 符号: ungrouped-imports
 
 #### 行 116, 列 0
 - 类型: refactor
@@ -1341,13 +1151,13 @@
 #### 行 150, 列 23
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'data_path' from outer scope (line 2122)
+- 描述: Redefining name 'data_path' from outer scope (line 2127)
 - 符号: redefined-outer-name
 
 #### 行 224, 列 28
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'data_path' from outer scope (line 2122)
+- 描述: Redefining name 'data_path' from outer scope (line 2127)
 - 符号: redefined-outer-name
 
 #### 行 260, 列 15
@@ -1431,7 +1241,7 @@
 #### 行 542, 列 63
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'f' from outer scope (line 2099)
+- 描述: Redefining name 'f' from outer scope (line 2104)
 - 符号: redefined-outer-name
 
 #### 行 560, 列 15
@@ -1500,12 +1310,6 @@
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 816, 列 16
-- 类型: error
-- 代码: E1111
-- 描述: Assigning result of a function call, where the function has no return
-- 符号: assignment-from-no-return
-
 #### 行 825, 列 19
 - 类型: warning
 - 代码: W0718
@@ -1545,13 +1349,13 @@
 #### 行 927, 列 12
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'traceback' from outer scope (line 32)
+- 描述: Redefining name 'traceback' from outer scope (line 30)
 - 符号: redefined-outer-name
 
 #### 行 927, 列 12
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'traceback' (imported line 32)
+- 描述: Reimport 'traceback' (imported line 30)
 - 符号: reimported
 
 #### 行 927, 列 12
@@ -1581,13 +1385,13 @@
 #### 行 1063, 列 8
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'matplotlib' from outer scope (line 36)
+- 描述: Redefining name 'matplotlib' from outer scope (line 39)
 - 符号: redefined-outer-name
 
 #### 行 1063, 列 8
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'matplotlib' (imported line 36)
+- 描述: Reimport 'matplotlib' (imported line 39)
 - 符号: reimported
 
 #### 行 1063, 列 8
@@ -1599,13 +1403,13 @@
 #### 行 1064, 列 8
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'plt' from outer scope (line 43)
+- 描述: Redefining name 'plt' from outer scope (line 40)
 - 符号: redefined-outer-name
 
 #### 行 1064, 列 8
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'matplotlib.pyplot' (imported line 43)
+- 描述: Reimport 'matplotlib.pyplot' (imported line 40)
 - 符号: reimported
 
 #### 行 1064, 列 8
@@ -1647,13 +1451,13 @@
 #### 行 1143, 列 16
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'configparser' from outer scope (line 31)
+- 描述: Redefining name 'configparser' from outer scope (line 29)
 - 符号: redefined-outer-name
 
 #### 行 1143, 列 16
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'configparser' (imported line 31)
+- 描述: Reimport 'configparser' (imported line 29)
 - 符号: reimported
 
 #### 行 1143, 列 16
@@ -1818,175 +1622,169 @@
 - 描述: Too many positional arguments (7/5)
 - 符号: too-many-positional-arguments
 
-#### 行 1750, 列 24
-- 类型: error
-- 代码: E1136
-- 描述: Value 'button_state_ref['button_state']' is unsubscriptable
-- 符号: unsubscriptable-object
-
-#### 行 1795, 列 23
+#### 行 1797, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1808, 列 12
+#### 行 1810, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'filter_button_state' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1812, 列 15
+#### 行 1814, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1854, 列 8
+#### 行 1859, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'battery_button_states' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1862, 列 4
+#### 行 1867, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (8/5)
 - 符号: too-many-positional-arguments
 
-#### 行 1862, 列 4
+#### 行 1867, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (56/50)
 - 符号: too-many-statements
 
-#### 行 1863, 列 38
+#### 行 1868, 列 38
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'check_filter'
 - 符号: unused-argument
 
-#### 行 1923, 列 16
+#### 行 1928, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1932, 列 16
+#### 行 1937, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1940, 列 16
+#### 行 1945, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1954, 列 19
+#### 行 1959, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1985, 列 15
+#### 行 1990, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1988, 列 4
+#### 行 1993, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (6/5)
 - 符号: too-many-positional-arguments
 
-#### 行 1995, 列 21
+#### 行 2000, 列 21
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"boxstyle": 'round,pad=0.5', "fc": 'yellow', "alpha": 0.7}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 1996, 列 27
+#### 行 2001, 列 27
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"arrowstyle": '->'}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 2001, 列 12
+#### 行 2006, 列 12
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (14/12)
 - 符号: too-many-branches
 
-#### 行 2002, 列 16
+#### 行 2007, 列 16
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 2037, 列 35
+#### 行 2042, 列 35
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2066, 列 15
+#### 行 2071, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2073, 列 4
+#### 行 2078, 列 4
 - 类型: warning
 - 代码: W0105
 - 描述: String statement has no effect
 - 符号: pointless-string-statement
 
-#### 行 2081, 列 4
+#### 行 2086, 列 4
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'sys' (imported line 28)
+- 描述: Reimport 'sys' (imported line 26)
 - 符号: reimported
 
-#### 行 2081, 列 4
+#### 行 2086, 列 4
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package sys are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2082, 列 4
+#### 行 2087, 列 4
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package PyQt6 are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2089, 列 8
+#### 行 2094, 列 8
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package battery_analysis are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2089, 列 8
+#### 行 2094, 列 8
 - 类型: warning
 - 代码: W0611
 - 描述: Unused apply_modern_theme imported from battery_analysis.ui.styles.style_manager
 - 符号: unused-import
 
-#### 行 2110, 列 19
+#### 行 2115, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2112, 列 11
+#### 行 2117, 列 11
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2119, 列 15
+#### 行 2124, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -2047,10 +1845,10 @@
 ## 文件: src\battery_analysis\main\controllers\validation_controller.py
 
 ### 问题统计
-- 问题总数: 9
+- 问题总数: 10
 - 警告(Warning): 5
-- 规范(Convention): 2
-- 重构(Refactor): 2
+- 规范(Convention): 4
+- 重构(Refactor): 1
 
 ### 详细问题
 #### 行 7, 列 0
@@ -2065,11 +1863,17 @@
 - 描述: Import outside toplevel (battery_analysis.main.services.service_container.get_service_container)
 - 符号: import-outside-toplevel
 
-#### 行 43, 列 8
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
+#### 行 33, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 55, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 57, 列 4
 - 类型: refactor
@@ -2103,31 +1907,19 @@
 
 #### 行 185, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\main\controllers\visualizer_controller.py
 
 ### 问题统计
-- 问题总数: 15
+- 问题总数: 13
 - 警告(Warning): 4
-- 规范(Convention): 7
+- 规范(Convention): 5
 - 重构(Refactor): 4
 
 ### 详细问题
-#### 行 23, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 40, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 99, 列 4
 - 类型: refactor
 - 代码: R0912
@@ -2253,9 +2045,9 @@
 
 #### 行 232, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\main\interfaces\ivisualizer.py
 
@@ -2309,9 +2101,9 @@
 
 #### 行 90, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 90, 列 8
 - 类型: warning
@@ -2322,16 +2114,16 @@
 ## 文件: src\battery_analysis\main\main_window.py
 
 ### 问题统计
-- 问题总数: 127
-- 警告(Warning): 43
-- 规范(Convention): 52
-- 重构(Refactor): 32
+- 问题总数: 110
+- 警告(Warning): 50
+- 规范(Convention): 30
+- 重构(Refactor): 30
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (3024/1000)
+- 描述: Too many lines in module (3153/1000)
 - 符号: too-many-lines
 
 #### 行 34, 列 0
@@ -2346,755 +2138,652 @@
 - 描述: Unused resources_rc imported from battery_analysis.resources
 - 符号: unused-import
 
-#### 行 140, 列 0
+#### 行 182, 列 0
 - 类型: refactor
 - 代码: R0902
-- 描述: Too many instance attributes (42/7)
+- 描述: Too many instance attributes (34/7)
 - 符号: too-many-instance-attributes
 
-#### 行 140, 列 0
+#### 行 182, 列 0
 - 类型: refactor
 - 代码: R0904
 - 描述: Too many public methods (53/20)
 - 符号: too-many-public-methods
 
-#### 行 143, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (21/12)
-- 符号: too-many-branches
-
-#### 行 143, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (97/50)
-- 符号: too-many-statements
-
-#### 行 145, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.__version__)
-- 符号: import-outside-toplevel
-
-#### 行 175, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 216, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 225, 列 16
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
-- 符号: import-outside-toplevel
-
-#### 行 234, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (ctypes)
-- 符号: import-outside-toplevel
-
-#### 行 243, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
-- 符号: import-outside-toplevel
-
-#### 行 286, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.config_parser.safe_int_convert, battery_analysis.utils.config_parser.safe_float_convert)
-- 符号: import-outside-toplevel
-
-#### 行 310, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
-- 符号: import-outside-toplevel
-
-#### 行 376, 列 23
-- 类型: convention
-- 代码: C1804
-- 描述: "item != ''" can be simplified to "item", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 383, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 440, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 570, 列 8
-- 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
-
-#### 行 611, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 656, 列 11
-- 类型: refactor
-- 代码: R1714
-- 描述: Consider merging these comparisons with 'in' by using 'current_message in ('状态:就绪', 'Ready')'. Use a set instead if elements are hashable.
-- 符号: consider-using-in
-
-#### 行 666, 列 8
-- 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
-
-#### 行 719, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (19/12)
-- 符号: too-many-branches
-
-#### 行 719, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (51/50)
-- 符号: too-many-statements
-
-#### 行 797, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 847, 列 8
-- 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (6/5)
-- 符号: too-many-positional-arguments
-
-#### 行 895, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.__version__)
-- 符号: import-outside-toplevel
-
-#### 行 1021, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1036, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1057, 列 4
+#### 行 185, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (22/12)
 - 符号: too-many-branches
 
-#### 行 1122, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1150, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1167, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1182, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1194, 列 11
+#### 行 185, 列 4
 - 类型: refactor
-- 代码: R1701
-- 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
-- 符号: consider-merging-isinstance
+- 代码: R0915
+- 描述: Too many statements (104/50)
+- 符号: too-many-statements
 
-#### 行 1200, 列 11
-- 类型: refactor
-- 代码: R1701
-- 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
-- 符号: consider-merging-isinstance
-
-#### 行 1206, 列 11
-- 类型: refactor
-- 代码: R1701
-- 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
-- 符号: consider-merging-isinstance
-
-#### 行 1316, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1319, 列 12
+#### 行 187, 列 8
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (traceback)
+- 描述: Import outside toplevel (battery_analysis.__version__)
 - 符号: import-outside-toplevel
 
-#### 行 1340, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (52/50)
-- 符号: too-many-statements
-
-#### 行 1371, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'retry_option' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1377, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'default_option' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1382, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'cancel_option' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1476, 列 15
+#### 行 239, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1615, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1647, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (14/12)
-- 符号: too-many-branches
-
-#### 行 1676, 列 87
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1682, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1687, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1693, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1698, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1702, 列 86
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1707, 列 20
+#### 行 250, 列 20
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (qdarkstyle)
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
 - 符号: import-outside-toplevel
 
-#### 行 1709, 列 88
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1751, 列 95
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1752, 列 15
+#### 行 252, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1888, 列 13
-- 类型: convention
-- 代码: C1804
-- 描述: "self.comboBox_BatteryType.currentText() == ''" can be simplified to "not self.comboBox_BatteryType.currentText()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 1896, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (17/12)
-- 符号: too-many-branches
-
-#### 行 1912, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.specification_type == ''" can be simplified to "not self.specification_type", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 1912, 列 44
-- 类型: convention
-- 代码: C1804
-- 描述: "specification_method == ''" can be simplified to "not specification_method", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 1918, 列 12
-- 类型: refactor
-- 代码: R1723
-- 描述: Unnecessary "elif" after "break", remove the leading "el" from "elif"
-- 符号: no-else-break
-
-#### 行 1970, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (13/12)
-- 符号: too-many-branches
-
-#### 行 1970, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (54/50)
-- 符号: too-many-statements
-
-#### 行 2007, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.test_information == ''" can be simplified to "not self.test_information", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2047, 列 11
-- 类型: refactor
-- 代码: R1714
-- 描述: Consider merging these comparisons with 'in' by using 'current_tester_location in (0, 1)'. Use a set instead if elements are hashable.
-- 符号: consider-using-in
-
-#### 行 2047, 列 11
-- 类型: convention
-- 代码: C1805
-- 描述: "current_tester_location == 0" can be simplified to "not current_tester_location", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2064, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (16/12)
-- 符号: too-many-branches
-
-#### 行 2064, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (64/50)
-- 符号: too-many-statements
-
-#### 行 2091, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "strInDataXlsxDir != ''" can be simplified to "strInDataXlsxDir", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2094, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "len(listAllInXlsx) != 0" can be simplified to "len(listAllInXlsx)", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2109, 列 16
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 2113, 列 16
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 2162, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (14/12)
-- 符号: too-many-branches
-
-#### 行 2162, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (62/50)
-- 符号: too-many-statements
-
-#### 行 2197, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "len(listAllInXlsx) == 0" can be simplified to "not len(listAllInXlsx)", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2202, 列 49
-- 类型: convention
-- 代码: C1805
-- 描述: "os.path.getsize(strCsvMd5Path) != 0" can be simplified to "os.path.getsize(strCsvMd5Path)", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2204, 列 20
-- 类型: refactor
-- 代码: R1732
-- 描述: Consider using 'with' for resource-allocating operations
-- 符号: consider-using-with
-
-#### 行 2209, 列 16
-- 类型: warning
-- 代码: W0632
-- 描述: Possible unbalanced tuple unpacking with sequence defined at line 2203: left side has 4 labels, right side has 0 values
-- 符号: unbalanced-tuple-unpacking
-
-#### 行 2215, 列 19
-- 类型: convention
-- 代码: C1805
-- 描述: "len(listChecksum) == 0" can be simplified to "not len(listChecksum)", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2224, 列 20
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 2242, 列 20
-- 类型: refactor
-- 代码: R1732
-- 描述: Consider using 'with' for resource-allocating operations
-- 符号: consider-using-with
-
-#### 行 2256, 列 20
+#### 行 254, 列 16
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (win32api)
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
 - 符号: import-outside-toplevel
 
-#### 行 2257, 列 20
+#### 行 263, 列 12
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (win32con)
+- 描述: Import outside toplevel (ctypes)
 - 符号: import-outside-toplevel
 
-#### 行 2264, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (13/12)
-- 符号: too-many-branches
+#### 行 274, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
+- 符号: import-outside-toplevel
 
-#### 行 2337, 列 31
+#### 行 276, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2357, 列 19
+#### 行 279, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
+- 符号: import-outside-toplevel
+
+#### 行 308, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2369, 列 11
+#### 行 318, 列 12
 - 类型: convention
-- 代码: C1804
-- 描述: "self.current_directory != ''" can be simplified to "self.current_directory", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.ui.styles.style_manager)
+- 符号: import-outside-toplevel
 
-#### 行 2377, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.current_directory != ''" can be simplified to "self.current_directory", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2390, 列 8
+#### 行 322, 列 15
 - 类型: warning
-- 代码: W0105
-- 描述: String statement has no effect
-- 符号: pointless-string-statement
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
-#### 行 2472, 列 12
+#### 行 335, 列 8
 - 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.config_parser.safe_int_convert, battery_analysis.utils.config_parser.safe_float_convert)
+- 符号: import-outside-toplevel
 
-#### 行 2479, 列 11
+#### 行 361, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 379, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 398, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 415, 列 16
 - 类型: convention
-- 代码: C1804
-- 描述: "self.test_information != ''" can be simplified to "self.test_information", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
 
-#### 行 2535, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (21/12)
-- 符号: too-many-branches
+#### 行 416, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
-#### 行 2535, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (83/50)
-- 符号: too-many-statements
-
-#### 行 2538, 列 11
+#### 行 418, 列 12
 - 类型: convention
-- 代码: C1804
-- 描述: "self.comboBox_BatteryType.currentText() == ''" can be simplified to "not self.comboBox_BatteryType.currentText()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
 
-#### 行 2543, 列 15
-- 类型: convention
-- 代码: C1804
-- 描述: "self.comboBox_ConstructionMethod.currentText() == ''" can be simplified to "not self.comboBox_ConstructionMethod.currentText()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2548, 列 12
-- 类型: convention
-- 代码: C1804
-- 描述: "self.comboBox_Specification_Type.currentText() == ''" can be simplified to "not self.comboBox_Specification_Type.currentText()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2549, 列 19
-- 类型: convention
-- 代码: C1804
-- 描述: "self.comboBox_Specification_Method.currentText() == ''" can be simplified to "not self.comboBox_Specification_Method.currentText()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2553, 列 11
+#### 行 484, 列 23
 - 类型: convention
 - 代码: C1804
-- 描述: "self.comboBox_Manufacturer.currentText() == ''" can be simplified to "not self.comboBox_Manufacturer.currentText()", if it is strictly a string, as an empty string is falsey
+- 描述: "item != ''" can be simplified to "item", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 2557, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_BatchDateCode.text() == ''" can be simplified to "not self.lineEdit_BatchDateCode.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
+#### 行 491, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
-#### 行 2561, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_SamplesQty.text() == ''" can be simplified to "not self.lineEdit_SamplesQty.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
+#### 行 548, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
-#### 行 2565, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_Temperature.text() == ''" can be simplified to "not self.lineEdit_Temperature.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2569, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_DatasheetNominalCapacity.text() == ''" can be simplified to "not self.lineEdit_DatasheetNominalCapacity.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2574, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_CalculationNominalCapacity.text() == ''" can be simplified to "not self.lineEdit_CalculationNominalCapacity.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2586, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_RequiredUseableCapacity.text() == ''" can be simplified to "not self.lineEdit_RequiredUseableCapacity.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2591, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.comboBox_TesterLocation.currentText() == ''" can be simplified to "not self.comboBox_TesterLocation.currentText()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2595, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.comboBox_TestedBy.currentText() == ''" can be simplified to "not self.comboBox_TestedBy.currentText()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2599, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_TestProfile.text() == ''" can be simplified to "not self.lineEdit_TestProfile.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2603, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_InputPath.text() == ''" can be simplified to "not self.lineEdit_InputPath.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2607, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_OutputPath.text() == ''" can be simplified to "not self.lineEdit_OutputPath.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2611, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.lineEdit_Version.text() == ''" can be simplified to "not self.lineEdit_Version.text()", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2636, 列 8
+#### 行 684, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 2638, 列 4
+#### 行 725, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 780, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 833, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (20/12)
+- 符号: too-many-branches
+
+#### 行 833, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (53/50)
+- 符号: too-many-statements
+
+#### 行 913, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 963, 列 8
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (6/5)
+- 符号: too-many-positional-arguments
+
+#### 行 1011, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.__version__)
+- 符号: import-outside-toplevel
+
+#### 行 1137, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1152, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1173, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (22/12)
+- 符号: too-many-branches
+
+#### 行 1238, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1266, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1283, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1298, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1310, 列 11
+- 类型: refactor
+- 代码: R1701
+- 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
+- 符号: consider-merging-isinstance
+
+#### 行 1316, 列 11
+- 类型: refactor
+- 代码: R1701
+- 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
+- 符号: consider-merging-isinstance
+
+#### 行 1322, 列 11
+- 类型: refactor
+- 代码: R1701
+- 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
+- 符号: consider-merging-isinstance
+
+#### 行 1432, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1435, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (traceback)
+- 符号: import-outside-toplevel
+
+#### 行 1456, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (52/50)
+- 符号: too-many-statements
+
+#### 行 1487, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'retry_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1493, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'default_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1498, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'cancel_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1592, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1731, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1763, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (14/12)
+- 符号: too-many-branches
+
+#### 行 1792, 列 87
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1798, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1803, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1809, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1814, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1818, 列 86
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1823, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.ui.styles.style_manager)
+- 符号: import-outside-toplevel
+
+#### 行 1825, 列 88
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1826, 列 16
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 1826, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1867, 列 95
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 1868, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 2012, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (17/12)
+- 符号: too-many-branches
+
+#### 行 2034, 列 12
+- 类型: refactor
+- 代码: R1723
+- 描述: Unnecessary "elif" after "break", remove the leading "el" from "elif"
+- 符号: no-else-break
+
+#### 行 2086, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (13/12)
+- 符号: too-many-branches
+
+#### 行 2086, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (54/50)
+- 符号: too-many-statements
+
+#### 行 2180, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (16/12)
 - 符号: too-many-branches
 
-#### 行 2638, 列 4
+#### 行 2180, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (77/50)
+- 描述: Too many statements (64/50)
 - 符号: too-many-statements
 
-#### 行 2649, 列 19
+#### 行 2207, 列 11
 - 类型: convention
-- 代码: C1805
-- 描述: "stateindex == 0" can be simplified to "not stateindex", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
+- 代码: C1804
+- 描述: "strInDataXlsxDir != ''" can be simplified to "strInDataXlsxDir", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 2661, 列 15
+#### 行 2225, 列 16
 - 类型: convention
-- 代码: C1805
-- 描述: "stateindex == 0" can be simplified to "not stateindex", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
 
-#### 行 2799, 列 4
+#### 行 2229, 列 16
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 2278, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (24/12)
+- 描述: Too many branches (16/12)
 - 符号: too-many-branches
 
-#### 行 2799, 列 4
+#### 行 2278, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (81/50)
+- 描述: Too many statements (68/50)
 - 符号: too-many-statements
 
-#### 行 2830, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 2318, 列 49
+- 类型: convention
+- 代码: C1805
+- 描述: "os.path.getsize(strCsvMd5Path) != 0" can be simplified to "os.path.getsize(strCsvMd5Path)", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 2838, 列 20
-- 类型: warning
-- 代码: W0632
-- 描述: Possible unbalanced tuple unpacking with sequence defined at line 2805: left side has 4 labels, right side has 0 values
-- 符号: unbalanced-tuple-unpacking
+#### 行 2320, 列 20
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
 
-#### 行 2880, 列 28
+#### 行 2346, 列 20
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 2364, 列 20
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
+
+#### 行 2379, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32api)
 - 符号: import-outside-toplevel
 
-#### 行 2881, 列 28
+#### 行 2380, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32con)
 - 符号: import-outside-toplevel
 
-#### 行 2883, 列 31
+#### 行 2387, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (13/12)
+- 符号: too-many-branches
+
+#### 行 2460, 列 31
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2889, 列 23
+#### 行 2480, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2906, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 2911, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 2915, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 2940, 列 15
+#### 行 2492, 列 11
 - 类型: convention
 - 代码: C1804
-- 描述: "self.cc_current == ''" can be simplified to "not self.cc_current", if it is strictly a string, as an empty string is falsey
+- 描述: "self.current_directory != ''" can be simplified to "self.current_directory", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
+
+#### 行 2500, 列 11
+- 类型: convention
+- 代码: C1804
+- 描述: "self.current_directory != ''" can be simplified to "self.current_directory", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
+
+#### 行 2513, 列 8
+- 类型: warning
+- 代码: W0105
+- 描述: String statement has no effect
+- 符号: pointless-string-statement
+
+#### 行 2598, 列 12
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 2605, 列 11
+- 类型: convention
+- 代码: C1804
+- 描述: "self.test_information != ''" can be simplified to "self.test_information", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
+
+#### 行 2661, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (21/12)
+- 符号: too-many-branches
+
+#### 行 2661, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (83/50)
+- 符号: too-many-statements
+
+#### 行 2762, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 2764, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (16/12)
+- 符号: too-many-branches
+
+#### 行 2764, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (77/50)
+- 符号: too-many-statements
+
+#### 行 2775, 列 19
+- 类型: convention
+- 代码: C1805
+- 描述: "stateindex == 0" can be simplified to "not stateindex", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 2787, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "stateindex == 0" can be simplified to "not stateindex", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 2925, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (24/12)
+- 符号: too-many-branches
+
+#### 行 2925, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (83/50)
+- 符号: too-many-statements
+
+#### 行 2956, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 3009, 列 28
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (win32api)
+- 符号: import-outside-toplevel
+
+#### 行 3010, 列 28
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (win32con)
+- 符号: import-outside-toplevel
+
+#### 行 3012, 列 31
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 3018, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 3035, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 3040, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 3044, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
 ## 文件: src\battery_analysis\main\services\application_service.py
 
 ### 问题统计
-- 问题总数: 10
-- 错误(Error): 2
+- 问题总数: 8
 - 警告(Warning): 4
 - 规范(Convention): 3
 - 重构(Refactor): 1
@@ -3124,12 +2813,6 @@
 - 描述: Too many instance attributes (15/7)
 - 符号: too-many-instance-attributes
 
-#### 行 100, 列 12
-- 类型: error
-- 代码: E1101
-- 描述: Instance of 'ConfigService' has no 'initialize' member
-- 符号: no-member
-
 #### 行 109, 列 12
 - 类型: convention
 - 代码: C0415
@@ -3153,12 +2836,6 @@
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
-
-#### 行 167, 列 8
-- 类型: error
-- 代码: E1205
-- 描述: Too many arguments for logging format string
-- 符号: logging-too-many-args
 
 ## 文件: src\battery_analysis\main\services\config_service.py
 
@@ -3243,9 +2920,9 @@
 
 #### 行 299, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\main\services\config_service_interface.py
 
@@ -3299,9 +2976,9 @@
 
 #### 行 117, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 117, 列 8
 - 类型: warning
@@ -3397,9 +3074,9 @@
 
 #### 行 176, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 176, 列 8
 - 类型: warning
@@ -3490,9 +3167,9 @@
 
 #### 行 170, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 170, 列 8
 - 类型: warning
@@ -3584,9 +3261,9 @@
 
 #### 行 272, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\main\services\file_service.py
 
@@ -3770,9 +3447,9 @@
 
 #### 行 152, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 152, 列 8
 - 类型: warning
@@ -3882,8 +3559,7 @@
 ## 文件: src\battery_analysis\main\services\progress_service.py
 
 ### 问题统计
-- 问题总数: 11
-- 错误(Error): 1
+- 问题总数: 10
 - 警告(Warning): 9
 - 重构(Refactor): 1
 
@@ -3899,12 +3575,6 @@
 - 代码: W0611
 - 描述: Unused Any imported from typing
 - 符号: unused-import
-
-#### 行 114, 列 8
-- 类型: error
-- 代码: E1205
-- 描述: Too many arguments for logging format string
-- 符号: logging-too-many-args
 
 #### 行 120, 列 19
 - 类型: warning
@@ -4182,9 +3852,9 @@
 
 #### 行 266, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\main\services\validation_service_interface.py
 
@@ -4244,9 +3914,9 @@
 
 #### 行 122, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 122, 列 8
 - 类型: warning
@@ -4257,9 +3927,9 @@
 ## 文件: src\battery_analysis\main\workers\analysis_worker.py
 
 ### 问题统计
-- 问题总数: 26
+- 问题总数: 24
 - 警告(Warning): 14
-- 规范(Convention): 8
+- 规范(Convention): 6
 - 重构(Refactor): 4
 
 ### 详细问题
@@ -4328,18 +3998,6 @@
 - 代码: W0702
 - 描述: No exception type(s) specified
 - 符号: bare-except
-
-#### 行 171, 列 52
-- 类型: convention
-- 代码: C0207
-- 描述: Use original_cycle_date.split(' ', maxsplit=1)[0] instead
-- 符号: use-maxsplit-arg
-
-#### 行 178, 列 52
-- 类型: convention
-- 代码: C0207
-- 描述: Use original_cycle_date.split(' ', maxsplit=1)[0] instead
-- 符号: use-maxsplit-arg
 
 #### 行 188, 列 32
 - 类型: warning
@@ -4435,10 +4093,9 @@
 ## 文件: src\battery_analysis\ui\frameworks\pyqt6_ui_framework.py
 
 ### 问题统计
-- 问题总数: 26
+- 问题总数: 27
 - 警告(Warning): 3
-- 规范(Convention): 22
-- 重构(Refactor): 1
+- 规范(Convention): 24
 
 ### 详细问题
 #### 行 9, 列 0
@@ -4537,17 +4194,23 @@
 - 描述: Import outside toplevel (tkinter.messagebox)
 - 符号: import-outside-toplevel
 
-#### 行 306, 列 12
-- 类型: refactor
-- 代码: R0402
-- 描述: Use 'from tkinter import filedialog' instead
-- 符号: consider-using-from-import
+#### 行 305, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 306, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (tkinter.filedialog)
 - 符号: import-outside-toplevel
+
+#### 行 309, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 327, 列 12
 - 类型: convention
@@ -4593,9 +4256,9 @@
 
 #### 行 419, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\ui\interfaces\iuiframework.py
 
@@ -4673,9 +4336,9 @@
 
 #### 行 173, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 #### 行 173, 列 8
 - 类型: warning
@@ -4686,9 +4349,9 @@
 ## 文件: src\battery_analysis\ui\modern_battery_viewer.py
 
 ### 问题统计
-- 问题总数: 60
+- 问题总数: 58
 - 错误(Error): 3
-- 警告(Warning): 48
+- 警告(Warning): 46
 - 规范(Convention): 8
 - 重构(Refactor): 1
 
@@ -4792,12 +4455,6 @@
 #### 行 28, 列 0
 - 类型: warning
 - 代码: W0611
-- 描述: Unused style_manager imported from ui.styles
-- 符号: unused-import
-
-#### 行 28, 列 0
-- 类型: warning
-- 代码: W0611
 - 描述: Unused create_styled_button imported from ui.styles
 - 符号: unused-import
 
@@ -4855,203 +4512,197 @@
 - 描述: Too many instance attributes (32/7)
 - 符号: too-many-instance-attributes
 
-#### 行 90, 列 8
-- 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
-
-#### 行 167, 列 8
+#### 行 169, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'path_label' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 170, 列 8
+#### 行 172, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'path_combo' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 174, 列 8
+#### 行 176, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'browse_button' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 183, 列 8
+#### 行 185, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'load_button' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 208, 列 8
+#### 行 210, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'chart_type_combo' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 216, 列 8
+#### 行 218, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'show_filtered_checkbox' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 220, 列 8
+#### 行 222, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'show_raw_checkbox' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 224, 列 8
+#### 行 226, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'show_grid_checkbox' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 228, 列 8
+#### 行 230, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'show_legend_checkbox' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 238, 列 8
+#### 行 240, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'battery_filter_combo' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 269, 列 8
+#### 行 271, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'filter_strength_spinbox' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 283, 列 8
+#### 行 285, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'sampling_spinbox' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 293, 列 8
+#### 行 295, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'apply_button' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 313, 列 8
+#### 行 315, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'data_status_label' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 317, 列 8
+#### 行 319, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'data_details_text' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 323, 列 8
+#### 行 325, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'stats_label' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 369, 列 8
+#### 行 371, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'analysis_type_combo' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 372, 列 8
+#### 行 374, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'run_analysis_button' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 382, 列 8
+#### 行 384, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'analysis_result_text' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 549, 列 16
+#### 行 551, 列 16
 - 类型: warning
 - 代码: W0719
 - 描述: Raising too general exception: Exception
 - 符号: broad-exception-raised
 
-#### 行 551, 列 15
+#### 行 553, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 567, 列 41
+#### 行 569, 列 41
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'state'
 - 符号: unused-argument
 
-#### 行 574, 列 41
+#### 行 576, 列 41
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'battery_filter'
 - 符号: unused-argument
 
-#### 行 585, 列 8
+#### 行 587, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 595, 列 12
+#### 行 597, 列 12
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'filter_strength'
 - 符号: unused-variable
 
-#### 行 596, 列 12
+#### 行 598, 列 12
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'sampling_interval'
 - 符号: unused-variable
 
-#### 行 603, 列 15
+#### 行 605, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 640, 列 15
+#### 行 642, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 744, 列 4
+#### 行 746, 列 4
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'sys' (imported line 10)
 - 符号: reimported
 
-#### 行 744, 列 4
+#### 行 746, 列 4
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package sys are not grouped
 - 符号: ungrouped-imports
 
-#### 行 749, 列 4
+#### 行 751, 列 4
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _setup_matplotlib_theme of a client class
 - 符号: protected-access
 
-#### 行 755, 列 0
+#### 行 757, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\ui\modern_battery_viewer_refactored.py
 
@@ -5335,9 +4986,9 @@
 
 #### 行 637, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\ui\modern_chart_widget.py
 
@@ -5440,9 +5091,9 @@
 
 #### 行 515, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\ui\modern_theme.py
 
@@ -5504,30 +5155,17 @@
 
 #### 行 272, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
-
-## 文件: src\battery_analysis\ui\styles\__init__.py
-
-### 问题统计
-- 问题总数: 1
-- 规范(Convention): 1
-
-### 详细问题
-#### 行 22, 列 0
-- 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\ui\styles\style_manager.py
 
 ### 问题统计
-- 问题总数: 15
+- 问题总数: 17
 - 错误(Error): 1
 - 警告(Warning): 10
-- 规范(Convention): 4
+- 规范(Convention): 6
 
 ### 详细问题
 #### 行 8, 列 0
@@ -5566,67 +5204,79 @@
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 59, 列 23
+#### 行 41, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 95, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 92, 列 23
+#### 行 98, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 130, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 114, 列 15
+#### 行 152, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 172, 列 15
+#### 行 210, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 183, 列 15
+#### 行 221, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 190, 列 8
+#### 行 228, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (PyQt6.QtWidgets.QPushButton)
 - 符号: import-outside-toplevel
 
-#### 行 213, 列 8
+#### 行 251, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (PyQt6.QtWidgets.QGroupBox)
 - 符号: import-outside-toplevel
 
-#### 行 222, 列 21
+#### 行 260, 列 21
 - 类型: error
 - 代码: E0602
 - 描述: Undefined variable 'QVBoxLayout'
 - 符号: undefined-variable
 
-#### 行 252, 列 0
+#### 行 290, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\ui\ui_main_window.py
 
 ### 问题统计
-- 问题总数: 128
+- 问题总数: 127
 - 警告(Warning): 122
 - 规范(Convention): 2
-- 重构(Refactor): 4
+- 重构(Refactor): 3
 
 ### 详细问题
 #### 行 1, 列 0
@@ -5640,12 +5290,6 @@
 - 代码: C0114
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
-
-#### 行 12, 列 0
-- 类型: refactor
-- 代码: R0205
-- 描述: Class 'Ui_MainWindow' inherits from object, can be safely removed from bases in python3
-- 符号: useless-object-inheritance
 
 #### 行 12, 列 0
 - 类型: refactor
@@ -6400,9 +6044,9 @@
 ## 文件: src\battery_analysis\utils\battery_analysis.py
 
 ### 问题统计
-- 问题总数: 28
+- 问题总数: 27
 - 警告(Warning): 2
-- 规范(Convention): 14
+- 规范(Convention): 13
 - 重构(Refactor): 12
 
 ### 详细问题
@@ -6489,12 +6133,6 @@
 - 代码: R0915
 - 描述: Too many statements (69/50)
 - 符号: too-many-statements
-
-#### 行 68, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "len(self.listAllInXlsx) == 0" can be simplified to "not len(self.listAllInXlsx)", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
 
 #### 行 97, 列 20
 - 类型: convention
@@ -6645,9 +6283,9 @@
 
 #### 行 230, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\utils\config_utils.py
 
@@ -6826,9 +6464,9 @@
 
 #### 行 338, 列 0
 - 类型: convention
-- 代码: C0304
-- 描述: Final newline missing
-- 符号: missing-final-newline
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\utils\excel_utils.py
 
@@ -6877,9 +6515,9 @@
 ## 文件: src\battery_analysis\utils\file_writer.py
 
 ### 问题统计
-- 问题总数: 95
+- 问题总数: 92
 - 警告(Warning): 29
-- 规范(Convention): 54
+- 规范(Convention): 51
 - 重构(Refactor): 12
 
 ### 详细问题
@@ -6931,179 +6569,179 @@
 - 描述: third party import "matplotlib.pyplot" should be placed before first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 20, 列 0
+#### 行 15, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "re" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT", "docx.Document", "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
+- 符号: wrong-import-order
+
+#### 行 21, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import xlsxwriter as xwt" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 20, 列 0
+#### 行 21, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "xlsxwriter" should be placed before first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 21, 列 0
+#### 行 22, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import os" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 21, 列 0
+#### 行 22, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "os" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 22, 列 0
+#### 行 23, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import csv" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 22, 列 0
+#### 行 23, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "csv" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 23, 列 0
+#### 行 24, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import json" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 23, 列 0
+#### 行 24, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "json" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 24, 列 0
+#### 行 25, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import math" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 24, 列 0
+#### 行 25, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "math" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 25, 列 0
+#### 行 26, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import datetime" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 25, 列 0
+#### 行 26, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "datetime" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 26, 列 0
+#### 行 27, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import traceback" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 26, 列 0
+#### 行 27, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "traceback" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 27, 列 0
+#### 行 28, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import configparser" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 27, 列 0
+#### 行 28, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "configparser" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 28, 列 0
+#### 行 29, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import logging" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 28, 列 0
+#### 行 29, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "logging" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 31, 列 0
+#### 行 32, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "from battery_analysis import __version__" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 31, 列 0
+#### 行 32, 列 0
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package battery_analysis are not grouped
 - 符号: ungrouped-imports
 
-#### 行 32, 列 0
+#### 行 33, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "from battery_analysis.utils.config_utils import find_config_file" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 35, 列 0
+#### 行 36, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import matplotlib" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 35, 列 0
+#### 行 36, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "matplotlib" should be placed before first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.exception_type.BatteryAnalysisException", "battery_analysis.__version__", "battery_analysis.utils.config_utils.find_config_file" 
 - 符号: wrong-import-order
 
-#### 行 35, 列 0
+#### 行 36, 列 0
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package matplotlib are not grouped
 - 符号: ungrouped-imports
 
-#### 行 39, 列 0
+#### 行 40, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (31/7)
 - 符号: too-many-instance-attributes
 
-#### 行 40, 列 4
+#### 行 41, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (38/12)
 - 符号: too-many-branches
 
-#### 行 40, 列 4
+#### 行 41, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (141/50)
+- 描述: Too many statements (140/50)
 - 符号: too-many-statements
 
-#### 行 70, 列 15
+#### 行 71, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
-
-#### 行 118, 列 16
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (re)
-- 符号: import-outside-toplevel
 
 #### 行 233, 列 8
 - 类型: convention
@@ -7116,12 +6754,6 @@
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
-
-#### 行 270, 列 15
-- 类型: convention
-- 代码: C1804
-- 描述: "strBatteryType == ''" can be simplified to "not strBatteryType", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
 
 #### 行 277, 列 15
 - 类型: warning
@@ -7254,12 +6886,6 @@
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
-
-#### 行 1019, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.listTestInfo[5] == ''" can be simplified to "not self.listTestInfo[5]", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
 
 #### 行 1357, 列 8
 - 类型: refactor
@@ -7429,12 +7055,6 @@
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1625, 列 15
-- 类型: convention
-- 代码: C1804
-- 描述: "strBatteryType == ''" can be simplified to "not strBatteryType", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
 #### 行 1628, 列 15
 - 类型: warning
 - 代码: W0718
@@ -7456,28 +7076,15 @@
 ## 文件: src\battery_analysis\utils\plot_utils.py
 
 ### 问题统计
-- 问题总数: 3
-- 警告(Warning): 1
-- 规范(Convention): 2
+- 问题总数: 1
+- 规范(Convention): 1
 
 ### 详细问题
-#### 行 1, 列 0
+#### 行 50, 列 0
 - 类型: convention
-- 代码: C0114
-- 描述: Missing module docstring
-- 符号: missing-module-docstring
-
-#### 行 8, 列 0
-- 类型: convention
-- 代码: C0413
-- 描述: Import "from battery_analysis.utils.exception_type import BatteryAnalysisException" should be placed at the top of the module
-- 符号: wrong-import-position
-
-#### 行 11, 列 0
-- 类型: warning
-- 代码: W0105
-- 描述: String statement has no effect
-- 符号: pointless-string-statement
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\utils\test_environment_detection.py
 
@@ -7521,46 +7128,20 @@
 ## 文件: src\battery_analysis\utils\version.py
 
 ### 问题统计
-- 问题总数: 6
-- 错误(Error): 1
-- 警告(Warning): 3
+- 问题总数: 2
 - 信息(Info): 2
 
 ### 详细问题
-#### 行 36, 列 4
-- 类型: warning
-- 代码: W0611
-- 描述: Unused EnvironmentType imported from battery_analysis.utils.environment_utils
-- 符号: unused-import
-
-#### 行 61, 列 49
-- 类型: error
-- 代码: E0203
-- 描述: Access to member '_pending_version' before its definition line 63
-- 符号: access-member-before-definition
-
-#### 行 74, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 125, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 133, 列 0
+#### 行 140, 列 0
 - 类型: info
 - 代码: I0011
 - 描述: Locally disabling protected-access (W0212)
 - 符号: locally-disabled
 
-#### 行 133, 列 0
+#### 行 140, 列 0
 - 类型: info
 - 代码: I0020
-- 描述: Suppressed 'protected-access' (from line 133)
+- 描述: Suppressed 'protected-access' (from line 140)
 - 符号: suppressed-message
 
 ## 文件: src\battery_analysis\utils\word_utils.py
@@ -7597,75 +7178,55 @@
 ## 文件: tests\battery_analysis\main\test_main_window.py
 
 ### 问题统计
-- 问题总数: 1
-- 错误(Error): 1
+- 问题总数: 5
+- 信息(Info): 3
+- 规范(Convention): 2
 
 ### 详细问题
+#### 行 5, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
 #### 行 7, 列 0
-- 类型: error
-- 代码: E0401
-- 描述: Unable to import 'pytest'
-- 符号: import-error
+- 类型: info
+- 代码: I0011
+- 描述: Locally disabling import-error (E0401)
+- 符号: locally-disabled
+
+#### 行 7, 列 0
+- 类型: info
+- 代码: I0023
+- 描述: 'E0401' is cryptic: use '# pylint: disable=import-error' instead
+- 符号: use-symbolic-message-instead
+
+#### 行 7, 列 0
+- 类型: info
+- 代码: I0020
+- 描述: Suppressed 'import-error' (from line 7)
+- 符号: suppressed-message
+
+#### 行 8, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: tests\battery_analysis\utils\test_file_writer.py
 
 ### 问题统计
-- 问题总数: 71
+- 问题总数: 58
 - 规范(Convention): 1
-- 重构(Refactor): 70
+- 重构(Refactor): 57
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis.i18n.__init__:[30:67]
-==po_translator:[20:57]
-        self.translations = {}
-        self.current_locale = 'en'
-
-    def parse_po_file(self, po_file_path: Path):
-        """Parse a .po file and extract translations"""
-        translations = {}
-
-        try:
-            with open(po_file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-
-            # Simple regex-based parsing
-            msgid_pattern = r'msgid\s+"([^"]*)"'
-            msgstr_pattern = r'msgstr\s+"([^"]*)"'
-
-            msgid_matches = list(re.finditer(msgid_pattern, content))
-            msgstr_matches = list(re.finditer(msgstr_pattern, content))
-
-            for i in range(min(len(msgid_matches), len(msgstr_matches))):
-                msgid = msgid_matches[i].group(1)
-                msgstr = msgstr_matches[i].group(1)
-
-                # Skip empty msgid (header)
-                if not msgid.strip():
-                    continue
-
-                translations[msgid] = msgstr
-
-            logger.info("Parsed %s translations from %s", len(translations), po_file_path)
-            return translations
-
-        except Exception as e:
-            logger.error("Error parsing %s: %s", po_file_path, e)
-            return {}
-
-    def load_locale(self, locale_code: str):
-        """Load translations for a specific locale"""
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[51:79]
-==modern_battery_viewer_refactored:[34:62]
+==modern_battery_viewer:[51:86]
+==modern_battery_viewer_refactored:[34:72]
     data_loaded = pyqtSignal(str)  # 数据加载完成信号
     visualization_changed = pyqtSignal(str)  # 可视化变化信号
 
@@ -7693,14 +7254,24 @@
         self._setup_statusbar()
         self._connect_signals()
 
+        # 应用现代化样式
+        self._apply_styles()
+
         # 如果提供了数据路径，自动加载
+        if self.data_path and os.path.exists(self.data_path):
+            QTimer.singleShot(100, lambda: self.load_data(self.data_path))
+
+    def _setup_ui(self):
+        """设置用户界面"""
+
+        # 设置主窗口属性
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[207:235]
+==modern_battery_viewer:[209:237]
 ==modern_battery_viewer_refactored:[183:211]
         self.chart_type_combo = QComboBox()
         self.chart_type_combo.addItems(["折线图", "散点图", "面积图", "对比图"])
@@ -7736,7 +7307,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[237:266]
+==modern_battery_viewer:[239:268]
 ==modern_battery_viewer_refactored:[213:242]
         self.battery_filter_combo = QComboBox()
         self.battery_filter_combo.setEditable(True)
@@ -7773,7 +7344,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[131:167]
+==modern_battery_viewer:[133:169]
 ==modern_battery_viewer_refactored:[104:140]
         control_frame.setMaximumWidth(350)
         control_frame.setMinimumWidth(300)
@@ -7817,7 +7388,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[496:521]
+==modern_battery_viewer:[498:523]
 ==modern_battery_viewer_refactored:[480:506]
         directory = QFileDialog.getExistingDirectory(
             self,
@@ -7843,15 +7414,14 @@
         try:
             self.statusBar().showMessage('正在加载数据...')
 
-            # 这里实现数据加载逻辑
-            # 目前作为示例，只更新状态
+            # 使用原有的BatteryChartViewer加载数据
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[103:130]
+==modern_battery_viewer:[105:132]
 ==modern_battery_viewer_refactored:[77:104]
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -7886,502 +7456,303 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis.i18n.__init__:[69:97]
-==po_translator:[60:82]
-        if not po_file.exists():
-            logger.warning("Translation file not found: %s", po_file)
-            return False
-
-        self.translations = self.parse_po_file(po_file)
-        self.current_locale = locale_code
-
-        logger.info("Loaded %s translations for %s", len(self.translations), locale_code)
-        return True
-
-    def _(self, text, context=None):
-        """Get translation for text"""
-        if context:
-            # Handle context-aware translations if needed
-            key = f"{context}:{text}"
-        else:
-            key = text
-
-        return self.translations.get(key, text)
-
-    def set_locale(self, locale_code):
-        """Set the current locale"""
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[46:160]
+==data_processing_service_interface:[31:176]
 ==idataprocessor:[45:193]
         pass
 
     @abstractmethod
-    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
-        """保存数据文件
+    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        分析电池性能
 
         Args:
-            data: 数据对象
-            file_path: 保存路径
-            format: 数据格式
-            **kwargs: 保存参数
+            data: 电池数据列表
 
         Returns:
-            bool: 是否保存成功
+            Dict[str, Any]: 分析结果
         """
         pass
 
     @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
+        """
+        计算统计数据
 
         Args:
-            data: 初始数据
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
 
         Returns:
-            Any: 数据框对象
+            Dict[str, float]: 统计数据
         """
         pass
 
     @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
+        """
+        数据平滑处理
 
         Args:
-            data: 数据对象
-            conditions: 过滤条件
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
 
         Returns:
-            Any: 过滤后的数据
+            List[float]: 平滑后的数据
         """
         pass
 
     @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
+        """
+        检测异常值
 
         Args:
-            data: 数据对象
-            by: 分组字段
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            Any: 分组后的数据
+            List[int]: 异常值的索引列表
         """
         pass
 
     @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
+        """
+        生成模拟电池数据
 
         Args:
-            data: 数据对象
-            aggregations: 聚合规则
+            battery_count: 电池数量
+            data_points: 数据点数量
 
         Returns:
-            Any: 聚合后的数据
+            List[Dict[str, Any]]: 模拟数据
         """
         pass
 
     @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
 
         Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
+            data: 待验证的数据
 
         Returns:
-            Any: 排序后的数据
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
         """
         pass
 
     @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
 
         Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
+            csv_path: CSV文件路径
 
         Returns:
-            Any: 合并后的数据
+            List[Dict[str, Any]]: 解析后的数据
         """
         pass
 
     @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
 
         Args:
-            data: 数据对象
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
 
         Returns:
-            List[str]: 列名列表
+            bool: 导出是否成功
         """
         pass
 
     @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
 
         Args:
-            data: 数据对象
-            column: 列名
+            data_list: 数据集列表
 
         Returns:
-            Any: 列数据
+            List[Dict[str, Any]]: 合并后的数据
         """
         pass
 
     @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
 
         Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            data: 原始数据
+            feature_types: 特征类型列表
 
         Returns:
-            bool: 是否设置成功
+            Dict[str, Any]: 提取的特征
         """
         pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:176]
 ==idataprocessor:[60:206]
-        pass
-
-    @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
-
-        Args:
-            data: 初始数据
-
-        Returns:
-            Any: 数据框对象
-        """
-        pass
-
-    @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
-        """
-        pass
-
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-        pass
-
-    @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
-
-        Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
-
-        Returns:
-            Any: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==idataprocessor:[72:219]
 ==iuiframework:[38:173]
         pass
 
     @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
+    def create_main_window(self) -> Any:
+        """创建主窗口
 
         Returns:
-            Any: 过滤后的数据
+            Any: 主窗口实例
         """
         pass
 
     @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
+    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
+        """创建进度对话框
 
         Args:
-            data: 数据对象
-            by: 分组字段
+            parent: 父窗口
 
         Returns:
-            Any: 分组后的数据
+            Any: 进度对话框实例
         """
         pass
 
     @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
+    def show_message_box(self,
+                        parent: Optional[Any],
+                        title: str,
+                        message: str,
+                        msg_type: MessageBoxType) -> Any:
+        """显示消息框
 
         Args:
-            data: 数据对象
-            aggregations: 聚合规则
+            parent: 父窗口
+            title: 窗口标题
+            message: 消息内容
+            msg_type: 消息类型
 
         Returns:
-            Any: 聚合后的数据
+            Any: 消息框实例
         """
         pass
 
     @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
+    def create_file_dialog(self,
+                          parent: Optional[Any],
+                          caption: str,
+                          directory: str = "",
+                          filter_pattern: str = "") -> Any:
+        """创建文件选择对话框
 
         Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
+            parent: 父窗口
+            caption: 对话框标题
+            directory: 默认目录
+            filter_pattern: 文件过滤器
 
         Returns:
-            Any: 排序后的数据
+            Any: 文件对话框实例
         """
         pass
 
     @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
+    def create_label(self, parent: Any, text: str) -> Any:
+        """创建标签控件
 
         Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
+            parent: 父控件
+            text: 标签文本
 
         Returns:
-            Any: 合并后的数据
+            Any: 标签控件实例
         """
         pass
 
     @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
 
         Args:
-            data: 数据对象
+            parent: 父控件
+            text: 按钮文本
 
         Returns:
-            List[str]: 列名列表
+            Any: 按钮控件实例
         """
         pass
 
     @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
+    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
+        """创建输入框控件
 
         Args:
-            data: 数据对象
-            column: 列名
+            parent: 父控件
+            placeholder: 占位符文本
 
         Returns:
-            Any: 列数据
+            Any: 输入框控件实例
         """
         pass
 
     @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
+    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
+        """创建表格控件
 
         Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            parent: 父控件
+            rows: 行数
+            columns: 列数
 
         Returns:
-            bool: 是否设置成功
+            Any: 表格控件实例
         """
         pass
 
     @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
+    def set_layout(self, parent: Any, layout: Any) -> None:
+        """设置布局管理器
 
         Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
+            parent: 父控件
+            layout: 布局管理器
         """
         pass
 
     @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
+    def exec_application(self, app: Any) -> int:
+        """运行应用程序
 
         Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
+            app: 应用程序实例
 
         Returns:
-            Dict[str, Any]: 统计信息
+            int: 退出代码
         """
         pass
-
-    @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
-
-        Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[344:366]
+==modern_battery_viewer:[346:368]
 ==modern_battery_viewer_refactored:[322:344]
         self.chart_widget = ModernChartWidget()
         self.chart_widget.data_changed.connect(self._on_chart_data_changed)
@@ -8411,128 +7782,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==ichart_manager:[46:159]
-==idataprocessor:[98:220]
-        pass
-
-    @abstractmethod
-    def set_chart_data(self, chart: Any, data: Dict[str, Any]) -> bool:
-        """设置图表数据
-
-        Args:
-            chart: 图表实例
-            data: 数据字典
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def set_chart_title(self, chart: Any, title: str) -> None:
-        """设置图表标题
-
-        Args:
-            chart: 图表实例
-            title: 标题文本
-        """
-        pass
-
-    @abstractmethod
-    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
-        """设置坐标轴标签
-
-        Args:
-            chart: 图表实例
-            x_label: X轴标签
-            y_label: Y轴标签
-        """
-        pass
-
-    @abstractmethod
-    def add_legend(self, chart: Any) -> None:
-        """添加图例
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
-
-        Args:
-            chart: 图表实例
-
-        Returns:
-            bool: 是否显示成功
-        """
-        pass
-
-    @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
-
-        Returns:
-            Any: 子图实例
-        """
-        pass
-
-    @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
-
-        Args:
-            chart: 图表实例
-            show: 是否显示网格
-        """
-        pass
-
-    @abstractmethod
-    def set_colors(self, chart: Any, colors: List[str]) -> None:
-        """设置颜色
-
-        Args:
-            chart: 图表实例
-            colors: 颜色列表
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[59:160]
+==data_processing_service_interface:[44:176]
 ==idataprocessor:[45:179]
         pass
 
@@ -8674,8 +7924,684 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==data_processing_service_interface:[31:175]
+==idataprocessor:[98:220]
+        pass
+
+    @abstractmethod
+    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
+        """聚合数据
+
+        Args:
+            data: 数据对象
+            aggregations: 聚合规则
+
+        Returns:
+            Any: 聚合后的数据
+        """
+        pass
+
+    @abstractmethod
+    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
+        """排序数据
+
+        Args:
+            data: 数据对象
+            by: 排序字段
+            ascending: 是否升序
+
+        Returns:
+            Any: 排序后的数据
+        """
+        pass
+
+    @abstractmethod
+    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
+        """合并数据
+
+        Args:
+            left: 左数据
+            right: 右数据
+            on: 合并字段
+            how: 合并方式
+
+        Returns:
+            Any: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def get_column_names(self, data: Any) -> List[str]:
+        """获取列名
+
+        Args:
+            data: 数据对象
+
+        Returns:
+            List[str]: 列名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_column_data(self, data: Any, column: str) -> Any:
+        """获取列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+
+        Returns:
+            Any: 列数据
+        """
+        pass
+
+    @abstractmethod
+    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
+        """设置列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+            values: 新数据
+
+        Returns:
+            bool: 是否设置成功
+        """
+        pass
+
+    @abstractmethod
+    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
+        """转换数据类型
+
+        Args:
+            data: 数据对象
+            column: 列名
+            data_type: 目标类型
+
+        Returns:
+            bool: 是否转换成功
+        """
+        pass
+
+    @abstractmethod
+    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
+        """获取统计信息
+
+        Args:
+            data: 数据对象
+            columns: 指定列（None表示所有列）
+
+        Returns:
+            Dict[str, Any]: 统计信息
+        """
+        pass
+
+    @abstractmethod
+    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
+        """处理缺失值
+
+        Args:
+            data: 数据对象
+            strategy: 处理策略（drop、fill、interpolate等）
+
+        Returns:
+            Any: 处理后的数据
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
 ==document_service_interface:[29:170]
 ==idataprocessor:[60:193]
+        pass
+
+    @abstractmethod
+    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
+        """创建数据框
+
+        Args:
+            data: 初始数据
+
+        Returns:
+            Any: 数据框对象
+        """
+        pass
+
+    @abstractmethod
+    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
+        """过滤数据
+
+        Args:
+            data: 数据对象
+            conditions: 过滤条件
+
+        Returns:
+            Any: 过滤后的数据
+        """
+        pass
+
+    @abstractmethod
+    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
+        """分组数据
+
+        Args:
+            data: 数据对象
+            by: 分组字段
+
+        Returns:
+            Any: 分组后的数据
+        """
+        pass
+
+    @abstractmethod
+    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
+        """聚合数据
+
+        Args:
+            data: 数据对象
+            aggregations: 聚合规则
+
+        Returns:
+            Any: 聚合后的数据
+        """
+        pass
+
+    @abstractmethod
+    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
+        """排序数据
+
+        Args:
+            data: 数据对象
+            by: 排序字段
+            ascending: 是否升序
+
+        Returns:
+            Any: 排序后的数据
+        """
+        pass
+
+    @abstractmethod
+    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
+        """合并数据
+
+        Args:
+            left: 左数据
+            right: 右数据
+            on: 合并字段
+            how: 合并方式
+
+        Returns:
+            Any: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def get_column_names(self, data: Any) -> List[str]:
+        """获取列名
+
+        Args:
+            data: 数据对象
+
+        Returns:
+            List[str]: 列名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_column_data(self, data: Any, column: str) -> Any:
+        """获取列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+
+        Returns:
+            Any: 列数据
+        """
+        pass
+
+    @abstractmethod
+    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
+        """设置列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+            values: 新数据
+
+        Returns:
+            bool: 是否设置成功
+        """
+        pass
+
+    @abstractmethod
+    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
+        """转换数据类型
+
+        Args:
+            data: 数据对象
+            column: 列名
+            data_type: 目标类型
+
+        Returns:
+            bool: 是否转换成功
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==file_service_interface:[29:152]
+==idataprocessor:[72:206]
+        pass
+
+    @abstractmethod
+    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+        """
+        删除目录
+
+        Args:
+            path: 目录路径
+            recursive: 是否递归删除
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+        """
+        列出目录中的文件
+
+        Args:
+            directory: 目录路径
+            pattern: 文件名模式
+
+        Returns:
+            List[str]: 文件名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            Optional[int]: 文件大小，失败返回None
+        """
+        pass
+
+    @abstractmethod
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
+
+        Args:
+            file_path: 文件路径
+            attributes: 属性字典
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            bool: 文件是否隐藏
+        """
+        pass
+
+    @abstractmethod
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==modern_battery_viewer:[378:399]
+==modern_battery_viewer_refactored:[358:379]
+        analysis_control_layout.addWidget(analysis_type_label)
+        analysis_control_layout.addWidget(self.analysis_type_combo)
+        analysis_control_layout.addWidget(self.run_analysis_button)
+
+        # 分析结果
+        self.analysis_result_text = QTextEdit()
+        self.analysis_result_text.setReadOnly(True)
+
+        layout.addLayout(analysis_control_layout)
+        layout.addWidget(self.analysis_result_text)
+
+        return analysis_widget
+
+    def _setup_menus(self):
+        """设置菜单栏"""
+
+        menubar = self.menuBar()
+
+        # 文件菜单
+        file_menu = menubar.addMenu('文件(&F)')
+
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==data_processing_service_interface:[59:176]
+==idataprocessor:[45:165]
+        pass
+
+    @abstractmethod
+    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
+        """保存数据文件
+
+        Args:
+            data: 数据对象
+            file_path: 保存路径
+            format: 数据格式
+            **kwargs: 保存参数
+
+        Returns:
+            bool: 是否保存成功
+        """
+        pass
+
+    @abstractmethod
+    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
+        """创建数据框
+
+        Args:
+            data: 初始数据
+
+        Returns:
+            Any: 数据框对象
+        """
+        pass
+
+    @abstractmethod
+    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
+        """过滤数据
+
+        Args:
+            data: 数据对象
+            conditions: 过滤条件
+
+        Returns:
+            Any: 过滤后的数据
+        """
+        pass
+
+    @abstractmethod
+    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
+        """分组数据
+
+        Args:
+            data: 数据对象
+            by: 分组字段
+
+        Returns:
+            Any: 分组后的数据
+        """
+        pass
+
+    @abstractmethod
+    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
+        """聚合数据
+
+        Args:
+            data: 数据对象
+            aggregations: 聚合规则
+
+        Returns:
+            Any: 聚合后的数据
+        """
+        pass
+
+    @abstractmethod
+    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
+        """排序数据
+
+        Args:
+            data: 数据对象
+            by: 排序字段
+            ascending: 是否升序
+
+        Returns:
+            Any: 排序后的数据
+        """
+        pass
+
+    @abstractmethod
+    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
+        """合并数据
+
+        Args:
+            left: 左数据
+            right: 右数据
+            on: 合并字段
+            how: 合并方式
+
+        Returns:
+            Any: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def get_column_names(self, data: Any) -> List[str]:
+        """获取列名
+
+        Args:
+            data: 数据对象
+
+        Returns:
+            List[str]: 列名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_column_data(self, data: Any, column: str) -> Any:
+        """获取列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+
+        Returns:
+            Any: 列数据
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==data_processing_service_interface:[31:160]
+==idataprocessor:[111:220]
+        pass
+
+    @abstractmethod
+    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
+        """排序数据
+
+        Args:
+            data: 数据对象
+            by: 排序字段
+            ascending: 是否升序
+
+        Returns:
+            Any: 排序后的数据
+        """
+        pass
+
+    @abstractmethod
+    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
+        """合并数据
+
+        Args:
+            left: 左数据
+            right: 右数据
+            on: 合并字段
+            how: 合并方式
+
+        Returns:
+            Any: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def get_column_names(self, data: Any) -> List[str]:
+        """获取列名
+
+        Args:
+            data: 数据对象
+
+        Returns:
+            List[str]: 列名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_column_data(self, data: Any, column: str) -> Any:
+        """获取列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+
+        Returns:
+            Any: 列数据
+        """
+        pass
+
+    @abstractmethod
+    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
+        """设置列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+            values: 新数据
+
+        Returns:
+            bool: 是否设置成功
+        """
+        pass
+
+    @abstractmethod
+    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
+        """转换数据类型
+
+        Args:
+            data: 数据对象
+            column: 列名
+            data_type: 目标类型
+
+        Returns:
+            bool: 是否转换成功
+        """
+        pass
+
+    @abstractmethod
+    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
+        """获取统计信息
+
+        Args:
+            data: 数据对象
+            columns: 指定列（None表示所有列）
+
+        Returns:
+            Dict[str, Any]: 统计信息
+        """
+        pass
+
+    @abstractmethod
+    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
+        """处理缺失值
+
+        Args:
+            data: 数据对象
+            strategy: 处理策略（drop、fill、interpolate等）
+
+        Returns:
+            Any: 处理后的数据
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==document_service_interface:[29:169]
+==file_service_interface:[43:152]
         pass
 
     @abstractmethod
@@ -8816,1199 +8742,135 @@
         Returns:
             bool: 设置是否成功
         """
-        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==file_service_interface:[29:152]
-==idataprocessor:[72:206]
-        pass
-
-    @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
-        """
-        pass
-
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-        pass
-
-    @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
-
-        Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
-
-        Returns:
-            Any: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:175]
-==iuiframework:[47:173]
-        pass
-
-    @abstractmethod
-    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        分析电池性能
-
-        Args:
-            data: 电池数据列表
-
-        Returns:
-            Dict[str, Any]: 分析结果
-        """
-        pass
-
-    @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
-        """
-        计算统计数据
-
-        Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
-
-        Returns:
-            Dict[str, float]: 统计数据
-        """
-        pass
-
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
-
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
-
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
-        pass
-
-    @abstractmethod
-    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        """
-        合并多个电池数据集
-
-        Args:
-            data_list: 数据集列表
-
-        Returns:
-            List[Dict[str, Any]]: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def extract_features(self, data: List[Dict[str, Any]],
-                        feature_types: List[str]) -> Dict[str, Any]:
-        """
-        提取数据特征
-
-        Args:
-            data: 原始数据
-            feature_types: 特征类型列表
-
-        Returns:
-            Dict[str, Any]: 提取的特征
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[44:176]
-==iuiframework:[38:172]
-        pass
-
-    @abstractmethod
-    def create_main_window(self) -> Any:
-        """创建主窗口
-
-        Returns:
-            Any: 主窗口实例
-        """
-        pass
-
-    @abstractmethod
-    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
-        """创建进度对话框
-
-        Args:
-            parent: 父窗口
-
-        Returns:
-            Any: 进度对话框实例
-        """
-        pass
-
-    @abstractmethod
-    def show_message_box(self,
-                        parent: Optional[Any],
-                        title: str,
-                        message: str,
-                        msg_type: MessageBoxType) -> Any:
-        """显示消息框
-
-        Args:
-            parent: 父窗口
-            title: 窗口标题
-            message: 消息内容
-            msg_type: 消息类型
-
-        Returns:
-            Any: 消息框实例
-        """
-        pass
-
-    @abstractmethod
-    def create_file_dialog(self,
-                          parent: Optional[Any],
-                          caption: str,
-                          directory: str = "",
-                          filter_pattern: str = "") -> Any:
-        """创建文件选择对话框
-
-        Args:
-            parent: 父窗口
-            caption: 对话框标题
-            directory: 默认目录
-            filter_pattern: 文件过滤器
-
-        Returns:
-            Any: 文件对话框实例
-        """
-        pass
-
-    @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
-
-        Args:
-            parent: 父控件
-            text: 标签文本
-
-        Returns:
-            Any: 标签控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
-
-        Args:
-            parent: 父控件
-            text: 按钮文本
-
-        Returns:
-            Any: 按钮控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
-
-        Args:
-            parent: 父控件
-            placeholder: 占位符文本
-
-        Returns:
-            Any: 输入框控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
-
-        Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
-
-        Returns:
-            Any: 表格控件实例
-        """
-        pass
-
-    @abstractmethod
-    def set_layout(self, parent: Any, layout: Any) -> None:
-        """设置布局管理器
-
-        Args:
-            parent: 父控件
-            layout: 布局管理器
-        """
-        pass
-
-    @abstractmethod
-    def exec_application(self, app: Any) -> int:
-        """运行应用程序
-
-        Args:
-            app: 应用程序实例
-
-        Returns:
-            int: 退出代码
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[376:397]
-==modern_battery_viewer_refactored:[358:379]
-        analysis_control_layout.addWidget(analysis_type_label)
-        analysis_control_layout.addWidget(self.analysis_type_combo)
-        analysis_control_layout.addWidget(self.run_analysis_button)
-
-        # 分析结果
-        self.analysis_result_text = QTextEdit()
-        self.analysis_result_text.setReadOnly(True)
-
-        layout.addLayout(analysis_control_layout)
-        layout.addWidget(self.analysis_result_text)
-
-        return analysis_widget
-
-    def _setup_menus(self):
-        """设置菜单栏"""
-
-        menubar = self.menuBar()
-
-        # 文件菜单
-        file_menu = menubar.addMenu('文件(&F)')
-
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[46:149]
-==idataprocessor:[111:220]
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-        pass
-
-    @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
-
-        Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
-
-        Returns:
-            Any: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
-        pass
-
-    @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
-
-        Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[69:160]
-==idataprocessor:[45:165]
-        pass
-
-    @abstractmethod
-    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
-        """设置坐标轴标签
-
-        Args:
-            chart: 图表实例
-            x_label: X轴标签
-            y_label: Y轴标签
-        """
-        pass
-
-    @abstractmethod
-    def add_legend(self, chart: Any) -> None:
-        """添加图例
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
-
-        Args:
-            chart: 图表实例
-
-        Returns:
-            bool: 是否显示成功
-        """
-        pass
-
-    @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
-
-        Returns:
-            Any: 子图实例
-        """
-        pass
-
-    @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
-
-        Args:
-            chart: 图表实例
-            show: 是否显示网格
-        """
-        pass
-
-    @abstractmethod
-    def set_colors(self, chart: Any, colors: List[str]) -> None:
-        """设置颜色
-
-        Args:
-            chart: 图表实例
-            colors: 颜色列表
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:160]
 ==document_service_interface:[43:170]
-        pass
-
-    @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
-        """
-        向Word文档添加表格
-
-        Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
-
-        Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
-        """
-        生成报告
-
-        Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
-
-        Returns:
-            bool: 生成是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_background_color(self, cell: Any, color: str) -> bool:
-        """
-        设置单元格背景色
-
-        Args:
-            cell: 单元格对象
-            color: 颜色值（十六进制或颜色名称）
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[59:176]
-==document_service_interface:[29:169]
-        pass
-
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
-
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
-
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
-        pass
-
-    @abstractmethod
-    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        """
-        合并多个电池数据集
-
-        Args:
-            data_list: 数据集列表
-
-        Returns:
-            List[Dict[str, Any]]: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def extract_features(self, data: List[Dict[str, Any]],
-                        feature_types: List[str]) -> Dict[str, Any]:
-        """
-        提取数据特征
-
-        Args:
-            data: 原始数据
-            feature_types: 特征类型列表
-
-        Returns:
-            Dict[str, Any]: 提取的特征
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
 ==file_service_interface:[29:151]
-==iuiframework:[59:173]
         pass
 
     @abstractmethod
-    def show_message_box(self,
-                        parent: Optional[Any],
-                        title: str,
-                        message: str,
-                        msg_type: MessageBoxType) -> Any:
-        """显示消息框
+    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+        """
+        删除目录
 
         Args:
-            parent: 父窗口
-            title: 窗口标题
-            message: 消息内容
-            msg_type: 消息类型
+            path: 目录路径
+            recursive: 是否递归删除
 
         Returns:
-            Any: 消息框实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_file_dialog(self,
-                          parent: Optional[Any],
-                          caption: str,
-                          directory: str = "",
-                          filter_pattern: str = "") -> Any:
-        """创建文件选择对话框
+    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+        """
+        列出目录中的文件
 
         Args:
-            parent: 父窗口
-            caption: 对话框标题
-            directory: 默认目录
-            filter_pattern: 文件过滤器
+            directory: 目录路径
+            pattern: 文件名模式
 
         Returns:
-            Any: 文件对话框实例
+            List[str]: 文件名列表
         """
         pass
 
     @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
 
         Args:
-            parent: 父控件
-            text: 标签文本
+            file_path: 文件路径
 
         Returns:
-            Any: 标签控件实例
+            Optional[int]: 文件大小，失败返回None
         """
         pass
 
     @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
 
         Args:
-            parent: 父控件
-            text: 按钮文本
+            file_path: 文件路径
+            attributes: 属性字典
 
         Returns:
-            Any: 按钮控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
 
         Args:
-            parent: 父控件
-            placeholder: 占位符文本
+            file_path: 文件路径
 
         Returns:
-            Any: 输入框控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
 
         Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
+            file_path: 文件路径
 
         Returns:
-            Any: 表格控件实例
+            bool: 文件是否隐藏
         """
         pass
 
     @abstractmethod
-    def set_layout(self, parent: Any, layout: Any) -> None:
-        """设置布局管理器
-
-        Args:
-            parent: 父控件
-            layout: 布局管理器
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
         """
-        pass
-
-    @abstractmethod
-    def exec_application(self, app: Any) -> int:
-        """运行应用程序
+        复制文件
 
         Args:
-            app: 应用程序实例
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            int: 退出代码
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==file_service_interface:[43:152]
-==iuiframework:[38:160]
-        pass
-
-    @abstractmethod
-    def create_main_window(self) -> Any:
-        """创建主窗口
-
-        Returns:
-            Any: 主窗口实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
-        """创建进度对话框
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
 
         Args:
-            parent: 父窗口
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            Any: 进度对话框实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def show_message_box(self,
-                        parent: Optional[Any],
-                        title: str,
-                        message: str,
-                        msg_type: MessageBoxType) -> Any:
-        """显示消息框
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
 
         Args:
-            parent: 父窗口
-            title: 窗口标题
-            message: 消息内容
-            msg_type: 消息类型
+            file_path: 文件路径
 
         Returns:
-            Any: 消息框实例
-        """
-        pass
-
-    @abstractmethod
-    def create_file_dialog(self,
-                          parent: Optional[Any],
-                          caption: str,
-                          directory: str = "",
-                          filter_pattern: str = "") -> Any:
-        """创建文件选择对话框
-
-        Args:
-            parent: 父窗口
-            caption: 对话框标题
-            directory: 默认目录
-            filter_pattern: 文件过滤器
-
-        Returns:
-            Any: 文件对话框实例
-        """
-        pass
-
-    @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
-
-        Args:
-            parent: 父控件
-            text: 标签文本
-
-        Returns:
-            Any: 标签控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
-
-        Args:
-            parent: 父控件
-            text: 按钮文本
-
-        Returns:
-            Any: 按钮控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
-
-        Args:
-            parent: 父控件
-            placeholder: 占位符文本
-
-        Returns:
-            Any: 输入框控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
-
-        Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
-
-        Returns:
-            Any: 表格控件实例
-        """
-        pass
-
-    @abstractmethod
-    def set_layout(self, parent: Any, layout: Any) -> None:
-        """设置布局管理器
-
-        Args:
-            parent: 父控件
-            layout: 布局管理器
+            tuple: (是否成功, 错误消息)
         """
 - 符号: duplicate-code
 
@@ -10016,7 +8878,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[169:182]
+==modern_battery_viewer:[171:184]
 ==modern_battery_viewer_refactored:[142:155]
         self.path_combo = QComboBox()
         self.path_combo.setEditable(True)
@@ -10037,197 +8899,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==ichart_manager:[46:139]
-==idataprocessor:[125:220]
-        pass
-
-    @abstractmethod
-    def set_chart_data(self, chart: Any, data: Dict[str, Any]) -> bool:
-        """设置图表数据
-
-        Args:
-            chart: 图表实例
-            data: 数据字典
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def set_chart_title(self, chart: Any, title: str) -> None:
-        """设置图表标题
-
-        Args:
-            chart: 图表实例
-            title: 标题文本
-        """
-        pass
-
-    @abstractmethod
-    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
-        """设置坐标轴标签
-
-        Args:
-            chart: 图表实例
-            x_label: X轴标签
-            y_label: Y轴标签
-        """
-        pass
-
-    @abstractmethod
-    def add_legend(self, chart: Any) -> None:
-        """添加图例
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
-
-        Args:
-            chart: 图表实例
-
-        Returns:
-            bool: 是否显示成功
-        """
-        pass
-
-    @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
-
-        Returns:
-            Any: 子图实例
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[80:160]
-==idataprocessor:[45:152]
-        pass
-
-    @abstractmethod
-    def add_legend(self, chart: Any) -> None:
-        """添加图例
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
-
-        Args:
-            chart: 图表实例
-
-        Returns:
-            bool: 是否显示成功
-        """
-        pass
-
-    @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
-
-        Returns:
-            Any: 子图实例
-        """
-        pass
-
-    @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
-
-        Args:
-            chart: 图表实例
-            show: 是否显示网格
-        """
-        pass
-
-    @abstractmethod
-    def set_colors(self, chart: Any, colors: List[str]) -> None:
-        """设置颜色
-
-        Args:
-            chart: 图表实例
-            colors: 颜色列表
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
 ==config_service_interface:[30:117]
-==ichart_manager:[59:149]
+==idataprocessor:[45:152]
         pass
 
     @abstractmethod
@@ -10321,106 +8994,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==ichart_manager:[69:159]
-==validation_service_interface:[28:122]
-        pass
-
-    @abstractmethod
-    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
-        """设置坐标轴标签
-
-        Args:
-            chart: 图表实例
-            x_label: X轴标签
-            y_label: Y轴标签
-        """
-        pass
-
-    @abstractmethod
-    def add_legend(self, chart: Any) -> None:
-        """添加图例
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
-
-        Args:
-            chart: 图表实例
-
-        Returns:
-            bool: 是否显示成功
-        """
-        pass
-
-    @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
-
-        Returns:
-            Any: 子图实例
-        """
-        pass
-
-    @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
-
-        Args:
-            chart: 图表实例
-            show: 是否显示网格
-        """
-        pass
-
-    @abstractmethod
-    def set_colors(self, chart: Any, colors: List[str]) -> None:
-        """设置颜色
-
-        Args:
-            chart: 图表实例
-            colors: 颜色列表
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
 ==data_processing_service_interface:[31:147]
-==document_service_interface:[59:170]
+==idataprocessor:[125:220]
         pass
 
     @abstractmethod
@@ -10537,6 +9112,108 @@
         Returns:
             bool: 导出是否成功
         """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==idataprocessor:[60:165]
+==validation_service_interface:[28:122]
+        pass
+
+    @abstractmethod
+    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
+        """
+        验证文件路径的有效性
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
+        """
+        验证目录路径的有效性
+
+        Args:
+            directory_path: 目录路径
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
+        """
+        验证数值是否在有效范围内
+
+        Args:
+            value: 要验证的值
+            min_val: 最小值
+            max_val: 最大值
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_email(self, email: str) -> Tuple[bool, str]:
+        """
+        验证邮箱地址格式
+
+        Args:
+            email: 邮箱地址
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
+        """
+        验证电话号码格式
+
+        Args:
+            phone: 电话号码
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
+        """
+        验证电池类型是否有效
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
+        """
+        验证容量值是否有效
+
+        Args:
+            capacity: 容量值
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -10677,8 +9354,167 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==document_service_interface:[59:170]
 ==file_service_interface:[29:138]
-==iuiframework:[78:173]
+        pass
+
+    @abstractmethod
+    def add_image_to_word(self, document: Any, image_path: str,
+                         width: Optional[float] = None) -> bool:
+        """
+        向Word文档添加图片
+
+        Args:
+            document: Word文档对象
+            image_path: 图片文件路径
+            width: 图片宽度
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
+        """
+        创建Excel工作簿
+
+        Args:
+            template_path: Excel模板文件路径
+
+        Returns:
+            Any: Excel工作簿对象
+        """
+        pass
+
+    @abstractmethod
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
+
+        Args:
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
+
+        Args:
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
+        """
+        生成报告
+
+        Args:
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
+
+        Returns:
+            bool: 生成是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+        """
+        设置单元格背景色
+
+        Args:
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==file_service_interface:[57:152]
+==iuiframework:[38:150]
+        pass
+
+    @abstractmethod
+    def create_main_window(self) -> Any:
+        """创建主窗口
+
+        Returns:
+            Any: 主窗口实例
+        """
+        pass
+
+    @abstractmethod
+    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
+        """创建进度对话框
+
+        Args:
+            parent: 父窗口
+
+        Returns:
+            Any: 进度对话框实例
+        """
+        pass
+
+    @abstractmethod
+    def show_message_box(self,
+                        parent: Optional[Any],
+                        title: str,
+                        message: str,
+                        msg_type: MessageBoxType) -> Any:
+        """显示消息框
+
+        Args:
+            parent: 父窗口
+            title: 窗口标题
+            message: 消息内容
+            msg_type: 消息类型
+
+        Returns:
+            Any: 消息框实例
+        """
         pass
 
     @abstractmethod
@@ -10751,139 +9587,13 @@
         Returns:
             Any: 表格控件实例
         """
-        pass
-
-    @abstractmethod
-    def set_layout(self, parent: Any, layout: Any) -> None:
-        """设置布局管理器
-
-        Args:
-            parent: 父控件
-            layout: 布局管理器
-        """
-        pass
-
-    @abstractmethod
-    def exec_application(self, app: Any) -> int:
-        """运行应用程序
-
-        Args:
-            app: 应用程序实例
-
-        Returns:
-            int: 退出代码
-        """
-        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==file_service_interface:[57:152]
-==iuiframework:[38:150]
-        pass
-
-    @abstractmethod
-    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
-        """
-        获取文件大小
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            Optional[int]: 文件大小，失败返回None
-        """
-        pass
-
-    @abstractmethod
-    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
-        """
-        设置文件属性
-
-        Args:
-            file_path: 文件路径
-            attributes: 属性字典
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        隐藏文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
-        """
-        检查文件是否隐藏
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            bool: 文件是否隐藏
-        """
-        pass
-
-    @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        复制文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        移动文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        删除文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[188:205]
+==modern_battery_viewer:[190:207]
 ==modern_battery_viewer_refactored:[164:181]
         layout.addLayout(path_layout)
         layout.addWidget(self.load_button)
@@ -10908,7 +9618,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[268:280]
+==modern_battery_viewer:[270:282]
 ==modern_battery_viewer_refactored:[244:256]
         self.filter_strength_spinbox = QSpinBox()
         self.filter_strength_spinbox.setRange(1, 10)
@@ -10928,7 +9638,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[326:341]
+==modern_battery_viewer:[328:343]
 ==modern_battery_viewer_refactored:[305:322]
         layout.addWidget(self.data_status_label)
         layout.addWidget(self.data_details_text)
@@ -10945,102 +9655,16 @@
 
         # 标签页控件
         self.tabs = QTabWidget()
+
+        # 图表标签页
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==ichart_manager:[46:125]
-==idataprocessor:[140:220]
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
-        pass
-
-    @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
-
-        Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[89:160]
 ==idataprocessor:[45:140]
+==ivisualizer:[29:90]
         pass
 
     @abstractmethod
@@ -11142,182 +9766,88 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==ichart_manager:[59:139]
-==ivisualizer:[29:90]
-        pass
-
-    @abstractmethod
-    def set_chart_title(self, chart: Any, title: str) -> None:
-        """设置图表标题
-
-        Args:
-            chart: 图表实例
-            title: 标题文本
-        """
-        pass
-
-    @abstractmethod
-    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
-        """设置坐标轴标签
-
-        Args:
-            chart: 图表实例
-            x_label: X轴标签
-            y_label: Y轴标签
-        """
-        pass
-
-    @abstractmethod
-    def add_legend(self, chart: Any) -> None:
-        """添加图例
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
-
-        Args:
-            chart: 图表实例
-
-        Returns:
-            bool: 是否显示成功
-        """
-        pass
-
-    @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
-
-        Returns:
-            Any: 子图实例
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
 ==config_service_interface:[30:116]
-==data_processing_service_interface:[90:176]
+==idataprocessor:[140:220]
         pass
 
     @abstractmethod
-    def set_config_value(self, key: str, value: Any) -> bool:
-        """
-        设置配置值
+    def get_column_names(self, data: Any) -> List[str]:
+        """获取列名
 
         Args:
-            key: 配置键
-            value: 配置值
+            data: 数据对象
 
         Returns:
-            bool: 设置是否成功
+            List[str]: 列名列表
         """
         pass
 
     @abstractmethod
-    def save_config(self) -> bool:
-        """
-        保存配置到文件
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
+    def get_column_data(self, data: Any, column: str) -> Any:
+        """获取列数据
 
         Args:
-            config_path: 配置文件路径，None表示使用默认路径
+            data: 数据对象
+            column: 列名
 
         Returns:
-            bool: 加载是否成功
+            Any: 列数据
         """
         pass
 
     @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
+    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
+        """设置列数据
 
         Args:
-            section: 配置节名称
+            data: 数据对象
+            column: 列名
+            values: 新数据
 
         Returns:
-            Dict[str, Any]: 配置节内容
+            bool: 是否设置成功
         """
         pass
 
     @abstractmethod
-    def has_config_key(self, key: str) -> bool:
-        """
-        检查配置键是否存在
+    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
+        """转换数据类型
 
         Args:
-            key: 配置键
+            data: 数据对象
+            column: 列名
+            data_type: 目标类型
 
         Returns:
-            bool: 键是否存在
+            bool: 是否转换成功
         """
         pass
 
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
-        """
-        查找配置文件路径
+    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
+        """获取统计信息
 
         Args:
-            file_name: 配置文件名称
+            data: 数据对象
+            columns: 指定列（None表示所有列）
 
         Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
+            Dict[str, Any]: 统计信息
         """
+        pass
+
+    @abstractmethod
+    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
+        """处理缺失值
+
+        Args:
+            data: 数据对象
+            strategy: 处理策略（drop、fill、interpolate等）
+
+        Returns:
+            Any: 处理后的数据
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11329,193 +9859,197 @@
         pass
 
     @abstractmethod
-    def save_config(self) -> bool:
+    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        保存配置到文件
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
+        分析电池性能
 
         Args:
-            config_path: 配置文件路径，None表示使用默认路径
+            data: 电池数据列表
 
         Returns:
-            bool: 加载是否成功
+            Dict[str, Any]: 分析结果
         """
         pass
 
     @abstractmethod
-    def get_config_sections(self) -> List[str]:
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
         """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
+        计算统计数据
 
         Args:
-            section: 配置节名称
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
 
         Returns:
-            Dict[str, Any]: 配置节内容
+            Dict[str, float]: 统计数据
         """
         pass
 
     @abstractmethod
-    def has_config_key(self, key: str) -> bool:
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
         """
-        检查配置键是否存在
+        数据平滑处理
 
         Args:
-            key: 配置键
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
 
         Returns:
-            bool: 键是否存在
+            List[float]: 平滑后的数据
         """
         pass
 
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
         """
-        查找配置文件路径
+        检测异常值
 
         Args:
-            file_name: 配置文件名称
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
+            List[int]: 异常值的索引列表
         """
         pass
+
+    @abstractmethod
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
+        """
+        生成模拟电池数据
+
+        Args:
+            battery_count: 电池数量
+            data_points: 数据点数量
+
+        Returns:
+            List[Dict[str, Any]]: 模拟数据
+        """
+        pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==data_processing_service_interface:[90:176]
 ==document_service_interface:[29:138]
-==file_service_interface:[70:152]
         pass
 
     @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
         """
-        保存Word文档
+        生成模拟电池数据
 
         Args:
-            document: Word文档对象
+            battery_count: 电池数量
+            data_points: 数据点数量
+
+        Returns:
+            List[Dict[str, Any]]: 模拟数据
+        """
+        pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
             output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
 
         Returns:
-            bool: 保存是否成功
+            bool: 导出是否成功
         """
         pass
 
     @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
         """
-        向Word文档添加表格
+        合并多个电池数据集
 
         Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
+            data_list: 数据集列表
 
         Returns:
-            bool: 添加是否成功
+            List[Dict[str, Any]]: 合并后的数据
         """
         pass
 
     @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
         """
-        向Word文档添加图片
+        提取数据特征
 
         Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
+            data: 原始数据
+            feature_types: 特征类型列表
 
         Returns:
-            bool: 添加是否成功
+            Dict[str, Any]: 提取的特征
         """
         pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11625,82 +10159,88 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==iuiframework:[97:173]
+==file_service_interface:[70:152]
 ==validation_service_interface:[28:121]
         pass
 
     @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
 
         Args:
-            parent: 父控件
-            text: 标签文本
+            file_path: 文件路径
+            attributes: 属性字典
 
         Returns:
-            Any: 标签控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
 
         Args:
-            parent: 父控件
-            text: 按钮文本
+            file_path: 文件路径
 
         Returns:
-            Any: 按钮控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
 
         Args:
-            parent: 父控件
-            placeholder: 占位符文本
+            file_path: 文件路径
 
         Returns:
-            Any: 输入框控件实例
+            bool: 文件是否隐藏
         """
         pass
 
     @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
 
         Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            Any: 表格控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def set_layout(self, parent: Any, layout: Any) -> None:
-        """设置布局管理器
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
 
         Args:
-            parent: 父控件
-            layout: 布局管理器
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def exec_application(self, app: Any) -> int:
-        """运行应用程序
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
 
         Args:
-            app: 应用程序实例
+            file_path: 文件路径
 
         Returns:
-            int: 退出代码
+            tuple: (是否成功, 错误消息)
         """
         pass
 - 符号: duplicate-code
@@ -11815,7 +10355,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[282:292]
+==modern_battery_viewer:[284:294]
 ==modern_battery_viewer_refactored:[258:268]
         self.sampling_spinbox = QSpinBox()
         self.sampling_spinbox.setRange(1, 100)
@@ -11826,14 +10366,14 @@
         sampling_layout.addWidget(sampling_label)
         sampling_layout.addWidget(self.sampling_spinbox)
 
-        # 应用按钮
+        # 应用按钮 - 使用样式管理器创建
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[298:313]
+==modern_battery_viewer:[300:315]
 ==modern_battery_viewer_refactored:[277:292]
         layout.addLayout(filter_layout)
         layout.addLayout(sampling_layout)
@@ -11856,138 +10396,54 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==ichart_manager:[46:116]
-==idataprocessor:[152:220]
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
-        pass
-
-    @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
-
-        Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[104:160]
 ==idataprocessor:[45:125]
+==ivisualizer:[42:90]
         pass
 
     @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
+    def clear_data(self) -> None:
+        """
+        清除所有数据，回到初始状态
+        """
+        pass
 
-        Args:
-            chart: 图表实例
+    @abstractmethod
+    def is_data_loaded(self) -> bool:
+        """
+        检查是否有数据已加载
 
         Returns:
-            bool: 是否显示成功
+            bool: 是否已加载数据
         """
         pass
 
     @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
+    def get_status_info(self) -> dict:
         """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
+        获取状态信息
 
         Returns:
-            Any: 子图实例
+            dict: 状态信息字典
         """
         pass
 
     @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
 
         Args:
-            chart: 图表实例
-            show: 是否显示网格
+            config: 配置字典
         """
         pass
 
     @abstractmethod
-    def set_colors(self, chart: Any, colors: List[str]) -> None:
-        """设置颜色
+    def get_config(self) -> dict:
+        """
+        获取当前配置
 
-        Args:
-            chart: 图表实例
-            colors: 颜色列表
+        Returns:
+            dict: 当前配置字典
         """
         pass
 - 符号: duplicate-code
@@ -11996,7 +10452,75 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==ichart_manager:[59:125]
+==idataprocessor:[152:220]
+==ivisualizer:[29:89]
+        pass
+
+    @abstractmethod
+    def load_data(self, data_path: str) -> bool:
+        """
+        加载数据
+
+        Args:
+            data_path: 数据路径
+
+        Returns:
+            bool: 是否成功加载数据
+        """
+        pass
+
+    @abstractmethod
+    def clear_data(self) -> None:
+        """
+        清除所有数据，回到初始状态
+        """
+        pass
+
+    @abstractmethod
+    def is_data_loaded(self) -> bool:
+        """
+        检查是否有数据已加载
+
+        Returns:
+            bool: 是否已加载数据
+        """
+        pass
+
+    @abstractmethod
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
+
+        Returns:
+            dict: 状态信息字典
+        """
+        pass
+
+    @abstractmethod
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
+
+        Args:
+            config: 配置字典
+        """
+        pass
+
+    @abstractmethod
+    def get_config(self) -> dict:
+        """
+        获取当前配置
+
+        Returns:
+            dict: 当前配置字典
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==idataprocessor:[60:140]
 ==service_container:[34:100]
         pass
 
@@ -12070,79 +10594,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==config_service_interface:[54:117]
-==ivisualizer:[29:89]
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
-
-        Args:
-            config_path: 配置文件路径，None表示使用默认路径
-
-        Returns:
-            bool: 加载是否成功
-        """
-        pass
-
-    @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
-        """
-        pass
-
-    @abstractmethod
-    def has_config_key(self, key: str) -> bool:
-        """
-        检查配置键是否存在
-
-        Args:
-            key: 配置键
-
-        Returns:
-            bool: 键是否存在
-        """
-        pass
-
-    @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
-        """
-        查找配置文件路径
-
-        Args:
-            file_name: 配置文件名称
-
-        Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
 ==config_service_interface:[30:103]
-==ivisualizer:[42:90]
+==data_processing_service_interface:[105:176]
         pass
 
     @abstractmethod
@@ -12222,8 +10675,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==config_service_interface:[54:117]
 ==data_processing_service_interface:[31:118]
-==document_service_interface:[88:170]
         pass
 
     @abstractmethod
@@ -12317,8 +10770,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==data_processing_service_interface:[105:176]
 ==document_service_interface:[29:117]
+==file_service_interface:[84:152]
         pass
 
     @abstractmethod
@@ -12413,558 +10866,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==document_service_interface:[88:170]
 ==file_service_interface:[29:110]
-==validation_service_interface:[54:122]
-        pass
-
-    @abstractmethod
-    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
-        """
-        验证数值是否在有效范围内
-
-        Args:
-            value: 要验证的值
-            min_val: 最小值
-            max_val: 最大值
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_email(self, email: str) -> Tuple[bool, str]:
-        """
-        验证邮箱地址格式
-
-        Args:
-            email: 邮箱地址
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
-        """
-        验证电话号码格式
-
-        Args:
-            phone: 电话号码
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
-        """
-        验证电池类型是否有效
-
-        Args:
-            battery_type: 电池类型
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
-        """
-        验证容量值是否有效
-
-        Args:
-            capacity: 容量值
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==file_service_interface:[84:152]
-==validation_service_interface:[28:108]
-        pass
-
-    @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        隐藏文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
-        """
-        检查文件是否隐藏
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            bool: 文件是否隐藏
-        """
-        pass
-
-    @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        复制文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        移动文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        删除文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==po_translator:[168:173]
-==setup_i18n:[218:223]
-    test_strings = [
-        "battery-analyzer",
-        "Preferences",
-        "Language",
-        "OK",
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[46:104]
-==idataprocessor:[165:220]
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
-        pass
-
-    @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
-
-        Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[116:160]
-==idataprocessor:[45:111]
-        pass
-
-    @abstractmethod
-    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
-        """保存数据文件
-
-        Args:
-            data: 数据对象
-            file_path: 保存路径
-            format: 数据格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
-
-        Args:
-            data: 初始数据
-
-        Returns:
-            Any: 数据框对象
-        """
-        pass
-
-    @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
-        """
-        pass
-
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[67:117]
-==ivisualizer:[29:79]
-        pass
-
-    @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
-        """
-        pass
-
-    @abstractmethod
-    def has_config_key(self, key: str) -> bool:
-        """
-        检查配置键是否存在
-
-        Args:
-            key: 配置键
-
-        Returns:
-            bool: 键是否存在
-        """
-        pass
-
-    @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
-        """
-        查找配置文件路径
-
-        Args:
-            file_name: 配置文件名称
-
-        Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[30:90]
-==ivisualizer:[49:90]
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
-
-        Args:
-            config: 配置字典
-        """
-        pass
-
-    @abstractmethod
-    def get_config(self) -> dict:
-        """
-        获取当前配置
-
-        Returns:
-            dict: 当前配置字典
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:105]
-==document_service_interface:[102:170]
-        pass
-
-    @abstractmethod
-    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        分析电池性能
-
-        Args:
-            data: 电池数据列表
-
-        Returns:
-            Dict[str, Any]: 分析结果
-        """
-        pass
-
-    @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
-        """
-        计算统计数据
-
-        Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
-
-        Returns:
-            Dict[str, float]: 统计数据
-        """
-        pass
-
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
-
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
-
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[118:176]
-==document_service_interface:[29:102]
-        pass
-
-    @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
-        """
-        保存Word文档
-
-        Args:
-            document: Word文档对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
-        """
-        向Word文档添加表格
-
-        Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
-
-        Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
         pass
 
     @abstractmethod
@@ -12979,220 +10882,153 @@
         Returns:
             bool: 保存是否成功
         """
+        pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
+
+        Args:
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
+        """
+        生成报告
+
+        Args:
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
+
+        Returns:
+            bool: 生成是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+        """
+        设置单元格背景色
+
+        Args:
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==file_service_interface:[29:97]
-==service_container:[48:100]
+==iuiframework:[110:173]
+==validation_service_interface:[28:108]
         pass
 
     @abstractmethod
-    def get(self, name: str) -> Optional[T]:
-        """
-        获取服务
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
 
         Args:
-            name: 服务名称
+            parent: 父控件
+            text: 按钮文本
 
         Returns:
-            T: 服务实例，如果不存在则返回None
+            Any: 按钮控件实例
         """
         pass
 
     @abstractmethod
-    def has(self, name: str) -> bool:
-        """
-        检查服务是否存在
+    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
+        """创建输入框控件
 
         Args:
-            name: 服务名称
+            parent: 父控件
+            placeholder: 占位符文本
 
         Returns:
-            bool: 服务是否存在
+            Any: 输入框控件实例
         """
         pass
 
     @abstractmethod
-    def unregister(self, name: str) -> bool:
-        """
-        注销服务
+    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
+        """创建表格控件
 
         Args:
-            name: 服务名称
+            parent: 父控件
+            rows: 行数
+            columns: 列数
 
         Returns:
-            bool: 注销是否成功
+            Any: 表格控件实例
         """
         pass
 
     @abstractmethod
-    def shutdown(self) -> bool:
-        """
-        关闭容器
+    def set_layout(self, parent: Any, layout: Any) -> None:
+        """设置布局管理器
 
-        Returns:
-            bool: 关闭是否成功
+        Args:
+            parent: 父控件
+            layout: 布局管理器
         """
         pass
 
+    @abstractmethod
+    def exec_application(self, app: Any) -> int:
+        """运行应用程序
 
+        Args:
+            app: 应用程序实例
+
+        Returns:
+            int: 退出代码
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==file_service_interface:[97:152]
-==service_container:[34:97]
-        pass
-
-    @abstractmethod
-    def register_instance(self, name: str, instance: T) -> bool:
-        """
-        注册实例
-
-        Args:
-            name: 服务名称
-            instance: 服务实例
-
-        Returns:
-            bool: 注册是否成功
-        """
-        pass
-
-    @abstractmethod
-    def get(self, name: str) -> Optional[T]:
-        """
-        获取服务
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            T: 服务实例，如果不存在则返回None
-        """
-        pass
-
-    @abstractmethod
-    def has(self, name: str) -> bool:
-        """
-        检查服务是否存在
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            bool: 服务是否存在
-        """
-        pass
-
-    @abstractmethod
-    def unregister(self, name: str) -> bool:
-        """
-        注销服务
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            bool: 注销是否成功
-        """
-        pass
-
-    @abstractmethod
-    def shutdown(self) -> bool:
-        """
-        关闭容器
-
-        Returns:
-            bool: 关闭是否成功
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==iuiframework:[123:173]
-==validation_service_interface:[28:95]
-        pass
-
-    @abstractmethod
-    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
-        """
-        验证文件路径的有效性
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
-        """
-        验证目录路径的有效性
-
-        Args:
-            directory_path: 目录路径
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
-        """
-        验证数值是否在有效范围内
-
-        Args:
-            value: 要验证的值
-            min_val: 最小值
-            max_val: 最大值
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_email(self, email: str) -> Tuple[bool, str]:
-        """
-        验证邮箱地址格式
-
-        Args:
-            email: 邮箱地址
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
-        """
-        验证电话号码格式
-
-        Args:
-            phone: 电话号码
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==iuiframework:[38:110]
-==validation_service_interface:[69:122]
+==iuiframework:[38:123]
+==validation_service_interface:[54:122]
         pass
 
     @abstractmethod
@@ -13265,13 +11101,560 @@
         Returns:
             Any: 标签控件实例
         """
+        pass
+
+    @abstractmethod
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
+
+        Args:
+            parent: 父控件
+            text: 按钮文本
+
+        Returns:
+            Any: 按钮控件实例
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[476:496]
+==po_translator:[82:87]
+==setup_i18n:[218:223]
+    test_strings = [
+        "battery-analyzer",
+        "Preferences",
+        "Language",
+        "OK",
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==idataprocessor:[45:111]
+==ivisualizer:[49:90]
+        pass
+
+    @abstractmethod
+    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
+        """保存数据文件
+
+        Args:
+            data: 数据对象
+            file_path: 保存路径
+            format: 数据格式
+            **kwargs: 保存参数
+
+        Returns:
+            bool: 是否保存成功
+        """
+        pass
+
+    @abstractmethod
+    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
+        """创建数据框
+
+        Args:
+            data: 初始数据
+
+        Returns:
+            Any: 数据框对象
+        """
+        pass
+
+    @abstractmethod
+    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
+        """过滤数据
+
+        Args:
+            data: 数据对象
+            conditions: 过滤条件
+
+        Returns:
+            Any: 过滤后的数据
+        """
+        pass
+
+    @abstractmethod
+    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
+        """分组数据
+
+        Args:
+            data: 数据对象
+            by: 分组字段
+
+        Returns:
+            Any: 分组后的数据
+        """
+        pass
+
+    @abstractmethod
+    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
+        """聚合数据
+
+        Args:
+            data: 数据对象
+            aggregations: 聚合规则
+
+        Returns:
+            Any: 聚合后的数据
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==idataprocessor:[165:220]
+==ivisualizer:[29:79]
+        pass
+
+    @abstractmethod
+    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
+        """设置列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+            values: 新数据
+
+        Returns:
+            bool: 是否设置成功
+        """
+        pass
+
+    @abstractmethod
+    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
+        """转换数据类型
+
+        Args:
+            data: 数据对象
+            column: 列名
+            data_type: 目标类型
+
+        Returns:
+            bool: 是否转换成功
+        """
+        pass
+
+    @abstractmethod
+    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
+        """获取统计信息
+
+        Args:
+            data: 数据对象
+            columns: 指定列（None表示所有列）
+
+        Returns:
+            Dict[str, Any]: 统计信息
+        """
+        pass
+
+    @abstractmethod
+    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
+        """处理缺失值
+
+        Args:
+            data: 数据对象
+            strategy: 处理策略（drop、fill、interpolate等）
+
+        Returns:
+            Any: 处理后的数据
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==config_service_interface:[30:90]
+==data_processing_service_interface:[118:176]
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
+
+        Returns:
+            bool: 导出是否成功
+        """
+        pass
+
+    @abstractmethod
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
+
+        Args:
+            data_list: 数据集列表
+
+        Returns:
+            List[Dict[str, Any]]: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
+
+        Args:
+            data: 原始数据
+            feature_types: 特征类型列表
+
+        Returns:
+            Dict[str, Any]: 提取的特征
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==config_service_interface:[67:117]
+==data_processing_service_interface:[31:105]
+        pass
+
+    @abstractmethod
+    def get_config_sections(self) -> List[str]:
+        """
+        获取所有配置节名称
+
+        Returns:
+            List[str]: 配置节名称列表
+        """
+        pass
+
+    @abstractmethod
+    def get_section_config(self, section: str) -> Dict[str, Any]:
+        """
+        获取指定配置节的所有键值对
+
+        Args:
+            section: 配置节名称
+
+        Returns:
+            Dict[str, Any]: 配置节内容
+        """
+        pass
+
+    @abstractmethod
+    def has_config_key(self, key: str) -> bool:
+        """
+        检查配置键是否存在
+
+        Args:
+            key: 配置键
+
+        Returns:
+            bool: 键是否存在
+        """
+        pass
+
+    @abstractmethod
+    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
+        """
+        查找配置文件路径
+
+        Args:
+            file_name: 配置文件名称
+
+        Returns:
+            Optional[Path]: 配置文件路径，如果未找到则返回None
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==document_service_interface:[29:102]
+==file_service_interface:[97:152]
+        pass
+
+    @abstractmethod
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            bool: 文件是否隐藏
+        """
+        pass
+
+    @abstractmethod
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==document_service_interface:[102:170]
+==file_service_interface:[29:97]
+        pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
+
+        Args:
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
+        """
+        生成报告
+
+        Args:
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
+
+        Returns:
+            bool: 生成是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+        """
+        设置单元格背景色
+
+        Args:
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==service_container:[34:97]
+==validation_service_interface:[69:122]
+        pass
+
+    @abstractmethod
+    def validate_email(self, email: str) -> Tuple[bool, str]:
+        """
+        验证邮箱地址格式
+
+        Args:
+            email: 邮箱地址
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
+        """
+        验证电话号码格式
+
+        Args:
+            phone: 电话号码
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
+        """
+        验证电池类型是否有效
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
+        """
+        验证容量值是否有效
+
+        Args:
+            capacity: 容量值
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==service_container:[48:100]
+==validation_service_interface:[28:95]
+        pass
+
+    @abstractmethod
+    def get(self, name: str) -> Optional[T]:
+        """
+        获取服务
+
+        Args:
+            name: 服务名称
+
+        Returns:
+            T: 服务实例，如果不存在则返回None
+        """
+        pass
+
+    @abstractmethod
+    def has(self, name: str) -> bool:
+        """
+        检查服务是否存在
+
+        Args:
+            name: 服务名称
+
+        Returns:
+            bool: 服务是否存在
+        """
+        pass
+
+    @abstractmethod
+    def unregister(self, name: str) -> bool:
+        """
+        注销服务
+
+        Args:
+            name: 服务名称
+
+        Returns:
+            bool: 注销是否成功
+        """
+        pass
+
+    @abstractmethod
+    def shutdown(self) -> bool:
+        """
+        关闭容器
+
+        Returns:
+            bool: 关闭是否成功
+        """
+        pass
+
+
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==modern_battery_viewer:[478:498]
 ==modern_battery_viewer_refactored:[454:470]
         self.statusBar().addPermanentWidget(self.data_status_indicator)
 
@@ -13285,17 +11668,21 @@
         if self.chart_widget:
             self.chart_widget.data_changed.connect(self._on_chart_data_changed)
 
-    def _apply_styles(self):
-        """应用现代化样式"""
 
-        # 使用样式管理器应用全局样式
+
+    # 槽函数实现
+
+    @pyqtSlot()
+    def _browse_data_path(self):
+        """浏览数据路径"""
+
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[650:665]
+==modern_battery_viewer:[652:667]
 ==modern_battery_viewer_refactored:[567:580]
         self.statusBar().showMessage('视图已刷新')
 

@@ -2001,7 +2001,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 if self.strSpecificationType == self.comboBox_Specification_Type.itemText(t):
                     self.comboBox_Specification_Type.setCurrentIndex(t)
                     break
-        elif self.comboBox_BatteryType.currentText() == "":
+        elif not self.comboBox_BatteryType.currentText():
             pass
         else:
             self.checker_battery_type.set_error(
@@ -2025,7 +2025,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.comboBox_BatteryType.setCurrentIndex(1)
 
         specification_method = self.comboBox_Specification_Method.currentText()
-        if self.specification_type == "" or specification_method == "":
+        if not self.specification_type or not specification_method:
             return
 
         rules = self.get_config("BatteryConfig/Rules")
@@ -2120,7 +2120,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.test_information = group
                 break
 
-        if self.test_information == "":
+        if not self.test_information:
             self.checker_table.set_error(
                 "Can't find matched TestInformation section in setting.ini")
             self.statusBar_BatteryAnalysis.showMessage(
@@ -2207,7 +2207,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if strInDataXlsxDir != "":
             listAllInXlsx = [f for f in os.listdir(
                 strInDataXlsxDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-            if len(listAllInXlsx) != 0:
+            if listAllInXlsx:
                 intIndexType = -1
                 intIndexMethod = -1
                 strSampleInputXlsxTitle = listAllInXlsx[0]
@@ -2310,7 +2310,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if os.path.exists(strInPutDir) and os.path.exists(strOutoutDir):
             listAllInXlsx = [strInPutDir + f"/{f}" for f in os.listdir(
                 strInPutDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-            if len(listAllInXlsx) == 0:
+            if not listAllInXlsx:
                 self.lineEdit_Version.setText("")
                 return
             strCsvMd5Path = strOutoutDir + "/MD5.csv"
@@ -2334,7 +2334,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 f = open(strCsvMd5Path, mode='w', newline='', encoding='utf-8')
                 csvMD5Writer = csv.writer(f)
 
-                if len(listChecksum) == 0:
+                if not listChecksum:
                     csvMD5Writer.writerow(["Checksums:"])
                     csvMD5Writer.writerow([self.md5_checksum])
                     csvMD5Writer.writerow(["Times:"])
@@ -2661,43 +2661,43 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def checkinput(self) -> bool:
         check_pass_flag = True
         warning_info = ["Unknown: "]
-        if self.comboBox_BatteryType.currentText() == "":
+        if not self.comboBox_BatteryType.currentText():
             check_pass_flag = False
             warning_info.append("Battery Type")
             self.label_BatteryType.setStyleSheet("background-color:red")
         if self.comboBox_BatteryType.currentText() == "Pouch Cell":
-            if self.comboBox_ConstructionMethod.currentText() == "":
+            if not self.comboBox_ConstructionMethod.currentText():
                 check_pass_flag = False
                 warning_info.append("Construction Method")
                 self.label_ConstructionMethod.setStyleSheet(
                     "background-color:red")
-        if (self.comboBox_Specification_Type.currentText() == ""
-                or self.comboBox_Specification_Method.currentText() == ""):
+        if (not self.comboBox_Specification_Type.currentText()
+                or not self.comboBox_Specification_Method.currentText()):
             check_pass_flag = False
             warning_info.append("Specification")
             self.label_Specification.setStyleSheet("background-color:red")
-        if self.comboBox_Manufacturer.currentText() == "":
+        if not self.comboBox_Manufacturer.currentText():
             check_pass_flag = False
             warning_info.append("Manufacturer")
             self.label_Manufacturer.setStyleSheet("background-color:red")
-        if self.lineEdit_BatchDateCode.text() == "":
+        if not self.lineEdit_BatchDateCode.text():
             check_pass_flag = False
             warning_info.append("Batch/Date Code")
             self.label_BatchDateCode.setStyleSheet("background-color:red")
-        if self.lineEdit_SamplesQty.text() == "":
+        if not self.lineEdit_SamplesQty.text():
             check_pass_flag = False
             warning_info.append("SamplesQty")
             self.label_SamplesQty.setStyleSheet("background-color:red")
-        if self.lineEdit_Temperature.text() == "":
+        if not self.lineEdit_Temperature.text():
             check_pass_flag = False
             warning_info.append("Temperature")
             self.label_Temperature.setStyleSheet("background-color:red")
-        if self.lineEdit_DatasheetNominalCapacity.text() == "":
+        if not self.lineEdit_DatasheetNominalCapacity.text():
             check_pass_flag = False
             warning_info.append("Datasheet Nominal Capacity")
             self.label_DatasheetNominalCapacity.setStyleSheet(
                 "background-color:red")
-        if self.lineEdit_CalculationNominalCapacity.text() == "":
+        if not self.lineEdit_CalculationNominalCapacity.text():
             check_pass_flag = False
             warning_info.append("Calculation Nominal Capacity")
             self.label_CalculationNominalCapacity.setStyleSheet(
@@ -2709,32 +2709,32 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             check_pass_flag = False
             warning_info.append("Accelerated Aging")
             self.label_AcceleratedAging.setStyleSheet("background-color:red")
-        if self.lineEdit_RequiredUseableCapacity.text() == "":
+        if not self.lineEdit_RequiredUseableCapacity.text():
             check_pass_flag = False
             warning_info.append("Required Useable Capacity")
             self.label_RequiredUseableCapacity.setStyleSheet(
                 "background-color:red")
-        if self.comboBox_TesterLocation.currentText() == "":
+        if not self.comboBox_TesterLocation.currentText():
             check_pass_flag = False
             warning_info.append("Test Location")
             self.label_TesterLocation.setStyleSheet("background-color:red")
-        if self.comboBox_TestedBy.currentText() == "":
+        if not self.comboBox_TestedBy.currentText():
             check_pass_flag = False
             warning_info.append("Test By")
             self.label_TestedBy.setStyleSheet("background-color:red")
-        if self.lineEdit_TestProfile.text() == "":
+        if not self.lineEdit_TestProfile.text():
             check_pass_flag = False
             warning_info.append("Test Profile")
             self.label_TestProfile.setStyleSheet("background-color:red")
-        if self.lineEdit_InputPath.text() == "":
+        if not self.lineEdit_InputPath.text():
             check_pass_flag = False
             warning_info.append("Input Path")
             self.label_InputPath.setStyleSheet("background-color:red")
-        if self.lineEdit_OutputPath.text() == "":
+        if not self.lineEdit_OutputPath.text():
             check_pass_flag = False
             warning_info.append("Output Path")
             self.label_OutputPath.setStyleSheet("background-color:red")
-        if self.lineEdit_Version.text() == "":
+        if not self.lineEdit_Version.text():
             check_pass_flag = False
             warning_info.append("Version")
             self.label_Version.setStyleSheet("background-color:red")
@@ -3066,7 +3066,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             [f"{current_level}mA/" for current_level in self.listCurrentLevel])
         for rule in rules:
             rule_parts = rule.split("/")
-            if self.cc_current == "":
+            if not self.cc_current:
                 self.cc_current = rule_parts[5]
             if rule_parts[0] == specification_type:
                 self.config.setValue(

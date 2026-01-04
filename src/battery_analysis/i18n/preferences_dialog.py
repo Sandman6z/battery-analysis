@@ -35,6 +35,19 @@ class PreferencesDialog(QW.QDialog):
         self.setModal(True)
         self.setMinimumSize(500, 400)
         
+        # Initialize attributes
+        self.auto_save_checkbox = None
+        self.confirm_exit_checkbox = None
+        self.theme_combo = None
+        self.font_size_spinbox = None
+        self.current_language_label = None
+        self.language_combo = None
+        self.status_text = None
+        self.ok_button = None
+        self.cancel_button = None
+        self.apply_button = None
+        self.tab_widget = None
+        
         # Initialize UI
         self._setup_ui()
         self._load_settings()

@@ -10,8 +10,8 @@ import subprocess
 import logging
 from pathlib import Path
 
-# tomllib 仅在 Python 3.11+ 可用，用于读取 pyproject.toml
-import tomllib
+# 从tomllib导入TOMLDecodeError用于异常处理
+from tomllib import TOMLDecodeError
 
 # 配置日志记录
 logging.basicConfig(level=logging.INFO,
@@ -63,7 +63,7 @@ class BuildConfig:
         try:
             self.version = Version().version
             logger.info("从Version类获取的版本号: %s", self.version)
-        except Exception as e:
+        except (FileNotFoundError, ImportError, IOError, PermissionError, KeyError, TOMLDecodeError) as e:
             logger.warning("无法从Version类获取版本号: %s，使用默认版本", e)
             self.version = "0.0.0"
 
@@ -149,9 +149,8 @@ class BuildManager(BuildConfig):
             # 构建完成后自动打开exe所在文件夹
             final_build_dir = self.project_root / 'build' / self.build_type
             logger.info("正在打开构建文件夹: %s", final_build_dir)
-            import os
             os.startfile(final_build_dir)
-        except Exception as e:
+        except (OSError, IOError, FileNotFoundError, PermissionError) as e:
             logger.error("构建过程中出错: %s", e)
 
     def clean_build_dirs(self):
@@ -712,7 +711,7 @@ def main():
         build_manager = BuildManager(args.build_type)
         build_manager.run_build()  # 调用run_build方法执行完整构建流程
         logger.info('%s 构建完成', args.build_type)
-    except Exception as e:
+    except (OSError, IOError, FileNotFoundError, PermissionError, ValueError) as e:
         logger.error("构建失败: %s", e)
         sys.exit(1)
 
