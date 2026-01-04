@@ -97,7 +97,7 @@ class ApplicationService:
             
             # 初始化配置服务
             config_path = find_config_file()
-            self.config_service.initialize(config_path)
+            self.config_service.load_config(config_path)
             
             # 初始化国际化服务
             self.i18n_service.initialize()

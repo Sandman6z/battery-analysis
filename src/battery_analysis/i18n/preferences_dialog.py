@@ -347,9 +347,7 @@ class PreferencesDialog(QW.QDialog):
         self._apply_settings()
         super().accept()
     
-    def reject(self):
-        """Handle Cancel button clicked"""
-        super().reject()
+    
     
     def closeEvent(self, event):
         """Handle dialog close event"""

@@ -1745,7 +1745,7 @@ class BatteryChartViewer:
                     is_filtered['value'] = not is_filtered['value']
                     
                     # 更新按钮文本
-                    if button_state_ref['button_state']:
+                    if button_state_ref['button_state'] and 'text' in button_state_ref['button_state']:
                         new_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
                         button_state_ref['button_state']['text'].set_text(new_text)
                     
@@ -1811,6 +1811,9 @@ class BatteryChartViewer:
             
         except Exception as e:
             logging.error("创建过滤按钮时出错: %s", e)
+        
+        # 返回按钮状态，供其他方法使用
+        return button_state_ref['button_state']
 
     def _add_battery_selection_buttons(self, fig, check_filter, lines_unfiltered, lines_filtered):
         """添加电池选择现代化按钮，用于显示/隐藏特定电池的数据曲线"""

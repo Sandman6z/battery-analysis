@@ -33,11 +33,10 @@ except ImportError:
 
 # 导入环境检测工具
 try:
-    from battery_analysis.utils.environment_utils import get_environment_detector, EnvironmentType
+    from battery_analysis.utils.environment_utils import get_environment_detector
 except ImportError:
     # 如果环境检测模块不可用，使用备用方案
     get_environment_detector = None
-    EnvironmentType = None
 
 
 class Version:
@@ -58,7 +57,7 @@ class Version:
         # 初始化_pending_version属性（在__new__中设置，此处显式定义以避免lint错误）
         self._pending_version = getattr(self, '_pending_version', False)
         self._init_environment_detection()
-        
+
         # 如果需要获取版本（在__new__中延迟）
         if hasattr(self, '_pending_version') and self._pending_version:
             self.version = self._get_version()
@@ -73,7 +72,7 @@ class Version:
                 self.env_detector = get_environment_detector()
                 self.env_info = self.env_detector.get_environment_info()
                 logger.debug("环境检测成功: %s", self.env_info['environment_type'])
-        except Exception as e:
+        except (AttributeError, ImportError, TypeError) as e:
             logger.warning("环境检测失败: %s", e)
             self.env_detector = None
             self.env_info = {}
@@ -117,14 +116,14 @@ class Version:
                     Path(__file__).resolve().parent.parent.parent / "pyproject.toml",
                     Path.cwd() / "pyproject.toml",
                 ]
-                
+
                 for path in possible_paths:
                     if path.exists():
                         pyproject_path = path
                         logger.info("使用环境检测器找到 pyproject.toml: %s", pyproject_path)
                         break
-                        
-            except Exception as e:
+
+            except (AttributeError, ImportError, TypeError, FileNotFoundError) as e:
                 logger.warning("环境检测器查找配置文件失败: %s", e)
 
         # 如果环境检测器不可用或没有找到文件，使用原有逻辑
@@ -151,7 +150,7 @@ class Version:
                     # 4. 构建脚本所在目录的上级目录
                     Path(sys.argv[0]).resolve().parent.parent / "pyproject.toml"
                 ]
-                
+
                 for path in possible_paths:
                     if path.exists():
                         pyproject_path = path
@@ -159,7 +158,7 @@ class Version:
                             "Found pyproject.toml at: %s", pyproject_path
                         )
                         break
-                
+
                 # 如果没有找到，使用默认路径
                 if pyproject_path is None:
                     current_dir = Path(__file__).resolve().parent

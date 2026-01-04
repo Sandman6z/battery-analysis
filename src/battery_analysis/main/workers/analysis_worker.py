@@ -168,7 +168,7 @@ class AnalysisWorker(QC.QRunnable):
                                 try:
                                     # 尝试处理标准日期格式 YYYY-MM-DD
                                     if '-' in original_cycle_date:
-                                        date_part = original_cycle_date.split(' ')[0] \
+                                        date_part = original_cycle_date.split(' ', maxsplit=1)[0] \
                                             if ' ' in original_cycle_date else \
                                             original_cycle_date
                                         [sy, sm, sd] = date_part.split("-")

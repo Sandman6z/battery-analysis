@@ -373,15 +373,3 @@ def get_language_manager() -> LanguageManager:
     return _language_manager
 
 
-def _(text: str, context: Optional[str] = None) -> str:
-    """
-    Convenience function for getting translated text.
-    
-    Args:
-        text: Text to translate
-        context: Optional context for disambiguation
-        
-    Returns:
-        Translated text
-    """
-    return get_language_manager().get_text(text, context)

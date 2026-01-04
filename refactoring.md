@@ -7,7 +7,76 @@
 - 问题类型总数: 67
 - 问题总数: 1177
 
-## 问题类型: broad-exception-caught
+## 目录
+1. [broad-exception-caught](#问题类型-broad-exception-caught)  # 捕获了过于通用的异常Exception
+2. [attribute-defined-outside-init](#问题类型-attribute-defined-outside-init)  # 在__init__方法外定义了属性
+3. [unnecessary-pass](#问题类型-unnecessary-pass)  # 不必要的pass语句
+4. [unused-import](#问题类型-unused-import)  # 未使用的导入
+5. [import-outside-toplevel](#问题类型-import-outside-toplevel)  # 在顶级作用域之外导入
+6. [wrong-import-order](#问题类型-wrong-import-order)  # 导入顺序错误
+7. [use-implicit-booleaness-not-comparison-to-string](#问题类型-use-implicit-booleaness-not-comparison-to-string)  # 使用隐式布尔值而非与字符串比较
+8. [use-implicit-booleaness-not-comparison-to-zero](#问题类型-use-implicit-booleaness-not-comparison-to-zero)  # 使用隐式布尔值而非与零比较
+9. [no-else-return](#问题类型-no-else-return)  # return后不必要的else语句
+10. [missing-final-newline](#问题类型-missing-final-newline)  # 文件末尾缺少换行符
+11. [f-string-without-interpolation](#问题类型-f-string-without-interpolation)  # f-string中没有插值表达式
+12. [too-many-branches](#问题类型-too-many-branches)  # 分支过多
+13. [too-many-statements](#问题类型-too-many-statements)  # 语句过多
+14. [redefined-outer-name](#问题类型-redefined-outer-name)  # 重新定义了外部名称
+15. [consider-using-enumerate](#问题类型-consider-using-enumerate)  # 考虑使用enumerate
+16. [wrong-import-position](#问题类型-wrong-import-position)  # 导入位置错误
+17. [protected-access](#问题类型-protected-access)  # 访问受保护成员
+18. [reimported](#问题类型-reimported)  # 重复导入
+19. [unused-variable](#问题类型-unused-variable)  # 未使用的变量
+20. [too-many-instance-attributes](#问题类型-too-many-instance-attributes)  # 实例属性过多
+21. [unused-argument](#问题类型-unused-argument)  # 未使用的参数
+22. [too-many-positional-arguments](#问题类型-too-many-positional-arguments)  # 位置参数过多
+23. [ungrouped-imports](#问题类型-ungrouped-imports)  # 导入未分组
+24. [too-many-nested-blocks](#问题类型-too-many-nested-blocks)  # 嵌套块过多
+25. [missing-module-docstring](#问题类型-missing-module-docstring)  # 缺少模块文档字符串
+26. [relative-beyond-top-level](#问题类型-relative-beyond-top-level)  # 相对导入超出顶层
+27. [bare-except](#问题类型-bare-except)  # 裸露的except语句
+28. [subprocess-run-check](#问题类型-subprocess-run-check)  # subprocess.run缺少check参数
+29. [consider-using-with](#问题类型-consider-using-with)  # 考虑使用with语句
+30. [undefined-variable](#问题类型-undefined-variable)  # 未定义的变量
+31. [redefined-builtin](#问题类型-redefined-builtin)  # 重新定义了内置函数
+32. [global-statement](#问题类型-global-statement)  # 使用了global语句
+33. [too-many-lines](#问题类型-too-many-lines)  # 函数行数过多
+34. [raise-missing-from](#问题类型-raise-missing-from)  # raise缺少from子句
+35. [unidiomatic-typecheck](#问题类型-unidiomatic-typecheck)  # 非惯用的类型检查
+36. [deprecated-method](#问题类型-deprecated-method)  # 使用了已弃用的方法
+37. [use-dict-literal](#问题类型-use-dict-literal)  # 使用字典字面量而非dict()
+38. [pointless-string-statement](#问题类型-pointless-string-statement)  # 无意义的字符串语句
+39. [too-many-return-statements](#问题类型-too-many-return-statements)  # return语句过多
+40. [broad-exception-raised](#问题类型-broad-exception-raised)  # 抛出了过于通用的异常
+41. [consider-merging-isinstance](#问题类型-consider-merging-isinstance)  # 考虑合并isinstance检查
+42. [syntax-error](#问题类型-syntax-error)  # 语法错误
+43. [locally-disabled](#问题类型-locally-disabled)  # 局部禁用了检查
+44. [suppressed-message](#问题类型-suppressed-message)  # 抑制了消息
+45. [inconsistent-return-statements](#问题类型-inconsistent-return-statements)  # return语句不一致
+46. [unnecessary-lambda](#问题类型-unnecessary-lambda)  # 不必要的lambda表达式
+47. [unspecified-encoding](#问题类型-unspecified-encoding)  # 未指定编码
+48. [mixed-line-endings](#问题类型-mixed-line-endings)  # 混合的行结束符
+49. [consider-using-in](#问题类型-consider-using-in)  # 考虑使用in操作符
+50. [unbalanced-tuple-unpacking](#问题类型-unbalanced-tuple-unpacking)  # 元组解包不平衡
+51. [logging-too-many-args](#问题类型-logging-too-many-args)  # logging参数过多
+52. [use-maxsplit-arg](#问题类型-use-maxsplit-arg)  # 使用maxsplit参数
+53. [used-before-assignment](#问题类型-used-before-assignment)  # 赋值前使用
+54. [arguments-renamed](#问题类型-arguments-renamed)  # 参数被重命名
+55. [consider-using-f-string](#问题类型-consider-using-f-string)  # 考虑使用f-string
+56. [eval-used](#问题类型-eval-used)  # 使用了eval
+57. [function-redefined](#问题类型-function-redefined)  # 函数被重新定义
+58. [useless-parent-delegation](#问题类型-useless-parent-delegation)  # 无用的父类委托
+59. [assignment-from-no-return](#问题类型-assignment-from-no-return)  # 从无返回值的函数赋值
+60. [unsubscriptable-object](#问题类型-unsubscriptable-object)  # 不可订阅的对象
+61. [too-many-public-methods](#问题类型-too-many-public-methods)  # 公共方法过多
+62. [no-else-break](#问题类型-no-else-break)  # break后不必要的else语句
+63. [no-member](#问题类型-no-member)  # 对象没有该成员
+64. [consider-using-from-import](#问题类型-consider-using-from-import)  # 考虑使用from...import
+65. [useless-object-inheritance](#问题类型-useless-object-inheritance)  # 无用的object继承
+66. [access-member-before-definition](#问题类型-access-member-before-definition)  # 在定义前访问成员
+67. [import-error](#问题类型-import-error)  # 导入错误
+
+ broad-exception-caught
 ### 问题信息
 - 类型: warning
 - 代码: W0718

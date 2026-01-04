@@ -13,6 +13,11 @@ from pathlib import Path
 # tomllib 仅在 Python 3.11+ 可用，用于读取 pyproject.toml
 import tomllib
 
+# 配置日志记录
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # 导入Version类，统一版本管理
 # 添加sys.path以确保可以导入battery_analysis模块
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -21,11 +26,6 @@ try:
 except ImportError as e:
     logger.error("无法导入Version类: %s", e)
     sys.exit(1)
-
-# 配置日志记录
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 # 检查PyInstaller是否已安装，如果未安装则提示用户安装build依赖
 try:
@@ -47,8 +47,8 @@ sys.path.insert(0, str(project_root))
 class CaseSensitiveConfigParser(configparser.ConfigParser):
     """大小写敏感的配置解析器"""
 
-    def optionxform(self, option_str):
-        return option_str
+    def optionxform(self, optionstr):
+        return optionstr
 
 
 class BuildConfig:
@@ -585,7 +585,8 @@ exe = EXE(
             cmd_args.append(f'--hidden-import={hidden_import}')
         
         # 添加main文件
-        main_files = eval(app_config["main_file"])
+        import ast
+        main_files = ast.literal_eval(app_config["main_file"])
         cmd_args.append(main_files[0])
         
         # 添加应用程序特定参数
