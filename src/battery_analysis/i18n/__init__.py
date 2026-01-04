@@ -59,7 +59,7 @@ class SimplePOTranslator:
             logger.info("Parsed %s translations from %s", len(translations), po_file_path)
             return translations
             
-        except Exception as e:
+        except (IOError, UnicodeDecodeError, SyntaxError) as e:
             logger.error("Error parsing %s: %s", po_file_path, e)
             return {}
     
@@ -141,7 +141,7 @@ def set_locale(locale_code: str) -> bool:
             logger.error("Failed to load translations for %s", locale_code)
             return False
         
-    except Exception as e:
+    except (OSError, ValueError, ImportError) as e:
         logger.error("Failed to set locale '%s': %s", locale_code, e)
         import traceback
         traceback.print_exc()
@@ -162,7 +162,7 @@ def _(text: str, context: Optional[str] = None) -> str:
     try:
         # Use the PO translator to get the translation
         return _po_translator._(text, context)
-    except Exception as e:
+    except (AttributeError, KeyError) as e:
         logging.warning("Translation error for '%s': %s", text, e)
         return text
 
@@ -180,7 +180,7 @@ def pgettext(context: str, text: str) -> str:
     """
     try:
         return _(text, context)
-    except Exception as e:
+    except (AttributeError, KeyError) as e:
         logging.warning("Context translation error for '%s:%s': %s", context, text, e)
         return text
 
@@ -223,7 +223,7 @@ def detect_system_locale() -> str:
         except ValueError:
             # getdefaultlocale() can throw ValueError on some systems
             system_locale = None
-        except Exception:
+        except (OSError, ValueError):
             # Handle any other unexpected errors
             system_locale = None
         
@@ -242,7 +242,7 @@ def detect_system_locale() -> str:
                         return 'zh_CN'
                     elif 'TW' in system_locale:
                         return 'zh_TW'
-    except Exception as e:
+    except (OSError, ValueError, ImportError) as e:
         logger.error("Failed to detect system locale: %s", e)
     
     # Fallback to English

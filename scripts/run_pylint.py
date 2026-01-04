@@ -116,7 +116,7 @@ def run_pylint():
         # 生成所有报告
         generate_all_reports(project_root, python_files)
 
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         logger.error("运行Pylint时出错：%s", str(e))
         sys.exit(1)
 
@@ -157,7 +157,7 @@ def run_pylint_on_files(files, output_format="text", output_file=None):
         )
         
         return result.stdout
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         logger.error("运行pylint时出错: %s", e)
         return None
 
@@ -278,7 +278,7 @@ def generate_html_report(project_root, pylint_data, html_report):
             </html>
             """)
         logger.info("已创建自定义HTML报告到：%s", html_report)
-    except Exception as e:
+    except (IOError, UnicodeEncodeError) as e:
         logger.error("生成HTML报告时出错：%s", str(e))
 
 
@@ -408,7 +408,7 @@ def generate_markdown_report(pylint_data, markdown_report):
             else:
                 f.write("## 分析结果\n\n")
                 f.write("✅ 代码分析完成，未发现问题！\n")
-    except Exception as e:
+    except (IOError, UnicodeEncodeError) as e:
         logger.error("生成Markdown报告时出错: %s", e)
         return False
     

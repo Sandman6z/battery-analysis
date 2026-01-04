@@ -84,7 +84,7 @@ def extract_translatable_strings(python_file: Path) -> Set[str]:
             translatable_strings.add(singular)
             translatable_strings.add(plural)
         
-    except Exception as e:
+    except (IOError, UnicodeDecodeError, re.error) as e:
         logger.warning("Error processing %s: %s", python_file, e)
     
     return translatable_strings
@@ -135,7 +135,7 @@ def extract_with_xgettext(python_files: List[Path], output_file: Path) -> bool:
         logger.warning("xgettext not found. Please install gettext package.")
         logger.info("On Windows, install gettext from: https://mlocati.github.io/gettext-iconv-windows/")
         return False
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         logger.error("Error running xgettext: %s", e)
         return False
 
@@ -191,7 +191,7 @@ msgstr ""
         logger.info("Created .pot template: %s", output_file)
         return True
     
-    except Exception as e:
+    except (IOError, UnicodeEncodeError) as e:
         logger.error("Error creating .pot file: %s", e)
         return False
 
@@ -230,7 +230,7 @@ def analyze_ui_files(source_dir: Path) -> Dict[str, List[str]]:
             
             ui_strings[str(ui_file)] = strings
         
-        except Exception as e:
+        except (IOError, UnicodeDecodeError, re.error) as e:
             logger.warning("Error processing UI file %s: %s", ui_file, e)
     
     return ui_strings

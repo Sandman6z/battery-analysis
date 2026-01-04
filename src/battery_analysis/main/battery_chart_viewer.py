@@ -257,7 +257,7 @@ class BatteryChartViewer:
             # 读取并处理规则配置
             self._read_rules_configuration()
             return True
-        except Exception as e:
+        except (IOError, ValueError, TypeError, OSError) as e:
             self.errorlog = str(e)
             logging.error("加载数据时出错: %s", e)
             traceback.print_exc()
@@ -291,7 +291,7 @@ class BatteryChartViewer:
                 return
 
             logging.warning("未找到配置文件，使用默认配置")
-        except Exception as e:
+        except (IOError, UnicodeDecodeError, configparser.Error) as e:
             logging.error("配置读取失败: %s，使用默认配置", e)
 
     def _read_configurations(self):
@@ -410,7 +410,7 @@ class BatteryChartViewer:
                 logging.warning(
                     "未找到配置 %s/%s，使用默认值: %s", section, option, default_value)
                 return default_value
-        except Exception as e:
+        except (configparser.Error, TypeError, ValueError) as e:
             logging.error(
                 "读取配置 %s/%s 出错: %s，使用默认值: %s", section, option, e, default_value)
             return default_value
@@ -427,7 +427,7 @@ class BatteryChartViewer:
             else:
                 logging.warning("未找到配置列表 %s/%s，使用空列表", section, option)
                 return []
-        except Exception as e:
+        except (configparser.Error, TypeError, ValueError) as e:
             logging.error("读取配置列表 %s/%s 出错: %s，使用空列表", section, option, e)
             return []
 
@@ -500,7 +500,7 @@ class BatteryChartViewer:
                             except ValueError:
                                 logging.warning(
                                     "规则中的maxXaxis值无效: %s", rule_parts[2])
-        except Exception as e:
+        except (ValueError, IndexError, TypeError) as e:
             logging.error("处理规则时出错: %s，保持默认maxXaxis", e)
 
     def csv_read(self):

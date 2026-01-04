@@ -61,7 +61,7 @@ def run_tests(test_path=None, generate_report=False, report_format="html"):
             print(f"测试失败，返回码: {result.returncode}")
             return False
 
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         print(f"运行测试时出错: {e}")
         return False
 

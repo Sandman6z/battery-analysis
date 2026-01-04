@@ -173,7 +173,7 @@ class LanguageManager(QObject):
             # Import the same SimplePOTranslator used in i18n module
             from . import _po_translator
             return _po_translator._(text)
-        except Exception as e:
+        except (ImportError, AttributeError, KeyError) as e:
             self.logger.warning("Translation failed for '%s': %s", text, e)
             return text
     
@@ -227,7 +227,7 @@ class LanguageManager(QObject):
             
             pass  # Placeholder for UI-specific language updates
             
-        except Exception as e:
+        except (AttributeError, TypeError) as e:
             self.logger.error("Failed to update UI language: %s", e)
     
     def reload_translations(self) -> bool:
@@ -314,7 +314,7 @@ class LanguageManager(QObject):
             self.logger.warning("Translation export not implemented yet")
             return False
             
-        except Exception as e:
+        except (ImportError, IOError, UnicodeError) as e:
             self.logger.error("Failed to export translations: %s", e)
             return False
     
