@@ -68,7 +68,8 @@ disable = [
     "too-many-arguments",          # R0913
     "too-many-locals",             # R0914
     "fixme",                       # W0511
-    "invalid-name"                 # C0103
+    "invalid-name",                # C0103
+    "cyclic-import"                # R0401 - 忽略循环导入警告，因为已通过延迟导入解决运行时问题
 ]
 
 [tool.pylint.format]

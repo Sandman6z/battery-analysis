@@ -135,12 +135,6 @@ class ServiceContainer(IServiceContainer):
             from battery_analysis.main.services.progress_service import ProgressService
             from battery_analysis.main.services.validation_service import ValidationService
             
-            # 导入控制器
-            from battery_analysis.main.controllers.file_controller import FileController
-            from battery_analysis.main.controllers.main_controller import MainController
-            from battery_analysis.main.controllers.validation_controller import ValidationController
-            from battery_analysis.main.controllers.visualizer_controller import VisualizerController
-            
             # 注册核心服务
             services_to_register = [
                 ("application", ApplicationService),
@@ -160,25 +154,35 @@ class ServiceContainer(IServiceContainer):
                 except Exception as e:
                     self.logger.error(f"Failed to register service {name}: {e}")
             
-            # 注册控制器
-            controllers_to_register = [
-                ("file_controller", FileController),
-                ("main_controller", MainController),
-                ("validation_controller", ValidationController),
-                ("visualizer_controller", VisualizerController)
-            ]
-            
-            for name, controller_class in controllers_to_register:
-                try:
-                    self.register(name, controller_class)
-                    self.logger.debug(f"Controller registered: {name}")
-                except Exception as e:
-                    self.logger.error(f"Failed to register controller {name}: {e}")
+            # 延迟导入控制器
+            try:
+                # 导入控制器
+                from battery_analysis.main.controllers.file_controller import FileController
+                from battery_analysis.main.controllers.main_controller import MainController
+                from battery_analysis.main.controllers.validation_controller import ValidationController
+                from battery_analysis.main.controllers.visualizer_controller import VisualizerController
+                
+                # 注册控制器
+                controllers_to_register = [
+                    ("file_controller", FileController),
+                    ("main_controller", MainController),
+                    ("validation_controller", ValidationController),
+                    ("visualizer_controller", VisualizerController)
+                ]
+                
+                for name, controller_class in controllers_to_register:
+                    try:
+                        self.register(name, controller_class)
+                        self.logger.debug(f"Controller registered: {name}")
+                    except Exception as e:
+                        self.logger.error(f"Failed to register controller {name}: {e}")
+            except ImportError as e:
+                self.logger.warning(f"Failed to import controllers: {e}")
             
             self.logger.info("Default services and controllers initialized")
             
         except ImportError as e:
-            self.logger.warning(f"Failed to import services or controllers: {e}")
+            self.logger.warning(f"Failed to import services: {e}")
     
     def register(self, name: str, implementation: Type[T], singleton: bool = True) -> bool:
         """

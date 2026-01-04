@@ -10,9 +10,6 @@ import logging
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-from battery_analysis.main.controllers.file_controller import FileController
-from battery_analysis.main.controllers.main_controller import MainController
-from battery_analysis.main.controllers.validation_controller import ValidationController
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
 from battery_analysis.main.services.config_service import ConfigService
@@ -45,11 +42,6 @@ class ApplicationService:
         self.i18n_service = I18nService()
         self.progress_service = ProgressService()
         
-        # 初始化控制器
-        self.main_controller = MainController()
-        self.file_controller = FileController()
-        self.validation_controller = ValidationController()
-        
         # 初始化可视化器工厂
         self.visualizer_factory = VisualizerFactory()
         self.current_visualizer: Optional[IVisualizer] = None
@@ -59,6 +51,11 @@ class ApplicationService:
         self.project_path = ""
         self.input_path = ""
         self.output_path = ""
+        
+        # 控制器将在initialize方法中延迟初始化
+        self.main_controller = None
+        self.file_controller = None
+        self.validation_controller = None
         
         # 连接事件监听器
         self._setup_event_listeners()
@@ -107,6 +104,16 @@ class ApplicationService:
             
             # 初始化进度服务
             self.progress_service.initialize()
+            
+            # 延迟导入控制器
+            from battery_analysis.main.controllers.file_controller import FileController
+            from battery_analysis.main.controllers.main_controller import MainController
+            from battery_analysis.main.controllers.validation_controller import ValidationController
+            
+            # 初始化控制器
+            self.main_controller = MainController()
+            self.file_controller = FileController()
+            self.validation_controller = ValidationController()
             
             # 设置控制器上下文
             self._setup_controller_contexts()
