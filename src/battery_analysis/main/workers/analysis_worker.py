@@ -175,7 +175,7 @@ class AnalysisWorker(QC.QRunnable):
                                         self.str_test_date = f"{sy}{sm}{sd}"
                                     elif '/' in original_cycle_date:
                                         # 尝试处理 YYYY/MM/DD 格式
-                                        date_part = original_cycle_date.split(' ')[0] \
+                                        date_part = original_cycle_date.split(' ', maxsplit=1)[0] \
                                             if ' ' in original_cycle_date else \
                                             original_cycle_date
                                         [sy, sm, sd] = date_part.split("/")

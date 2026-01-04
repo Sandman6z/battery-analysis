@@ -333,9 +333,6 @@ def initialize_default_locale() -> bool:
     return set_locale("en")
 
 
-# Global translator instance
-_po_translator = SimplePOTranslator()
-
 # Initialize with default locale
 initialize_default_locale()
 

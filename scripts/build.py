@@ -47,8 +47,8 @@ sys.path.insert(0, str(project_root))
 class CaseSensitiveConfigParser(configparser.ConfigParser):
     """大小写敏感的配置解析器"""
 
-    def optionxform(self, optionstr):
-        return optionstr
+    def optionxform(self, option_str):
+        return option_str
 
 
 class BuildConfig:

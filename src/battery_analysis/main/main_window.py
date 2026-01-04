@@ -767,7 +767,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         status_ready = _("status_ready", "状态:就绪")
         
         # 更新状态栏
-        if current_message == "状态:就绪" or current_message == "Ready":
+        if current_message in ("状态:就绪", "Ready"):
             self.statusBar_BatteryAnalysis.showMessage(status_ready)
         
         # 更新其他可能需要翻译的消息
@@ -2160,7 +2160,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 根据TesterLocation自动设置ReportedBy
         current_tester_location = self.comboBox_TesterLocation.currentIndex()
         # 根据用户要求，前两个选项都是BOEDT，后面的依次为PDI, BOECQ, Jabil VN和VG Fernitz
-        if current_tester_location == 0 or current_tester_location == 1:
+        if current_tester_location in (0, 1):
             reported_by = "BOEDT"
         elif current_tester_location == 2:
             reported_by = "PDI"
@@ -2322,7 +2322,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 for row in csvMD5Reader:
                     listMD5Reader.append(row)
                 f.close()
-                [_, listChecksum, _, listTimes] = listMD5Reader
+                # 确保列表长度足够，正确访问CSV行数据
+                if len(listMD5Reader) >= 4:
+                    listChecksum = listMD5Reader[1] if len(listMD5Reader) > 1 else []
+                    listTimes = listMD5Reader[3] if len(listMD5Reader) > 3 else []
+                else:
+                    listChecksum = []
+                    listTimes = []
 
                 os.remove(strCsvMd5Path)
                 f = open(strCsvMd5Path, mode='w', newline='', encoding='utf-8')
@@ -2955,7 +2961,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 处理文件内容
             if len(list_md5_reader) >= 4:
                 try:
-                    [_, list_checksum, _, list_times] = list_md5_reader
+                    # 正确处理CSV数据：每一行是一个列表，我们需要访问特定行的数据
+                    list_checksum = list_md5_reader[1] if len(list_md5_reader) > 1 else []
+                    list_times = list_md5_reader[3] if len(list_md5_reader) > 3 else []
 
                     # 创建临when文件避免权限问题
                     temp_file = output_path / "MD5_temp.csv"

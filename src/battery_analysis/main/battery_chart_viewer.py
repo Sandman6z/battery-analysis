@@ -1745,9 +1745,11 @@ class BatteryChartViewer:
                     is_filtered['value'] = not is_filtered['value']
                     
                     # 更新按钮文本
-                    if button_state_ref['button_state'] and 'text' in button_state_ref['button_state']:
-                        new_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
-                        button_state_ref['button_state']['text'].set_text(new_text)
+                    if button_state_ref and isinstance(button_state_ref, dict):
+                        button_state = button_state_ref.get('button_state')
+                        if button_state and isinstance(button_state, dict) and 'text' in button_state:
+                            new_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
+                            button_state['text'].set_text(new_text)
                     
                     if is_filtered['value']:
                         # 切换到过滤模式

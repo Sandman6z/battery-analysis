@@ -164,7 +164,7 @@ class ApplicationService:
             status: 状态文本
         """
         self.progress_service.update_progress(progress, status)
-        self.logger.debug("Progress updated: %s% - %s", progress, status)
+        self.logger.debug("Progress updated: %s%% - %s", progress, status)
 
     def _on_status_changed(self, status: bool, code: int, message: str):
         """

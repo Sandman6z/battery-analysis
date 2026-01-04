@@ -54,12 +54,18 @@ class Version:
         # 初始化环境检测器
         self.env_detector = None
         self.env_info = None
-        # 初始化_pending_version属性（在__new__中设置，此处显式定义以避免lint错误）
-        self._pending_version = getattr(self, '_pending_version', False)
+        # 初始化版本相关属性
+        self._pending_version = False
+        self.version = ""
+        
+        # 从__new__中获取延迟版本标记
+        if hasattr(self, '_pending_version'):
+            self._pending_version = getattr(self, '_pending_version', False)
+            
         self._init_environment_detection()
 
         # 如果需要获取版本（在__new__中延迟）
-        if hasattr(self, '_pending_version') and self._pending_version:
+        if self._pending_version:
             self.version = self._get_version()
             self._pending_version = False
 

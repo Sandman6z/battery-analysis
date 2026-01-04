@@ -111,7 +111,7 @@ class ProgressService(QObject, IProgressService):
             progress: 进度值
             status: 状态文本
         """
-        self.logger.debug("Progress changed: %s% - %s", progress, status)
+        self.logger.debug("Progress changed: %s%% - %s", progress, status)
         
         # 调用注册的回调函数
         for callback in self._progress_callbacks.values():
