@@ -81,7 +81,7 @@ def compile_po_to_mo(po_file: Path, mo_file: Path) -> bool:
         logger.warning("msgfmt not found. Please install gettext package.")
         logger.info("On Windows, install gettext from: https://mlocati.github.io/gettext-iconv-windows/")
         return False
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         logger.error("Unexpected error compiling %s: %s", po_file, e)
         return False
 
@@ -149,7 +149,7 @@ def validate_po_file(po_file: Path) -> Dict[str, Any]:
             result['errors'].append("File contains non-UTF-8 characters")
             result['valid'] = False
     
-    except Exception as e:
+    except (IOError, UnicodeError) as e:
         result['errors'].append(f"Error reading file: {e}")
         result['valid'] = False
     
