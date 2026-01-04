@@ -31,6 +31,11 @@ class VisualizerController:
         self.visualizer = None
         self.logger = logging.getLogger(__name__)
         
+        # 初始化环境适配属性
+        self.ide_mode = False
+        self.container_mode = False
+        self.production_mode = False
+        
         # 环境适配处理
         self._handle_environment_adaptation()
 

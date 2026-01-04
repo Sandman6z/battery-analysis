@@ -1,7 +1,7 @@
 # 代码重构计划
 
 ## 概述
-- 分析日期: 2026-01-04 10:28:45
+- 分析日期: 2026-01-04 10:38:20
 - 总文件数: 65
 - 存在问题的文件数: 65
 
@@ -15,7 +15,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: scripts\build.py: Fatal error while checking 'scripts\build.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-16.txt'.
+- 描述: scripts\build.py: Fatal error while checking 'scripts\build.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-49.txt'.
 - 符号: astroid-error
 
 #### 行 720, 列 0
@@ -34,7 +34,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: scripts\compile_translations.py: Fatal error while checking 'scripts\compile_translations.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-16.txt'.
+- 描述: scripts\compile_translations.py: Fatal error while checking 'scripts\compile_translations.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-49.txt'.
 - 符号: astroid-error
 
 #### 行 9, 列 0
@@ -83,7 +83,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: scripts\extract_translations.py: Fatal error while checking 'scripts\extract_translations.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-17.txt'.
+- 描述: scripts\extract_translations.py: Fatal error while checking 'scripts\extract_translations.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-50.txt'.
 - 符号: astroid-error
 
 #### 行 9, 列 0
@@ -352,7 +352,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: scripts\setup_i18n.py: Fatal error while checking 'scripts\setup_i18n.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-17.txt'.
+- 描述: scripts\setup_i18n.py: Fatal error while checking 'scripts\setup_i18n.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-50.txt'.
 - 符号: astroid-error
 
 #### 行 372, 列 0
@@ -390,7 +390,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\chart\interfaces\ichart_manager.py: Fatal error while checking 'src\battery_analysis\chart\interfaces\ichart_manager.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-17.txt'.
+- 描述: src\battery_analysis\chart\interfaces\ichart_manager.py: Fatal error while checking 'src\battery_analysis\chart\interfaces\ichart_manager.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-50.txt'.
 - 符号: astroid-error
 
 #### 行 160, 列 0
@@ -409,7 +409,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\data\interfaces\idataprocessor.py: Fatal error while checking 'src\battery_analysis\data\interfaces\idataprocessor.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-18.txt'.
+- 描述: src\battery_analysis\data\interfaces\idataprocessor.py: Fatal error while checking 'src\battery_analysis\data\interfaces\idataprocessor.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-51.txt'.
 - 符号: astroid-error
 
 #### 行 220, 列 0
@@ -428,7 +428,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\i18n\__init__.py: Fatal error while checking 'src\battery_analysis\i18n\__init__.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-18.txt'.
+- 描述: src\battery_analysis\i18n\__init__.py: Fatal error while checking 'src\battery_analysis\i18n\__init__.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-51.txt'.
 - 符号: astroid-error
 
 #### 行 342, 列 0
@@ -447,7 +447,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\i18n\language_manager.py: Fatal error while checking 'src\battery_analysis\i18n\language_manager.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-18.txt'.
+- 描述: src\battery_analysis\i18n\language_manager.py: Fatal error while checking 'src\battery_analysis\i18n\language_manager.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-51.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -484,7 +484,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\i18n\preferences_dialog.py: Fatal error while checking 'src\battery_analysis\i18n\preferences_dialog.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-18.txt'.
+- 描述: src\battery_analysis\i18n\preferences_dialog.py: Fatal error while checking 'src\battery_analysis\i18n\preferences_dialog.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-51.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -516,7 +516,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\battery_chart_viewer.py: Fatal error while checking 'src\battery_analysis\main\battery_chart_viewer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-18.txt'.
+- 描述: src\battery_analysis\main\battery_chart_viewer.py: Fatal error while checking 'src\battery_analysis\main\battery_chart_viewer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-52.txt'.
 - 符号: astroid-error
 
 #### 行 25, 列 0
@@ -625,7 +625,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\controllers\file_controller.py: Fatal error while checking 'src\battery_analysis\main\controllers\file_controller.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-18.txt'.
+- 描述: src\battery_analysis\main\controllers\file_controller.py: Fatal error while checking 'src\battery_analysis\main\controllers\file_controller.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-52.txt'.
 - 符号: astroid-error
 
 ## 文件: src\battery_analysis\main\controllers\main_controller.py
@@ -732,97 +732,91 @@
 ## 文件: src\battery_analysis\main\controllers\visualizer_controller.py
 
 ### 问题统计
-- 问题总数: 15
-- 警告(Warning): 7
-- 规范(Convention): 4
+- 问题总数: 14
+- 警告(Warning): 4
+- 规范(Convention): 6
 - 重构(Refactor): 4
 
 ### 详细问题
-#### 行 67, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'ide_mode' defined outside __init__
-- 符号: attribute-defined-outside-init
+#### 行 23, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
-#### 行 76, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'container_mode' defined outside __init__
-- 符号: attribute-defined-outside-init
+#### 行 40, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
-#### 行 85, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'production_mode' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 94, 列 4
+#### 行 99, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (33/12)
 - 符号: too-many-branches
 
-#### 行 94, 列 4
+#### 行 99, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (108/50)
 - 符号: too-many-statements
 
-#### 行 104, 列 8
+#### 行 109, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 104, 列 8
+#### 行 109, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 106, 列 12
+#### 行 111, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib)
 - 符号: import-outside-toplevel
 
-#### 行 248, 列 26
+#### 行 253, 列 26
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'dirs'
 - 符号: unused-variable
 
-#### 行 277, 列 12
+#### 行 282, 列 12
 - 类型: warning
 - 代码: W0719
 - 描述: Raising too general exception: Exception
 - 符号: broad-exception-raised
 
-#### 行 309, 列 8
+#### 行 314, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib)
 - 符号: import-outside-toplevel
 
-#### 行 310, 列 8
+#### 行 315, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib.pyplot)
 - 符号: import-outside-toplevel
 
-#### 行 310, 列 8
+#### 行 315, 列 8
 - 类型: warning
 - 代码: W0611
 - 描述: Unused matplotlib.pyplot imported as plt
 - 符号: unused-import
 
-#### 行 351, 列 12
+#### 行 356, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib.pyplot)
 - 符号: import-outside-toplevel
 
-#### 行 368, 列 15
+#### 行 373, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -838,7 +832,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\factories\visualizer_factory.py: Fatal error while checking 'src\battery_analysis\main\factories\visualizer_factory.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-20.txt'.
+- 描述: src\battery_analysis\main\factories\visualizer_factory.py: Fatal error while checking 'src\battery_analysis\main\factories\visualizer_factory.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-55.txt'.
 - 符号: astroid-error
 
 #### 行 232, 列 0
@@ -857,7 +851,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\interfaces\ivisualizer.py: Fatal error while checking 'src\battery_analysis\main\interfaces\ivisualizer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-20.txt'.
+- 描述: src\battery_analysis\main\interfaces\ivisualizer.py: Fatal error while checking 'src\battery_analysis\main\interfaces\ivisualizer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-55.txt'.
 - 符号: astroid-error
 
 #### 行 90, 列 0
@@ -882,7 +876,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\main_window.py: Fatal error while checking 'src\battery_analysis\main\main_window.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-21.txt'.
+- 描述: src\battery_analysis\main\main_window.py: Fatal error while checking 'src\battery_analysis\main\main_window.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-56.txt'.
 - 符号: astroid-error
 
 #### 行 14, 列 0
@@ -900,7 +894,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\application_service.py: Fatal error while checking 'src\battery_analysis\main\services\application_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-21.txt'.
+- 描述: src\battery_analysis\main\services\application_service.py: Fatal error while checking 'src\battery_analysis\main\services\application_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-56.txt'.
 - 符号: astroid-error
 
 ## 文件: src\battery_analysis\main\services\config_service.py
@@ -913,7 +907,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\config_service.py: Fatal error while checking 'src\battery_analysis\main\services\config_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-21.txt'.
+- 描述: src\battery_analysis\main\services\config_service.py: Fatal error while checking 'src\battery_analysis\main\services\config_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-56.txt'.
 - 符号: astroid-error
 
 #### 行 299, 列 0
@@ -932,7 +926,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\config_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\config_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-21.txt'.
+- 描述: src\battery_analysis\main\services\config_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\config_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-56.txt'.
 - 符号: astroid-error
 
 #### 行 117, 列 0
@@ -951,7 +945,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\data_processing_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\data_processing_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-21.txt'.
+- 描述: src\battery_analysis\main\services\data_processing_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\data_processing_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-56.txt'.
 - 符号: astroid-error
 
 #### 行 176, 列 0
@@ -970,7 +964,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\document_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\document_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-22.txt'.
+- 描述: src\battery_analysis\main\services\document_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\document_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-57.txt'.
 - 符号: astroid-error
 
 #### 行 170, 列 0
@@ -989,7 +983,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\environment_service.py: Fatal error while checking 'src\battery_analysis\main\services\environment_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-22.txt'.
+- 描述: src\battery_analysis\main\services\environment_service.py: Fatal error while checking 'src\battery_analysis\main\services\environment_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-57.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -1008,7 +1002,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\event_bus.py: Fatal error while checking 'src\battery_analysis\main\services\event_bus.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-22.txt'.
+- 描述: src\battery_analysis\main\services\event_bus.py: Fatal error while checking 'src\battery_analysis\main\services\event_bus.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-57.txt'.
 - 符号: astroid-error
 
 #### 行 272, 列 0
@@ -1026,7 +1020,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\file_service.py: Fatal error while checking 'src\battery_analysis\main\services\file_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-22.txt'.
+- 描述: src\battery_analysis\main\services\file_service.py: Fatal error while checking 'src\battery_analysis\main\services\file_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-57.txt'.
 - 符号: astroid-error
 
 ## 文件: src\battery_analysis\main\services\file_service_interface.py
@@ -1039,7 +1033,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\file_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\file_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-22.txt'.
+- 描述: src\battery_analysis\main\services\file_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\file_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-57.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -1064,7 +1058,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\i18n_service.py: Fatal error while checking 'src\battery_analysis\main\services\i18n_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-22.txt'.
+- 描述: src\battery_analysis\main\services\i18n_service.py: Fatal error while checking 'src\battery_analysis\main\services\i18n_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-57.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -1082,7 +1076,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\progress_service.py: Fatal error while checking 'src\battery_analysis\main\services\progress_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-22.txt'.
+- 描述: src\battery_analysis\main\services\progress_service.py: Fatal error while checking 'src\battery_analysis\main\services\progress_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-58.txt'.
 - 符号: astroid-error
 
 ## 文件: src\battery_analysis\main\services\service_container.py
@@ -1094,7 +1088,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\service_container.py: Fatal error while checking 'src\battery_analysis\main\services\service_container.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-15.txt'.
+- 描述: src\battery_analysis\main\services\service_container.py: Fatal error while checking 'src\battery_analysis\main\services\service_container.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-48.txt'.
 - 符号: astroid-error
 
 ## 文件: src\battery_analysis\main\services\validation_service.py
@@ -1107,7 +1101,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\validation_service.py: Fatal error while checking 'src\battery_analysis\main\services\validation_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-23.txt'.
+- 描述: src\battery_analysis\main\services\validation_service.py: Fatal error while checking 'src\battery_analysis\main\services\validation_service.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-58.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -1138,7 +1132,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\main\services\validation_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\validation_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-23.txt'.
+- 描述: src\battery_analysis\main\services\validation_service_interface.py: Fatal error while checking 'src\battery_analysis\main\services\validation_service_interface.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-58.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -1305,7 +1299,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\ui\frameworks\pyqt6_ui_framework.py: Fatal error while checking 'src\battery_analysis\ui\frameworks\pyqt6_ui_framework.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-24.txt'.
+- 描述: src\battery_analysis\ui\frameworks\pyqt6_ui_framework.py: Fatal error while checking 'src\battery_analysis\ui\frameworks\pyqt6_ui_framework.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-59.txt'.
 - 符号: astroid-error
 
 #### 行 419, 列 0
@@ -1324,7 +1318,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\ui\interfaces\iuiframework.py: Fatal error while checking 'src\battery_analysis\ui\interfaces\iuiframework.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-25.txt'.
+- 描述: src\battery_analysis\ui\interfaces\iuiframework.py: Fatal error while checking 'src\battery_analysis\ui\interfaces\iuiframework.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-00.txt'.
 - 符号: astroid-error
 
 #### 行 173, 列 0
@@ -1343,7 +1337,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\ui\modern_battery_viewer.py: Fatal error while checking 'src\battery_analysis\ui\modern_battery_viewer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-25.txt'.
+- 描述: src\battery_analysis\ui\modern_battery_viewer.py: Fatal error while checking 'src\battery_analysis\ui\modern_battery_viewer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-00.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -1368,7 +1362,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\ui\modern_battery_viewer_refactored.py: Fatal error while checking 'src\battery_analysis\ui\modern_battery_viewer_refactored.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-25.txt'.
+- 描述: src\battery_analysis\ui\modern_battery_viewer_refactored.py: Fatal error while checking 'src\battery_analysis\ui\modern_battery_viewer_refactored.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-00.txt'.
 - 符号: astroid-error
 
 #### 行 8, 列 0
@@ -1404,9 +1398,9 @@
 ## 文件: src\battery_analysis\ui\modern_chart_widget.py
 
 ### 问题统计
-- 问题总数: 42
+- 问题总数: 33
 - 错误(Error): 16
-- 警告(Warning): 22
+- 警告(Warning): 13
 - 规范(Convention): 3
 - 重构(Refactor): 1
 
@@ -1555,109 +1549,55 @@
 - 描述: Too many instance attributes (17/7)
 - 符号: too-many-instance-attributes
 
-#### 行 83, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'chart_type_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 88, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'filter_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 93, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'refresh_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 118, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'chart_title' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 172, 列 15
+#### 行 185, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 193, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'data_info_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 200, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'zoom_in_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 201, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'zoom_out_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 202, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'reset_zoom_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 297, 列 12
+#### 行 310, 列 12
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _style_axes of a client class
 - 符号: protected-access
 
-#### 行 309, 列 8
+#### 行 322, 列 8
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _style_axes of a client class
 - 符号: protected-access
 
-#### 行 355, 列 16
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'battery_names' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 370, 列 15
+#### 行 383, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 391, 列 15
+#### 行 404, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 400, 列 8
+#### 行 413, 列 8
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'chart_styles'
 - 符号: unused-variable
 
-#### 行 474, 列 37
+#### 行 487, 列 37
 - 类型: warning
 - 代码: W0622
 - 描述: Redefining built-in 'format'
 - 符号: redefined-builtin
 
-#### 行 483, 列 19
+#### 行 496, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 502, 列 0
+#### 行 515, 列 0
 - 类型: convention
 - 代码: C0304
 - 描述: Final newline missing
@@ -1676,7 +1616,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\ui\modern_theme.py: Fatal error while checking 'src\battery_analysis\ui\modern_theme.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-31.txt'.
+- 描述: src\battery_analysis\ui\modern_theme.py: Fatal error while checking 'src\battery_analysis\ui\modern_theme.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-06.txt'.
 - 符号: astroid-error
 
 #### 行 116, 列 15
@@ -1732,7 +1672,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\ui\styles\style_manager.py: Fatal error while checking 'src\battery_analysis\ui\styles\style_manager.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-32.txt'.
+- 描述: src\battery_analysis\ui\styles\style_manager.py: Fatal error while checking 'src\battery_analysis\ui\styles\style_manager.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-06.txt'.
 - 符号: astroid-error
 
 #### 行 252, 列 0
@@ -2693,7 +2633,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\utils\config_parser.py: Fatal error while checking 'src\battery_analysis\utils\config_parser.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-34.txt'.
+- 描述: src\battery_analysis\utils\config_parser.py: Fatal error while checking 'src\battery_analysis\utils\config_parser.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-08.txt'.
 - 符号: astroid-error
 
 #### 行 230, 列 0
@@ -2813,7 +2753,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\utils\environment_utils.py: Fatal error while checking 'src\battery_analysis\utils\environment_utils.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-34.txt'.
+- 描述: src\battery_analysis\utils\environment_utils.py: Fatal error while checking 'src\battery_analysis\utils\environment_utils.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-09.txt'.
 - 符号: astroid-error
 
 #### 行 338, 列 0
@@ -2869,7 +2809,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\utils\file_writer.py: Fatal error while checking 'src\battery_analysis\utils\file_writer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-16.txt'.
+- 描述: src\battery_analysis\utils\file_writer.py: Fatal error while checking 'src\battery_analysis\utils\file_writer.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-37-49.txt'.
 - 符号: astroid-error
 
 ## 文件: src\battery_analysis\utils\plot_utils.py
@@ -2948,7 +2888,7 @@
 #### 行 1, 列 0
 - 类型: fatal
 - 代码: F0002
-- 描述: src\battery_analysis\utils\version.py: Fatal error while checking 'src\battery_analysis\utils\version.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-28-36.txt'.
+- 描述: src\battery_analysis\utils\version.py: Fatal error while checking 'src\battery_analysis\utils\version.py'. Please open an issue in our bug tracker so we address this. There is a pre-filled template that you can use in 'C:\Users\boe\AppData\Local\pylint\pylint\Cache\pylint-crash-2026-01-04-10-38-11.txt'.
 - 符号: astroid-error
 
 #### 行 74, 列 15
@@ -3146,7 +3086,7 @@
         self._setup_statusbar()
         self._connect_signals()
 
-        # 应用现代化样式
+        # 如果提供了数据路径，自动加载
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -3374,150 +3314,138 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
+    def create_main_window(self) -> Any:
+        """创建主窗口
 
         Returns:
-            Any: 过滤后的数据
+            Any: 主窗口实例
         """
         pass
 
     @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
+    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
+        """创建进度对话框
 
         Args:
-            data: 数据对象
-            by: 分组字段
+            parent: 父窗口
 
         Returns:
-            Any: 分组后的数据
+            Any: 进度对话框实例
         """
         pass
 
     @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
+    def show_message_box(self,
+                        parent: Optional[Any],
+                        title: str,
+                        message: str,
+                        msg_type: MessageBoxType) -> Any:
+        """显示消息框
 
         Args:
-            data: 数据对象
-            aggregations: 聚合规则
+            parent: 父窗口
+            title: 窗口标题
+            message: 消息内容
+            msg_type: 消息类型
 
         Returns:
-            Any: 聚合后的数据
+            Any: 消息框实例
         """
         pass
 
     @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
+    def create_file_dialog(self,
+                          parent: Optional[Any],
+                          caption: str,
+                          directory: str = "",
+                          filter_pattern: str = "") -> Any:
+        """创建文件选择对话框
 
         Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
+            parent: 父窗口
+            caption: 对话框标题
+            directory: 默认目录
+            filter_pattern: 文件过滤器
 
         Returns:
-            Any: 排序后的数据
+            Any: 文件对话框实例
         """
         pass
 
     @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
+    def create_label(self, parent: Any, text: str) -> Any:
+        """创建标签控件
 
         Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
+            parent: 父控件
+            text: 标签文本
 
         Returns:
-            Any: 合并后的数据
+            Any: 标签控件实例
         """
         pass
 
     @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
 
         Args:
-            data: 数据对象
+            parent: 父控件
+            text: 按钮文本
 
         Returns:
-            List[str]: 列名列表
+            Any: 按钮控件实例
         """
         pass
 
     @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
+    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
+        """创建输入框控件
 
         Args:
-            data: 数据对象
-            column: 列名
+            parent: 父控件
+            placeholder: 占位符文本
 
         Returns:
-            Any: 列数据
+            Any: 输入框控件实例
         """
         pass
 
     @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
+    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
+        """创建表格控件
 
         Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            parent: 父控件
+            rows: 行数
+            columns: 列数
 
         Returns:
-            bool: 是否设置成功
+            Any: 表格控件实例
         """
         pass
 
     @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
+    def set_layout(self, parent: Any, layout: Any) -> None:
+        """设置布局管理器
 
         Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
+            parent: 父控件
+            layout: 布局管理器
         """
         pass
 
     @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
+    def exec_application(self, app: Any) -> int:
+        """运行应用程序
 
         Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
+            app: 应用程序实例
 
         Returns:
-            Dict[str, Any]: 统计信息
+            int: 退出代码
         """
         pass
-
-    @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
-
-        Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -3529,149 +3457,148 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
+    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        分析电池性能
 
         Args:
-            data: 初始数据
+            data: 电池数据列表
 
         Returns:
-            Any: 数据框对象
+            Dict[str, Any]: 分析结果
         """
         pass
 
     @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
+        """
+        计算统计数据
 
         Args:
-            data: 数据对象
-            conditions: 过滤条件
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
 
         Returns:
-            Any: 过滤后的数据
+            Dict[str, float]: 统计数据
         """
         pass
 
     @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
+        """
+        数据平滑处理
 
         Args:
-            data: 数据对象
-            by: 分组字段
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
 
         Returns:
-            Any: 分组后的数据
+            List[float]: 平滑后的数据
         """
         pass
 
     @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
+        """
+        检测异常值
 
         Args:
-            data: 数据对象
-            aggregations: 聚合规则
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            Any: 聚合后的数据
+            List[int]: 异常值的索引列表
         """
         pass
 
     @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
+        """
+        生成模拟电池数据
 
         Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
+            battery_count: 电池数量
+            data_points: 数据点数量
 
         Returns:
-            Any: 排序后的数据
+            List[Dict[str, Any]]: 模拟数据
         """
         pass
 
     @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
 
         Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
+            data: 待验证的数据
 
         Returns:
-            Any: 合并后的数据
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
         """
         pass
 
     @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
 
         Args:
-            data: 数据对象
+            csv_path: CSV文件路径
 
         Returns:
-            List[str]: 列名列表
+            List[Dict[str, Any]]: 解析后的数据
         """
         pass
 
     @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
 
         Args:
-            data: 数据对象
-            column: 列名
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
 
         Returns:
-            Any: 列数据
+            bool: 导出是否成功
         """
         pass
 
     @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
 
         Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            data_list: 数据集列表
 
         Returns:
-            bool: 是否设置成功
+            List[Dict[str, Any]]: 合并后的数据
         """
         pass
 
     @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
 
         Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
+            data: 原始数据
+            feature_types: 特征类型列表
 
         Returns:
-            bool: 是否转换成功
+            Dict[str, Any]: 提取的特征
         """
         pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -3868,135 +3795,137 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
-        """
-        计算统计数据
-
-        Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
+    def create_main_window(self) -> Any:
+        """创建主窗口
 
         Returns:
-            Dict[str, float]: 统计数据
+            Any: 主窗口实例
         """
         pass
 
     @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
+    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
+        """创建进度对话框
 
         Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
+            parent: 父窗口
 
         Returns:
-            List[float]: 平滑后的数据
+            Any: 进度对话框实例
         """
         pass
 
     @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
+    def show_message_box(self,
+                        parent: Optional[Any],
+                        title: str,
+                        message: str,
+                        msg_type: MessageBoxType) -> Any:
+        """显示消息框
 
         Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
+            parent: 父窗口
+            title: 窗口标题
+            message: 消息内容
+            msg_type: 消息类型
 
         Returns:
-            List[int]: 异常值的索引列表
+            Any: 消息框实例
         """
         pass
 
     @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
+    def create_file_dialog(self,
+                          parent: Optional[Any],
+                          caption: str,
+                          directory: str = "",
+                          filter_pattern: str = "") -> Any:
+        """创建文件选择对话框
 
         Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
+            parent: 父窗口
+            caption: 对话框标题
+            directory: 默认目录
+            filter_pattern: 文件过滤器
 
         Returns:
-            List[Dict[str, Any]]: 模拟数据
+            Any: 文件对话框实例
         """
         pass
 
     @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
+    def create_label(self, parent: Any, text: str) -> Any:
+        """创建标签控件
 
         Args:
-            data: 待验证的数据
+            parent: 父控件
+            text: 标签文本
 
         Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+            Any: 标签控件实例
         """
         pass
 
     @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
 
         Args:
-            csv_path: CSV文件路径
+            parent: 父控件
+            text: 按钮文本
 
         Returns:
-            List[Dict[str, Any]]: 解析后的数据
+            Any: 按钮控件实例
         """
         pass
 
     @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
+    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
+        """创建输入框控件
 
         Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
+            parent: 父控件
+            placeholder: 占位符文本
 
         Returns:
-            bool: 导出是否成功
+            Any: 输入框控件实例
         """
         pass
 
     @abstractmethod
-    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        """
-        合并多个电池数据集
+    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
+        """创建表格控件
 
         Args:
-            data_list: 数据集列表
+            parent: 父控件
+            rows: 行数
+            columns: 列数
 
         Returns:
-            List[Dict[str, Any]]: 合并后的数据
+            Any: 表格控件实例
         """
         pass
 
     @abstractmethod
-    def extract_features(self, data: List[Dict[str, Any]],
-                        feature_types: List[str]) -> Dict[str, Any]:
-        """
-        提取数据特征
+    def set_layout(self, parent: Any, layout: Any) -> None:
+        """设置布局管理器
 
         Args:
-            data: 原始数据
-            feature_types: 特征类型列表
-
-        Returns:
-            Dict[str, Any]: 提取的特征
+            parent: 父控件
+            layout: 布局管理器
         """
         pass
+
+    @abstractmethod
+    def exec_application(self, app: Any) -> int:
+        """运行应用程序
+
+        Args:
+            app: 应用程序实例
+
+        Returns:
+            int: 退出代码
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -4160,137 +4089,126 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
+    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+        """
+        删除目录
 
         Args:
-            data: 数据对象
-            conditions: 过滤条件
+            path: 目录路径
+            recursive: 是否递归删除
 
         Returns:
-            Any: 过滤后的数据
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
+    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+        """
+        列出目录中的文件
 
         Args:
-            data: 数据对象
-            by: 分组字段
+            directory: 目录路径
+            pattern: 文件名模式
 
         Returns:
-            Any: 分组后的数据
+            List[str]: 文件名列表
         """
         pass
 
     @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
 
         Args:
-            data: 数据对象
-            aggregations: 聚合规则
+            file_path: 文件路径
 
         Returns:
-            Any: 聚合后的数据
+            Optional[int]: 文件大小，失败返回None
         """
         pass
 
     @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
 
         Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
+            file_path: 文件路径
+            attributes: 属性字典
 
         Returns:
-            Any: 排序后的数据
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
 
         Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
+            file_path: 文件路径
 
         Returns:
-            Any: 合并后的数据
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
 
         Args:
-            data: 数据对象
+            file_path: 文件路径
 
         Returns:
-            List[str]: 列名列表
+            bool: 文件是否隐藏
         """
         pass
 
     @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
 
         Args:
-            data: 数据对象
-            column: 列名
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            Any: 列数据
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
 
         Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            bool: 是否设置成功
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
 
         Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
+            file_path: 文件路径
 
         Returns:
-            bool: 是否转换成功
+            tuple: (是否成功, 错误消息)
         """
         pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -4302,136 +4220,144 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
+    def save_word_document(self, document: Any, output_path: str) -> bool:
+        """
+        保存Word文档
 
         Args:
-            data: 初始数据
+            document: Word文档对象
+            output_path: 输出文件路径
 
         Returns:
-            Any: 数据框对象
+            bool: 保存是否成功
         """
         pass
 
     @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
+    def add_table_to_word(self, document: Any, table_data: List[List[str]],
+                         table_style: Optional[str] = None) -> bool:
+        """
+        向Word文档添加表格
 
         Args:
-            data: 数据对象
-            conditions: 过滤条件
+            document: Word文档对象
+            table_data: 表格数据，二维列表
+            table_style: 表格样式
 
         Returns:
-            Any: 过滤后的数据
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
+    def add_image_to_word(self, document: Any, image_path: str,
+                         width: Optional[float] = None) -> bool:
+        """
+        向Word文档添加图片
 
         Args:
-            data: 数据对象
-            by: 分组字段
+            document: Word文档对象
+            image_path: 图片文件路径
+            width: 图片宽度
 
         Returns:
-            Any: 分组后的数据
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
+        """
+        创建Excel工作簿
 
         Args:
-            data: 数据对象
-            aggregations: 聚合规则
+            template_path: Excel模板文件路径
 
         Returns:
-            Any: 聚合后的数据
+            Any: Excel工作簿对象
         """
         pass
 
     @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
 
         Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
 
         Returns:
-            Any: 排序后的数据
+            bool: 保存是否成功
         """
         pass
 
     @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
 
         Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
 
         Returns:
-            Any: 合并后的数据
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
 
         Args:
-            data: 数据对象
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
 
         Returns:
-            List[str]: 列名列表
+            bool: 设置是否成功
         """
         pass
 
     @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
+        """
+        生成报告
 
         Args:
-            data: 数据对象
-            column: 列名
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
 
         Returns:
-            Any: 列数据
+            bool: 生成是否成功
         """
         pass
 
     @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+        """
+        设置单元格背景色
 
         Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
 
         Returns:
-            bool: 是否设置成功
+            bool: 设置是否成功
         """
         pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -4552,80 +4478,12 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
+    def set_chart_data(self, chart: Any, data: Dict[str, Any]) -> bool:
+        """设置图表数据
 
         Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-        pass
-
-    @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
-
-        Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
-
-        Returns:
-            Any: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            chart: 图表实例
+            data: 数据字典
 
         Returns:
             bool: 是否设置成功
@@ -4633,44 +4491,103 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
+    def set_chart_title(self, chart: Any, title: str) -> None:
+        """设置图表标题
 
         Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
+            chart: 图表实例
+            title: 标题文本
         """
         pass
 
     @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
+    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
+        """设置坐标轴标签
 
         Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
+            chart: 图表实例
+            x_label: X轴标签
+            y_label: Y轴标签
         """
         pass
 
     @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
+    def add_legend(self, chart: Any) -> None:
+        """添加图例
 
         Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
+            chart: 图表实例
         """
         pass
+
+    @abstractmethod
+    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
+        """保存图表
+
+        Args:
+            chart: 图表实例
+            file_path: 保存路径
+            format: 保存格式
+            **kwargs: 保存参数
+
+        Returns:
+            bool: 是否保存成功
+        """
+        pass
+
+    @abstractmethod
+    def show_chart(self, chart: Any) -> bool:
+        """显示图表
+
+        Args:
+            chart: 图表实例
+
+        Returns:
+            bool: 是否显示成功
+        """
+        pass
+
+    @abstractmethod
+    def close_chart(self, chart: Any) -> None:
+        """关闭图表
+
+        Args:
+            chart: 图表实例
+        """
+        pass
+
+    @abstractmethod
+    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
+        """创建子图
+
+        Args:
+            rows: 行数
+            columns: 列数
+            index: 子图索引
+
+        Returns:
+            Any: 子图实例
+        """
+        pass
+
+    @abstractmethod
+    def set_grid(self, chart: Any, show: bool = True) -> None:
+        """设置网格
+
+        Args:
+            chart: 图表实例
+            show: 是否显示网格
+        """
+        pass
+
+    @abstractmethod
+    def set_colors(self, chart: Any, colors: List[str]) -> None:
+        """设置颜色
+
+        Args:
+            chart: 图表实例
+            colors: 颜色列表
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -5353,12 +5270,67 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def set_chart_data(self, chart: Any, data: Dict[str, Any]) -> bool:
-        """设置图表数据
+    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
+        """排序数据
 
         Args:
-            chart: 图表实例
-            data: 数据字典
+            data: 数据对象
+            by: 排序字段
+            ascending: 是否升序
+
+        Returns:
+            Any: 排序后的数据
+        """
+        pass
+
+    @abstractmethod
+    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
+        """合并数据
+
+        Args:
+            left: 左数据
+            right: 右数据
+            on: 合并字段
+            how: 合并方式
+
+        Returns:
+            Any: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def get_column_names(self, data: Any) -> List[str]:
+        """获取列名
+
+        Args:
+            data: 数据对象
+
+        Returns:
+            List[str]: 列名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_column_data(self, data: Any, column: str) -> Any:
+        """获取列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+
+        Returns:
+            Any: 列数据
+        """
+        pass
+
+    @abstractmethod
+    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
+        """设置列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+            values: 新数据
 
         Returns:
             bool: 是否设置成功
@@ -5366,93 +5338,44 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def set_chart_title(self, chart: Any, title: str) -> None:
-        """设置图表标题
+    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
+        """转换数据类型
 
         Args:
-            chart: 图表实例
-            title: 标题文本
-        """
-        pass
-
-    @abstractmethod
-    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
-        """设置坐标轴标签
-
-        Args:
-            chart: 图表实例
-            x_label: X轴标签
-            y_label: Y轴标签
-        """
-        pass
-
-    @abstractmethod
-    def add_legend(self, chart: Any) -> None:
-        """添加图例
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
+            data: 数据对象
+            column: 列名
+            data_type: 目标类型
 
         Returns:
-            bool: 是否保存成功
+            bool: 是否转换成功
         """
         pass
 
     @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
+    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
+        """获取统计信息
 
         Args:
-            chart: 图表实例
+            data: 数据对象
+            columns: 指定列（None表示所有列）
 
         Returns:
-            bool: 是否显示成功
+            Dict[str, Any]: 统计信息
         """
         pass
 
     @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
+    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
+        """处理缺失值
 
         Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
+            data: 数据对象
+            strategy: 处理策略（drop、fill、interpolate等）
 
         Returns:
-            Any: 子图实例
+            Any: 处理后的数据
         """
         pass
-
-    @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
-
-        Args:
-            chart: 图表实例
-            show: 是否显示网格
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -5534,115 +5457,98 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def create_main_window(self) -> Any:
-        """创建主窗口
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
+
+        Args:
+            file_path: 文件路径
 
         Returns:
-            Any: 主窗口实例
+            Optional[int]: 文件大小，失败返回None
         """
         pass
 
     @abstractmethod
-    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
-        """创建进度对话框
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
 
         Args:
-            parent: 父窗口
+            file_path: 文件路径
+            attributes: 属性字典
 
         Returns:
-            Any: 进度对话框实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def show_message_box(self,
-                        parent: Optional[Any],
-                        title: str,
-                        message: str,
-                        msg_type: MessageBoxType) -> Any:
-        """显示消息框
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
 
         Args:
-            parent: 父窗口
-            title: 窗口标题
-            message: 消息内容
-            msg_type: 消息类型
+            file_path: 文件路径
 
         Returns:
-            Any: 消息框实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_file_dialog(self,
-                          parent: Optional[Any],
-                          caption: str,
-                          directory: str = "",
-                          filter_pattern: str = "") -> Any:
-        """创建文件选择对话框
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
 
         Args:
-            parent: 父窗口
-            caption: 对话框标题
-            directory: 默认目录
-            filter_pattern: 文件过滤器
+            file_path: 文件路径
 
         Returns:
-            Any: 文件对话框实例
+            bool: 文件是否隐藏
         """
         pass
 
     @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
 
         Args:
-            parent: 父控件
-            text: 标签文本
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            Any: 标签控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
 
         Args:
-            parent: 父控件
-            text: 按钮文本
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            Any: 按钮控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
 
         Args:
-            parent: 父控件
-            placeholder: 占位符文本
+            file_path: 文件路径
 
         Returns:
-            Any: 输入框控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
-
-    @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
-
-        Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
-
-        Returns:
-            Any: 表格控件实例
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -5654,98 +5560,112 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def create_file_dialog(self,
-                          parent: Optional[Any],
-                          caption: str,
-                          directory: str = "",
-                          filter_pattern: str = "") -> Any:
-        """创建文件选择对话框
+    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+        """
+        删除目录
 
         Args:
-            parent: 父窗口
-            caption: 对话框标题
-            directory: 默认目录
-            filter_pattern: 文件过滤器
+            path: 目录路径
+            recursive: 是否递归删除
 
         Returns:
-            Any: 文件对话框实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
+    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+        """
+        列出目录中的文件
 
         Args:
-            parent: 父控件
-            text: 标签文本
+            directory: 目录路径
+            pattern: 文件名模式
 
         Returns:
-            Any: 标签控件实例
+            List[str]: 文件名列表
         """
         pass
 
     @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
 
         Args:
-            parent: 父控件
-            text: 按钮文本
+            file_path: 文件路径
 
         Returns:
-            Any: 按钮控件实例
+            Optional[int]: 文件大小，失败返回None
         """
         pass
 
     @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
 
         Args:
-            parent: 父控件
-            placeholder: 占位符文本
+            file_path: 文件路径
+            attributes: 属性字典
 
         Returns:
-            Any: 输入框控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
 
         Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
+            file_path: 文件路径
 
         Returns:
-            Any: 表格控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def set_layout(self, parent: Any, layout: Any) -> None:
-        """设置布局管理器
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
 
         Args:
-            parent: 父控件
-            layout: 布局管理器
+            file_path: 文件路径
+
+        Returns:
+            bool: 文件是否隐藏
         """
         pass
 
     @abstractmethod
-    def exec_application(self, app: Any) -> int:
-        """运行应用程序
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
 
         Args:
-            app: 应用程序实例
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            int: 退出代码
+            tuple: (是否成功, 错误消息)
         """
         pass
+
+    @abstractmethod
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -5757,33 +5677,112 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
         """
-        保存Word文档
+        检测异常值
 
         Args:
-            document: Word文档对象
-            output_path: 输出文件路径
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            bool: 保存是否成功
+            List[int]: 异常值的索引列表
         """
         pass
 
     @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
         """
-        向Word文档添加表格
+        生成模拟电池数据
 
         Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
+            battery_count: 电池数量
+            data_points: 数据点数量
 
         Returns:
-            bool: 添加是否成功
+            List[Dict[str, Any]]: 模拟数据
         """
+        pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
+
+        Returns:
+            bool: 导出是否成功
+        """
+        pass
+
+    @abstractmethod
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
+
+        Args:
+            data_list: 数据集列表
+
+        Returns:
+            List[Dict[str, Any]]: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
+
+        Args:
+            data: 原始数据
+            feature_types: 特征类型列表
+
+        Returns:
+            Dict[str, Any]: 提取的特征
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==data_processing_service_interface:[31:147]
+==document_service_interface:[59:170]
         pass
 
     @abstractmethod
@@ -5880,130 +5879,21 @@ def get_available_locales() -> List[str]:
         Returns:
             bool: 生成是否成功
         """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:147]
-==document_service_interface:[59:170]
         pass
 
     @abstractmethod
-    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
         """
-        分析电池性能
+        设置单元格背景色
 
         Args:
-            data: 电池数据列表
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
 
         Returns:
-            Dict[str, Any]: 分析结果
+            bool: 设置是否成功
         """
         pass
-
-    @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
-        """
-        计算统计数据
-
-        Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
-
-        Returns:
-            Dict[str, float]: 统计数据
-        """
-        pass
-
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
-
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
-
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -6015,97 +5905,93 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
-        """
-        验证文件路径的有效性
+    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
+        """设置坐标轴标签
 
         Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否有效, 错误消息)
+            chart: 图表实例
+            x_label: X轴标签
+            y_label: Y轴标签
         """
         pass
 
     @abstractmethod
-    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
-        """
-        验证目录路径的有效性
+    def add_legend(self, chart: Any) -> None:
+        """添加图例
 
         Args:
-            directory_path: 目录路径
-
-        Returns:
-            tuple: (是否有效, 错误消息)
+            chart: 图表实例
         """
         pass
 
     @abstractmethod
-    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
-        """
-        验证数值是否在有效范围内
+    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
+        """保存图表
 
         Args:
-            value: 要验证的值
-            min_val: 最小值
-            max_val: 最大值
+            chart: 图表实例
+            file_path: 保存路径
+            format: 保存格式
+            **kwargs: 保存参数
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            bool: 是否保存成功
         """
         pass
 
     @abstractmethod
-    def validate_email(self, email: str) -> Tuple[bool, str]:
-        """
-        验证邮箱地址格式
+    def show_chart(self, chart: Any) -> bool:
+        """显示图表
 
         Args:
-            email: 邮箱地址
+            chart: 图表实例
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            bool: 是否显示成功
         """
         pass
 
     @abstractmethod
-    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
-        """
-        验证电话号码格式
+    def close_chart(self, chart: Any) -> None:
+        """关闭图表
 
         Args:
-            phone: 电话号码
-
-        Returns:
-            tuple: (是否有效, 错误消息)
+            chart: 图表实例
         """
         pass
 
     @abstractmethod
-    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
-        """
-        验证电池类型是否有效
+    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
+        """创建子图
 
         Args:
-            battery_type: 电池类型
+            rows: 行数
+            columns: 列数
+            index: 子图索引
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            Any: 子图实例
         """
         pass
 
     @abstractmethod
-    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
-        """
-        验证容量值是否有效
+    def set_grid(self, chart: Any, show: bool = True) -> None:
+        """设置网格
 
         Args:
-            capacity: 容量值
-
-        Returns:
-            tuple: (是否有效, 错误消息)
+            chart: 图表实例
+            show: 是否显示网格
         """
         pass
+
+    @abstractmethod
+    def set_colors(self, chart: Any, colors: List[str]) -> None:
+        """设置颜色
+
+        Args:
+            chart: 图表实例
+            colors: 颜色列表
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -6472,84 +6358,101 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
-        """
-        验证目录路径的有效性
-
-        Args:
-            directory_path: 目录路径
+    def create_main_window(self) -> Any:
+        """创建主窗口
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            Any: 主窗口实例
         """
         pass
 
     @abstractmethod
-    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
-        """
-        验证数值是否在有效范围内
+    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
+        """创建进度对话框
 
         Args:
-            value: 要验证的值
-            min_val: 最小值
-            max_val: 最大值
+            parent: 父窗口
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            Any: 进度对话框实例
         """
         pass
 
     @abstractmethod
-    def validate_email(self, email: str) -> Tuple[bool, str]:
-        """
-        验证邮箱地址格式
+    def show_message_box(self,
+                        parent: Optional[Any],
+                        title: str,
+                        message: str,
+                        msg_type: MessageBoxType) -> Any:
+        """显示消息框
 
         Args:
-            email: 邮箱地址
+            parent: 父窗口
+            title: 窗口标题
+            message: 消息内容
+            msg_type: 消息类型
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            Any: 消息框实例
         """
         pass
 
     @abstractmethod
-    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
-        """
-        验证电话号码格式
+    def create_file_dialog(self,
+                          parent: Optional[Any],
+                          caption: str,
+                          directory: str = "",
+                          filter_pattern: str = "") -> Any:
+        """创建文件选择对话框
 
         Args:
-            phone: 电话号码
+            parent: 父窗口
+            caption: 对话框标题
+            directory: 默认目录
+            filter_pattern: 文件过滤器
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            Any: 文件对话框实例
         """
         pass
 
     @abstractmethod
-    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
-        """
-        验证电池类型是否有效
+    def create_label(self, parent: Any, text: str) -> Any:
+        """创建标签控件
 
         Args:
-            battery_type: 电池类型
+            parent: 父控件
+            text: 标签文本
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            Any: 标签控件实例
         """
         pass
 
     @abstractmethod
-    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
-        """
-        验证容量值是否有效
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
 
         Args:
-            capacity: 容量值
+            parent: 父控件
+            text: 按钮文本
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            Any: 按钮控件实例
         """
         pass
+
+    @abstractmethod
+    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
+        """创建输入框控件
+
+        Args:
+            parent: 父控件
+            placeholder: 占位符文本
+
+        Returns:
+            Any: 输入框控件实例
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -6838,76 +6741,103 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def save_config(self) -> bool:
+    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        保存配置到文件
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
+        分析电池性能
 
         Args:
-            config_path: 配置文件路径，None表示使用默认路径
+            data: 电池数据列表
 
         Returns:
-            bool: 加载是否成功
+            Dict[str, Any]: 分析结果
         """
         pass
 
     @abstractmethod
-    def get_config_sections(self) -> List[str]:
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
         """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
+        计算统计数据
 
         Args:
-            section: 配置节名称
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
 
         Returns:
-            Dict[str, Any]: 配置节内容
+            Dict[str, float]: 统计数据
         """
         pass
 
     @abstractmethod
-    def has_config_key(self, key: str) -> bool:
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
         """
-        检查配置键是否存在
+        数据平滑处理
 
         Args:
-            key: 配置键
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
 
         Returns:
-            bool: 键是否存在
+            List[float]: 平滑后的数据
         """
         pass
 
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
         """
-        查找配置文件路径
+        检测异常值
 
         Args:
-            file_name: 配置文件名称
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
+            List[int]: 异常值的索引列表
         """
         pass
+
+    @abstractmethod
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
+        """
+        生成模拟电池数据
+
+        Args:
+            battery_count: 电池数量
+            data_points: 数据点数量
+
+        Returns:
+            List[Dict[str, Any]]: 模拟数据
+        """
+        pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -7013,167 +6943,6 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def load_data(self, data_path: str) -> bool:
-        """
-        加载数据
-
-        Args:
-            data_path: 数据路径
-
-        Returns:
-            bool: 是否成功加载数据
-        """
-        pass
-
-    @abstractmethod
-    def clear_data(self) -> None:
-        """
-        清除所有数据，回到初始状态
-        """
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
-
-        Args:
-            config: 配置字典
-        """
-        pass
-
-    @abstractmethod
-    def get_config(self) -> dict:
-        """
-        获取当前配置
-
-        Returns:
-            dict: 当前配置字典
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[89:160]
-==idataprocessor:[45:140]
-        pass
-
-    @abstractmethod
-    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
-        """保存图表
-
-        Args:
-            chart: 图表实例
-            file_path: 保存路径
-            format: 保存格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
-
-        Args:
-            chart: 图表实例
-
-        Returns:
-            bool: 是否显示成功
-        """
-        pass
-
-    @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
-
-        Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
-
-        Returns:
-            Any: 子图实例
-        """
-        pass
-
-    @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
-
-        Args:
-            chart: 图表实例
-            show: 是否显示网格
-        """
-        pass
-
-    @abstractmethod
-    def set_colors(self, chart: Any, colors: List[str]) -> None:
-        """设置颜色
-
-        Args:
-            chart: 图表实例
-            colors: 颜色列表
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==ichart_manager:[46:125]
-==idataprocessor:[140:220]
-        pass
-
-    @abstractmethod
-    def set_chart_data(self, chart: Any, data: Dict[str, Any]) -> bool:
-        """设置图表数据
-
-        Args:
-            chart: 图表实例
-            data: 数据字典
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
     def set_chart_title(self, chart: Any, title: str) -> None:
         """设置图表标题
 
@@ -7237,6 +7006,211 @@ def get_available_locales() -> List[str]:
         Args:
             chart: 图表实例
         """
+        pass
+
+    @abstractmethod
+    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
+        """创建子图
+
+        Args:
+            rows: 行数
+            columns: 列数
+            index: 子图索引
+
+        Returns:
+            Any: 子图实例
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==ichart_manager:[89:160]
+==idataprocessor:[45:140]
+        pass
+
+    @abstractmethod
+    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
+        """保存数据文件
+
+        Args:
+            data: 数据对象
+            file_path: 保存路径
+            format: 数据格式
+            **kwargs: 保存参数
+
+        Returns:
+            bool: 是否保存成功
+        """
+        pass
+
+    @abstractmethod
+    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
+        """创建数据框
+
+        Args:
+            data: 初始数据
+
+        Returns:
+            Any: 数据框对象
+        """
+        pass
+
+    @abstractmethod
+    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
+        """过滤数据
+
+        Args:
+            data: 数据对象
+            conditions: 过滤条件
+
+        Returns:
+            Any: 过滤后的数据
+        """
+        pass
+
+    @abstractmethod
+    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
+        """分组数据
+
+        Args:
+            data: 数据对象
+            by: 分组字段
+
+        Returns:
+            Any: 分组后的数据
+        """
+        pass
+
+    @abstractmethod
+    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
+        """聚合数据
+
+        Args:
+            data: 数据对象
+            aggregations: 聚合规则
+
+        Returns:
+            Any: 聚合后的数据
+        """
+        pass
+
+    @abstractmethod
+    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
+        """排序数据
+
+        Args:
+            data: 数据对象
+            by: 排序字段
+            ascending: 是否升序
+
+        Returns:
+            Any: 排序后的数据
+        """
+        pass
+
+    @abstractmethod
+    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
+        """合并数据
+
+        Args:
+            left: 左数据
+            right: 右数据
+            on: 合并字段
+            how: 合并方式
+
+        Returns:
+            Any: 合并后的数据
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==ichart_manager:[46:125]
+==idataprocessor:[140:220]
+        pass
+
+    @abstractmethod
+    def get_column_names(self, data: Any) -> List[str]:
+        """获取列名
+
+        Args:
+            data: 数据对象
+
+        Returns:
+            List[str]: 列名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_column_data(self, data: Any, column: str) -> Any:
+        """获取列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+
+        Returns:
+            Any: 列数据
+        """
+        pass
+
+    @abstractmethod
+    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
+        """设置列数据
+
+        Args:
+            data: 数据对象
+            column: 列名
+            values: 新数据
+
+        Returns:
+            bool: 是否设置成功
+        """
+        pass
+
+    @abstractmethod
+    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
+        """转换数据类型
+
+        Args:
+            data: 数据对象
+            column: 列名
+            data_type: 目标类型
+
+        Returns:
+            bool: 是否转换成功
+        """
+        pass
+
+    @abstractmethod
+    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
+        """获取统计信息
+
+        Args:
+            data: 数据对象
+            columns: 指定列（None表示所有列）
+
+        Returns:
+            Dict[str, Any]: 统计信息
+        """
+        pass
+
+    @abstractmethod
+    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
+        """处理缺失值
+
+        Args:
+            data: 数据对象
+            strategy: 处理策略（drop、fill、interpolate等）
+
+        Returns:
+            Any: 处理后的数据
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -7496,90 +7470,85 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
         """
-        分析电池性能
+        保存Excel工作簿
 
         Args:
-            data: 电池数据列表
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
 
         Returns:
-            Dict[str, Any]: 分析结果
+            bool: 保存是否成功
         """
         pass
 
     @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
         """
-        计算统计数据
+        向Excel工作簿添加工作表
 
         Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
 
         Returns:
-            Dict[str, float]: 统计数据
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
         """
-        数据平滑处理
+        设置单元格样式
 
         Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
 
         Returns:
-            List[float]: 平滑后的数据
+            bool: 设置是否成功
         """
         pass
 
     @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
         """
-        检测异常值
+        生成报告
 
         Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
 
         Returns:
-            List[int]: 异常值的索引列表
+            bool: 生成是否成功
         """
         pass
 
     @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
         """
-        生成模拟电池数据
+        设置单元格背景色
 
         Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
 
         Returns:
-            List[Dict[str, Any]]: 模拟数据
+            bool: 设置是否成功
         """
         pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -7591,27 +7560,59 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def set_config_value(self, key: str, value: Any) -> bool:
+    def clear_data(self) -> None:
         """
-        设置配置值
-
-        Args:
-            key: 配置键
-            value: 配置值
-
-        Returns:
-            bool: 设置是否成功
+        清除所有数据，回到初始状态
         """
         pass
 
     @abstractmethod
-    def save_config(self) -> bool:
+    def is_data_loaded(self) -> bool:
         """
-        保存配置到文件
+        检查是否有数据已加载
 
         Returns:
-            bool: 保存是否成功
+            bool: 是否已加载数据
         """
+        pass
+
+    @abstractmethod
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
+
+        Returns:
+            dict: 状态信息字典
+        """
+        pass
+
+    @abstractmethod
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
+
+        Args:
+            config: 配置字典
+        """
+        pass
+
+    @abstractmethod
+    def get_config(self) -> dict:
+        """
+        获取当前配置
+
+        Returns:
+            dict: 当前配置字典
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==config_service_interface:[54:117]
+==ivisualizer:[29:89]
         pass
 
     @abstractmethod
@@ -7661,74 +7662,20 @@ def get_available_locales() -> List[str]:
         Returns:
             bool: 键是否存在
         """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[54:117]
-==ivisualizer:[29:89]
         pass
 
     @abstractmethod
-    def load_data(self, data_path: str) -> bool:
+    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
         """
-        加载数据
+        查找配置文件路径
 
         Args:
-            data_path: 数据路径
+            file_name: 配置文件名称
 
         Returns:
-            bool: 是否成功加载数据
+            Optional[Path]: 配置文件路径，如果未找到则返回None
         """
         pass
-
-    @abstractmethod
-    def clear_data(self) -> None:
-        """
-        清除所有数据，回到初始状态
-        """
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
-
-        Args:
-            config: 配置字典
-        """
-        pass
-
-    @abstractmethod
-    def get_config(self) -> dict:
-        """
-        获取当前配置
-
-        Returns:
-            dict: 当前配置字典
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -7740,59 +7687,83 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def show_chart(self, chart: Any) -> bool:
-        """显示图表
+    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
+        """保存数据文件
 
         Args:
-            chart: 图表实例
+            data: 数据对象
+            file_path: 保存路径
+            format: 数据格式
+            **kwargs: 保存参数
 
         Returns:
-            bool: 是否显示成功
+            bool: 是否保存成功
         """
         pass
 
     @abstractmethod
-    def close_chart(self, chart: Any) -> None:
-        """关闭图表
+    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
+        """创建数据框
 
         Args:
-            chart: 图表实例
-        """
-        pass
-
-    @abstractmethod
-    def create_subplot(self, rows: int, columns: int, index: int = 1) -> Any:
-        """创建子图
-
-        Args:
-            rows: 行数
-            columns: 列数
-            index: 子图索引
+            data: 初始数据
 
         Returns:
-            Any: 子图实例
+            Any: 数据框对象
         """
         pass
 
     @abstractmethod
-    def set_grid(self, chart: Any, show: bool = True) -> None:
-        """设置网格
+    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
+        """过滤数据
 
         Args:
-            chart: 图表实例
-            show: 是否显示网格
+            data: 数据对象
+            conditions: 过滤条件
+
+        Returns:
+            Any: 过滤后的数据
         """
         pass
 
     @abstractmethod
-    def set_colors(self, chart: Any, colors: List[str]) -> None:
-        """设置颜色
+    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
+        """分组数据
 
         Args:
-            chart: 图表实例
-            colors: 颜色列表
+            data: 数据对象
+            by: 分组字段
+
+        Returns:
+            Any: 分组后的数据
         """
         pass
+
+    @abstractmethod
+    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
+        """聚合数据
+
+        Args:
+            data: 数据对象
+            aggregations: 聚合规则
+
+        Returns:
+            Any: 聚合后的数据
+        """
+        pass
+
+    @abstractmethod
+    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
+        """排序数据
+
+        Args:
+            data: 数据对象
+            by: 排序字段
+            ascending: 是否升序
+
+        Returns:
+            Any: 排序后的数据
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -7912,14 +7883,10 @@ def get_available_locales() -> List[str]:
         if self.chart_widget:
             self.chart_widget.data_changed.connect(self._on_chart_data_changed)
 
+    def _apply_styles(self):
+        """应用现代化样式"""
 
-
-    # 槽函数实现
-
-    @pyqtSlot()
-    def _browse_data_path(self):
-        """浏览数据路径"""
-
+        # 使用样式管理器应用全局样式
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -7931,58 +7898,70 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
         """
-        检查文件是否隐藏
+        验证文件路径的有效性
 
         Args:
             file_path: 文件路径
 
         Returns:
-            bool: 文件是否隐藏
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
         """
-        复制文件
+        验证目录路径的有效性
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            directory_path: 目录路径
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
         """
-        移动文件
+        验证数值是否在有效范围内
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            value: 要验证的值
+            min_val: 最小值
+            max_val: 最大值
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_email(self, email: str) -> Tuple[bool, str]:
         """
-        删除文件
+        验证邮箱地址格式
 
         Args:
-            file_path: 文件路径
+            email: 邮箱地址
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
+
+    @abstractmethod
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
+        """
+        验证电话号码格式
+
+        Args:
+            phone: 电话号码
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -7994,71 +7973,56 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+    def validate_email(self, email: str) -> Tuple[bool, str]:
         """
-        删除目录
+        验证邮箱地址格式
 
         Args:
-            path: 目录路径
-            recursive: 是否递归删除
+            email: 邮箱地址
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
         """
-        列出目录中的文件
+        验证电话号码格式
 
         Args:
-            directory: 目录路径
-            pattern: 文件名模式
+            phone: 电话号码
 
         Returns:
-            List[str]: 文件名列表
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
         """
-        获取文件大小
+        验证电池类型是否有效
 
         Args:
-            file_path: 文件路径
+            battery_type: 电池类型
 
         Returns:
-            Optional[int]: 文件大小，失败返回None
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
         """
-        设置文件属性
+        验证容量值是否有效
 
         Args:
-            file_path: 文件路径
-            attributes: 属性字典
+            capacity: 容量值
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
-
-    @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        隐藏文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -8070,76 +8034,61 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
         """
-        保存Word文档
+        处理CSV数据文件
 
         Args:
-            document: Word文档对象
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
             output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
 
         Returns:
-            bool: 保存是否成功
+            bool: 导出是否成功
         """
         pass
 
     @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
         """
-        向Word文档添加表格
+        合并多个电池数据集
 
         Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
+            data_list: 数据集列表
 
         Returns:
-            bool: 添加是否成功
+            List[Dict[str, Any]]: 合并后的数据
         """
         pass
 
     @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
         """
-        向Word文档添加图片
+        提取数据特征
 
         Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
+            data: 原始数据
+            feature_types: 特征类型列表
 
         Returns:
-            bool: 添加是否成功
+            Dict[str, Any]: 提取的特征
         """
         pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -8227,63 +8176,44 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def set_config_value(self, key: str, value: Any) -> bool:
+    def is_data_loaded(self) -> bool:
         """
-        设置配置值
+        检查是否有数据已加载
+
+        Returns:
+            bool: 是否已加载数据
+        """
+        pass
+
+    @abstractmethod
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
+
+        Returns:
+            dict: 状态信息字典
+        """
+        pass
+
+    @abstractmethod
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
 
         Args:
-            key: 配置键
-            value: 配置值
-
-        Returns:
-            bool: 设置是否成功
+            config: 配置字典
         """
         pass
 
     @abstractmethod
-    def save_config(self) -> bool:
+    def get_config(self) -> dict:
         """
-        保存配置到文件
+        获取当前配置
 
         Returns:
-            bool: 保存是否成功
+            dict: 当前配置字典
         """
         pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
-
-        Args:
-            config_path: 配置文件路径，None表示使用默认路径
-
-        Returns:
-            bool: 加载是否成功
-        """
-        pass
-
-    @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -8295,53 +8225,53 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def get_config_sections(self) -> List[str]:
+    def load_data(self, data_path: str) -> bool:
         """
-        获取所有配置节名称
+        加载数据
+
+        Args:
+            data_path: 数据路径
 
         Returns:
-            List[str]: 配置节名称列表
+            bool: 是否成功加载数据
         """
         pass
 
     @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
+    def clear_data(self) -> None:
         """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
+        清除所有数据，回到初始状态
         """
         pass
 
     @abstractmethod
-    def has_config_key(self, key: str) -> bool:
+    def is_data_loaded(self) -> bool:
         """
-        检查配置键是否存在
-
-        Args:
-            key: 配置键
+        检查是否有数据已加载
 
         Returns:
-            bool: 键是否存在
+            bool: 是否已加载数据
         """
         pass
 
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
+    def get_status_info(self) -> dict:
         """
-        查找配置文件路径
-
-        Args:
-            file_name: 配置文件名称
+        获取状态信息
 
         Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
+            dict: 状态信息字典
         """
         pass
+
+    @abstractmethod
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
+
+        Args:
+            config: 配置字典
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -8349,7 +8279,7 @@ def get_available_locales() -> List[str]:
 - 代码: R0801
 - 描述: Similar lines in 2 files
 ==battery_chart_viewer:[1062:1073]
-==controllers.visualizer_controller:[308:319]
+==controllers.visualizer_controller:[313:324]
         import matplotlib
         import matplotlib.pyplot as plt
 
@@ -8446,13 +8376,12 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
+    def set_chart_data(self, chart: Any, data: Dict[str, Any]) -> bool:
+        """设置图表数据
 
         Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
+            chart: 图表实例
+            data: 数据字典
 
         Returns:
             bool: 是否设置成功
@@ -8460,44 +8389,48 @@ def get_available_locales() -> List[str]:
         pass
 
     @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
+    def set_chart_title(self, chart: Any, title: str) -> None:
+        """设置图表标题
 
         Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
+            chart: 图表实例
+            title: 标题文本
         """
         pass
 
     @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
+    def set_axis_labels(self, chart: Any, x_label: str, y_label: str) -> None:
+        """设置坐标轴标签
 
         Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
+            chart: 图表实例
+            x_label: X轴标签
+            y_label: Y轴标签
         """
         pass
 
     @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
+    def add_legend(self, chart: Any) -> None:
+        """添加图例
 
         Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
+            chart: 图表实例
         """
         pass
+
+    @abstractmethod
+    def save_chart(self, chart: Any, file_path: str, format: ChartFormat = ChartFormat.PNG, **kwargs) -> bool:
+        """保存图表
+
+        Args:
+            chart: 图表实例
+            file_path: 保存路径
+            format: 保存格式
+            **kwargs: 保存参数
+
+        Returns:
+            bool: 是否保存成功
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0

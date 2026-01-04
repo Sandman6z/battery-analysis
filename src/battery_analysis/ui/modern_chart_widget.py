@@ -43,6 +43,19 @@ class ModernChartWidget(QWidget):
         self.chart_type = 'line'
         self.is_filtered = True
         
+        # UI组件
+        self.chart_type_combo = None
+        self.filter_checkbox = None
+        self.refresh_button = None
+        self.chart_title = None
+        self.data_info_label = None
+        self.zoom_in_button = None
+        self.zoom_out_button = None
+        self.reset_zoom_button = None
+        
+        # 数据属性
+        self.battery_names = None
+        
         self._setup_ui()
         self._setup_chart()
     
