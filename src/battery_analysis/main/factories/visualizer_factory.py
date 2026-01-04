@@ -6,6 +6,7 @@
 """
 
 import logging
+import os
 from typing import Optional, Type, Dict, Any
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
 from battery_analysis.main import battery_chart_viewer

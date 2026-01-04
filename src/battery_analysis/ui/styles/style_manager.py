@@ -9,7 +9,7 @@ import os
 import logging
 from pathlib import Path
 from typing import Dict, Optional, Any
-from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtGui import QFont, QFontDatabase
 

@@ -54,20 +54,19 @@ class Version:
         # 初始化环境检测器
         self.env_detector = None
         self.env_info = None
+        
+        # 如果版本号已存在，直接返回（避免重复初始化）
+        if hasattr(self, 'version') and self.version:
+            return
+            
         # 初始化版本相关属性
-        self._pending_version = False
         self.version = ""
         
-        # 从__new__中获取延迟版本标记
-        if hasattr(self, '_pending_version'):
-            self._pending_version = getattr(self, '_pending_version', False)
-            
+        # 初始化环境检测
         self._init_environment_detection()
 
-        # 如果需要获取版本（在__new__中延迟）
-        if self._pending_version:
-            self.version = self._get_version()
-            self._pending_version = False
+        # 获取版本号（无论是否是第一次初始化）
+        self.version = self._get_version()
 
     def _init_environment_detection(self):
         """

@@ -5,6 +5,7 @@
 提供统一的现代化UI主题配置，包括颜色方案、字体、样式等
 """
 
+import logging
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.colors import LinearSegmentedColormap
