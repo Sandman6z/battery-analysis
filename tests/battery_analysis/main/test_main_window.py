@@ -4,7 +4,7 @@
 """
 import json
 import os
-import pytest
+import pytest  # pylint: disable=E0401
 import PyQt6.QtWidgets as QW
 from battery_analysis.main.main_window import Main
 

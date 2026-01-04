@@ -174,17 +174,7 @@
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-           </property>
-           <property name="inputMethodHints">
+           </property><property name="inputMethodHints">
             <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
@@ -264,99 +254,7 @@
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::ClickFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>10</number>
-           </property>
-           <property name="value">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-    <widget class="QFrame" name="frame_2">
-     <property name="geometry">
-      <rect>
-       <x>380</x>
-       <y>20</y>
-       <width>341</width>
-       <height>171</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Shape::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Sunken</enum>
-     </property>
-     <widget class="QWidget" name="verticalLayoutWidget_3">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>341</width>
-        <height>171</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <property name="leftMargin">
-        <number>5</number>
-       </property>
-       <property name="topMargin">
-        <number>5</number>
-       </property>
-       <property name="rightMargin">
-        <number>5</number>
-       </property>
-       <property name="bottomMargin">
-        <number>5</number>
-       </property>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_Manufacturer">
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="label_Manufacturer">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft JhengHei</family>
-             <pointsize>9</pointsize>
-             <fontweight>Medium</fontweight>
-            </font>
-           </property>
-           <property name="text">
-            <string>Manufacturer</string>
-           </property>
-          </widget>
+           </property></widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_3">
@@ -388,42 +286,7 @@
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::NoFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-           </property>
-           <property name="editable">
+           </property><property name="editable">
             <bool>false</bool>
            </property>
           </widget>
@@ -491,17 +354,7 @@ QComboBox::down-arrow:on {
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::ClickFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-           </property>
-           <property name="inputMethodHints">
+           </property><property name="inputMethodHints">
             <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
@@ -572,17 +425,7 @@ QComboBox::down-arrow:on {
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::ClickFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-           </property>
-           <property name="inputMethodHints">
+           </property><property name="inputMethodHints">
             <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
@@ -705,42 +548,7 @@ QComboBox::down-arrow:on {
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::NoFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-           </property>
-           <property name="editable">
+           </property><property name="editable">
             <bool>false</bool>
            </property>
            <property name="currentIndex">
@@ -820,42 +628,7 @@ QComboBox::down-arrow:on {
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::NoFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-           </property>
-           <property name="editable">
+           </property><property name="editable">
             <bool>false</bool>
            </property>
           </widget>
@@ -958,42 +731,7 @@ QComboBox::down-arrow:on {
              </property>
              <property name="focusPolicy">
               <enum>Qt::FocusPolicy::NoFocus</enum>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-             </property>
-             <property name="editable">
+             </property><property name="editable">
               <bool>false</bool>
              </property>
             </widget>
@@ -1024,42 +762,7 @@ QComboBox::down-arrow:on {
              </property>
              <property name="focusPolicy">
               <enum>Qt::FocusPolicy::NoFocus</enum>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-             </property>
-             <property name="editable">
+             </property><property name="editable">
               <bool>false</bool>
              </property>
              <property name="insertPolicy">
@@ -1172,17 +875,7 @@ QComboBox::down-arrow:on {
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::ClickFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-           </property>
-           <property name="inputMethodHints">
+           </property><property name="inputMethodHints">
             <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
@@ -1247,17 +940,7 @@ QComboBox::down-arrow:on {
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::ClickFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-           </property>
-           <property name="alignment">
+           </property><property name="alignment">
             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
@@ -1325,17 +1008,7 @@ QComboBox::down-arrow:on {
            </property>
            <property name="focusPolicy">
             <enum>Qt::FocusPolicy::ClickFocus</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-           </property>
-           <property name="inputMethodHints">
+           </property><property name="inputMethodHints">
             <set>Qt::InputMethodHint::ImhHiddenText</set>
            </property>
            <property name="alignment">
@@ -1368,15 +1041,7 @@ QComboBox::down-arrow:on {
       <pointsize>9</pointsize>
       <fontweight>Medium</fontweight>
      </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QGroupBox::groupBox_TestConfig {
-    font: bold 14pt &quot;Arial&quot;;
-    color: #FF17365D;
-    background-color: transparent;
-}</string>
-    </property>
-    <property name="title">
+    </property><property name="title">
      <string>Test Config</string>
     </property>
     <widget class="QWidget" name="horizontalLayoutWidget_8">
@@ -1461,17 +1126,7 @@ QComboBox::down-arrow:on {
         </property>
         <property name="layoutDirection">
          <enum>Qt::LayoutDirection::LeftToRight</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-        </property>
-        <property name="inputMethodHints">
+        </property><property name="inputMethodHints">
          <set>Qt::InputMethodHint::ImhHiddenText</set>
         </property>
         <property name="alignment">
@@ -1585,42 +1240,7 @@ QComboBox::down-arrow:on {
         </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-        </property>
-        <property name="editable">
+        </property><property name="editable">
          <bool>false</bool>
         </property>
        </widget>
@@ -1709,42 +1329,7 @@ QComboBox::down-arrow:on {
         </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-        </property>
-        <property name="editable">
+        </property><property name="editable">
          <bool>false</bool>
         </property>
        </widget>
@@ -1847,17 +1432,7 @@ QComboBox::down-arrow:on {
         </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::ClickFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-        </property>
-        <property name="inputMethodHints">
+        </property><property name="inputMethodHints">
          <set>Qt::InputMethodHint::ImhHiddenText</set>
         </property>
         <property name="alignment">
@@ -1966,17 +1541,7 @@ QComboBox::down-arrow:on {
         </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::ClickFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-        </property>
-        <property name="inputMethodHints">
+        </property><property name="inputMethodHints">
          <set>Qt::InputMethodHint::ImhHiddenText</set>
         </property>
         <property name="alignment">
@@ -2025,13 +1590,7 @@ QComboBox::down-arrow:on {
       <pointsize>9</pointsize>
       <fontweight>Medium</fontweight>
      </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QWidget#groupBox_TestInformation {
-	border: 2px solid #00A050;
-}</string>
-    </property>
-    <property name="title">
+    </property><property name="title">
      <string>Test Information</string>
     </property>
     <widget class="QScrollArea" name="scrollArea">
@@ -2382,25 +1941,7 @@ QComboBox::down-arrow:on {
          </property>
          <property name="focusPolicy">
           <enum>Qt::FocusPolicy::ClickFocus</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton#pushButton_Run {
-  background-color: #00990C;     /* 背景色 */
-  color: #FFFFFF;                /* 文本颜色 */
-  border-style: solid;           
-  border-width: 2px;
-  border-color: #005F77;
-  border-radius: 6px;           /* 圆角半径 */
-  padding: 6px;                  /* 内边距，让内容不贴边 */
-}
-QPushButton#pushButton_Run:hover {
-  background-color: #FF7A99;     /* 悬停效果 */
-}
-QPushButton#pushButton_Run:pressed {
-  background-color: #005F77;     /* 按下效果 */
-}</string>
-         </property>
-         <property name="text">
+         </property><property name="text">
           <string>Run</string>
          </property>
          <property name="autoDefault">
@@ -2544,17 +2085,7 @@ QPushButton#pushButton_Run:pressed {
             </property>
             <property name="focusPolicy">
              <enum>Qt::FocusPolicy::ClickFocus</enum>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-            </property>
-            <property name="inputMethodHints">
+            </property><property name="inputMethodHints">
              <set>Qt::InputMethodHint::ImhHiddenText</set>
             </property>
             <property name="alignment">

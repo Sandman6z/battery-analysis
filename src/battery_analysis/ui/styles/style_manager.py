@@ -41,23 +41,61 @@ class StyleManager(QObject):
     def _load_available_styles(self):
         """加载可用的样式文件"""
         
-        style_files = {
-            "battery_analyzer": "battery_analyzer.qss",  # 统一电池分析器样式
-            "modern": "battery_analyzer.qss",  # 使用统一样式
-            "dark": "dark_theme.qss",
-            "light": "light_theme.qss",
-            "high_contrast": "high_contrast.qss"
-        }
+        # 主样式文件（所有主题共享）
+        main_style_file = "battery_analyzer.qss"
+        main_style_path = self._style_dir / main_style_file
         
-        for theme_name, filename in style_files.items():
-            style_path = self._style_dir / filename
-            if style_path.exists():
-                try:
-                    with open(style_path, 'r', encoding='utf-8') as f:
-                        self._style_cache[theme_name] = f.read()
-                        logging.info("样式文件已加载: %s", filename)
-                except Exception as e:
-                    logging.error("加载样式文件失败 %s: %s", filename, e)
+        # 先加载主样式文件
+        if main_style_path.exists():
+            try:
+                with open(main_style_path, 'r', encoding='utf-8') as f:
+                    main_style = f.read()
+                    # 所有主题默认使用主样式文件
+                    self._style_cache["battery_analyzer"] = main_style
+                    self._style_cache["modern"] = main_style
+                    self._style_cache["light"] = main_style
+                    logging.info("主样式文件已加载: %s", main_style_file)
+                    
+                    # 尝试加载深色主题（如果存在）
+                    dark_style_path = self._style_dir / "dark_theme.qss"
+                    if dark_style_path.exists():
+                        with open(dark_style_path, 'r', encoding='utf-8') as f:
+                            dark_style = f.read()
+                            self._style_cache["dark"] = dark_style
+                            logging.info("深色主题样式文件已加载: dark_theme.qss")
+                    else:
+                        # 如果深色主题文件不存在，基于主样式创建
+                        dark_style = main_style
+                        # 替换颜色变量为深色主题颜色
+                        dark_style = dark_style.replace("#f8f9fa", "#2c3e50")  # 背景色
+                        dark_style = dark_style.replace("#ffffff", "#34495e")  # 表面色
+                        dark_style = dark_style.replace("#212529", "#ecf0f1")  # 文字色
+                        dark_style = dark_style.replace("#495057", "#bdc3c7")  # 次要文字色
+                        dark_style = dark_style.replace("#e9ecef", "#4a5f7a")  # 边框色
+                        self._style_cache["dark"] = dark_style
+                        logging.info("已基于主样式创建深色主题")
+                        
+                    # 尝试加载高对比度主题（如果存在）
+                    high_contrast_style_path = self._style_dir / "high_contrast.qss"
+                    if high_contrast_style_path.exists():
+                        with open(high_contrast_style_path, 'r', encoding='utf-8') as f:
+                            high_contrast_style = f.read()
+                            self._style_cache["high_contrast"] = high_contrast_style
+                            logging.info("高对比度主题样式文件已加载: high_contrast.qss")
+                    else:
+                        # 如果高对比度主题文件不存在，基于主样式创建
+                        high_contrast_style = main_style
+                        # 替换颜色变量为高对比度颜色
+                        high_contrast_style = high_contrast_style.replace("#f8f9fa", "#ffffff")  # 背景色
+                        high_contrast_style = high_contrast_style.replace("#212529", "#000000")  # 文字色
+                        high_contrast_style = high_contrast_style.replace("#e9ecef", "#000000")  # 边框色
+                        high_contrast_style = high_contrast_style.replace("#3498db", "#0000ff")  # 主色调
+                        self._style_cache["high_contrast"] = high_contrast_style
+                        logging.info("已基于主样式创建高对比度主题")
+            except Exception as e:
+                logging.error("加载主样式文件失败 %s: %s", main_style_file, e)
+        else:
+            logging.error("未找到主样式文件: %s", main_style_file)
     
     def apply_style(self, widget: QWidget, theme: Optional[str] = None):
         """应用样式到指定控件"""

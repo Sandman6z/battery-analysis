@@ -76,6 +76,9 @@ class ModernBatteryViewer(QMainWindow):
         self._setup_statusbar()
         self._connect_signals()
         
+        # 应用现代化样式
+        self._apply_styles()
+        
         # 如果提供了数据路径，自动加载
         if self.data_path and os.path.exists(self.data_path):
             QTimer.singleShot(100, lambda: self.load_data(self.data_path))
@@ -83,11 +86,10 @@ class ModernBatteryViewer(QMainWindow):
         # 记录初始化完成
         logging.info("ModernBatteryViewer初始化完成")
     
-    def _apply_modern_styles(self):
+    def _apply_styles(self):
         """应用现代化样式"""
-        # 这个方法现在只用于保持接口一致性
-        # 实际样式由QSS文件提供，不需要额外的Python代码
-        pass
+        # 应用样式管理器中的样式
+        style_manager.apply_styles(self)
     
     def _setup_ui(self):
         """设置用户界面"""
@@ -98,7 +100,7 @@ class ModernBatteryViewer(QMainWindow):
         self.resize(1400, 900)
         
         # 应用现代化样式
-        self._apply_modern_styles()
+        self._apply_styles()
         
         # 创建中央部件
         central_widget = QWidget()

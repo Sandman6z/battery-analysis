@@ -78,6 +78,9 @@ class ProgressDialog(QW.QDialog):
 
     用于显示详细的进度信息，适合长when间运行的任务
     """
+    
+    # 信号定义
+    canceled = QC.pyqtSignal()  # 取消信号
 
     def __init__(self, parent=None):
         """
@@ -89,28 +92,55 @@ class ProgressDialog(QW.QDialog):
         super().__init__(parent)
         self.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
         self.setModal(False)  # Non-modal window, allows user to operate main interface
-        self.setFixedSize(400, 120)
+        self.setFixedSize(450, 150)
         self.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
                             QC.Qt.WindowType.WindowCloseButtonHint |
-                            QC.Qt.WindowType.WindowStaysOnTopHint)
+                            QC.Qt.WindowType.WindowStaysOnTopHint |
+                            QC.Qt.WindowType.WindowMinimizeButtonHint)
+        
+        # 设置窗口样式
+        self.setObjectName("progress_dialog")
 
         # 创建布局
         layout = QW.QVBoxLayout()
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
 
         # 添加状态文本标签
         self.status_label = QW.QLabel(_("progress_ready", "Ready to start analysis..."))
         self.status_label.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
         self.status_label.setWordWrap(True)
+        self.status_label.setObjectName("progress_status_label")
         layout.addWidget(self.status_label)
 
         # 添加进度条
         self.progress_bar = QW.QProgressBar()
         self.progress_bar.setValue(0)
         self.progress_bar.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
+        self.progress_bar.setObjectName("progress_bar")
+        self.progress_bar.setTextVisible(True)
         layout.addWidget(self.progress_bar)
+        
+        # 添加底部按钮布局
+        button_layout = QW.QHBoxLayout()
+        button_layout.setSpacing(10)
+        button_layout.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
+        
+        # 添加取消按钮
+        self.cancel_button = QW.QPushButton(_("cancel", "Cancel"))
+        self.cancel_button.setObjectName("cancel_button")
+        self.cancel_button.setMinimumHeight(32)
+        self.cancel_button.setMinimumWidth(100)
+        self.cancel_button.clicked.connect(self._on_cancel)
+        button_layout.addWidget(self.cancel_button)
+        
+        layout.addLayout(button_layout)
 
         # 设置布局
         self.setLayout(layout)
+        
+        # 取消标志
+        self.is_canceled = False
 
     def update_progress(self, progress, status_text):
         """
@@ -122,8 +152,20 @@ class ProgressDialog(QW.QDialog):
         """
         self.progress_bar.setValue(progress)
         self.status_label.setText(status_text)
+        
+        # 更新窗口标题，显示百分比
+        self.setWindowTitle(f"{_('progress_title', 'Battery Analysis Progress')} - {progress}%")
 
         # 确保界面实when更新
+        QW.QApplication.processEvents()
+
+    def _on_cancel(self):
+        """
+        处理取消按钮点击事件
+        """
+        self.is_canceled = True
+        self.canceled.emit()
+        self.status_label.setText(_("progress_canceled", "Task canceled..."))
         QW.QApplication.processEvents()
 
     def closeEvent(self, event):
@@ -149,34 +191,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.logger = logging.getLogger(__name__)
         
         # 获取服务容器
-        self.service_container = get_service_container()
+        self._service_container = get_service_container()
         
-        # 获取核心服务
-        self.config_service = self.service_container.get("config")
-        self.event_bus = self.service_container.get("event_bus")
-        self.environment_service = self.service_container.get("environment")
-        self.i18n_service = self.service_container.get("i18n")
-        self.file_service = self.service_container.get("file")
-        self.progress_service = self.service_container.get("progress")
+        # 延迟加载的服务缓存
+        self._services = {}
+        self._controllers = {}
         
-        # 获取控制器（通过服务容器）
-        self.main_controller = self.service_container.get("main_controller")
-        self.file_controller = self.service_container.get("file_controller")
-        self.validation_controller = self.service_container.get("validation_controller")
-        self.visualizer_controller = self.service_container.get("visualizer_controller")
-        
-        # 获取环境检测器（通过服务容器）
-        if self.environment_service:
-            # 尝试初始化环境服务以确保env_detector可用
-            try:
-                if hasattr(self.environment_service, 'initialize'):
-                    self.environment_service.initialize()
-                self.env_detector = self.environment_service.get_environment_detector()
-            except Exception as e:
-                self.logger.warning("Failed to initialize environment service: %s", e)
-                self.env_detector = None
-        else:
-            self.env_detector = None
+        # 初始化环境检测器
+        self.env_detector = self._initialize_environment_detector()
         
         # 初始化语言管理器
         self.language_manager = None
@@ -206,22 +228,29 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化环境信息
         self.env_info = {}
         try:
-            if self.environment_service:
-                if hasattr(self.environment_service, 'env_info'):
-                    self.env_info = self.environment_service.env_info
-                elif hasattr(self.environment_service, 'initialize'):
-                    if self.environment_service.initialize():
-                        if hasattr(self.environment_service, 'env_info'):
-                            self.env_info = self.environment_service.env_info
+            environment_service = self._get_service("environment")
+            if environment_service:
+                if hasattr(environment_service, 'env_info'):
+                    self.env_info = environment_service.env_info
+                elif hasattr(environment_service, 'initialize'):
+                    if environment_service.initialize():
+                        if hasattr(environment_service, 'env_info'):
+                            self.env_info = environment_service.env_info
         except Exception as e:
             self.logger.warning("Failed to initialize environment service: %s", e)
         
         # 确保环境信息包含必要的键
         if 'environment_type' not in self.env_info:
-            if self.environment_service and hasattr(self.environment_service, 'EnvironmentType'):
-                self.env_info['environment_type'] = self.environment_service.EnvironmentType.DEVELOPMENT
-            else:
-                # 降级到直接导入
+            try:
+                environment_service = self._get_service("environment")
+                if environment_service and hasattr(environment_service, 'EnvironmentType'):
+                    self.env_info['environment_type'] = environment_service.EnvironmentType.DEVELOPMENT
+                else:
+                    # 降级到直接导入
+                    from battery_analysis.utils.environment_utils import EnvironmentType
+                    self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+            except Exception as e:
+                self.logger.warning("Failed to get EnvironmentType: %s", e)
                 from battery_analysis.utils.environment_utils import EnvironmentType
                 self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
         if 'gui_available' not in self.env_info:
@@ -235,10 +264,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
         # 改进的配置文件路径查找逻辑（使用配置服务）
-        if self.config_service:
-            config_path_result = self.config_service.find_config_file()
-            self.config_path = str(config_path_result) if config_path_result else None
-        else:
+        try:
+            config_service = self._get_service("config")
+            if config_service:
+                config_path_result = config_service.find_config_file()
+                self.config_path = str(config_path_result) if config_path_result else None
+            else:
+                # 降级到直接导入
+                from battery_analysis.utils.config_utils import find_config_file
+                self.config_path = find_config_file()
+        except Exception as e:
+            self.logger.warning("Failed to get config service: %s", e)
             # 降级到直接导入
             from battery_analysis.utils.config_utils import find_config_file
             self.config_path = find_config_file()
@@ -261,17 +297,30 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.path = str(project_root)
 
         # 设置控制器的项目上下文
-        if hasattr(self.main_controller, 'set_project_context'):
-            self.main_controller.set_project_context(
-                project_path=self.path,
-                input_path="",  # 初始empty，后续会更新
-                output_path=""  # 初始empty，后续会更新
-            )
+        try:
+            main_controller = self._get_controller("main_controller")
+            if hasattr(main_controller, 'set_project_context'):
+                main_controller.set_project_context(
+                    project_path=self.path,
+                    input_path="",  # 初始empty，后续会更新
+                    output_path=""  # 初始empty，后续会更新
+                )
+        except Exception as e:
+            self.logger.warning("Failed to set project context: %s", e)
 
         # 连接控制器信号
         self._connect_controllers()
 
         self.setupUi(self)
+        
+        # 加载并应用QSS样式
+        try:
+            from battery_analysis.ui.styles import style_manager
+            app = QW.QApplication.instance()
+            if app:
+                style_manager.apply_global_style(app, "modern")
+        except Exception as e:
+            self.logger.warning("Failed to load QSS styles: %s", e)
 
         # 连接语言管理器信号
         self._connect_language_signals()
@@ -296,6 +345,60 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.listVoltageLevel = [
             safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
 
+    def _get_service(self, service_name):
+        """
+        懒加载获取服务
+        
+        Args:
+            service_name: 服务名称
+            
+        Returns:
+            服务实例或None
+        """
+        if service_name not in self._services:
+            try:
+                self._services[service_name] = self._service_container.get(service_name)
+            except Exception as e:
+                self.logger.warning("Failed to get service %s: %s", service_name, e)
+                self._services[service_name] = None
+        return self._services[service_name]
+    
+    def _get_controller(self, controller_name):
+        """
+        懒加载获取控制器
+        
+        Args:
+            controller_name: 控制器名称
+            
+        Returns:
+            控制器实例或None
+        """
+        if controller_name not in self._controllers:
+            try:
+                self._controllers[controller_name] = self._service_container.get(controller_name)
+            except Exception as e:
+                self.logger.warning("Failed to get controller %s: %s", controller_name, e)
+                self._controllers[controller_name] = None
+        return self._controllers[controller_name]
+    
+    def _initialize_environment_detector(self):
+        """
+        初始化环境检测器
+        
+        Returns:
+            环境检测器实例或None
+        """
+        try:
+            env_service = self._get_service("environment")
+            if env_service:
+                if hasattr(env_service, 'initialize'):
+                    env_service.initialize()
+                if hasattr(env_service, 'get_environment_detector'):
+                    return env_service.get_environment_detector()
+        except Exception as e:
+            self.logger.warning("Failed to initialize environment service: %s", e)
+        return None
+    
     def _handle_environment_adaptation(self):
         """
         处理环境适配逻辑
@@ -303,10 +406,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         env_type = self.env_info['environment_type']
         
         # 通过环境服务获取 EnvironmentType
-        if self.environment_service and hasattr(self.environment_service, 'EnvironmentType'):
-            EnvironmentType = self.environment_service.EnvironmentType
-        else:
-            # 降级到直接导入
+        try:
+            env_service = self._get_service("environment")
+            if env_service and hasattr(env_service, 'EnvironmentType'):
+                EnvironmentType = env_service.EnvironmentType
+            else:
+                # 降级到直接导入
+                from battery_analysis.utils.environment_utils import EnvironmentType
+        except Exception as e:
+            self.logger.warning("Failed to get EnvironmentType: %s", e)
             from battery_analysis.utils.environment_utils import EnvironmentType
         
         # 根据环境类型进行适配
@@ -447,40 +555,44 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         连接控制器信号和槽函数
         """
         # 连接主控制器信号到事件总线
-        if self.main_controller:
-            if hasattr(self.main_controller, 'progress_updated'):
-                self.main_controller.progress_updated.connect(self._on_progress_updated)
-            if hasattr(self.main_controller, 'status_changed'):
-                self.main_controller.status_changed.connect(self.get_threadinfo)
-            if hasattr(self.main_controller, 'analysis_completed'):
-                self.main_controller.analysis_completed.connect(self.set_version)
-            if hasattr(self.main_controller, 'path_renamed'):
-                self.main_controller.path_renamed.connect(self.rename_pltPath)
-            if hasattr(self.main_controller, 'start_visualizer'):
-                self.main_controller.start_visualizer.connect(self.run_visualizer)
+        main_controller = self._get_controller("main_controller")
+        if main_controller:
+            if hasattr(main_controller, 'progress_updated'):
+                main_controller.progress_updated.connect(self._on_progress_updated)
+            if hasattr(main_controller, 'status_changed'):
+                main_controller.status_changed.connect(self.get_threadinfo)
+            if hasattr(main_controller, 'analysis_completed'):
+                main_controller.analysis_completed.connect(self.set_version)
+            if hasattr(main_controller, 'path_renamed'):
+                main_controller.path_renamed.connect(self.rename_pltPath)
+            if hasattr(main_controller, 'start_visualizer'):
+                main_controller.start_visualizer.connect(self.run_visualizer)
 
         # 连接文件控制器信号
-        if self.file_controller:
-            if hasattr(self.file_controller, 'config_loaded'):
-                self.file_controller.config_loaded.connect(self._on_config_loaded)
-            if hasattr(self.file_controller, 'error_occurred'):
-                self.file_controller.error_occurred.connect(self._on_controller_error)
+        file_controller = self._get_controller("file_controller")
+        if file_controller:
+            if hasattr(file_controller, 'config_loaded'):
+                file_controller.config_loaded.connect(self._on_config_loaded)
+            if hasattr(file_controller, 'error_occurred'):
+                file_controller.error_occurred.connect(self._on_controller_error)
 
         # 连接验证控制器信号
-        if self.validation_controller:
-            if hasattr(self.validation_controller, 'validation_error'):
-                self.validation_controller.validation_error.connect(self._on_controller_error)
+        validation_controller = self._get_controller("validation_controller")
+        if validation_controller:
+            if hasattr(validation_controller, 'validation_error'):
+                validation_controller.validation_error.connect(self._on_controller_error)
 
         # 连接事件总线事件
-        if self.event_bus:
+        event_bus = self._get_service("event_bus")
+        if event_bus:
             # 订阅进度更新事件
-            self.event_bus.subscribe("progress_updated", self._on_event_progress_updated)
+            event_bus.subscribe("progress_updated", self._on_event_progress_updated)
             # 订阅状态变化事件
-            self.event_bus.subscribe("status_changed", self._on_event_status_changed)
+            event_bus.subscribe("status_changed", self._on_event_status_changed)
             # 订阅文件选择事件
-            self.event_bus.subscribe("file_selected", self._on_file_selected)
+            event_bus.subscribe("file_selected", self._on_file_selected)
             # 订阅配置变更事件
-            self.event_bus.subscribe("config_changed", self._on_config_changed)
+            event_bus.subscribe("config_changed", self._on_config_changed)
 
     def _on_progress_updated(self, progress, status_text):
         """
@@ -522,8 +634,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             status: 状态文本
         """
         # 使用进度服务更新进度
-        if self.progress_service:
-            self.progress_service.update_progress(progress, status)
+        progress_service = self._get_service("progress")
+        if progress_service:
+            progress_service.update_progress(progress, status)
         
         # 继续使用原有的进度更新处理
         self._on_progress_updated(progress, status)
@@ -557,8 +670,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             value: 配置值
         """
         self.logger.debug("Config changed: %s = %s", key, value)
-        if self.config_service:
-            self.config_service.set(key, value)
+        config_service = self._get_service("config")
+        if config_service:
+            config_service.set(key, value)
 
     def _on_config_loaded(self, config_dict):
         """
@@ -593,13 +707,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def _on_controller_error(self, error_msg):
         """
         控制器错误处理
-
+        
         Args:
             error_msg: 错误消息
         """
         # 关闭进度条
         self._close_progress_dialog()
-        QW.QMessageBox.critical(self, "错误", error_msg)
+        QW.QMessageBox.critical(self, _("error_title", "错误"), error_msg)
 
     def _connect_language_signals(self):
         """连接语言管理器的信号"""
@@ -792,8 +906,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 if output_path:
                     self.lineEdit_OutputPath.setText(output_path)
                     # 更新控制器的输出路径
-                    self.main_controller.set_project_context(
-                        output_path=output_path)
+                    main_controller = self._get_controller("main_controller")
+                    if main_controller:
+                        main_controller.set_project_context(
+                            output_path=output_path)
         except Exception as e:
             logging.error("加载用户设置失败: %s", e)
 
@@ -1703,12 +1819,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             elif theme_name == "Dark Theme":
                 # 使用深色主题
                 try:
-                    # 尝试使用QDarkStyleSheet库
-                    import qdarkstyle
-                    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt6())
+                    # 尝试使用我们的QSS主题系统
+                    from battery_analysis.ui.styles import style_manager
+                    style_manager.apply_global_style(app, "dark")
                     self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_dark", f"已切换到深色主题"))
-                except ImportError:
-                    # 如果没有安装qdarkstyle，使用简单的深色主题样式表
+                except Exception as e:
+                    # 如果主题系统加载失败，使用简单的深色主题样式表
                     dark_stylesheet = """.QWidget {
                         background-color: #2b2b2b;
                         color: #cccccc;
@@ -2248,8 +2364,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 f.close()
                 self.lineEdit_Version.setText("1.0")
             # 使用文件服务设置文件隐藏属性
-            if self.file_service:
-                self.file_service.hide_file(strCsvMd5Path)
+            file_service = self._get_service("file")
+            if file_service:
+                file_service.hide_file(strCsvMd5Path)
             else:
                 # 降级到直接调用
                 try:
@@ -2431,33 +2548,36 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         ]
         # 简化验证，只验证必要的路径
         if not self.lineEdit_InputPath.text():
-            QW.QMessageBox.critical(self, "输入验证失败", "输入数据路径不能empty")
+            QW.QMessageBox.critical(self, _("validation_failed", "输入验证失败"), _("input_path_empty", "输入数据路径不能为空"))
             self.pushButton_Run.setEnabled(True)
             return
 
         if not self.lineEdit_OutputPath.text():
-            QW.QMessageBox.critical(self, "输入验证失败", "输出路径不能empty")
+            QW.QMessageBox.critical(self, _("validation_failed", "输入验证失败"), _("output_path_empty", "输出路径不能为空"))
             self.pushButton_Run.setEnabled(True)
             return
 
         # 更新控制器的上下文和测试信息
-        self.main_controller.set_project_context(
-            project_path=self.path,
-            input_path=self.lineEdit_InputPath.text(),
-            output_path=self.lineEdit_OutputPath.text()
-        )
-        self.main_controller.set_test_info(test_info)
+        success = False
+        main_controller = self._get_controller("main_controller")
+        if main_controller:
+            main_controller.set_project_context(
+                project_path=self.path,
+                input_path=self.lineEdit_InputPath.text(),
+                output_path=self.lineEdit_OutputPath.text()
+            )
+            main_controller.set_test_info(test_info)
 
-        # 更新配置
-        self.update_config(test_info)
-        self.md5_checksum_run = self.md5_checksum
-        self.statusBar_BatteryAnalysis.showMessage("status:ok")
+            # 更新配置
+            self.update_config(test_info)
+            self.md5_checksum_run = self.md5_checksum
+            self.statusBar_BatteryAnalysis.showMessage("status:ok")
 
-        # 启动分析
-        success = self.main_controller.start_analysis()
+            # 启动分析
+            success = main_controller.start_analysis()
         if not success:
             self.pushButton_Run.setEnabled(True)
-            QW.QMessageBox.warning(self, "启动失败", "无法启动分析任务")
+            QW.QMessageBox.warning(self, _("start_failed", "启动失败"), _("cannot_start_analysis", "无法启动分析任务"))
 
     def save_table(self) -> None:
         # set focus on pushButton_Run for saving the input text
@@ -2870,8 +2990,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         temp_file.replace(md5_file)  # 替换文件
 
                     # 尝试设置隐藏属性，但不抛出异常
-                    if self.file_service:
-                        success, error_msg = self.file_service.hide_file(str(md5_file))
+                    file_service = self._get_service("file")
+                    if file_service:
+                        success, error_msg = file_service.hide_file(str(md5_file))
                         if not success:
                             self.logger.warning("无法设置MD5文件隐藏属性: %s", error_msg)
                     else:

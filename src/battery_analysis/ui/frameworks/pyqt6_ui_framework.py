@@ -303,7 +303,7 @@ class TkinterUIFramework(IUIFramework):
                           filter_pattern: str = "") -> Any:
         """创建文件选择对话框"""
         try:
-            import tkinter.filedialog as filedialog
+            from tkinter import filedialog
             
             if parent is None:
                 parent = self._root
