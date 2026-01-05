@@ -2820,10 +2820,29 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 搜索子目录（不只是带_V的目录）
             docx_files.extend(list(output_path.rglob("*.docx")))
             
-            # 特别检查3_analysis results目录
-            analysis_results_dir = output_path / "3_analysis results"
+            # 检查4_test profile目录
+            test_profile_dir = output_path
+            if "4_test profile" in output_path.name or "4_test" in output_path.name:
+                test_profile_dir = output_path
+            else:
+                # 查找所有包含4_test profile的目录
+                for subdir in output_path.iterdir():
+                    if subdir.is_dir() and "4_test profile" in subdir.name:
+                        test_profile_dir = subdir
+                        break
+            
+            self.logger.info(f"找到4_test profile目录: {test_profile_dir}")
+            
+            # 获取4_test profile的父目录，然后查找同级的3_analysis results目录
+            parent_dir = test_profile_dir.parent if test_profile_dir != output_path else output_path.parent
+            
+            # 查找同级的3_analysis results目录
+            analysis_results_dir = parent_dir / "3_analysis results"
+            self.logger.info(f"检查3_analysis results目录: {analysis_results_dir}")
+            
+            # 搜索3_analysis results目录
             if analysis_results_dir.exists() and analysis_results_dir.is_dir():
-                self.logger.info(f"打开报告：检查3_analysis results目录: {analysis_results_dir}")
+                self.logger.info(f"打开报告：在3_analysis results目录中查找报告")
                 docx_files.extend(list(analysis_results_dir.glob("*.docx")))
                 docx_files.extend(list(analysis_results_dir.rglob("*.docx")))
             
@@ -2843,10 +2862,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     target_docx = docx_file
                     break
             
-            # 如果没有找到匹配版本的报告，使用第一个找到的报告
+            # 如果没有找到匹配版本的报告，使用最新的报告
             if not target_docx and docx_files:
-                target_docx = docx_files[0]
-                self.logger.info(f"打开报告：未找到匹配版本的报告，使用第一个找到的报告: {target_docx}")
+                # 按修改时间排序，使用最新的报告
+                target_docx = sorted(docx_files, key=lambda f: f.stat().st_mtime, reverse=True)[0]
+                self.logger.info(f"打开报告：未找到匹配版本的报告，使用最新的报告: {target_docx}")
             
             # 使用系统默认程序打开报告
             if target_docx:
