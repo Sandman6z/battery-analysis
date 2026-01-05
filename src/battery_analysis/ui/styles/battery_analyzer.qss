@@ -270,6 +270,9 @@ QLabel {
     font-size: 11px;
     color: #495057;
     font-weight: 500;
+    border: none;
+    outline: none;
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
 }
 
 QLabel[text="Battery Type"],
@@ -288,6 +291,9 @@ QLabel[text="Test Profile"] {
     min-width: 150px;
     font-weight: 600;
     color: #212529;
+    border: none;
+    outline: none;
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
 }
 
 /* ============================================   表格样式  /* ============================================/* 表格样式 */
@@ -1031,27 +1037,42 @@ QCheckBox::indicator:checked:hover {
 QLabel {
     font-size: 11px;
     color: #495057;
+    border: none;
+    outline: none;
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
 }
 
 QLabel[data-type="title"] {
     font-weight: bold;
     font-size: 12px;
     color: #212529;
+    border: none;
+    outline: none;
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
 }
 
 QLabel[data-status="warning"] {
     color: #dc3545;
     font-weight: bold;
+    border: none;
+    outline: none;
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
 }
 
 QLabel[data-status="success"] {
     color: #28a745;
     font-weight: bold;
+    border: none;
+    outline: none;
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
 }
 
 QLabel[data-status="info"] {
     color: #17a2b8;
     font-weight: bold;
+    border: none;
+    outline: none;
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
 }
 
 /* 文本编辑框样式 */

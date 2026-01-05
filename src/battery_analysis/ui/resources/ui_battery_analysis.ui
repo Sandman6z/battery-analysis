@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>889</width>
-    <height>819</height>
+    <width>917</width>
+    <height>785</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -43,7 +43,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>230</y>
+      <y>234</y>
       <width>661</width>
       <height>341</height>
      </rect>
@@ -82,7 +82,7 @@
         <x>0</x>
         <y>0</y>
         <width>311</width>
-        <height>165</height>
+        <height>141</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -103,6 +103,21 @@
        </property>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_10">
+         <property name="spacing">
+          <number>5</number>
+         </property>
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
+         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_Temperature">
            <property name="leftMargin">
@@ -120,7 +135,7 @@
            <item>
             <widget class="QLabel" name="label_TemperatureType">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -143,7 +158,7 @@
               <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Policy::Fixed</enum>
+              <enum>QSizePolicy::Policy::Minimum</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -155,6 +170,12 @@
            </item>
            <item>
             <widget class="QComboBox" name="comboBox_Temperature">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="font">
               <font>
                <family>Microsoft JhengHei</family>
@@ -214,7 +235,7 @@ QComboBox::down-arrow:on {
            <item>
             <widget class="QLabel" name="label_Temperature">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -237,18 +258,24 @@ QComboBox::down-arrow:on {
               <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeType">
-              <enum>QSizePolicy::Policy::Fixed</enum>
+              <enum>QSizePolicy::Policy::Minimum</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
                <width>50</width>
-               <height>20</height>
+               <height>35</height>
               </size>
              </property>
             </spacer>
            </item>
            <item>
             <widget class="QSpinBox" name="spinBox_Temperature">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimum">
               <number>-60</number>
              </property>
@@ -263,6 +290,9 @@ QComboBox::down-arrow:on {
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_AcceleratedAging">
+         <property name="spacing">
+          <number>5</number>
+         </property>
          <property name="leftMargin">
           <number>5</number>
          </property>
@@ -278,7 +308,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_AcceleratedAging">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -301,12 +331,12 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>4</width>
-             <height>30</height>
+             <width>5</width>
+             <height>10</height>
             </size>
            </property>
           </spacer>
@@ -314,7 +344,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QSpinBox" name="spinBox_AcceleratedAging">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -393,6 +423,9 @@ QComboBox::down-arrow:on {
        </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_Manufacturer">
+         <property name="sizeConstraint">
+          <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+         </property>
          <property name="leftMargin">
           <number>5</number>
          </property>
@@ -408,7 +441,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_Manufacturer">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -431,7 +464,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -443,6 +476,12 @@ QComboBox::down-arrow:on {
          </item>
          <item>
           <widget class="QComboBox" name="comboBox_Manufacturer">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="font">
             <font>
              <family>Microsoft JhengHei</family>
@@ -514,7 +553,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_BatchDateCode">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -537,7 +576,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -595,7 +634,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_SamplesQty">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -618,7 +657,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -717,7 +756,7 @@ QComboBox::down-arrow:on {
           <number>5</number>
          </property>
          <property name="rightMargin">
-          <number>10</number>
+          <number>5</number>
          </property>
          <property name="bottomMargin">
           <number>5</number>
@@ -725,7 +764,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_BatteryType">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -748,7 +787,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -764,7 +803,7 @@ QComboBox::down-arrow:on {
             <bool>true</bool>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -835,7 +874,7 @@ QComboBox::down-arrow:on {
           <number>5</number>
          </property>
          <property name="rightMargin">
-          <number>10</number>
+          <number>5</number>
          </property>
          <property name="bottomMargin">
           <number>5</number>
@@ -843,7 +882,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_ConstructionMethod">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -866,7 +905,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -879,7 +918,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QComboBox" name="comboBox_ConstructionMethod">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -958,7 +997,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_Specification">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -981,7 +1020,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1188,7 +1227,7 @@ QComboBox::down-arrow:on {
         <number>5</number>
        </property>
        <property name="rightMargin">
-        <number>10</number>
+        <number>5</number>
        </property>
        <property name="bottomMargin">
         <number>5</number>
@@ -1210,7 +1249,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_RequiredUseableCapacity">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -1233,7 +1272,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1290,6 +1329,12 @@ QComboBox::down-arrow:on {
          </property>
          <item>
           <widget class="QLabel" name="label_CalculationNominalCapacity">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="font">
             <font>
              <family>Microsoft JhengHei</family>
@@ -1308,7 +1353,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1363,7 +1408,7 @@ QComboBox::down-arrow:on {
          <item>
           <widget class="QLabel" name="label_DatasheetNominalCapacity">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -1386,7 +1431,7 @@ QComboBox::down-arrow:on {
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Policy::Fixed</enum>
+            <enum>QSizePolicy::Policy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1439,7 +1484,7 @@ QComboBox::down-arrow:on {
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
+      <y>2</y>
       <width>661</width>
       <height>110</height>
      </rect>
@@ -1483,6 +1528,9 @@ QComboBox::down-arrow:on {
       </font>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_TestProfile">
+      <property name="spacing">
+       <number>5</number>
+      </property>
       <property name="leftMargin">
        <number>5</number>
       </property>
@@ -1498,7 +1546,7 @@ QComboBox::down-arrow:on {
       <item>
        <widget class="QLabel" name="label_TestProfile">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -1520,7 +1568,7 @@ QComboBox::down-arrow:on {
          <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -1607,6 +1655,21 @@ QComboBox::down-arrow:on {
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>5</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_TesterLocation" stretch="10,10,10">
         <property name="spacing">
@@ -1630,7 +1693,7 @@ QComboBox::down-arrow:on {
         <item>
          <widget class="QLabel" name="label_TesterLocation">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -1652,7 +1715,7 @@ QComboBox::down-arrow:on {
            <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Policy::Fixed</enum>
+           <enum>QSizePolicy::Policy::Minimum</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1741,6 +1804,9 @@ QComboBox::down-arrow:on {
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_TestedBy">
+        <property name="spacing">
+         <number>5</number>
+        </property>
         <property name="sizeConstraint">
          <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
         </property>
@@ -1759,7 +1825,7 @@ QComboBox::down-arrow:on {
         <item>
          <widget class="QLabel" name="label_TestedBy">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -1781,7 +1847,7 @@ QComboBox::down-arrow:on {
            <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Policy::Fixed</enum>
+           <enum>QSizePolicy::Policy::Minimum</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1884,6 +1950,21 @@ QComboBox::down-arrow:on {
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <property name="spacing">
+       <number>5</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_InputPath">
         <property name="leftMargin">
@@ -1901,7 +1982,7 @@ QComboBox::down-arrow:on {
         <item>
          <widget class="QLabel" name="label_InputPath">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -1924,7 +2005,7 @@ QComboBox::down-arrow:on {
            <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Policy::Fixed</enum>
+           <enum>QSizePolicy::Policy::Minimum</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1936,6 +2017,12 @@ QComboBox::down-arrow:on {
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_InputPath">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Microsoft JhengHei</family>
@@ -2010,6 +2097,12 @@ QComboBox::down-arrow:on {
         </property>
         <item>
          <widget class="QLabel" name="label_OutputPath">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Microsoft JhengHei</family>
@@ -2028,7 +2121,7 @@ QComboBox::down-arrow:on {
            <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Policy::Fixed</enum>
+           <enum>QSizePolicy::Policy::Minimum</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -2040,6 +2133,12 @@ QComboBox::down-arrow:on {
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_OutputPath">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Microsoft JhengHei</family>
@@ -2099,9 +2198,9 @@ QComboBox::down-arrow:on {
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>580</y>
+      <y>582</y>
       <width>661</width>
-      <height>191</height>
+      <height>161</height>
      </rect>
     </property>
     <property name="font">
@@ -2125,7 +2224,7 @@ QComboBox::down-arrow:on {
        <x>5</x>
        <y>15</y>
        <width>651</width>
-       <height>171</height>
+       <height>141</height>
       </rect>
      </property>
      <property name="widgetResizable">
@@ -2137,7 +2236,7 @@ QComboBox::down-arrow:on {
         <x>0</x>
         <y>0</y>
         <width>649</width>
-        <height>169</height>
+        <height>139</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -2158,7 +2257,7 @@ QComboBox::down-arrow:on {
          <property name="font">
           <font>
            <family>Microsoft JhengHei</family>
-           <pointsize>9</pointsize>
+           <pointsize>8</pointsize>
           </font>
          </property>
          <property name="cursor" stdset="0">
@@ -2373,10 +2472,10 @@ QComboBox::down-arrow:on {
    <widget class="QFrame" name="frame_RunButton">
     <property name="geometry">
      <rect>
-      <x>670</x>
+      <x>680</x>
       <y>10</y>
-      <width>211</width>
-      <height>281</height>
+      <width>231</width>
+      <height>301</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -2394,8 +2493,8 @@ QComboBox::down-arrow:on {
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
+       <x>10</x>
+       <y>10</y>
        <width>210</width>
        <height>281</height>
       </rect>
@@ -2519,7 +2618,7 @@ QPushButton#pushButton_Run:pressed {
          <enum>Qt::Orientation::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -2579,7 +2678,7 @@ QPushButton#pushButton_Run:pressed {
          <enum>Qt::Orientation::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -2611,7 +2710,7 @@ QPushButton#pushButton_Run:pressed {
           <item>
            <widget class="QLabel" name="label_Version">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -2632,7 +2731,7 @@ QPushButton#pushButton_Run:pressed {
              <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeType">
-             <enum>QSizePolicy::Policy::Fixed</enum>
+             <enum>QSizePolicy::Policy::Minimum</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -2694,7 +2793,7 @@ QPushButton#pushButton_Run:pressed {
           <item>
            <widget class="QLabel" name="label_ReportedBy">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -2716,7 +2815,7 @@ QPushButton#pushButton_Run:pressed {
              <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeType">
-             <enum>QSizePolicy::Policy::Fixed</enum>
+             <enum>QSizePolicy::Policy::Minimum</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -2799,7 +2898,7 @@ QComboBox::down-arrow:on {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>889</width>
+     <width>917</width>
      <height>22</height>
     </rect>
    </property>
