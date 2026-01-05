@@ -2646,13 +2646,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 # 正常运行状态显示
                 self.statusBar_BatteryAnalysis.showMessage("正在分析电池数据...")
                 if stateindex == 0:
-                    self.pushButton_Run.setText("Running.")
+                    self.pushButton_Run.setText("Running")
                 if stateindex == 1:
-                    self.pushButton_Run.setText("Running..")
+                    self.pushButton_Run.setText("Running")
                 if stateindex == 2:
-                    self.pushButton_Run.setText("Running...")
+                    self.pushButton_Run.setText("Running")
                 if stateindex == 3:
-                    self.pushButton_Run.setText("Running....")
+                    self.pushButton_Run.setText("Running")
         else:
             # 不再需要手动删除线程，由控制器管理线程生命周期
 
