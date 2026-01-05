@@ -369,7 +369,7 @@ class EnvironmentScenarioTester:
                     self.log_result("错误恢复", "异常处理", True, "异常时正确返回UNKNOWN")
                 else:
                     self.log_result("错误恢复", "异常处理", False, f"异常时返回: {platform}")
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, RuntimeError) as e:
             self.log_result("错误恢复", "异常处理", False, f"未处理的异常: {e}")
     
     def generate_scenario_report(self) -> Dict[str, Any]:
@@ -503,7 +503,7 @@ def main():
         for test_method in test_methods:
             try:
                 test_method()
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
                 logger.error("场景测试方法 %s 执行失败: %s", test_method.__name__, e)
         
         # 生成和显示报告

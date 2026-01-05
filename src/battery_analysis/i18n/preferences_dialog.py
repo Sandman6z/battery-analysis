@@ -253,7 +253,7 @@ class PreferencesDialog(QW.QDialog):
             
             self.logger.debug("Settings loaded successfully")
             
-        except Exception as e:
+        except (OSError, ValueError, ImportError, AttributeError) as e:
             self.logger.error("Failed to load settings: %s", e)
     
     def _update_translation_status(self, locale_code):
@@ -277,7 +277,7 @@ class PreferencesDialog(QW.QDialog):
             
             self.status_text.setText(status_text)
             
-        except Exception as e:
+        except (OSError, ValueError, AttributeError) as e:
             self.logger.error("Failed to update translation status: %s", e)
     
     def _apply_language(self):
@@ -305,7 +305,7 @@ class PreferencesDialog(QW.QDialog):
                         _("language_change_failed", "Failed to change language")
                     )
         
-        except Exception as e:
+        except (OSError, ValueError, AttributeError, TypeError) as e:
             self.logger.error("Failed to apply language: %s", e)
             QW.QMessageBox.critical(
                 self,
@@ -347,7 +347,7 @@ class PreferencesDialog(QW.QDialog):
                 _("settings_applied", "Settings have been applied successfully.")
             )
             
-        except Exception as e:
+        except (OSError, ValueError, AttributeError, TypeError) as e:
             self.logger.error("Failed to apply settings: %s", e)
             QW.QMessageBox.critical(
                 self,

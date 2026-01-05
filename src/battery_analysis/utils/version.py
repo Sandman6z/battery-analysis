@@ -51,16 +51,15 @@ class Version:
 
     def __init__(self):
         """初始化版本对象，从pyproject.toml读取版本号"""
-        # 初始化环境检测器
+        # 初始化所有属性，避免访问未定义成员的问题
+        self._pending_version = getattr(self, '_pending_version', True)
         self.env_detector = None
         self.env_info = None
+        self.version = "" if not hasattr(self, 'version') else self.version
         
-        # 如果版本号已存在，直接返回（避免重复初始化）
-        if hasattr(self, 'version') and self.version:
+        # 如果版本号已存在且非空，直接返回（避免重复初始化）
+        if self.version:
             return
-            
-        # 初始化版本相关属性
-        self.version = ""
         
         # 初始化环境检测
         self._init_environment_detection()

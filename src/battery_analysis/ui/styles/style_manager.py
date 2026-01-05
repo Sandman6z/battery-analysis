@@ -30,7 +30,7 @@ class StyleManager(QObject):
         try:
             from PyQt6.QtGui import QFontDatabase
             self._font_database = QFontDatabase()
-        except Exception as e:
+        except (ImportError, RuntimeError, TypeError) as e:
             logging.warning("无法初始化QFontDatabase: %s", e)
             self._font_database = None
         
@@ -92,7 +92,7 @@ class StyleManager(QObject):
                         high_contrast_style = high_contrast_style.replace("#3498db", "#0000ff")  # 主色调
                         self._style_cache["high_contrast"] = high_contrast_style
                         logging.info("已基于主样式创建高对比度主题")
-            except Exception as e:
+            except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
                 logging.error("加载主样式文件失败 %s: %s", main_style_file, e)
         else:
             logging.error("未找到主样式文件: %s", main_style_file)
@@ -127,7 +127,7 @@ class StyleManager(QObject):
                         self.theme_changed.emit(theme)
                         logging.info("已应用统一电池分析器样式 (通过StyleManager)")
                         return
-                except Exception as e:
+                except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
                     logging.error("加载统一样式文件失败: %s", e)
             else:
                 logging.warning("未找到统一样式文件: %s", unified_style_path)
@@ -149,7 +149,7 @@ class StyleManager(QObject):
                 self._style_cache["custom"] = custom_style
                 logging.info("已加载自定义样式: %s", file_path)
                 return True
-        except Exception as e:
+        except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
             logging.error("加载自定义样式失败: %s", e)
             return False
     
@@ -207,7 +207,7 @@ class StyleManager(QObject):
                     logging.info("字体已注册: %s", family_name)
                     return True
             return False
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError, OSError, RuntimeError) as e:
             logging.error("注册字体失败: %s", e)
             return False
     
@@ -218,7 +218,7 @@ class StyleManager(QObject):
             font = QFont(font_family, size)
             app.setFont(font)
             logging.info("应用程序字体已设置: %s %spt", font_family, size)
-        except Exception as e:
+        except (ImportError, TypeError, RuntimeError, AttributeError) as e:
             logging.error("设置字体失败: %s", e)
     
     def create_themed_button(self, parent, text: str, action_type: str, 
@@ -248,7 +248,7 @@ class StyleManager(QObject):
                              widget: Optional[QWidget] = None) -> 'QGroupBox':
         """创建主题化分组框"""
         
-        from PyQt6.QtWidgets import QGroupBox
+        from PyQt6.QtWidgets import QGroupBox, QVBoxLayout
         
         groupbox = QGroupBox(title, parent)
         

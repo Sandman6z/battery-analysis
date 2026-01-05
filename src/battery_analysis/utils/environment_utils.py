@@ -206,7 +206,7 @@ class EnvironmentDetector:
             logger.debug("GUI not available: PyQt6 import failed: %s", e)
             self._gui_available = False
             return False
-        except Exception as e:
+        except (OSError, RuntimeError, TypeError, AttributeError) as e:
             logger.debug("GUI detection error: %s", e)
             self._gui_available = False
             return False

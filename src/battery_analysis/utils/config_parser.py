@@ -6,6 +6,7 @@
 """
 
 import logging
+import configparser
 from typing import Any, List, Union, Optional, Callable
 from configparser import ConfigParser
 
@@ -152,7 +153,7 @@ def parse_config_list(config: ConfigParser, section: str, option: str,
         logging.debug("成功解析配置 %s/%s: %s", section, option, result)
         return result
         
-    except Exception as e:
+    except (ValueError, TypeError, configparser.Error, AttributeError) as e:
         if default is not None:
             logging.error("解析配置 %s/%s 失败: %s，使用默认值: %s", section, option, e, default)
             return default

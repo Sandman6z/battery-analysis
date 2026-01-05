@@ -48,7 +48,7 @@ class EnvironmentService:
             self.logger.info("EnvironmentService initialized for %s", self.env_info.get('environment_type', 'unknown'))
             return True
             
-        except Exception as e:
+        except (ImportError, AttributeError, OSError, TypeError) as e:
             self.logger.error("Failed to initialize EnvironmentService: %s", e)
             return False
     

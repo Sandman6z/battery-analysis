@@ -182,7 +182,7 @@ class ModernChartWidget(QWidget):
             
             logging.info("Matplotlib图表控件初始化成功")
             
-        except Exception as e:
+        except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError, OSError) as e:
             logging.error("初始化Matplotlib图表失败: %s", e)
             # 创建错误显示
             error_label = QLabel("图表初始化失败")
@@ -380,7 +380,7 @@ class ModernChartWidget(QWidget):
             # 发射信号
             self.data_changed.emit()
             
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError, RuntimeError) as e:
             logging.error("更新图表数据失败: %s", e)
     
     def refresh_chart(self):
@@ -401,7 +401,7 @@ class ModernChartWidget(QWidget):
             # 更新画布
             self.canvas.draw()
             
-        except Exception as e:
+        except (matplotlib.MatplotlibError, ValueError, TypeError, AttributeError, RuntimeError) as e:
             logging.error("刷新图表失败: %s", e)
     
     def _plot_current_data(self):
@@ -493,7 +493,7 @@ class ModernChartWidget(QWidget):
                                   dpi=300, bbox_inches='tight')
                 logging.info("图表已导出到: %s", filename)
                 return True
-            except Exception as e:
+            except (IOError, OSError, ValueError, TypeError, matplotlib.MatplotlibError) as e:
                 logging.error("导出图表失败: %s", e)
                 return False
         return False

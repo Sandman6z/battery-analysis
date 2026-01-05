@@ -347,7 +347,7 @@ class LanguageManager(QObject):
                 # Switch back
                 self.set_locale(old_locale)
         
-        except Exception as e:
+        except (OSError, ValueError, ImportError, AttributeError) as e:
             self.logger.error("Translation validation failed: %s", e)
             validation = {key: False for key in common_keys}
         

@@ -100,7 +100,7 @@ class EnvironmentDetectionTester:
             
             return True
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("基础环境检测", False, f"异常: {str(e)}")
             return False
     
@@ -138,7 +138,7 @@ class EnvironmentDetectionTester:
             
             return True
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
             self.log_result("GUI检测功能", False, f"异常: {str(e)}")
             return False
     
@@ -175,7 +175,7 @@ class EnvironmentDetectionTester:
             
             return True
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("路径处理功能", False, f"异常: {str(e)}")
             return False
     
@@ -202,7 +202,7 @@ class EnvironmentDetectionTester:
             
             return True
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("配置路径查找", False, f"异常: {str(e)}")
             return False
     
@@ -243,7 +243,7 @@ class EnvironmentDetectionTester:
             
             return True
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("环境特定功能", False, f"异常: {str(e)}")
             return False
     
@@ -275,7 +275,7 @@ class EnvironmentDetectionTester:
             
             return True
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("跨平台兼容性", False, f"异常: {str(e)}")
             return False
     
@@ -304,7 +304,7 @@ class EnvironmentDetectionTester:
             
             return True
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("错误处理", False, f"异常: {str(e)}")
             return False
     
@@ -444,7 +444,7 @@ class EnvironmentDetectionTester:
             
             logger.info("测试报告已保存到: %s", report_path)
             return str(report_path)
-        except Exception as e:
+        except (IOError, OSError, ValueError, TypeError, UnicodeError) as e:
             logger.error("保存测试报告失败: %s", e)
             return None
 
@@ -478,7 +478,7 @@ def main():
     for test_method in test_methods:
         try:
             test_method()
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
             logger.error("测试方法 %s 执行失败: %s", test_method.__name__, e)
     
     # 生成和显示报告

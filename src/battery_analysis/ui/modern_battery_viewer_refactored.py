@@ -516,7 +516,7 @@ class ModernBatteryViewerRefactored(QMainWindow):
             # 发射信号
             self.data_loaded.emit(data_path)
             
-        except Exception as e:
+        except (IOError, OSError, ValueError, TypeError, AttributeError) as e:
             logging.error("加载数据失败: %s", e)
             QMessageBox.critical(self, "错误", f"加载数据失败: {str(e)}")
             self.statusBar().showMessage('数据加载失败')
@@ -628,7 +628,7 @@ def demo_refactored_ui():
         
         return app.exec()
         
-    except Exception as e:
+    except (ImportError, AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
         print(f"   ❌ 创建查看器失败: {e}")
         return 1
 

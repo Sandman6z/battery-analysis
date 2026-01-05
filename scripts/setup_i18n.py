@@ -13,6 +13,13 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Any
 
+# 添加项目根目录到Python路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# 导入国际化函数
+from battery_analysis.i18n import _
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -123,7 +130,7 @@ def update_main_window_i18n():
         else:
             logger.info("No i18n updates needed for main_window.py")
     
-    except Exception as e:
+    except (IOError, UnicodeError, re.error) as e:
         logger.error("Error updating main_window.py: %s", e)
 
 
@@ -181,7 +188,7 @@ def update_battery_chart_viewer_i18n():
         else:
             logger.info("No i18n updates needed for battery_chart_viewer.py")
     
-    except Exception as e:
+    except (IOError, UnicodeError, re.error) as e:
         logger.error("Error updating battery_chart_viewer.py: %s", e)
 
 

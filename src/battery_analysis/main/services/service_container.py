@@ -151,7 +151,7 @@ class ServiceContainer(IServiceContainer):
                 try:
                     self.register(name, service_class)
                     self.logger.debug("Service registered: %s", name)
-                except Exception as e:
+                except (ImportError, ValueError, TypeError) as e:
                     self.logger.error("Failed to register service %s: %s", name, e)
             
             # 延迟导入控制器
@@ -174,7 +174,7 @@ class ServiceContainer(IServiceContainer):
                     try:
                         self.register(name, controller_class)
                         self.logger.debug("Controller registered: %s", name)
-                    except Exception as e:
+                    except (ImportError, ValueError, TypeError) as e:
                         self.logger.error("Failed to register controller %s: %s", name, e)
             except ImportError as e:
                 self.logger.warning("Failed to import controllers: %s", e)
@@ -213,7 +213,7 @@ class ServiceContainer(IServiceContainer):
             self.logger.debug("Service registered: %s (%s)", name, implementation.__name__)
             return True
             
-        except Exception as e:
+        except (ValueError, TypeError, MemoryError) as e:
             self.logger.error("Failed to register service %s: %s", name, e)
             return False
     
@@ -241,7 +241,7 @@ class ServiceContainer(IServiceContainer):
             self.logger.debug("Service instance registered: %s", name)
             return True
             
-        except Exception as e:
+        except (ValueError, TypeError, MemoryError) as e:
             self.logger.error("Failed to register service instance %s: %s", name, e)
             return False
     
@@ -271,7 +271,7 @@ class ServiceContainer(IServiceContainer):
             # 创建服务实例
             try:
                 instance = service_class()
-            except Exception as e:
+            except (ImportError, TypeError, ValueError, OSError) as e:
                 self.logger.error("Failed to create service instance %s: %s", name, e)
                 return None
             
@@ -281,7 +281,7 @@ class ServiceContainer(IServiceContainer):
             
             return instance
             
-        except Exception as e:
+        except (TypeError, AttributeError, KeyError) as e:
             self.logger.error("Failed to get service %s: %s", name, e)
             return None
     
@@ -329,7 +329,7 @@ class ServiceContainer(IServiceContainer):
             
             return removed
             
-        except Exception as e:
+        except (TypeError, KeyError, ValueError) as e:
             self.logger.error("Failed to unregister service %s: %s", name, e)
             return False
     
@@ -353,7 +353,7 @@ class ServiceContainer(IServiceContainer):
                     instance = self.get(name)
                     if instance:
                         result[name] = instance
-                except Exception as e:
+                except (TypeError, ImportError, OSError) as e:
                     self.logger.error("Failed to instantiate service %s: %s", name, e)
         
         return result
@@ -374,7 +374,7 @@ class ServiceContainer(IServiceContainer):
                     if hasattr(instance, 'shutdown'):
                         instance.shutdown()
                         self.logger.debug("Service %s shutdown", name)
-                except Exception as e:
+                except (TypeError, AttributeError) as e:
                     self.logger.error("Failed to shutdown service %s: %s", name, e)
             
             # 清空所有注册
@@ -386,7 +386,7 @@ class ServiceContainer(IServiceContainer):
             self.logger.info("ServiceContainer shutdown complete")
             return True
             
-        except Exception as e:
+        except (TypeError, AttributeError, OSError) as e:
             self.logger.error("Failed to shutdown ServiceContainer: %s", e)
             return False
     
@@ -400,13 +400,13 @@ class ServiceContainer(IServiceContainer):
                 try:
                     if hasattr(instance, 'shutdown'):
                         instance.shutdown()
-                except Exception as e:
+                except (TypeError, AttributeError) as e:
                     self.logger.error("Failed to shutdown service %s: %s", name, e)
             
             self._instances.clear()
             self.logger.info("All service instances cleared")
             
-        except Exception as e:
+        except (TypeError, AttributeError, OSError) as e:
             self.logger.error("Failed to clear service instances: %s", e)
     
     def get_service_info(self) -> Dict[str, Dict[str, Any]]:

@@ -84,7 +84,7 @@ class AnalysisWorker(QC.QRunnable):
         except RuntimeError:
             # 处理信号对象已被删除的情况
             pass
-        except Exception as e:
+        except RuntimeError as e:
             logging.error("发送初始运行状态失败: %s", str(e))
 
         try:
@@ -162,8 +162,8 @@ class AnalysisWorker(QC.QRunnable):
                                 self.str_test_date = test_date
                             logging.info(
                                 "从Test Date解析得到: %s", self.str_test_date)
-                        except:
-                            # 解析失败when，尝试使用原始周期日期
+                        except (ValueError, TypeError, IndexError):
+                            # 解析失败时，尝试使用原始周期日期
                             if original_cycle_date:
                                 try:
                                     # 尝试处理标准日期格式 YYYY-MM-DD
@@ -185,7 +185,7 @@ class AnalysisWorker(QC.QRunnable):
                                         self.str_test_date = original_cycle_date
                                     logging.info(
                                         "从原始周期日期解析得到: %s", self.str_test_date)
-                                except:
+                                except (ValueError, TypeError, IndexError):
                                     # 最后尝试回退到原有的日期提取方式
                                     try:
                                         [sy, sm, sd] = list_battery_info[2][0].split(" ")[
@@ -193,10 +193,10 @@ class AnalysisWorker(QC.QRunnable):
                                         self.str_test_date = f"{sy}{sm}{sd}"
                                         logging.info(
                                             "从list_battery_info解析得到: %s", self.str_test_date)
-                                    except:
+                                    except (ValueError, TypeError, IndexError):
                                         self.str_test_date = "00000000"
                                         logging.error("所有日期解析方式都失败了")
-                except Exception as e:
+                except (ValueError, TypeError, IndexError) as e:
                     logging.error("解析测试日期失败: %s", e)
                     self.str_test_date = "00000000"
 
@@ -220,9 +220,9 @@ class AnalysisWorker(QC.QRunnable):
                         logging.warning("信号对象已被删除，无法发送重命名路径信号")
                     
                     os.rename(version_dir, final_dir)
-                except Exception as e:
+                except (OSError, PermissionError, FileNotFoundError) as e:
                     logging.error("目录重命名失败: %s", e)
-                    # 重命名失败when，使用默认目录名继续执行
+                    # 重命名失败时，使用默认目录名继续执行
                     final_dir = version_dir
 
                 self.progress_value = 60
@@ -265,13 +265,13 @@ class AnalysisWorker(QC.QRunnable):
                     # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                     try:
                         self._start_visualizer()
-                    except Exception as e:
+                    except (ImportError, OSError, PermissionError, ValueError) as e:
                         logging.error("启动可视化工具失败: %s", e)
-                except Exception as e:
+                except (ImportError, OSError, PermissionError, IOError, ValueError) as e:
                     logging.error("文件写入过程中发生错误: %s", e)
                     self.str_error_xlsx = f"文件写入错误: {str(e)}"
 
-        except Exception as e:
+        except (ImportError, OSError, PermissionError, IOError, ValueError, TypeError) as e:
             logging.error("线程运行过程中发生错误: %s", e)
             # 将未捕获的异常信息传递给UI层
             self.str_error_xlsx = f"线程运行错误: {str(e)}"
@@ -290,9 +290,9 @@ class AnalysisWorker(QC.QRunnable):
             except RuntimeError:
                 # 处理信号对象已被删除的情况
                 logging.warning("信号对象已被删除，无法发送完成状态")
-            except Exception as e:
+            except RuntimeError as e:
                 # 捕获所有可能的异常，避免闪退
-                logging.error("发送完成状态when发生错误: %s", e)
+                logging.error("发送完成状态时发生错误: %s", e)
 
     def _start_visualizer(self):
         """
@@ -310,6 +310,6 @@ class AnalysisWorker(QC.QRunnable):
                 logging.error("[调试] 信号对象不存在，无法发送信号")
         except RuntimeError as e:
             logging.warning("[调试] 信号对象已被删除，无法发送启动可视化工具信号: %s", e)
-        except Exception as e:
-            logging.error("[调试] 发送启动可视化工具信号whenerror occurred: %s", e)
+        except RuntimeError as e:
+            logging.error("发送启动可视化工具信号时发生错误: %s", e)
         logging.info("[调试] _start_visualizer方法执行完毕")

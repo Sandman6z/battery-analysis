@@ -102,7 +102,7 @@ class FileController(QC.QObject):
 
             self.config_loaded.emit(config_dict)
             return config_dict
-        except Exception as e:
+        except (IOError, OSError, configparser.Error, UnicodeDecodeError, TypeError, AttributeError) as e:
             error_msg = f"加载配置文件失败: {e}"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
@@ -125,7 +125,7 @@ class FileController(QC.QObject):
 
         try:
             return self.config_service.get_config_value(f"{section}/{option}", default)
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, KeyError) as e:
             logging.warning("获取配置值失败: %s", e)
             return default
 

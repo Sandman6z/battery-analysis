@@ -267,7 +267,7 @@ class VisualizerController:
                 self.visualizer = battery_chart_viewer.BatteryChartViewer()
 
             return self.visualizer
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError, OSError, ValueError, RuntimeError) as e:
             logging.error("创建可视化器whenerror occurred: %s", str(e))
             raise
     
@@ -303,7 +303,7 @@ class VisualizerController:
                 self.logger.info("GUI不可用，生成静态图表文件")
                 self._generate_static_chart()
                 
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError, OSError, ValueError, RuntimeError) as e:
             self.logger.error("运行可视化器失败: %s", e)
             raise
 
@@ -370,5 +370,5 @@ class VisualizerController:
             
             self.logger.info("PDF图表已保存到: %s", pdf_file)
             
-        except Exception as e:
+        except (ValueError, RuntimeError, OSError, IOError, TypeError) as e:
             self.logger.error("生成静态图表失败: %s", e)

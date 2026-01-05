@@ -98,7 +98,7 @@ class I18nService(II18nService):
             self.logger.info("I18nService initialized successfully")
             return True
             
-        except Exception as e:
+        except (ImportError, ValueError, TypeError, OSError) as e:
             self.logger.error("Failed to initialize I18nService: %s", e)
             return False
     
@@ -123,7 +123,7 @@ class I18nService(II18nService):
                 # 简单的回退实现
                 return text
                 
-        except Exception as e:
+        except (AttributeError, KeyError, TypeError) as e:
             self.logger.error("Translation error for '%s': %s", text, e)
             return text
     
@@ -152,7 +152,7 @@ class I18nService(II18nService):
                 self.logger.info("Language set to (simple): %s", language_code)
                 return True
                 
-        except Exception as e:
+        except (AttributeError, ValueError, OSError) as e:
             self.logger.error("Failed to set language %s: %s", language_code, e)
             return False
     
@@ -169,7 +169,7 @@ class I18nService(II18nService):
             else:
                 return self._current_language
                 
-        except Exception as e:
+        except (AttributeError, OSError) as e:
             self.logger.error("Failed to get current language: %s", e)
             return self._current_language
     
@@ -187,7 +187,7 @@ class I18nService(II18nService):
                 # 默认返回支持的语言
                 return ["zh_CN", "en"]
                 
-        except Exception as e:
+        except (AttributeError, OSError) as e:
             self.logger.error("Failed to get available languages: %s", e)
             return ["zh_CN", "en"]
     
@@ -205,7 +205,7 @@ class I18nService(II18nService):
                 self.logger.info("Translation reload skipped (simple implementation)")
                 return True
                 
-        except Exception as e:
+        except (AttributeError, OSError, IOError) as e:
             self.logger.error("Failed to reload translations: %s", e)
             return False
     

@@ -68,8 +68,8 @@ class XlsxWordWriter:
                     f"{listTestInfo[4]} {listTestInfo[2]} {listTestInfo[3]}"
                     f"({listTestInfo[5]}), 默认标题"
                 )
-        except Exception as e:
-            logging.error("获取标题whenerror occurred: %s", e)
+        except (configparser.Error, IndexError, TypeError, ValueError) as e:
+            logging.error("获取标题时发生错误: %s", e)
             strImageTitle = "默认电池分析图标题"
 
         # init variables for all files
@@ -274,9 +274,9 @@ class XlsxWordWriter:
                 else:
                     strBatteryType = self.listTestInfo[2]  # 直接使用测试信息中的类型
                     logging.warning("电池类型列表empty，直接使用测试信息: %s", strBatteryType)
-        except Exception as e:
-            logging.error("获取电池类型whenerror occurred: %s", e)
-            strBatteryType = self.listTestInfo[2]  # error occurredwhen使用测试信息中的类型
+        except (IndexError, TypeError, ValueError) as e:
+            logging.error("获取电池类型时发生错误: %s", e)
+            strBatteryType = self.listTestInfo[2]  # 发生错误时使用测试信息中的类型
         self.listTestInfoForReplace = [
             self.listTestInfo[2], self.listTestInfo[3], self.listTestInfo[4],
             self.listTestInfo[5], self.listTestInfo[7], self.listTestInfo[11], 
@@ -1541,8 +1541,8 @@ class JsonWriter:
                 logging.info("找到并读取配置文件: %s", config_path)
             else:
                 raise Exception("找不到配置文件")
-        except Exception as e:
-            # 发生错误when创建基本配置
+        except (IOError, UnicodeDecodeError, configparser.Error, OSError) as e:
+            # 发生错误时创建基本配置
             logging.error("配置读取失败: %s，使用默认配置", e)
             if not self.config.has_section("BatteryConfig"):
                 self.config.add_section("BatteryConfig")
@@ -1625,8 +1625,8 @@ class JsonWriter:
             if not strBatteryType:
                 strBatteryType = "CoinCell"
                 logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
-        except Exception as e:
-            logging.error("处理电池类型whenerror occurred: %s，使用默认值", e)
+        except (IndexError, TypeError, ValueError) as e:
+            logging.error("处理电池类型时发生错误: %s，使用默认值", e)
             strBatteryType = "CoinCell"
 
         self.dictJson.update({
@@ -1649,7 +1649,7 @@ class FileWriter:
         try:
             XlsxWordWriter(strResultPath, listTestInfo, listBatteryInfo)
             JsonWriter(strResultPath, listTestInfo, listBatteryInfo)
-        except BaseException as e:
+        except (IOError, OSError, ImportError, ValueError, TypeError, UnicodeError) as e:
             self.strErrorLog = str(e)
             traceback.print_exc()
 

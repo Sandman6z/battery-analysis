@@ -188,7 +188,7 @@ def update_pot_file(po_files: List[Path], pot_file: Path) -> bool:
             logger.error("Failed to create .pot file: %s", result.stderr)
             return False
     
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError, IOError) as e:
         logger.error("Error updating .pot file: %s", e)
         return False
 

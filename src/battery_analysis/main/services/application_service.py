@@ -125,7 +125,7 @@ class ApplicationService:
             self.logger.info("ApplicationService initialized successfully")
             return True
             
-        except Exception as e:
+        except (ImportError, TypeError, ValueError, OSError, AttributeError) as e:
             self.logger.error("Failed to initialize ApplicationService: %s", e)
             return False
 

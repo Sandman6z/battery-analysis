@@ -97,7 +97,7 @@ class ValidationController(QC.QObject):
                 error_msg = f"输入目录中未找到数据文件(.xlsx或.csv)"
                 self.validation_error.emit(error_msg)
                 return False, error_msg
-        except Exception as e:
+        except (OSError, TypeError, ValueError) as e:
             error_msg = f"读取输入目录失败: {e}"
             self.validation_error.emit(error_msg)
             return False, error_msg
@@ -131,8 +131,8 @@ class ValidationController(QC.QObject):
             with open(test_file, 'w') as f:
                 f.write("test")
             os.remove(test_file)
-        except Exception as e:
-            error_msg = f"输出目录不可写: {e}"
+        except (OSError, TypeError, ValueError) as e:
+            error_msg = f"读取输入目录失败: {e}"
             self.validation_error.emit(error_msg)
             return False, error_msg
 

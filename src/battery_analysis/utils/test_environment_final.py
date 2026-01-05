@@ -26,7 +26,10 @@ from environment_utils import (
     EnvironmentDetector, 
     get_environment_detector,
     EnvironmentType,
-    PlatformType
+    PlatformType,
+    get_resource_path,
+    get_config_path,
+    is_gui_available
 )
 
 # 配置日志
@@ -130,7 +133,7 @@ class FinalEnvironmentValidator:
                 is_critical=True
             )
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("核心功能", "核心功能验证", False, f"异常: {str(e)}", is_critical=True)
             success = False
         
@@ -185,7 +188,7 @@ class FinalEnvironmentValidator:
                 self.log_result("环境检测", "路径类型一致性", False, "路径类型不一致")
                 success = False
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("环境检测", "环境检测验证", False, f"异常: {str(e)}")
             success = False
         
@@ -220,7 +223,7 @@ class FinalEnvironmentValidator:
             display_valid = display is None or isinstance(display, str)
             self.log_result("GUI功能", "显示环境检测", display_valid, f"显示环境: {display}")
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
             self.log_result("GUI功能", "GUI功能验证", False, f"异常: {str(e)}")
             success = False
         
@@ -261,7 +264,7 @@ class FinalEnvironmentValidator:
             locale_valid = locale_path is None or isinstance(locale_path, Path)
             self.log_result("资源管理", "国际化文件查找", locale_valid, f"国际化路径: {locale_path}")
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.log_result("资源管理", "资源管理验证", False, f"异常: {str(e)}")
             success = False
         
@@ -312,11 +315,11 @@ class FinalEnvironmentValidator:
                 # 恢复
                 platform.system = original_platform
                 
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
                 self.log_result("稳定性", "异常恢复", False, f"异常处理失败: {str(e)}")
                 success = False
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
             self.log_result("稳定性", "稳定性验证", False, f"异常: {str(e)}")
             success = False
         
@@ -344,7 +347,7 @@ class FinalEnvironmentValidator:
                 resource_path = get_resource_path("test.txt")
                 self.log_result("集成功能", "便捷函数-get_resource_path", 
                               isinstance(resource_path, Path), f"路径: {resource_path}")
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError, OSError) as e:
                 self.log_result("集成功能", "便捷函数-get_resource_path", False, f"异常: {str(e)}")
                 success = False
             
@@ -352,7 +355,7 @@ class FinalEnvironmentValidator:
                 config_path = get_config_path("test.ini")
                 self.log_result("集成功能", "便捷函数-get_config_path", 
                               config_path is None or isinstance(config_path, Path), f"路径: {config_path}")
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError, OSError) as e:
                 self.log_result("集成功能", "便捷函数-get_config_path", False, f"异常: {str(e)}")
                 success = False
             
@@ -360,11 +363,11 @@ class FinalEnvironmentValidator:
                 gui_available = is_gui_available()
                 self.log_result("集成功能", "便捷函数-is_gui_available", 
                               isinstance(gui_available, bool), f"GUI可用: {gui_available}")
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
                 self.log_result("集成功能", "便捷函数-is_gui_available", False, f"异常: {str(e)}")
                 success = False
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError, ImportError) as e:
             self.log_result("集成功能", "集成功能验证", False, f"异常: {str(e)}")
             success = False
         
@@ -551,7 +554,7 @@ def main():
         try:
             if not validation_method():
                 all_passed = False
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
             logger.error("验证方法 %s 执行失败: %s", validation_method.__name__, e)
             all_passed = False
     
@@ -565,7 +568,7 @@ def main():
             with open(args.save_report, 'w', encoding='utf-8') as f:
                 json.dump(report, f, indent=2, ensure_ascii=False, default=str)
             logger.info("📄 验证报告已保存到: %s", args.save_report)
-        except Exception as e:
+        except (IOError, OSError, ValueError, TypeError, UnicodeError) as e:
             logger.error("保存验证报告失败: %s", e)
     
     # 返回适当的退出码

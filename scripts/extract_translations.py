@@ -336,7 +336,7 @@ def update_po_file(po_file: Path, pot_file: Path) -> bool:
     except FileNotFoundError:
         logger.warning("msgmerge not found. Please install gettext package.")
         return False
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError, IOError) as e:
         logger.error("Error updating %s: %s", po_file, e)
         return False
 

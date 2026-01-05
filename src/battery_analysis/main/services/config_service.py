@@ -67,7 +67,7 @@ class ConfigService(IConfigService):
                 self.logger.warning("配置键 '%s' 不存在，返回默认值: %s", key, default)
                 return default
                 
-        except Exception as e:
+        except (configparser.Error, ValueError, TypeError, IndexError) as e:
             self.logger.error("获取配置值失败: %s", e)
             return default
     
@@ -103,7 +103,7 @@ class ConfigService(IConfigService):
             self.logger.debug("设置配置: %s = %s", key, value)
             return True
             
-        except Exception as e:
+        except (configparser.Error, TypeError, ValueError) as e:
             self.logger.error("设置配置值失败: %s", e)
             return False
     
@@ -129,7 +129,7 @@ class ConfigService(IConfigService):
                 self.logger.warning("无法保存配置：未指定配置路径或配置未加载")
                 return False
                 
-        except Exception as e:
+        except (IOError, OSError, configparser.Error, UnicodeEncodeError) as e:
             self.logger.error("保存配置失败: %s", e)
             return False
     
@@ -165,7 +165,7 @@ class ConfigService(IConfigService):
             self.logger.info("配置已加载: %s", self._config_path)
             return True
             
-        except Exception as e:
+        except (IOError, OSError, configparser.Error, UnicodeDecodeError) as e:
             self.logger.error("加载配置失败: %s", e)
             self._loaded = False
             return False
@@ -181,7 +181,7 @@ class ConfigService(IConfigService):
             if not self._loaded:
                 self.load_config()
             return self._config.sections()
-        except Exception as e:
+        except (configparser.Error, ValueError, TypeError) as e:
             self.logger.error("获取配置节失败: %s", e)
             return []
     
@@ -212,7 +212,7 @@ class ConfigService(IConfigService):
                 return []
             
             return self._config.options(section)
-        except Exception as e:
+        except (configparser.Error, ValueError, TypeError) as e:
             self.logger.error("获取配置节选项失败: %s", e)
             return []
     
@@ -234,7 +234,7 @@ class ConfigService(IConfigService):
                 return {}
             
             return dict(self._config.items(section))
-        except Exception as e:
+        except (configparser.Error, ValueError, TypeError) as e:
             self.logger.error("获取配置节失败: %s", e)
             return {}
     
@@ -260,7 +260,7 @@ class ConfigService(IConfigService):
                 option = key
             
             return self._config.has_section(section) and self._config.has_option(section, option)
-        except Exception as e:
+        except (configparser.Error, ValueError, TypeError, IndexError) as e:
             self.logger.error("检查配置键失败: %s", e)
             return False
     
@@ -278,7 +278,7 @@ class ConfigService(IConfigService):
             from battery_analysis.utils.config_utils import find_config_file
             result = find_config_file(file_name)
             return Path(result) if result else None
-        except Exception as e:
+        except (ImportError, ValueError, TypeError, OSError) as e:
             self.logger.error("查找配置文件失败: %s", e)
             return None
     

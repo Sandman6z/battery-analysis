@@ -185,7 +185,7 @@ def get_config_content(file_name: str = "setting.ini", config_dir: str = "config
         
         logger.debug("成功加载配置文件: %s", config_path)
         return config
-    except Exception as e:
+    except (IOError, OSError, UnicodeDecodeError, ValueError) as e:
         logger.error("读取配置文件失败: %s, 错误: %s", config_path, str(e))
         return {}
 
@@ -217,6 +217,6 @@ def save_config_content(config_data: dict, file_name: str = "setting.ini", confi
         
         logger.info("配置文件保存成功: %s", save_path)
         return True
-    except Exception as e:
+    except (IOError, OSError, UnicodeEncodeError, TypeError, ValueError) as e:
         logger.error("保存配置文件失败: %s", str(e))
         return False

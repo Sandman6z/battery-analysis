@@ -236,7 +236,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     if environment_service.initialize():
                         if hasattr(environment_service, 'env_info'):
                             self.env_info = environment_service.env_info
-        except Exception as e:
+        except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to initialize environment service: %s", e)
         
         # 确保环境信息包含必要的键
@@ -249,7 +249,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     # 降级到直接导入
                     from battery_analysis.utils.environment_utils import EnvironmentType
                     self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
-            except Exception as e:
+            except (AttributeError, TypeError, ImportError) as e:
                 self.logger.warning("Failed to get EnvironmentType: %s", e)
                 from battery_analysis.utils.environment_utils import EnvironmentType
                 self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
@@ -273,7 +273,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 # 降级到直接导入
                 from battery_analysis.utils.config_utils import find_config_file
                 self.config_path = find_config_file()
-        except Exception as e:
+        except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to get config service: %s", e)
             # 降级到直接导入
             from battery_analysis.utils.config_utils import find_config_file
@@ -305,7 +305,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     input_path="",  # 初始empty，后续会更新
                     output_path=""  # 初始empty，后续会更新
                 )
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.warning("Failed to set project context: %s", e)
 
         # 连接控制器信号
@@ -319,7 +319,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             app = QW.QApplication.instance()
             if app:
                 style_manager.apply_global_style(app, "modern")
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.warning("Failed to load QSS styles: %s", e)
 
         # 连接语言管理器信号
@@ -358,7 +358,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if service_name not in self._services:
             try:
                 self._services[service_name] = self._service_container.get(service_name)
-            except Exception as e:
+            except (TypeError, AttributeError, OSError, ValueError, ImportError) as e:
                 self.logger.warning("Failed to get service %s: %s", service_name, e)
                 self._services[service_name] = None
         return self._services[service_name]
@@ -376,7 +376,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if controller_name not in self._controllers:
             try:
                 self._controllers[controller_name] = self._service_container.get(controller_name)
-            except Exception as e:
+            except (TypeError, AttributeError, OSError, ValueError, ImportError) as e:
                 self.logger.warning("Failed to get controller %s: %s", controller_name, e)
                 self._controllers[controller_name] = None
         return self._controllers[controller_name]
@@ -395,7 +395,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     env_service.initialize()
                 if hasattr(env_service, 'get_environment_detector'):
                     return env_service.get_environment_detector()
-        except Exception as e:
+        except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to initialize environment service: %s", e)
         return None
     
@@ -413,7 +413,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             else:
                 # 降级到直接导入
                 from battery_analysis.utils.environment_utils import EnvironmentType
-        except Exception as e:
+        except (AttributeError, TypeError, ImportError) as e:
             self.logger.warning("Failed to get EnvironmentType: %s", e)
             from battery_analysis.utils.environment_utils import EnvironmentType
         
@@ -488,7 +488,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             else:
                 list_value = []
             return list_value
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, KeyError, OSError) as e:
             logging.error("读取配置 %s 失败: %s", config_key, e)
             return []
 
@@ -545,8 +545,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.warning("未找到应用图标文件，使用默认图标")
             return QG.QIcon()
             
-        except Exception as e:
-            # 捕获所有异常，确保应用能正常启动
+        except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
+            # 捕获所有可能的异常，确保应用能正常启动
             self.logger.error("加载应用图标失败: %s", e)
             return QG.QIcon()
 
@@ -722,7 +722,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.language_manager = get_language_manager()
             if self.language_manager:
                 self.language_manager.language_changed.connect(self._on_language_changed)
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.warning("Failed to initialize language manager: %s", e)
 
     def _on_language_changed(self, language_code):
@@ -910,7 +910,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     if main_controller:
                         main_controller.set_project_context(
                             output_path=output_path)
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError, OSError) as e:
             logging.error("加载用户设置失败: %s", e)
 
     def init_combobox(self) -> None:
@@ -1134,8 +1134,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 显示对话框
             preferences_dialog.exec()
             
-        except Exception as e:
-            self.logger.error("显示首选项对话框whenerror occurred: %s", e)
+        except (OSError, ValueError, ImportError) as e:
+            self.logger.error("显示首选项对话框时发生错误: %s", e)
             QW.QMessageBox.critical(
                 self,
                 _("error", "错误"),
@@ -1149,8 +1149,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 比如重新加载某些设置、更新界面等
             self.logger.info("首选项已应用")
             
-        except Exception as e:
-            self.logger.error("应用首选项后处理error occurred: %s", e)
+        except (OSError, ValueError, ImportError) as e:
+            self.logger.error("应用首选项后处理时发生错误: %s", e)
 
     def toggle_toolbar_safe(self) -> None:
         """安全地切换工具栏的显示/隐藏状态"""
@@ -1235,7 +1235,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             if hasattr(self, 'actionShow_Statusbar'):
                 self.actionShow_Statusbar.setCheckable(True)
                 self.actionShow_Statusbar.setChecked(True)
-        except Exception as e:
+        except (AttributeError, TypeError, RuntimeError) as e:
             logging.error("设置菜单快捷键失败: %s", e)
 
     def show_user_manual(self) -> None:
@@ -1263,7 +1263,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         manual_found = True
                         self.logger.info("成功打开用户手册: %s", manual_path)
                         break
-                    except Exception as open_error:
+                    except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
                         self.logger.warning("打开手册文件失败 %s: %s", manual_path, open_error)
                         continue
             
@@ -1280,7 +1280,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     QW.QMessageBox.StandardButton.Ok
                 )
                 
-        except Exception as e:
+        except (OSError, TypeError, ValueError, RuntimeError) as e:
             self.logger.error("打开用户手册失败: %s", e)
             QW.QMessageBox.warning(
                 self,
@@ -1295,7 +1295,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 打开在线帮助网页
             help_url = "https://example.com/battery-analyzer-help"
             QG.QDesktopServices.openUrl(QC.QUrl(help_url))
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, TypeError) as e:
             logging.error("打开在线帮助失败: %s", e)
             QW.QMessageBox.information(
                 self,
@@ -1429,7 +1429,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             else:
                 raise RuntimeError("显示可视化失败")
 
-        except Exception as e:
+        except (AttributeError, TypeError, OSError, ValueError, RuntimeError, ImportError, PermissionError, subprocess.SubprocessError) as e:
             error_msg = str(e)
             logging.error("启动可视化工具时出错: %s", error_msg)
             import traceback
@@ -1589,7 +1589,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             else:
                 self.statusBar_BatteryAnalysis.showMessage("未选择目录")
                 
-        except Exception as e:
+        except (OSError, TypeError, ValueError, RuntimeError, PermissionError, FileNotFoundError) as e:
             logging.error("打开数据目录对话框时出错: %s", str(e))
             QW.QMessageBox.critical(
                 self,
@@ -1728,7 +1728,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 )
                 self.statusBar_BatteryAnalysis.showMessage(_("save_settings_failed", "保存设置失败"))
 
-        except Exception as e:
+        except (IOError, OSError, PermissionError, ValueError, TypeError, configparser.Error) as e:
             logging.error("保存设置失败: %s", e)
             QW.QMessageBox.warning(
                 self,
@@ -1823,7 +1823,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     from battery_analysis.ui.styles import style_manager
                     style_manager.apply_global_style(app, "dark")
                     self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_dark", f"已切换到深色主题"))
-                except Exception as e:
+                except (ImportError, AttributeError, TypeError, RuntimeError) as e:
                     # 如果主题系统加载失败，使用简单的深色主题样式表
                     dark_stylesheet = """.QWidget {
                         background-color: #2b2b2b;
@@ -1865,7 +1865,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     """
                     app.setStyleSheet(dark_stylesheet)
                     self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_simple_dark", f"已切换到简单深色主题"))
-        except Exception as e:
+        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             logging.error("切换主题失败: %s", e)
             self.statusBar_BatteryAnalysis.showMessage(_("theme_switch_failed", f"切换主题失败: {str(e)}"))
 
@@ -2457,7 +2457,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                             os.makedirs(output_path, exist_ok=True)
                             self.lineEdit_OutputPath.setText(output_path)
                             self.logger.info("创建并设置输出目录: %s", output_path)
-                        except Exception as e:
+                        except (OSError, PermissionError, FileNotFoundError) as e:
                             self.logger.error("创建输出目录失败: %s", e)
                             QW.QMessageBox.critical(
                                 self,
@@ -2477,7 +2477,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.current_directory = parent_dir
                 self.logger.info("设置当前目录为项目根目录: %s", parent_dir)
                 
-            except Exception as e:
+            except (OSError, ValueError, TypeError, RuntimeError, FileNotFoundError, PermissionError) as e:
                 self.logger.error("选择Test Profilewhen发生错误: %s", e)
                 QW.QMessageBox.critical(
                     self,
@@ -2953,7 +2953,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Permission denied reading {md5_file}")
                     return
-                except Exception as read_error:
+                except (IOError, UnicodeDecodeError, csv.Error, OSError) as read_error:
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Failed to read MD5 file: {str(read_error)}")
                     return
@@ -3009,13 +3009,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                             import win32api
                             import win32con
                             win32api.SetFileAttributes(str(md5_file), win32con.FILE_ATTRIBUTE_HIDDEN)
-                        except Exception:
+                        except (ImportError, AttributeError, OSError) as e:
                             # 忽略设置隐藏属性失败的错误
-                            pass
+                            self.logger.debug("无法设置MD5文件隐藏属性（直接调用）: %s", e)
                 except PermissionError:
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Permission denied writing to {output_path}")
-                except Exception as write_error:
+                except (IOError, UnicodeEncodeError, csv.Error, OSError, PermissionError) as write_error:
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Failed to write MD5 file: {str(write_error)}")
             else:
@@ -3032,16 +3032,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     try:
                         win32api.SetFileAttributes(
                             str(md5_file), win32con.FILE_ATTRIBUTE_HIDDEN)
-                    except Exception:
-                        pass
+                    except (AttributeError, OSError, ImportError) as e:
+                        self.logger.debug("无法设置MD5文件隐藏属性: %s", e)
                 except PermissionError:
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Cannot create MD5 file in {output_path}")
-                except Exception as create_error:
+                except (IOError, UnicodeEncodeError, csv.Error, OSError, PermissionError) as create_error:
                     self.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Failed to create MD5 file: {str(create_error)}")
 
-        except Exception as e:
+        except (IOError, UnicodeError, csv.Error, OSError, PermissionError, TypeError, ValueError) as e:
             # 捕获所有其他异常但不中断程序
             self.statusBar_BatteryAnalysis.showMessage(
                 f"[Info]: Version tracking skipped: {str(e)}")

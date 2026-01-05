@@ -550,7 +550,7 @@ class ModernBatteryViewer(QMainWindow):
             else:
                 raise Exception("数据加载失败")
                 
-        except Exception as e:
+        except (IOError, OSError, ValueError, TypeError, AttributeError) as e:
             logging.error("加载数据失败: %s", e)
             QMessageBox.critical(self, "错误", f"加载数据失败:\n{str(e)}")
             
@@ -602,7 +602,7 @@ class ModernBatteryViewer(QMainWindow):
             
             self.statusBar().showMessage('数据处理完成')
             
-        except Exception as e:
+        except (ValueError, TypeError, RuntimeError) as e:
             logging.error("数据处理失败: %s", e)
             QMessageBox.warning(self, "警告", f"数据处理失败:\n{str(e)}")
     
@@ -639,7 +639,7 @@ class ModernBatteryViewer(QMainWindow):
             
             self.analysis_result_text.setPlainText(result_text)
             
-        except Exception as e:
+        except (ValueError, TypeError, RuntimeError) as e:
             logging.error("分析失败: %s", e)
             self.analysis_result_text.setPlainText(f"分析失败: {str(e)}")
     

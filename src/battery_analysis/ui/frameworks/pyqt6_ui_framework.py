@@ -38,7 +38,7 @@ class PyQt6UIFramework(IUIFramework):
         except ImportError as e:
             self.logger.error("PyQt6未安装或无法导入: %s", e)
             raise
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6应用程序实例失败: %s", e)
             raise
     
@@ -54,7 +54,7 @@ class PyQt6UIFramework(IUIFramework):
         except ImportError as e:
             self.logger.error("PyQt6组件无法导入: %s", e)
             raise
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6主窗口失败: %s", e)
             raise
     
@@ -73,7 +73,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6进度对话框创建成功")
             return progress_dialog
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6进度对话框失败: %s", e)
             raise
     
@@ -108,7 +108,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6消息框显示: %s", title)
             return message_box
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6消息框失败: %s", e)
             raise
     
@@ -129,7 +129,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6文件对话框创建成功: %s", caption)
             return file_dialog
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.logger.error("创建PyQt6文件对话框失败: %s", e)
             raise
     
@@ -142,7 +142,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6标签创建成功: %s", text)
             return label
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6标签失败: %s", e)
             raise
     
@@ -155,7 +155,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6按钮创建成功: %s", text)
             return button
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6按钮失败: %s", e)
             raise
     
@@ -171,7 +171,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6输入框创建成功: %s", placeholder)
             return line_edit
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6输入框失败: %s", e)
             raise
     
@@ -184,7 +184,7 @@ class PyQt6UIFramework(IUIFramework):
             self.logger.info("PyQt6表格创建成功: %sx%s", rows, columns)
             return table
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建PyQt6表格失败: %s", e)
             raise
     
@@ -193,7 +193,7 @@ class PyQt6UIFramework(IUIFramework):
         try:
             parent.setLayout(layout)
             self.logger.info("PyQt6布局设置成功")
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("设置PyQt6布局失败: %s", e)
             raise
     
@@ -203,7 +203,7 @@ class PyQt6UIFramework(IUIFramework):
             result = app.exec()
             self.logger.info("PyQt6应用程序运行结束")
             return result
-        except Exception as e:
+        except (AttributeError, TypeError, RuntimeError) as e:
             self.logger.error("运行PyQt6应用程序失败: %s", e)
             raise
 
@@ -228,7 +228,7 @@ class TkinterUIFramework(IUIFramework):
         except ImportError as e:
             self.logger.error("Tkinter无法导入: %s", e)
             raise
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建Tkinter应用程序实例失败: %s", e)
             raise
     
@@ -260,7 +260,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter进度对话框创建成功")
             return dialog
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建Tkinter进度对话框失败: %s", e)
             raise
     
@@ -292,7 +292,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter消息框显示: %s", title)
             return result
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建Tkinter消息框失败: %s", e)
             raise
     
@@ -317,7 +317,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter文件对话框创建成功: %s", caption)
             return file_path
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, OSError) as e:
             self.logger.error("创建Tkinter文件对话框失败: %s", e)
             raise
     
@@ -330,7 +330,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter标签创建成功: %s", text)
             return label
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建Tkinter标签失败: %s", e)
             raise
     
@@ -343,7 +343,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter按钮创建成功: %s", text)
             return button
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建Tkinter按钮失败: %s", e)
             raise
     
@@ -363,7 +363,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter输入框创建成功: %s", placeholder)
             return entry
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建Tkinter输入框失败: %s", e)
             raise
     
@@ -383,7 +383,7 @@ class TkinterUIFramework(IUIFramework):
             self.logger.info("Tkinter表格创建成功: %sx%s", rows, columns)
             return tree
             
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("创建Tkinter表格失败: %s", e)
             raise
     
@@ -392,7 +392,7 @@ class TkinterUIFramework(IUIFramework):
         try:
             layout.pack(fill='both', expand=True)
             self.logger.info("Tkinter布局设置成功")
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             self.logger.error("设置Tkinter布局失败: %s", e)
             raise
     
@@ -402,7 +402,7 @@ class TkinterUIFramework(IUIFramework):
             app.mainloop()
             self.logger.info("Tkinter应用程序运行结束")
             return 0
-        except Exception as e:
+        except (AttributeError, TypeError, RuntimeError) as e:
             self.logger.error("运行Tkinter应用程序失败: %s", e)
             raise
     

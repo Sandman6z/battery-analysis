@@ -117,7 +117,8 @@ class ProgressService(QObject, IProgressService):
         for callback in self._progress_callbacks.values():
             try:
                 callback(progress, status)
-            except Exception as e:
+            except (TypeError, AttributeError, ValueError, OSError) as e:
+                # 回调函数中的异常应该被记录但不影响其他回调
                 self.logger.error("Error in progress callback: %s", e)
     
     @pyqtSlot()
@@ -154,7 +155,7 @@ class ProgressService(QObject, IProgressService):
             self.logger.info("ProgressService initialized successfully")
             return True
             
-        except Exception as e:
+        except (TypeError, MemoryError) as e:
             self.logger.error("Failed to initialize ProgressService: %s", e)
             return False
     
@@ -188,7 +189,7 @@ class ProgressService(QObject, IProgressService):
             
             return True
             
-        except Exception as e:
+        except (TypeError, ValueError, AttributeError) as e:
             self.logger.error("Failed to update progress: %s", e)
             return False
     
@@ -226,7 +227,7 @@ class ProgressService(QObject, IProgressService):
             self.logger.info("Progress reset")
             return True
             
-        except Exception as e:
+        except (TypeError, AttributeError) as e:
             self.logger.error("Failed to reset progress: %s", e)
             return False
     
@@ -264,7 +265,7 @@ class ProgressService(QObject, IProgressService):
             self.logger.debug("Progress callback registered: %s", callback_id)
             return True
             
-        except Exception as e:
+        except (TypeError, MemoryError) as e:
             self.logger.error("Failed to register progress callback %s: %s", callback_id, e)
             return False
     
@@ -287,7 +288,7 @@ class ProgressService(QObject, IProgressService):
                 self.logger.warning("Callback not found: %s", callback_id)
                 return False
                 
-        except Exception as e:
+        except (TypeError, KeyError, ValueError) as e:
             self.logger.error("Failed to unregister progress callback %s: %s", callback_id, e)
             return False
     
@@ -312,7 +313,7 @@ class ProgressService(QObject, IProgressService):
             
             return True
             
-        except Exception as e:
+        except (TypeError, ValueError, AttributeError) as e:
             self.logger.error("Failed to set indeterminate progress: %s", e)
             return False
     

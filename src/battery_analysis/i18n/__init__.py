@@ -264,7 +264,7 @@ def ngettext(singular: str, plural: str, n: int) -> str:
     try:
         if _current_locale in _translations:
             return _translations[_current_locale].ngettext(singular, plural, n)
-    except Exception as e:
+    except (AttributeError, KeyError) as e:
         logging.warning("Translation error for plural '%s/%s': %s", singular, plural, e)
     
     return singular if n == 1 else plural
@@ -312,7 +312,7 @@ def initialize_default_locale() -> bool:
     except ValueError:
         # getdefaultlocale() can throw ValueError on some systems
         system_locale = None
-    except Exception:
+    except (OSError, ValueError, TypeError, AttributeError):
         # Handle any other unexpected errors
         system_locale = None
     

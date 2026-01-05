@@ -153,7 +153,7 @@ class EventBus(QObject):
             self.logger.debug("Subscribed to event: %s", event_name)
             return True
             
-        except Exception as e:
+        except (TypeError, MemoryError) as e:
             self.logger.error("Failed to subscribe to event %s: %s", event_name, e)
             return False
     
@@ -177,7 +177,7 @@ class EventBus(QObject):
                 self.logger.warning("Callback not found for event: %s", event_name)
                 return False
                 
-        except Exception as e:
+        except (TypeError, ValueError) as e:
             self.logger.error("Failed to unsubscribe from event %s: %s", event_name, e)
             return False
     
@@ -195,12 +195,13 @@ class EventBus(QObject):
                 for callback in self._subscribers[event_name]:
                     try:
                         callback(*args, **kwargs)
-                    except Exception as e:
+                    except (TypeError, AttributeError, ValueError, OSError) as e:
+                        # 回调函数中的异常应该被记录但不影响其他回调
                         self.logger.error("Error in event callback for %s: %s", event_name, e)
             
             self.logger.debug("Event emitted: %s", event_name)
             
-        except Exception as e:
+        except (TypeError, AttributeError) as e:
             self.logger.error("Failed to emit event %s: %s", event_name, e)
     
     def _emit_event(self, event_name: str, *args, **kwargs):

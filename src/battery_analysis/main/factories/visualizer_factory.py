@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Optional, Type, Dict, Any
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
-from battery_analysis.main import battery_chart_viewer
+from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
 
 
 class VisualizerFactory:
@@ -63,7 +63,7 @@ class VisualizerFactory:
             instance = visualizer_class(**kwargs)
             self.logger.debug("创建可视化器实例: %s", name)
             return instance
-        except Exception as e:
+        except (ImportError, TypeError, ValueError, OSError) as e:
             self.logger.error("创建可视化器 %s 失败: %s", name, e)
             return None
 
@@ -94,7 +94,7 @@ class BatteryChartViewerWrapper(IVisualizer):
         self.logger = logging.getLogger(__name__)
         
         # 创建viewer实例时传递data_path=None和auto_search=False以避免自动搜索
-        self._viewer = battery_chart_viewer.BatteryChartViewer(data_path=None, auto_search=False)
+        self._viewer = BatteryChartViewer(data_path=None, auto_search=False)
         self._config = {}
         
         # 如果提供了有效的数据路径，先设置路径但不自动加载
@@ -131,7 +131,7 @@ class BatteryChartViewerWrapper(IVisualizer):
                 self.logger.warning("图表显示失败")
             
             return success
-        except Exception as e:
+        except (ImportError, TypeError, ValueError, OSError) as e:
             self.logger.error("显示图表时出错: %s", e)
             return False
 
@@ -156,7 +156,7 @@ class BatteryChartViewerWrapper(IVisualizer):
                 self.logger.warning("数据加载失败: %s", data_path)
             
             return success
-        except Exception as e:
+        except (IOError, TypeError, ValueError, OSError) as e:
             self.logger.error("加载数据时出错: %s", e)
             self._viewer.loaded_data = False
             return False
@@ -177,7 +177,7 @@ class BatteryChartViewerWrapper(IVisualizer):
             self._viewer.strInfoImageCsvPath = None
             
             self.logger.info("数据已清除")
-        except Exception as e:
+        except (TypeError, AttributeError, OSError) as e:
             self.logger.error("清除数据时出错: %s", e)
 
     def is_data_loaded(self) -> bool:
@@ -223,7 +223,7 @@ class BatteryChartViewerWrapper(IVisualizer):
         return self._config.copy()
 
     @property
-    def viewer(self) -> battery_chart_viewer.BatteryChartViewer:
+    def viewer(self) -> BatteryChartViewer:
         """
         获取原始的viewer实例
         

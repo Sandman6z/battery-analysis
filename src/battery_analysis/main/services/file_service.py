@@ -40,7 +40,7 @@ class FileService(IFileService):
             self.logger.info("Directory created: %s", path)
             return True, ""
             
-        except Exception as e:
+        except (OSError, PermissionError, IsADirectoryError) as e:
             error_msg = f"创建目录失败: {e}"
             self.logger.error(error_msg)
             return False, error_msg
@@ -72,7 +72,7 @@ class FileService(IFileService):
             self.logger.info("Directory deleted: %s", path)
             return True, ""
             
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, NotADirectoryError) as e:
             error_msg = f"删除目录失败: {e}"
             self.logger.error(error_msg)
             return False, error_msg
@@ -101,7 +101,7 @@ class FileService(IFileService):
             
             return files
             
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, NotADirectoryError) as e:
             self.logger.error("Failed to list files in %s: %s", directory, e)
             return []
     
@@ -122,7 +122,7 @@ class FileService(IFileService):
             else:
                 return None
                 
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             self.logger.error("Failed to get file size for %s: %s", file_path, e)
             return None
     
@@ -147,7 +147,7 @@ class FileService(IFileService):
         except ImportError:
             self.logger.warning("win32api不可用，无法检查文件隐藏属性")
             return False
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             self.logger.error("检查文件隐藏属性失败: %s", e)
             return False
     
@@ -172,7 +172,7 @@ class FileService(IFileService):
             self.logger.info("文件复制成功: %s -> %s", source, destination)
             return True, ""
             
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             error_msg = f"复制文件失败: {e}"
             self.logger.error(error_msg)
             return False, error_msg
@@ -198,7 +198,7 @@ class FileService(IFileService):
             self.logger.info("文件移动成功: %s -> %s", source, destination)
             return True, ""
             
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             error_msg = f"移动文件失败: {e}"
             self.logger.error(error_msg)
             return False, error_msg
@@ -225,7 +225,7 @@ class FileService(IFileService):
             self.logger.info("文件删除成功: %s", file_path)
             return True, ""
             
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             error_msg = f"删除文件失败: {e}"
             self.logger.error(error_msg)
             return False, error_msg
@@ -262,7 +262,7 @@ class FileService(IFileService):
             error_msg = "win32api不可用，无法设置文件属性"
             self.logger.warning(error_msg)
             return False, error_msg
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             error_msg = f"设置文件属性失败: {e}"
             self.logger.error(error_msg)
             return False, error_msg
@@ -305,7 +305,7 @@ class FileService(IFileService):
                 'subdirectories': [str(p) for p in dir_path.iterdir() if p.is_dir()]
             }
             
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, NotADirectoryError) as e:
             self.logger.error("Failed to get directory info for %s: %s", directory, e)
             return {}
     
@@ -337,6 +337,6 @@ class FileService(IFileService):
                 'stem': path.stem
             }
             
-        except Exception as e:
+        except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             self.logger.error("Failed to get file info for %s: %s", file_path, e)
             return {}
