@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(970, 896)
+        MainWindow.resize(889, 819)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -29,20 +29,20 @@ class Ui_MainWindow(object):
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_BatteryConfig = QtWidgets.QGroupBox(parent=self.centralwidget)
-        self.groupBox_BatteryConfig.setGeometry(QtCore.QRect(10, 230, 711, 341))
+        self.groupBox_BatteryConfig.setGeometry(QtCore.QRect(10, 230, 661, 341))
         font = QtGui.QFont()
         font.setFamily("Microsoft YaHei UI")
         font.setPointSize(9)
         self.groupBox_BatteryConfig.setFont(font)
         self.groupBox_BatteryConfig.setObjectName("groupBox_BatteryConfig")
         self.frame = QtWidgets.QFrame(parent=self.groupBox_BatteryConfig)
-        self.frame.setGeometry(QtCore.QRect(340, 190, 341, 141))
+        self.frame.setGeometry(QtCore.QRect(340, 190, 311, 141))
         self.frame.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.Box)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
         self.frame.setObjectName("frame")
         self.verticalLayoutWidget_5 = QtWidgets.QWidget(parent=self.frame)
-        self.verticalLayoutWidget_5.setGeometry(QtCore.QRect(0, 0, 341, 126))
+        self.verticalLayoutWidget_5.setGeometry(QtCore.QRect(0, 0, 311, 165))
         self.verticalLayoutWidget_5.setObjectName("verticalLayoutWidget_5")
         self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_5)
         self.verticalLayout_8.setContentsMargins(5, 5, 5, 5)
@@ -171,12 +171,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_AcceleratedAging.addWidget(self.spinBox_AcceleratedAging)
         self.verticalLayout_8.addLayout(self.horizontalLayout_AcceleratedAging)
         self.frame_2 = QtWidgets.QFrame(parent=self.groupBox_BatteryConfig)
-        self.frame_2.setGeometry(QtCore.QRect(340, 18, 341, 171))
+        self.frame_2.setGeometry(QtCore.QRect(340, 18, 311, 171))
         self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.Box)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
         self.frame_2.setObjectName("frame_2")
         self.verticalLayoutWidget_3 = QtWidgets.QWidget(parent=self.frame_2)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(0, -2, 341, 171))
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(0, -2, 311, 171))
         self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
         self.verticalLayout_5.setContentsMargins(5, 5, 5, 5)
@@ -708,7 +708,12 @@ class Ui_MainWindow(object):
         self.frame_4.raise_()
         self.frame_3.raise_()
         self.groupBox_TestConfig = QtWidgets.QGroupBox(parent=self.centralwidget)
-        self.groupBox_TestConfig.setGeometry(QtCore.QRect(10, 5, 711, 110))
+        self.groupBox_TestConfig.setGeometry(QtCore.QRect(10, 10, 661, 110))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groupBox_TestConfig.sizePolicy().hasHeightForWidth())
+        self.groupBox_TestConfig.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Microsoft YaHei UI")
         font.setPointSize(9)
@@ -720,7 +725,7 @@ class Ui_MainWindow(object):
 "}")
         self.groupBox_TestConfig.setObjectName("groupBox_TestConfig")
         self.horizontalLayoutWidget_8 = QtWidgets.QWidget(parent=self.groupBox_TestConfig)
-        self.horizontalLayoutWidget_8.setGeometry(QtCore.QRect(10, 60, 691, 38))
+        self.horizontalLayoutWidget_8.setGeometry(QtCore.QRect(10, 70, 641, 38))
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
@@ -781,83 +786,18 @@ class Ui_MainWindow(object):
         self.pushButton_TestProfile.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.pushButton_TestProfile.setObjectName("pushButton_TestProfile")
         self.horizontalLayout_TestProfile.addWidget(self.pushButton_TestProfile)
-        self.horizontalLayoutWidget_10 = QtWidgets.QWidget(parent=self.groupBox_TestConfig)
-        self.horizontalLayoutWidget_10.setGeometry(QtCore.QRect(460, 20, 241, 37))
-        font = QtGui.QFont()
-        font.setFamily("Microsoft JhengHei")
-        font.setPointSize(9)
-        self.horizontalLayoutWidget_10.setFont(font)
-        self.horizontalLayoutWidget_10.setObjectName("horizontalLayoutWidget_10")
-        self.horizontalLayout_TestedBy = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_10)
-        self.horizontalLayout_TestedBy.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_TestedBy.setObjectName("horizontalLayout_TestedBy")
-        self.label_TestedBy = QtWidgets.QLabel(parent=self.horizontalLayoutWidget_10)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_TestedBy.sizePolicy().hasHeightForWidth())
-        self.label_TestedBy.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setFamily("Microsoft JhengHei")
-        font.setPointSize(9)
-        self.label_TestedBy.setFont(font)
-        self.label_TestedBy.setObjectName("label_TestedBy")
-        self.horizontalLayout_TestedBy.addWidget(self.label_TestedBy)
-        spacerItem13 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_TestedBy.addItem(spacerItem13)
-        self.comboBox_TestedBy = QtWidgets.QComboBox(parent=self.horizontalLayoutWidget_10)
-        font = QtGui.QFont()
-        font.setFamily("Microsoft JhengHei")
-        font.setPointSize(9)
-        self.comboBox_TestedBy.setFont(font)
-        self.comboBox_TestedBy.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.comboBox_TestedBy.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_TestedBy.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
-        self.comboBox_TestedBy.setEditable(False)
-        self.comboBox_TestedBy.setObjectName("comboBox_TestedBy")
-        self.horizontalLayout_TestedBy.addWidget(self.comboBox_TestedBy)
-        self.horizontalLayoutWidget_9 = QtWidgets.QWidget(parent=self.groupBox_TestConfig)
-        self.horizontalLayoutWidget_9.setGeometry(QtCore.QRect(10, 20, 441, 37))
-        font = QtGui.QFont()
-        font.setFamily("Microsoft JhengHei")
-        font.setPointSize(9)
-        self.horizontalLayoutWidget_9.setFont(font)
-        self.horizontalLayoutWidget_9.setObjectName("horizontalLayoutWidget_9")
-        self.horizontalLayout_TesterLocation = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_9)
+        self.horizontalLayoutWidget = QtWidgets.QWidget(parent=self.groupBox_TestConfig)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 641, 51))
+        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.horizontalLayout_TesterLocation = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_TesterLocation.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
         self.horizontalLayout_TesterLocation.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout_TesterLocation.setSpacing(5)
         self.horizontalLayout_TesterLocation.setObjectName("horizontalLayout_TesterLocation")
-        self.label_TesterLocation = QtWidgets.QLabel(parent=self.horizontalLayoutWidget_9)
+        self.label_TesterLocation = QtWidgets.QLabel(parent=self.horizontalLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -869,10 +809,10 @@ class Ui_MainWindow(object):
         self.label_TesterLocation.setFont(font)
         self.label_TesterLocation.setObjectName("label_TesterLocation")
         self.horizontalLayout_TesterLocation.addWidget(self.label_TesterLocation)
-        spacerItem14 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_TesterLocation.addItem(spacerItem14)
-        self.comboBox_TesterLocation = QtWidgets.QComboBox(parent=self.horizontalLayoutWidget_9)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        spacerItem13 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_TesterLocation.addItem(spacerItem13)
+        self.comboBox_TesterLocation = QtWidgets.QComboBox(parent=self.horizontalLayoutWidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_TesterLocation.sizePolicy().hasHeightForWidth())
@@ -918,15 +858,87 @@ class Ui_MainWindow(object):
         self.comboBox_TesterLocation.setEditable(False)
         self.comboBox_TesterLocation.setObjectName("comboBox_TesterLocation")
         self.horizontalLayout_TesterLocation.addWidget(self.comboBox_TesterLocation)
+        self.horizontalLayout_TesterLocation.setStretch(0, 10)
+        self.horizontalLayout_TesterLocation.setStretch(1, 10)
+        self.horizontalLayout_TesterLocation.setStretch(2, 10)
+        self.horizontalLayout.addLayout(self.horizontalLayout_TesterLocation)
+        spacerItem14 = QtWidgets.QSpacerItem(5, 20, QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout.addItem(spacerItem14)
+        self.horizontalLayout_TestedBy = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_TestedBy.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
+        self.horizontalLayout_TestedBy.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout_TestedBy.setObjectName("horizontalLayout_TestedBy")
+        self.label_TestedBy = QtWidgets.QLabel(parent=self.horizontalLayoutWidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_TestedBy.sizePolicy().hasHeightForWidth())
+        self.label_TestedBy.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setFamily("Microsoft JhengHei")
+        font.setPointSize(9)
+        self.label_TestedBy.setFont(font)
+        self.label_TestedBy.setObjectName("label_TestedBy")
+        self.horizontalLayout_TestedBy.addWidget(self.label_TestedBy)
+        spacerItem15 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_TestedBy.addItem(spacerItem15)
+        self.comboBox_TestedBy = QtWidgets.QComboBox(parent=self.horizontalLayoutWidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.comboBox_TestedBy.sizePolicy().hasHeightForWidth())
+        self.comboBox_TestedBy.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setFamily("Microsoft JhengHei")
+        font.setPointSize(9)
+        self.comboBox_TestedBy.setFont(font)
+        self.comboBox_TestedBy.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.comboBox_TestedBy.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.comboBox_TestedBy.setStyleSheet("/* 1) 外框圆角 */\n"
+"QComboBox {\n"
+"    border: 1px solid #4CAF50;\n"
+"    border-radius: 6px;\n"
+"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
+"    background: #F6F6F6;\n"
+"}\n"
+"\n"
+"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 22px;\n"
+"    border: none;\n"
+"    background: transparent;\n"
+"    border-top-right-radius: 6px;\n"
+"    border-bottom-right-radius: 6px;\n"
+"}\n"
+"\n"
+"/* 3) 指定自定义小三角 */\n"
+"QComboBox::down-arrow {\n"
+"    image: url(:/icons/chevron-down.svg);\n"
+"    width: 12px;\n"
+"    height: 12px;\n"
+"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
+"}\n"
+"\n"
+"/* （可选）下拉展开时用向上三角 */\n"
+"QComboBox::down-arrow:on {\n"
+"    image: url(:/icons/chevron-up.svg);\n"
+"}\n"
+"")
+        self.comboBox_TestedBy.setEditable(False)
+        self.comboBox_TestedBy.setObjectName("comboBox_TestedBy")
+        self.horizontalLayout_TestedBy.addWidget(self.comboBox_TestedBy)
+        self.horizontalLayout.addLayout(self.horizontalLayout_TestedBy)
         self.groupBox_Path = QtWidgets.QGroupBox(parent=self.centralwidget)
-        self.groupBox_Path.setGeometry(QtCore.QRect(10, 118, 711, 110))
+        self.groupBox_Path.setGeometry(QtCore.QRect(10, 118, 661, 110))
         font = QtGui.QFont()
         font.setFamily("Microsoft YaHei UI")
         font.setPointSize(9)
         self.groupBox_Path.setFont(font)
         self.groupBox_Path.setObjectName("groupBox_Path")
         self.verticalLayoutWidget_2 = QtWidgets.QWidget(parent=self.groupBox_Path)
-        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(10, 20, 691, 81))
+        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(10, 20, 641, 81))
         self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -946,8 +958,8 @@ class Ui_MainWindow(object):
         self.label_InputPath.setFont(font)
         self.label_InputPath.setObjectName("label_InputPath")
         self.horizontalLayout_InputPath.addWidget(self.label_InputPath)
-        spacerItem15 = QtWidgets.QSpacerItem(35, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_InputPath.addItem(spacerItem15)
+        spacerItem16 = QtWidgets.QSpacerItem(35, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_InputPath.addItem(spacerItem16)
         self.lineEdit_InputPath = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_2)
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
@@ -992,8 +1004,8 @@ class Ui_MainWindow(object):
         self.label_OutputPath.setFont(font)
         self.label_OutputPath.setObjectName("label_OutputPath")
         self.horizontalLayout_OutputPath.addWidget(self.label_OutputPath)
-        spacerItem16 = QtWidgets.QSpacerItem(27, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_OutputPath.addItem(spacerItem16)
+        spacerItem17 = QtWidgets.QSpacerItem(27, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_OutputPath.addItem(spacerItem17)
         self.lineEdit_OutputPath = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_2)
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
@@ -1024,7 +1036,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_OutputPath.addWidget(self.pushButton_OutputPath)
         self.verticalLayout_6.addLayout(self.horizontalLayout_OutputPath)
         self.groupBox_TestInformation = QtWidgets.QGroupBox(parent=self.centralwidget)
-        self.groupBox_TestInformation.setGeometry(QtCore.QRect(10, 589, 950, 260))
+        self.groupBox_TestInformation.setGeometry(QtCore.QRect(10, 580, 661, 191))
         font = QtGui.QFont()
         font.setFamily("Microsoft YaHei UI")
         font.setPointSize(9)
@@ -1034,11 +1046,11 @@ class Ui_MainWindow(object):
 "}")
         self.groupBox_TestInformation.setObjectName("groupBox_TestInformation")
         self.scrollArea = QtWidgets.QScrollArea(parent=self.groupBox_TestInformation)
-        self.scrollArea.setGeometry(QtCore.QRect(5, 15, 941, 241))
+        self.scrollArea.setGeometry(QtCore.QRect(5, 15, 651, 171))
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 939, 239))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 649, 169))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1132,12 +1144,17 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.tableWidget_TestInformation)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.frame_RunButton = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame_RunButton.setGeometry(QtCore.QRect(740, 10, 211, 331))
+        self.frame_RunButton.setGeometry(QtCore.QRect(670, 10, 211, 281))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame_RunButton.sizePolicy().hasHeightForWidth())
+        self.frame_RunButton.setSizePolicy(sizePolicy)
         self.frame_RunButton.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame_RunButton.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_RunButton.setObjectName("frame_RunButton")
         self.verticalLayoutWidget = QtWidgets.QWidget(parent=self.frame_RunButton)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 10, 210, 281))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 210, 281))
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         self.verticalLayoutWidget.setFont(font)
@@ -1166,7 +1183,7 @@ class Ui_MainWindow(object):
         self.pushButton_Run.setMinimumSize(QtCore.QSize(110, 110))
         font = QtGui.QFont()
         font.setFamily("Consolas")
-        font.setPointSize(12)
+        font.setPointSize(18)
         font.setBold(False)
         font.setUnderline(False)
         font.setKerning(True)
@@ -1197,8 +1214,8 @@ class Ui_MainWindow(object):
         self.pushButton_Run.setFlat(False)
         self.pushButton_Run.setObjectName("pushButton_Run")
         self.verticalLayout_RunAndVersion.addWidget(self.frame_7)
-        spacerItem17 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout_RunAndVersion.addItem(spacerItem17)
+        spacerItem18 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.verticalLayout_RunAndVersion.addItem(spacerItem18)
         self.frame_6 = QtWidgets.QFrame(parent=self.verticalLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -1210,15 +1227,15 @@ class Ui_MainWindow(object):
         self.frame_6.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_6.setObjectName("frame_6")
         self.progressBar = QtWidgets.QProgressBar(parent=self.frame_6)
-        self.progressBar.setGeometry(QtCore.QRect(5, 5, 191, 25))
+        self.progressBar.setGeometry(QtCore.QRect(5, 5, 201, 25))
         self.progressBar.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.progressBar.setAutoFillBackground(False)
         self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setObjectName("progressBar")
         self.verticalLayout_RunAndVersion.addWidget(self.frame_6)
-        spacerItem18 = QtWidgets.QSpacerItem(10, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout_RunAndVersion.addItem(spacerItem18)
+        spacerItem19 = QtWidgets.QSpacerItem(10, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.verticalLayout_RunAndVersion.addItem(spacerItem19)
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_Version = QtWidgets.QHBoxLayout()
@@ -1236,8 +1253,8 @@ class Ui_MainWindow(object):
         self.label_Version.setFont(font)
         self.label_Version.setObjectName("label_Version")
         self.horizontalLayout_Version.addWidget(self.label_Version)
-        spacerItem19 = QtWidgets.QSpacerItem(10, 30, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_Version.addItem(spacerItem19)
+        spacerItem20 = QtWidgets.QSpacerItem(10, 30, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_Version.addItem(spacerItem20)
         self.lineEdit_Version = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -1275,8 +1292,8 @@ class Ui_MainWindow(object):
         self.label_ReportedBy.setFont(font)
         self.label_ReportedBy.setObjectName("label_ReportedBy")
         self.horizontalLayout_ReportedBy.addWidget(self.label_ReportedBy)
-        spacerItem20 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_ReportedBy.addItem(spacerItem20)
+        spacerItem21 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_ReportedBy.addItem(spacerItem21)
         self.comboBox_ReportedBy = QtWidgets.QComboBox(parent=self.verticalLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -1331,7 +1348,7 @@ class Ui_MainWindow(object):
         self.statusBar_BatteryAnalysis.setObjectName("statusBar_BatteryAnalysis")
         MainWindow.setStatusBar(self.statusBar_BatteryAnalysis)
         self.menuBar = QtWidgets.QMenuBar(parent=MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 970, 22))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 889, 22))
         self.menuBar.setObjectName("menuBar")
         self.menuFile = QtWidgets.QMenu(parent=self.menuBar)
         self.menuFile.setObjectName("menuFile")
@@ -1456,8 +1473,8 @@ class Ui_MainWindow(object):
         self.groupBox_TestConfig.setTitle(_translate("MainWindow", "Test Config"))
         self.label_TestProfile.setText(_translate("MainWindow", "Test Profile"))
         self.pushButton_TestProfile.setText(_translate("MainWindow", "Open"))
-        self.label_TestedBy.setText(_translate("MainWindow", "Tested By"))
         self.label_TesterLocation.setText(_translate("MainWindow", "Tester Location"))
+        self.label_TestedBy.setText(_translate("MainWindow", "Tested By"))
         self.groupBox_Path.setTitle(_translate("MainWindow", "Path"))
         self.label_InputPath.setText(_translate("MainWindow", "Input Path "))
         self.pushButton_InputPath.setText(_translate("MainWindow", "Open"))

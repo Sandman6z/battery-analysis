@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>970</width>
-    <height>896</height>
+    <width>889</width>
+    <height>819</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,7 +44,7 @@
      <rect>
       <x>10</x>
       <y>230</y>
-      <width>711</width>
+      <width>661</width>
       <height>341</height>
      </rect>
     </property>
@@ -63,7 +63,7 @@
       <rect>
        <x>340</x>
        <y>190</y>
-       <width>341</width>
+       <width>311</width>
        <height>141</height>
       </rect>
      </property>
@@ -81,8 +81,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>341</width>
-        <height>126</height>
+        <width>311</width>
+        <height>165</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -356,7 +356,7 @@ QComboBox::down-arrow:on {
       <rect>
        <x>340</x>
        <y>18</y>
-       <width>341</width>
+       <width>311</width>
        <height>171</height>
       </rect>
      </property>
@@ -371,7 +371,7 @@ QComboBox::down-arrow:on {
        <rect>
         <x>0</x>
         <y>-2</y>
-        <width>341</width>
+        <width>311</width>
         <height>171</height>
        </rect>
       </property>
@@ -1439,10 +1439,16 @@ QComboBox::down-arrow:on {
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>5</y>
-      <width>711</width>
+      <y>10</y>
+      <width>661</width>
       <height>110</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="font">
      <font>
@@ -1465,8 +1471,8 @@ QComboBox::down-arrow:on {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
-       <width>691</width>
+       <y>70</y>
+       <width>641</width>
        <height>38</height>
       </rect>
      </property>
@@ -1591,85 +1597,222 @@ QComboBox::down-arrow:on {
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_10">
+    <widget class="QWidget" name="horizontalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>460</x>
+       <x>10</x>
        <y>20</y>
-       <width>241</width>
-       <height>37</height>
+       <width>641</width>
+       <height>51</height>
       </rect>
      </property>
-     <property name="font">
-      <font>
-       <family>Microsoft JhengHei</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_TestedBy">
-      <property name="leftMargin">
-       <number>5</number>
-      </property>
-      <property name="topMargin">
-       <number>5</number>
-      </property>
-      <property name="rightMargin">
-       <number>5</number>
-      </property>
-      <property name="bottomMargin">
-       <number>5</number>
-      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="label_TestedBy">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <layout class="QHBoxLayout" name="horizontalLayout_TesterLocation" stretch="10,10,10">
+        <property name="spacing">
+         <number>5</number>
         </property>
-        <property name="font">
-         <font>
-          <family>Microsoft JhengHei</family>
-          <pointsize>9</pointsize>
-         </font>
+        <property name="sizeConstraint">
+         <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
         </property>
-        <property name="text">
-         <string>Tested By</string>
+        <property name="leftMargin">
+         <number>5</number>
         </property>
-       </widget>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_TesterLocation">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft JhengHei</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Tester Location</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_13">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>5</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_TesterLocation">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft JhengHei</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">/* 1) 外框圆角 */
+QComboBox {
+    border: 1px solid #4CAF50;
+    border-radius: 6px;
+    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
+    background: #F6F6F6;
+}
+
+/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 22px;
+    border: none;
+    background: transparent;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+/* 3) 指定自定义小三角 */
+QComboBox::down-arrow {
+    image: url(:/icons/chevron-down.svg);
+    width: 12px;
+    height: 12px;
+    margin-right: 4px; /* 让它别贴边，可按需调 */
+}
+
+/* （可选）下拉展开时用向上三角 */
+QComboBox::down-arrow:on {
+    image: url(:/icons/chevron-up.svg);
+}
+</string>
+          </property>
+          <property name="editable">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
-       <spacer name="horizontalSpacer_16">
+       <spacer name="horizontalSpacer_20">
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Preferred</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>10</width>
+          <width>5</width>
           <height>20</height>
          </size>
         </property>
        </spacer>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox_TestedBy">
-        <property name="font">
-         <font>
-          <family>Microsoft JhengHei</family>
-          <pointsize>9</pointsize>
-         </font>
+       <layout class="QHBoxLayout" name="horizontalLayout_TestedBy">
+        <property name="sizeConstraint">
+         <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
         </property>
-        <property name="cursor">
-         <cursorShape>PointingHandCursor</cursorShape>
+        <property name="leftMargin">
+         <number>5</number>
         </property>
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
+        <property name="topMargin">
+         <number>5</number>
         </property>
-        <property name="styleSheet">
-         <string notr="true">/* 1) 外框圆角 */
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_TestedBy">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft JhengHei</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Tested By</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_16">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_TestedBy">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft JhengHei</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::NoFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">/* 1) 外框圆角 */
 QComboBox {
     border: 1px solid #4CAF50;
     border-radius: 6px;
@@ -1701,135 +1844,13 @@ QComboBox::down-arrow:on {
     image: url(:/icons/chevron-up.svg);
 }
 </string>
-        </property>
-        <property name="editable">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_9">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>441</width>
-       <height>37</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Microsoft JhengHei</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_TesterLocation">
-      <property name="leftMargin">
-       <number>5</number>
-      </property>
-      <property name="topMargin">
-       <number>5</number>
-      </property>
-      <property name="rightMargin">
-       <number>5</number>
-      </property>
-      <property name="bottomMargin">
-       <number>5</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="label_TesterLocation">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Microsoft JhengHei</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Tester Location</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_13">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Policy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>5</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBox_TesterLocation">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Microsoft JhengHei</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="cursor">
-         <cursorShape>PointingHandCursor</cursorShape>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::FocusPolicy::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">/* 1) 外框圆角 */
-QComboBox {
-    border: 1px solid #4CAF50;
-    border-radius: 6px;
-    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */
-    background: #F6F6F6;
-}
-
-/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 22px;
-    border: none;
-    background: transparent;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* 3) 指定自定义小三角 */
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 12px;
-    height: 12px;
-    margin-right: 4px; /* 让它别贴边，可按需调 */
-}
-
-/* （可选）下拉展开时用向上三角 */
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-</string>
-        </property>
-        <property name="editable">
-         <bool>false</bool>
-        </property>
-       </widget>
+          </property>
+          <property name="editable">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -1839,7 +1860,7 @@ QComboBox::down-arrow:on {
      <rect>
       <x>10</x>
       <y>118</y>
-      <width>711</width>
+      <width>661</width>
       <height>110</height>
      </rect>
     </property>
@@ -1858,7 +1879,7 @@ QComboBox::down-arrow:on {
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>691</width>
+       <width>641</width>
        <height>81</height>
       </rect>
      </property>
@@ -2078,9 +2099,9 @@ QComboBox::down-arrow:on {
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>589</y>
-      <width>950</width>
-      <height>260</height>
+      <y>580</y>
+      <width>661</width>
+      <height>191</height>
      </rect>
     </property>
     <property name="font">
@@ -2103,8 +2124,8 @@ QComboBox::down-arrow:on {
       <rect>
        <x>5</x>
        <y>15</y>
-       <width>941</width>
-       <height>241</height>
+       <width>651</width>
+       <height>171</height>
       </rect>
      </property>
      <property name="widgetResizable">
@@ -2115,8 +2136,8 @@ QComboBox::down-arrow:on {
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>939</width>
-        <height>239</height>
+        <width>649</width>
+        <height>169</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -2352,11 +2373,17 @@ QComboBox::down-arrow:on {
    <widget class="QFrame" name="frame_RunButton">
     <property name="geometry">
      <rect>
-      <x>740</x>
+      <x>670</x>
       <y>10</y>
       <width>211</width>
-      <height>331</height>
+      <height>281</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="frameShape">
      <enum>QFrame::Shape::StyledPanel</enum>
@@ -2368,7 +2395,7 @@ QComboBox::down-arrow:on {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>10</y>
+       <y>0</y>
        <width>210</width>
        <height>281</height>
       </rect>
@@ -2429,7 +2456,7 @@ QComboBox::down-arrow:on {
          <property name="font">
           <font>
            <family>Consolas</family>
-           <pointsize>12</pointsize>
+           <pointsize>18</pointsize>
            <bold>false</bold>
            <underline>false</underline>
            <stylestrategy>PreferAntialias</stylestrategy>
@@ -2527,7 +2554,7 @@ QPushButton#pushButton_Run:pressed {
           <rect>
            <x>5</x>
            <y>5</y>
-           <width>191</width>
+           <width>201</width>
            <height>25</height>
           </rect>
          </property>
@@ -2772,7 +2799,7 @@ QComboBox::down-arrow:on {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>970</width>
+     <width>889</width>
      <height>22</height>
     </rect>
    </property>
