@@ -2645,14 +2645,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             else:
                 # 正常运行状态显示
                 self.statusBar_BatteryAnalysis.showMessage("正在分析电池数据...")
-                if stateindex == 0:
-                    self.pushButton_Run.setText("Running")
-                if stateindex == 1:
-                    self.pushButton_Run.setText("Running")
-                if stateindex == 2:
-                    self.pushButton_Run.setText("Running")
-                if stateindex == 3:
-                    self.pushButton_Run.setText("Running")
+                self.pushButton_Run.setText("Running")
         else:
             # 不再需要手动删除线程，由控制器管理线程生命周期
 
@@ -2662,17 +2655,25 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self._close_progress_dialog()
 
                 self.pushButton_Run.setText("Run")
-                self.pushButton_Run.setStyleSheet("background-color:#00FF00")
                 self.pushButton_Run.setEnabled(True)
                 self.statusBar_BatteryAnalysis.showMessage("电池分析完成！")
 
-                # 显示成功提示
-                QW.QMessageBox.information(
-                    self,
-                    "分析完成",
-                    "电池分析已成功完成！\n\n报告已生成到指定输出路径。",
-                    QW.QMessageBox.StandardButton.Ok
-                )
+                # 显示成功提示，添加打开报告按钮
+                msg_box = QW.QMessageBox()
+                msg_box.setWindowTitle("分析完成")
+                msg_box.setText("电池分析已成功完成！\n\n报告已生成到指定输出路径。")
+                msg_box.setIcon(QW.QMessageBox.Icon.Information)
+                
+                # 添加打开报告按钮
+                open_report_button = msg_box.addButton("打开报告", QW.QMessageBox.ButtonRole.ActionRole)
+                # 添加确定按钮
+                ok_button = msg_box.addButton(QW.QMessageBox.StandardButton.Ok)
+                
+                msg_box.exec()
+                
+                # 处理按钮点击
+                if msg_box.clickedButton() == open_report_button:
+                    self._open_report()
 
             # 日期不一致错误处理 (stateindex == 3)
             elif stateindex == 3:
@@ -2680,7 +2681,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self._close_progress_dialog()
 
                 self.pushButton_Run.setText("Rerun")
-                self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
 
                 # 日期不一致错误消息处理
@@ -2715,7 +2715,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self._close_progress_dialog()
 
                 self.pushButton_Run.setText("Rerun")
-                self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
 
                 # 增强的错误消息处理
@@ -2760,7 +2759,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self._close_progress_dialog()
 
                 self.pushButton_Run.setText("Rerun")
-                self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
 
                 error_title = "报告生成错误"
@@ -2790,10 +2788,88 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 其他错误情况
             else:
                 self.pushButton_Run.setText("Rerun")
-                self.pushButton_Run.setStyleSheet("background-color:red")
                 self.pushButton_Run.setEnabled(True)
                 self.statusBar_BatteryAnalysis.showMessage(
                     f"[错误]: {threadinfo}")
+    
+    def _open_report(self):
+        """
+        打开生成的docx格式报告
+        """
+        output_path_str = self.lineEdit_OutputPath.text()
+        version = self.lineEdit_Version.text()
+        
+        try:
+            # 查找输出目录中的所有docx文件
+            from pathlib import Path
+            import os
+            import subprocess
+            
+            output_path = Path(output_path_str)
+            self.logger.info(f"打开报告：输出路径 = {output_path}")
+            self.logger.info(f"打开报告：当前版本 = {version}")
+            
+            if not output_path.exists() or not output_path.is_dir():
+                QW.QMessageBox.warning(self, "警告", f"无效的输出路径: {output_path}")
+                return
+            
+            # 获取所有docx文件，扩大搜索范围
+            docx_files = []
+            # 搜索当前目录
+            docx_files.extend(list(output_path.glob("*.docx")))
+            # 搜索子目录（不只是带_V的目录）
+            docx_files.extend(list(output_path.rglob("*.docx")))
+            
+            # 特别检查3_analysis results目录
+            analysis_results_dir = output_path / "3_analysis results"
+            if analysis_results_dir.exists() and analysis_results_dir.is_dir():
+                self.logger.info(f"打开报告：检查3_analysis results目录: {analysis_results_dir}")
+                docx_files.extend(list(analysis_results_dir.glob("*.docx")))
+                docx_files.extend(list(analysis_results_dir.rglob("*.docx")))
+            
+            # 去重
+            docx_files = list(set(docx_files))
+            
+            self.logger.info(f"打开报告：找到的docx文件 = {docx_files}")
+            
+            if not docx_files:
+                QW.QMessageBox.information(self, "信息", f"未找到生成的docx报告文件\n搜索路径: {output_path}")
+                return
+            
+            # 尝试找到与当前版本匹配的报告文件
+            target_docx = None
+            for docx_file in docx_files:
+                if f"_V{version}" in docx_file.name:
+                    target_docx = docx_file
+                    break
+            
+            # 如果没有找到匹配版本的报告，使用第一个找到的报告
+            if not target_docx and docx_files:
+                target_docx = docx_files[0]
+                self.logger.info(f"打开报告：未找到匹配版本的报告，使用第一个找到的报告: {target_docx}")
+            
+            # 使用系统默认程序打开报告
+            if target_docx:
+                target_path = str(target_docx)
+                self.logger.info(f"打开报告：使用默认程序打开: {target_path}")
+                
+                # 尝试多种方式打开文件
+                try:
+                    # 方法1：使用os.startfile（Windows）
+                    os.startfile(target_path)
+                    self.logger.info(f"打开报告：使用os.startfile成功打开")
+                except Exception as startfile_error:
+                    self.logger.warning(f"打开报告：os.startfile失败，尝试使用subprocess: {startfile_error}")
+                    try:
+                        # 方法2：使用subprocess.Popen（跨平台）
+                        subprocess.Popen([target_path], shell=True)
+                        self.logger.info(f"打开报告：使用subprocess.Popen成功打开")
+                    except Exception as popen_error:
+                        self.logger.error(f"打开报告：subprocess.Popen也失败: {popen_error}")
+                        QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(popen_error)}")
+        except Exception as e:
+            QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(e)}")
+            self.logger.error("打开报告失败: %s", e)
 
     def set_version(self) -> None:
         # 初始化必要的属性如果不存在
@@ -2919,6 +2995,49 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.statusBar_BatteryAnalysis.showMessage(
                 f"[Info]: Version tracking skipped: {str(e)}")
 
+    def _show_analysis_complete_dialog(self):
+        """
+        显示分析完成对话框，包含"打开报告"按钮
+        """
+        dialog = QW.QDialog(self)
+        dialog.setWindowTitle("分析完成")
+        dialog.setFixedSize(350, 150)
+        dialog.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
+                             QC.Qt.WindowType.WindowCloseButtonHint)
+        
+        layout = QW.QVBoxLayout()
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+        
+        # 添加状态文本标签
+        status_label = QW.QLabel("电池分析已完成！")
+        status_label.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
+        status_label.setWordWrap(True)
+        layout.addWidget(status_label)
+        
+        # 添加底部按钮布局
+        button_layout = QW.QHBoxLayout()
+        button_layout.setSpacing(10)
+        button_layout.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
+        
+        # 添加打开报告按钮
+        open_report_button = QW.QPushButton("打开报告")
+        open_report_button.setMinimumHeight(32)
+        open_report_button.setMinimumWidth(120)
+        open_report_button.clicked.connect(lambda: self._open_report(dialog))
+        button_layout.addWidget(open_report_button)
+        
+        # 添加确定按钮
+        ok_button = QW.QPushButton("确定")
+        ok_button.setMinimumHeight(32)
+        ok_button.setMinimumWidth(120)
+        ok_button.clicked.connect(dialog.accept)
+        button_layout.addWidget(ok_button)
+        
+        layout.addLayout(button_layout)
+        dialog.setLayout(layout)
+        dialog.exec()
+        
     def rename_pltPath(self, strTestDate):
         self.config.setValue(
             "PltConfig/Path", f"{self.lineEdit_OutputPath.text()}/"
