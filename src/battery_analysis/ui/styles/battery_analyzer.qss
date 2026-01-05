@@ -270,9 +270,10 @@ QLabel {
     font-size: 11px;
     color: #495057;
     font-weight: 500;
+    /* 确保QLabel不影响间距和布局 */
     border: none;
     outline: none;
-    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性，不添加任何margin、padding */
 }
 
 QLabel[text="Battery Type"],
@@ -288,12 +289,13 @@ QLabel[text="Datasheet Nominal Capacity(mAh)"],
 QLabel[text="Tested By"],
 QLabel[text="Tester Location"],
 QLabel[text="Test Profile"] {
-    min-width: 150px;
     font-weight: 600;
     color: #212529;
     border: none;
     outline: none;
-    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性 */
+    /* 确保这些特定标签也不影响间距和布局 */
+    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性，不添加任何margin、padding */
+    /* 不设置min-width等可能影响布局的属性 */
 }
 
 /* ============================================   表格样式  /* ============================================/* 表格样式 */

@@ -45,7 +45,7 @@ class StyleManager(QObject):
         main_style_file = "battery_analyzer.qss"
         main_style_path = self._style_dir / main_style_file
         
-        # 先加载主样式文件
+        # 加载主样式文件 - QSS已启用
         if main_style_path.exists():
             try:
                 with open(main_style_path, 'r', encoding='utf-8') as f:
@@ -74,7 +74,7 @@ class StyleManager(QObject):
                         dark_style = dark_style.replace("#e9ecef", "#4a5f7a")  # 边框色
                         self._style_cache["dark"] = dark_style
                         logging.info("已基于主样式创建深色主题")
-                        
+                    
                     # 尝试加载高对比度主题（如果存在）
                     high_contrast_style_path = self._style_dir / "high_contrast.qss"
                     if high_contrast_style_path.exists():
@@ -92,7 +92,7 @@ class StyleManager(QObject):
                         high_contrast_style = high_contrast_style.replace("#3498db", "#0000ff")  # 主色调
                         self._style_cache["high_contrast"] = high_contrast_style
                         logging.info("已基于主样式创建高对比度主题")
-                        
+                    
                     # 添加蓝色主题（基于主样式创建）
                     blue_style = main_style
                     blue_style = blue_style.replace("#f8f9fa", "#e3f2fd")  # 背景色
@@ -134,21 +134,21 @@ class StyleManager(QObject):
             theme = self._current_theme
         
         # 特殊处理battery_analyzer主题 - 优先使用新的统一样式文件
-        if theme == "battery_analyzer":
-            unified_style_path = self._style_dir / "battery_analyzer.qss"
-            if unified_style_path.exists():
-                try:
-                    with open(unified_style_path, 'r', encoding='utf-8') as f:
-                        unified_style = f.read()
-                        app.setStyleSheet(unified_style)
-                        self._current_theme = theme
-                        self.theme_changed.emit(theme)
-                        logging.info("已应用统一电池分析器样式 (通过StyleManager)")
-                        return
-                except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
-                    logging.error("加载统一样式文件失败: %s", e)
-            else:
-                logging.warning("未找到统一样式文件: %s", unified_style_path)
+        # if theme == "battery_analyzer":
+        #     unified_style_path = self._style_dir / "battery_analyzer.qss"
+        #     if unified_style_path.exists():
+        #         try:
+        #             with open(unified_style_path, 'r', encoding='utf-8') as f:
+        #                 unified_style = f.read()
+        #                 app.setStyleSheet(unified_style)
+        #                 self._current_theme = theme
+        #                 self.theme_changed.emit(theme)
+        #                 logging.info("已应用统一电池分析器样式 (通过StyleManager)")
+        #                 return
+        #         except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
+        #             logging.error("加载统一样式文件失败: %s", e)
+        #     else:
+        #         logging.warning("未找到统一样式文件: %s", unified_style_path)
         
         if theme in self._style_cache:
             app.setStyleSheet(self._style_cache[theme])

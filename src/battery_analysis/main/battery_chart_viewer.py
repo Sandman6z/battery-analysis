@@ -2106,7 +2106,7 @@ if __name__ == '__main__':
     # 创建Qt应用程序实例
     app = QApplication(sys.argv)
     
-    # 应用样式表
+    # 应用样式表 - QSS已启用
     try:
         from battery_analysis.ui.styles.style_manager import StyleManager, apply_modern_theme
         style_manager = StyleManager()
@@ -2121,6 +2121,11 @@ if __name__ == '__main__':
             with open(unified_style_path, 'r', encoding='utf-8') as f:
                 unified_style = f.read()
                 app.setStyleSheet(unified_style)
+                # 刷新UI以确保样式生效
+                app.processEvents()
+                app.style().unpolish(app)
+                app.style().polish(app)
+                app.update()
                 logging.info("已应用统一电池分析器样式")
         else:
             # 如果统一样式文件不存在，尝试使用标准样式
