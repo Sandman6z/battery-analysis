@@ -830,7 +830,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.comboBox_Manufacturer,
                 self.lineEdit_BatchDateCode,
                 self.lineEdit_SamplesQty,
-                self.lineEdit_Temperature,
+                self.comboBox_Temperature,
+                self.spinBox_Temperature,
                 self.lineEdit_DatasheetNominalCapacity,
                 self.lineEdit_CalculationNominalCapacity,
                 self.spinBox_AcceleratedAging,
@@ -864,8 +865,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             QW.QWidget.setTabOrder(self.comboBox_Specification_Method, self.comboBox_Manufacturer)
             QW.QWidget.setTabOrder(self.comboBox_Manufacturer, self.lineEdit_BatchDateCode)
             QW.QWidget.setTabOrder(self.lineEdit_BatchDateCode, self.lineEdit_SamplesQty)
-            QW.QWidget.setTabOrder(self.lineEdit_SamplesQty, self.lineEdit_Temperature)
-            QW.QWidget.setTabOrder(self.lineEdit_Temperature, self.lineEdit_DatasheetNominalCapacity)
+            QW.QWidget.setTabOrder(self.lineEdit_SamplesQty, self.comboBox_Temperature)
+            QW.QWidget.setTabOrder(self.comboBox_Temperature, self.spinBox_Temperature)
+            QW.QWidget.setTabOrder(self.spinBox_Temperature, self.lineEdit_DatasheetNominalCapacity)
             QW.QWidget.setTabOrder(self.lineEdit_DatasheetNominalCapacity, self.lineEdit_CalculationNominalCapacity)
             QW.QWidget.setTabOrder(self.lineEdit_CalculationNominalCapacity, self.spinBox_AcceleratedAging)
             QW.QWidget.setTabOrder(self.spinBox_AcceleratedAging, self.lineEdit_RequiredUseableCapacity)
@@ -924,7 +926,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             field.textChanged.connect(self.validate_required_fields)
 
         self.lineEdit_TestProfile.setText("Not provided")
-        self.lineEdit_Temperature.setText("Room Temperature")
+        # 移除对已不存在的lineEdit_Temperature的引用
+        # 温度值现在由comboBox_Temperature控制
 
     def _load_user_settings(self) -> None:
         """加载用户配置文件中的设置"""
@@ -1005,7 +1008,35 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 # 加载温度设置
                 temperature = user_settings.value("UserConfig/Temperature")
                 if temperature:
-                    self.lineEdit_Temperature.setText(temperature)
+                    # 移除对lineEdit_Temperature的引用
+                    # 同时更新comboBox_Temperature
+                    if "Freezer" in temperature:
+                        self.comboBox_Temperature.setCurrentText("Freezer Temperature")
+                        # 从温度字符串中提取数值并设置到spinBox
+                        import re
+                        temp_value = re.search(r"(\d+)", temperature)
+                        if temp_value:
+                            self.spinBox_Temperature.setValue(int(temp_value.group(1)))
+                    else:
+                        self.comboBox_Temperature.setCurrentText("Room Temperature")
+                
+                # 加载温度类型设置（如果存在）
+                temperature_type = user_settings.value("UserConfig/TemperatureType")
+                if temperature_type:
+                    self.comboBox_Temperature.setCurrentText(temperature_type)
+                    # 同时更新spinBox的启用状态
+                    if temperature_type == "Freezer Temperature":
+                        self.spinBox_Temperature.setEnabled(True)
+                    else:
+                        self.spinBox_Temperature.setEnabled(False)
+                
+                # 加载冷冻温度数值设置
+                freezer_temp = user_settings.value("UserConfig/FreezerTemperature")
+                if freezer_temp:
+                    try:
+                        self.spinBox_Temperature.setValue(int(freezer_temp))
+                    except (ValueError, TypeError):
+                        pass
 
                 # 加载输出路径设置
                 output_path = user_settings.value("UserConfig/OutputPath")
@@ -1039,6 +1070,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         tested_by_list = self.get_config("TestConfig/TestedBy")
         self.comboBox_TestedBy.addItems(tested_by_list)
         self.comboBox_ReportedBy.addItems(tested_by_list)
+        
+        # 为comboBox_Temperature添加选项
+        self.comboBox_Temperature.addItems(["Room Temperature", "Freezer Temperature"])
+        # 设置默认值为Room Temperature
+        self.comboBox_Temperature.setCurrentText("Room Temperature")
+        # 默认禁用spinBox_Temperature
+        self.spinBox_Temperature.setEnabled(False)
 
         self.comboBox_BatteryType.setCurrentIndex(-1)
         self.comboBox_ConstructionMethod.setCurrentIndex(-1)
@@ -1047,6 +1085,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.comboBox_Manufacturer.setCurrentIndex(-1)
         self.comboBox_TesterLocation.setCurrentIndex(-1)
         self.comboBox_TestedBy.setCurrentIndex(-1)
+        self.comboBox_ReportedBy.setCurrentIndex(-1)
 
         self.comboBox_ConstructionMethod.setEnabled(False)
 
@@ -1136,6 +1175,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.check_specification)
         self.comboBox_TesterLocation.currentIndexChanged.connect(
             self.set_table)
+        # 添加温度类型变化的信号连接
+        self.comboBox_Temperature.currentIndexChanged.connect(
+            self.on_temperature_type_changed)
         self.lineEdit_InputPath.textChanged.connect(self.get_xlsxinfo)
         self.pushButton_TestProfile.clicked.connect(self.select_testprofile)
         self.pushButton_InputPath.clicked.connect(self.select_inputpath)
@@ -1806,11 +1848,24 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 if reported_by:
                     user_settings.setValue("UserConfig/ReportedBy", reported_by)
 
-                # 温度设置
-                temperature = self.lineEdit_Temperature.text()
-                if temperature:
-                    user_settings.setValue(
-                        "UserConfig/Temperature", temperature)
+                # 温度设置 - 使用comboBox_Temperature的值代替lineEdit_Temperature
+                temperature_type = self.comboBox_Temperature.currentText()
+                if temperature_type == "Freezer Temperature":
+                    temperature = f"{temperature_type}: {self.spinBox_Temperature.value()}"
+                else:
+                    temperature = temperature_type
+                user_settings.setValue(
+                    "UserConfig/Temperature", temperature)
+                
+                # 保存温度类型设置
+                temperature_type = self.comboBox_Temperature.currentText()
+                user_settings.setValue(
+                    "UserConfig/TemperatureType", temperature_type)
+                
+                # 保存冷冻温度数值设置（无论是否启用）
+                freezer_temp = self.spinBox_Temperature.value()
+                user_settings.setValue(
+                    "UserConfig/FreezerTemperature", freezer_temp)
 
                 # 输出路径设置
                 output_path = self.lineEdit_OutputPath.text()
@@ -2270,6 +2325,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 移除根据TesterLocation自动设置ReportedBy的逻辑
         # 现在ReportedBy直接使用comboBox_ReportedBy的值
 
+    def on_temperature_type_changed(self, index):
+        """处理温度类型变化事件，控制spinBox_Temperature的启用状态"""
+        # 获取当前选中的温度类型
+        temperature_type = self.comboBox_Temperature.currentText()
+        
+        # 根据温度类型决定是否启用spinBox_Temperature
+        if temperature_type == "Freezer Temperature":
+            self.spinBox_Temperature.setEnabled(True)
+        else:  # Room Temperature
+            self.spinBox_Temperature.setEnabled(False)
+        
+        # 移除对lineEdit_Temperature的引用，不再更新它
+    
     def get_xlsxinfo(self) -> None:
         self.checker_input_xlsx.clear()
         self.comboBox_Specification_Type.currentIndexChanged.disconnect(
@@ -2601,6 +2669,23 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.init_widgetcolor()
         # 初始化线程（方法保留以保持向后兼容性）
         self.init_thread()
+        
+        # 检查输入是否完整，包括reportedby
+        if not self.checkinput():
+            # 检查失败，获取警告信息
+            warning_info = []
+            if not self.comboBox_ReportedBy.currentText():
+                warning_info.append("Reported By")
+            
+            # 构建警告信息
+            if warning_info:
+                warning_str = "请完成以下必填项：" + ", ".join(warning_info)
+                QW.QMessageBox.warning(self, "输入验证失败", warning_str)
+            else:
+                QW.QMessageBox.warning(self, "输入验证失败", "请检查所有必填项")
+            
+            self.pushButton_Run.setEnabled(True)
+            return
 
         # 准备测试信息
         """ test_info
@@ -2623,6 +2708,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         index 16: Report word version
         index 17: Required Useable Capacity
         """
+        # 构建温度值字符串，根据选择的类型包含spinBox值和℃单位
+        temperature_type = self.comboBox_Temperature.currentText()
+        if temperature_type == "Freezer Temperature":
+            temperature_value = f"{temperature_type}: {self.spinBox_Temperature.value()}"
+        else:
+            temperature_value = temperature_type
+        
         test_info = [
             self.comboBox_BatteryType.currentText(),
             self.comboBox_ConstructionMethod.currentText(),
@@ -2631,7 +2723,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.comboBox_Manufacturer.currentText(),
             self.lineEdit_BatchDateCode.text(),
             self.lineEdit_SamplesQty.text(),
-            self.lineEdit_Temperature.text(),
+            temperature_value,  # 使用构建的温度值
             self.lineEdit_DatasheetNominalCapacity.text(),
             self.lineEdit_CalculationNominalCapacity.text(),
             str(self.spinBox_AcceleratedAging.value()),
@@ -2781,7 +2873,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             check_pass_flag = False
             warning_info.append("SamplesQty")
             self.label_SamplesQty.setStyleSheet("background-color:red")
-        if not self.lineEdit_Temperature.text():
+        if not self.comboBox_Temperature.currentText():
             check_pass_flag = False
             warning_info.append("Temperature")
             self.label_Temperature.setStyleSheet("background-color:red")
@@ -2815,6 +2907,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             check_pass_flag = False
             warning_info.append("Test By")
             self.label_TestedBy.setStyleSheet("background-color:red")
+        if not self.comboBox_ReportedBy.currentText():
+            check_pass_flag = False
+            warning_info.append("Reported By")
+            # 注意：Reported By没有对应的label，所以不需要设置样式
         if not self.lineEdit_TestProfile.text():
             check_pass_flag = False
             warning_info.append("Test Profile")

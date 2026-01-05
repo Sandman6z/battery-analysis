@@ -44,7 +44,7 @@
      <rect>
       <x>10</x>
       <y>230</y>
-      <width>731</width>
+      <width>711</width>
       <height>341</height>
      </rect>
     </property>
@@ -152,53 +152,6 @@
               </size>
              </property>
             </spacer>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="lineEdit_Temperature">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <family>Microsoft JhengHei</family>
-               <pointsize>9</pointsize>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="cursor">
-              <cursorShape>IBeamCursor</cursorShape>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::FocusPolicy::ClickFocus</enum>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QLineEdit {
-    border: 1px solid #4CAF50;   /* 绿色边框 */
-    border-radius: 6px;          /* 圆角半径 */
-    padding: 2px 6px;            /* 内边距，让文字不贴边 */
-    background-color: #F0F0F0;   /* 背景颜色 */
-}
-</string>
-             </property>
-             <property name="inputMethodHints">
-              <set>Qt::InputMethodHint::ImhHiddenText</set>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-            </widget>
            </item>
            <item>
             <widget class="QComboBox" name="comboBox_Temperature">
@@ -1487,7 +1440,7 @@ QComboBox::down-arrow:on {
      <rect>
       <x>10</x>
       <y>5</y>
-      <width>731</width>
+      <width>711</width>
       <height>110</height>
      </rect>
     </property>
@@ -1886,7 +1839,7 @@ QComboBox::down-arrow:on {
      <rect>
       <x>10</x>
       <y>118</y>
-      <width>721</width>
+      <width>711</width>
       <height>110</height>
      </rect>
     </property>
@@ -1903,9 +1856,9 @@ QComboBox::down-arrow:on {
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>20</y>
-       <width>681</width>
+       <width>691</width>
        <height>81</height>
       </rect>
      </property>
@@ -2209,7 +2162,7 @@ QComboBox::down-arrow:on {
           <bool>false</bool>
          </property>
          <property name="rowCount">
-          <number>15</number>
+          <number>13</number>
          </property>
          <property name="columnCount">
           <number>3</number>
@@ -2244,8 +2197,6 @@ QComboBox::down-arrow:on {
          <attribute name="verticalHeaderShowSortIndicator" stdset="0">
           <bool>false</bool>
          </attribute>
-         <row/>
-         <row/>
          <row/>
          <row/>
          <row/>
@@ -2388,16 +2339,6 @@ QComboBox::down-arrow:on {
           </property>
          </item>
          <item row="12" column="1">
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item row="13" column="0">
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item row="13" column="1">
           <property name="text">
            <string/>
           </property>
