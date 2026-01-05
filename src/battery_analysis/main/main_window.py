@@ -29,10 +29,14 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _, get_language_manager
-from battery_analysis.i18n.preferences_dialog import PreferencesDialog
+from battery_analysis.main.config_manager import ConfigManager
+from battery_analysis.main.dialog_manager import DialogManager
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
+from battery_analysis.main.menu_manager import MenuManager
+from battery_analysis.main.progress_dialog import ProgressDialog
 from battery_analysis.main.services.service_container import get_service_container
+from battery_analysis.main.ui_manager import UIManager
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 
@@ -313,6 +317,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         self.setupUi(self)
         
+        # 初始化管理器 - 在调用任何依赖管理器的方法之前
+        self._initialize_managers()
+        
         # 加载并应用QSS样式
         try:
             from battery_analysis.ui.styles import style_manager
@@ -324,7 +331,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         # 连接语言管理器信号
         self._connect_language_signals()
-
+        
         self.init_window()
         self.init_widget()
 
@@ -344,6 +351,25 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             
         self.listVoltageLevel = [
             safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
+    
+    def _initialize_managers(self):
+        """
+        初始化各个管理器
+        """
+        # 初始化配置管理器
+        self.config_manager = ConfigManager(self)
+        self.b_has_config = self.config_manager.b_has_config
+        self.config = self.config_manager.config
+        self.config_path = self.config_manager.config_path
+        
+        # 初始化UI管理器
+        self.ui_manager = UIManager(self)
+        
+        # 初始化菜单管理器
+        self.menu_manager = MenuManager(self)
+        
+        # 初始化对话框管理器
+        self.dialog_manager = DialogManager(self)
 
     def _get_service(self, service_name):
         """
@@ -471,45 +497,22 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 或者显示错误信息并退出
 
     def get_config(self, config_key):
-        # 获取配置值并处理为列表格式，移除所有DEBUG打印以避免UI卡死
-        # 如果没有配置文件，直接返回空列表
-        if not self.b_has_config:
-            return []
-
-        try:
-            value = self.config.value(config_key)
-            if isinstance(value, list):
-                list_value = []
-                for item in value:
-                    if item != "":
-                        list_value.append(item)
-            elif isinstance(value, str):
-                list_value = [value]
-            else:
-                list_value = []
-            return list_value
-        except (AttributeError, TypeError, ValueError, KeyError, OSError) as e:
-            logging.error("读取配置 %s 失败: %s", config_key, e)
-            return []
+        """
+        获取配置值并处理为列表格式，委托给config_manager
+        """
+        return self.config_manager.get_config(config_key)
 
     def init_window(self) -> None:
-        # 在窗口标题中显示应用程序名称和版本号（支持国际化）
-        window_title_template = _("window_title")
-        try:
-            # 如果翻译包含{version}占位符，则进行格式化
-            if "{version}" in window_title_template:
-                window_title = window_title_template.format(version=self.version)
-            else:
-                window_title = window_title_template
-        except (KeyError, ValueError):
-            # 如果格式化失败，使用备用标题
-            window_title = f"Battery Analyzer v{self.version}"
-        self.setWindowTitle(window_title)
-        
-        # 使用环境检测器获取正确的图标路径
-        icon = self._load_application_icon()
-
-        self.setWindowIcon(icon)
+        """
+        初始化窗口设置，委托给ui_manager
+        """
+        self.ui_manager.init_window()
+    
+    def _load_application_icon(self) -> QG.QIcon:
+        """
+        加载应用程序图标，此方法已被ui_manager._load_application_icon替代
+        """
+        return QG.QIcon()
 
     def _load_application_icon(self) -> QG.QIcon:
         """
@@ -780,19 +783,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         pass
 
     def init_widget(self) -> None:
-        if self.b_has_config:
-            self.statusBar_BatteryAnalysis.showMessage("status:ok")
-
-            self.init_lineedit()
-            self.init_combobox()
-            self.init_table()
-            self.connect_widget()
-            self._setup_accessibility()
-
-            self.pushButton_Run.setFocus()
-        else:
-            # @todo: Add error popup windows here
-            pass
+        """
+        初始化部件设置，委托给ui_manager
+        """
+        self.ui_manager.init_widget()
+        self.pushButton_Run.setFocus()
     
     def _setup_accessibility(self) -> None:
         """
@@ -1243,51 +1238,20 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.actionExport_Report.triggered.connect(self.export_report)
 
     def handle_exit(self) -> None:
-        """处理退出操作，显示确认对话框"""
-        reply = QW.QMessageBox.question(
-            self,
-            '确认退出',
-            '确定要退出应用程序吗？',
-            QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-            QW.QMessageBox.StandardButton.No
-        )
-
-        if reply == QW.QMessageBox.StandardButton.Yes:
-            self.close()
+        """
+        处理退出操作，委托给dialog_manager
+        """
+        self.dialog_manager.handle_exit()
 
     def handle_about(self) -> None:
-        """显示关于对话框"""
-        about_text = f"""
-        <h3>Battery Analyzer</h3>
-        <p>版本: v{self.version}</p>
-        <p>电池分析工具，用于电池性能测试和数据分析。</p>
-        <p>© {time.localtime().tm_year} Battery Testing System</p>
         """
-
-        QW.QMessageBox.about(
-            self,
-            '关于 Battery Analyzer',
-            about_text
-        )
+        显示关于对话框，委托给dialog_manager
+        """
+        self.dialog_manager.handle_about()
 
     def show_preferences(self) -> None:
-        """显示首选项对话框"""
-        try:
-            preferences_dialog = PreferencesDialog(self)
-            
-            # 连接首选项应用信号
-            preferences_dialog.preferences_applied.connect(self.on_preferences_applied)
-            
-            # 显示对话框
-            preferences_dialog.exec()
-            
-        except (OSError, ValueError, ImportError) as e:
-            self.logger.error("显示首选项对话框时发生错误: %s", e)
-            QW.QMessageBox.critical(
-                self,
-                _("error", "错误"),
-                f"{_('show_preferences_failed', '显示首选项对话框失败')}: {str(e)}"
-            )
+        """显示首选项对话框，委托给dialog_manager"""
+        self.dialog_manager.show_preferences()
 
     def on_preferences_applied(self) -> None:
         """首选项应用后的处理"""
@@ -1437,19 +1401,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             )
 
     def show_online_help(self) -> None:
-        """显示在线帮助"""
-        try:
-            # 打开在线帮助网页
-            help_url = "https://example.com/battery-analyzer-help"
-            QG.QDesktopServices.openUrl(QC.QUrl(help_url))
-        except (OSError, ValueError, RuntimeError, TypeError) as e:
-            logging.error("打开在线帮助失败: %s", e)
-            QW.QMessageBox.information(
-                self,
-                "在线帮助",
-                "无法打开在线帮助。请检查网络连接or联系技术支持。\n\n帮助中心网址: https://example.com/battery-analyzer-help",
-                QW.QMessageBox.StandardButton.Ok
-            )
+        """
+        显示在线帮助，委托给dialog_manager
+        """
+        self.dialog_manager.show_online_help()
 
     def copy_selected_text(self) -> None:
         """复制选中的文本"""
