@@ -116,12 +116,40 @@ class BatteryChartViewerWrapper(IVisualizer):
             bool: 是否成功显示
         """
         try:
+            # 重置viewer状态，确保每次显示都能重新搜索数据
+            self._viewer.loaded_data = False
+            
             # 如果提供了新的数据路径，先加载数据
             if data_path is not None:
                 self._viewer.set_data_path(data_path)
                 if not self._viewer.load_data():
-                    self.logger.warning("数据加载失败，显示空图表")
+                    self.logger.warning("数据加载失败，尝试搜索其他数据文件")
                     self._viewer.loaded_data = False
+                    # 即使提供了数据路径，也尝试搜索其他可能的数据文件
+                    self._viewer._search_for_data_files()
+            # 始终尝试搜索数据文件，确保能找到最新的数据
+            else:
+                self.logger.info("没有提供数据路径，尝试搜索数据文件")
+                self._viewer._search_for_data_files()
+                
+            # 如果搜索后仍没有数据，尝试从配置中获取数据路径
+            if not self._viewer.loaded_data:
+                self.logger.info("搜索后仍没有数据，尝试从配置中获取数据路径")
+                # 尝试从主控制器获取输出路径作为数据路径
+                try:
+                    from battery_analysis.main.controllers.main_controller import MainController
+                    from battery_analysis.main.services.service_container import get_service_container
+                    
+                    service_container = get_service_container()
+                    main_controller = service_container.get("main_controller")
+                    if main_controller and hasattr(main_controller, 'output_path') and main_controller.output_path:
+                        self.logger.info("从主控制器获取到输出路径: %s", main_controller.output_path)
+                        self._viewer.set_data_path(main_controller.output_path)
+                        if self._viewer.load_data():
+                            self.logger.info("成功从主控制器输出路径加载数据")
+                            self._viewer.loaded_data = True
+                except (ImportError, AttributeError, TypeError, ValueError) as e:
+                    self.logger.warning("从主控制器获取数据路径失败: %s", e)
 
             # 创建可视化
             success = self._viewer.plt_figure()

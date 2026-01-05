@@ -897,7 +897,7 @@ class BatteryChartViewer:
         try:
             logging.info("开始搜索项目中的Info_Image.csv文件...")
             
-            # 在项目根目录下搜索
+            # 在项目根目录下搜索所有子目录
             for root, dirs, files in os.walk(self.project_root):
                 # 跳过隐藏目录和venv目录
                 if ".venv" in root or ".git" in root or "__pycache__" in root:
@@ -906,6 +906,27 @@ class BatteryChartViewer:
                 if "Info_Image.csv" in files:
                     info_image_csv = os.path.join(root, "Info_Image.csv")
                     logging.info("在项目中找到Info_Image.csv文件: %s", info_image_csv)
+                    
+                    # 设置数据路径并尝试加载
+                    self.set_data_path(os.path.dirname(info_image_csv))
+                    success = self.load_data()
+                    if success:
+                        self.loaded_data = True
+                        logging.info("成功加载找到的数据文件")
+                        return
+                    else:
+                        logging.warning("找到数据文件但加载失败")
+            
+            # 如果在项目根目录下没有找到，尝试在当前目录下搜索
+            logging.info("在项目根目录下未找到，尝试在当前目录下搜索...")
+            for root, dirs, files in os.walk(os.getcwd()):
+                # 跳过隐藏目录和venv目录
+                if ".venv" in root or ".git" in root or "__pycache__" in root:
+                    continue
+                    
+                if "Info_Image.csv" in files:
+                    info_image_csv = os.path.join(root, "Info_Image.csv")
+                    logging.info("在当前目录下找到Info_Image.csv文件: %s", info_image_csv)
                     
                     # 设置数据路径并尝试加载
                     self.set_data_path(os.path.dirname(info_image_csv))

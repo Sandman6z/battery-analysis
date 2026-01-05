@@ -209,7 +209,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         # 初始化可视化器工厂
         self.visualizer_factory = VisualizerFactory()
-        self.current_visualizer = None
+        # 移除current_visualizer实例属性，viewer应该完全独立
 
         # 进度条相关属性
         self.progress_dialog = None
@@ -370,6 +370,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         
         # 初始化对话框管理器
         self.dialog_manager = DialogManager(self)
+        
+        # 连接菜单动作
+        self.menu_manager.connect_menu_actions()
+        
+        # 设置菜单快捷键
+        self.menu_manager.setup_menu_shortcuts()
 
     def _get_service(self, service_name):
         """
@@ -1224,39 +1230,28 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             logging.info("检测到布尔类型的xml_path参数，忽略它")
             xml_path = None
         
-        # 如果没有传入xml_path参数，则从界面获取
-        if xml_path is None:
-            logging.info("没有传入xml_path，尝试从界面获取")
-            xml_path = self.lineEdit_TestProfile.text() if hasattr(self, 'lineEdit_TestProfile') else None
-            logging.info("从界面获取的xml_path: %s", xml_path)
-        else:
-            logging.info("传入的xml_path: %s", xml_path)
+        # viewer是独立工具，不需要从主UI获取数据路径，让其自行处理数据搜索
         
         self.statusBar_BatteryAnalysis.showMessage(_("starting_visualizer", "启动可视化工具..."))
 
         try:
-            # 使用工厂模式创建可视化器
-            logging.info("使用工厂模式创建可视化器")
-            self.current_visualizer = self.visualizer_factory.create_visualizer("battery_chart")
+            # 确保所有matplotlib资源都被释放（只清理全局资源，不涉及实例）
+            try:
+                import matplotlib.pyplot as plt
+                plt.close('all')  # 关闭所有打开的matplotlib窗口
+            except (ImportError, RuntimeError) as e:
+                logging.warning("清理matplotlib全局资源时出错: %s", e)
             
-            if self.current_visualizer is None:
+            # 使用工厂模式创建可视化器（使用局部变量，不存储为实例属性）
+            logging.info("使用工厂模式创建可视化器")
+            visualizer = self.visualizer_factory.create_visualizer("battery_chart")
+            
+            if visualizer is None:
                 raise RuntimeError("无法创建可视化器实例")
 
-            # 检查是否有有效的数据路径
-            if xml_path and os.path.exists(xml_path):
-                # 如果有有效的数据路径，先加载数据
-                logging.info("加载数据: %s", xml_path)
-                success = self.current_visualizer.load_data(xml_path)
-                if not success:
-                    logging.warning("数据加载失败，将显示空图表")
-            else:
-                logging.info("没有有效的数据路径，将显示提示信息")
-                # 清除任何可能已加载的数据
-                self.current_visualizer.clear_data()
-
-            # 显示可视化
-            logging.info("显示可视化")
-            show_success = self.current_visualizer.show_figure(xml_path)
+            # 显示可视化（不传递数据路径，让viewer自行处理数据搜索和加载）
+            logging.info("显示可视化，让viewer独立处理数据")
+            show_success = visualizer.show_figure()
             
             if show_success:
                 # 更新状态栏
