@@ -787,11 +787,106 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.init_combobox()
             self.init_table()
             self.connect_widget()
+            self._setup_accessibility()
 
             self.pushButton_Run.setFocus()
         else:
             # @todo: Add error popup windows here
             pass
+    
+    def _setup_accessibility(self) -> None:
+        """
+        设置UI控件的可访问性属性，确保符合无障碍标准
+        """
+        try:
+            # 设置控件的可访问名称和描述
+            # 测试配置组
+            self.groupBox_TestConfig.setAccessibleName(_("access_test_config", "测试配置"))
+            self.groupBox_TestConfig.setAccessibleDescription(_("access_test_config_desc", "包含测试相关配置的设置"))
+            
+            # 电池配置组
+            self.groupBox_BatteryConfig.setAccessibleName(_("access_battery_config", "电池配置"))
+            self.groupBox_BatteryConfig.setAccessibleDescription(_("access_battery_config_desc", "包含电池相关配置的设置"))
+            
+            # 运行按钮
+            self.pushButton_Run.setAccessibleName(_("access_run_button", "运行分析"))
+            self.pushButton_Run.setAccessibleDescription(_("access_run_button_desc", "开始电池分析任务"))
+            
+            # 文件选择按钮
+            self.pushButton_TestProfile.setAccessibleName(_("access_test_profile_button", "选择测试文件"))
+            self.pushButton_TestProfile.setAccessibleDescription(_("access_test_profile_desc", "选择电池测试配置文件"))
+            self.pushButton_InputPath.setAccessibleName(_("access_input_path_button", "选择输入路径"))
+            self.pushButton_InputPath.setAccessibleDescription(_("access_input_path_desc", "选择输入数据文件路径"))
+            self.pushButton_OutputPath.setAccessibleName(_("access_output_path_button", "选择输出路径"))
+            self.pushButton_OutputPath.setAccessibleDescription(_("access_output_path_desc", "选择分析结果输出路径"))
+            
+            # 设置焦点策略
+            # 确保所有交互控件都支持键盘焦点
+            interactive_widgets = [
+                self.comboBox_BatteryType,
+                self.comboBox_ConstructionMethod,
+                self.comboBox_Specification_Type,
+                self.comboBox_Specification_Method,
+                self.comboBox_Manufacturer,
+                self.lineEdit_BatchDateCode,
+                self.lineEdit_SamplesQty,
+                self.lineEdit_Temperature,
+                self.lineEdit_DatasheetNominalCapacity,
+                self.lineEdit_CalculationNominalCapacity,
+                self.spinBox_AcceleratedAging,
+                self.lineEdit_RequiredUseableCapacity,
+                self.comboBox_TesterLocation,
+                self.comboBox_TestedBy,
+                self.lineEdit_TestProfile,
+                self.pushButton_TestProfile,
+                self.lineEdit_InputPath,
+                self.pushButton_InputPath,
+                self.lineEdit_OutputPath,
+                self.pushButton_OutputPath,
+                self.pushButton_Run
+            ]
+            
+            for widget in interactive_widgets:
+                widget.setFocusPolicy(QC.Qt.FocusPolicy.ClickFocus | QC.Qt.FocusPolicy.TabFocus)
+            
+            # 设置合理的键盘焦点顺序
+            # 测试配置部分
+            QW.QWidget.setTabOrder(self.comboBox_TesterLocation, self.comboBox_TestedBy)
+            QW.QWidget.setTabOrder(self.comboBox_TestedBy, self.lineEdit_TestProfile)
+            QW.QWidget.setTabOrder(self.lineEdit_TestProfile, self.pushButton_TestProfile)
+            
+            # 电池配置部分
+            QW.QWidget.setTabOrder(self.pushButton_TestProfile, self.comboBox_BatteryType)
+            QW.QWidget.setTabOrder(self.comboBox_BatteryType, self.comboBox_ConstructionMethod)
+            QW.QWidget.setTabOrder(self.comboBox_ConstructionMethod, self.comboBox_Specification_Type)
+            QW.QWidget.setTabOrder(self.comboBox_Specification_Type, self.comboBox_Specification_Method)
+            QW.QWidget.setTabOrder(self.comboBox_Specification_Method, self.comboBox_Manufacturer)
+            QW.QWidget.setTabOrder(self.comboBox_Manufacturer, self.lineEdit_BatchDateCode)
+            QW.QWidget.setTabOrder(self.lineEdit_BatchDateCode, self.lineEdit_SamplesQty)
+            QW.QWidget.setTabOrder(self.lineEdit_SamplesQty, self.lineEdit_Temperature)
+            QW.QWidget.setTabOrder(self.lineEdit_Temperature, self.lineEdit_DatasheetNominalCapacity)
+            QW.QWidget.setTabOrder(self.lineEdit_DatasheetNominalCapacity, self.lineEdit_CalculationNominalCapacity)
+            QW.QWidget.setTabOrder(self.lineEdit_CalculationNominalCapacity, self.spinBox_AcceleratedAging)
+            QW.QWidget.setTabOrder(self.spinBox_AcceleratedAging, self.lineEdit_RequiredUseableCapacity)
+            
+            # 路径配置部分
+            QW.QWidget.setTabOrder(self.lineEdit_RequiredUseableCapacity, self.lineEdit_InputPath)
+            QW.QWidget.setTabOrder(self.lineEdit_InputPath, self.pushButton_InputPath)
+            QW.QWidget.setTabOrder(self.pushButton_InputPath, self.lineEdit_OutputPath)
+            QW.QWidget.setTabOrder(self.lineEdit_OutputPath, self.pushButton_OutputPath)
+            
+            # 最终运行按钮
+            QW.QWidget.setTabOrder(self.pushButton_OutputPath, self.pushButton_Run)
+            
+            # 确保表格支持键盘导航
+            if hasattr(self, 'tableWidget_TestInformation'):
+                self.tableWidget_TestInformation.setAccessibleName(_("access_test_info_table", "测试信息表格"))
+                self.tableWidget_TestInformation.setAccessibleDescription(_("access_test_info_table_desc", "包含测试设备和软件版本信息的表格"))
+                self.tableWidget_TestInformation.setFocusPolicy(QC.Qt.FocusPolicy.ClickFocus | QC.Qt.FocusPolicy.TabFocus)
+            
+            self.logger.info("可访问性设置已完成")
+        except (AttributeError, TypeError, RuntimeError) as e:
+            self.logger.warning("设置可访问性属性失败: %s", e)
 
     def init_lineedit(self) -> None:
         # input limit, only numbers allowed

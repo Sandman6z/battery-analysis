@@ -92,6 +92,24 @@ class StyleManager(QObject):
                         high_contrast_style = high_contrast_style.replace("#3498db", "#0000ff")  # 主色调
                         self._style_cache["high_contrast"] = high_contrast_style
                         logging.info("已基于主样式创建高对比度主题")
+                        
+                    # 添加蓝色主题（基于主样式创建）
+                    blue_style = main_style
+                    blue_style = blue_style.replace("#f8f9fa", "#e3f2fd")  # 背景色
+                    blue_style = blue_style.replace("#212529", "#1565c0")  # 文字色
+                    blue_style = blue_style.replace("#495057", "#2196f3")  # 次要文字色
+                    blue_style = blue_style.replace("#e9ecef", "#bbdefb")  # 边框色
+                    self._style_cache["blue"] = blue_style
+                    logging.info("已基于主样式创建蓝色主题")
+                    
+                    # 添加绿色主题（基于主样式创建）
+                    green_style = main_style
+                    green_style = green_style.replace("#f8f9fa", "#e8f5e8")  # 背景色
+                    green_style = green_style.replace("#212529", "#2e7d32")  # 文字色
+                    green_style = green_style.replace("#495057", "#43a047")  # 次要文字色
+                    green_style = green_style.replace("#e9ecef", "#c8e6c9")  # 边框色
+                    self._style_cache["green"] = green_style
+                    logging.info("已基于主样式创建绿色主题")
             except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
                 logging.error("加载主样式文件失败 %s: %s", main_style_file, e)
         else:
@@ -190,6 +208,36 @@ class StyleManager(QObject):
                 "surface_color": "#f8f9fa",
                 "text_color": "#212529",
                 "border_color": "#dee2e6"
+            },
+            "blue": {
+                "primary_color": "#1e88e5",
+                "secondary_color": "#43a047",
+                "warning_color": "#f39c12",
+                "error_color": "#e53935",
+                "background_color": "#e3f2fd",
+                "surface_color": "#ffffff",
+                "text_color": "#1565c0",
+                "border_color": "#bbdefb"
+            },
+            "green": {
+                "primary_color": "#29b6f6",
+                "secondary_color": "#388e3c",
+                "warning_color": "#f39c12",
+                "error_color": "#e53935",
+                "background_color": "#e8f5e8",
+                "surface_color": "#ffffff",
+                "text_color": "#2e7d32",
+                "border_color": "#c8e6c9"
+            },
+            "high_contrast": {
+                "primary_color": "#0000ff",
+                "secondary_color": "#008000",
+                "warning_color": "#ff0000",
+                "error_color": "#ff0000",
+                "background_color": "#ffffff",
+                "surface_color": "#ffffff",
+                "text_color": "#000000",
+                "border_color": "#000000"
             }
         }
         
