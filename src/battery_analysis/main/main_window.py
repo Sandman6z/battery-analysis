@@ -2108,7 +2108,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.comboBox_Specification_Method.currentIndexChanged.connect(
                 self.check_specification)
             for t in range(self.comboBox_Specification_Type.count()):
-                if self.strSpecificationType == self.comboBox_Specification_Type.itemText(t):
+                if self.specification_type == self.comboBox_Specification_Type.itemText(t):
                     self.comboBox_Specification_Type.setCurrentIndex(t)
                     break
         elif not self.comboBox_BatteryType.currentText():
