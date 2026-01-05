@@ -837,6 +837,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.lineEdit_RequiredUseableCapacity,
                 self.comboBox_TesterLocation,
                 self.comboBox_TestedBy,
+                self.comboBox_ReportedBy,
                 self.lineEdit_TestProfile,
                 self.pushButton_TestProfile,
                 self.lineEdit_InputPath,
@@ -990,6 +991,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     else:
                         # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
                         self.comboBox_TestedBy.setCurrentText(tested_by)
+                
+                # 加载ReportedBy设置
+                reported_by = user_settings.value("UserConfig/ReportedBy")
+                if reported_by:
+                    index = self.comboBox_ReportedBy.findText(reported_by)
+                    if index >= 0:
+                        self.comboBox_ReportedBy.setCurrentIndex(index)
+                    else:
+                        # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
+                        self.comboBox_ReportedBy.setCurrentText(reported_by)
 
                 # 加载温度设置
                 temperature = user_settings.value("UserConfig/Temperature")
@@ -1023,7 +1034,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.get_config("BatteryConfig/Manufacturer"))
         self.comboBox_TesterLocation.addItems(
             self.get_config("TestConfig/TesterLocation"))
-        self.comboBox_TestedBy.addItems(self.get_config("TestConfig/TestedBy"))
+        
+        # 获取TestedBy列表并同时用于comboBox_TestedBy和comboBox_ReportedBy
+        tested_by_list = self.get_config("TestConfig/TestedBy")
+        self.comboBox_TestedBy.addItems(tested_by_list)
+        self.comboBox_ReportedBy.addItems(tested_by_list)
 
         self.comboBox_BatteryType.setCurrentIndex(-1)
         self.comboBox_ConstructionMethod.setCurrentIndex(-1)
@@ -1110,12 +1125,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             12, 2,
             editable=False
         )
-        set_span_item("Reported By", 13, 0, 1, 2)
-        set_span_item(
-            "",
-            13, 2,
-            editable=True
-        )
+        # 移除Reported By行，改为使用frame_RunButton中的horizontalLayout_ReportedBy
 
     def connect_widget(self) -> None:
         self.comboBox_BatteryType.currentIndexChanged.connect(
@@ -1790,6 +1800,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 tested_by = self.comboBox_TestedBy.currentText()
                 if tested_by:
                     user_settings.setValue("UserConfig/TestedBy", tested_by)
+                
+                # 保存ReportedBy设置
+                reported_by = self.comboBox_ReportedBy.currentText()
+                if reported_by:
+                    user_settings.setValue("UserConfig/ReportedBy", reported_by)
 
                 # 温度设置
                 temperature = self.lineEdit_Temperature.text()
@@ -2252,25 +2267,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         set_item(self.get_config(
             f"{self.test_information}/TestUnits.FirmwareVersion"), 11, 2)
 
-        # 根据TesterLocation自动设置ReportedBy
-        current_tester_location = self.comboBox_TesterLocation.currentIndex()
-        # 根据用户要求，前两个选项都是BOEDT，后面的依次为PDI, BOECQ, Jabil VN和VG Fernitz
-        if current_tester_location in (0, 1):
-            reported_by = "BOEDT"
-        elif current_tester_location == 2:
-            reported_by = "PDI"
-        elif current_tester_location == 3:
-            reported_by = "BOECQ"
-        elif current_tester_location == 4:
-            reported_by = "Jabil VN"
-        elif current_tester_location == 5:
-            reported_by = "VG Fernitz"
-        else:
-            reported_by = ""
-
-        # 更新ReportedBy到表格
-        qt_item = QW.QTableWidgetItem(reported_by)
-        self.tableWidget_TestInformation.setItem(13, 2, qt_item)
+        # 移除根据TesterLocation自动设置ReportedBy的逻辑
+        # 现在ReportedBy直接使用comboBox_ReportedBy的值
 
     def get_xlsxinfo(self) -> None:
         self.checker_input_xlsx.clear()
@@ -2644,8 +2642,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.listVoltageLevel,
             self.lineEdit_Version.text(),
             self.lineEdit_RequiredUseableCapacity.text(),
-            self.tableWidget_TestInformation.item(13, 2).text(
-            ) if self.tableWidget_TestInformation.item(13, 2) else ""
+            # 直接使用comboBox_ReportedBy的值，不再从表格获取
+            self.comboBox_ReportedBy.currentText()
         ]
         # 简化验证，只验证必要的路径
         if not self.lineEdit_InputPath.text():
