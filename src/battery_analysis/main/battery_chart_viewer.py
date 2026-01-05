@@ -1154,18 +1154,14 @@ class BatteryChartViewer:
             except:
                 current_time = "2024"
             
-            # 读取pyproject.toml获取版本信息
-            version_info = "v2.1.1"
+            # 使用项目统一的版本管理系统
             try:
-                import configparser
-                config = configparser.ConfigParser()
-                pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
-                if pyproject_path.exists():
-                    config.read(pyproject_path, encoding='utf-8')
-                    if 'project' in config and 'version' in config['project']:
-                        version_info = config['project']['version']
-            except (ImportError, configparser.Error, OSError, UnicodeDecodeError):
-                pass
+                from battery_analysis.utils.version import Version
+                version_obj = Version()
+                version_info = f"v{version_obj.version}"
+            except (ImportError, AttributeError, TypeError) as e:
+                logging.warning("无法获取版本信息，使用默认版本: %s", e)
+                version_info = "v2.0.0"
             
             # 创建About信息文本
             about_text = f"""Battery Analysis Tool
@@ -1199,7 +1195,13 @@ class BatteryChartViewer:
         except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
             logging.error("显示About对话框失败: %s", e)
             # 如果对话框失败，至少打印到日志
-            print(f"Battery Analysis Tool v2.1.1\n开发者: Ewin电池分析团队")
+            try:
+                from battery_analysis.utils.version import Version
+                version_obj = Version()
+                fallback_version = f"v{version_obj.version}"
+            except (ImportError, AttributeError, TypeError):
+                fallback_version = "v2.1.2"
+            print(f"Battery Analysis Tool {fallback_version}\n开发者: Ewin电池分析团队")
 
     def _add_menu_bar(self, fig):
         """
