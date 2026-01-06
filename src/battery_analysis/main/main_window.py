@@ -36,6 +36,7 @@ from battery_analysis.main.interfaces.ivisualizer import IVisualizer
 from battery_analysis.main.menu_manager import MenuManager
 from battery_analysis.main.progress_dialog import ProgressDialog
 from battery_analysis.main.services.service_container import get_service_container
+from battery_analysis.main.signal_connector import SignalConnector
 from battery_analysis.main.ui_manager import UIManager
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
@@ -104,12 +105,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化可视化器工厂
         self.visualizer_factory = VisualizerFactory()
         # 移除current_visualizer实例属性，viewer应该完全独立
-
-        # 进度条相关属性
-        self.progress_dialog = None
-        self.progress_start_time = None
-        self.show_popup_progress = False
-        self.task_duration_threshold = 30  # 任务when长阈值（秒），超过这个when间显示弹出式进度条
 
         self.b_has_config = True
         self.checker_battery_type = Checker()
@@ -206,13 +201,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         except (AttributeError, TypeError, ValueError) as e:
             self.logger.warning("Failed to set project context: %s", e)
 
-        # 连接控制器信号
-        self._connect_controllers()
-
         self.setupUi(self)
         
         # 初始化管理器 - 在调用任何依赖管理器的方法之前
         self._initialize_managers()
+        
+        # 连接控制器信号（在manager初始化之后）
+        self.signal_connector.connect_controllers()
         
         # 加载并应用QSS样式
         try:
@@ -268,6 +263,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         
         # 初始化对话框管理器
         self.dialog_manager = DialogManager(self)
+        
+        # 初始化信号连接器
+        self.signal_connector = SignalConnector(self)
         
         # 连接菜单动作
         self.menu_manager.connect_menu_actions()
@@ -451,171 +449,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.error("加载应用图标失败: %s", e)
             return QG.QIcon()
 
-    def _connect_controllers(self):
-        """
-        连接控制器信号和槽函数
-        """
-        # 连接主控制器信号到事件总线
-        main_controller = self._get_controller("main_controller")
-        if main_controller:
-            if hasattr(main_controller, 'progress_updated'):
-                main_controller.progress_updated.connect(self._on_progress_updated)
-            if hasattr(main_controller, 'status_changed'):
-                main_controller.status_changed.connect(self.get_threadinfo)
-            if hasattr(main_controller, 'analysis_completed'):
-                main_controller.analysis_completed.connect(self.set_version)
-            if hasattr(main_controller, 'path_renamed'):
-                main_controller.path_renamed.connect(self.rename_pltPath)
-            if hasattr(main_controller, 'start_visualizer'):
-                main_controller.start_visualizer.connect(self.run_visualizer)
-
-        # 连接文件控制器信号
-        file_controller = self._get_controller("file_controller")
-        if file_controller:
-            if hasattr(file_controller, 'config_loaded'):
-                file_controller.config_loaded.connect(self._on_config_loaded)
-            if hasattr(file_controller, 'error_occurred'):
-                file_controller.error_occurred.connect(self._on_controller_error)
-
-        # 连接验证控制器信号
-        validation_controller = self._get_controller("validation_controller")
-        if validation_controller:
-            if hasattr(validation_controller, 'validation_error'):
-                validation_controller.validation_error.connect(self._on_controller_error)
-
-        # 连接事件总线事件
-        event_bus = self._get_service("event_bus")
-        if event_bus:
-            # 订阅进度更新事件
-            event_bus.subscribe("progress_updated", self._on_event_progress_updated)
-            # 订阅状态变化事件
-            event_bus.subscribe("status_changed", self._on_event_status_changed)
-            # 订阅文件选择事件
-            event_bus.subscribe("file_selected", self._on_file_selected)
-            # 订阅配置变更事件
-            event_bus.subscribe("config_changed", self._on_config_changed)
-
-    def _on_progress_updated(self, progress, status_text):
-        """
-        进度更新处理
-
-        Args:
-            progress: 进度值
-            status_text: 状态文本
-        """
-        # 更新嵌入式进度条
-        if hasattr(self, 'progressBar'):
-            self.progressBar.setValue(progress)
-        # 更新状态栏信息
-        if hasattr(self, 'statusBar_BatteryAnalysis'):
-            self.statusBar_BatteryAnalysis.showMessage(f"状态: {status_text}")
-
-        # 检查是否需要显示弹出式进度条
-        if self.progress_start_time is not None:
-            elapsed_time = time.time() - self.progress_start_time
-
-            # 如果任务已经运行超过阈值且弹出式进度条尚未显示，则显示它
-            if elapsed_time > self.task_duration_threshold and not self.show_popup_progress:
-                self._show_progress_dialog()
-
-        # 更新弹出式进度条（如果已显示）
-        if self.show_popup_progress and self.progress_dialog:
-            self.progress_dialog.update_progress(progress, status_text)
-
-        # 如果任务完成，关闭弹出式进度条
-        if progress >= 100:
-            self._close_progress_dialog()
-
-    def _on_event_progress_updated(self, progress: int, status: str):
-        """
-        事件总线进度更新处理
-
-        Args:
-            progress: 进度值
-            status: 状态文本
-        """
-        # 使用进度服务更新进度
-        progress_service = self._get_service("progress")
-        if progress_service:
-            progress_service.update_progress(progress, status)
-        
-        # 继续使用原有的进度更新处理
-        self._on_progress_updated(progress, status)
-
-    def _on_event_status_changed(self, status: bool, code: int, message: str):
-        """
-        事件总线状态变化处理
-
-        Args:
-            status: 状态布尔值
-            code: 状态码
-            message: 状态消息
-        """
-        self.logger.info("Status changed: %s, Code: %s, Message: %s", status, code, message)
-
-    def _on_file_selected(self, file_path: str):
-        """
-        事件总线文件选择处理
-
-        Args:
-            file_path: 文件路径
-        """
-        self.logger.info("File selected via event bus: %s", file_path)
-
-    def _on_config_changed(self, key: str, value: Any):
-        """
-        事件总线配置变更处理
-
-        Args:
-            key: 配置键
-            value: 配置值
-        """
-        self.logger.debug("Config changed: %s = %s", key, value)
-        config_service = self._get_service("config")
-        if config_service:
-            config_service.set(key, value)
-
-    def _on_config_loaded(self, config_dict):
-        """
-        配置加载完成处理
-
-        Args:
-            config_dict: 配置字典
-        """
-        pass
-
-    def _show_progress_dialog(self):
-        """
-        显示弹出式进度条对话框
-        """
-        if not self.progress_dialog:
-            self.progress_dialog = ProgressDialog(self)
-        self.progress_dialog.show()
-        self.progress_dialog.raise_()
-        self.progress_dialog.activateWindow()
-        self.show_popup_progress = True
-
-    def _close_progress_dialog(self):
-        """
-        关闭弹出式进度条对话框
-        """
-        if self.progress_dialog and self.show_popup_progress:
-            self.progress_dialog.close()
-            self.progress_dialog = None
-            self.show_popup_progress = False
-        self.progress_start_time = None
-
-    def _on_controller_error(self, error_msg):
-        """
-        控制器错误处理
-        
-        Args:
-            error_msg: 错误消息
-        """
-        # 关闭进度条
-        self._close_progress_dialog()
-        QW.QMessageBox.critical(self, _("error_title", "错误"), error_msg)
-
     def _connect_language_signals(self):
         """连接语言管理器的信号"""
         try:
@@ -654,10 +487,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def _update_ui_texts(self):
         """更新UI文本为当前语言"""
-        # 更新进度对话框标题
-        if hasattr(self, 'progress_dialog') and self.progress_dialog:
-            self.progress_dialog.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
-            self.progress_dialog.status_label.setText(_("progress_ready", "Ready to start analysis..."))
+        if hasattr(self, 'signal_connector') and self.signal_connector.progress_dialog:
+            self.signal_connector.progress_dialog.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
+            self.signal_connector.progress_dialog.status_label.setText(_("progress_ready", "Ready to start analysis..."))
     
     def _update_statusbar_messages(self):
         """更新状态栏消息为当前语言（委托给menu_manager）"""
@@ -2418,7 +2250,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 任务完成处理
             if stateindex == 0 and "success" in threadinfo:
                 # 关闭进度条
-                self._close_progress_dialog()
+                self.signal_connector._close_progress_dialog()
 
                 self.pushButton_Run.setText("Run")
                 self.pushButton_Run.setEnabled(True)
@@ -2444,7 +2276,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 日期不一致错误处理 (stateindex == 3)
             elif stateindex == 3:
                 # 关闭进度条
-                self._close_progress_dialog()
+                self.signal_connector._close_progress_dialog()
 
                 self.pushButton_Run.setText("Rerun")
                 self.pushButton_Run.setEnabled(True)
@@ -2478,7 +2310,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 电池分析错误处理 (stateindex == 1)
             elif stateindex == 1:
                 # 关闭进度条
-                self._close_progress_dialog()
+                self.signal_connector._close_progress_dialog()
 
                 self.pushButton_Run.setText("Rerun")
                 self.pushButton_Run.setEnabled(True)
@@ -2522,7 +2354,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 文件写入错误处理 (stateindex == 2)
             elif stateindex == 2:
                 # 关闭进度条
-                self._close_progress_dialog()
+                self.signal_connector._close_progress_dialog()
 
                 self.pushButton_Run.setText("Rerun")
                 self.pushButton_Run.setEnabled(True)
