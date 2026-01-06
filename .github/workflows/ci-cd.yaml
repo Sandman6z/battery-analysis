@@ -48,6 +48,12 @@ jobs:
         # 警告但不停止构建其他问题
         uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     
+    - name: Run tests with pytest
+      run: |
+        # 确保激活虚拟环境
+        .\.venv\Scripts\Activate.ps1
+        uv run pytest
+    
     - name: 设置Python DLL环境变量
       run: |
         # 获取Python安装路径
@@ -105,7 +111,7 @@ jobs:
     permissions:
       contents: write
     needs: build-and-test  # Release job depends on build-and-test to ensure build artifacts are available and can't run in parallel
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feat/'))
+    if: github.event_name == 'push'
     steps:
     - uses: actions/checkout@v4
       
@@ -137,41 +143,20 @@ jobs:
         }
       shell: powershell
 
-    - name: Create GitHub Release (main branch)
-      if: github.ref == 'refs/heads/main'
+    - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        name: v${{ steps.extract_version.outputs.version }}
-        tag_name: v${{ steps.extract_version.outputs.version }}
+        name: ${{ github.ref == 'refs/heads/main' && format('v{0}', steps.extract_version.outputs.version) || format('v{0}-beta.{1}', steps.extract_version.outputs.version, steps.vars.outputs.short_sha) }}
+        tag_name: ${{ github.ref == 'refs/heads/main' && format('v{0}', steps.extract_version.outputs.version) || format('v{0}-beta.{1}', steps.extract_version.outputs.version, steps.vars.outputs.short_sha) }}
         body: |
-          正式构建版本 - Release模式
+          ${{ github.ref == 'refs/heads/main' && '正式构建版本 - Release模式' || 'Beta构建版本 - Release模式' }}
           构建编号: ${{ github.run_number }}
-          版本号: v${{ steps.extract_version.outputs.version }}
-          提交SHA: ${{ github.sha }}
-          分支: main
-        draft: false
-        prerelease: false
-        make_latest: true
-        files: |
-          build/Release/*.exe
-          build/Release/*.ini
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create GitHub Release (feat branches)
-      if: startsWith(github.ref, 'refs/heads/feat/')
-      uses: softprops/action-gh-release@v2
-      with:
-        name: v${{ steps.extract_version.outputs.version }}-beta.${{ steps.vars.outputs.short_sha }}
-        tag_name: v${{ steps.extract_version.outputs.version }}-beta.${{ steps.vars.outputs.short_sha }}
-        body: |
-          Beta构建版本 - Release模式
-          构建编号: ${{ github.run_number }}
-          版本号: v${{ steps.extract_version.outputs.version }}
+          版本号: ${{ github.ref == 'refs/heads/main' && format('v{0}', steps.extract_version.outputs.version) || format('v{0}-beta.{1}', steps.extract_version.outputs.version, steps.vars.outputs.short_sha) }}
           提交SHA: ${{ github.sha }}
           分支: ${{ github.ref_name }}
         draft: false
-        prerelease: true
+        prerelease: ${{ github.ref != 'refs/heads/main' }}
+        make_latest: ${{ github.ref == 'refs/heads/main' }}
         files: |
           build/Release/*.exe
           build/Release/*.ini
