@@ -1,53 +1,10 @@
 /* ============================================   电池分析器 - 统一界面样式   版本: 5.1 - 完善主窗口样式支持   作者: UI Team   日期: 2026-01-04      功能说明:   - 统一管理所有UI组件样式   - 支持Matplotlib QtAgg组件   - 支持现代电池查看器组件   - 支持主窗口组件   - 避免样式冲突和重复加载   ============================================ */
 
-/* ============================================   主窗口样式   ============================================ */
 
-QMainWindow {
-    background-color: #f8f9fa;
-    color: #212529;
-    font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
-}
 
 /* ============================================   分组框样式   ============================================ */
 
-/* 主要分组框样式 */
-QGroupBox {
-    font-weight: bold;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    margin-top: 8px;
-    padding-top: 10px;
-    background-color: #f8f9fa;
-    color: #495057;
-}
 
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 15px;
-    padding: 0 10px 0 10px;
-    background-color: #ffffff;
-    color: #495057;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Test Config 分组框 */
-#groupBox_TestConfig {
-    border-color: #3498db;
-}
-
-#groupBox_TestConfig::title {
-    color: #3498db;
-}
-
-/* Battery Config 分组框 */
-#groupBox_BatteryConfig {
-    border-color: #27ae60;
-}
-
-#groupBox_BatteryConfig::title {
-    color: #27ae60;
-}
 
 /* ============================================   输入控件样式   ============================================ */
 
@@ -78,59 +35,7 @@ QLineEdit[readOnly="true"] {
     border-color: #dee2e6;
 }
 
-/* 下拉框样式 */
-QComboBox {
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
-    padding: 5px 20px 5px 8px;
-    background-color: #ffffff;
-    color: #495057;
-    font-size: 11px;
-}
 
-QComboBox:focus {
-    border-color: #3498db;
-    outline: none;
-}
-
-QComboBox:hover {
-    border-color: #adb5bd;
-}
-
-QComboBox::drop-down {
-    border: none;
-    width: 25px;
-    background: transparent;
-}
-
-QComboBox::down-arrow {
-    image: url(:/icons/chevron-down.svg);
-    width: 14px;
-    height: 14px;
-    margin-right: 5px;
-}
-
-QComboBox::down-arrow:on {
-    image: url(:/icons/chevron-up.svg);
-}
-
-QComboBox QAbstractItemView {
-    background-color: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    selection-background-color: #3498db;
-    selection-color: white;
-    font-size: 11px;
-}
-
-QComboBox QAbstractItemView::item {
-    padding: 8px 12px;
-    border-radius: 4px;
-}
-
-QComboBox QAbstractItemView::item:hover {
-    background-color: #e9ecef;
-}
 
 /* 微调框样式 - 简化样式，确保箭头清晰可见 */
 QSpinBox {
@@ -173,47 +78,25 @@ QSpinBox::down-button {
     border-top: none;
 }
 
-/* 使用简单的黑色背景作为箭头 */
-QSpinBox::up-arrow,
+/* 使用边框绘制箭头，与QComboBox保持一致 */
+QSpinBox::up-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid #495057;
+    width: 0px;
+    height: 0px;
+    margin: auto;
+}
+
 QSpinBox::down-arrow {
-    background-color: #000000;
-    width: 10px;
-    height: 10px;
-}
-
-/* ============================================   按钮样式   ============================================ */
-
-/* 基础按钮样式 */
-QPushButton {
-    background-color: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 3px;
-    padding: 4px 10px;
-    color: #495057;
-    font-weight: 500;
-    font-size: 10px;
-    min-height: 22px;
-    min-width: 50px;
-}
-
-QPushButton:hover {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #e9ecef,
-        stop:1 #dee2e6);
-    border-color: #adb5bd;
-}
-
-QPushButton:pressed {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #dee2e6,
-        stop:1 #ced4da);
-    border-color: #6c757d;
-}
-
-QPushButton:disabled {
-    background-color: #f8f9fa;
-    border-color: #e9ecef;
-    color: #adb5bd;
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #495057;
+    width: 0px;
+    height: 0px;
+    margin: auto;
 }
 
 /* 运行按钮特殊样式 */
@@ -266,39 +149,9 @@ QPushButton[text="浏览"]:hover {
 
 /* ============================================   标签样式   ============================================ */
 
-QLabel {
-    font-size: 11px;
-    color: #495057;
-    font-weight: 500;
-    /* 确保QLabel不影响间距和布局 */
-    border: none;
-    outline: none;
-    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性，不添加任何margin、padding */
-}
 
-QLabel[text="Battery Type"],
-QLabel[text="Construction Method"],
-QLabel[text="Specification"],
-QLabel[text="Manufacturer"],
-QLabel[text="Batch/Date Code"],
-QLabel[text="Samples Qty"],
-QLabel[text="Temperature(℃)"],
-QLabel[text="Required Useable Capacity(mAh)"],
-QLabel[text="Calculation Nominal Capacity(mAh)"],
-QLabel[text="Datasheet Nominal Capacity(mAh)"],
-QLabel[text="Tested By"],
-QLabel[text="Tester Location"],
-QLabel[text="Test Profile"] {
-    font-weight: 600;
-    color: #212529;
-    border: none;
-    outline: none;
-    /* 确保这些特定标签也不影响间距和布局 */
-    /* 保留.ui文件中设置的margin、padding、sizePolicy等布局属性，不添加任何margin、padding */
-    /* 不设置min-width等可能影响布局的属性 */
-}
 
-/* ============================================   表格样式  /* ============================================/* 表格样式 */
+/* ============================================   表格样式   ============================================ */
 QTableWidget {
     border: 1px solid #e9ecef;
     border-radius: 4px;
@@ -334,7 +187,7 @@ QTableWidget::item:selected {
     color: white;
 }
 
-/* ============================================   进度条样式  /* ============================================/* 进度条样式 */
+/* ============================================   进度条样式   ============================================ */
 QProgressBar {
     border: 1px solid #e9ecef;
     border-radius: 4px;
@@ -413,12 +266,14 @@ QStatusBar {
     border-color: #a93226;
 }
 
-/* ============================================   框架样式   ============================================/* 框架样式 */
+/* ============================================   框架样式   ============================================ */
 QFrame {
     border: 1px solid #e9ecef;
     border-radius: 4px;
     background-color: #f8f9fa;
-} 凹陷框架样式 */
+}
+
+/* 凹陷框架样式 */
 QFrame[frameShadow="Sunken"] {
     border: 2px solid #e9ecef;
     background-color: #f8f9fa;
@@ -434,7 +289,7 @@ FigureCanvasQTAgg {
 }
 
 /* Qt组件基础样式 */
-QtWidgets.QMainWindow, QtWidgets.QWidget {
+QMainWindow, QWidget {
     background-color: #f8f9fa;
     color: #212529;
     font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
@@ -459,7 +314,7 @@ FigureCanvasQTAgg {
 }
 
 /* Qt组件基础样式 */
-QtWidgets.QMainWindow, QtWidgets.QWidget {
+QMainWindow, QWidget {
     background-color: #f8f9fa;
     color: #212529;
     font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
@@ -631,7 +486,7 @@ QPushButton[button-type="analyze"] {
 QPushButton[button-type="analyze"]:hover {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 #5dade2,
-        stop:0 #85c1e9);
+        stop:1 #85c1e9);
     border-color: #5dade2;
     color: white;
 }
@@ -688,7 +543,7 @@ QPushButton[data-action="analyze"] {
 QPushButton[data-action="analyze"]:hover {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 #5dade2,
-        stop:0 #85c1e9);
+        stop:1 #85c1e9);
     border-color: #5dade2;
     color: white;
 }
@@ -959,17 +814,14 @@ QComboBox:hover {
     border-color: #adb5bd;
 }
 
+/* 移除所有自定义下拉箭头样式，使用系统默认箭头 */
 QComboBox::drop-down {
-    border: none;
-    width: 20px;
+    border: 1px solid transparent;
+    background: transparent;
 }
 
 QComboBox::down-arrow {
     image: none;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #495057;
-    margin-right: 5px;
 }
 
 QComboBox QAbstractItemView {
