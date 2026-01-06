@@ -332,6 +332,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 连接语言管理器信号
         self._connect_language_signals()
         
+        # 初始化语言处理器
+        from battery_analysis.main.ui.language_handler import LanguageHandler
+        self.language_handler = LanguageHandler(self)
+        
         self.init_window()
         self.init_widget()
 
