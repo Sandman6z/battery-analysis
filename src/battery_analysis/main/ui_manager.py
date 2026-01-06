@@ -10,6 +10,8 @@ UI管理器模块
 
 # 标准库导入
 import logging
+import os
+import re
 
 # 第三方库导入
 import PyQt6.QtCore as QC
@@ -282,7 +284,7 @@ class UIManager:
         self.main_window.comboBox_ConstructionMethod.setEnabled(False)
 
         # 加载用户配置的设置
-        self.main_window._load_user_settings()
+        self.load_user_settings()
     
     def init_table(self):
         """
@@ -417,3 +419,101 @@ class UIManager:
         # 更新状态栏
         if current_message in ("状态:就绪", "Ready"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(status_ready)
+
+    def load_user_settings(self):
+        """
+        加载用户配置文件中的设置
+        """
+        try:
+            user_config_path = os.path.join(os.path.dirname(
+                self.main_window.config_path), "user_settings.ini") if self.main_window.b_has_config else None
+
+            if user_config_path and os.path.exists(user_config_path):
+                user_settings = QC.QSettings(
+                    user_config_path, QC.QSettings.Format.IniFormat)
+
+                battery_type = user_settings.value("UserConfig/BatteryType")
+                if battery_type:
+                    index = self.main_window.comboBox_BatteryType.findText(battery_type)
+                    if index >= 0:
+                        self.main_window.comboBox_BatteryType.setCurrentIndex(index)
+
+                construction_method = user_settings.value("UserConfig/ConstructionMethod")
+                if construction_method:
+                    index = self.main_window.comboBox_ConstructionMethod.findText(construction_method)
+                    if index >= 0:
+                        self.main_window.comboBox_ConstructionMethod.setCurrentIndex(index)
+
+                specification_type = user_settings.value("UserConfig/SpecificationType")
+                if specification_type:
+                    index = self.main_window.comboBox_Specification_Type.findText(specification_type)
+                    if index >= 0:
+                        self.main_window.comboBox_Specification_Type.setCurrentIndex(index)
+
+                specification_method = user_settings.value("UserConfig/SpecificationMethod")
+                if specification_method:
+                    index = self.main_window.comboBox_Specification_Method.findText(specification_method)
+                    if index >= 0:
+                        self.main_window.comboBox_Specification_Method.setCurrentIndex(index)
+
+                manufacturer = user_settings.value("UserConfig/Manufacturer")
+                if manufacturer:
+                    index = self.main_window.comboBox_Manufacturer.findText(manufacturer)
+                    if index >= 0:
+                        self.main_window.comboBox_Manufacturer.setCurrentIndex(index)
+
+                tester_location = user_settings.value("UserConfig/TesterLocation")
+                if tester_location:
+                    index = self.main_window.comboBox_TesterLocation.findText(tester_location)
+                    if index >= 0:
+                        self.main_window.comboBox_TesterLocation.setCurrentIndex(index)
+
+                tested_by = user_settings.value("UserConfig/TestedBy")
+                if tested_by:
+                    index = self.main_window.comboBox_TestedBy.findText(tested_by)
+                    if index >= 0:
+                        self.main_window.comboBox_TestedBy.setCurrentIndex(index)
+                    else:
+                        self.main_window.comboBox_TestedBy.setCurrentText(tested_by)
+
+                reported_by = user_settings.value("UserConfig/ReportedBy")
+                if reported_by:
+                    index = self.main_window.comboBox_ReportedBy.findText(reported_by)
+                    if index >= 0:
+                        self.main_window.comboBox_ReportedBy.setCurrentIndex(index)
+                    else:
+                        self.main_window.comboBox_ReportedBy.setCurrentText(reported_by)
+
+                temperature = user_settings.value("UserConfig/Temperature")
+                if temperature:
+                    if "Freezer" in temperature:
+                        self.main_window.comboBox_Temperature.setCurrentText("Freezer Temperature")
+                        temp_value = re.search(r"(\d+)", temperature)
+                        if temp_value:
+                            self.main_window.spinBox_Temperature.setValue(int(temp_value.group(1)))
+                    else:
+                        self.main_window.comboBox_Temperature.setCurrentText("Room Temperature")
+
+                temperature_type = user_settings.value("UserConfig/TemperatureType")
+                if temperature_type:
+                    self.main_window.comboBox_Temperature.setCurrentText(temperature_type)
+                    if temperature_type == "Freezer Temperature":
+                        self.main_window.spinBox_Temperature.setEnabled(True)
+                    else:
+                        self.main_window.spinBox_Temperature.setEnabled(False)
+
+                freezer_temp = user_settings.value("UserConfig/FreezerTemperature")
+                if freezer_temp:
+                    try:
+                        self.main_window.spinBox_Temperature.setValue(int(freezer_temp))
+                    except (ValueError, TypeError):
+                        pass
+
+                output_path = user_settings.value("UserConfig/OutputPath")
+                if output_path:
+                    self.main_window.lineEdit_OutputPath.setText(output_path)
+                    main_controller = self.main_window._get_controller("main_controller")
+                    if main_controller:
+                        main_controller.set_project_context(output_path=output_path)
+        except (AttributeError, TypeError, KeyError, OSError) as e:
+            self.logger.error("加载用户设置失败: %s", e)
