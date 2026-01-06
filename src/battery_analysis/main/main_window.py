@@ -2067,10 +2067,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     + self.get_config("BatteryConfig/SpecificationTypePouchCell")
                 listAllSpecificationMethod = self.get_config(
                     "BatteryConfig/SpecificationMethod")
+                # 优先匹配最长的规格类型，避免短匹配优先
+                intIndexType = -1
+                max_match_length = 0
                 for t in range(len(listAllSpecificationType)):
-                    if f"{listAllSpecificationType[t]}" in strSampleInputXlsxTitle:
-                        intIndexType = t
-                        break
+                    spec_type = listAllSpecificationType[t]
+                    if spec_type in strSampleInputXlsxTitle:
+                        if len(spec_type) > max_match_length:
+                            max_match_length = len(spec_type)
+                            intIndexType = t
                 for m in range(len(listAllSpecificationMethod)):
                     if f"{listAllSpecificationMethod[m]}" in strSampleInputXlsxTitle:
                         intIndexMethod = m
