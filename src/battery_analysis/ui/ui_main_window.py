@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'c:\Users\boe\Desktop\battery-analysis\src\battery_analysis\ui\resources\ui_battery_analysis.ui'
+# Form implementation generated from reading ui file './src/battery_analysis/ui/resources/ui_battery_analysis.ui'
 #
 # Created by: PyQt6 UI code generator 6.10.0
 #

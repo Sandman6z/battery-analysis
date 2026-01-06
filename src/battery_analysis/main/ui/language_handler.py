@@ -49,17 +49,7 @@ class LanguageHandler(QObject):
         Args:
             language_code: 新的语言代码
         """
-        # 更新窗口标题
-        window_title_template = self._("window_title")
-        try:
-            # 如果翻译包含{version}占位符，则进行格式化
-            if "{version}" in window_title_template:
-                window_title = window_title_template.format(version=self.main_window.version)
-            else:
-                window_title = window_title_template
-        except (KeyError, ValueError):
-            # 如果格式化失败，使用备用标题
-            window_title = f"Battery Analyzer v{self.main_window.version}"
+        window_title = f"Battery Analyzer v{self.main_window.version}"
         self.main_window.setWindowTitle(window_title)
         
         # 更新UI文本

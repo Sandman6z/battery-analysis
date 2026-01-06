@@ -41,17 +41,7 @@ class UIManager:
         """
         初始化窗口设置
         """
-        # 在窗口标题中显示应用程序名称和版本号（支持国际化）
-        window_title_template = _("window_title")
-        try:
-            # 如果翻译包含{version}占位符，则进行格式化
-            if "{version}" in window_title_template:
-                window_title = window_title_template.format(version=self.main_window.version)
-            else:
-                window_title = window_title_template
-        except (KeyError, ValueError):
-            # 如果格式化失败，使用备用标题
-            window_title = f"Battery Analyzer v{self.main_window.version}"
+        window_title = f"Battery Analyzer v{self.main_window.version}"
         self.main_window.setWindowTitle(window_title)
         
         # 加载应用图标
@@ -388,17 +378,7 @@ class UIManager:
         """
         更新UI文本为当前语言
         """
-        # 更新窗口标题
-        window_title_template = _("window_title")
-        try:
-            # 如果翻译包含{version}占位符，则进行格式化
-            if "{version}" in window_title_template:
-                window_title = window_title_template.format(version=self.main_window.version)
-            else:
-                window_title = window_title_template
-        except (KeyError, ValueError):
-            # 如果格式化失败，使用备用标题
-            window_title = f"Battery Analyzer v{self.main_window.version}"
+        window_title = f"Battery Analyzer v{self.main_window.version}"
         self.main_window.setWindowTitle(window_title)
         
         # 更新进度对话框标题

@@ -461,17 +461,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def _on_language_changed(self, language_code):
         """语言切换处理"""
-        # 更新窗口标题
-        window_title_template = _("window_title")
-        try:
-            # 如果翻译包含{version}占位符，则进行格式化
-            if "{version}" in window_title_template:
-                window_title = window_title_template.format(version=self.version)
-            else:
-                window_title = window_title_template
-        except (KeyError, ValueError):
-            # 如果格式化失败，使用备用标题
-            window_title = f"Battery Analyzer v{self.version}"
+        window_title = f"Battery Analyzer v{self.version}"
         self.setWindowTitle(window_title)
         
         # 更新UI文本
