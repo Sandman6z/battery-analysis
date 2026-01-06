@@ -37,11 +37,12 @@ QLineEdit[readOnly="true"] {
 
 
 
-/* 微调框样式 - 简化样式，确保箭头清晰可见 */
+/* 微调框样式 - 极简风格 */
 QSpinBox {
+    /* 只设置基本样式，让Qt处理箭头 */
     border: 1px solid #e9ecef;
     border-radius: 3px;
-    padding: 3px 5px;
+    padding: 3px 20px 3px 5px;
     background-color: #ffffff;
     color: #495057;
     font-size: 11px;
@@ -51,52 +52,27 @@ QSpinBox {
 
 QSpinBox:focus {
     border-color: #3498db;
-    outline: none;
 }
 
 QSpinBox:hover {
     border-color: #adb5bd;
 }
 
-/* 微调框箭头按钮样式 - 使用高对比度设计 */
-QSpinBox::up-button,
-QSpinBox::down-button {
-    width: 18px;
-    height: 11px;
-    background-color: #ffffff;
-    border: 1px solid #e9ecef;
-    margin: 0;
-}
-
-QSpinBox::up-button {
-    border-top-right-radius: 2px;
-    border-bottom: none;
-}
-
-QSpinBox::down-button {
-    border-bottom-right-radius: 2px;
-    border-top: none;
-}
-
-/* 使用边框绘制箭头，与QComboBox保持一致 */
+/* 使用资源文件中的SVG图标作为spinBox箭头 */
 QSpinBox::up-arrow {
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-bottom: 4px solid #495057;
-    width: 0px;
-    height: 0px;
-    margin: auto;
+    image: url(:/icons/chevron-up.svg);
+    width: 10px;
+    height: 10px;
+    background: transparent;
+    border: none;
 }
 
 QSpinBox::down-arrow {
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 4px solid #495057;
-    width: 0px;
-    height: 0px;
-    margin: auto;
+    image: url(:/icons/chevron-down.svg);
+    width: 10px;
+    height: 10px;
+    background: transparent;
+    border: none;
 }
 
 /* 运行按钮特殊样式 */
@@ -814,14 +790,14 @@ QComboBox:hover {
     border-color: #adb5bd;
 }
 
-/* 移除所有自定义下拉箭头样式，使用系统默认箭头 */
+/* 恢复QComboBox的正常样式 */
 QComboBox::drop-down {
     border: 1px solid transparent;
     background: transparent;
 }
 
+/* 移除自定义箭头样式，使用系统默认 */
 QComboBox::down-arrow {
-    image: none;
 }
 
 QComboBox QAbstractItemView {
