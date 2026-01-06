@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>917</width>
-    <height>785</height>
+    <height>754</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -163,7 +163,7 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>5</width>
-               <height>30</height>
+               <height>0</height>
               </size>
              </property>
             </spacer>
@@ -263,7 +263,7 @@ QComboBox::down-arrow:on {
              <property name="sizeHint" stdset="0">
               <size>
                <width>50</width>
-               <height>35</height>
+               <height>0</height>
               </size>
              </property>
             </spacer>
@@ -336,7 +336,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>5</width>
-             <height>10</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -469,7 +469,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>25</width>
-             <height>30</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -581,7 +581,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>5</width>
-             <height>30</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -662,7 +662,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>30</width>
-             <height>30</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -792,7 +792,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>62</width>
-             <height>30</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -910,7 +910,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>12</width>
-             <height>20</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -1025,7 +1025,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>55</width>
-             <height>60</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -1277,7 +1277,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>25</width>
-             <height>30</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -1358,7 +1358,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>10</width>
-             <height>30</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -1436,7 +1436,7 @@ QComboBox::down-arrow:on {
            <property name="sizeHint" stdset="0">
             <size>
              <width>15</width>
-             <height>30</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -1671,7 +1671,7 @@ QComboBox::down-arrow:on {
        <number>2</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_TesterLocation" stretch="10,10,10">
+       <layout class="QHBoxLayout" name="horizontalLayout_TesterLocation" stretch="1,0,10">
         <property name="spacing">
          <number>5</number>
         </property>
@@ -1797,7 +1797,7 @@ QComboBox::down-arrow:on {
         <property name="sizeHint" stdset="0">
          <size>
           <width>5</width>
-          <height>20</height>
+          <height>0</height>
          </size>
         </property>
        </spacer>
@@ -1852,7 +1852,7 @@ QComboBox::down-arrow:on {
           <property name="sizeHint" stdset="0">
            <size>
             <width>10</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
          </spacer>
@@ -2010,7 +2010,7 @@ QComboBox::down-arrow:on {
           <property name="sizeHint" stdset="0">
            <size>
             <width>35</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
          </spacer>
@@ -2126,7 +2126,7 @@ QComboBox::down-arrow:on {
           <property name="sizeHint" stdset="0">
            <size>
             <width>27</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
          </spacer>
@@ -2200,7 +2200,7 @@ QComboBox::down-arrow:on {
       <x>10</x>
       <y>582</y>
       <width>661</width>
-      <height>161</height>
+      <height>131</height>
      </rect>
     </property>
     <property name="font">
@@ -2224,7 +2224,7 @@ QComboBox::down-arrow:on {
        <x>5</x>
        <y>15</y>
        <width>651</width>
-       <height>141</height>
+       <height>111</height>
       </rect>
      </property>
      <property name="widgetResizable">
@@ -2236,7 +2236,7 @@ QComboBox::down-arrow:on {
         <x>0</x>
         <y>0</y>
         <width>649</width>
-        <height>139</height>
+        <height>109</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -2736,7 +2736,7 @@ QPushButton#pushButton_Run:pressed {
             <property name="sizeHint" stdset="0">
              <size>
               <width>10</width>
-              <height>30</height>
+              <height>0</height>
              </size>
             </property>
            </spacer>
@@ -2820,7 +2820,7 @@ QPushButton#pushButton_Run:pressed {
             <property name="sizeHint" stdset="0">
              <size>
               <width>10</width>
-              <height>20</height>
+              <height>0</height>
              </size>
             </property>
            </spacer>
