@@ -1008,90 +1008,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.error("应用首选项后处理时发生错误: %s", e)
 
     def toggle_toolbar_safe(self) -> None:
-        """安全地切换工具栏的显示/隐藏状态"""
-        if hasattr(self, 'actionShow_Toolbar') and hasattr(self, 'toolBar'):
-            self.toolBar.setVisible(self.actionShow_Toolbar.isChecked())
-        elif hasattr(self, 'toolBar'):
-            # 如果没有actionShow_Toolbar，只是切换显示状态
-            self.toolBar.setVisible(not self.toolBar.isVisible())
+        """安全地切换工具栏的显示/隐藏状态（委托给menu_manager）"""
+        self.menu_manager.toggle_toolbar_safe()
 
     def toggle_statusbar_safe(self) -> None:
-        """安全地切换状态栏的显示/隐藏状态"""
-        if hasattr(self, 'actionShow_Statusbar') and hasattr(self, 'statusBar_BatteryAnalysis'):
-            self.statusBar_BatteryAnalysis.setVisible(
-                self.actionShow_Statusbar.isChecked())
-        elif hasattr(self, 'statusBar_BatteryAnalysis'):
-            # 如果没有actionShow_Statusbar，只是切换显示状态
-            self.statusBar_BatteryAnalysis.setVisible(
-                not self.statusBar_BatteryAnalysis.isVisible())
+        """安全地切换状态栏的显示/隐藏状态（委托给menu_manager）"""
+        self.menu_manager.toggle_statusbar_safe()
 
     def setup_menu_shortcuts(self) -> None:
-        """安全地设置所有菜单的快捷键"""
-        try:
-            # 文件菜单快捷键
-            if hasattr(self, 'actionNew'):
-                self.actionNew.setShortcut(QG.QKeySequence.StandardKey.New)
-            if hasattr(self, 'actionOpen'):
-                self.actionOpen.setShortcut(QG.QKeySequence.StandardKey.Open)
-            if hasattr(self, 'actionSave'):
-                self.actionSave.setShortcut(QG.QKeySequence.StandardKey.Save)
-            if hasattr(self, 'actionSave_As'):
-                self.actionSave_As.setShortcut(
-                    QG.QKeySequence.StandardKey.SaveAs)
-            if hasattr(self, 'actionExit'):
-                self.actionExit.setShortcut(QG.QKeySequence.StandardKey.Quit)
-
-            # 编辑菜单快捷键
-            if hasattr(self, 'actionUndo'):
-                self.actionUndo.setShortcut(QG.QKeySequence.StandardKey.Undo)
-            if hasattr(self, 'actionRedo'):
-                self.actionRedo.setShortcut(QG.QKeySequence.StandardKey.Redo)
-            if hasattr(self, 'actionCut'):
-                self.actionCut.setShortcut(QG.QKeySequence.StandardKey.Cut)
-            if hasattr(self, 'actionCopy'):
-                self.actionCopy.setShortcut(QG.QKeySequence.StandardKey.Copy)
-            if hasattr(self, 'actionPaste'):
-                self.actionPaste.setShortcut(QG.QKeySequence.StandardKey.Paste)
-
-            # 视图菜单快捷键
-            if hasattr(self, 'actionZoom_In'):
-                self.actionZoom_In.setShortcut(
-                    QG.QKeySequence.StandardKey.ZoomIn)
-            if hasattr(self, 'actionZoom_Out'):
-                self.actionZoom_Out.setShortcut(
-                    QG.QKeySequence.StandardKey.ZoomOut)
-
-            # 工具菜单快捷键
-            if hasattr(self, 'actionCalculate_Battery'):
-                self.actionCalculate_Battery.setShortcut(
-                    QG.QKeySequence("Ctrl+B"))
-            if hasattr(self, 'actionAnalyze_Data'):
-                self.actionAnalyze_Data.setShortcut(QG.QKeySequence("Ctrl+D"))
-            if hasattr(self, 'actionGenerate_Report'):
-                self.actionGenerate_Report.setShortcut(
-                    QG.QKeySequence("Ctrl+R"))
-
-            # 帮助菜单快捷键
-            if hasattr(self, 'actionUser_Mannual'):
-                self.actionUser_Mannual.setShortcut(
-                    QG.QKeySequence.StandardKey.HelpContents)
-            if hasattr(self, 'actionOnline_Help'):
-                self.actionOnline_Help.setShortcut(QG.QKeySequence("F1"))
-            if hasattr(self, 'actionAbout'):
-                self.actionAbout.setShortcut(QG.QKeySequence("Ctrl+Alt+A"))
-
-            # 为菜单项添加视觉提示
-            if hasattr(self, 'actionShow_Toolbar'):
-                self.actionShow_Toolbar.setCheckable(True)
-                self.actionShow_Toolbar.setChecked(False)
-                # 确保toolbar的可见性与action状态一致
-                if hasattr(self, 'toolBar'):
-                    self.toolBar.setVisible(False)
-            if hasattr(self, 'actionShow_Statusbar'):
-                self.actionShow_Statusbar.setCheckable(True)
-                self.actionShow_Statusbar.setChecked(True)
-        except (AttributeError, TypeError, RuntimeError) as e:
-            logging.error("设置菜单快捷键失败: %s", e)
+        # 安全地设置所有菜单的快捷键（委托给menu_manager）
+        self.menu_manager.setup_menu_shortcuts()
 
     def show_user_manual(self) -> None:
         """显示用户手册"""
