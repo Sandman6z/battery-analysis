@@ -1,11 +1,19 @@
 """
 进度对话框模块
 
-这个模块实现了电池分析应用的进度对话框，用于显示长时间运行任务的进度信息。
+这个模块实现了电池分析应用的进度对话框功能，包括：
+- 弹出式进度条对话框
+- 进度更新和状态显示
+- 取消功能支持
+- 适合长时间运行的任务
 """
+
+# 标准库导入
+import logging
 
 # 第三方库导入
 import PyQt6.QtCore as QC
+import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
@@ -94,7 +102,7 @@ class ProgressDialog(QW.QDialog):
         self.status_label.setText(status_text)
         
         # 更新窗口标题，显示百分比
-        self.setWindowTitle(f"{_('progress_title', 'Battery Analysis Progress')} - {progress}%")
+        self.setWindowTitle(f"{_("progress_title", "Battery Analysis Progress")} - {progress}%")
 
         # 确保界面实时更新
         QW.QApplication.processEvents()
