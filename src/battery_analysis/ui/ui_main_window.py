@@ -952,7 +952,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_TestedBy.setEditable(False)
+        self.comboBox_TestedBy.setEditable(True)
         self.comboBox_TestedBy.setObjectName("comboBox_TestedBy")
         self.horizontalLayout_TestedBy.addWidget(self.comboBox_TestedBy)
         self.horizontalLayout.addLayout(self.horizontalLayout_TestedBy)
@@ -1380,7 +1380,7 @@ class Ui_MainWindow(object):
 "    image: url(:/icons/chevron-up.svg);\n"
 "}\n"
 "")
-        self.comboBox_ReportedBy.setEditable(False)
+        self.comboBox_ReportedBy.setEditable(True)
         self.comboBox_ReportedBy.setObjectName("comboBox_ReportedBy")
         self.horizontalLayout_ReportedBy.addWidget(self.comboBox_ReportedBy)
         self.verticalLayout.addLayout(self.horizontalLayout_ReportedBy)

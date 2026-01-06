@@ -1912,7 +1912,7 @@ QComboBox::down-arrow:on {
 </string>
           </property>
           <property name="editable">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -2880,7 +2880,7 @@ QComboBox::down-arrow:on {
 </string>
             </property>
             <property name="editable">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </item>
