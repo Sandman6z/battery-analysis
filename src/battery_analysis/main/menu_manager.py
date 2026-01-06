@@ -200,3 +200,18 @@ class MenuManager:
         # 这里可以添加菜单文本的国际化更新
         # 例如：self.main_window.actionExit.setText(_("menu_exit", "Exit"))
         pass
+    
+    def update_statusbar_messages(self):
+        """
+        更新状态栏消息为当前语言
+        """
+        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            # 保存当前消息，以便切换语言后恢复
+            current_message = self.main_window.statusBar_BatteryAnalysis.currentMessage()
+            
+            # 获取翻译后的状态消息
+            status_ready = _("status_ready", "状态:就绪")
+            
+            # 更新状态栏
+            if current_message in ("状态:就绪", "Ready"):
+                self.main_window.statusBar_BatteryAnalysis.showMessage(status_ready)

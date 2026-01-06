@@ -766,19 +766,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.progress_dialog.status_label.setText(_("progress_ready", "Ready to start analysis..."))
     
     def _update_statusbar_messages(self):
-        """更新状态栏消息为当前语言"""
-        # 保存当前消息，以便切换语言后恢复
-        current_message = self.statusBar_BatteryAnalysis.currentMessage()
-        
-        # 获取翻译后的状态消息
-        status_ready = _("status_ready", "状态:就绪")
-        
-        # 更新状态栏
-        if current_message in ("状态:就绪", "Ready"):
-            self.statusBar_BatteryAnalysis.showMessage(status_ready)
-        
-        # 更新其他可能需要翻译的消息
-        # 添加更多状态栏消息的翻译
+        """更新状态栏消息为当前语言（委托给menu_manager）"""
+        self.menu_manager.update_statusbar_messages()
     
     def _refresh_dialogs(self):
         """刷新所有对话框以应用新语言"""
@@ -924,62 +913,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.pushButton_Run.clicked.connect(self.run)
         self.sigSetVersion.connect(self.get_version)
 
-        # 设置菜单快捷键
+        # 菜单和工具栏管理功能已委托给menu_manager
+        # 所有菜单连接、快捷键设置等都在menu_manager中处理
+        self.menu_manager.connect_menu_actions()
         self.setup_menu_shortcuts()
-
-        # 菜单动作连接
-        self.actionExit.triggered.connect(self.handle_exit)
-        self.actionAbout.triggered.connect(self.handle_about)
-        self.actionUser_Mannual.triggered.connect(self.show_user_manual)
-        self.actionOnline_Help.triggered.connect(self.show_online_help)
-
-        # 常用编辑功能连接
-        self.actionCopy.triggered.connect(self.copy_selected_text)
-        self.actionPaste.triggered.connect(self.paste_text)
-        self.actionCut.triggered.connect(self.cut_selected_text)
-
-        # 首选项对话框连接
-        self.actionPreferences.triggered.connect(self.show_preferences)
-
-        # 工具栏和状态栏显示/隐藏功能连接
-        if hasattr(self, 'actionShow_Toolbar'):
-            self.actionShow_Toolbar.triggered.connect(self.toggle_toolbar_safe)
-        if hasattr(self, 'actionShow_Statusbar'):
-            self.actionShow_Statusbar.triggered.connect(
-                self.toggle_statusbar_safe)
-
-        # 工具菜单功能连接
-        self.actionCalculate_Battery.triggered.connect(self.calculate_battery)
-        self.actionAnalyze_Data.triggered.connect(self.analyze_data)
-        self.actionBatteryChartViewer.triggered.connect(self.run_visualizer)
-        self.actionGenerate_Report.triggered.connect(self.generate_report)
-        self.actionBatch_Processing.triggered.connect(self.batch_processing)
-
-        # 缩放功能连接
-        self.actionZoom_In.triggered.connect(self.zoom_in)
-        self.actionZoom_Out.triggered.connect(self.zoom_out)
-        self.actionReset_Zoom.triggered.connect(self.reset_zoom)
-
-        # 主题菜单功能连接
-        if hasattr(self, 'actionSystem_Default'):
-            self.actionSystem_Default.triggered.connect(
-                lambda: self.set_theme("System Default"))
-        if hasattr(self, 'actionWindows_11'):
-            self.actionWindows_11.triggered.connect(
-                lambda: self.set_theme("Windows 11"))
-        if hasattr(self, 'actionWindows_Vista'):
-            self.actionWindows_Vista.triggered.connect(
-                lambda: self.set_theme("Windows Vista"))
-        if hasattr(self, 'actionFusion'):
-            self.actionFusion.triggered.connect(
-                lambda: self.set_theme("Fusion"))
-        if hasattr(self, 'actionDark_Theme'):
-            self.actionDark_Theme.triggered.connect(
-                lambda: self.set_theme("Dark Theme"))
-
-        # 文件操作连接
-        self.actionSave.triggered.connect(self.save_settings)
-        self.actionExport_Report.triggered.connect(self.export_report)
 
     def handle_exit(self) -> None:
         """
