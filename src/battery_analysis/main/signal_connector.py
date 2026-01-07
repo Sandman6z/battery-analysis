@@ -159,7 +159,7 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setEnabled(True)
                 self.main_window.statusBar_BatteryAnalysis.showMessage("电池分析完成！")
 
-                # 显示成功提示，添加打开报告按钮
+                # 显示成功提示，添加打开报告和打开路径按钮
                 msg_box = QW.QMessageBox()
                 msg_box.setWindowTitle("分析完成")
                 msg_box.setText("电池分析已成功完成！\n\n报告已生成到指定输出路径。")
@@ -167,16 +167,25 @@ class SignalConnector:
                 
                 # 添加打开报告按钮
                 open_report_button = msg_box.addButton("打开报告", QW.QMessageBox.ButtonRole.ActionRole)
+                
+                # 添加打开路径按钮
+                open_path_button = msg_box.addButton("打开路径", QW.QMessageBox.ButtonRole.ActionRole)
+                
                 # 添加确定按钮
                 ok_button = msg_box.addButton(QW.QMessageBox.StandardButton.Ok)
                 
                 msg_box.exec()
                 
                 # 处理按钮点击
-                if msg_box.clickedButton() == open_report_button:
+                clicked_button = msg_box.clickedButton()
+                if clicked_button == open_report_button:
                     # 调用主窗口的_open_report方法
                     if hasattr(self.main_window, '_open_report'):
                         self.main_window._open_report()
+                elif clicked_button == open_path_button:
+                    # 调用主窗口的_open_report_path方法
+                    if hasattr(self.main_window, '_open_report_path'):
+                        self.main_window._open_report_path()
 
             # 日期不一致错误处理 (stateindex == 3)
             elif stateindex == 3:

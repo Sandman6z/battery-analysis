@@ -44,47 +44,19 @@ class UIManager:
         """
         初始化窗口设置
         """
-        window_title = f"Battery Analyzer v{self.main_window.version}"
-        self.main_window.setWindowTitle(window_title)
-        
-        # 加载应用图标
-        self._load_application_icon()
+        # 使用WindowSetup组件进行窗口初始化
+        from battery_analysis.main.ui_components.window_setup import WindowSetup
+        window_setup = WindowSetup(self.main_window)
+        window_setup.init_window()
     
     def _load_application_icon(self):
         """
         加载应用程序图标
         """
-        try:
-            # 尝试多个可能的图标路径（优先使用环境检测器，否则使用固定路径）
-            icon_paths = []
-            
-            # 如果环境检测器可用，使用它来解析路径
-            if self.main_window.env_detector:
-                icon_paths = [
-                    self.main_window.env_detector.get_resource_path("config/resources/icons/Icon_BatteryTestGUI.ico"),
-                    self.main_window.env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
-                ]
-            
-            # 始终尝试相对路径（工程中的图标）
-            from pathlib import Path
-            icon_paths.extend([
-                Path(self.main_window.current_directory) / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-                Path(self.main_window.current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-            ])
-            
-            # 遍历所有可能的路径，找到第一个存在的
-            for icon_path in icon_paths:
-                if icon_path.exists():
-                    self.logger.debug("找到应用图标: %s", icon_path)
-                    self.main_window.setWindowIcon(QG.QIcon(str(icon_path)))
-                    return
-            
-            # 如果都找不到，使用默认图标
-            self.logger.warning("未找到应用图标文件，使用默认图标")
-            
-        except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
-            # 捕获所有可能的异常，确保应用能正常启动
-            self.logger.error("加载应用图标失败: %s", e)
+        # 使用WindowSetup组件加载应用图标
+        from battery_analysis.main.ui_components.window_setup import WindowSetup
+        window_setup = WindowSetup(self.main_window)
+        window_setup._load_application_icon()
     
     def init_widget(self):
         """

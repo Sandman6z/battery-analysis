@@ -48,13 +48,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def calc_md5checksum(file_paths):
-    md5_hash = hashlib.md5()
-    for file_path in file_paths:
-        with open(file_path, "rb") as file:
-            data = file.read()
-            md5_hash.update(data)
-    return md5_hash.hexdigest()
+
 
 
 def run_visualizer_function():
@@ -1417,7 +1411,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.lineEdit_Version.setText("")
                 return
             strCsvMd5Path = strOutoutDir + "/MD5.csv"
-            self.md5_checksum = calc_md5checksum(listAllInXlsx)
+            # 使用FileUtils.calc_md5checksum替换calc_md5checksum
+            from battery_analysis.main.utils.file_utils import FileUtils
+            self.md5_checksum = FileUtils.calc_md5checksum(listAllInXlsx)
             if os.path.exists(strCsvMd5Path) and os.path.getsize(strCsvMd5Path) != 0:
                 listMD5Reader = []
                 f = open(strCsvMd5Path, mode='r', encoding='utf-8')
@@ -1944,6 +1940,28 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         except Exception as e:
             QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(e)}")
             self.logger.error("打开报告失败: %s", e)
+            
+    def _open_report_path(self):
+        """打开报告所在的文件夹"""
+        output_path_str = self.lineEdit_OutputPath.text()
+        
+        try:
+            from pathlib import Path
+            output_path = Path(output_path_str)
+            
+            if not output_path.exists() or not output_path.is_dir():
+                QW.QMessageBox.warning(self, "警告", f"无效的输出路径: {output_path}")
+                return
+            
+            # 直接打开输出路径，因为报告已经存储在这里
+            try:
+                os.startfile(str(output_path))
+            except Exception as popen_error:
+                logging.error("打开报告文件夹失败: %s", popen_error)
+                QW.QMessageBox.critical(self, "错误", f"打开文件夹失败: {str(popen_error)}")
+        except Exception as e:
+            QW.QMessageBox.critical(self, "错误", f"打开文件夹失败: {str(e)}")
+            self.logger.error("打开报告文件夹失败: %s", e)
 
     def set_version(self) -> None:
         # 初始化必要的属性如果不存在
@@ -2071,11 +2089,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def _show_analysis_complete_dialog(self):
         """
-        显示分析完成对话框，包含"打开报告"按钮
+        显示分析完成对话框，包含"打开报告"、"打开路径"和"确定"按钮
         """
         dialog = QW.QDialog(self)
         dialog.setWindowTitle("分析完成")
-        dialog.setFixedSize(350, 150)
+        dialog.setFixedSize(450, 150)
         dialog.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
                              QC.Qt.WindowType.WindowCloseButtonHint)
         
@@ -2100,6 +2118,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         open_report_button.setMinimumWidth(120)
         open_report_button.clicked.connect(lambda: self._open_report(dialog))
         button_layout.addWidget(open_report_button)
+        
+        # 添加打开路径按钮
+        open_path_button = QW.QPushButton("打开路径")
+        open_path_button.setMinimumHeight(32)
+        open_path_button.setMinimumWidth(120)
+        open_path_button.clicked.connect(lambda: self._open_report_path(dialog))
+        button_layout.addWidget(open_path_button)
         
         # 添加确定按钮
         ok_button = QW.QPushButton("确定")
