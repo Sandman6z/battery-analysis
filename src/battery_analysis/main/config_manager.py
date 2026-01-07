@@ -97,7 +97,21 @@ class ConfigManager:
                     if item != "":
                         list_value.append(item)
             elif isinstance(value, str):
-                list_value = [value]
+                # 处理逗号分隔的字符串，例如："item1", "item2", "item3"
+                if "," in value:
+                    # 先去除首尾空格
+                    value = value.strip()
+                    # 分割字符串
+                    items = value.split(",")
+                    list_value = []
+                    for item in items:
+                        # 去除每个项的首尾空格和引号
+                        cleaned_item = item.strip().strip('"')
+                        if cleaned_item:
+                            list_value.append(cleaned_item)
+                else:
+                    # 单个值，直接添加
+                    list_value = [value.strip().strip('"')]
             else:
                 list_value = []
             return list_value

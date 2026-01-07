@@ -15,6 +15,7 @@ import logging
 import multiprocessing
 import os
 import re
+import subprocess
 import sys
 import time
 import warnings
@@ -1450,15 +1451,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         set_item(self.get_config(
             f"{self.test_information}/SoftwareVersions.BTSDAVersion"), 3, 2)
         set_item(self.get_config(
-            f"{self.test_information}/middleMachines.Model"), 4, 2)
+            f"{self.test_information}/MiddleMachines.Model"), 4, 2)
         set_item(self.get_config(
-            f"{self.test_information}/middleMachines.HardwareVersion"), 5, 2)
+            f"{self.test_information}/MiddleMachines.HardwareVersion"), 5, 2)
         set_item(self.get_config(
-            f"{self.test_information}/middleMachines.SerialNumber"), 6, 2)
+            f"{self.test_information}/MiddleMachines.SerialNumber"), 6, 2)
         set_item(self.get_config(
-            f"{self.test_information}/middleMachines.FirmwareVersion"), 7, 2)
+            f"{self.test_information}/MiddleMachines.FirmwareVersion"), 7, 2)
         set_item(self.get_config(
-            f"{self.test_information}/middleMachines.DeviceType"), 8, 2)
+            f"{self.test_information}/MiddleMachines.DeviceType"), 8, 2)
         set_item(self.get_config(
             f"{self.test_information}/TestUnits.Model"), 9, 2)
         set_item(self.get_config(

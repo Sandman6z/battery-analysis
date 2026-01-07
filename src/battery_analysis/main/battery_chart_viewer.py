@@ -634,12 +634,19 @@ class BatteryChartViewer:
                         data_idx = ((loop - 1) % 3) - 1
                         # 确保索引在有效范围内
                         if 0 <= current_idx < self.intCurrentLevelNum and 0 <= data_idx < 4:
-                            # 尝试将所有数据转换为float
-                            float_data = [float(row[i])
-                                          for i in range(len(row))]
-                            self.listPlt[current_idx][data_idx].append(
-                                float_data)
-                    except (ValueError, IndexError) as e:
+                            # 只处理数值列，跳过字符串列（如'Battery_01'）
+                            float_data = []
+                            for i in range(len(row)):
+                                try:
+                                    # 尝试转换为float，如果失败则跳过此列
+                                    float_data.append(float(row[i]))
+                                except ValueError:
+                                    # 跳过非数值列
+                                    continue
+                            # 只有当有有效数值数据时才添加
+                            if float_data:
+                                self.listPlt[current_idx][data_idx].append(float_data)
+                    except (IndexError) as e:
                         logging.warning("解析CSV行数据时出错: %s，跳过此行", e)
             index += 1
 
@@ -781,7 +788,7 @@ class BatteryChartViewer:
 
                 # 添加菜单栏
                 self._add_menu_bar(fig)
-            except (matplotlib.MatplotlibError, OSError, ValueError, TypeError) as init_error:
+            except (OSError, ValueError, TypeError) as init_error:
                 logging.error("图表初始化失败: %s", str(init_error))
                 self._show_error_plot()
                 return True
@@ -796,7 +803,7 @@ class BatteryChartViewer:
                 if valid_data_found:
                     logging.info(
                         "成功绘制了 %d 条过滤曲线和 %d 条原始曲线", len(lines_filtered), len(lines_unfiltered))
-            except (matplotlib.MatplotlibError, OSError, ValueError, TypeError, IndexError) as plot_error:
+            except (OSError, ValueError, TypeError, IndexError) as plot_error:
                 logging.error("绘制电池曲线时出错: %s", str(plot_error))
                 lines_unfiltered, lines_filtered = [], []
                 valid_data_found = False
@@ -818,7 +825,7 @@ class BatteryChartViewer:
                     fig, ax, lines_filtered, lines_unfiltered, check_filter)
                 self._add_help_text(fig)
                 logging.info("成功添加图表交互控件")
-            except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError) as ui_error:
+            except (AttributeError, TypeError, ValueError) as ui_error:
                 logging.warning("添加交互控件时出错: %s", str(ui_error))
                 # 即使交互控件添加失败，仍然尝试显示图表
 
@@ -880,7 +887,7 @@ class BatteryChartViewer:
             logging.info("图表显示成功")
             return True
 
-        except (matplotlib.MatplotlibError, OSError, ValueError, TypeError, AttributeError, RuntimeError) as e:
+        except (OSError, ValueError, TypeError, AttributeError, RuntimeError) as e:
             logging.error("严重错误: 绘制图表时发生未预期的异常: %s", str(e))
             logging.error("错误类型: %s", type(e).__name__)
             traceback.print_exc()
@@ -1059,7 +1066,7 @@ class BatteryChartViewer:
             fig.canvas.draw()
             fig.canvas.flush_events()
 
-        except (matplotlib.MatplotlibError, OSError, ValueError) as e:
+        except (OSError, ValueError) as e:
             logging.critical("显示错误图表时发生异常: %s", str(e))
             traceback.print_exc()
             # 如果连错误图表都无法显示，尝试使用简单的文本输出
@@ -1370,7 +1377,7 @@ class BatteryChartViewer:
                         linewidth=0.5
                     )
                     lines_filtered.append(fl)
-                except (matplotlib.MatplotlibError, IndexError, ValueError, TypeError, AttributeError) as e:
+                except (IndexError, ValueError, TypeError, AttributeError) as e:
                     logging.error("绘制电池 %s, 电流级别 %s 的曲线时出错: %s", b, c, e)
 
         return lines_unfiltered, lines_filtered
@@ -1475,7 +1482,7 @@ class BatteryChartViewer:
             
             return state
             
-        except (matplotlib.MatplotlibError, ValueError, TypeError, AttributeError) as e:
+        except (ValueError, TypeError, AttributeError) as e:
             logging.error("创建现代化按钮时出错: %s", e)
             return None
     
@@ -1569,7 +1576,7 @@ class BatteryChartViewer:
             
             logging.info("已应用现代化图表样式")
             
-        except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError) as e:
+        except (AttributeError, TypeError, ValueError) as e:
             logging.warning("应用现代化图表样式失败: %s", e)
     
     def _apply_window_modern_style(self, window):
@@ -1693,7 +1700,7 @@ class BatteryChartViewer:
             
             return button_states
             
-        except (matplotlib.MatplotlibError, ValueError, TypeError, AttributeError) as e:
+        except (ValueError, TypeError, AttributeError) as e:
             logging.error("创建现代化切换按钮组时出错: %s", e)
             return []
 
@@ -1727,7 +1734,7 @@ class BatteryChartViewer:
             
             logging.info("成功添加现代化文件操作按钮区域")
             
-        except (matplotlib.MatplotlibError, ValueError, TypeError, AttributeError) as e:
+        except (ValueError, TypeError, AttributeError) as e:
             logging.error("创建文件操作按钮时出错: %s", e)
     
     def _close_viewer(self):
@@ -1813,7 +1820,7 @@ class BatteryChartViewer:
                             lines_filtered[i].set_visible(False)
                     
                     fig.canvas.draw_idle()
-                except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError, IndexError) as e:
+                except (AttributeError, TypeError, ValueError, IndexError) as e:
                         logging.error("执行过滤切换时出错: %s", e)
             
             # 创建现代化过滤按钮
@@ -1830,7 +1837,7 @@ class BatteryChartViewer:
             
             logging.info("成功添加现代化过滤按钮")
             
-        except (matplotlib.MatplotlibError, ValueError, TypeError, AttributeError) as e:
+        except (ValueError, TypeError, AttributeError) as e:
             logging.error("创建过滤按钮时出错: %s", e)
         
         # 返回按钮状态，供其他方法使用
@@ -1975,7 +1982,7 @@ class BatteryChartViewer:
                     fig.canvas.draw_idle()
                 else:
                     logging.debug("没有找到匹配的线条")
-            except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError, IndexError) as e:
+            except (AttributeError, TypeError, ValueError, IndexError) as e:
                         logging.error("执行电池选择时出错: %s", e)
 
         # 创建现代化按钮
@@ -2006,7 +2013,7 @@ class BatteryChartViewer:
             fig.text(0.98, 0.85, "提示: 将鼠标悬停在数据点上查看详细信息", fontsize=7, ha='right')
             fig.text(0.98, 0.78, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=7, ha='right')
             logging.info("成功添加帮助文本")
-        except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError) as e:
+        except (AttributeError, TypeError, ValueError) as e:
             logging.warning("添加帮助文本时出错: %s", e)
 
     def _add_hover_functionality(self, fig, ax, lines_filtered, lines_unfiltered, check_filter):
@@ -2058,7 +2065,7 @@ class BatteryChartViewer:
                                         min_dist = dist
                                         closest_point = (x, y, i)
                                         closest_line_label = line_label
-                            except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError, IndexError) as e:
+                            except (AttributeError, TypeError, ValueError, IndexError) as e:
                                 continue  # 忽略处理单个线条时的错误
 
                     # 更新注释
@@ -2087,7 +2094,7 @@ class BatteryChartViewer:
             # 连接事件
             fig.canvas.mpl_connect('motion_notify_event', on_hover)
 
-        except (matplotlib.MatplotlibError, AttributeError, TypeError, ValueError) as e:
+        except (AttributeError, TypeError, ValueError) as e:
             logging.warning("添加悬停功能时出错: %s", e)
 
     # 注意：_show_error_plot方法已在前面定义，此方法已更新为增强版
