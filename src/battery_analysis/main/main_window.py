@@ -1622,7 +1622,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 构建温度值字符串，根据选择的类型包含spinBox值和℃单位
         temperature_type = self.comboBox_Temperature.currentText()
         if temperature_type == "Freezer Temperature":
-            temperature_value = f"{temperature_type}: {self.spinBox_Temperature.value()}"
+            temperature_value = f"{temperature_type}:{self.spinBox_Temperature.value()}"
         else:
             temperature_value = temperature_type
         

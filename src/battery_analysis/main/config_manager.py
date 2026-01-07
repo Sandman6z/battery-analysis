@@ -200,7 +200,8 @@ class ConfigManager:
                 try:
                     self.main_window.spinBox_Temperature.setValue(int(user_config["FreezerTemperature"]))
                 except (ValueError, TypeError):
-                    pass
+                    # 如果用户配置中的值无效，使用Qt控件的默认值0
+                    logging.warning("用户配置中的冷冻温度值无效，使用默认值0")
 
             # 加载输出路径设置
             if user_config.get("OutputPath"):
