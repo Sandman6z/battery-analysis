@@ -912,31 +912,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         )
         self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
-    def zoom_in(self) -> None:
-        """放大界面元素"""
-        # 实现界面元素放大功能
-        font = self.font()
-        current_size = font.pointSize()
-        if current_size < 20:  # 设置最大字体大小限制
-            font.setPointSize(current_size + 1)
-            self.setFont(font)
-
-    def zoom_out(self) -> None:
-        """缩小界面元素"""
-        # 实现界面元素缩小功能
-        font = self.font()
-        current_size = font.pointSize()
-        if current_size > 8:  # 设置最小字体大小限制
-            font.setPointSize(current_size - 1)
-            self.setFont(font)
-
-    def reset_zoom(self) -> None:
-        """重置界面缩放"""
-        # 重置界面元素大小到默认值
-        font = self.font()
-        font.setPointSize(9)  # 假设默认字体大小为9
-        self.setFont(font)
-
     def save_settings(self) -> None:
         """保存当前设置到用户配置文件"""
         try:
@@ -1071,125 +1046,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def set_theme(self, theme_name) -> None:
-        """设置应用程序主题"""
-        app = QW.QApplication.instance()
-
-        # 清除现有的样式表
-        app.setStyleSheet("")
-
-        # 主题动作映射字典
-        theme_actions = {
-            "System Default": self.actionSystem_Default,
-            "Windows 11": self.actionWindows_11,
-            "Windows Vista": self.actionWindows_Vista,
-            "Fusion": self.actionFusion,
-            "Dark Theme": self.actionDark_Theme
-        }
-
-        # 确保所有主题动作都是可检查的
-        for action in theme_actions.values():
-            action.setCheckable(True)
-
-        # 清除所有主题动作的选中状态
-        for action in theme_actions.values():
-            action.setChecked(False)
-
-        try:
-            if theme_name == "System Default":
-                # 使用系统默认样式
-                app.setStyle(QW.QStyleFactory.create(
-                    "windowsvista" if sys.platform == "win32" else "fusion"))
-                self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_default", f"已切换到系统默认主题"))
-            elif theme_name == "Windows 11":
-                # 尝试使用Windows 11样式（如果可用）
-                if sys.platform == "win32":
-                    app.setStyle(QW.QStyleFactory.create("windowsvista"))
-                    self.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Windows 11主题")
-                else:
-                    # 非Windows平台回退到Fusion
-                    app.setStyle(QW.QStyleFactory.create("fusion"))
-                    self.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Fusion主题（Windows 11样式在当前平台不可用）")
-            elif theme_name == "Windows Vista":
-                # 使用Windows Vista样式
-                if sys.platform == "win32":
-                    app.setStyle(QW.QStyleFactory.create("windowsvista"))
-                    self.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Windows Vista主题")
-                else:
-                    # 非Windows平台回退到Fusion
-                    app.setStyle(QW.QStyleFactory.create("fusion"))
-                    self.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Fusion主题（Windows Vista样式在当前平台不可用）")
-            elif theme_name == "Fusion":
-                # 使用Fusion样式（跨平台）
-                app.setStyle(QW.QStyleFactory.create("fusion"))
-                self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_fusion", f"已切换到Fusion主题"))
-            elif theme_name == "Dark Theme":
-                # 使用深色主题
-                try:
-                    # 尝试使用我们的QSS主题系统
-                    from battery_analysis.ui.styles import style_manager
-                    style_manager.apply_global_style(app, "dark")
-                    self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_dark", f"已切换到深色主题"))
-                except (ImportError, AttributeError, TypeError, RuntimeError) as e:
-                    # 如果主题系统加载失败，使用简单的深色主题样式表
-                    dark_stylesheet = """.QWidget {
-                        background-color: #2b2b2b;
-                        color: #cccccc;
-                    }
-                    QMenuBar {
-                        background-color: #2b2b2b;
-                        color: #cccccc;
-                    }
-                    QMenu {
-                        background-color: #3a3a3a;
-                        color: #cccccc;
-                    }
-                    QMenu::item:selected {
-                        background-color: #555555;
-                    }
-                    QPushButton {
-                        background-color: #4a4a4a;
-                        border: 1px solid #6a6a6a;
-                        color: #cccccc;
-                    }
-                    QPushButton:hover {
-                        background-color: #555555;
-                    }
-                    QLineEdit, QComboBox, QTextEdit, QSpinBox {
-                        background-color: #3a3a3a;
-                        border: 1px solid #6a6a6a;
-                        color: #cccccc;
-                    }
-                    QTableWidget {
-                        background-color: #3a3a3a;
-                        color: #cccccc;
-                        alternate-background-color: #4a4a4a;
-                    }
-                    QHeaderView::section {
-                        background-color: #4a4a4a;
-                        color: #cccccc;
-                    }
-                    """
-                    app.setStyleSheet(dark_stylesheet)
-                    self.statusBar_BatteryAnalysis.showMessage(_("theme_switched_simple_dark", f"已切换到简单深色主题"))
-        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
-            logging.error("切换主题失败: %s", e)
-            self.statusBar_BatteryAnalysis.showMessage(_("theme_switch_failed", f"切换主题失败: {str(e)}"))
-
-        # 设置当前主题动作的选中状态
-        if theme_name in theme_actions:
-            theme_actions[theme_name].setChecked(True)
-
-        # 确保界面立即更新
-        QW.QApplication.processEvents()
+        """设置应用程序主题，委托给theme_manager处理"""
+        self.theme_manager.set_theme(theme_name)
 
     def toggle_statusbar(self) -> None:
-        """切换状态栏的显示/隐藏状态"""
-        self.statusBar_BatteryAnalysis.setVisible(
-            self.actionShow_Statusbar.isChecked())
+        """切换状态栏的显示/隐藏状态，委托给menu_manager处理"""
+        self.menu_manager.toggle_statusbar()
 
     def validate_version(self) -> None:
         """验证版本号格式并提供实when反馈"""
@@ -1817,8 +1679,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 保存表格数据
         self.save_table()
         self.init_widgetcolor()
-        # 初始化线程（方法保留以保持向后兼容性）
-        self.init_thread()
+        # 线程管理已转移到控制器，此方法保留以保持向后兼容性
+        # 不再需要init_thread()
         
         # 检查输入是否完整，包括reportedby
         if not self.checkinput():
@@ -1973,25 +1835,26 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         set_item("TestInformation/TestUnits.FirmwareVersion", 11, 2)
 
     def init_widgetcolor(self) -> None:
-        self.label_BatteryType.setStyleSheet("background-color:")
-        self.label_ConstructionMethod.setStyleSheet("background-color:")
-        self.label_Specification.setStyleSheet("background-color:")
-        self.label_Manufacturer.setStyleSheet("background-color:")
-        self.label_BatchDateCode.setStyleSheet("background-color:")
-        self.label_SamplesQty.setStyleSheet("background-color:")
-        self.label_Temperature.setStyleSheet("background-color:")
-        self.label_DatasheetNominalCapacity.setStyleSheet("background-color:")
-        self.label_CalculationNominalCapacity.setStyleSheet(
-            "background-color:")
-        self.label_AcceleratedAging.setStyleSheet("background-color:")
-        self.label_RequiredUseableCapacity.setStyleSheet("background-color:")
-        self.label_TesterLocation.setStyleSheet("background-color:")
-        self.label_TestedBy.setStyleSheet("background-color:")
-        self.label_TestProfile.setStyleSheet("background-color:")
-        self.label_InputPath.setStyleSheet("background-color:")
-        self.label_OutputPath.setStyleSheet("background-color:")
-        self.label_Version.setStyleSheet("background-color:")
-        self.pushButton_Run.setStyleSheet("background-color:")
+        # 清除所有标签的背景样式
+        # 具体样式由checkinput方法根据验证结果设置
+        self.label_BatteryType.setStyleSheet("")
+        self.label_ConstructionMethod.setStyleSheet("")
+        self.label_Specification.setStyleSheet("")
+        self.label_Manufacturer.setStyleSheet("")
+        self.label_BatchDateCode.setStyleSheet("")
+        self.label_SamplesQty.setStyleSheet("")
+        self.label_Temperature.setStyleSheet("")
+        self.label_DatasheetNominalCapacity.setStyleSheet("")
+        self.label_CalculationNominalCapacity.setStyleSheet("")
+        self.label_AcceleratedAging.setStyleSheet("")
+        self.label_RequiredUseableCapacity.setStyleSheet("")
+        self.label_TesterLocation.setStyleSheet("")
+        self.label_TestedBy.setStyleSheet("")
+        self.label_TestProfile.setStyleSheet("")
+        self.label_InputPath.setStyleSheet("")
+        self.label_OutputPath.setStyleSheet("")
+        self.label_Version.setStyleSheet("")
+        self.pushButton_Run.setStyleSheet("")
 
     def checkinput(self) -> bool:
         check_pass_flag = True
@@ -2091,14 +1954,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.pushButton_Run.setText("Rerun")
             self.pushButton_Run.setFocus()
         return check_pass_flag
-
-    def init_thread(self) -> None:
-        """
-        初始化线程（现在由控制器管理）
-        """
-        # 线程管理已转移到控制器
-        # 此方法保留以保持向后兼容性
-        pass
 
     def get_threadinfo(self, threadstate, stateindex, threadinfo) -> None:
         # 正常运行状态处理
@@ -2259,100 +2114,44 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     f"[错误]: {threadinfo}")
     
     def _open_report(self):
-        """
-        打开生成的docx格式报告
-        """
+        """打开生成的docx格式报告"""
         output_path_str = self.lineEdit_OutputPath.text()
         version = self.lineEdit_Version.text()
         
         try:
-            # 查找输出目录中的所有docx文件
             from pathlib import Path
-            import os
-            import subprocess
-            
             output_path = Path(output_path_str)
-            self.logger.info(f"打开报告：输出路径 = {output_path}")
-            self.logger.info(f"打开报告：当前版本 = {version}")
             
             if not output_path.exists() or not output_path.is_dir():
                 QW.QMessageBox.warning(self, "警告", f"无效的输出路径: {output_path}")
                 return
             
-            # 获取所有docx文件，扩大搜索范围
-            docx_files = []
-            # 搜索当前目录
-            docx_files.extend(list(output_path.glob("*.docx")))
-            # 搜索子目录（不只是带_V的目录）
-            docx_files.extend(list(output_path.rglob("*.docx")))
-            
-            # 检查4_test profile目录
-            test_profile_dir = output_path
-            if "4_test profile" in output_path.name or "4_test" in output_path.name:
-                test_profile_dir = output_path
-            else:
-                # 查找所有包含4_test profile的目录
-                for subdir in output_path.iterdir():
-                    if subdir.is_dir() and "4_test profile" in subdir.name:
-                        test_profile_dir = subdir
-                        break
-            
-            self.logger.info(f"找到4_test profile目录: {test_profile_dir}")
-            
-            # 获取4_test profile的父目录，然后查找同级的3_analysis results目录
-            parent_dir = test_profile_dir.parent if test_profile_dir != output_path else output_path.parent
-            
-            # 查找同级的3_analysis results目录
-            analysis_results_dir = parent_dir / "3_analysis results"
-            self.logger.info(f"检查3_analysis results目录: {analysis_results_dir}")
-            
-            # 搜索3_analysis results目录
-            if analysis_results_dir.exists() and analysis_results_dir.is_dir():
-                self.logger.info(f"打开报告：在3_analysis results目录中查找报告")
-                docx_files.extend(list(analysis_results_dir.glob("*.docx")))
-                docx_files.extend(list(analysis_results_dir.rglob("*.docx")))
-            
-            # 去重
-            docx_files = list(set(docx_files))
-            
-            self.logger.info(f"打开报告：找到的docx文件 = {docx_files}")
+            # 搜索docx文件
+            docx_files = list(output_path.rglob("*.docx"))
             
             if not docx_files:
-                QW.QMessageBox.information(self, "信息", f"未找到生成的docx报告文件\n搜索路径: {output_path}")
+                QW.QMessageBox.information(self, "信息", f"未找到docx报告文件\n搜索路径: {output_path}")
                 return
             
-            # 尝试找到与当前版本匹配的报告文件
+            # 找到与当前版本匹配的报告
             target_docx = None
             for docx_file in docx_files:
                 if f"_V{version}" in docx_file.name:
                     target_docx = docx_file
                     break
             
-            # 如果没有找到匹配版本的报告，使用最新的报告
+            # 如果没有匹配版本，使用最新的报告
             if not target_docx and docx_files:
-                # 按修改时间排序，使用最新的报告
                 target_docx = sorted(docx_files, key=lambda f: f.stat().st_mtime, reverse=True)[0]
-                self.logger.info(f"打开报告：未找到匹配版本的报告，使用最新的报告: {target_docx}")
             
-            # 使用系统默认程序打开报告
+            # 打开报告
             if target_docx:
                 target_path = str(target_docx)
-                self.logger.info(f"打开报告：使用默认程序打开: {target_path}")
-                
-                # 尝试多种方式打开文件
                 try:
-                    # 方法1：使用os.startfile（Windows）
                     os.startfile(target_path)
-                    self.logger.info(f"打开报告：使用os.startfile成功打开")
-                except Exception as startfile_error:
-                    self.logger.warning(f"打开报告：os.startfile失败，尝试使用subprocess: {startfile_error}")
-                    try:
-                        # 方法2：使用subprocess.Popen（跨平台）
-                        subprocess.Popen([target_path], shell=True)
-                        self.logger.info(f"打开报告：使用subprocess.Popen成功打开")
-                    except Exception as popen_error:
-                        self.logger.error(f"打开报告：subprocess.Popen也失败: {popen_error}")
-                        QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(popen_error)}")
+                except Exception as popen_error:
+                    logging.error("打开报告失败: %s", popen_error)
+                    QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(popen_error)}")
         except Exception as e:
             QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(e)}")
             self.logger.error("打开报告失败: %s", e)
@@ -2567,25 +2366,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 f"[Error]: No rules for {specification_type}")
 
     def resizeEvent(self, event):
-        """窗口大小改变when的事件处理函数"""
-        # 调用父类的resizeEvent以确保正常的事件处理
+        """窗口大小改变时的事件处理函数"""
         super().resizeEvent(event)
-
-        # 调整表格列宽以适应窗口大小
         if hasattr(self, 'tableWidget_TestInformation'):
-            # 计算可用宽度（减去边距和滚动条）
-            available_width = self.tableWidget_TestInformation.width() - 20
-
-            # 设置列宽比例
-            # 第0列（15%）
-            self.tableWidget_TestInformation.horizontalHeader(
-            ).resizeSection(0, int(available_width * 0.15))
-            # 第1列（25%）
-            self.tableWidget_TestInformation.horizontalHeader(
-            ).resizeSection(1, int(available_width * 0.25))
-            # 第2列（剩余空间）
-            self.tableWidget_TestInformation.horizontalHeader(
-            ).resizeSection(2, int(available_width * 0.6))
+            self.tableWidget_TestInformation.resizeColumnsToContents()
 
 
 def main() -> None:

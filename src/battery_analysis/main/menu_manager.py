@@ -139,9 +139,9 @@ class MenuManager:
         self.main_window.actionBatch_Processing.triggered.connect(self.main_window.batch_processing)
 
         # 缩放功能连接
-        self.main_window.actionZoom_In.triggered.connect(self.main_window.zoom_in)
-        self.main_window.actionZoom_Out.triggered.connect(self.main_window.zoom_out)
-        self.main_window.actionReset_Zoom.triggered.connect(self.main_window.reset_zoom)
+        self.main_window.actionZoom_In.triggered.connect(self.zoom_in)
+        self.main_window.actionZoom_Out.triggered.connect(self.zoom_out)
+        self.main_window.actionReset_Zoom.triggered.connect(self.reset_zoom)
 
         # 主题菜单功能连接
         self._connect_theme_actions()
@@ -192,6 +192,28 @@ class MenuManager:
             # 如果没有actionShow_Statusbar，只是切换显示状态
             self.main_window.statusBar_BatteryAnalysis.setVisible(
                 not self.main_window.statusBar_BatteryAnalysis.isVisible())
+    
+    def zoom_in(self):
+        """放大界面元素"""
+        font = self.main_window.font()
+        current_size = font.pointSize()
+        if current_size < 20:  # 设置最大字体大小限制
+            font.setPointSize(current_size + 1)
+            self.main_window.setFont(font)
+    
+    def zoom_out(self):
+        """缩小界面元素"""
+        font = self.main_window.font()
+        current_size = font.pointSize()
+        if current_size > 8:  # 设置最小字体大小限制
+            font.setPointSize(current_size - 1)
+            self.main_window.setFont(font)
+    
+    def reset_zoom(self):
+        """重置界面缩放"""
+        font = self.main_window.font()
+        font.setPointSize(9)  # 假设默认字体大小为9
+        self.main_window.setFont(font)
     
     def update_menu_texts(self):
         """
