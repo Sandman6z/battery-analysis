@@ -19,6 +19,7 @@ import PyQt6.QtCore as QC
 
 # 本地应用/库导入
 from battery_analysis.utils.config_parser import safe_float_convert, safe_int_convert
+from battery_analysis.main.user_settings_manager import UserSettingsManager
 
 
 class ConfigManager:
@@ -38,9 +39,13 @@ class ConfigManager:
         self.config = None
         self.config_path = None
         self.b_has_config = True
+        self.user_settings_manager = None
         
         # 初始化配置
         self._initialize_config()
+        
+        # 初始化用户设置管理器
+        self.user_settings_manager = UserSettingsManager(self.config_path)
     
     def _initialize_config(self):
         """
@@ -124,120 +129,87 @@ class ConfigManager:
         加载用户配置文件中的设置
         """
         try:
-            user_config_path = os.path.join(os.path.dirname(
-                self.config_path), "user_settings.ini") if self.b_has_config else None
+            # 使用用户设置管理器加载配置
+            user_config = self.user_settings_manager.load_user_settings()
+            
+            # 更新UI控件
+            # 电池类型相关设置
+            if user_config.get("BatteryType"):
+                index = self.main_window.comboBox_BatteryType.findText(user_config["BatteryType"])
+                if index >= 0:
+                    self.main_window.comboBox_BatteryType.setCurrentIndex(index)
 
-            if user_config_path and os.path.exists(user_config_path):
-                # 创建用户配置QSettings实例
-                user_settings = QC.QSettings(
-                    user_config_path, QC.QSettings.Format.IniFormat)
+            if user_config.get("ConstructionMethod"):
+                index = self.main_window.comboBox_ConstructionMethod.findText(
+                    user_config["ConstructionMethod"])
+                if index >= 0:
+                    self.main_window.comboBox_ConstructionMethod.setCurrentIndex(index)
 
-                # 加载电池类型相关设置
-                battery_type = user_settings.value("UserConfig/BatteryType")
-                if battery_type:
-                    index = self.main_window.comboBox_BatteryType.findText(battery_type)
-                    if index >= 0:
-                        self.main_window.comboBox_BatteryType.setCurrentIndex(index)
+            if user_config.get("SpecificationType"):
+                index = self.main_window.comboBox_Specification_Type.findText(
+                    user_config["SpecificationType"])
+                if index >= 0:
+                    self.main_window.comboBox_Specification_Type.setCurrentIndex(index)
 
-                construction_method = user_settings.value(
-                    "UserConfig/ConstructionMethod")
-                if construction_method:
-                    index = self.main_window.comboBox_ConstructionMethod.findText(
-                        construction_method)
-                    if index >= 0:
-                        self.main_window.comboBox_ConstructionMethod.setCurrentIndex(index)
+            if user_config.get("SpecificationMethod"):
+                index = self.main_window.comboBox_Specification_Method.findText(
+                    user_config["SpecificationMethod"])
+                if index >= 0:
+                    self.main_window.comboBox_Specification_Method.setCurrentIndex(
+                        index)
 
-                specification_type = user_settings.value(
-                    "UserConfig/SpecificationType")
-                if specification_type:
-                    index = self.main_window.comboBox_Specification_Type.findText(
-                        specification_type)
-                    if index >= 0:
-                        self.main_window.comboBox_Specification_Type.setCurrentIndex(index)
+            if user_config.get("Manufacturer"):
+                index = self.main_window.comboBox_Manufacturer.findText(user_config["Manufacturer"])
+                if index >= 0:
+                    self.main_window.comboBox_Manufacturer.setCurrentIndex(index)
 
-                specification_method = user_settings.value(
-                    "UserConfig/SpecificationMethod")
-                if specification_method:
-                    index = self.main_window.comboBox_Specification_Method.findText(
-                        specification_method)
-                    if index >= 0:
-                        self.main_window.comboBox_Specification_Method.setCurrentIndex(
-                            index)
+            if user_config.get("TesterLocation"):
+                index = self.main_window.comboBox_TesterLocation.findText(
+                    user_config["TesterLocation"])
+                if index >= 0:
+                    self.main_window.comboBox_TesterLocation.setCurrentIndex(index)
 
-                manufacturer = user_settings.value("UserConfig/Manufacturer")
-                if manufacturer:
-                    index = self.main_window.comboBox_Manufacturer.findText(manufacturer)
-                    if index >= 0:
-                        self.main_window.comboBox_Manufacturer.setCurrentIndex(index)
-
-                tester_location = user_settings.value(
-                    "UserConfig/TesterLocation")
-                if tester_location:
-                    index = self.main_window.comboBox_TesterLocation.findText(
-                        tester_location)
-                    if index >= 0:
-                        self.main_window.comboBox_TesterLocation.setCurrentIndex(index)
-
-                tested_by = user_settings.value("UserConfig/TestedBy")
-                if tested_by:
-                    index = self.main_window.comboBox_TestedBy.findText(tested_by)
-                    if index >= 0:
-                        self.main_window.comboBox_TestedBy.setCurrentIndex(index)
-                    else:
-                        # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
-                        self.main_window.comboBox_TestedBy.setCurrentText(tested_by)
+            if user_config.get("TestedBy"):
+                index = self.main_window.comboBox_TestedBy.findText(user_config["TestedBy"])
+                if index >= 0:
+                    self.main_window.comboBox_TestedBy.setCurrentIndex(index)
+                else:
+                    # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
+                    self.main_window.comboBox_TestedBy.setCurrentText(user_config["TestedBy"])
                 
-                # 加载ReportedBy设置
-                reported_by = user_settings.value("UserConfig/ReportedBy")
-                if reported_by:
-                    index = self.main_window.comboBox_ReportedBy.findText(reported_by)
-                    if index >= 0:
-                        self.main_window.comboBox_ReportedBy.setCurrentIndex(index)
-                    else:
-                        # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
-                        self.main_window.comboBox_ReportedBy.setCurrentText(reported_by)
+            # 加载ReportedBy设置
+            if user_config.get("ReportedBy"):
+                index = self.main_window.comboBox_ReportedBy.findText(user_config["ReportedBy"])
+                if index >= 0:
+                    self.main_window.comboBox_ReportedBy.setCurrentIndex(index)
+                else:
+                    # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
+                    self.main_window.comboBox_ReportedBy.setCurrentText(user_config["ReportedBy"])
 
-                # 加载温度设置
-                temperature = user_settings.value("UserConfig/Temperature")
-                if temperature:
-                    # 同时更新comboBox_Temperature
-                    if "Freezer" in temperature:
-                        self.main_window.comboBox_Temperature.setCurrentText("Freezer Temperature")
-                        # 从温度字符串中提取数值并设置到spinBox
-                        import re
-                        temp_value = re.search(r"(\d+)", temperature)
-                        if temp_value:
-                            self.main_window.spinBox_Temperature.setValue(int(temp_value.group(1)))
-                    else:
-                        self.main_window.comboBox_Temperature.setCurrentText("Room Temperature")
-                
-                # 加载温度类型设置（如果存在）
-                temperature_type = user_settings.value("UserConfig/TemperatureType")
-                if temperature_type:
-                    self.main_window.comboBox_Temperature.setCurrentText(temperature_type)
-                    # 同时更新spinBox的启用状态
-                    if temperature_type == "Freezer Temperature":
-                        self.main_window.spinBox_Temperature.setEnabled(True)
-                    else:
-                        self.main_window.spinBox_Temperature.setEnabled(False)
-                
-                # 加载冷冻温度数值设置
-                freezer_temp = user_settings.value("UserConfig/FreezerTemperature")
-                if freezer_temp:
-                    try:
-                        self.main_window.spinBox_Temperature.setValue(int(freezer_temp))
-                    except (ValueError, TypeError):
-                        pass
+            # 加载温度设置
+            if user_config.get("TemperatureType"):
+                self.main_window.comboBox_Temperature.setCurrentText(user_config["TemperatureType"])
+                # 同时更新spinBox的启用状态
+                if user_config["TemperatureType"] == "Freezer Temperature":
+                    self.main_window.spinBox_Temperature.setEnabled(True)
+                else:
+                    self.main_window.spinBox_Temperature.setEnabled(False)
+            
+            # 加载冷冻温度数值设置
+            if user_config.get("FreezerTemperature"):
+                try:
+                    self.main_window.spinBox_Temperature.setValue(int(user_config["FreezerTemperature"]))
+                except (ValueError, TypeError):
+                    pass
 
-                # 加载输出路径设置
-                output_path = user_settings.value("UserConfig/OutputPath")
-                if output_path:
-                    self.main_window.lineEdit_OutputPath.setText(output_path)
-                    # 更新控制器的输出路径
-                    main_controller = self.main_window._get_controller("main_controller")
-                    if main_controller:
-                        main_controller.set_project_context(
-                            output_path=output_path)
+            # 加载输出路径设置
+            if user_config.get("OutputPath"):
+                self.main_window.lineEdit_OutputPath.setText(user_config["OutputPath"])
+                # 更新控制器的输出路径
+                main_controller = self.main_window._get_controller("main_controller")
+                if main_controller:
+                    main_controller.set_project_context(
+                        output_path=user_config["OutputPath"])
         except (AttributeError, TypeError, KeyError, OSError) as e:
             logging.error("加载用户设置失败: %s", e)
     
@@ -246,47 +218,25 @@ class ConfigManager:
         保存用户配置
         """
         try:
-            user_config_path = os.path.join(os.path.dirname(
-                self.config_path), "user_settings.ini") if self.b_has_config else None
-
-            if user_config_path:
-                # 创建用户配置QSettings实例
-                user_settings = QC.QSettings(
-                    user_config_path, QC.QSettings.Format.IniFormat)
-
-                # 保存电池类型相关设置
-                user_settings.setValue("UserConfig/BatteryType", 
-                                      self.main_window.comboBox_BatteryType.currentText())
-                user_settings.setValue("UserConfig/ConstructionMethod", 
-                                      self.main_window.comboBox_ConstructionMethod.currentText())
-                user_settings.setValue("UserConfig/SpecificationType", 
-                                      self.main_window.comboBox_Specification_Type.currentText())
-                user_settings.setValue("UserConfig/SpecificationMethod", 
-                                      self.main_window.comboBox_Specification_Method.currentText())
-                user_settings.setValue("UserConfig/Manufacturer", 
-                                      self.main_window.comboBox_Manufacturer.currentText())
-                user_settings.setValue("UserConfig/TesterLocation", 
-                                      self.main_window.comboBox_TesterLocation.currentText())
-                user_settings.setValue("UserConfig/TestedBy", 
-                                      self.main_window.comboBox_TestedBy.currentText())
-                user_settings.setValue("UserConfig/ReportedBy", 
-                                      self.main_window.comboBox_ReportedBy.currentText())
-                
-                # 保存温度设置
-                user_settings.setValue("UserConfig/TemperatureType", 
-                                      self.main_window.comboBox_Temperature.currentText())
-                
-                # 保存冷冻温度数值设置
-                user_settings.setValue("UserConfig/FreezerTemperature", 
-                                      self.main_window.spinBox_Temperature.value())
-                
-                # 保存输出路径设置
-                user_settings.setValue("UserConfig/OutputPath", 
-                                      self.main_window.lineEdit_OutputPath.text())
-                
-                # 同步保存到文件
-                user_settings.sync()
-                self.logger.info("用户设置已保存")
+            # 收集当前UI控件的值
+            user_settings = {
+                "BatteryType": self.main_window.comboBox_BatteryType.currentText(),
+                "ConstructionMethod": self.main_window.comboBox_ConstructionMethod.currentText(),
+                "SpecificationType": self.main_window.comboBox_Specification_Type.currentText(),
+                "SpecificationMethod": self.main_window.comboBox_Specification_Method.currentText(),
+                "Manufacturer": self.main_window.comboBox_Manufacturer.currentText(),
+                "TesterLocation": self.main_window.comboBox_TesterLocation.currentText(),
+                "TestedBy": self.main_window.comboBox_TestedBy.currentText(),
+                "ReportedBy": self.main_window.comboBox_ReportedBy.currentText(),
+                "TemperatureType": self.main_window.comboBox_Temperature.currentText(),
+                "FreezerTemperature": self.main_window.spinBox_Temperature.value(),
+                "OutputPath": self.main_window.lineEdit_OutputPath.text()
+            }
+            
+            # 使用用户设置管理器保存配置
+            self.user_settings_manager.save_user_settings(user_settings)
+            
+            self.logger.info("用户设置已保存")
         except (AttributeError, TypeError, KeyError, OSError) as e:
             logging.error("保存用户设置失败: %s", e)
     
