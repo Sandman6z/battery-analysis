@@ -871,7 +871,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 # 温度设置 - 使用comboBox_Temperature的值代替lineEdit_Temperature
                 temperature_type = self.comboBox_Temperature.currentText()
                 if temperature_type == "Freezer Temperature":
-                    temperature = f"{temperature_type}: {self.spinBox_Temperature.value()}"
+                    temperature = f"{temperature_type}:{self.spinBox_Temperature.value()}"
                 else:
                     temperature = temperature_type
                 user_settings.setValue(
