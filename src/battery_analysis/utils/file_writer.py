@@ -206,13 +206,15 @@ class XlsxWordWriter:
         strStrF = strStrF[:-2]
 
         # init variables for excel
+        # 替换文件名中的无效字符，特别是冒号
+        safe_temperature = self.listTestInfo[7].replace(':', '_')
         self.strResultXlsxPath = (
             f"{self.strResultPath}/{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}"
-            f"_{self.strFileCurrentType}_{self.listTestInfo[7]}.xlsx"
+            f"_{self.strFileCurrentType}_{safe_temperature}.xlsx"
         )
         self.strSampleXlsxPath = (
             f"{self.strResultPath}/Sample_{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}"
-            f"_{self.strFileCurrentType}_{self.listTestInfo[7]}.xlsx"
+            f"_{self.strFileCurrentType}_{safe_temperature}.xlsx"
         )
 
         # init variables for word
@@ -284,9 +286,10 @@ class XlsxWordWriter:
         ]
 
         # init variables for csv
+        # 使用已经处理过的安全温度变量
         self.strResultCsvPath = (
             f"{self.strResultPath}/{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}"
-            f"_{self.strFileCurrentType}_{self.listTestInfo[7]}.csv"
+            f"_{self.strFileCurrentType}_{safe_temperature}.csv"
         )
 
         # execute
@@ -1566,8 +1569,10 @@ class JsonWriter:
         self.listVoltageLevel = listTestInfo[15]
         self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
         # 使用os.path.join确保路径分隔符一致性
+        # 替换文件名中的无效字符，特别是冒号
+        safe_temperature = self.listTestInfo[7].replace(':', '_')
         self.strResultJsonPath = os.path.join(
-            self.strResultPath, f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{self.listTestInfo[7]}.json")
+            self.strResultPath, f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{safe_temperature}.json")
         self.listBatteryVoltage = []
         for v in range(len(self.listVoltageLevel)):
             self.listBatteryVoltage.append(len(str(self.listVoltageLevel[v])) < 4 and str(

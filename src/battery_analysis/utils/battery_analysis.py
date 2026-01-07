@@ -30,10 +30,12 @@ class BatteryAnalysis:
 
         # input .xlsx directory and result txt path
         self.strInDataXlsxDir = f"{strInDataXlsxDir}/"
+        # 替换文件名中的无效字符，特别是冒号
+        safe_temperature = listTestInfo[7].replace(':', '_')
         self.strResultLogTxt = (
             f"{strResultPath}/V{listTestInfo[16]}/"
             f"{listTestInfo[4]}_{listTestInfo[2]}_{listTestInfo[3]}"
-            f"_{self.strFileCurrentType}_{listTestInfo[7]}.txt"
+            f"_{self.strFileCurrentType}_{safe_temperature}.txt"
         )
 
         # list to store all battery charge
