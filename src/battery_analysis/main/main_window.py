@@ -41,6 +41,7 @@ from battery_analysis.main.signal_connector import SignalConnector
 from battery_analysis.main.ui_manager import UIManager
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
+from battery_analysis.utils import temperature_utils
 
 # 配置日志
 logging.basicConfig(level=logging.INFO,
@@ -1244,6 +1245,36 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         
         # 移除对lineEdit_Temperature的引用，不再更新它
     
+    def _detect_temperature_type_from_xml(self, xml_path: str) -> None:
+        """
+        根据XML文件名自动检测温度类型
+        
+        规则：
+        - 文件名中包含"Freezer"（不区分大小写），表示冷冻温度
+        - 否则表示常温
+        
+        Args:
+            xml_path: XML文件的完整路径
+        """
+        try:
+            # 使用temperature_utils模块检测温度类型
+            temperature_type = temperature_utils.detect_temperature_type_from_xml(xml_path)
+            
+            # 获取文件名用于日志
+            file_name = os.path.basename(xml_path)
+            
+            # 设置温度类型和UI状态
+            self.comboBox_Temperature.setCurrentText(temperature_type)
+            self.spinBox_Temperature.setEnabled(temperature_type == "Freezer Temperature")
+            
+            if temperature_type == "Freezer Temperature":
+                self.logger.info("检测到冷冻温度测试配置文件: %s", file_name)
+            else:
+                self.logger.info("检测到常温测试配置文件: %s", file_name)
+                
+        except (AttributeError, ValueError) as e:
+            self.logger.warning("检测温度类型时发生错误: %s", e)
+    
     def get_xlsxinfo(self) -> None:
         self.checker_input_xlsx.clear()
         self.comboBox_Specification_Type.currentIndexChanged.disconnect(
@@ -1549,6 +1580,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.current_directory = parent_dir
                 self.logger.info("设置当前目录为项目根目录: %s", parent_dir)
                 
+                # 根据XML文件名自动检测温度类型
+                self._detect_temperature_type_from_xml(selected_file)
+                
             except (OSError, ValueError, TypeError, RuntimeError, FileNotFoundError, PermissionError) as e:
                 self.logger.error("选择Test Profilewhen发生错误: %s", e)
                 QW.QMessageBox.critical(
@@ -1659,6 +1693,20 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.pushButton_Run.setEnabled(True)
             return
 
+        # 检查冷冻温度是否设置为0，如果是则提示用户
+        temperature_type = self.comboBox_Temperature.currentText()
+        if temperature_type == "Freezer Temperature" and self.spinBox_Temperature.value() == 0:
+            reply = QW.QMessageBox.question(
+                self,
+                "温度确认",
+                "当前冷冻温度设置为0°C，是否继续运行？",
+                QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
+                QW.QMessageBox.StandardButton.No
+            )
+            if reply == QW.QMessageBox.StandardButton.No:
+                self.pushButton_Run.setEnabled(True)
+                return
+        
         # 更新控制器的上下文和测试信息
         success = False
         main_controller = self._get_controller("main_controller")
