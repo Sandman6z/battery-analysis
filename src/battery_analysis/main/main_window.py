@@ -118,34 +118,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         # 初始化环境信息
         self.env_info = {}
-        try:
-            environment_service = self._get_service("environment")
-            if environment_service:
-                if hasattr(environment_service, 'env_info'):
-                    self.env_info = environment_service.env_info
-                elif hasattr(environment_service, 'initialize'):
-                    if environment_service.initialize():
-                        if hasattr(environment_service, 'env_info'):
-                            self.env_info = environment_service.env_info
-        except (AttributeError, TypeError, ImportError, OSError) as e:
-            self.logger.warning("Failed to initialize environment service: %s", e)
+        self._initialize_environment_info()
         
         # 确保环境信息包含必要的键
-        if 'environment_type' not in self.env_info:
-            try:
-                environment_service = self._get_service("environment")
-                if environment_service and hasattr(environment_service, 'EnvironmentType'):
-                    self.env_info['environment_type'] = environment_service.EnvironmentType.DEVELOPMENT
-                else:
-                    # 降级到直接导入
-                    from battery_analysis.utils.environment_utils import EnvironmentType
-                    self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
-            except (AttributeError, TypeError, ImportError) as e:
-                self.logger.warning("Failed to get EnvironmentType: %s", e)
-                from battery_analysis.utils.environment_utils import EnvironmentType
-                self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
-        if 'gui_available' not in self.env_info:
-            self.env_info['gui_available'] = True
+        self._ensure_env_info_keys()
         
         # 初始化环境适配器（在env_info初始化之后）
         from battery_analysis.main.environment_adapter import EnvironmentAdapter
@@ -160,35 +136,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
 
-        # 改进的配置文件路径查找逻辑（使用配置服务）
-        try:
-            config_service = self._get_service("config")
-            if config_service:
-                config_path_result = config_service.find_config_file()
-                self.config_path = str(config_path_result) if config_path_result else None
-            else:
-                # 降级到直接导入
-                from battery_analysis.utils.config_utils import find_config_file
-                self.config_path = find_config_file()
-        except (AttributeError, TypeError, ImportError, OSError) as e:
-            self.logger.warning("Failed to get config service: %s", e)
-            # 降级到直接导入
-            from battery_analysis.utils.config_utils import find_config_file
-            self.config_path = find_config_file()
-
+        # 获取项目根路径
         project_root = Path(__file__).resolve().parent.parent.parent
-
-        # 添加对None值的检查，避免TypeError
-        if self.config_path is None or not Path(self.config_path).exists():
-            self.b_has_config = False
-            # 创建默认配置设置
-            self.config = QC.QSettings()
-        else:
-            self.b_has_config = True
-            self.config = QC.QSettings(
-                self.config_path,
-                QC.QSettings.Format.IniFormat
-            )
 
         self.current_directory = str(project_root)
         self.path = str(project_root)
@@ -595,7 +544,43 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             QW.QMessageBox.StandardButton.Ok
         )
         self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
-
+    
+    def _initialize_environment_info(self):
+        """
+        初始化环境信息
+        """
+        try:
+            environment_service = self._get_service("environment")
+            if environment_service:
+                if hasattr(environment_service, 'env_info'):
+                    self.env_info = environment_service.env_info
+                elif hasattr(environment_service, 'initialize'):
+                    if environment_service.initialize() and hasattr(environment_service, 'env_info'):
+                        self.env_info = environment_service.env_info
+        except (AttributeError, TypeError, ImportError, OSError) as e:
+            self.logger.warning("Failed to initialize environment service: %s", e)
+    
+    def _ensure_env_info_keys(self):
+        """
+        确保环境信息包含必要的键
+        """
+        if 'environment_type' not in self.env_info:
+            try:
+                environment_service = self._get_service("environment")
+                if environment_service and hasattr(environment_service, 'EnvironmentType'):
+                    self.env_info['environment_type'] = environment_service.EnvironmentType.DEVELOPMENT
+                else:
+                    # 降级到直接导入
+                    from battery_analysis.utils.environment_utils import EnvironmentType
+                    self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+            except (AttributeError, TypeError, ImportError) as e:
+                self.logger.warning("Failed to get EnvironmentType: %s", e)
+                from battery_analysis.utils.environment_utils import EnvironmentType
+                self.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+        
+        if 'gui_available' not in self.env_info:
+            self.env_info['gui_available'] = True
+    
     def run_visualizer(self, xml_path=None) -> None:
         """运行可视化工具，使用工厂模式解耦依赖"""
         logging.info("进入main_window.run_visualizer方法")
