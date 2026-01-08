@@ -948,76 +948,29 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.menu_manager.toggle_statusbar()
 
     def validate_version(self) -> None:
-        """验证版本号格式并提供实when反馈"""
-        version_text = self.lineEdit_Version.text()
-        regex = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
-        if version_text and not regex.match(version_text).hasMatch():
-            self.statusBar_BatteryAnalysis.showMessage(
-                f"{_('warning', '警告')}: {_('version_format_invalid', '版本号格式不correct，应为 x.y.z 格式')}")
-            # 设置错误样式
-            self.lineEdit_Version.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            # 重置样式
-            self.lineEdit_Version.setStyleSheet("")
-            # 如果所有验证都通过，显示正常状态
-            if self.checker_battery_type.b_check_pass:
-                self.statusBar_BatteryAnalysis.showMessage("status:ok")
+        """验证版本号格式并提供实时反馈，委托给ValidationManager"""
+        from battery_analysis.main.business_logic.validation_manager import ValidationManager
+        validation_manager = ValidationManager(self)
+        validation_manager.validate_version()
 
     def validate_input_path(self) -> None:
-        """验证输入路径是否存在"""
-        path = self.lineEdit_InputPath.text()
-        if path and not os.path.exists(path):
-            self.statusBar_BatteryAnalysis.showMessage(f"{_('warning', '警告')}: {_('input_path_not_exists', '输入路径不存在')}")
-            self.lineEdit_InputPath.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_InputPath.setStyleSheet("")
-            # 如果所有验证都通过，显示正常状态
-            if self.checker_battery_type.b_check_pass:
-                self.statusBar_BatteryAnalysis.showMessage("status:ok")
+        """验证输入路径是否存在，委托给ValidationManager"""
+        from battery_analysis.main.business_logic.validation_manager import ValidationManager
+        validation_manager = ValidationManager(self)
+        validation_manager.validate_input_path()
 
     def validate_required_fields(self) -> None:
-        """验证必填字段是否empty"""
-        empty_fields = []
-
-        if not self.lineEdit_SamplesQty.text():
-            empty_fields.append("样品数量")
-            self.lineEdit_SamplesQty.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_SamplesQty.setStyleSheet("")
-
-        if not self.lineEdit_DatasheetNominalCapacity.text():
-            empty_fields.append("标称容量")
-            self.lineEdit_DatasheetNominalCapacity.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_DatasheetNominalCapacity.setStyleSheet("")
-
-        if not self.lineEdit_CalculationNominalCapacity.text():
-            empty_fields.append("计算容量")
-            self.lineEdit_CalculationNominalCapacity.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_CalculationNominalCapacity.setStyleSheet("")
-
-        if not self.lineEdit_RequiredUseableCapacity.text():
-            empty_fields.append("可用容量")
-            self.lineEdit_RequiredUseableCapacity.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;")
-        else:
-            self.lineEdit_RequiredUseableCapacity.setStyleSheet("")
-
-        if empty_fields:
-            self.statusBar_BatteryAnalysis.showMessage(
-                f"{_('warning', '警告')}: {_('required_fields_empty', '以下必填字段empty')}: {', '.join(empty_fields)}")
-        else:
-            # 如果所有验证都通过，显示正常状态
-            if self.checker_battery_type.b_check_pass:
-                self.statusBar_BatteryAnalysis.showMessage("status:ok")
+        """验证必填字段是否为空，委托给ValidationManager"""
+        from battery_analysis.main.business_logic.validation_manager import ValidationManager
+        validation_manager = ValidationManager(self)
+        validation_manager.validate_required_fields()
 
     def check_batterytype(self) -> None:
+        """检查电池类型并更新相关UI组件，委托给ValidationManager"""
+        from battery_analysis.main.business_logic.validation_manager import ValidationManager
+        validation_manager = ValidationManager(self)
+        validation_manager.check_batterytype()
+        return
         self.checker_battery_type.clear()
         if self.comboBox_BatteryType.currentText() == "Coin Cell":
             self.comboBox_ConstructionMethod.setEnabled(False)
@@ -1076,6 +1029,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 f"[Error]: No battery type named {self.comboBox_BatteryType.currentText()}")
 
     def check_specification(self) -> None:
+        """检查规格并更新相关UI组件，委托给ValidationManager"""
+        from battery_analysis.main.business_logic.validation_manager import ValidationManager
+        validation_manager = ValidationManager(self)
+        validation_manager.check_specification()
+        return
         self.specification_type = self.comboBox_Specification_Type.currentText()
         coin_cell_types = self.get_config(
             "BatteryConfig/SpecificationTypeCoinCell")
@@ -1373,35 +1331,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 "[Error]: Input path has no data")
 
     def get_version(self) -> None:
-        """
-        计算并设置电池分析的版本号
-
-        此方法通过分析输入目录中的XLSX文件，计算其MD5校验和，
-        然后根据MD5.csv文件中的历史记录确定当前版本号。如果输入文件内容变更，
-        版本号会自动增加。
-
-        工作流程：
-        1. 从UI获取输入和输出目录路径
-        2. 检查目录是否存在
-        3. 收集输入目录中所有有效的.xlsx文件（排除临when文件）
-        4. 计算这些文件的MD5校验和
-        5. 读取MD5.csv文件（如果存在）来获取历史记录
-        6. 根据MD5校验和匹配确定版本号
-        7. 如果找到匹配的MD5，使用对应的版本号；否则创建新版本
-        8. 更新MD5.csv文件并设置为隐藏属性
-        9. 将版本号显示在UI中
-
-        版本号格式：
-        - 主版本号：当输入文件内容发生变化when增加
-        - 次版本号：同一内容的重复运行计数
-
-        错误处理：
-        - 如果输入or输出目录不存在，清空版本号显示
-        - 如果输入目录中没有XLSX文件，清空版本号显示
-
-        返回值：
-            None
-        """
+        """计算并设置电池分析的版本号，委托给VersionManager"""
+        from battery_analysis.main.business_logic.version_manager import VersionManager
+        version_manager = VersionManager(self)
+        version_manager.get_version()
+        return
         strInPutDir = self.lineEdit_InputPath.text()
         strOutoutDir = self.lineEdit_OutputPath.text()
         if os.path.exists(strInPutDir) and os.path.exists(strOutoutDir):
@@ -1800,6 +1734,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.pushButton_Run.setStyleSheet("")
 
     def checkinput(self) -> bool:
+        """检查所有输入是否完整有效，委托给ValidationManager"""
+        from battery_analysis.main.business_logic.validation_manager import ValidationManager
+        validation_manager = ValidationManager(self)
+        return validation_manager.checkinput()
         check_pass_flag = True
         warning_info = ["Unknown: "]
         if not self.comboBox_BatteryType.currentText():
@@ -1964,6 +1902,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.error("打开报告文件夹失败: %s", e)
 
     def set_version(self) -> None:
+        """更新版本号，增加次要版本号，委托给VersionManager"""
+        from battery_analysis.main.business_logic.version_manager import VersionManager
+        version_manager = VersionManager(self)
+        version_manager.set_version()
+        return
         # 初始化必要的属性如果不存在
         if not hasattr(self, 'md5_checksum_run'):
             self.md5_checksum_run = self.md5_checksum if hasattr(
