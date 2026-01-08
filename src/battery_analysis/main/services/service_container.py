@@ -157,25 +157,69 @@ class ServiceContainer(IServiceContainer):
                 except (ImportError, ValueError, TypeError) as e:
                     self.logger.error("Failed to register service %s: %s", name, e)
             
+            # 导入并注册基础设施层实现
+            try:
+                from battery_analysis.infrastructure.repositories.battery_repository_impl import BatteryRepositoryImpl
+                from battery_analysis.infrastructure.services.battery_analysis_service_impl import BatteryAnalysisServiceImpl
+                
+                # 注册基础设施层服务
+                infrastructure_services = [
+                    ("battery_repository", BatteryRepositoryImpl),
+                    ("battery_analysis_service", BatteryAnalysisServiceImpl)
+                ]
+                
+                for name, service_class in infrastructure_services:
+                    try:
+                        self.register(name, service_class)
+                        self.logger.debug("Infrastructure service registered: %s", name)
+                    except (ImportError, ValueError, TypeError) as e:
+                        self.logger.error("Failed to register infrastructure service %s: %s", name, e)
+            except ImportError as e:
+                self.logger.warning("Failed to import infrastructure services: %s", e)
+            
             # 导入并注册use cases
             try:
                 from battery_analysis.application.usecases.calculate_battery_use_case import CalculateBatteryUseCase
                 from battery_analysis.application.usecases.analyze_data_use_case import AnalyzeDataUseCase
                 from battery_analysis.application.usecases.generate_report_use_case import GenerateReportUseCase
                 
-                # 注册use cases
-                use_cases_to_register = [
-                    ("calculate_battery", CalculateBatteryUseCase),
-                    ("analyze_data", AnalyzeDataUseCase),
-                    ("generate_report", GenerateReportUseCase)
-                ]
-                
-                for name, use_case_class in use_cases_to_register:
-                    try:
-                        self.register(name, use_case_class)
-                        self.logger.debug("Use case registered: %s", name)
-                    except (ImportError, ValueError, TypeError) as e:
-                        self.logger.error("Failed to register use case %s: %s", name, e)
+                # 注册use cases并指定依赖
+                # 使用register_with_dependencies方法注册use cases
+                try:
+                    # CalculateBatteryUseCase依赖
+                    self.register_with_dependencies(
+                        "calculate_battery", 
+                        CalculateBatteryUseCase,
+                        {
+                            "battery_repository": "battery_repository",
+                            "battery_analysis_service": "battery_analysis_service"
+                        }
+                    )
+                    self.logger.debug("Use case registered with dependencies: calculate_battery")
+                    
+                    # AnalyzeDataUseCase依赖
+                    self.register_with_dependencies(
+                        "analyze_data", 
+                        AnalyzeDataUseCase,
+                        {
+                            "battery_repository": "battery_repository",
+                            "battery_analysis_service": "battery_analysis_service"
+                        }
+                    )
+                    self.logger.debug("Use case registered with dependencies: analyze_data")
+                    
+                    # GenerateReportUseCase依赖
+                    self.register_with_dependencies(
+                        "generate_report", 
+                        GenerateReportUseCase,
+                        {
+                            "battery_repository": "battery_repository"
+                        }
+                    )
+                    self.logger.debug("Use case registered with dependencies: generate_report")
+                    
+                except (ImportError, ValueError, TypeError) as e:
+                    self.logger.error("Failed to register use case with dependencies: %s", e)
             except ImportError as e:
                 self.logger.warning("Failed to import use cases: %s", e)
             

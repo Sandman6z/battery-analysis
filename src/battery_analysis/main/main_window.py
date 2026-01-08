@@ -98,6 +98,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化可视化器工厂
         self.visualizer_factory = VisualizerFactory()
         # 移除current_visualizer实例属性，viewer应该完全独立
+        
+        # 初始化数据处理器（使用优化的pandas版本）
+        from battery_analysis.main.business_logic.data_processor import DataProcessor
+        self.data_processor = DataProcessor(self)
 
         self.b_has_config = True
         self.checker_battery_type = Checker()
@@ -1199,108 +1203,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.warning("检测温度类型时发生错误: %s", e)
     
     def get_xlsxinfo(self) -> None:
-        self.checker_input_xlsx.clear()
-        self.comboBox_Specification_Type.currentIndexChanged.disconnect(
-            self.check_specification)
-        self.comboBox_Specification_Method.currentIndexChanged.disconnect(
-            self.check_specification)
-        self.comboBox_BatteryType.setCurrentIndex(-1)
-        self.comboBox_Specification_Type.clear()
-        self.comboBox_Specification_Type.addItems(
-            self.get_config("BatteryConfig/SpecificationTypeCoinCell"))
-        self.comboBox_Specification_Type.addItems(
-            self.get_config("BatteryConfig/SpecificationTypePouchCell"))
-        self.comboBox_Specification_Type.setCurrentIndex(-1)
-        self.comboBox_Specification_Method.clear()
-        self.comboBox_Specification_Method.addItems(
-            self.get_config("BatteryConfig/SpecificationMethod"))
-        self.comboBox_Specification_Method.setCurrentIndex(-1)
-        self.comboBox_Manufacturer.setCurrentIndex(-1)
-        self.lineEdit_BatchDateCode.setText("")
-        self.lineEdit_SamplesQty.setText("")
-        self.lineEdit_DatasheetNominalCapacity.setText("")
-        self.lineEdit_CalculationNominalCapacity.setText("")
-        self.comboBox_Specification_Type.currentIndexChanged.connect(
-            self.check_specification)
-        self.comboBox_Specification_Method.currentIndexChanged.connect(
-            self.check_specification)
-        strInDataXlsxDir = self.lineEdit_InputPath.text()
-        if strInDataXlsxDir != "":
-            listAllInXlsx = [f for f in os.listdir(
-                strInDataXlsxDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-            if listAllInXlsx:
-                intIndexType = -1
-                intIndexMethod = -1
-                strSampleInputXlsxTitle = listAllInXlsx[0]
-                self.construction_method = ""
-                for c in range(self.comboBox_ConstructionMethod.count()):
-                    if self.comboBox_ConstructionMethod.itemText(c) in strSampleInputXlsxTitle:
-                        self.construction_method = self.comboBox_ConstructionMethod.itemText(
-                            c)
-                        break
-                listAllSpecificationType = \
-                    self.get_config("BatteryConfig/SpecificationTypeCoinCell") \
-                    + self.get_config("BatteryConfig/SpecificationTypePouchCell")
-                listAllSpecificationMethod = self.get_config(
-                    "BatteryConfig/SpecificationMethod")
-                # 优先匹配最长的规格类型，避免短匹配优先
-                intIndexType = -1
-                max_match_length = 0
-                for t in range(len(listAllSpecificationType)):
-                    spec_type = listAllSpecificationType[t]
-                    if spec_type in strSampleInputXlsxTitle:
-                        if len(spec_type) > max_match_length:
-                            max_match_length = len(spec_type)
-                            intIndexType = t
-                for m in range(len(listAllSpecificationMethod)):
-                    if f"{listAllSpecificationMethod[m]}" in strSampleInputXlsxTitle:
-                        intIndexMethod = m
-                        break
-                self.comboBox_Specification_Type.setCurrentIndex(intIndexType)
-                self.comboBox_Specification_Method.setCurrentIndex(
-                    intIndexMethod)
-                for m in range(self.comboBox_Manufacturer.count()):
-                    if self.comboBox_Manufacturer.itemText(m) in strSampleInputXlsxTitle:
-                        self.comboBox_Manufacturer.setCurrentIndex(m)
-                listBatchDateCode = re.findall(
-                    "DC(.*?),", strSampleInputXlsxTitle)
-                if len(listBatchDateCode) == 1:
-                    self.lineEdit_BatchDateCode.setText(
-                        listBatchDateCode[0].strip())
-                listPulseCurrentToSplit = re.findall(
-                    r"\(([\d.]+[-\d.]+)mA", strSampleInputXlsxTitle)
-                if len(listPulseCurrentToSplit) == 1:
-                    listPulseCurrent = listPulseCurrentToSplit[0].split("-")
-                    try:
-                        # 将字符串转换为浮点数，保留小数精度
-                        self.listCurrentLevel = [
-                            float(c.strip()) for c in listPulseCurrent]
-                    except ValueError:
-                        # 处理转换失败的情况
-                        self.listCurrentLevel = [
-                            int(float(c.strip())) for c in listPulseCurrent]
-                    self.config.setValue(
-                        "BatteryConfig/PulseCurrent", listPulseCurrent)
-                    # self.listCurrentLevel = [int(listPulseCurrent[c].strip()) \
-                    #                          for c in range(len(listPulseCurrent))]
-                    # self.config.setValue("BatteryConfig/PulseCurrent", listPulseCurrent)
-
-                self.cc_current = ""
-                list_cc_current_to_split = re.findall(
-                    r"mA,(.*?)\)", strSampleInputXlsxTitle)
-                if len(list_cc_current_to_split) == 1:
-                    str_cc_current_to_split = list_cc_current_to_split[0].replace(
-                        "mAh", "")
-                    list_cc_current_to_split = re.findall(
-                        r"([\d.]+)mA", str_cc_current_to_split)
-                    if len(list_cc_current_to_split) >= 1:
-                        self.cc_current = list_cc_current_to_split[-1]
-                self.lineEdit_SamplesQty.setText(str(len(listAllInXlsx)))
-            else:
-                self.checker_input_xlsx.set_error("Input path has no data")
-            self.statusBar_BatteryAnalysis.showMessage(
-                "[Error]: Input path has no data")
-
+        '''
+        获取Excel文件信息，委托给优化的DataProcessor处理
+        '''
+        # 调用优化版的data_processor获取Excel信息
+        self.data_processor.get_xlsxinfo()
     def get_version(self) -> None:
         """计算并设置电池分析的版本号，委托给VersionManager"""
         from battery_analysis.main.business_logic.version_manager import VersionManager

@@ -8,6 +8,7 @@ import logging
 import os
 import csv
 from pathlib import Path
+import pandas as pd
 
 
 class DataProcessor:
@@ -25,12 +26,82 @@ class DataProcessor:
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
     
+    def process_excel_with_pandas(self, file_path: str) -> dict:
+        """
+        使用pandas处理单个Excel文件，提取关键信息
+        
+        Args:
+            file_path: Excel文件路径
+            
+        Returns:
+            dict: 包含文件信息的字典
+        """
+        try:
+            self.logger.info("使用pandas处理Excel文件: %s", file_path)
+            
+            # 使用pandas读取Excel文件
+            df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+            
+            # 提取文件信息
+            file_info = {
+                'filename': os.path.basename(file_path),
+                'sheet_name': df.columns.tolist(),
+                'row_count': len(df),
+                'column_count': len(df.columns),
+                'numeric_columns': df.select_dtypes(include=['number']).columns.tolist(),
+                'non_numeric_columns': df.select_dtypes(exclude=['number']).columns.tolist(),
+                'missing_values': df.isnull().sum().to_dict(),
+                'basic_stats': df.describe().to_dict()
+            }
+            
+            return file_info
+            
+        except Exception as e:
+            self.logger.error("处理Excel文件失败 %s: %s", file_path, str(e))
+            return {}
+    
+    def process_all_excel_files(self, directory: str) -> list:
+        """
+        使用pandas批量处理目录中的所有Excel文件
+        
+        Args:
+            directory: 包含Excel文件的目录
+            
+        Returns:
+            list: 包含所有文件信息的列表
+        """
+        try:
+            self.logger.info("使用pandas批量处理目录中的Excel文件: %s", directory)
+            
+            # 查找所有Excel文件
+            listAllInXlsx = [f for f in os.listdir(directory) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+            
+            if not listAllInXlsx:
+                self.logger.warning("目录中没有找到Excel文件: %s", directory)
+                return []
+            
+            # 批量处理Excel文件
+            excel_data = []
+            for filename in listAllInXlsx:
+                file_path = os.path.join(directory, filename)
+                file_info = self.process_excel_with_pandas(file_path)
+                if file_info:
+                    excel_data.append(file_info)
+            
+            self.logger.info("成功处理 %d 个Excel文件", len(excel_data))
+            return excel_data
+            
+        except Exception as e:
+            self.logger.error("批量处理Excel文件失败: %s", str(e))
+            return []
+    
     def get_xlsxinfo(self) -> None:
         """
-        获取Excel文件信息
+        获取Excel文件信息，使用pandas优化处理
         """
         self.logger.info("获取Excel文件信息")
         
+        # 保留原有UI逻辑，只优化Excel文件处理部分
         # 清除检查器状态
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
@@ -60,11 +131,151 @@ class DataProcessor:
         # 如果没有找到Excel文件，清除相关控件
         if not listAllInXlsx:
             self.logger.warning("没有找到Excel文件")
-            # 这里可以添加清除相关控件的逻辑
+            # 清除相关控件
+            self.main_window.comboBox_BatteryType.setCurrentIndex(-1)
+            self.main_window.comboBox_Specification_Type.clear()
+            self.main_window.comboBox_Specification_Type.addItems(
+                self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
+            self.main_window.comboBox_Specification_Type.addItems(
+                self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
+            self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
+            self.main_window.comboBox_Specification_Method.clear()
+            self.main_window.comboBox_Specification_Method.addItems(
+                self.main_window.get_config("BatteryConfig/SpecificationMethod"))
+            self.main_window.comboBox_Specification_Method.setCurrentIndex(-1)
+            self.main_window.comboBox_Manufacturer.setCurrentIndex(-1)
+            self.main_window.lineEdit_BatchDateCode.setText("")
+            self.main_window.lineEdit_SamplesQty.setText("")
+            self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
+            self.main_window.lineEdit_CalculationNominalCapacity.setText("")
+            # 设置错误信息
+            if hasattr(self.main_window, 'checker_input_xlsx'):
+                self.main_window.checker_input_xlsx.set_error("Input path has no data")
+            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Input path has no data")
             return
         
-        # 这里可以添加处理Excel文件的逻辑
-        # 例如：读取Excel文件内容，提取相关信息，更新UI控件
+        # 使用pandas处理Excel文件
+        excel_data = []
+        for filename in listAllInXlsx:
+            try:
+                file_path = os.path.join(strInPutDir, filename)
+                self.logger.info("使用pandas处理Excel文件: %s", filename)
+                
+                # 使用pandas读取Excel文件
+                df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+                
+                # 提取文件信息
+                file_info = {
+                    'filename': filename,
+                    'sheet_name': df.columns.tolist(),
+                    'row_count': len(df),
+                    'column_count': len(df.columns),
+                    'first_five_rows': df.head().to_dict('records')
+                }
+                
+                excel_data.append(file_info)
+                
+            except Exception as e:
+                self.logger.error("处理Excel文件失败 %s: %s", filename, str(e))
+                continue
+        
+        # 更新UI控件
+        self.logger.info("成功处理 %d 个Excel文件，开始更新UI控件", len(excel_data))
+        
+        # 设置样本数量
+        self.main_window.lineEdit_SamplesQty.setText(str(len(listAllInXlsx)))
+        
+        # 重置检查器状态为正常
+        if hasattr(self.main_window, 'checker_input_xlsx'):
+            self.main_window.checker_input_xlsx.clear()
+        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            self.main_window.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        
+        # 如果有Excel文件，处理第一个文件的信息
+        if listAllInXlsx:
+            strSampleInputXlsxTitle = listAllInXlsx[0]
+            self.main_window.construction_method = ""
+            
+            # 查找构造方法
+            for c in range(self.main_window.comboBox_ConstructionMethod.count()):
+                if self.main_window.comboBox_ConstructionMethod.itemText(c) in strSampleInputXlsxTitle:
+                    self.main_window.construction_method = self.main_window.comboBox_ConstructionMethod.itemText(c)
+                    break
+            
+            # 获取规格类型和方法
+            listAllSpecificationType = \
+                self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") \
+                + self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell")
+            listAllSpecificationMethod = self.main_window.get_config("BatteryConfig/SpecificationMethod")
+            
+            # 优先匹配最长的规格类型，避免短匹配优先
+            intIndexType = -1
+            max_match_length = 0
+            for t in range(len(listAllSpecificationType)):
+                spec_type = listAllSpecificationType[t]
+                if spec_type in strSampleInputXlsxTitle and len(spec_type) > max_match_length:
+                    intIndexType = t
+                    max_match_length = len(spec_type)
+            
+            if intIndexType != -1:
+                self.main_window.comboBox_Specification_Type.setCurrentIndex(intIndexType)
+            
+            # 匹配规格方法
+            intIndexMethod = -1
+            max_match_length = 0
+            for m in range(len(listAllSpecificationMethod)):
+                if listAllSpecificationMethod[m] in strSampleInputXlsxTitle and len(
+                        listAllSpecificationMethod[m]) > max_match_length:
+                    intIndexMethod = m
+                    max_match_length = len(listAllSpecificationMethod[m])
+            
+            if intIndexMethod != -1:
+                self.main_window.comboBox_Specification_Method.setCurrentIndex(intIndexMethod)
+            
+            # 匹配制造商
+            for m in range(self.main_window.comboBox_Manufacturer.count()):
+                if self.main_window.comboBox_Manufacturer.itemText(m) in strSampleInputXlsxTitle:
+                    self.main_window.comboBox_Manufacturer.setCurrentIndex(m)
+                    break
+            
+            # 设置电池类型（根据规格类型自动匹配）
+            if hasattr(self.main_window, 'check_specification'):
+                # check_specification方法会根据规格类型和方法自动设置电池类型
+                pass
+            
+            # 提取批次日期代码
+            import re
+            listBatchDateCode = re.findall("DC(.*?),", strSampleInputXlsxTitle)
+            if len(listBatchDateCode) == 1:
+                self.main_window.lineEdit_BatchDateCode.setText(listBatchDateCode[0].strip())
+            
+            # 提取脉冲电流
+            listPulseCurrentToSplit = re.findall(r"\(([\d.]+[-\d.]+)mA", strSampleInputXlsxTitle)
+            if len(listPulseCurrentToSplit) == 1:
+                listPulseCurrent = listPulseCurrentToSplit[0].split("-")
+                try:
+                    # 将字符串转换为浮点数，保留小数精度
+                    self.main_window.listCurrentLevel = [float(c.strip()) for c in listPulseCurrent]
+                except ValueError:
+                    # 处理转换失败的情况
+                    self.main_window.listCurrentLevel = [int(float(c.strip())) for c in listPulseCurrent]
+                self.main_window.config.setValue("BatteryConfig/PulseCurrent", listPulseCurrent)
+            
+            # 提取恒流电流
+            self.main_window.cc_current = ""
+            list_cc_current_to_split = re.findall(r"mA,(.*?)\)", strSampleInputXlsxTitle)
+            if len(list_cc_current_to_split) == 1:
+                str_cc_current_to_split = list_cc_current_to_split[0].replace("mAh", "")
+                list_cc_current_to_split = re.findall(r"([\d.]+)mA", str_cc_current_to_split)
+                if len(list_cc_current_to_split) >= 1:
+                    self.main_window.cc_current = list_cc_current_to_split[-1]
+            
+            # 从Excel数据中提取电池容量信息
+            if excel_data:
+                # 这里可以根据实际需求从excel_data中提取容量信息
+                # 例如：假设从文件名或文件内容中提取
+                pass
         
         # 重新连接信号
         try:
@@ -74,8 +285,13 @@ class DataProcessor:
             self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
                 self.main_window.check_specification
             )
+            
+            # 调用check_specification方法，更新电池容量等信息
+            self.main_window.check_specification()
         except (TypeError, AttributeError):
             pass
+        
+        self.logger.info("Excel文件信息获取完成")
     
     def save_table(self) -> None:
         """
@@ -158,12 +374,13 @@ class DataProcessor:
     
     def analyze_data(self) -> None:
         """
-        分析数据
+        分析数据，使用pandas优化分析逻辑
         """
         self.logger.info("开始数据分析")
         
         # 检查输入路径是否设置
-        if not self.main_window.lineEdit_InputPath.text():
+        input_path = self.main_window.lineEdit_InputPath.text()
+        if not input_path:
             from PyQt6 import QtWidgets as QW
             from battery_analysis.i18n.language_manager import _
             QW.QMessageBox.warning(
@@ -178,20 +395,90 @@ class DataProcessor:
             _("analyzing_data", "分析数据...")
         )
         
-        # 这里可以实现数据分析的逻辑
-        # 目前暂时使用消息框提示
-        from PyQt6 import QtWidgets as QW
-        from battery_analysis.i18n.language_manager import _
-        QW.QMessageBox.information(
-            self.main_window,
-            _("analysis_result", "分析结果"),
-            _("data_analysis_complete", "数据分析已完成。\n\n目前此功能处于开发阶段。")
-        )
-        
-        # 更新状态栏为就绪状态
-        self.main_window.statusBar_BatteryAnalysis.showMessage(
-            _("status_ready", "状态:就绪")
-        )
+        try:
+            # 查找所有Excel文件
+            excel_files = [f for f in os.listdir(input_path) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+            
+            if not excel_files:
+                self.logger.warning("没有找到Excel文件")
+                from PyQt6 import QtWidgets as QW
+                from battery_analysis.i18n.language_manager import _
+                QW.QMessageBox.information(
+                    self.main_window,
+                    _("analysis_result", "分析结果"),
+                    _("no_excel_files_found", "没有找到Excel文件。")
+                )
+                return
+            
+            # 使用pandas批量处理Excel文件
+            all_data = []
+            for filename in excel_files:
+                try:
+                    file_path = os.path.join(input_path, filename)
+                    self.logger.info("分析Excel文件: %s", filename)
+                    
+                    # 使用pandas读取Excel文件
+                    df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+                    
+                    # 基本数据分析
+                    analysis_result = {
+                        'filename': filename,
+                        'total_records': len(df),
+                        'columns': df.columns.tolist(),
+                        'numeric_columns': df.select_dtypes(include=['number']).columns.tolist(),
+                        'non_numeric_columns': df.select_dtypes(exclude=['number']).columns.tolist(),
+                        'missing_values': df.isnull().sum().to_dict(),
+                        'basic_stats': df.describe().to_dict()
+                    }
+                    
+                    all_data.append(analysis_result)
+                    
+                except Exception as e:
+                    self.logger.error("分析Excel文件失败 %s: %s", filename, str(e))
+                    continue
+            
+            # 汇总分析结果
+            summary = {
+                'total_files': len(excel_files),
+                'successful_files': len(all_data),
+                'failed_files': len(excel_files) - len(all_data),
+                'total_records': sum(item['total_records'] for item in all_data),
+                'analysis_details': all_data
+            }
+            
+            # 显示分析结果
+            from PyQt6 import QtWidgets as QW
+            from battery_analysis.i18n.language_manager import _
+            message = f"数据分析已完成！\n\n"\
+                     f"总文件数: {summary['total_files']}\n"\
+                     f"成功分析: {summary['successful_files']}\n"\
+                     f"失败文件: {summary['failed_files']}\n"\
+                     f"总记录数: {summary['total_records']}\n\n"\
+                     f"详细结果已记录到日志。"
+            
+            QW.QMessageBox.information(
+                self.main_window,
+                _("analysis_result", "分析结果"),
+                message
+            )
+            
+            # 记录详细分析结果到日志
+            self.logger.info("数据分析汇总: %s", summary)
+            
+        except Exception as e:
+            self.logger.error("数据分析失败: %s", str(e))
+            from PyQt6 import QtWidgets as QW
+            from battery_analysis.i18n.language_manager import _
+            QW.QMessageBox.error(
+                self.main_window,
+                _("error_title", "错误"),
+                _("data_analysis_failed", "数据分析失败: {}").format(str(e))
+            )
+        finally:
+            # 更新状态栏为就绪状态
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                _("status_ready", "状态:就绪")
+            )
     
     def handle_data_error_recovery(self, error_msg: str):
         """
