@@ -117,6 +117,9 @@ class ServiceContainer(IServiceContainer):
         # 工厂方法
         self._factories: Dict[str, Callable] = {}
         
+        # 服务依赖映射
+        self._dependencies: Dict[str, Dict[str, str]] = {}
+        
         # 初始化服务
         self._initialize_services()
     
@@ -154,6 +157,28 @@ class ServiceContainer(IServiceContainer):
                 except (ImportError, ValueError, TypeError) as e:
                     self.logger.error("Failed to register service %s: %s", name, e)
             
+            # 导入并注册use cases
+            try:
+                from battery_analysis.application.usecases.calculate_battery_use_case import CalculateBatteryUseCase
+                from battery_analysis.application.usecases.analyze_data_use_case import AnalyzeDataUseCase
+                from battery_analysis.application.usecases.generate_report_use_case import GenerateReportUseCase
+                
+                # 注册use cases
+                use_cases_to_register = [
+                    ("calculate_battery", CalculateBatteryUseCase),
+                    ("analyze_data", AnalyzeDataUseCase),
+                    ("generate_report", GenerateReportUseCase)
+                ]
+                
+                for name, use_case_class in use_cases_to_register:
+                    try:
+                        self.register(name, use_case_class)
+                        self.logger.debug("Use case registered: %s", name)
+                    except (ImportError, ValueError, TypeError) as e:
+                        self.logger.error("Failed to register use case %s: %s", name, e)
+            except ImportError as e:
+                self.logger.warning("Failed to import use cases: %s", e)
+            
             # 延迟导入控制器
             try:
                 # 导入控制器
@@ -179,7 +204,7 @@ class ServiceContainer(IServiceContainer):
             except ImportError as e:
                 self.logger.warning("Failed to import controllers: %s", e)
             
-            self.logger.info("Default services and controllers initialized")
+            self.logger.info("Default services, use cases and controllers initialized")
             
         except ImportError as e:
             self.logger.warning("Failed to import services: %s", e)
@@ -196,6 +221,22 @@ class ServiceContainer(IServiceContainer):
         Returns:
             bool: 注册是否成功
         """
+        return self.register_with_dependencies(name, implementation, {}, singleton)
+    
+    def register_with_dependencies(self, name: str, implementation: Type[T], 
+                                  dependencies: Dict[str, str], singleton: bool = True) -> bool:
+        """
+        注册服务并指定依赖关系
+
+        Args:
+            name: 服务名称
+            implementation: 实现类
+            dependencies: 依赖映射，键为构造函数参数名，值为服务名称
+            singleton: 是否单例
+
+        Returns:
+            bool: 注册是否成功
+        """
         try:
             if not isinstance(name, str) or not name:
                 raise ValueError("Service name must be a non-empty string")
@@ -203,14 +244,19 @@ class ServiceContainer(IServiceContainer):
             if not isinstance(implementation, type):
                 raise ValueError("Implementation must be a class type")
             
+            if not isinstance(dependencies, dict):
+                raise ValueError("Dependencies must be a dictionary")
+            
             self._services[name] = implementation
+            self._dependencies[name] = dependencies
             self._singletons[name] = singleton
             
             # 清除已存在的实例（如果重新注册）
             if name in self._instances:
                 del self._instances[name]
             
-            self.logger.debug("Service registered: %s (%s)", name, implementation.__name__)
+            self.logger.debug("Service registered: %s (%s) with dependencies: %s", 
+                            name, implementation.__name__, dependencies)
             return True
             
         except (ValueError, TypeError, MemoryError) as e:
@@ -247,7 +293,7 @@ class ServiceContainer(IServiceContainer):
     
     def get(self, name: str) -> Optional[T]:
         """
-        获取服务
+        获取服务，支持依赖注入
 
         Args:
             name: 服务名称
@@ -268,11 +314,26 @@ class ServiceContainer(IServiceContainer):
             # 获取服务类
             service_class = self._services[name]
             
-            # 创建服务实例
+            # 获取服务依赖
+            dependencies = self._dependencies.get(name, {})
+            
+            # 解析依赖
+            resolved_dependencies = {}
+            for param_name, service_dependency in dependencies.items():
+                dependency_instance = self.get(service_dependency)
+                if dependency_instance is None:
+                    self.logger.error("Failed to resolve dependency %s for service %s", 
+                                     service_dependency, name)
+                    return None
+                resolved_dependencies[param_name] = dependency_instance
+            
+            # 创建服务实例（带依赖注入）
             try:
-                instance = service_class()
+                instance = service_class(**resolved_dependencies)
             except (ImportError, TypeError, ValueError, OSError) as e:
                 self.logger.error("Failed to create service instance %s: %s", name, e)
+                self.logger.debug("Service %s constructor parameters: %s", 
+                                name, list(resolved_dependencies.keys()))
                 return None
             
             # 如果是单例，缓存实例
@@ -323,6 +384,10 @@ class ServiceContainer(IServiceContainer):
             # 移除单例标记
             if name in self._singletons:
                 del self._singletons[name]
+            
+            # 移除依赖映射
+            if name in self._dependencies:
+                del self._dependencies[name]
             
             if removed:
                 self.logger.debug("Service unregistered: %s", name)
@@ -381,6 +446,7 @@ class ServiceContainer(IServiceContainer):
             self._services.clear()
             self._instances.clear()
             self._singletons.clear()
+            self._dependencies.clear()
             self._factories.clear()
             
             self.logger.info("ServiceContainer shutdown complete")

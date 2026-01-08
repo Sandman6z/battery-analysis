@@ -173,6 +173,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         from battery_analysis.main.ui.language_handler import LanguageHandler
         self.language_handler = LanguageHandler(self)
         
+        # 初始化Presenter
+        from battery_analysis.main.presenters.main_presenter import MainPresenter
+        self.presenter = MainPresenter(self)
+        self.presenter.initialize()
+        
         self.init_window()
         self.init_widget()
 
@@ -268,6 +273,42 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         初始化窗口设置，委托给ui_manager
         """
         self.ui_manager.init_window()
+    
+    def show_message(self, title: str, message: str) -> None:
+        """
+        显示信息消息框
+        
+        Args:
+            title: 消息框标题
+            message: 消息内容
+        """
+        from PyQt6 import QtWidgets as QW
+        from battery_analysis.i18n.language_manager import _
+        QW.QMessageBox.information(self, title, message)
+    
+    def show_warning(self, title: str, message: str) -> None:
+        """
+        显示警告消息框
+        
+        Args:
+            title: 消息框标题
+            message: 警告内容
+        """
+        from PyQt6 import QtWidgets as QW
+        from battery_analysis.i18n.language_manager import _
+        QW.QMessageBox.warning(self, title, message)
+    
+    def show_error(self, title: str, message: str) -> None:
+        """
+        显示错误消息框
+        
+        Args:
+            title: 消息框标题
+            message: 错误内容
+        """
+        from PyQt6 import QtWidgets as QW
+        from battery_analysis.i18n.language_manager import _
+        QW.QMessageBox.critical(self, title, message)
     
     def _load_application_icon(self) -> QG.QIcon:
         """
@@ -484,61 +525,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             focused_widget.cut()
 
     def calculate_battery(self) -> None:
-        """执行电池计算"""
-        # 这里可以实现电池计算的逻辑，or连接到现有的计算功能
-        self.statusBar_BatteryAnalysis.showMessage(_("calculating_battery", "执行电池计算..."))
-        # 模拟计算过程
-        QW.QMessageBox.information(
-            self,
-            "电池计算",
-            "电池计算功能将根据输入的参数进行计算。\n\n点击'运行'按钮开始完整的电池分析流程。",
-            QW.QMessageBox.StandardButton.Ok
-        )
-        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
+        """执行电池计算，委托给Presenter"""
+        self.presenter.on_calculate_battery()
 
     def analyze_data(self) -> None:
-        """分析数据"""
-        # 检查输入路径是否设置
-        if not self.lineEdit_InputPath.text():
-            QW.QMessageBox.warning(
-                self,
-                _("warning", "警告"),
-                "请先设置输入路径后再分析数据。",
-                QW.QMessageBox.StandardButton.Ok
-            )
-            return
-
-        self.statusBar_BatteryAnalysis.showMessage(_("analyzing_data", "分析数据中..."))
-        # 这里可以连接到现有的数据分析功能
-        QW.QMessageBox.information(
-            self,
-            "数据分析",
-            "数据分析功能将处理输入路径中的数据文件。\n\n点击'运行'按钮开始完整的电池分析流程。",
-            QW.QMessageBox.StandardButton.Ok
-        )
-        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
+        """分析数据，委托给Presenter"""
+        self.presenter.on_analyze_data()
 
     def generate_report(self) -> None:
-        """生成报告"""
-        # 检查输出路径是否设置
-        if not self.lineEdit_OutputPath.text():
-            QW.QMessageBox.warning(
-                self,
-                _("warning", "警告"),
-                "请先设置输出路径后再生成报告。",
-                QW.QMessageBox.StandardButton.Ok
-            )
-            return
-
-        self.statusBar_BatteryAnalysis.showMessage(_("generating_report", "生成报告中..."))
-        # 这里可以连接到现有的报告生成功能
-        QW.QMessageBox.information(
-            self,
-            "生成报告",
-            "报告将被生成到指定的输出路径。\n\n点击'运行'按钮开始完整的电池分析流程。",
-            QW.QMessageBox.StandardButton.Ok
-        )
-        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
+        """生成报告，委托给Presenter"""
+        self.presenter.on_generate_report()
     
     def _initialize_environment_info(self):
         """
@@ -796,15 +792,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
 
     def batch_processing(self) -> None:
-        """批量处理"""
-        self.statusBar_BatteryAnalysis.showMessage(_("preparing_batch_processing", "准备批量处理..."))
-        QW.QMessageBox.information(
-            self,
-            "批量处理",
-            "批量处理功能允许您同when分析多个电池数据集。\n\n此功能正在开发中，敬请期待。",
-            QW.QMessageBox.StandardButton.Ok
-        )
-        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
+        """批量处理，委托给Presenter"""
+        self.presenter.on_batch_processing()
 
     def save_settings(self) -> None:
         """保存当前设置到用户配置文件"""
@@ -918,26 +907,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.statusBar_BatteryAnalysis.showMessage(_("save_settings_failed", "保存设置失败"))
 
     def export_report(self) -> None:
-        """导出报告"""
-        # 检查输出路径是否设置
-        if not self.lineEdit_OutputPath.text():
-            QW.QMessageBox.warning(
-                self,
-                _("warning", "警告"),
-                "请先设置输出路径后再导出报告。",
-                QW.QMessageBox.StandardButton.Ok
-            )
-            return
-
-        self.statusBar_BatteryAnalysis.showMessage(_("exporting_report", "导出报告中..."))
-        # 这里可以连接到现有的报告导出功能
-        QW.QMessageBox.information(
-            self,
-            "导出报告",
-            "报告将被导出到指定的输出路径。\n\n点击'运行'按钮开始完整的电池分析流程。",
-            QW.QMessageBox.StandardButton.Ok
-        )
-        self.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
+        """导出报告，委托给Presenter"""
+        self.presenter.on_export_report()
 
     def set_theme(self, theme_name) -> None:
         """设置应用程序主题，委托给theme_manager处理"""
