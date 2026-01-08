@@ -30,15 +30,16 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _, get_language_manager
-from battery_analysis.main.config_manager import ConfigManager
-from battery_analysis.main.dialog_manager import DialogManager
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
-from battery_analysis.main.menu_manager import MenuManager
-from battery_analysis.main.progress_dialog import ProgressDialog
 from battery_analysis.main.services.service_container import get_service_container
-from battery_analysis.main.signal_connector import SignalConnector
-from battery_analysis.main.ui_manager import UIManager
+from battery_analysis.main.ui_components.config_manager import ConfigManager
+from battery_analysis.main.ui_components.dialog_manager import DialogManager
+from battery_analysis.main.ui_components.menu_manager import MenuManager
+from battery_analysis.main.ui_components.progress_dialog import ProgressDialog
+from battery_analysis.main.ui_components.ui_manager import UIManager
+from battery_analysis.main.utils.environment_adapter import EnvironmentAdapter
+from battery_analysis.main.utils.signal_connector import SignalConnector
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils import temperature_utils
@@ -123,7 +124,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self._ensure_env_info_keys()
         
         # 初始化环境适配器（在env_info初始化之后）
-        from battery_analysis.main.environment_adapter import EnvironmentAdapter
         self.environment_adapter = EnvironmentAdapter(self)
         # 使用环境适配器初始化环境检测器
         self.env_detector = self.environment_adapter.initialize_environment_detector()

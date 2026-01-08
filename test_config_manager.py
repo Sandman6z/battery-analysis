@@ -5,7 +5,7 @@
 
 import logging
 from pathlib import Path
-from battery_analysis.main.config_manager import ConfigManager
+from battery_analysis.main.ui_components.config_manager import ConfigManager
 import PyQt6.QtCore as QC
 import PyQt6.QtWidgets as QW
 

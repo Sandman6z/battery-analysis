@@ -326,7 +326,7 @@ class SignalConnector:
 
     def _show_progress_dialog(self):
         """显示弹出式进度条对话框"""
-        from battery_analysis.main.progress_dialog import ProgressDialog
+        from battery_analysis.main.ui_components.progress_dialog import ProgressDialog
         if not self.progress_dialog:
             self.progress_dialog = ProgressDialog(self.main_window)
         self.progress_dialog.show()
