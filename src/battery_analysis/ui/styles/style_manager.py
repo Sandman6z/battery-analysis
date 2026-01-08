@@ -25,14 +25,8 @@ class StyleManager(QObject):
         super().__init__(parent)
         self._current_theme = "modern"
         self._style_cache = {}
-        # 注意：在某些情况下，QFontDatabase 可能不可用
-        # 这不会影响样式管理功能
-        try:
-            from PyQt6.QtGui import QFontDatabase
-            self._font_database = QFontDatabase()
-        except (ImportError, RuntimeError, TypeError) as e:
-            logging.warning("无法初始化QFontDatabase: %s", e)
-            self._font_database = None
+        # 延迟初始化 QFontDatabase，只有在需要时才创建
+        self._font_database = None
         
         # 样式文件路径
         self._style_dir = Path(__file__).parent
@@ -244,9 +238,16 @@ class StyleManager(QObject):
         return variables.get(theme, variables["modern"])
     
     def register_font(self, font_path: str, family_name: Optional[str] = None) -> bool:
-        """注册自定义字体"""
+        """
+        注册自定义字体
+        """
         
         try:
+            # 延迟初始化 QFontDatabase
+            if self._font_database is None:
+                from PyQt6.QtGui import QFontDatabase
+                self._font_database = QFontDatabase()
+                
             font_id = self._font_database.addApplicationFont(font_path)
             if font_id != -1:
                 font_families = self._font_database.applicationFontFamilies(font_id)
