@@ -5,14 +5,14 @@
 提供配置文件读取、写入和管理功能的实现
 """
 
-import logging
-import configparser
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from battery_analysis.main.services.config_service_interface import IConfigService
+from battery_analysis.utils.base_service import BaseService
+from battery_analysis.utils.config_manager import ConfigManager
 
 
-class ConfigService(IConfigService):
+class ConfigService(BaseService, IConfigService):
     """
     配置服务实现类
     提供配置文件读取、写入和管理功能
@@ -22,8 +22,8 @@ class ConfigService(IConfigService):
         """
         初始化配置服务
         """
-        self.logger = logging.getLogger(__name__)
-        self._config = configparser.ConfigParser()
+        BaseService.__init__(self)
+        self._config_manager = ConfigManager()
         self._config_path = None
         self._loaded = False
         
@@ -43,31 +43,9 @@ class ConfigService(IConfigService):
             if not self._loaded:
                 self.load_config()
             
-            # 解析键
-            if '/' in key:
-                section, option = key.split('/', 1)
-            else:
-                section = 'DEFAULT'
-                option = key
-            
-            # 获取值
-            if self._config.has_section(section) and self._config.has_option(section, option):
-                value = self._config.get(section, option)
+            return self._config_manager.get_value(key, default)
                 
-                # 尝试转换数据类型
-                if value.lower() in ('true', 'false'):
-                    return value.lower() == 'true'
-                elif value.isdigit():
-                    return int(value)
-                elif self._is_float(value):
-                    return float(value)
-                else:
-                    return value
-            else:
-                self.logger.warning("配置键 '%s' 不存在，返回默认值: %s", key, default)
-                return default
-                
-        except (configparser.Error, ValueError, TypeError, IndexError) as e:
+        except Exception as e:
             self.logger.error("获取配置值失败: %s", e)
             return default
     
@@ -83,27 +61,9 @@ class ConfigService(IConfigService):
             bool: 设置是否成功
         """
         try:
-            # 解析键
-            if '/' in key:
-                section, option = key.split('/', 1)
-            else:
-                section = 'DEFAULT'
-                option = key
+            return self._config_manager.set_value(key, value)
             
-            # 确保配置节存在
-            if not self._config.has_section(section):
-                self._config.add_section(section)
-            
-            # 转换值为字符串
-            str_value = str(value)
-            
-            # 设置值
-            self._config.set(section, option, str_value)
-            
-            self.logger.debug("设置配置: %s = %s", key, value)
-            return True
-            
-        except (configparser.Error, TypeError, ValueError) as e:
+        except Exception as e:
             self.logger.error("设置配置值失败: %s", e)
             return False
     
@@ -116,20 +76,15 @@ class ConfigService(IConfigService):
         """
         try:
             if self._config_path and self._loaded:
-                # 确保目录存在
-                self._config_path.parent.mkdir(parents=True, exist_ok=True)
-                
-                # 写入文件
-                with open(self._config_path, 'w', encoding='utf-8') as f:
-                    self._config.write(f)
-                
-                self.logger.info("配置已保存到: %s", self._config_path)
-                return True
+                success = self._config_manager.write_config(str(self._config_path))
+                if success:
+                    self.logger.info("配置已保存到: %s", self._config_path)
+                return success
             else:
                 self.logger.warning("无法保存配置：未指定配置路径或配置未加载")
                 return False
                 
-        except (IOError, OSError, configparser.Error, UnicodeEncodeError) as e:
+        except Exception as e:
             self.logger.error("保存配置失败: %s", e)
             return False
     
@@ -155,17 +110,17 @@ class ConfigService(IConfigService):
                 self._loaded = False
                 return False
             
-            # 清空当前配置
-            self._config.clear()
-            
             # 读取配置文件
-            self._config.read(self._config_path, encoding='utf-8')
+            success = self._config_manager.read_config(str(self._config_path))
+            if success:
+                self._loaded = True
+                self.logger.info("配置已加载: %s", self._config_path)
+            else:
+                self._loaded = False
             
-            self._loaded = True
-            self.logger.info("配置已加载: %s", self._config_path)
-            return True
+            return success
             
-        except (IOError, OSError, configparser.Error, UnicodeDecodeError) as e:
+        except Exception as e:
             self.logger.error("加载配置失败: %s", e)
             self._loaded = False
             return False
@@ -180,8 +135,8 @@ class ConfigService(IConfigService):
         try:
             if not self._loaded:
                 self.load_config()
-            return self._config.sections()
-        except (configparser.Error, ValueError, TypeError) as e:
+            return self._config_manager.get_sections()
+        except Exception as e:
             self.logger.error("获取配置节失败: %s", e)
             return []
     
@@ -208,11 +163,9 @@ class ConfigService(IConfigService):
             if not self._loaded:
                 self.load_config()
             
-            if not self._config.has_section(section):
-                return []
-            
-            return self._config.options(section)
-        except (configparser.Error, ValueError, TypeError) as e:
+            section_config = self._config_manager.get_section(section)
+            return list(section_config.keys())
+        except Exception as e:
             self.logger.error("获取配置节选项失败: %s", e)
             return []
     
@@ -230,11 +183,8 @@ class ConfigService(IConfigService):
             if not self._loaded:
                 self.load_config()
             
-            if not self._config.has_section(section):
-                return {}
-            
-            return dict(self._config.items(section))
-        except (configparser.Error, ValueError, TypeError) as e:
+            return self._config_manager.get_section(section)
+        except Exception as e:
             self.logger.error("获取配置节失败: %s", e)
             return {}
     
@@ -252,15 +202,8 @@ class ConfigService(IConfigService):
             if not self._loaded:
                 self.load_config()
             
-            # 解析键
-            if '/' in key:
-                section, option = key.split('/', 1)
-            else:
-                section = 'DEFAULT'
-                option = key
-            
-            return self._config.has_section(section) and self._config.has_option(section, option)
-        except (configparser.Error, ValueError, TypeError, IndexError) as e:
+            return self._config_manager.has_key(key)
+        except Exception as e:
             self.logger.error("检查配置键失败: %s", e)
             return False
     
@@ -281,19 +224,3 @@ class ConfigService(IConfigService):
         except (ImportError, ValueError, TypeError, OSError) as e:
             self.logger.error("查找配置文件失败: %s", e)
             return None
-    
-    def _is_float(self, value: str) -> bool:
-        """
-        检查字符串是否可以转换为浮点数
-        
-        Args:
-            value: 要检查的字符串
-            
-        Returns:
-            bool: 是否可以转换为浮点数
-        """
-        try:
-            float(value)
-            return True
-        except ValueError:
-            return False
