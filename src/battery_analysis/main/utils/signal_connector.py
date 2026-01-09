@@ -100,12 +100,14 @@ class SignalConnector:
 
     def _connect_event_bus_events(self):
         """连接事件总线事件"""
+        from battery_analysis.main.services.event_bus import EventType
+        
         event_bus = self._get_service("event_bus")
         if event_bus:
-            event_bus.subscribe("progress_updated", self._on_event_progress_updated)
-            event_bus.subscribe("status_changed", self._on_event_status_changed)
-            event_bus.subscribe("file_selected", self._on_file_selected)
-            event_bus.subscribe("config_changed", self._on_config_changed)
+            event_bus.subscribe(EventType.PROGRESS_UPDATED, self._on_event_progress_updated)
+            event_bus.subscribe(EventType.STATUS_CHANGED, self._on_event_status_changed)
+            event_bus.subscribe(EventType.FILE_SELECTED, self._on_file_selected)
+            event_bus.subscribe(EventType.CONFIG_CHANGED, self._on_config_changed)
 
     def _on_progress_updated(self, progress, status_text):
         """进度更新处理"""
@@ -125,15 +127,20 @@ class SignalConnector:
         if progress >= 100:
             self._close_progress_dialog()
 
-    def _on_event_progress_updated(self, progress: int, status: str):
+    def _on_event_progress_updated(self, event):
         """事件总线进度更新处理"""
+        progress = event.data["progress"]
+        status = event.data["status"]
         progress_service = self._get_service("progress")
         if progress_service:
             progress_service.update_progress(progress, status)
         self._on_progress_updated(progress, status)
 
-    def _on_event_status_changed(self, status: bool, code: int, message: str):
+    def _on_event_status_changed(self, event):
         """事件总线状态变化处理"""
+        status = event.data["status"]
+        code = event.data["code"]
+        message = event.data["message"]
         self.logger.info("Status changed: %s, Code: %s, Message: %s", status, code, message)
         
     def _on_status_changed(self, is_running, stateindex, threadinfo):
@@ -304,12 +311,15 @@ class SignalConnector:
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
                     f"[错误]: {threadinfo}")
 
-    def _on_file_selected(self, file_path: str):
+    def _on_file_selected(self, event):
         """事件总线文件选择处理"""
+        file_path = event.data["file_path"]
         self.logger.info("File selected via event bus: %s", file_path)
 
-    def _on_config_changed(self, key: str, value: Any):
+    def _on_config_changed(self, event):
         """事件总线配置变更处理"""
+        key = event.data["key"]
+        value = event.data["value"]
         self.logger.debug("Config changed: %s = %s", key, value)
         config_service = self._get_service("config")
         if config_service:

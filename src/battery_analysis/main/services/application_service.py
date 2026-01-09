@@ -144,45 +144,56 @@ class ApplicationService:
         """
         连接控制器事件到事件总线
         """
+        from battery_analysis.main.services.event_bus import EventType
+        
         # 连接主控制器信号到事件总线
         self.main_controller.progress_updated.connect(
-            lambda progress, status: self.event_bus.emit("progress_updated", progress, status)
+            lambda progress, status: self.event_bus.legacy_emit_progress_updated(progress, status)
         )
         self.main_controller.status_changed.connect(
-            lambda status, code, message: self.event_bus.emit("status_changed", status, code, message)
+            lambda status, code, message: self.event_bus.legacy_emit_status_changed(status, code, message)
         )
         self.main_controller.analysis_completed.connect(
-            lambda: self.event_bus.emit("analysis_completed")
+            lambda: self.event_bus.legacy_emit_analysis_completed()
         )
+        # 订阅事件
+        self.event_bus.subscribe(EventType.PROGRESS_UPDATED, self._on_progress_updated)
+        self.event_bus.subscribe(EventType.STATUS_CHANGED, self._on_status_changed)
+        self.event_bus.subscribe(EventType.ANALYSIS_COMPLETED, self._on_analysis_completed)
 
-    def _on_progress_updated(self, progress: int, status: str):
+    def _on_progress_updated(self, event):
         """
         处理进度更新事件
 
         Args:
-            progress: 进度值
-            status: 状态文本
+            event: 事件对象，包含进度和状态信息
         """
+        progress = event.data["progress"]
+        status = event.data["status"]
         self.progress_service.update_progress(progress, status)
         self.logger.debug("Progress updated: %s%% - %s", progress, status)
 
-    def _on_status_changed(self, status: bool, code: int, message: str):
+    def _on_status_changed(self, event):
         """
         处理状态变化事件
 
         Args:
-            status: 状态布尔值
-            code: 状态码
-            message: 状态消息
+            event: 事件对象，包含状态、状态码和消息
         """
+        status = event.data["status"]
+        code = event.data["code"]
+        message = event.data["message"]
         self.logger.info("Status changed: %s, Code: %s, Message: %s", status, code, message)
 
-    def _on_analysis_completed(self):
+    def _on_analysis_completed(self, event):
         """
         处理分析完成事件
+        
+        Args:
+            event: 事件对象
         """
         self.logger.info("Analysis completed")
-        self.event_bus.emit("visualizer_requested")
+        self.event_bus.legacy_emit_visualizer_requested()
 
     def create_visualizer(self, name: str = "battery_chart", **kwargs) -> Optional[IVisualizer]:
         """
