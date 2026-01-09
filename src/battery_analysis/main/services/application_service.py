@@ -12,11 +12,7 @@ from pathlib import Path
 
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
-from battery_analysis.main.services.config_service import ConfigService
-from battery_analysis.main.services.environment_service import EnvironmentService
-from battery_analysis.main.services.i18n_service import I18nService
-from battery_analysis.main.services.progress_service import ProgressService
-from battery_analysis.main.services.event_bus import EventBus
+from battery_analysis.main.services.service_container import get_service_container
 from battery_analysis.utils.config_utils import find_config_file
 from battery_analysis.utils.environment_utils import get_environment_detector
 
@@ -33,14 +29,17 @@ class ApplicationService:
         """
         self.logger = logging.getLogger(__name__)
         
-        # 初始化事件总线
-        self.event_bus = EventBus()
+        # 获取服务容器
+        self.service_container = get_service_container()
         
-        # 初始化核心服务
-        self.environment_service = EnvironmentService()
-        self.config_service = ConfigService()
-        self.i18n_service = I18nService()
-        self.progress_service = ProgressService()
+        # 从服务容器获取服务实例
+        self.event_bus = self.service_container.get("event_bus")
+        self.environment_service = self.service_container.get("environment")
+        self.config_service = self.service_container.get("config")
+        self.i18n_service = self.service_container.get("i18n")
+        self.progress_service = self.service_container.get("progress")
+        self.file_service = self.service_container.get("file")
+        self.validation_service = self.service_container.get("validation")
         
         # 初始化可视化器工厂
         self.visualizer_factory = VisualizerFactory()
@@ -56,6 +55,7 @@ class ApplicationService:
         self.main_controller = None
         self.file_controller = None
         self.validation_controller = None
+        self.visualizer_controller = None
         
         # 连接事件监听器
         self._setup_event_listeners()
@@ -105,15 +105,11 @@ class ApplicationService:
             # 初始化进度服务
             self.progress_service.initialize()
             
-            # 延迟导入控制器
-            from battery_analysis.main.controllers.file_controller import FileController
-            from battery_analysis.main.controllers.main_controller import MainController
-            from battery_analysis.main.controllers.validation_controller import ValidationController
-            
-            # 初始化控制器
-            self.main_controller = MainController()
-            self.file_controller = FileController()
-            self.validation_controller = ValidationController()
+            # 从服务容器获取控制器实例
+            self.main_controller = self.service_container.get("main_controller")
+            self.file_controller = self.service_container.get("file_controller")
+            self.validation_controller = self.service_container.get("validation_controller")
+            self.visualizer_controller = self.service_container.get("visualizer_controller")
             
             # 设置控制器上下文
             self._setup_controller_contexts()
@@ -228,16 +224,15 @@ class ApplicationService:
         Returns:
             Any: 服务实例
         """
+        # 先尝试从服务容器获取
+        service = self.service_container.get(service_type)
+        if service is not None:
+            return service
+        
+        # 对于本地管理的服务，使用备份映射
         service_map = {
-            "environment": self.environment_service,
-            "config": self.config_service,
-            "i18n": self.i18n_service,
-            "progress": self.progress_service,
-            "event_bus": self.event_bus,
-            "main_controller": self.main_controller,
-            "file_controller": self.file_controller,
-            "validation_controller": self.validation_controller,
-            "visualizer_factory": self.visualizer_factory
+            "visualizer_factory": self.visualizer_factory,
+            "current_visualizer": self.current_visualizer
         }
         
         return service_map.get(service_type)
