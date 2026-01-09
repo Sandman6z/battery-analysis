@@ -125,11 +125,32 @@ class ServiceContainer(IServiceContainer):
     
     def _initialize_services(self):
         """
-        初始化默认服务
+        初始化默认服务，按照分层架构注册服务
         """
         try:
-            # 导入应用服务
-            from battery_analysis.main.services.application_service import ApplicationService
+            # 1. 注册核心基础设施服务
+            self._register_infrastructure_services()
+            
+            # 2. 注册应用层服务（Use Cases）
+            self._register_application_services()
+            
+            # 3. 注册表现层服务
+            self._register_presentation_services()
+            
+            # 4. 注册控制器
+            self._register_controllers()
+            
+            self.logger.info("Default services initialized successfully according to layered architecture")
+            
+        except ImportError as e:
+            self.logger.warning("Failed to import services: %s", e)
+    
+    def _register_infrastructure_services(self):
+        """
+        注册基础设施层服务
+        """
+        try:
+            # 注册核心技术服务
             from battery_analysis.main.services.config_service import ConfigService
             from battery_analysis.main.services.event_bus import EventBus
             from battery_analysis.main.services.environment_service import EnvironmentService
@@ -138,9 +159,7 @@ class ServiceContainer(IServiceContainer):
             from battery_analysis.main.services.progress_service import ProgressService
             from battery_analysis.main.services.validation_service import ValidationService
             
-            # 注册核心服务
-            services_to_register = [
-                ("application", ApplicationService),
+            core_tech_services = [
                 ("config", ConfigService),
                 ("event_bus", EventBus),
                 ("environment", EnvironmentService),
@@ -150,108 +169,128 @@ class ServiceContainer(IServiceContainer):
                 ("validation", ValidationService)
             ]
             
-            for name, service_class in services_to_register:
+            for name, service_class in core_tech_services:
                 try:
                     self.register(name, service_class)
-                    self.logger.debug("Service registered: %s", name)
+                    self.logger.debug("Infrastructure service registered: %s", name)
                 except (ImportError, ValueError, TypeError) as e:
-                    self.logger.error("Failed to register service %s: %s", name, e)
+                    self.logger.error("Failed to register infrastructure service %s: %s", name, e)
             
-            # 导入并注册基础设施层实现
+            # 注册领域基础设施实现
             try:
                 from battery_analysis.infrastructure.repositories.battery_repository_impl import BatteryRepositoryImpl
                 from battery_analysis.infrastructure.services.battery_analysis_service_impl import BatteryAnalysisServiceImpl
                 
-                # 注册基础设施层服务
-                infrastructure_services = [
+                domain_infra_services = [
                     ("battery_repository", BatteryRepositoryImpl),
                     ("battery_analysis_service", BatteryAnalysisServiceImpl)
                 ]
                 
-                for name, service_class in infrastructure_services:
+                for name, service_class in domain_infra_services:
                     try:
                         self.register(name, service_class)
-                        self.logger.debug("Infrastructure service registered: %s", name)
+                        self.logger.debug("Domain infrastructure service registered: %s", name)
                     except (ImportError, ValueError, TypeError) as e:
-                        self.logger.error("Failed to register infrastructure service %s: %s", name, e)
+                        self.logger.error("Failed to register domain infrastructure service %s: %s", name, e)
             except ImportError as e:
-                self.logger.warning("Failed to import infrastructure services: %s", e)
-            
-            # 导入并注册use cases
-            try:
-                from battery_analysis.application.usecases.calculate_battery_use_case import CalculateBatteryUseCase
-                from battery_analysis.application.usecases.analyze_data_use_case import AnalyzeDataUseCase
-                from battery_analysis.application.usecases.generate_report_use_case import GenerateReportUseCase
-                
-                # 注册use cases并指定依赖
-                # 使用register_with_dependencies方法注册use cases
-                try:
-                    # CalculateBatteryUseCase依赖
-                    self.register_with_dependencies(
-                        "calculate_battery", 
-                        CalculateBatteryUseCase,
-                        {
-                            "battery_repository": "battery_repository",
-                            "battery_analysis_service": "battery_analysis_service"
-                        }
-                    )
-                    self.logger.debug("Use case registered with dependencies: calculate_battery")
-                    
-                    # AnalyzeDataUseCase依赖
-                    self.register_with_dependencies(
-                        "analyze_data", 
-                        AnalyzeDataUseCase,
-                        {
-                            "battery_repository": "battery_repository",
-                            "battery_analysis_service": "battery_analysis_service"
-                        }
-                    )
-                    self.logger.debug("Use case registered with dependencies: analyze_data")
-                    
-                    # GenerateReportUseCase依赖
-                    self.register_with_dependencies(
-                        "generate_report", 
-                        GenerateReportUseCase,
-                        {
-                            "battery_repository": "battery_repository"
-                        }
-                    )
-                    self.logger.debug("Use case registered with dependencies: generate_report")
-                    
-                except (ImportError, ValueError, TypeError) as e:
-                    self.logger.error("Failed to register use case with dependencies: %s", e)
-            except ImportError as e:
-                self.logger.warning("Failed to import use cases: %s", e)
-            
-            # 延迟导入控制器
-            try:
-                # 导入控制器
-                from battery_analysis.main.controllers.file_controller import FileController
-                from battery_analysis.main.controllers.main_controller import MainController
-                from battery_analysis.main.controllers.validation_controller import ValidationController
-                from battery_analysis.main.controllers.visualizer_controller import VisualizerController
-                
-                # 注册控制器
-                controllers_to_register = [
-                    ("file_controller", FileController),
-                    ("main_controller", MainController),
-                    ("validation_controller", ValidationController),
-                    ("visualizer_controller", VisualizerController)
-                ]
-                
-                for name, controller_class in controllers_to_register:
-                    try:
-                        self.register(name, controller_class)
-                        self.logger.debug("Controller registered: %s", name)
-                    except (ImportError, ValueError, TypeError) as e:
-                        self.logger.error("Failed to register controller %s: %s", name, e)
-            except ImportError as e:
-                self.logger.warning("Failed to import controllers: %s", e)
-            
-            self.logger.info("Default services, use cases and controllers initialized")
-            
+                self.logger.warning("Failed to import domain infrastructure services: %s", e)
         except ImportError as e:
-            self.logger.warning("Failed to import services: %s", e)
+            self.logger.warning("Failed to import infrastructure services: %s", e)
+    
+    def _register_application_services(self):
+        """
+        注册应用层服务（Use Cases）
+        """
+        try:
+            from battery_analysis.application.usecases.calculate_battery_use_case import CalculateBatteryUseCase
+            from battery_analysis.application.usecases.analyze_data_use_case import AnalyzeDataUseCase
+            from battery_analysis.application.usecases.generate_report_use_case import GenerateReportUseCase
+            
+            # 注册use cases并指定依赖
+            use_cases = [
+                {
+                    "name": "calculate_battery",
+                    "class": CalculateBatteryUseCase,
+                    "dependencies": {
+                        "battery_repository": "battery_repository",
+                        "battery_analysis_service": "battery_analysis_service"
+                    }
+                },
+                {
+                    "name": "analyze_data",
+                    "class": AnalyzeDataUseCase,
+                    "dependencies": {
+                        "battery_repository": "battery_repository",
+                        "battery_analysis_service": "battery_analysis_service"
+                    }
+                },
+                {
+                    "name": "generate_report",
+                    "class": GenerateReportUseCase,
+                    "dependencies": {
+                        "battery_repository": "battery_repository"
+                    }
+                }
+            ]
+            
+            for use_case in use_cases:
+                try:
+                    self.register_with_dependencies(
+                        use_case["name"],
+                        use_case["class"],
+                        use_case["dependencies"]
+                    )
+                    self.logger.debug("Application service registered: %s", use_case["name"])
+                except (ImportError, ValueError, TypeError) as e:
+                    self.logger.error("Failed to register application service %s: %s", use_case["name"], e)
+        except ImportError as e:
+            self.logger.warning("Failed to import application services: %s", e)
+    
+    def _register_presentation_services(self):
+        """
+        注册表现层服务
+        """
+        try:
+            from battery_analysis.main.services.application_service import ApplicationService
+            
+            presentation_services = [
+                ("application", ApplicationService)
+            ]
+            
+            for name, service_class in presentation_services:
+                try:
+                    self.register(name, service_class)
+                    self.logger.debug("Presentation service registered: %s", name)
+                except (ImportError, ValueError, TypeError) as e:
+                    self.logger.error("Failed to register presentation service %s: %s", name, e)
+        except ImportError as e:
+            self.logger.warning("Failed to import presentation services: %s", e)
+    
+    def _register_controllers(self):
+        """
+        注册表现层控制器
+        """
+        try:
+            from battery_analysis.main.controllers.file_controller import FileController
+            from battery_analysis.main.controllers.main_controller import MainController
+            from battery_analysis.main.controllers.validation_controller import ValidationController
+            from battery_analysis.main.controllers.visualizer_controller import VisualizerController
+            
+            controllers = [
+                ("file_controller", FileController),
+                ("main_controller", MainController),
+                ("validation_controller", ValidationController),
+                ("visualizer_controller", VisualizerController)
+            ]
+            
+            for name, controller_class in controllers:
+                try:
+                    self.register(name, controller_class)
+                    self.logger.debug("Controller registered: %s", name)
+                except (ImportError, ValueError, TypeError) as e:
+                    self.logger.error("Failed to register controller %s: %s", name, e)
+        except ImportError as e:
+            self.logger.warning("Failed to import controllers: %s", e)
     
     def register(self, name: str, implementation: Type[T], singleton: bool = True) -> bool:
         """
