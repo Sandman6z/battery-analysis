@@ -2048,3 +2048,6 @@ if __name__ == '__main__':
     # 这确保在multiprocessing子进程中不会执行UI初始化代码
     # 防止在Windows和PyInstaller环境下的递归启动问题
     main()
+
+
+
