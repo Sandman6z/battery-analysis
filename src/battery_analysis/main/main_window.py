@@ -39,6 +39,7 @@ from battery_analysis.main.managers.path_manager import PathManager
 from battery_analysis.main.managers.report_manager import ReportManager
 from battery_analysis.main.managers.test_profile_manager import TestProfileManager
 from battery_analysis.main.managers.visualization_manager import VisualizationManager
+from battery_analysis.main.managers.initialization_manager import InitializationManager
 from battery_analysis.main.services.service_container import get_service_container
 from battery_analysis.main.ui_components import ConfigManager, DialogManager, MenuManager, ProgressDialog, TableManager, UIManager
 from battery_analysis.main.utils import Checker, EnvironmentAdapter, FileUtils, SignalConnector
@@ -59,121 +60,22 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        from battery_analysis import __version__
-        self.version = __version__
         
-        # 初始化日志记录器
-        self.logger = logging.getLogger(__name__)
+        # 使用初始化管理器处理所有初始化逻辑
+        init_manager = InitializationManager(self)
+        init_manager.initialize()
         
-        # 获取服务容器
-        self._service_container = get_service_container()
-        
-        # 延迟加载的服务缓存
-        self._services = {}
-        self._controllers = {}
-        
-        # 初始化语言管理器
-        self.language_manager = None
-
-        # 初始化可视化器工厂
-        self.visualizer_factory = VisualizerFactory()
-        # 移除current_visualizer实例属性，viewer应该完全独立
-        
-        # 初始化数据处理器（使用优化的pandas版本）
-        from battery_analysis.main.business_logic.data_processor import DataProcessor
-        self.data_processor = DataProcessor(self)
-
-        self.b_has_config = True
-        self.checker_battery_type = Checker()
-        self.checker_table = Checker()
-        self.checker_input_xlsx = Checker()
-        self.checker_update_config = Checker()
-        self.construction_method = ""
-        self.test_information = ""
-        self.specification_type = ""
-        self.cc_current = ""
-        self.md5_checksum = ""
-        self.md5_checksum_run = ""
-
-        # 初始化环境信息
-        self.env_info = {}
-        
-        # 初始化环境适配器（在env_info初始化之后）
-        self.environment_adapter = EnvironmentAdapter(self)
-        # 使用环境适配器初始化环境检测器
-        self.env_detector = self.environment_adapter.initialize_environment_detector()
-
-        # 环境适配处理 - 使用环境适配器
-        self.environment_adapter.handle_environment_adaptation()
-
-        if sys.platform == "win32":
-            import ctypes
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("bt")
-
-        # 获取项目根路径
-        project_root = Path(__file__).resolve().parent.parent.parent
-
-        self.current_directory = str(project_root)
-        self.path = str(project_root)
-
-        # 设置控制器的项目上下文
-        try:
-            main_controller = self._get_controller("main_controller")
-            if hasattr(main_controller, 'set_project_context'):
-                main_controller.set_project_context(
-                    project_path=self.path,
-                    input_path="",  # 初始empty，后续会更新
-                    output_path=""  # 初始empty，后续会更新
-                )
-        except (AttributeError, TypeError, ValueError) as e:
-            self.logger.warning("Failed to set project context: %s", e)
-
-        self.setupUi(self)
-        
-        # 初始化管理器 - 在调用任何依赖管理器的方法之前
-        self._initialize_managers()
-        
-        # 连接控制器信号（在manager初始化之后）
-        self.signal_connector.connect_controllers()
-        
-        # 加载并应用QSS样式
-        try:
-            from battery_analysis.ui.styles import style_manager
-            app = QW.QApplication.instance()
-            if app:
-                style_manager.apply_global_style(app, "modern")
-        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
-            self.logger.warning("Failed to load QSS styles: %s", e)
-
-        # 连接语言管理器信号
-        self._connect_language_signals()
-        
-        # 初始化语言处理器
-        from battery_analysis.main.ui.language_handler import LanguageHandler
-        self.language_handler = LanguageHandler(self)
-        
-        # 初始化Presenter
-        from battery_analysis.main.presenters.main_presenter import MainPresenter
-        self.presenter = MainPresenter(self)
-        self.presenter.initialize()
-        
-        # 初始化自定义管理器和处理器
-        self.temperature_handler = TemperatureHandler(self)
-        self.report_manager = ReportManager(self)
-        self.path_manager = PathManager(self)
-        self.test_profile_manager = TestProfileManager(self)
-        self.environment_manager = EnvironmentManager(self)
-        self.visualization_manager = VisualizationManager(self)
-        self.analysis_runner = AnalysisRunner(self)
-        
-        # 现在初始化环境信息，因为environment_manager已经创建
-        self._initialize_environment_info()
-        # 确保环境信息包含必要的键
-        self._ensure_env_info_keys()
-        
+        # 初始化窗口和部件
         self.init_window()
         self.init_widget()
 
+        # 初始化电流和电压级别配置
+        self._initialize_current_and_voltage_levels()
+        
+    def _initialize_current_and_voltage_levels(self):
+        """
+        初始化电流和电压级别配置
+        """
         listPulseCurrent = self.get_config("BatteryConfig/PulseCurrent")
         listCutoffVoltage = self.get_config("BatteryConfig/CutoffVoltage")
         
@@ -190,37 +92,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             
         self.listVoltageLevel = [
             safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
-    
-    def _initialize_managers(self):
-        """
-        初始化各个管理器
-        """
-        # 初始化配置管理器
-        self.config_manager = ConfigManager(self)
-        self.b_has_config = self.config_manager.b_has_config
-        self.config = self.config_manager.config
-        self.config_path = self.config_manager.config_path
-        
-        # 初始化UI管理器
-        self.ui_manager = UIManager(self)
-        
-        # 初始化菜单管理器
-        self.menu_manager = MenuManager(self)
-        
-        # 初始化对话框管理器
-        self.dialog_manager = DialogManager(self)
-        
-        # 初始化表格管理器
-        self.table_manager = TableManager(self)
-        
-        # 初始化信号连接器
-        self.signal_connector = SignalConnector(self)
-        
-        # 连接菜单动作
-        self.menu_manager.connect_menu_actions()
-        
-        # 设置菜单快捷键
-        self.menu_manager.setup_menu_shortcuts()
     
     def _get_service(self, service_name):
         """
@@ -270,42 +141,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         self.ui_manager.init_window()
     
-    def show_message(self, title: str, message: str) -> None:
-        """
-        显示信息消息框
-        
-        Args:
-            title: 消息框标题
-            message: 消息内容
-        """
-        from PyQt6 import QtWidgets as QW
-        from battery_analysis.i18n.language_manager import _
-        QW.QMessageBox.information(self, title, message)
-    
-    def show_warning(self, title: str, message: str) -> None:
-        """
-        显示警告消息框
-        
-        Args:
-            title: 消息框标题
-            message: 警告内容
-        """
-        from PyQt6 import QtWidgets as QW
-        from battery_analysis.i18n.language_manager import _
-        QW.QMessageBox.warning(self, title, message)
-    
-    def show_error(self, title: str, message: str) -> None:
-        """
-        显示错误消息框
-        
-        Args:
-            title: 消息框标题
-            message: 错误内容
-        """
-        from PyQt6 import QtWidgets as QW
-        from battery_analysis.i18n.language_manager import _
-        QW.QMessageBox.critical(self, title, message)
-    
     def _load_application_icon(self) -> QG.QIcon:
         """
         加载应用程序图标，使用环境检测器来找到正确的路径
@@ -331,16 +166,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 捕获所有可能的异常，确保应用能正常启动
             self.logger.error("加载应用图标失败: %s", e)
             return QG.QIcon()
-
-    def _connect_language_signals(self):
-        """连接语言管理器的信号"""
-        try:
-            # 初始化语言管理器
-            self.language_manager = get_language_manager()
-            if self.language_manager:
-                self.language_manager.language_changed.connect(self._on_language_changed)
-        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
-            self.logger.warning("Failed to initialize language manager: %s", e)
 
     def _on_language_changed(self, language_code):
         """语言切换处理"""
