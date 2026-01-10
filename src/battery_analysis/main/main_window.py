@@ -33,9 +33,11 @@ from battery_analysis.i18n.language_manager import _, get_language_manager
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.handlers.temperature_handler import TemperatureHandler
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
+from battery_analysis.main.managers.analysis_runner import AnalysisRunner
 from battery_analysis.main.managers.environment_manager import EnvironmentManager
 from battery_analysis.main.managers.path_manager import PathManager
 from battery_analysis.main.managers.report_manager import ReportManager
+from battery_analysis.main.managers.test_profile_manager import TestProfileManager
 from battery_analysis.main.managers.visualization_manager import VisualizationManager
 from battery_analysis.main.services.service_container import get_service_container
 from battery_analysis.main.ui_components import ConfigManager, DialogManager, MenuManager, ProgressDialog, TableManager, UIManager
@@ -159,8 +161,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.temperature_handler = TemperatureHandler(self)
         self.report_manager = ReportManager(self)
         self.path_manager = PathManager(self)
+        self.test_profile_manager = TestProfileManager(self)
         self.environment_manager = EnvironmentManager(self)
         self.visualization_manager = VisualizationManager(self)
+        self.analysis_runner = AnalysisRunner(self)
         
         # 现在初始化环境信息，因为environment_manager已经创建
         self._initialize_environment_info()
@@ -687,32 +691,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 委托给温度处理器
         self.temperature_handler.on_temperature_type_changed()
     
-    def _detect_temperature_type_from_xml(self, xml_path: str) -> None:
-        """
-        根据XML文件名自动检测温度类型
-        
-        Args:
-            xml_path: XML文件的完整路径
-        """
-        try:
-            # 使用温度处理器检测温度类型
-            temperature_type = self.temperature_handler.detect_temperature_type_from_xml(xml_path)
-            
-            # 获取文件名用于日志
-            file_name = os.path.basename(xml_path)
-            
-            # 使用温度处理器更新UI
-            self.temperature_handler.update_temperature_ui(temperature_type)
-            
-            # 记录日志
-            if temperature_type.value == "Freezer Temperature":
-                self.logger.info("检测到冷冻温度测试配置文件: %s", file_name)
-            else:
-                self.logger.info("检测到常温测试配置文件: %s", file_name)
-                
-        except (AttributeError, ValueError) as e:
-            self.logger.warning("检测温度类型时发生错误: %s", e)
-    
     def get_xlsxinfo(self) -> None:
         '''
         获取Excel文件信息，委托给优化的DataProcessor处理
@@ -724,52 +702,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         from battery_analysis.main.business_logic.version_manager import VersionManager
         version_manager = VersionManager(self)
         version_manager.get_version()
+    
     def select_testprofile(self) -> None:
-        """选择测试配置文件"""
-        try:
-            # 1. 选择测试配置文件
-            selected_file = self.path_manager.select_test_profile()
-            
-            if not selected_file:
-                return
-            
-            # 2. 验证测试配置文件
-            if not self.path_manager.validate_test_profile(selected_file):
-                return
-            
-            # 3. 显示选中的文件路径
-            self.lineEdit_TestProfile.setText(selected_file)
-            
-            # 4. 获取父目录
-            parent_dir = self.path_manager.get_parent_directory(selected_file)
-            if not parent_dir:
-                return
-            
-            # 5. 设置输入路径
-            self.path_manager.set_input_path(parent_dir)
-            
-            # 6. 设置输出路径
-            if not self.path_manager.set_output_path(parent_dir):
-                return
-            
-            # 7. 发出版本设置信号
-            self.sigSetVersion.emit()
-            
-            # 8. 更新当前目录
-            self.current_directory = parent_dir
-            self.logger.info("设置当前目录为项目根目录: %s", parent_dir)
-            
-            # 9. 根据XML文件名自动检测温度类型
-            self._detect_temperature_type_from_xml(selected_file)
-            
-        except (OSError, ValueError, TypeError, RuntimeError, FileNotFoundError, PermissionError) as e:
-            self.logger.error("选择Test Profile时发生错误: %s", e)
-            QW.QMessageBox.critical(
-                self,
-                "错误",
-                f"处理Test Profile时发生错误:\n{str(e)}",
-                QW.QMessageBox.StandardButton.Ok
-            )
+        """
+        选择测试配置文件，委托给test_profile_manager
+        """
+        self.test_profile_manager.select_testprofile()
 
     def select_inputpath(self) -> None:
         """
@@ -784,121 +722,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.path_manager.select_outputpath()
 
     def run(self) -> None:
-        # 保存表格数据
-        self.save_table()
-        self.init_widgetcolor()
-        # 线程管理已转移到控制器，此方法保留以保持向后兼容性
-        # 不再需要init_thread()
-        
-        # 检查输入是否完整，包括reportedby
-        if not self.checkinput():
-            # 检查失败，获取警告信息
-            warning_info = []
-            if not self.comboBox_ReportedBy.currentText():
-                warning_info.append("Reported By")
-            
-            # 构建警告信息
-            if warning_info:
-                warning_str = "请完成以下必填项：" + ", ".join(warning_info)
-                QW.QMessageBox.warning(self, "输入验证失败", warning_str)
-            else:
-                QW.QMessageBox.warning(self, "输入验证失败", "请检查所有必填项")
-            
-            self.pushButton_Run.setEnabled(True)
-            return
-
-        # 准备测试信息
-        """ test_info
-        index 0: Battery Type
-        index 1: Construction Method
-        index 2: Specification_Type
-        index 3: Specification_Method
-        index 4: Manufacturer
-        index 5: Batch/Date Code
-        index 6: Sample Qty
-        index 7: Temperature
-        index 8: Datasheet Nominal Capacity
-        index 9: Calculation Nominal Capacity
-        index 10: Accelerated Aging
-        index 11: Tester Location
-        index 12: Test By
-        index 13: Test Profile
-        index 14: Pulse Current List
-        index 15: Cut-off Voltage List
-        index 16: Report word version
-        index 17: Required Useable Capacity
         """
-        # 使用温度处理器构建温度值字符串
-        temperature_value = self.temperature_handler.get_temperature_value()
-        
-        test_info = [
-            self.comboBox_BatteryType.currentText(),
-            self.comboBox_ConstructionMethod.currentText(),
-            self.comboBox_Specification_Type.currentText(),
-            self.comboBox_Specification_Method.currentText(),
-            self.comboBox_Manufacturer.currentText(),
-            self.lineEdit_BatchDateCode.text(),
-            self.lineEdit_SamplesQty.text(),
-            temperature_value,  # 使用构建的温度值
-            self.lineEdit_DatasheetNominalCapacity.text(),
-            self.lineEdit_CalculationNominalCapacity.text(),
-            str(self.spinBox_AcceleratedAging.value()),
-            self.comboBox_TesterLocation.currentText(),
-            self.comboBox_TestedBy.currentText(),
-            self.lineEdit_TestProfile.text(),
-            self.listCurrentLevel,
-            self.listVoltageLevel,
-            self.lineEdit_Version.text(),
-            self.lineEdit_RequiredUseableCapacity.text(),
-            # 直接使用comboBox_ReportedBy的值，不再从表格获取
-            self.comboBox_ReportedBy.currentText()
-        ]
-        # 简化验证，只验证必要的路径
-        if not self.lineEdit_InputPath.text():
-            QW.QMessageBox.critical(self, _("validation_failed", "输入验证失败"), _("input_path_empty", "输入数据路径不能为空"))
-            self.pushButton_Run.setEnabled(True)
-            return
-
-        if not self.lineEdit_OutputPath.text():
-            QW.QMessageBox.critical(self, _("validation_failed", "输入验证失败"), _("output_path_empty", "输出路径不能为空"))
-            self.pushButton_Run.setEnabled(True)
-            return
-
-        # 检查冷冻温度是否设置为0，如果是则提示用户
-        temperature_type = self.comboBox_Temperature.currentText()
-        if temperature_type == "Freezer Temperature" and self.spinBox_Temperature.value() == 0:
-            reply = QW.QMessageBox.question(
-                self,
-                "温度确认",
-                "当前冷冻温度设置为0°C，是否继续运行？",
-                QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-                QW.QMessageBox.StandardButton.No
-            )
-            if reply == QW.QMessageBox.StandardButton.No:
-                self.pushButton_Run.setEnabled(True)
-                return
-        
-        # 更新控制器的上下文和测试信息
-        success = False
-        main_controller = self._get_controller("main_controller")
-        if main_controller:
-            main_controller.set_project_context(
-                project_path=self.path,
-                input_path=self.lineEdit_InputPath.text(),
-                output_path=self.lineEdit_OutputPath.text()
-            )
-            main_controller.set_test_info(test_info)
-
-            # 更新配置
-            self.update_config(test_info)
-            self.md5_checksum_run = self.md5_checksum
-            self.statusBar_BatteryAnalysis.showMessage("status:ok")
-
-            # 启动分析
-            success = main_controller.start_analysis()
-        if not success:
-            self.pushButton_Run.setEnabled(True)
-            QW.QMessageBox.warning(self, _("start_failed", "启动失败"), _("cannot_start_analysis", "无法启动分析任务"))
+        运行电池分析，委托给analysis_runner
+        """
+        self.analysis_runner.run_analysis()
 
     def save_table(self) -> None:
         """
@@ -997,5 +824,3 @@ if __name__ == '__main__':
     # 这确保在multiprocessing子进程中不会执行UI初始化代码
     # 防止在Windows和PyInstaller环境下的递归启动问题
     main()
-
-
