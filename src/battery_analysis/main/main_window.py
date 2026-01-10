@@ -935,37 +935,36 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.checker_table.clear()
         # 不再重新创建QSettings实例，而是重新读取配置
         # 这样可以确保使用与初始化when相同的配置文件路径和设置
-        self.config.sync()  # 确保配置文件被correct加载
+        self.config.sync()  # 确保配置文件被正确加载
 
-        test_information_groups = []
-        child_groups = self.config.childGroups()
+        # 使用正则表达式匹配TestInformation组
+        import re
+        test_info_pattern = re.compile(r"^TestInformation\.(\w+)\.(\w+)$")
+        
+        # 创建字典映射：(location, laboratory) -> group_name
+        test_info_map = {}
+        
+        # 遍历所有子组，提取有效的TestInformation组
+        for group in self.config.childGroups():
+            match = test_info_pattern.match(group)
+            if match:
+                location, laboratory = match.groups()
+                test_info_map[(location, laboratory)] = group
 
-        for group in child_groups:
-            if "TestInformation." in group:
-                test_information_groups.append(group)
-
-        if not test_information_groups:
+        if not test_info_map:
             self.checker_table.set_error("No TestInformation in setting.ini")
             self.statusBar_BatteryAnalysis.showMessage(
                 "[Error]: No TestInformation in setting.ini")
             return
 
+        # 获取当前选择的测试位置
+        tester_location = self.comboBox_TesterLocation.currentText().replace(" ", "")
+        
+        # 查找匹配的TestInformation组
         self.test_information = ""
-        for group in test_information_groups:
-            group_parts = group.split(".")
-            if len(group_parts) != 3:
-                self.checker_table.set_error(
-                    f"Wrong TestInformation section format:[{group}] in setting.ini")
-                self.statusBar_BatteryAnalysis.showMessage(
-                    f"[Error]: Wrong TestInformation section format:[{group}] in setting.ini")
-                return
-
-            location = group_parts[1]
-            laboratory = group_parts[2]
-            tester_location = self.comboBox_TesterLocation.currentText().replace(" ", "")
-
+        for (location, laboratory), group_name in test_info_map.items():
             if (laboratory in tester_location) and (location in tester_location):
-                self.test_information = group
+                self.test_information = group_name
                 break
 
         if not self.test_information:
@@ -980,30 +979,25 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             qt_item = QW.QTableWidgetItem(item_text)
             self.tableWidget_TestInformation.setItem(row, col, qt_item)
 
-        set_item(self.get_config(
-            f"{self.test_information}/TestEquipment"), 0, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/SoftwareVersions.BTSServerVersion"), 1, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/SoftwareVersions.BTSClientVersion"), 2, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/SoftwareVersions.BTSDAVersion"), 3, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.Model"), 4, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.HardwareVersion"), 5, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.SerialNumber"), 6, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.FirmwareVersion"), 7, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/MiddleMachines.DeviceType"), 8, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/TestUnits.Model"), 9, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/TestUnits.HardwareVersion"), 10, 2)
-        set_item(self.get_config(
-            f"{self.test_information}/TestUnits.FirmwareVersion"), 11, 2)
+        # 使用字典映射配置键到行号，简化代码
+        config_row_map = {
+            f"{self.test_information}/TestEquipment": 0,
+            f"{self.test_information}/SoftwareVersions.BTSServerVersion": 1,
+            f"{self.test_information}/SoftwareVersions.BTSClientVersion": 2,
+            f"{self.test_information}/SoftwareVersions.BTSDAVersion": 3,
+            f"{self.test_information}/MiddleMachines.Model": 4,
+            f"{self.test_information}/MiddleMachines.HardwareVersion": 5,
+            f"{self.test_information}/MiddleMachines.SerialNumber": 6,
+            f"{self.test_information}/MiddleMachines.FirmwareVersion": 7,
+            f"{self.test_information}/MiddleMachines.DeviceType": 8,
+            f"{self.test_information}/TestUnits.Model": 9,
+            f"{self.test_information}/TestUnits.HardwareVersion": 10,
+            f"{self.test_information}/TestUnits.FirmwareVersion": 11
+        }
+        
+        # 遍历字典，设置表格项
+        for config_key, row in config_row_map.items():
+            set_item(self.get_config(config_key), row, 2)
 
         # 移除根据TesterLocation自动设置ReportedBy的逻辑
         # 现在ReportedBy直接使用comboBox_ReportedBy的值
