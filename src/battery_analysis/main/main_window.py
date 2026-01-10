@@ -31,7 +31,10 @@ import PyQt6.QtWidgets as QW
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _, get_language_manager
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
+from battery_analysis.main.handlers.temperature_handler import TemperatureHandler
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
+from battery_analysis.main.managers.path_manager import PathManager
+from battery_analysis.main.managers.report_manager import ReportManager
 from battery_analysis.main.services.service_container import get_service_container
 from battery_analysis.main.ui_components.config_manager import ConfigManager
 from battery_analysis.main.ui_components.dialog_manager import DialogManager
@@ -39,6 +42,7 @@ from battery_analysis.main.ui_components.menu_manager import MenuManager
 from battery_analysis.main.ui_components.progress_dialog import ProgressDialog
 from battery_analysis.main.ui_components.ui_manager import UIManager
 from battery_analysis.main.utils.environment_adapter import EnvironmentAdapter
+from battery_analysis.main.utils.file_utils import FileUtils
 from battery_analysis.main.utils.signal_connector import SignalConnector
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
@@ -176,6 +180,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         from battery_analysis.main.presenters.main_presenter import MainPresenter
         self.presenter = MainPresenter(self)
         self.presenter.initialize()
+        
+        # 初始化自定义管理器和处理器
+        self.temperature_handler = TemperatureHandler(self)
+        self.report_manager = ReportManager(self)
+        self.path_manager = PathManager(self)
         
         self.init_window()
         self.init_widget()
@@ -317,21 +326,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             QIcon: 应用程序图标
         """
         try:
-            # 尝试多个可能的图标路径（优先使用环境检测器，否则使用固定路径）
-            icon_paths = []
-            
-            # 如果环境检测器可用，使用它来解析路径
-            if self.env_detector:
-                icon_paths = [
-                    self.env_detector.get_resource_path("config/resources/icons/Icon_BatteryTestGUI.ico"),
-                    self.env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
-                ]
-            
-            # 始终尝试相对路径（工程中的图标）
-            icon_paths.extend([
-                Path(self.current_directory) / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-                Path(self.current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-            ])
+            # 使用FileUtils获取所有可能的图标路径
+            icon_paths = FileUtils.get_icon_paths(self.env_detector, self.current_directory)
             
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:
@@ -451,18 +447,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def show_user_manual(self) -> None:
         """显示用户手册"""
         try:
-            # 首先尝试从当前目录查找手册
-            manual_paths = [
-                # 相对路径
-                Path(self.current_directory) / "docs" / "user_manual.pdf",
-                Path(self.current_directory) / "user_manual.pdf",
-                # 绝对路径 - 项目目录
-                Path(__file__).parent.parent.parent / "docs" / "user_manual.pdf",
-                Path(__file__).parent.parent.parent / "user_manual.pdf",
-                # 常见的文档位置
-                Path(os.getcwd()) / "docs" / "user_manual.pdf",
-                Path(os.getcwd()) / "user_manual.pdf",
-            ]
+            # 使用FileUtils获取所有可能的手册路径
+            manual_paths = FileUtils.get_manual_paths(self.current_directory)
             
             manual_found = False
             for manual_path in manual_paths:
@@ -1024,40 +1010,28 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def on_temperature_type_changed(self, index):
         """处理温度类型变化事件，控制spinBox_Temperature的启用状态"""
-        # 获取当前选中的温度类型
-        temperature_type = self.comboBox_Temperature.currentText()
-        
-        # 根据温度类型决定是否启用spinBox_Temperature
-        if temperature_type == "Freezer Temperature":
-            self.spinBox_Temperature.setEnabled(True)
-        else:  # Room Temperature
-            self.spinBox_Temperature.setEnabled(False)
-        
-        # 移除对lineEdit_Temperature的引用，不再更新它
+        # 委托给温度处理器
+        self.temperature_handler.on_temperature_type_changed()
     
     def _detect_temperature_type_from_xml(self, xml_path: str) -> None:
         """
         根据XML文件名自动检测温度类型
         
-        规则：
-        - 文件名中包含"Freezer"（不区分大小写），表示冷冻温度
-        - 否则表示常温
-        
         Args:
             xml_path: XML文件的完整路径
         """
         try:
-            # 使用temperature_utils模块检测温度类型
-            temperature_type = temperature_utils.detect_temperature_type_from_xml(xml_path)
+            # 使用温度处理器检测温度类型
+            temperature_type = self.temperature_handler.detect_temperature_type_from_xml(xml_path)
             
             # 获取文件名用于日志
             file_name = os.path.basename(xml_path)
             
-            # 设置温度类型和UI状态
-            self.comboBox_Temperature.setCurrentText(temperature_type)
-            self.spinBox_Temperature.setEnabled(temperature_type == "Freezer Temperature")
+            # 使用温度处理器更新UI
+            self.temperature_handler.update_temperature_ui(temperature_type)
             
-            if temperature_type == "Freezer Temperature":
+            # 记录日志
+            if temperature_type == temperature_utils.TemperatureType.FREEZER:
                 self.logger.info("检测到冷冻温度测试配置文件: %s", file_name)
             else:
                 self.logger.info("检测到常温测试配置文件: %s", file_name)
@@ -1077,109 +1051,51 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         version_manager = VersionManager(self)
         version_manager.get_version()
     def select_testprofile(self) -> None:
-        selected_file, _ = QW.QFileDialog.getOpenFileName(
-            self, "Select Test Profile", self.current_directory, "XML Files(*.xml)")
-        
-        if selected_file and selected_file.strip():
-            try:
-                # 验证文件是否存在
-                if not os.path.exists(selected_file):
-                    QW.QMessageBox.warning(
-                        self,
-                        "文件错误",
-                        f"选择的文件不存在:\n{selected_file}",
-                        QW.QMessageBox.StandardButton.Ok
-                    )
-                    return
-                
-                # 验证文件扩展名
-                if not selected_file.lower().endswith('.xml'):
-                    QW.QMessageBox.warning(
-                        self,
-                        "文件格式错误",
-                        "请选择XML格式的Test Profile文件",
-                        QW.QMessageBox.StandardButton.Ok
-                    )
-                    return
-                
-                # 显示选中的文件路径
-                self.lineEdit_TestProfile.setText(selected_file)
-                
-                # 获取Test Profile的目录
-                test_profile_dir = os.path.dirname(selected_file)
-                
-                # 验证目录是否有效
-                if not test_profile_dir or not os.path.exists(test_profile_dir):
-                    self.logger.error("无效的Test Profile目录: %s", test_profile_dir)
-                    return
-                
-                # 获取父目录（项目根目录）
-                parent_dir = os.path.dirname(test_profile_dir)
-                
-                # 验证父目录是否存在
-                if not parent_dir or not os.path.exists(parent_dir):
-                    self.logger.error("无效的父目录: %s", parent_dir)
-                    return
-                
-                # 自动设置input path为同级的2_xlsx文件夹
-                input_path = os.path.join(parent_dir, "2_xlsx")
-                if os.path.exists(input_path) and os.path.isdir(input_path):
-                    self.lineEdit_InputPath.setText(input_path)
-                    self.sigSetVersion.emit()
-                    self.logger.info("自动设置输入路径: %s", input_path)
-                else:
-                    self.logger.info("未找到输入目录: %s", input_path)
-                
-                # 自动设置output path为同级的3_analysis results文件夹
-                output_path = os.path.join(parent_dir, "3_analysis results")
-                if os.path.exists(output_path) and os.path.isdir(output_path):
-                    self.lineEdit_OutputPath.setText(output_path)
-                else:
-                    # 如果输出目录不存在，询问用户是否创建
-                    reply = QW.QMessageBox.question(
-                        self,
-                        "创建输出目录",
-                        f"输出目录不存在，是否创建？\n\n路径: {output_path}",
-                        QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-                        QW.QMessageBox.StandardButton.Yes
-                    )
-                    
-                    if reply == QW.QMessageBox.StandardButton.Yes:
-                        try:
-                            os.makedirs(output_path, exist_ok=True)
-                            self.lineEdit_OutputPath.setText(output_path)
-                            self.logger.info("创建并设置输出目录: %s", output_path)
-                        except (OSError, PermissionError, FileNotFoundError) as e:
-                            self.logger.error("创建输出目录失败: %s", e)
-                            QW.QMessageBox.critical(
-                                self,
-                                "创建失败",
-                                f"无法创建输出目录:\n{str(e)}",
-                                QW.QMessageBox.StandardButton.Ok
-                            )
-                            return
-                    else:
-                        # 用户选择不创建，手动设置路径但不创建目录
-                        self.lineEdit_OutputPath.setText(output_path)
-                        self.logger.info("手动设置输出目录（未创建）: %s", output_path)
-                
-                self.sigSetVersion.emit()
-                
-                # 更新current_directory为项目根目录
-                self.current_directory = parent_dir
-                self.logger.info("设置当前目录为项目根目录: %s", parent_dir)
-                
-                # 根据XML文件名自动检测温度类型
-                self._detect_temperature_type_from_xml(selected_file)
-                
-            except (OSError, ValueError, TypeError, RuntimeError, FileNotFoundError, PermissionError) as e:
-                self.logger.error("选择Test Profilewhen发生错误: %s", e)
-                QW.QMessageBox.critical(
-                    self,
-                    "错误",
-                    f"处理Test Profilewhen发生错误:\n{str(e)}",
-                    QW.QMessageBox.StandardButton.Ok
-                )
+        """选择测试配置文件"""
+        try:
+            # 1. 选择测试配置文件
+            selected_file = self.path_manager.select_test_profile()
+            
+            if not selected_file:
+                return
+            
+            # 2. 验证测试配置文件
+            if not self.path_manager.validate_test_profile(selected_file):
+                return
+            
+            # 3. 显示选中的文件路径
+            self.lineEdit_TestProfile.setText(selected_file)
+            
+            # 4. 获取父目录
+            parent_dir = self.path_manager.get_parent_directory(selected_file)
+            if not parent_dir:
+                return
+            
+            # 5. 设置输入路径
+            self.path_manager.set_input_path(parent_dir)
+            
+            # 6. 设置输出路径
+            if not self.path_manager.set_output_path(parent_dir):
+                return
+            
+            # 7. 发出版本设置信号
+            self.sigSetVersion.emit()
+            
+            # 8. 更新当前目录
+            self.current_directory = parent_dir
+            self.logger.info("设置当前目录为项目根目录: %s", parent_dir)
+            
+            # 9. 根据XML文件名自动检测温度类型
+            self._detect_temperature_type_from_xml(selected_file)
+            
+        except (OSError, ValueError, TypeError, RuntimeError, FileNotFoundError, PermissionError) as e:
+            self.logger.error("选择Test Profile时发生错误: %s", e)
+            QW.QMessageBox.critical(
+                self,
+                "错误",
+                f"处理Test Profile时发生错误:\n{str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
 
     def select_inputpath(self) -> None:
         self.current_directory = QW.QFileDialog.getExistingDirectory(
@@ -1242,12 +1158,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         index 16: Report word version
         index 17: Required Useable Capacity
         """
-        # 构建温度值字符串，根据选择的类型包含spinBox值和℃单位
-        temperature_type = self.comboBox_Temperature.currentText()
-        if temperature_type == "Freezer Temperature":
-            temperature_value = f"{temperature_type}:{self.spinBox_Temperature.value()}"
-        else:
-            temperature_value = temperature_type
+        # 使用温度处理器构建温度值字符串
+        temperature_value = self.temperature_handler.get_temperature_value()
         
         test_info = [
             self.comboBox_BatteryType.currentText(),
@@ -1397,70 +1309,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         from battery_analysis.main.business_logic.validation_manager import ValidationManager
         validation_manager = ValidationManager(self)
         return validation_manager.checkinput()
-    def _open_report(self):
+    def _open_report(self, dialog=None):
         """打开生成的docx格式报告"""
-        output_path_str = self.lineEdit_OutputPath.text()
-        version = self.lineEdit_Version.text()
-        
-        try:
-            from pathlib import Path
-            output_path = Path(output_path_str)
+        self.report_manager.open_report(dialog)
             
-            if not output_path.exists() or not output_path.is_dir():
-                QW.QMessageBox.warning(self, "警告", f"无效的输出路径: {output_path}")
-                return
-            
-            # 搜索docx文件
-            docx_files = list(output_path.rglob("*.docx"))
-            
-            if not docx_files:
-                QW.QMessageBox.information(self, "信息", f"未找到docx报告文件\n搜索路径: {output_path}")
-                return
-            
-            # 找到与当前版本匹配的报告
-            target_docx = None
-            for docx_file in docx_files:
-                if f"_V{version}" in docx_file.name:
-                    target_docx = docx_file
-                    break
-            
-            # 如果没有匹配版本，使用最新的报告
-            if not target_docx and docx_files:
-                target_docx = sorted(docx_files, key=lambda f: f.stat().st_mtime, reverse=True)[0]
-            
-            # 打开报告
-            if target_docx:
-                target_path = str(target_docx)
-                try:
-                    os.startfile(target_path)
-                except Exception as popen_error:
-                    logging.error("打开报告失败: %s", popen_error)
-                    QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(popen_error)}")
-        except Exception as e:
-            QW.QMessageBox.critical(self, "错误", f"打开报告失败: {str(e)}")
-            self.logger.error("打开报告失败: %s", e)
-            
-    def _open_report_path(self):
+    def _open_report_path(self, dialog=None):
         """打开报告所在的文件夹"""
-        output_path_str = self.lineEdit_OutputPath.text()
-        
-        try:
-            from pathlib import Path
-            output_path = Path(output_path_str)
-            
-            if not output_path.exists() or not output_path.is_dir():
-                QW.QMessageBox.warning(self, "警告", f"无效的输出路径: {output_path}")
-                return
-            
-            # 直接打开输出路径，因为报告已经存储在这里
-            try:
-                os.startfile(str(output_path))
-            except Exception as popen_error:
-                logging.error("打开报告文件夹失败: %s", popen_error)
-                QW.QMessageBox.critical(self, "错误", f"打开文件夹失败: {str(popen_error)}")
-        except Exception as e:
-            QW.QMessageBox.critical(self, "错误", f"打开文件夹失败: {str(e)}")
-            self.logger.error("打开报告文件夹失败: %s", e)
+        self.report_manager.open_report_path(dialog)
 
     def set_version(self) -> None:
         """更新版本号，增加次要版本号，委托给VersionManager"""
@@ -1471,51 +1326,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         显示分析完成对话框，包含"打开报告"、"打开路径"和"确定"按钮
         """
-        dialog = QW.QDialog(self)
-        dialog.setWindowTitle("分析完成")
-        dialog.setFixedSize(450, 150)
-        dialog.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
-                             QC.Qt.WindowType.WindowCloseButtonHint)
-        
-        layout = QW.QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
-        
-        # 添加状态文本标签
-        status_label = QW.QLabel("电池分析已完成！")
-        status_label.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
-        status_label.setWordWrap(True)
-        layout.addWidget(status_label)
-        
-        # 添加底部按钮布局
-        button_layout = QW.QHBoxLayout()
-        button_layout.setSpacing(10)
-        button_layout.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
-        
-        # 添加打开报告按钮
-        open_report_button = QW.QPushButton("打开报告")
-        open_report_button.setMinimumHeight(32)
-        open_report_button.setMinimumWidth(120)
-        open_report_button.clicked.connect(lambda: self._open_report(dialog))
-        button_layout.addWidget(open_report_button)
-        
-        # 添加打开路径按钮
-        open_path_button = QW.QPushButton("打开路径")
-        open_path_button.setMinimumHeight(32)
-        open_path_button.setMinimumWidth(120)
-        open_path_button.clicked.connect(lambda: self._open_report_path(dialog))
-        button_layout.addWidget(open_path_button)
-        
-        # 添加确定按钮
-        ok_button = QW.QPushButton("确定")
-        ok_button.setMinimumHeight(32)
-        ok_button.setMinimumWidth(120)
-        ok_button.clicked.connect(dialog.accept)
-        button_layout.addWidget(ok_button)
-        
-        layout.addLayout(button_layout)
-        dialog.setLayout(layout)
-        dialog.exec()
+        self.report_manager.show_analysis_complete_dialog()
         
     def rename_pltPath(self, strTestDate):
         self.config.setValue(
