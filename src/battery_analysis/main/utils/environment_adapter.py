@@ -49,8 +49,6 @@ class EnvironmentAdapter:
         """
         处理环境适配逻辑
         """
-        env_type = self.env_info['environment_type']
-        
         # 通过环境服务获取 EnvironmentType
         try:
             env_service = self.main_window._get_service("environment")
@@ -62,6 +60,17 @@ class EnvironmentAdapter:
         except (AttributeError, TypeError, ImportError) as e:
             self.logger.warning("Failed to get EnvironmentType: %s", e)
             from battery_analysis.utils.environment_utils import EnvironmentType
+        
+        # 确保环境信息包含必要的键
+        if 'environment_type' not in self.env_info:
+            self.env_info['environment_type'] = EnvironmentType.IDE
+            self.logger.warning("environment_type not found in env_info, using IDE as default")
+        
+        if 'gui_available' not in self.env_info:
+            self.env_info['gui_available'] = True
+        
+        # 获取环境类型
+        env_type = self.env_info['environment_type']
         
         # 根据环境类型进行适配
         if env_type == EnvironmentType.IDE:

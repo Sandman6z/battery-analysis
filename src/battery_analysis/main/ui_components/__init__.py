@@ -13,6 +13,7 @@ from .config_manager import ConfigManager
 from .dialog_manager import DialogManager
 from .menu_manager import MenuManager
 from .progress_dialog import ProgressDialog
+from .table_manager import TableManager
 from .theme_manager import ThemeManager
 from .ui_manager import UIManager
 
@@ -26,6 +27,7 @@ __all__ = [
     "DialogManager",
     "MenuManager",
     "ProgressDialog",
+    "TableManager",
     "ThemeManager",
     "UIManager"
 ]

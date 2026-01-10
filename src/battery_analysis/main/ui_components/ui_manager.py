@@ -462,3 +462,36 @@ class UIManager:
                         output_path=user_config["OutputPath"])
         except (AttributeError, TypeError, KeyError, OSError) as e:
             self.logger.error("加载用户设置失败: %s", e)
+    
+    def init_widgetcolor(self) -> None:
+        """
+        清除所有标签的背景样式
+        具体样式由checkinput方法根据验证结果设置
+        """
+        try:
+            # 清除所有标签的背景样式
+            labels_to_clear = [
+                self.main_window.label_BatteryType,
+                self.main_window.label_ConstructionMethod,
+                self.main_window.label_Specification,
+                self.main_window.label_Manufacturer,
+                self.main_window.label_BatchDateCode,
+                self.main_window.label_SamplesQty,
+                self.main_window.label_Temperature,
+                self.main_window.label_DatasheetNominalCapacity,
+                self.main_window.label_CalculationNominalCapacity,
+                self.main_window.label_AcceleratedAging,
+                self.main_window.label_RequiredUseableCapacity,
+                self.main_window.label_TesterLocation,
+                self.main_window.label_TestedBy,
+                self.main_window.label_TestProfile,
+                self.main_window.label_InputPath,
+                self.main_window.label_OutputPath,
+                self.main_window.label_Version,
+                self.main_window.pushButton_Run
+            ]
+            
+            for label in labels_to_clear:
+                label.setStyleSheet("")
+        except (AttributeError, TypeError, RuntimeError) as e:
+            self.logger.warning("初始化部件颜色失败: %s", e)

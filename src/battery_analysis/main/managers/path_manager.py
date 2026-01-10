@@ -151,3 +151,29 @@ class PathManager:
                 self.logger.info("手动设置输出目录（未创建）: %s", output_path)
         
         return True
+    
+    def select_inputpath(self) -> None:
+        """
+        选择输入路径
+        """
+        selected_dir = QW.QFileDialog.getExistingDirectory(
+            self.main_window, "Select Input Path", self.main_window.current_directory)
+        
+        if selected_dir != "":
+            self.main_window.lineEdit_InputPath.setText(selected_dir)
+            self.main_window.sigSetVersion.emit()
+            self.main_window.current_directory = os.path.join(selected_dir, "../../")
+            self.logger.info("手动设置输入路径: %s", selected_dir)
+    
+    def select_outputpath(self) -> None:
+        """
+        选择输出路径
+        """
+        selected_dir = QW.QFileDialog.getExistingDirectory(
+            self.main_window, "Select Output Path", self.main_window.current_directory)
+        
+        if selected_dir != "":
+            self.main_window.lineEdit_OutputPath.setText(selected_dir)
+            self.main_window.sigSetVersion.emit()
+            self.main_window.current_directory = os.path.join(selected_dir, "../")
+            self.logger.info("手动设置输出路径: %s", selected_dir)

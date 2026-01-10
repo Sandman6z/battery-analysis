@@ -265,3 +265,70 @@ class ConfigManager:
         """
         self._initialize_config()
         self.logger.info("配置文件已重新加载")
+    
+    def update_config(self, test_info) -> None:
+        """
+        更新配置文件中的图表相关设置
+        
+        Args:
+            test_info: 测试信息列表
+        """
+        try:
+            # 初始化checker_update_config如果不存在
+            if not hasattr(self.main_window, 'checker_update_config'):
+                from battery_analysis.main.utils import Checker
+                self.main_window.checker_update_config = Checker()
+            
+            self.main_window.checker_update_config.clear()
+            
+            # 更新图表配置路径
+            self.config.setValue(
+                "PltConfig/Path", f"{self.main_window.lineEdit_OutputPath.text()}/V{test_info[16]}")
+
+            bSetTitle = False
+            rules = self.main_window.get_config("BatteryConfig/Rules")
+            specification_type = self.main_window.comboBox_Specification_Type.currentText()
+            strPulseCurrent = "".join(
+                [f"{current_level}mA/" for current_level in self.main_window.listCurrentLevel])
+            
+            for rule in rules:
+                rule_parts = rule.split("/")
+                if not self.main_window.cc_current:
+                    self.main_window.cc_current = rule_parts[5]
+                if rule_parts[0] == specification_type:
+                    self.config.setValue(
+                        "PltConfig/Title",
+                        f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
+                        f"-{test_info[8]}mAh@{self.main_window.cc_current}mA, "
+                        f"{strPulseCurrent[:-1]}, {test_info[7]}")
+                    bSetTitle = True
+                    break
+                if rule_parts[0] in specification_type:
+                    self.config.setValue(
+                        "PltConfig/Title",
+                        f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
+                        f"-{test_info[8]}mAh@{self.main_window.cc_current}mA, "
+                        f"{strPulseCurrent[:-1]}, {test_info[7]}")
+                    bSetTitle = True
+                    break
+            
+            if not bSetTitle:
+                self.main_window.checker_update_config.set_error("PltTitle")
+                self.main_window.statusBar_BatteryAnalysis.showMessage(
+                    f"[Error]: No rules for {specification_type}")
+        except (AttributeError, TypeError, ValueError, OSError) as e:
+            self.logger.error("更新配置失败: %s", e)
+    
+    def rename_pltPath(self, strTestDate):
+        """
+        根据测试日期重命名图表保存路径
+        
+        Args:
+            strTestDate: 测试日期字符串
+        """
+        try:
+            self.config.setValue(
+                "PltConfig/Path", f"{self.main_window.lineEdit_OutputPath.text()}/"
+                f"{strTestDate}_V{self.main_window.lineEdit_Version.text()}")
+        except (AttributeError, TypeError, ValueError, OSError) as e:
+            self.logger.error("重命名图表路径失败: %s", e)
