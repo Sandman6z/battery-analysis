@@ -74,9 +74,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化电流和电压级别配置
         self._initialize_current_and_voltage_levels()
         
-        # 初始化命令对象
-        self._initialize_commands()
-        
     # ------------------------------
     # 初始化相关方法
     # ------------------------------
@@ -97,19 +94,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         self.listVoltageLevel = [
             safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
-            
-    def _initialize_commands(self):
-        """
-        初始化命令对象
-        """
-        # 初始化各种命令
-        self.run_analysis_command = RunAnalysisCommand(self.analysis_runner)
-        self.save_settings_command = SaveSettingsCommand(self)
-        self.export_report_command = ExportReportCommand(self.presenter)
-        self.batch_processing_command = BatchProcessingCommand(self.presenter)
-        self.generate_report_command = GenerateReportCommand(self.presenter)
-        self.analyze_data_command = AnalyzeDataCommand(self.presenter)
-        self.calculate_battery_command = CalculateBatteryCommand(self.presenter)
     
     # ------------------------------
     # 服务和控制器获取方法
