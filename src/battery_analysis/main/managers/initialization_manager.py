@@ -18,8 +18,10 @@ from battery_analysis.main.initialization.steps.managers_initialization_step imp
 from battery_analysis.main.initialization.steps.processors_initialization_step import ProcessorsInitializationStep
 from battery_analysis.main.initialization.steps.handlers_initialization_step import HandlersInitializationStep
 from battery_analysis.main.initialization.steps.presenters_initialization_step import PresentersInitializationStep
+from battery_analysis.main.initialization.steps.command_manager_initialization_step import CommandManagerInitializationStep
 from battery_analysis.main.initialization.steps.language_initialization_step import LanguageInitializationStep
 from battery_analysis.main.initialization.steps.styles_initialization_step import StylesInitializationStep
+from battery_analysis.main.initialization.steps.battery_config_initialization_step import BatteryConfigInitializationStep
 
 
 class InitializationManager:
@@ -60,8 +62,10 @@ class InitializationManager:
             ProcessorsInitializationStep(),
             HandlersInitializationStep(),
             PresentersInitializationStep(),
+            CommandManagerInitializationStep(),
             LanguageInitializationStep(),
-            StylesInitializationStep()
+            StylesInitializationStep(),
+            BatteryConfigInitializationStep()
         ]
         
         self._orchestrator.register_steps(steps)

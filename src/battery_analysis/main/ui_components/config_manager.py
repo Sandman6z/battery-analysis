@@ -218,7 +218,14 @@ class ConfigManager:
         """
         保存用户配置
         """
+        from battery_analysis.i18n.language_manager import _
+        import PyQt6.QtWidgets as QW
+        
         try:
+            # 显示保存状态
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                _("saving_settings", "正在保存设置..."))
+
             # 收集当前UI控件的值
             user_settings = {
                 "BatteryType": self.main_window.comboBox_BatteryType.currentText(),
@@ -237,9 +244,29 @@ class ConfigManager:
             # 使用用户设置管理器保存配置
             self.user_settings_manager.save_user_settings(user_settings)
             
+            # 更新内存中的配置实例
+            self.main_window.config = self.user_settings_manager.user_settings
+
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                _("settings_saved", "设置已保存"))
+            QW.QMessageBox.information(
+                self.main_window,
+                _("save_settings_title", "保存设置"),
+                _("settings_saved_success", "当前配置已成功保存到用户配置文件。"),
+                QW.QMessageBox.StandardButton.Ok
+            )
+            
             self.logger.info("用户设置已保存")
         except (AttributeError, TypeError, KeyError, OSError) as e:
-            logging.error("保存用户设置失败: %s", e)
+            self.logger.error("保存用户设置失败: %s", e)
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                _("save_settings_failed", "保存设置失败"))
+            QW.QMessageBox.warning(
+                self.main_window,
+                _("error_title", "错误"),
+                f"{_('cannot_save_settings', '无法保存设置')}: {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
     
     def get_current_config_path(self) -> Optional[str]:
         """
