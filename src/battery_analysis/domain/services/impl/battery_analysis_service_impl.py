@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
 """
-BatteryAnalysisService实现类
+BatteryAnalysisServiceImpl服务实现
 
-基础设施层，实现Domain层的BatteryAnalysisService接口
+Domain层服务的具体实现，封装电池分析的核心业务逻辑
 """
 
-import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, Any, List, Optional
 from battery_analysis.domain.entities.test_result import TestResult
 from battery_analysis.domain.entities.battery import Battery
 from battery_analysis.domain.entities.test_profile import TestProfile
@@ -15,59 +15,30 @@ from battery_analysis.domain.services.battery_analysis_service import BatteryAna
 class BatteryAnalysisServiceImpl(BatteryAnalysisService):
     """电池分析服务实现类"""
     
-    def __init__(self):
-        """初始化电池分析服务"""
-        self.logger = logging.getLogger(__name__)
-        self.logger.info("初始化BatteryAnalysisServiceImpl")
-    
     def calculate_state_of_health(self, test_result: TestResult, battery: Battery) -> float:
-        """
-        计算电池健康状态(SOH)
+        """计算电池健康状态(SOH)
         
-        Args:
-            test_result: 测试结果实体
-            battery: 电池实体
-            
-        Returns:
-            健康状态百分比 (0-100)
+        使用当前容量与标称容量的比率计算SOH
         """
-        self.logger.info("计算电池健康状态(SOH): %s", battery.serial_number)
-        
         # SOH = (实际容量 / 标称容量) * 100
         soh = (test_result.capacity / battery.nominal_capacity) * 100
         return max(0.0, min(100.0, soh))
     
     def calculate_state_of_charge(self, voltage: float, battery: Battery) -> float:
-        """
-        计算电池充电状态(SOC)
+        """计算电池充电状态(SOC)
         
-        Args:
-            voltage: 当前电压 (V)
-            battery: 电池实体
-            
-        Returns:
-            充电状态百分比 (0-100)
+        使用简单的电压-SOC关系计算，实际应用中可能需要更复杂的算法
         """
-        self.logger.info("计算电池充电状态(SOC): %s, 电压: %.2fV", battery.serial_number, voltage)
-        
         # 电压范围映射到SOC (0-100%)
         voltage_range = battery.max_voltage - battery.min_voltage
         soc = ((voltage - battery.min_voltage) / voltage_range) * 100
         return max(0.0, min(100.0, soc))
     
     def analyze_cycle_life(self, test_results: List[TestResult], battery: Battery) -> Dict[str, Any]:
-        """
-        分析电池循环寿命
+        """分析电池循环寿命
         
-        Args:
-            test_results: 测试结果列表
-            battery: 电池实体
-            
-        Returns:
-            循环寿命分析结果
+        根据测试结果分析电池的循环寿命特性
         """
-        self.logger.info("分析电池循环寿命: %s, 测试结果数量: %d", battery.serial_number, len(test_results))
-        
         if not test_results:
             return {
                 "total_cycles": 0,
@@ -108,19 +79,10 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         }
     
     def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
-        """
-        验证测试结果是否符合测试配置要求
+        """验证测试结果是否符合测试配置要求
         
-        Args:
-            test_result: 测试结果实体
-            test_profile: 测试配置实体
-            battery: 电池实体
-            
-        Returns:
-            验证结果，包含是否通过和详细信息
+        检查测试结果是否在测试配置的允许范围内
         """
-        self.logger.info("验证测试结果: %s, 测试ID: %s", battery.serial_number, test_result.test_id)
-        
         validation_results = {
             "is_valid": True,
             "details": [],
@@ -154,18 +116,10 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         return validation_results
     
     def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
-        """
-        计算电池性能指标
+        """计算电池性能指标
         
-        Args:
-            test_result: 测试结果实体
-            battery: 电池实体
-            
-        Returns:
-            性能指标字典
+        计算各种电池性能指标
         """
-        self.logger.info("计算电池性能指标: %s, 测试ID: %s", battery.serial_number, test_result.test_id)
-        
         # 计算健康状态
         soh = self.calculate_state_of_health(test_result, battery)
         
@@ -190,17 +144,10 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         }
     
     def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
-        """
-        检测测试结果中的异常
+        """检测测试结果中的异常
         
-        Args:
-            test_results: 测试结果列表
-            
-        Returns:
-            异常列表
+        识别测试结果中的异常值
         """
-        self.logger.info("检测测试结果中的异常, 测试结果数量: %d", len(test_results))
-        
         anomalies = []
         
         if len(test_results) < 3:  # 数据不足，无法检测异常
@@ -244,18 +191,10 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         return anomalies
     
     def compare_test_results(self, test_result1: TestResult, test_result2: TestResult) -> Dict[str, Any]:
-        """
-        比较两个测试结果
+        """比较两个测试结果
         
-        Args:
-            test_result1: 第一个测试结果
-            test_result2: 第二个测试结果
-            
-        Returns:
-            比较结果
+        比较两个测试结果的差异
         """
-        self.logger.info("比较两个测试结果: %s 和 %s", test_result1.test_id, test_result2.test_id)
-        
         return {
             "test_id_1": test_result1.test_id,
             "test_id_2": test_result2.test_id,

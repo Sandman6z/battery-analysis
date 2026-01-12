@@ -1,73 +1,107 @@
+# -*- coding: utf-8 -*-
 """
-BatteryAnalysisService接口定义
+BatteryAnalysisService服务定义
 
-Domain层的服务接口，定义电池分析的核心业务逻辑
+Domain层的服务，封装电池分析的核心业务逻辑
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, Any, List, Optional
+from battery_analysis.domain.entities.test_result import TestResult
 from battery_analysis.domain.entities.battery import Battery
+from battery_analysis.domain.entities.test_profile import TestProfile
 
 
 class BatteryAnalysisService(ABC):
     """电池分析服务接口"""
     
     @abstractmethod
-    def calculate_battery_health(self, battery: Battery) -> Battery:
-        """计算电池健康状态
+    def calculate_state_of_health(self, test_result: TestResult, battery: Battery) -> float:
+        """计算电池健康状态(SOH)
         
         Args:
-            battery: 电池实体对象
+            test_result: 测试结果实体
+            battery: 电池实体
             
         Returns:
-            更新了健康状态的电池实体对象
+            健康状态百分比 (0-100)
         """
         pass
     
     @abstractmethod
-    def analyze_battery_performance(self, battery: Battery) -> Dict[str, float]:
-        """分析电池性能
+    def calculate_state_of_charge(self, voltage: float, battery: Battery) -> float:
+        """计算电池充电状态(SOC)
         
         Args:
-            battery: 电池实体对象
+            voltage: 当前电压 (V)
+            battery: 电池实体
             
         Returns:
-            包含各种性能指标的字典
+            充电状态百分比 (0-100)
         """
         pass
     
     @abstractmethod
-    def compare_batteries(self, batteries: List[Battery]) -> Dict[str, List[float]]:
-        """比较多个电池
+    def analyze_cycle_life(self, test_results: List[TestResult], battery: Battery) -> Dict[str, Any]:
+        """分析电池循环寿命
         
         Args:
-            batteries: 电池实体对象列表
+            test_results: 测试结果列表
+            battery: 电池实体
             
         Returns:
-            包含比较结果的字典
+            循环寿命分析结果
         """
         pass
     
     @abstractmethod
-    def predict_battery_lifetime(self, battery: Battery) -> float:
-        """预测电池寿命
+    def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
+        """验证测试结果是否符合测试配置要求
         
         Args:
-            battery: 电池实体对象
+            test_result: 测试结果实体
+            test_profile: 测试配置实体
+            battery: 电池实体
             
         Returns:
-            预测的剩余寿命（以月为单位）
+            验证结果，包含是否通过和详细信息
         """
         pass
     
     @abstractmethod
-    def validate_battery_data(self, battery: Battery) -> Dict[str, bool]:
-        """验证电池数据
+    def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
+        """计算电池性能指标
         
         Args:
-            battery: 电池实体对象
+            test_result: 测试结果实体
+            battery: 电池实体
             
         Returns:
-            包含验证结果的字典
+            性能指标字典
+        """
+        pass
+    
+    @abstractmethod
+    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
+        """检测测试结果中的异常
+        
+        Args:
+            test_results: 测试结果列表
+            
+        Returns:
+            异常列表
+        """
+        pass
+    
+    @abstractmethod
+    def compare_test_results(self, test_result1: TestResult, test_result2: TestResult) -> Dict[str, Any]:
+        """比较两个测试结果
+        
+        Args:
+            test_result1: 第一个测试结果
+            test_result2: 第二个测试结果
+            
+        Returns:
+            比较结果
         """
         pass
