@@ -210,6 +210,10 @@ class InitializationManager:
         self.main_window.environment_manager = EnvironmentManager(self.main_window)
         self.main_window.visualization_manager = VisualizationManager(self.main_window)
         self.main_window.analysis_runner = AnalysisRunner(self.main_window)
+        
+        # 初始化验证管理器
+        from battery_analysis.main.business_logic.validation_manager import ValidationManager
+        self.main_window.validation_manager = ValidationManager(self.main_window)
     
     def _initialize_presenters(self):
         """

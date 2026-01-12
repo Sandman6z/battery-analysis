@@ -9,13 +9,10 @@
 """
 
 # 标准库导入
-import csv
-import hashlib
 import logging
 import multiprocessing
 import os
 import re
-import subprocess
 import sys
 import time
 import warnings
@@ -32,7 +29,6 @@ import PyQt6.QtWidgets as QW
 from battery_analysis.i18n.language_manager import _, get_language_manager
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.handlers.temperature_handler import TemperatureHandler
-from battery_analysis.main.interfaces.ivisualizer import IVisualizer
 from battery_analysis.main.managers.analysis_runner import AnalysisRunner
 from battery_analysis.main.managers.environment_manager import EnvironmentManager
 from battery_analysis.main.managers.path_manager import PathManager
@@ -44,9 +40,10 @@ from battery_analysis.main.services.service_container import get_service_contain
 from battery_analysis.main.ui_components import ConfigManager, DialogManager, MenuManager, ProgressDialog, TableManager, UIManager
 from battery_analysis.main.utils import Checker, EnvironmentAdapter, FileUtils, SignalConnector
 from battery_analysis.main.business_logic.validation_manager import ValidationManager
+from battery_analysis.main.business_logic.version_manager import VersionManager
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
-from battery_analysis.utils import temperature_utils
+from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
 
 # 配置日志
 logging.basicConfig(level=logging.INFO,
@@ -72,16 +69,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化电流和电压级别配置
         self._initialize_current_and_voltage_levels()
         
+    # ------------------------------
+    # 初始化相关方法
+    # ------------------------------
     def _initialize_current_and_voltage_levels(self):
         """
         初始化电流和电压级别配置
         """
         listPulseCurrent = self.get_config("BatteryConfig/PulseCurrent")
         listCutoffVoltage = self.get_config("BatteryConfig/CutoffVoltage")
-        
-        # 使用新的配置解析工具
-        from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
-        
+
         # 处理可能包含浮点数的电流值
         try:
             self.listCurrentLevel = [safe_int_convert(listPulseCurrent[c].strip())
@@ -89,17 +86,20 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         except (ValueError, TypeError):
             # 如果转换失败，使用默认值
             self.listCurrentLevel = [0] * len(listPulseCurrent)
-            
+
         self.listVoltageLevel = [
             safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
     
+    # ------------------------------
+    # 服务和控制器获取方法
+    # ------------------------------
     def _get_service(self, service_name):
         """
         懒加载获取服务
-        
+
         Args:
             service_name: 服务名称
-            
+
         Returns:
             服务实例或None
         """
@@ -129,6 +129,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self._controllers[controller_name] = None
         return self._controllers[controller_name]
     
+    # ------------------------------
+    # 配置相关方法
+    # ------------------------------
     def get_config(self, config_key):
         """
         获取配置值并处理为列表格式，委托给config_manager
@@ -141,10 +144,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         self.ui_manager.init_window()
     
+    # ------------------------------
+    # 窗口和UI管理方法
+    # ------------------------------
     def _load_application_icon(self) -> QG.QIcon:
         """
         加载应用程序图标，使用环境检测器来找到正确的路径
-        
+
         Returns:
             QIcon: 应用程序图标
         """
@@ -167,6 +173,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             self.logger.error("加载应用图标失败: %s", e)
             return QG.QIcon()
 
+    # ------------------------------
+    # 语言相关方法
+    # ------------------------------
     def _on_language_changed(self, language_code):
         """语言切换处理"""
         window_title = f"Battery Analyzer v{self.version}"
@@ -219,6 +228,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.menu_manager.connect_menu_actions()
         self.setup_menu_shortcuts()
 
+    # ------------------------------
+    # 用户交互方法
+    # ------------------------------
     def handle_exit(self) -> None:
         """
         处理退出操作，委托给dialog_manager
@@ -262,7 +274,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         try:
             # 使用FileUtils获取所有可能的手册路径
             manual_paths = FileUtils.get_manual_paths(self.current_directory)
-            
+
             manual_found = False
             for manual_path in manual_paths:
                 if manual_path.exists() and manual_path.is_file():
@@ -273,22 +285,23 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         self.logger.info("成功打开用户手册: %s", manual_path)
                         break
                     except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning("打开手册文件失败 %s: %s", manual_path, open_error)
+                        self.logger.warning(
+                            "打开手册文件失败 %s: %s", manual_path, open_error)
                         continue
-            
+
             if not manual_found:
                 # 如果找不到手册文件，显示提示并提供解决方案
                 QW.QMessageBox.information(
                     self,
-                    "用户手册",
-                    "未找到用户手册文件。\n\n"
-                    "请确保以下文件存在：\n"
-                    "• docs/user_manual.pdf\n"
-                    "• user_manual.pdf\n\n"
-                    "如需帮助，请联系技术支持。",
+                    _("user_manual_title", "用户手册"),
+                    _("user_manual_not_found", "未找到用户手册文件。\n\n"
+                      "请确保以下文件存在：\n"
+                      "• docs/user_manual.pdf\n"
+                      "• user_manual.pdf\n\n"
+                      "如需帮助，请联系技术支持。"),
                     QW.QMessageBox.StandardButton.Ok
                 )
-                
+
         except (OSError, TypeError, ValueError, RuntimeError) as e:
             self.logger.error("打开用户手册失败: %s", e)
             QW.QMessageBox.warning(
@@ -322,6 +335,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if isinstance(focused_widget, QW.QLineEdit) or isinstance(focused_widget, QW.QTextEdit):
             focused_widget.cut()
 
+    # ------------------------------
+    # 电池分析功能方法
+    # ------------------------------
     def calculate_battery(self) -> None:
         """执行电池计算，委托给Presenter"""
         self.presenter.on_calculate_battery()
@@ -334,6 +350,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """生成报告，委托给Presenter"""
         self.presenter.on_generate_report()
     
+    # ------------------------------
+    # 环境和信息管理方法
+    # ------------------------------
     def _initialize_environment_info(self):
         """
         初始化环境信息，委托给EnvironmentManager
@@ -346,6 +365,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         self.environment_manager.ensure_env_info_keys()
     
+    # ------------------------------
+    # 可视化相关方法
+    # ------------------------------
     def run_visualizer(self, xml_path=None) -> None:
         """运行可视化工具，使用工厂模式解耦依赖"""
         # 委托给可视化管理器
@@ -363,7 +385,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """保存当前设置到用户配置文件"""
         try:
             # 显示保存状态
-            self.statusBar_BatteryAnalysis.showMessage(_("saving_settings", "正在保存设置..."))
+            self.statusBar_BatteryAnalysis.showMessage(
+                _("saving_settings", "正在保存设置..."))
 
             # 创建用户配置文件路径（与原始配置文件同目录，使用不同名称）
             user_config_path = os.path.join(os.path.dirname(
@@ -374,46 +397,23 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 user_settings = QC.QSettings(
                     user_config_path, QC.QSettings.Format.IniFormat)
 
-                # 保存用户可修改的设置项
-                # 电池类型相关设置
-                battery_type = self.comboBox_BatteryType.currentText()
-                if battery_type:
-                    user_settings.setValue(
-                        "UserConfig/BatteryType", battery_type)
+                # 保存用户可修改的设置项 - 使用字典映射简化重复代码
+                config_map = {
+                    "BatteryType": self.comboBox_BatteryType,
+                    "ConstructionMethod": self.comboBox_ConstructionMethod,
+                    "SpecificationType": self.comboBox_Specification_Type,
+                    "SpecificationMethod": self.comboBox_Specification_Method,
+                    "Manufacturer": self.comboBox_Manufacturer,
+                    "TesterLocation": self.comboBox_TesterLocation,
+                    "TestedBy": self.comboBox_TestedBy,
+                    "ReportedBy": self.comboBox_ReportedBy
+                }
 
-                construction_method = self.comboBox_ConstructionMethod.currentText()
-                if construction_method:
-                    user_settings.setValue(
-                        "UserConfig/ConstructionMethod", construction_method)
-
-                specification_type = self.comboBox_Specification_Type.currentText()
-                if specification_type:
-                    user_settings.setValue(
-                        "UserConfig/SpecificationType", specification_type)
-
-                specification_method = self.comboBox_Specification_Method.currentText()
-                if specification_method:
-                    user_settings.setValue(
-                        "UserConfig/SpecificationMethod", specification_method)
-
-                manufacturer = self.comboBox_Manufacturer.currentText()
-                if manufacturer:
-                    user_settings.setValue(
-                        "UserConfig/Manufacturer", manufacturer)
-
-                tester_location = self.comboBox_TesterLocation.currentText()
-                if tester_location:
-                    user_settings.setValue(
-                        "UserConfig/TesterLocation", tester_location)
-
-                tested_by = self.comboBox_TestedBy.currentText()
-                if tested_by:
-                    user_settings.setValue("UserConfig/TestedBy", tested_by)
-                
-                # 保存ReportedBy设置
-                reported_by = self.comboBox_ReportedBy.currentText()
-                if reported_by:
-                    user_settings.setValue("UserConfig/ReportedBy", reported_by)
+                # 批量保存组合框设置
+                for key, combo_box in config_map.items():
+                    value = combo_box.currentText()
+                    if value:
+                        user_settings.setValue(f"UserConfig/{key}", value)
 
                 # 温度设置 - 使用comboBox_Temperature的值代替lineEdit_Temperature
                 temperature_type = self.comboBox_Temperature.currentText()
@@ -421,55 +421,55 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     temperature = f"{temperature_type}:{self.spinBox_Temperature.value()}"
                 else:
                     temperature = temperature_type
-                user_settings.setValue(
-                    "UserConfig/Temperature", temperature)
-                
+                user_settings.setValue("UserConfig/Temperature", temperature)
+
                 # 保存温度类型设置
-                temperature_type = self.comboBox_Temperature.currentText()
-                user_settings.setValue(
-                    "UserConfig/TemperatureType", temperature_type)
-                
+                user_settings.setValue("UserConfig/TemperatureType", temperature_type)
+
                 # 保存冷冻温度数值设置（无论是否启用）
-                freezer_temp = self.spinBox_Temperature.value()
-                user_settings.setValue(
-                    "UserConfig/FreezerTemperature", freezer_temp)
+                user_settings.setValue("UserConfig/FreezerTemperature", self.spinBox_Temperature.value())
 
                 # 输出路径设置
                 output_path = self.lineEdit_OutputPath.text()
                 if output_path:
-                    user_settings.setValue(
-                        "UserConfig/OutputPath", output_path)
+                    user_settings.setValue("UserConfig/OutputPath", output_path)
 
                 # 同步保存到内存中的配置实例
                 self.config = user_settings
 
-                self.statusBar_BatteryAnalysis.showMessage(_("settings_saved", "设置已保存"))
+                self.statusBar_BatteryAnalysis.showMessage(
+                    _("settings_saved", "设置已保存"))
                 QW.QMessageBox.information(
                     self,
-                    "保存设置",
-                    "当前配置已成功保存到用户配置文件。",
+                    _("save_settings_title", "保存设置"),
+                    _("settings_saved_success", "当前配置已成功保存到用户配置文件。"),
                     QW.QMessageBox.StandardButton.Ok
                 )
             else:
                 # 如果没有原始配置文件，显示错误消息
                 QW.QMessageBox.warning(
                     self,
-                    "错误",
-                    "无法找到配置文件路径，无法保存设置。",
+                    _("error_title", "错误"),
+                    _("config_path_not_found", "无法找到配置文件路径，无法保存设置。"),
                     QW.QMessageBox.StandardButton.Ok
                 )
-                self.statusBar_BatteryAnalysis.showMessage(_("save_settings_failed", "保存设置失败"))
+                self.statusBar_BatteryAnalysis.showMessage(
+                    _("save_settings_failed", "保存设置失败"))
 
         except (IOError, OSError, PermissionError, ValueError, TypeError, configparser.Error) as e:
             logging.error("保存设置失败: %s", e)
             QW.QMessageBox.warning(
                 self,
-                "错误",
-                f"无法保存设置: {str(e)}",
+                _("error_title", "错误"),
+                f"{_('cannot_save_settings', '无法保存设置')}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
-            self.statusBar_BatteryAnalysis.showMessage(_("save_settings_failed", "保存设置失败"))
+            self.statusBar_BatteryAnalysis.showMessage(
+                _("save_settings_failed", "保存设置失败"))
 
+    # ------------------------------
+    # 报告相关方法
+    # ------------------------------
     def export_report(self) -> None:
         """导出报告，委托给Presenter"""
         self.presenter.on_export_report()
@@ -482,35 +482,39 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """切换状态栏的显示/隐藏状态，委托给menu_manager处理"""
         self.menu_manager.toggle_statusbar()
 
+    # ------------------------------
+    # 验证相关方法
+    # ------------------------------
     def validate_version(self) -> None:
         """验证版本号格式并提供实时反馈，委托给ValidationManager"""
-        validation_manager = ValidationManager(self)
-        validation_manager.validate_version()
+        self.validation_manager.validate_version()
 
     def validate_input_path(self) -> None:
         """验证输入路径是否存在，委托给ValidationManager"""
-        validation_manager = ValidationManager(self)
-        validation_manager.validate_input_path()
+        self.validation_manager.validate_input_path()
 
     def validate_required_fields(self) -> None:
         """验证必填字段是否为空，委托给ValidationManager"""
-        validation_manager = ValidationManager(self)
-        validation_manager.validate_required_fields()
+        self.validation_manager.validate_required_fields()
 
     def check_batterytype(self) -> None:
         """检查电池类型并更新相关UI组件，委托给ValidationManager"""
-        validation_manager = ValidationManager(self)
-        validation_manager.check_batterytype()
+        self.validation_manager.check_batterytype()
     def check_specification(self) -> None:
         """检查规格并更新相关UI组件，委托给ValidationManager"""
-        validation_manager = ValidationManager(self)
-        validation_manager.check_specification()
+        self.validation_manager.check_specification()
+    # ------------------------------
+    # 表格相关方法
+    # ------------------------------
     def set_table(self) -> None:
         """
         根据配置文件设置测试信息表格，委托给table_manager
         """
         self.table_manager.set_table()
 
+    # ------------------------------
+    # 温度相关方法
+    # ------------------------------
     def on_temperature_type_changed(self, index):
         """处理温度类型变化事件，控制spinBox_Temperature的启用状态"""
         # 委托给温度处理器
@@ -524,10 +528,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.data_processor.get_xlsxinfo()
     def get_version(self) -> None:
         """计算并设置电池分析的版本号，委托给VersionManager"""
-        from battery_analysis.main.business_logic.version_manager import VersionManager
         version_manager = VersionManager(self)
         version_manager.get_version()
     
+    # ------------------------------
+    # 路径选择方法
+    # ------------------------------
     def select_testprofile(self) -> None:
         """
         选择测试配置文件，委托给test_profile_manager
@@ -567,8 +573,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def checkinput(self) -> bool:
         """检查所有输入是否完整有效，委托给ValidationManager"""
-        validation_manager = ValidationManager(self)
-        return validation_manager.checkinput()
+        return self.validation_manager.checkinput()
     def _open_report(self, dialog=None):
         """打开生成的docx格式报告"""
         self.report_manager.open_report(dialog)
