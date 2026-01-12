@@ -38,8 +38,6 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-
-
 class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     sigSetVersion = QC.pyqtSignal()
 
@@ -53,7 +51,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化窗口和部件
         self.init_window()
         self.init_widget()
-        
+
     # ------------------------------
     # 初始化相关方法
     # ------------------------------
@@ -74,7 +72,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         self.listVoltageLevel = [
             safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
-    
+
     # ------------------------------
     # 服务和控制器获取方法
     # ------------------------------
@@ -90,30 +88,34 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         if service_name not in self._services:
             try:
-                self._services[service_name] = self._service_container.get(service_name)
+                self._services[service_name] = self._service_container.get(
+                    service_name)
             except (TypeError, AttributeError, OSError, ValueError, ImportError) as e:
-                self.logger.warning("Failed to get service %s: %s", service_name, e)
+                self.logger.warning(
+                    "Failed to get service %s: %s", service_name, e)
                 self._services[service_name] = None
         return self._services[service_name]
-    
+
     def _get_controller(self, controller_name):
         """
         懒加载获取控制器
-        
+
         Args:
             controller_name: 控制器名称
-            
+
         Returns:
             控制器实例或None
         """
         if controller_name not in self._controllers:
             try:
-                self._controllers[controller_name] = self._service_container.get(controller_name)
+                self._controllers[controller_name] = self._service_container.get(
+                    controller_name)
             except (TypeError, AttributeError, OSError, ValueError, ImportError) as e:
-                self.logger.warning("Failed to get controller %s: %s", controller_name, e)
+                self.logger.warning(
+                    "Failed to get controller %s: %s", controller_name, e)
                 self._controllers[controller_name] = None
         return self._controllers[controller_name]
-    
+
     # ------------------------------
     # 配置相关方法
     # ------------------------------
@@ -128,7 +130,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         初始化窗口设置，委托给ui_manager
         """
         self.ui_manager.init_window()
-    
+
     # ------------------------------
     # 窗口和UI管理方法
     # ------------------------------
@@ -141,18 +143,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         try:
             # 使用FileUtils获取所有可能的图标路径
-            icon_paths = FileUtils.get_icon_paths(self.env_detector, self.current_directory)
-            
+            icon_paths = FileUtils.get_icon_paths(
+                self.env_detector, self.current_directory)
+
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:
                 if icon_path.exists():
                     self.logger.debug("找到应用图标: %s", icon_path)
                     return QG.QIcon(str(icon_path))
-            
+
             # 如果都找不到，使用默认图标
             self.logger.warning("未找到应用图标文件，使用默认图标")
             return QG.QIcon()
-            
+
         except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
             # 捕获所有可能的异常，确保应用能正常启动
             self.logger.error("加载应用图标失败: %s", e)
@@ -165,28 +168,30 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """语言切换处理"""
         window_title = f"Battery Analyzer v{self.version}"
         self.setWindowTitle(window_title)
-        
+
         # 更新UI文本
         self._update_ui_texts()
-        
+
         # 更新状态栏消息
         self._update_statusbar_messages()
-        
+
         # 刷新所有对话框
         self._refresh_dialogs()
-        
+
         logging.info("界面语言已切换到: %s", language_code)
 
     def _update_ui_texts(self):
         """更新UI文本为当前语言"""
         if hasattr(self, 'signal_connector') and self.signal_connector.progress_dialog:
-            self.signal_connector.progress_dialog.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
-            self.signal_connector.progress_dialog.status_label.setText(_("progress_ready", "Ready to start analysis..."))
-    
+            self.signal_connector.progress_dialog.setWindowTitle(
+                _("progress_title", "Battery Analysis Progress"))
+            self.signal_connector.progress_dialog.status_label.setText(
+                _("progress_ready", "Ready to start analysis..."))
+
     def _update_statusbar_messages(self):
         """更新状态栏消息为当前语言（委托给menu_manager）"""
         self.menu_manager.update_statusbar_messages()
-    
+
     def _refresh_dialogs(self):
         """刷新所有对话框以应用新语言"""
         # 关闭并重新创建首选项对话框（如果正在显示）
@@ -199,11 +204,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """
         self.ui_manager.init_widget()
         self.pushButton_Run.setFocus()
-    
+
     def connect_widget(self) -> None:
         # 调用ui_manager中的connect_widget方法，连接基础控件信号
         self.ui_manager.connect_widget()
-        
+
         # 连接ui_manager中没有的信号
         self.pushButton_Run.clicked.connect(self.run)
         self.sigSetVersion.connect(self.get_version)
@@ -238,7 +243,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 这里可以添加首选项应用后的特殊处理
             # 比如重新加载某些设置、更新界面等
             self.logger.info("首选项已应用")
-            
+
         except (OSError, ValueError, ImportError) as e:
             self.logger.error("应用首选项后处理时发生错误: %s", e)
 
@@ -296,7 +301,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def generate_report(self) -> None:
         """生成报告，使用命令模式"""
         self.generate_report_command.execute()
-    
+
     # ------------------------------
     # 环境和信息管理方法
     # ------------------------------
@@ -305,13 +310,13 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         初始化环境信息，委托给EnvironmentManager
         """
         self.environment_manager.initialize_environment_info()
-    
+
     def _ensure_env_info_keys(self):
         """
         确保环境信息包含必要的键，委托给EnvironmentManager
         """
         self.environment_manager.ensure_env_info_keys()
-    
+
     # ------------------------------
     # 可视化相关方法
     # ------------------------------
@@ -319,7 +324,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """运行可视化工具，使用工厂模式解耦依赖"""
         # 委托给可视化管理器
         self.visualization_manager.run_visualizer(xml_path)
-    
+
     def show_visualizer_error(self, error_msg: str):
         """在主线程中显示可视化工具错误消息"""
         self.visualization_manager.show_visualizer_error(error_msg)
@@ -365,12 +370,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def check_batterytype(self) -> None:
         """检查电池类型并更新相关UI组件，委托给ValidationManager"""
         self.validation_manager.check_batterytype()
+
     def check_specification(self) -> None:
         """检查规格并更新相关UI组件，委托给ValidationManager"""
         self.validation_manager.check_specification()
     # ------------------------------
     # 表格相关方法
     # ------------------------------
+
     def set_table(self) -> None:
         """
         根据配置文件设置测试信息表格，委托给table_manager
@@ -384,17 +391,18 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """处理温度类型变化事件，控制spinBox_Temperature的启用状态"""
         # 委托给温度处理器
         self.temperature_handler.on_temperature_type_changed()
-    
+
     def get_xlsxinfo(self) -> None:
         '''
         获取Excel文件信息，委托给优化的DataProcessor处理
         '''
         # 调用优化版的data_processor获取Excel信息
         self.data_processor.get_xlsxinfo()
+
     def get_version(self) -> None:
         """计算并设置电池分析的版本号，委托给已初始化的version_manager"""
         self.version_manager.get_version()
-    
+
     # ------------------------------
     # 路径选择方法
     # ------------------------------
@@ -438,24 +446,25 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def checkinput(self) -> bool:
         """检查所有输入是否完整有效，委托给ValidationManager"""
         return self.validation_manager.checkinput()
+
     def _open_report(self, dialog=None):
         """打开生成的docx格式报告"""
         self.report_manager.open_report(dialog)
-        
+
     def _open_report_path(self, dialog=None):
         """打开报告所在的文件夹"""
         self.report_manager.open_report_path(dialog)
-        
+
     def _show_analysis_complete_dialog(self):
         """
         显示分析完成对话框，包含"打开报告"、"打开路径"和"确定"按钮
         """
         self.report_manager.show_analysis_complete_dialog()
-        
+
     def rename_pltPath(self, strTestDate):
         """
         根据测试日期重命名图表保存路径，委托给config_manager
-        
+
         Args:
             strTestDate: 测试日期字符串
         """
@@ -464,7 +473,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def update_config(self, test_info) -> None:
         """
         更新配置文件中的图表相关设置，委托给config_manager
-        
+
         Args:
             test_info: 测试信息列表
         """
