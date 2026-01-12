@@ -272,46 +272,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.menu_manager.setup_menu_shortcuts()
 
     def show_user_manual(self) -> None:
-        """显示用户手册"""
-        try:
-            # 使用FileUtils获取所有可能的手册路径
-            manual_paths = FileUtils.get_manual_paths(self.current_directory)
-
-            manual_found = False
-            for manual_path in manual_paths:
-                if manual_path.exists() and manual_path.is_file():
-                    try:
-                        # 使用安全的文件打开方式
-                        os.startfile(str(manual_path))
-                        manual_found = True
-                        self.logger.info("成功打开用户手册: %s", manual_path)
-                        break
-                    except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning(
-                            "打开手册文件失败 %s: %s", manual_path, open_error)
-                        continue
-
-            if not manual_found:
-                # 如果找不到手册文件，显示提示并提供解决方案
-                QW.QMessageBox.information(
-                    self,
-                    _("user_manual_title", "用户手册"),
-                    _("user_manual_not_found", "未找到用户手册文件。\n\n"
-                      "请确保以下文件存在：\n"
-                      "• docs/user_manual.pdf\n"
-                      "• user_manual.pdf\n\n"
-                      "如需帮助，请联系技术支持。"),
-                    QW.QMessageBox.StandardButton.Ok
-                )
-
-        except (OSError, TypeError, ValueError, RuntimeError) as e:
-            self.logger.error("打开用户手册失败: %s", e)
-            QW.QMessageBox.warning(
-                self,
-                _("error", "错误"),
-                f"{_("cannot_open_user_manual", "无法打开用户手册")}: {str(e)}",
-                QW.QMessageBox.StandardButton.Ok
-            )
+        """显示用户手册，委托给help_manager"""
+        self.help_manager.show_user_manual()
 
     def show_online_help(self) -> None:
         """
@@ -384,90 +346,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.batch_processing_command.execute()
 
     def save_settings(self) -> None:
-        """保存当前设置到用户配置文件"""
-        try:
-            # 显示保存状态
-            self.statusBar_BatteryAnalysis.showMessage(
-                _("saving_settings", "正在保存设置..."))
-
-            # 创建用户配置文件路径（与原始配置文件同目录，使用不同名称）
-            user_config_path = os.path.join(os.path.dirname(
-                self.config_path), "user_settings.ini") if self.b_has_config else None
-
-            if user_config_path:
-                # 创建用户配置QSettings实例
-                user_settings = QC.QSettings(
-                    user_config_path, QC.QSettings.Format.IniFormat)
-
-                # 保存用户可修改的设置项 - 使用字典映射简化重复代码
-                config_map = {
-                    "BatteryType": self.comboBox_BatteryType,
-                    "ConstructionMethod": self.comboBox_ConstructionMethod,
-                    "SpecificationType": self.comboBox_Specification_Type,
-                    "SpecificationMethod": self.comboBox_Specification_Method,
-                    "Manufacturer": self.comboBox_Manufacturer,
-                    "TesterLocation": self.comboBox_TesterLocation,
-                    "TestedBy": self.comboBox_TestedBy,
-                    "ReportedBy": self.comboBox_ReportedBy
-                }
-
-                # 批量保存组合框设置
-                for key, combo_box in config_map.items():
-                    value = combo_box.currentText()
-                    if value:
-                        user_settings.setValue(f"UserConfig/{key}", value)
-
-                # 温度设置 - 使用comboBox_Temperature的值代替lineEdit_Temperature
-                temperature_type = self.comboBox_Temperature.currentText()
-                if temperature_type == "Freezer Temperature":
-                    temperature = f"{temperature_type}:{self.spinBox_Temperature.value()}"
-                else:
-                    temperature = temperature_type
-                user_settings.setValue("UserConfig/Temperature", temperature)
-
-                # 保存温度类型设置
-                user_settings.setValue("UserConfig/TemperatureType", temperature_type)
-
-                # 保存冷冻温度数值设置（无论是否启用）
-                user_settings.setValue("UserConfig/FreezerTemperature", self.spinBox_Temperature.value())
-
-                # 输出路径设置
-                output_path = self.lineEdit_OutputPath.text()
-                if output_path:
-                    user_settings.setValue("UserConfig/OutputPath", output_path)
-
-                # 同步保存到内存中的配置实例
-                self.config = user_settings
-
-                self.statusBar_BatteryAnalysis.showMessage(
-                    _("settings_saved", "设置已保存"))
-                QW.QMessageBox.information(
-                    self,
-                    _("save_settings_title", "保存设置"),
-                    _("settings_saved_success", "当前配置已成功保存到用户配置文件。"),
-                    QW.QMessageBox.StandardButton.Ok
-                )
-            else:
-                # 如果没有原始配置文件，显示错误消息
-                QW.QMessageBox.warning(
-                    self,
-                    _("error_title", "错误"),
-                    _("config_path_not_found", "无法找到配置文件路径，无法保存设置。"),
-                    QW.QMessageBox.StandardButton.Ok
-                )
-                self.statusBar_BatteryAnalysis.showMessage(
-                    _("save_settings_failed", "保存设置失败"))
-
-        except (IOError, OSError, PermissionError, ValueError, TypeError, configparser.Error) as e:
-            logging.error("保存设置失败: %s", e)
-            QW.QMessageBox.warning(
-                self,
-                _("error_title", "错误"),
-                f"{_('cannot_save_settings', '无法保存设置')}: {str(e)}",
-                QW.QMessageBox.StandardButton.Ok
-            )
-            self.statusBar_BatteryAnalysis.showMessage(
-                _("save_settings_failed", "保存设置失败"))
+        """保存当前设置到用户配置文件，委托给config_manager"""
+        self.config_manager.save_user_settings()
 
     # ------------------------------
     # 报告相关方法

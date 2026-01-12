@@ -16,6 +16,7 @@ from PyQt6 import QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.main.utils.file_utils import FileUtils
 
 
 class HelpManager:
@@ -38,18 +39,8 @@ class HelpManager:
         显示用户手册
         """
         try:
-            # 首先尝试从当前目录查找手册
-            manual_paths = [
-                # 相对路径
-                Path(self.main_window.current_directory) / "docs" / "user_manual.pdf",
-                Path(self.main_window.current_directory) / "user_manual.pdf",
-                # 绝对路径 - 项目目录
-                Path(__file__).parent.parent.parent.parent / "docs" / "user_manual.pdf",
-                Path(__file__).parent.parent.parent.parent / "user_manual.pdf",
-                # 常见的文档位置
-                Path(os.getcwd()) / "docs" / "user_manual.pdf",
-                Path(os.getcwd()) / "user_manual.pdf",
-            ]
+            # 使用FileUtils获取所有可能的手册路径
+            manual_paths = FileUtils.get_manual_paths(self.main_window.current_directory)
             
             manual_found = False
             for manual_path in manual_paths:
