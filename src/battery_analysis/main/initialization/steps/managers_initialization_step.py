@@ -10,6 +10,7 @@ from battery_analysis.main.ui_components import (
     TableManager, MessageManager
 )
 from battery_analysis.main.business_logic.help_manager import HelpManager
+from battery_analysis.main.business_logic.version_manager import VersionManager
 from battery_analysis.main.utils import SignalConnector
 
 
@@ -57,6 +58,9 @@ class ManagersInitializationStep(InitializationStep):
             
             # 初始化帮助管理器
             main_window.help_manager = HelpManager(main_window)
+            
+            # 初始化版本管理器
+            main_window.version_manager = VersionManager(main_window)
             
             # 初始化信号连接器
             main_window.signal_connector = SignalConnector(main_window)

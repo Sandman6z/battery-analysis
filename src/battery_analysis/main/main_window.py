@@ -409,9 +409,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 调用优化版的data_processor获取Excel信息
         self.data_processor.get_xlsxinfo()
     def get_version(self) -> None:
-        """计算并设置电池分析的版本号，委托给VersionManager"""
-        version_manager = VersionManager(self)
-        version_manager.get_version()
+        """计算并设置电池分析的版本号，委托给已初始化的version_manager"""
+        self.version_manager.get_version()
     
     # ------------------------------
     # 路径选择方法
