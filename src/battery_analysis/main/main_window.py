@@ -27,25 +27,8 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _, get_language_manager
-from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
-from battery_analysis.main.handlers.temperature_handler import TemperatureHandler
-from battery_analysis.main.managers.analysis_runner import AnalysisRunner
-from battery_analysis.main.managers.environment_manager import EnvironmentManager
-from battery_analysis.main.managers.path_manager import PathManager
-from battery_analysis.main.managers.report_manager import ReportManager
-from battery_analysis.main.managers.test_profile_manager import TestProfileManager
-from battery_analysis.main.managers.visualization_manager import VisualizationManager
 from battery_analysis.main.managers.initialization_manager import InitializationManager
-from battery_analysis.main.services.service_container import get_service_container
-from battery_analysis.main.ui_components import ConfigManager, DialogManager, MenuManager, ProgressDialog, TableManager, UIManager
-from battery_analysis.main.utils import Checker, EnvironmentAdapter, FileUtils, SignalConnector
-from battery_analysis.main.business_logic.validation_manager import ValidationManager
-from battery_analysis.main.business_logic.version_manager import VersionManager
-from battery_analysis.main.commands.command import (
-    RunAnalysisCommand, SaveSettingsCommand, ExportReportCommand,
-    BatchProcessingCommand, GenerateReportCommand, AnalyzeDataCommand,
-    CalculateBatteryCommand
-)
+from battery_analysis.main.utils import FileUtils
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
