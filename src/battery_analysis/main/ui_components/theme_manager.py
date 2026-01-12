@@ -52,12 +52,24 @@ class ThemeManager:
             "Dark Theme": "actionDark_Theme"
         }
         
+        # 定义主题工具提示
+        theme_tooltips = {
+            "System Default": _("tooltip_system_default", "使用系统默认主题"),
+            "Windows 11": _("tooltip_windows_11", "使用Windows 11风格主题"),
+            "Windows Vista": _("tooltip_windows_vista", "使用Windows Vista风格主题"),
+            "Fusion": _("tooltip_fusion", "使用跨平台Fusion主题"),
+            "Dark Theme": _("tooltip_dark_theme", "使用深色主题，适合夜间使用")
+        }
+        
         # 检查并添加存在的主题动作
         for theme_name, action_name in theme_action_map.items():
             if hasattr(self.main_window, action_name):
                 action = getattr(self.main_window, action_name)
                 self.theme_actions[theme_name] = action
                 action.setCheckable(True)
+                # 添加主题工具提示
+                if theme_name in theme_tooltips:
+                    action.setToolTip(theme_tooltips[theme_name])
     
     def set_theme(self, theme_name) -> None:
         """

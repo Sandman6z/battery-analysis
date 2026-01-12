@@ -69,6 +69,7 @@ class UIManager:
         self.init_combobox()
         self.init_table()
         self.setup_accessibility()
+        self.setup_tooltips()
         self.connect_widget()
     
     def setup_accessibility(self):
@@ -167,6 +168,91 @@ class UIManager:
             self.logger.info("可访问性设置已完成")
         except (AttributeError, TypeError, RuntimeError) as e:
             self.logger.warning("设置可访问性属性失败: %s", e)
+    
+    def setup_tooltips(self):
+        """
+        为所有UI控件设置悬停工具提示
+        """
+        try:
+            # 测试配置组
+            self.main_window.groupBox_TestConfig.setToolTip(_("This is test config", "测试配置组 - 包含测试相关配置的设置"))
+            
+            # 电池配置组
+            self.main_window.groupBox_BatteryConfig.setToolTip(_("This is battery_config", "电池配置组 - 包含电池相关配置的设置"))
+            
+            # 电池类型
+            self.main_window.comboBox_BatteryType.setToolTip(_("This is battery_type", "选择电池类型"))
+            
+            # 构造方法
+            self.main_window.comboBox_ConstructionMethod.setToolTip(_("This is construction_method", "选择电池构造方法"))
+            
+            # 规格类型
+            self.main_window.comboBox_Specification_Type.setToolTip(_("This is specification_type", "选择电池规格类型"))
+            
+            # 规格方法
+            self.main_window.comboBox_Specification_Method.setToolTip(_("This is specification_method", "选择电池规格方法"))
+            
+            # 制造商
+            self.main_window.comboBox_Manufacturer.setToolTip(_("This is manufacturer", "选择电池制造商"))
+            
+            # 批次日期代码
+            self.main_window.lineEdit_BatchDateCode.setToolTip(_("This is batch_date_code", "输入电池批次日期代码"))
+            
+            # 样品数量
+            self.main_window.lineEdit_SamplesQty.setToolTip(_("This is samples_qty", "输入样品数量"))
+            
+            # 温度类型
+            self.main_window.comboBox_Temperature.setToolTip(_("This is temperature_type", "选择测试温度类型"))
+            
+            # 温度值
+            self.main_window.spinBox_Temperature.setToolTip(_("This is temperature_value", "输入冷冻温度值"))
+            
+            # 标称容量（数据手册）
+            self.main_window.lineEdit_DatasheetNominalCapacity.setToolTip(_("This is datasheet_capacity", "输入数据手册中的标称容量"))
+            
+            # 标称容量（计算值）
+            self.main_window.lineEdit_CalculationNominalCapacity.setToolTip(_("This is calculation_capacity", "输入计算得出的标称容量"))
+            
+            # 加速老化天数
+            self.main_window.spinBox_AcceleratedAging.setToolTip(_("This is accelerated_aging", "输入加速老化天数"))
+            
+            # 所需可用容量
+            self.main_window.lineEdit_RequiredUseableCapacity.setToolTip(_("This is required_capacity", "输入所需可用容量"))
+            
+            # 测试地点
+            self.main_window.comboBox_TesterLocation.setToolTip(_("This is tester location", "选择测试地点"))
+            
+            # 测试人员
+            self.main_window.comboBox_TestedBy.setToolTip(_("This is tested people", "选择测试人员"))
+            
+            # 报告人员
+            self.main_window.comboBox_ReportedBy.setToolTip(_("This is reported people", "选择报告人员"))
+            
+            # 测试文件
+            self.main_window.lineEdit_TestProfile.setToolTip(_("This is test profile, it's a xml file", "测试配置文件路径"))
+            self.main_window.pushButton_TestProfile.setToolTip(_("Here need to select test profile", "选择测试配置文件"))
+            
+            # 输入路径
+            self.main_window.lineEdit_InputPath.setToolTip(_("Input data file path", "输入数据文件路径"))
+            self.main_window.pushButton_InputPath.setToolTip(_("Please select input path", "选择输入数据文件路径"))
+            
+            # 输出路径
+            self.main_window.lineEdit_OutputPath.setToolTip(_("Output data file path", "输出结果文件路径"))
+            self.main_window.pushButton_OutputPath.setToolTip(_("Please select output path", "选择输出结果文件路径"))
+            
+            # 运行按钮
+            self.main_window.pushButton_Run.setToolTip(_("Go!", "开始运行电池分析"))
+            
+            # 版本号
+            self.main_window.lineEdit_Version.setToolTip(_("Here is the version", "输入版本号"))
+            
+            # 测试信息表格
+            if hasattr(self.main_window, 'tableWidget_TestInformation'):
+                self.main_window.tableWidget_TestInformation.setToolTip(_("Here is test infomation table", "测试信息表格 - 包含测试设备和软件版本信息"))
+            
+            self.logger.info("控件工具提示设置已完成")
+        except (AttributeError, TypeError, RuntimeError) as e:
+            self.logger.warning("设置控件工具提示失败: %s", e)
     
     def init_lineedit(self):
         """

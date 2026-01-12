@@ -146,18 +146,21 @@ Battery Analyzer v{__version__}
         
         # 打开报告按钮
         open_report_button = QW.QPushButton(_("open_report", "打开报告"))
+        open_report_button.setToolTip(_("tooltip_open_report", "打开生成的分析报告"))
         open_report_button.clicked.connect(lambda: self._handle_dialog_button_click(dialog, "open_report"))
         button_layout.addWidget(open_report_button)
         button_layout.addSpacing(10)
         
         # 打开路径按钮
         open_path_button = QW.QPushButton(_("open_path", "打开路径"))
+        open_path_button.setToolTip(_("tooltip_open_path", "打开报告文件所在的文件夹"))
         open_path_button.clicked.connect(lambda: self._handle_dialog_button_click(dialog, "open_path"))
         button_layout.addWidget(open_path_button)
         button_layout.addSpacing(10)
         
         # 确定按钮
         ok_button = QW.QPushButton(_("ok", "确定"))
+        ok_button.setToolTip(_("tooltip_ok", "关闭对话框"))
         ok_button.clicked.connect(dialog.accept)
         button_layout.addWidget(ok_button)
         button_layout.addStretch()
@@ -252,16 +255,19 @@ Battery Analyzer v{__version__}
         
         # 选项1: 重新选择数据目录
         retry_button = QW.QPushButton(_("retry_option", "重新选择数据目录"))
+        retry_button.setToolTip(_("tooltip_retry_option", "重新选择数据目录，可能包含正确的数据格式"))
         retry_button.clicked.connect(lambda: self._handle_error_option(dialog, "retry"))
         button_layout.addWidget(retry_button)
         
         # 选项2: 使用默认配置
         default_button = QW.QPushButton(_("default_option", "使用默认配置"))
+        default_button.setToolTip(_("tooltip_default_option", "使用默认配置继续分析，可能跳过某些数据验证"))
         default_button.clicked.connect(lambda: self._handle_error_option(dialog, "default"))
         button_layout.addWidget(default_button)
         
         # 选项3: 取消操作
         cancel_button = QW.QPushButton(_("cancel_option", "取消"))
+        cancel_button.setToolTip(_("tooltip_cancel_option", "取消当前分析操作"))
         cancel_button.clicked.connect(lambda: self._handle_error_option(dialog, "cancel"))
         button_layout.addWidget(cancel_button)
         
