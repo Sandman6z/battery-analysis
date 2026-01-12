@@ -41,6 +41,11 @@ from battery_analysis.main.ui_components import ConfigManager, DialogManager, Me
 from battery_analysis.main.utils import Checker, EnvironmentAdapter, FileUtils, SignalConnector
 from battery_analysis.main.business_logic.validation_manager import ValidationManager
 from battery_analysis.main.business_logic.version_manager import VersionManager
+from battery_analysis.main.commands.command import (
+    RunAnalysisCommand, SaveSettingsCommand, ExportReportCommand,
+    BatchProcessingCommand, GenerateReportCommand, AnalyzeDataCommand,
+    CalculateBatteryCommand
+)
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
@@ -57,17 +62,20 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        
+
         # 使用初始化管理器处理所有初始化逻辑
         init_manager = InitializationManager(self)
         init_manager.initialize()
-        
+
         # 初始化窗口和部件
         self.init_window()
         self.init_widget()
 
         # 初始化电流和电压级别配置
         self._initialize_current_and_voltage_levels()
+        
+        # 初始化命令对象
+        self._initialize_commands()
         
     # ------------------------------
     # 初始化相关方法
@@ -89,6 +97,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         self.listVoltageLevel = [
             safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
+            
+    def _initialize_commands(self):
+        """
+        初始化命令对象
+        """
+        # 初始化各种命令
+        self.run_analysis_command = RunAnalysisCommand(self.analysis_runner)
+        self.save_settings_command = SaveSettingsCommand(self)
+        self.export_report_command = ExportReportCommand(self.presenter)
+        self.batch_processing_command = BatchProcessingCommand(self.presenter)
+        self.generate_report_command = GenerateReportCommand(self.presenter)
+        self.analyze_data_command = AnalyzeDataCommand(self.presenter)
+        self.calculate_battery_command = CalculateBatteryCommand(self.presenter)
     
     # ------------------------------
     # 服务和控制器获取方法
@@ -339,16 +360,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # 电池分析功能方法
     # ------------------------------
     def calculate_battery(self) -> None:
-        """执行电池计算，委托给Presenter"""
-        self.presenter.on_calculate_battery()
+        """执行电池计算，使用命令模式"""
+        self.calculate_battery_command.execute()
 
     def analyze_data(self) -> None:
-        """分析数据，委托给Presenter"""
-        self.presenter.on_analyze_data()
+        """分析数据，使用命令模式"""
+        self.analyze_data_command.execute()
 
     def generate_report(self) -> None:
-        """生成报告，委托给Presenter"""
-        self.presenter.on_generate_report()
+        """生成报告，使用命令模式"""
+        self.generate_report_command.execute()
     
     # ------------------------------
     # 环境和信息管理方法
@@ -378,8 +399,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.visualization_manager.show_visualizer_error(error_msg)
 
     def batch_processing(self) -> None:
-        """批量处理，委托给Presenter"""
-        self.presenter.on_batch_processing()
+        """批量处理，使用命令模式"""
+        self.batch_processing_command.execute()
 
     def save_settings(self) -> None:
         """保存当前设置到用户配置文件"""
@@ -471,8 +492,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # 报告相关方法
     # ------------------------------
     def export_report(self) -> None:
-        """导出报告，委托给Presenter"""
-        self.presenter.on_export_report()
+        """导出报告，使用命令模式"""
+        self.export_report_command.execute()
 
     def set_theme(self, theme_name) -> None:
         """设置应用程序主题，委托给theme_manager处理"""
@@ -554,9 +575,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def run(self) -> None:
         """
-        运行电池分析，委托给analysis_runner
+        运行电池分析，使用命令模式
         """
-        self.analysis_runner.run_analysis()
+        self.run_analysis_command.execute()
 
     def save_table(self) -> None:
         """
