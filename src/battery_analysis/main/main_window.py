@@ -70,9 +70,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化窗口和部件
         self.init_window()
         self.init_widget()
-
-        # 初始化电流和电压级别配置
-        self._initialize_current_and_voltage_levels()
         
     # ------------------------------
     # 初始化相关方法
