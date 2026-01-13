@@ -116,7 +116,7 @@ def set_locale(locale_code: str) -> bool:
     Set the current locale for translations.
     
     Args:
-        locale_code: Locale code (e.g., 'en', 'zh_CN')
+        locale_code: Locale code (e.g., 'en', 'zh_CN') or display name (e.g., 'Chinese (Simplified)')
         
     Returns:
         True if locale was set successfully
@@ -125,24 +125,63 @@ def set_locale(locale_code: str) -> bool:
     
     logger.info("Setting locale to: %s", locale_code)
     
-    if locale_code not in get_available_locales():
-        logger.warning("Locale '%s' not available", locale_code)
-        return False
+    available_locales = get_available_locales()
+    
+    # Check if locale_code is already a valid locale
+    if locale_code in available_locales:
+        valid_locale = locale_code
+    else:
+        # Try to match display names to locale codes
+        # Define mapping of display names to locale codes
+        display_name_map = {
+            "English": "en",
+            "中文(简体)": "zh_CN",
+            "Chinese (Simplified)": "zh_CN",
+            "中文(繁體)": "zh_TW",
+            "Chinese (Traditional)": "zh_TW",
+            "日本語": "ja",
+            "Japanese": "ja",
+            "한국어": "ko",
+            "Korean": "ko",
+            "Français": "fr",
+            "French": "fr",
+            "Deutsch": "de",
+            "German": "de",
+            "Español": "es",
+            "Spanish": "es",
+            "Italiano": "it",
+            "Italian": "it",
+            "Português": "pt",
+            "Portuguese": "pt",
+            "Русский": "ru",
+            "Russian": "ru",
+            "العربية": "ar",
+            "Arabic": "ar",
+            "हिन्दी": "hi",
+            "Hindi": "hi"
+        }
+        
+        # Check if locale_code matches any display name
+        valid_locale = display_name_map.get(locale_code, None)
+        
+        if valid_locale is None or valid_locale not in available_locales:
+            logger.warning("Locale '%s' not available", locale_code)
+            return False
     
     try:
         # Load translation using PO translator
-        logger.info("Loading translation for %s", locale_code)
-        if _po_translator.load_locale(locale_code):
-            _translations[locale_code] = _po_translator.translations
-            _current_locale = locale_code
-            logger.info("Locale set to: %s", locale_code)
+        logger.info("Loading translation for %s", valid_locale)
+        if _po_translator.load_locale(valid_locale):
+            _translations[valid_locale] = _po_translator.translations
+            _current_locale = valid_locale
+            logger.info("Locale set to: %s", valid_locale)
             return True
         else:
-            logger.error("Failed to load translations for %s", locale_code)
+            logger.error("Failed to load translations for %s", valid_locale)
             return False
         
     except (OSError, ValueError, ImportError) as e:
-        logger.error("Failed to set locale '%s': %s", locale_code, e)
+        logger.error("Failed to set locale '%s': %s", valid_locale, e)
         import traceback
         traceback.print_exc()
         return False
@@ -200,9 +239,9 @@ def detect_system_locale() -> str:
         # Try to get system locale
         try:
             # 使用推荐的替代方法获取系统区域设置
+            import locale
             try:
                 # Python 3.11+ 推荐的方法
-                import locale
                 system_locale = locale.getlocale()[0]
             except (AttributeError, TypeError):
                 # 降级到旧方法（仍然支持向后兼容）
@@ -227,25 +266,46 @@ def detect_system_locale() -> str:
             # Handle any other unexpected errors
             system_locale = None
         
+        logger.debug("Detected system locale: %s", system_locale)
+        
         if system_locale:
+            # Ensure system_locale is a string
+            system_locale = str(system_locale)
+            
             # Extract language code from locale (e.g., 'en_US' -> 'en')
-            if isinstance(system_locale, str):
-                lang_code = system_locale.split('_')[0]
-                
-                # Check if we have translations for this language
-                if lang_code in get_available_locales():
-                    return lang_code
-                
-                # Special case for Chinese variants
-                if lang_code == 'zh':
-                    if 'CN' in system_locale:
-                        return 'zh_CN'
-                    elif 'TW' in system_locale:
-                        return 'zh_TW'
-    except (OSError, ValueError, ImportError) as e:
+            lang_code = system_locale.split('_')[0]
+            
+            # Check if we have translations for this language
+            available_locales = get_available_locales()
+            
+            # Special case for Chinese variants
+            if lang_code == 'zh':
+                if 'CN' in system_locale:
+                    return 'zh_CN'
+                elif 'TW' in system_locale:
+                    return 'zh_TW'
+                elif 'HK' in system_locale:
+                    return 'zh_TW'  # Use Traditional Chinese for Hong Kong
+                else:
+                    # Default to Simplified Chinese for unknown Chinese variants
+                    return 'zh_CN'
+            
+            # For other languages, check if we have the exact locale or just the language code
+            if system_locale in available_locales:
+                return system_locale
+            elif lang_code in available_locales:
+                return lang_code
+            else:
+                # Try to match language code to available locales
+                # e.g., 'fr_FR' -> check if 'fr' is available
+                for locale in available_locales:
+                    if locale.startswith(lang_code):
+                        return locale
+    except (OSError, ValueError, ImportError, TypeError) as e:
         logger.error("Failed to detect system locale: %s", e)
     
     # Fallback to English
+    logger.info("Falling back to English locale")
     return 'en'
 
 
