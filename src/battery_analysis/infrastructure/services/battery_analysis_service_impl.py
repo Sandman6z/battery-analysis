@@ -213,33 +213,16 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         temperatures = [result.temperature for result in test_results]
         internal_resistances = [result.internal_resistance for result in test_results]
         
-        # 简单的异常检测：使用3σ原则
-        def detect_outliers(data: List[float], data_name: str, result_index: int):
-            if not data:
-                return
-            
-            avg = sum(data) / len(data)
-            std_dev = (sum((x - avg) ** 2 for x in data) / len(data)) ** 0.5
-            
-            # 检查当前结果是否为异常值
-            current_value = data[result_index]
-            if abs(current_value - avg) > 3 * std_dev:
-                anomalies.append({
-                    "test_id": test_results[result_index].test_id,
-                    "cycle_count": test_results[result_index].cycle_count,
-                    "parameter": data_name,
-                    "value": current_value,
-                    "expected_range": [round(avg - 3 * std_dev, 2), round(avg + 3 * std_dev, 2)],
-                    "type": "outlier"
-                })
+        # 使用公共工具函数进行异常检测
+        from battery_analysis.utils.data_utils import detect_outliers as common_detect_outliers
         
         # 检测每个结果的异常
         for i in range(len(test_results)):
-            detect_outliers(capacities, "capacity", i)
-            detect_outliers(voltages, "voltage", i)
-            detect_outliers(currents, "current", i)
-            detect_outliers(temperatures, "temperature", i)
-            detect_outliers(internal_resistances, "internal_resistance", i)
+            anomalies.extend(common_detect_outliers(capacities, "capacity", i, test_results))
+            anomalies.extend(common_detect_outliers(voltages, "voltage", i, test_results))
+            anomalies.extend(common_detect_outliers(currents, "current", i, test_results))
+            anomalies.extend(common_detect_outliers(temperatures, "temperature", i, test_results))
+            anomalies.extend(common_detect_outliers(internal_resistances, "internal_resistance", i, test_results))
         
         return anomalies
     

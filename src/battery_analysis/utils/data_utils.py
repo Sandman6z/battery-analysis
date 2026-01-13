@@ -52,3 +52,38 @@ def generate_current_type_string(list_current_level: list) -> str:
     if not list_current_level:
         return ""
     return "-".join(str(level) for level in list_current_level)
+
+
+def detect_outliers(data: list, data_name: str, result_index: int, test_results: list) -> list:
+    """
+    检测数据中的异常值，使用3σ原则
+    
+    Args:
+        data: 数据列表
+        data_name: 数据名称
+        result_index: 当前结果索引
+        test_results: 测试结果列表
+        
+    Returns:
+        异常值列表
+    """
+    anomalies = []
+    if not data:
+        return anomalies
+    
+    avg = sum(data) / len(data)
+    std_dev = (sum((x - avg) ** 2 for x in data) / len(data)) ** 0.5
+    
+    # 检查当前结果是否为异常值
+    current_value = data[result_index]
+    if abs(current_value - avg) > 3 * std_dev:
+        anomalies.append({
+            "test_id": test_results[result_index].test_id,
+            "cycle_count": test_results[result_index].cycle_count,
+            "parameter": data_name,
+            "value": current_value,
+            "expected_range": [round(avg - 3 * std_dev, 2), round(avg + 3 * std_dev, 2)],
+            "type": "outlier"
+        })
+    
+    return anomalies

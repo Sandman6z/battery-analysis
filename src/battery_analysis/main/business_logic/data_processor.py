@@ -178,7 +178,8 @@ class DataProcessor:
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.set_error("Input path has no data")
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Input path has no data")
+            from battery_analysis.i18n.language_manager import _
+            self.main_window.statusBar_BatteryAnalysis.showMessage(_("input_path_no_data", "[Error]: Input path has no data"))
     
     def _process_excel_files(self, input_dir, excel_files):
         """处理Excel文件并提取信息"""
@@ -218,7 +219,8 @@ class DataProcessor:
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            self.main_window.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+            from battery_analysis.i18n.language_manager import _
+            self.main_window.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
     
     def _process_first_excel_file(self, filename):
         """处理第一个Excel文件的详细信息"""

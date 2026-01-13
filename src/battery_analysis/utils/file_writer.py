@@ -263,9 +263,9 @@ class XlsxWordWriter:
                 logging.warning("使用默认电池类型基础规格")
 
             strBatteryType = ""
-            for b in range(len(listBatteryTypeBase)):
-                if listBatteryTypeBase[b].strip() in self.listTestInfo[2]:
-                    strBatteryType = listBatteryTypeBase[b]
+            for battery_type in listBatteryTypeBase:
+                if battery_type.strip() in self.listTestInfo[2]:
+                    strBatteryType = battery_type
                     break
 
             # 如果没有匹配到，使用列表中的第一个or直接使用测试信息
