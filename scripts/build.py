@@ -565,8 +565,8 @@ exe = EXE(
         cmd_args = [
             sys.executable, '-m', 'PyInstaller',
             '--log-level=INFO',
-            '--noupx',
-            '--collect-all=pywin32',
+            '--hidden-import=pywin32',
+            '--hidden-import=pywintypes',
             f'--name={app_config["exe_name"]}',
             f'--icon={app_config["icon_name"]}',
             f'--distpath={final_build_dir}',
@@ -601,14 +601,29 @@ exe = EXE(
             '--path', f'{self.project_root}'
         ])
         
-        # 添加通用的隐藏导入和收集项
+        # 添加必要的隐藏导入
         cmd_args.extend([
             '--hidden-import', 'xlsxwriter',
-            '--collect-all', 'xlsxwriter',
-            '--collect-all', 'openpyxl',
-            '--hidden-import', 'xlrd',
-            '--collect-all', 'xlrd'
+            '--hidden-import', 'openpyxl',
+            '--hidden-import', 'xlrd'
         ])
+        
+        # 添加排除不必要模块的配置
+        excluded_modules = [
+            'pytest', 'pylint', 'black', 'astroid', 'pylint_json2html',  # 开发测试工具
+            'matplotlib.tests', 'matplotlib.backends.backend_qt4', 'matplotlib.backends.backend_qt5',  # 不使用的matplotlib模块
+            'numpy.testing', 'numpy.distutils',  # numpy测试和构建模块
+            'openpyxl.tests',  # openpyxl测试模块
+            'pandas.tests',  # pandas测试模块
+            'scipy', 'sympy',  # 如果没有使用这些科学计算库
+            'tkinter',  # 如果只使用PyQt6
+            'IPython', 'jupyter',  # 交互式环境
+            'setuptools', 'pip',  # 构建工具
+            'unittest', 'doctest',  # 测试框架
+            'urllib3', 'requests',  # 如果没有网络请求
+        ]
+        for module in excluded_modules:
+            cmd_args.append(f'--exclude-module={module}')
         
         # 添加调试/控制台参数
         debug_mode = self.build_type == "Debug"
