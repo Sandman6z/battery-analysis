@@ -74,6 +74,57 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # ------------------------------
     # 服务和控制器获取方法
     # ------------------------------
+    def _get_component(self, component_name, component_type="service"):
+        """
+        懒加载获取服务或控制器
+
+        Args:
+            component_name: 组件名称
+            component_type: 组件类型，"service"或"controller"
+
+        Returns:
+            组件实例或None
+        """
+        # 选择合适的缓存字典
+        cache_dict = self._services if component_type == "service" else self._controllers
+        
+        if component_name not in cache_dict:
+            try:
+                cache_dict[component_name] = self._service_container.get(component_name)
+                self.logger.debug("Successfully retrieved %s: %s", component_type, component_name)
+            except TypeError as e:
+                self.logger.warning(
+                    "Failed to get %s %s due to type error: %s", component_type, component_name, e)
+                self.logger.debug("TypeError details: %s", str(e))
+                cache_dict[component_name] = None
+            except AttributeError as e:
+                self.logger.warning(
+                    "Failed to get %s %s due to attribute error: %s", component_type, component_name, e)
+                self.logger.debug("AttributeError details: %s", str(e))
+                cache_dict[component_name] = None
+            except OSError as e:
+                self.logger.warning(
+                    "Failed to get %s %s due to OS error: %s", component_type, component_name, e)
+                self.logger.debug("OSError details: %s", str(e))
+                cache_dict[component_name] = None
+            except ValueError as e:
+                self.logger.warning(
+                    "Failed to get %s %s due to value error: %s", component_type, component_name, e)
+                self.logger.debug("ValueError details: %s", str(e))
+                cache_dict[component_name] = None
+            except ImportError as e:
+                self.logger.warning(
+                    "Failed to get %s %s due to import error: %s", component_type, component_name, e)
+                self.logger.debug("ImportError details: %s", str(e))
+                cache_dict[component_name] = None
+            except Exception as e:
+                # 捕获其他未预期的异常
+                self.logger.warning(
+                    "Failed to get %s %s due to unexpected error: %s", component_type, component_name, e)
+                self.logger.debug("Unexpected error details: %s", str(e))
+                cache_dict[component_name] = None
+        return cache_dict[component_name]
+    
     def _get_service(self, service_name):
         """
         懒加载获取服务
@@ -84,44 +135,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         Returns:
             服务实例或None
         """
-        if service_name not in self._services:
-            try:
-                self._services[service_name] = self._service_container.get(
-                    service_name)
-                self.logger.debug("Successfully retrieved service: %s", service_name)
-            except TypeError as e:
-                self.logger.warning(
-                    "Failed to get service %s due to type error: %s", service_name, e)
-                self.logger.debug("TypeError details: %s", str(e))
-                self._services[service_name] = None
-            except AttributeError as e:
-                self.logger.warning(
-                    "Failed to get service %s due to attribute error: %s", service_name, e)
-                self.logger.debug("AttributeError details: %s", str(e))
-                self._services[service_name] = None
-            except OSError as e:
-                self.logger.warning(
-                    "Failed to get service %s due to OS error: %s", service_name, e)
-                self.logger.debug("OSError details: %s", str(e))
-                self._services[service_name] = None
-            except ValueError as e:
-                self.logger.warning(
-                    "Failed to get service %s due to value error: %s", service_name, e)
-                self.logger.debug("ValueError details: %s", str(e))
-                self._services[service_name] = None
-            except ImportError as e:
-                self.logger.warning(
-                    "Failed to get service %s due to import error: %s", service_name, e)
-                self.logger.debug("ImportError details: %s", str(e))
-                self._services[service_name] = None
-            except Exception as e:
-                # 捕获其他未预期的异常
-                self.logger.warning(
-                    "Failed to get service %s due to unexpected error: %s", service_name, e)
-                self.logger.debug("Unexpected error details: %s", str(e))
-                self._services[service_name] = None
-        return self._services[service_name]
-
+        return self._get_component(service_name, "service")
+    
     def _get_controller(self, controller_name):
         """
         懒加载获取控制器
@@ -132,43 +147,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         Returns:
             控制器实例或None
         """
-        if controller_name not in self._controllers:
-            try:
-                self._controllers[controller_name] = self._service_container.get(
-                    controller_name)
-                self.logger.debug("Successfully retrieved controller: %s", controller_name)
-            except TypeError as e:
-                self.logger.warning(
-                    "Failed to get controller %s due to type error: %s", controller_name, e)
-                self.logger.debug("TypeError details: %s", str(e))
-                self._controllers[controller_name] = None
-            except AttributeError as e:
-                self.logger.warning(
-                    "Failed to get controller %s due to attribute error: %s", controller_name, e)
-                self.logger.debug("AttributeError details: %s", str(e))
-                self._controllers[controller_name] = None
-            except OSError as e:
-                self.logger.warning(
-                    "Failed to get controller %s due to OS error: %s", controller_name, e)
-                self.logger.debug("OSError details: %s", str(e))
-                self._controllers[controller_name] = None
-            except ValueError as e:
-                self.logger.warning(
-                    "Failed to get controller %s due to value error: %s", controller_name, e)
-                self.logger.debug("ValueError details: %s", str(e))
-                self._controllers[controller_name] = None
-            except ImportError as e:
-                self.logger.warning(
-                    "Failed to get controller %s due to import error: %s", controller_name, e)
-                self.logger.debug("ImportError details: %s", str(e))
-                self._controllers[controller_name] = None
-            except Exception as e:
-                # 捕获其他未预期的异常
-                self.logger.warning(
-                    "Failed to get controller %s due to unexpected error: %s", controller_name, e)
-                self.logger.debug("Unexpected error details: %s", str(e))
-                self._controllers[controller_name] = None
-        return self._controllers[controller_name]
+        return self._get_component(controller_name, "controller")
 
     # ------------------------------
     # 配置相关方法

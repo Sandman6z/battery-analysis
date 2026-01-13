@@ -163,13 +163,30 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         # 使用公共工具函数进行异常检测
         from battery_analysis.utils.data_utils import detect_outliers as common_detect_outliers
         
+        # 预计算各项指标的统计量，避免重复计算
+        def precompute_stats(data):
+            if not data:
+                return (0, 0)
+            avg = sum(data) / len(data)
+            std_dev = (sum((x - avg) ** 2 for x in data) / len(data)) ** 0.5
+            return (avg, std_dev)
+        
+        # 预计算所有统计量
+        stats = {
+            "capacity": precompute_stats(capacities),
+            "voltage": precompute_stats(voltages),
+            "current": precompute_stats(currents),
+            "temperature": precompute_stats(temperatures),
+            "internal_resistance": precompute_stats(internal_resistances)
+        }
+        
         # 检测每个结果的异常
         for i in range(len(test_results)):
-            anomalies.extend(common_detect_outliers(capacities, "capacity", i, test_results))
-            anomalies.extend(common_detect_outliers(voltages, "voltage", i, test_results))
-            anomalies.extend(common_detect_outliers(currents, "current", i, test_results))
-            anomalies.extend(common_detect_outliers(temperatures, "temperature", i, test_results))
-            anomalies.extend(common_detect_outliers(internal_resistances, "internal_resistance", i, test_results))
+            anomalies.extend(common_detect_outliers(capacities, "capacity", i, test_results, stats["capacity"]))
+            anomalies.extend(common_detect_outliers(voltages, "voltage", i, test_results, stats["voltage"]))
+            anomalies.extend(common_detect_outliers(currents, "current", i, test_results, stats["current"]))
+            anomalies.extend(common_detect_outliers(temperatures, "temperature", i, test_results, stats["temperature"]))
+            anomalies.extend(common_detect_outliers(internal_resistances, "internal_resistance", i, test_results, stats["internal_resistance"]))
         
         return anomalies
     

@@ -67,7 +67,7 @@ class DataProcessor:
     
     def process_all_excel_files(self, directory: str) -> list:
         """
-        使用pandas批量处理目录中的所有Excel文件
+        使用pandas并行处理目录中的所有Excel文件
         
         Args:
             directory: 包含Excel文件的目录
@@ -85,20 +85,38 @@ class DataProcessor:
                 self.logger.warning("目录中没有找到Excel文件: %s", directory)
                 return []
             
-            # 批量处理Excel文件
+            # 使用并行处理Excel文件
+            from concurrent.futures import ProcessPoolExecutor, as_completed
             excel_data = []
-            for filename in listAllInXlsx:
+            
+            def process_file(filename):
                 file_path = os.path.join(directory, filename)
-                file_info = self.process_excel_with_pandas(file_path)
-                if file_info:
-                    excel_data.append(file_info)
+                return self.process_excel_with_pandas(file_path)
+            
+            # 使用进程池并行处理
+            with ProcessPoolExecutor(max_workers=min(8, len(listAllInXlsx))) as executor:
+                # 提交所有任务
+                future_to_file = {executor.submit(process_file, filename): filename for filename in listAllInXlsx}
+                
+                # 收集结果
+                for future in as_completed(future_to_file):
+                    file_info = future.result()
+                    if file_info:
+                        excel_data.append(file_info)
             
             self.logger.info("成功处理 %d 个Excel文件", len(excel_data))
             return excel_data
             
         except Exception as e:
             self.logger.error("批量处理Excel文件失败: %s", str(e))
-            return []
+            # 失败时回退到串行处理
+            excel_data = []
+            for filename in [f for f in os.listdir(directory) if f[:2] != "~$" and f[-5:] == ".xlsx"]:
+                file_path = os.path.join(directory, filename)
+                file_info = self.process_excel_with_pandas(file_path)
+                if file_info:
+                    excel_data.append(file_info)
+            return excel_data
     
     def get_xlsxinfo(self) -> None:
         """
@@ -258,28 +276,26 @@ class DataProcessor:
         self._extract_cc_current(filename)
     
     def _set_specification_type(self, filename, all_spec_types):
-        """设置规格类型"""
-        type_index = -1
-        max_match_length = 0
-        for t, spec_type in enumerate(all_spec_types):
-            if spec_type in filename and len(spec_type) > max_match_length:
-                type_index = t
-                max_match_length = len(spec_type)
+        """设置规格类型，使用预处理和高效匹配"""
+        # 预处理：按长度降序排序，优先匹配最长的规格类型
+        sorted_spec_types = sorted(enumerate(all_spec_types), key=lambda x: len(x[1]), reverse=True)
         
-        if type_index != -1:
-            self.main_window.comboBox_Specification_Type.setCurrentIndex(type_index)
+        # 遍历匹配
+        for t, spec_type in sorted_spec_types:
+            if spec_type in filename:
+                self.main_window.comboBox_Specification_Type.setCurrentIndex(t)
+                return  # 找到最长匹配后直接返回，避免不必要的计算
     
     def _set_specification_method(self, filename, all_spec_methods):
-        """设置规格方法"""
-        method_index = -1
-        max_match_length = 0
-        for m, method in enumerate(all_spec_methods):
-            if method in filename and len(method) > max_match_length:
-                method_index = m
-                max_match_length = len(method)
+        """设置规格方法，使用预处理和高效匹配"""
+        # 预处理：按长度降序排序，优先匹配最长的规格方法
+        sorted_spec_methods = sorted(enumerate(all_spec_methods), key=lambda x: len(x[1]), reverse=True)
         
-        if method_index != -1:
-            self.main_window.comboBox_Specification_Method.setCurrentIndex(method_index)
+        # 遍历匹配
+        for m, method in sorted_spec_methods:
+            if method in filename:
+                self.main_window.comboBox_Specification_Method.setCurrentIndex(m)
+                return  # 找到最长匹配后直接返回，避免不必要的计算
     
     def _set_manufacturer(self, filename):
         """设置制造商"""
@@ -413,7 +429,7 @@ class DataProcessor:
     
     def analyze_data(self) -> None:
         """
-        分析数据，使用pandas优化分析逻辑
+        分析数据，使用pandas优化分析逻辑，并行处理多个Excel文件
         """
         self.logger.info("开始数据分析")
         
@@ -445,13 +461,14 @@ class DataProcessor:
                 )
                 return
             
-            # 使用pandas批量处理Excel文件
-            all_data = []
-            for filename in excel_files:
+            # 使用并行处理Excel文件
+            from concurrent.futures import ProcessPoolExecutor, as_completed
+            
+            def analyze_single_file(file_info):
+                """分析单个Excel文件"""
+                filename, input_path = file_info
                 try:
                     file_path = os.path.join(input_path, filename)
-                    self.logger.info("分析Excel文件: %s", filename)
-                    
                     # 使用pandas读取Excel文件
                     df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
                     
@@ -466,11 +483,32 @@ class DataProcessor:
                         'basic_stats': df.describe().to_dict()
                     }
                     
-                    all_data.append(analysis_result)
-                    
+                    return analysis_result
                 except Exception as e:
-                    self.logger.error("分析Excel文件失败 %s: %s", filename, str(e))
-                    continue
+                    return {
+                        'filename': filename,
+                        'error': str(e)
+                    }
+            
+            # 使用进程池并行处理
+            all_data = []
+            failed_files = []
+            
+            with ProcessPoolExecutor(max_workers=min(8, len(excel_files))) as executor:
+                # 提交所有任务
+                file_infos = [(filename, input_path) for filename in excel_files]
+                future_to_file = {executor.submit(analyze_single_file, file_info): file_info[0] for file_info in file_infos}
+                
+                # 收集结果
+                for future in as_completed(future_to_file):
+                    filename = future_to_file[future]
+                    result = future.result()
+                    
+                    if 'error' in result:
+                        self.logger.error("分析Excel文件失败 %s: %s", filename, result['error'])
+                        failed_files.append(filename)
+                    else:
+                        all_data.append(result)
             
             # 汇总分析结果
             summary = {
