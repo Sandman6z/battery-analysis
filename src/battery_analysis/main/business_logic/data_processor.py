@@ -10,6 +10,10 @@ import csv
 import re
 from pathlib import Path
 import pandas as pd
+from PyQt6 import QtWidgets as QW
+from PyQt6 import QtCore as QC
+from PyQt6 import QtGui as QG
+from battery_analysis.i18n.language_manager import _
 
 
 class DataProcessor:
@@ -178,7 +182,6 @@ class DataProcessor:
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.set_error("Input path has no data")
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            from battery_analysis.i18n.language_manager import _
             self.main_window.statusBar_BatteryAnalysis.showMessage(_("input_path_no_data", "[Error]: Input path has no data"))
     
     def _process_excel_files(self, input_dir, excel_files):
@@ -219,7 +222,6 @@ class DataProcessor:
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            from battery_analysis.i18n.language_manager import _
             self.main_window.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
     
     def _process_first_excel_file(self, filename):
@@ -418,8 +420,6 @@ class DataProcessor:
         # 检查输入路径是否设置
         input_path = self.main_window.lineEdit_InputPath.text()
         if not input_path:
-            from PyQt6 import QtWidgets as QW
-            from battery_analysis.i18n.language_manager import _
             QW.QMessageBox.warning(
                 self.main_window,
                 _("warning_title", "警告"),
@@ -438,8 +438,6 @@ class DataProcessor:
             
             if not excel_files:
                 self.logger.warning("没有找到Excel文件")
-                from PyQt6 import QtWidgets as QW
-                from battery_analysis.i18n.language_manager import _
                 QW.QMessageBox.information(
                     self.main_window,
                     _("analysis_result", "分析结果"),
@@ -484,8 +482,6 @@ class DataProcessor:
             }
             
             # 显示分析结果
-            from PyQt6 import QtWidgets as QW
-            from battery_analysis.i18n.language_manager import _
             message = f"数据分析已完成！\n\n"\
                      f"总文件数: {summary['total_files']}\n"\
                      f"成功分析: {summary['successful_files']}\n"\
@@ -504,8 +500,6 @@ class DataProcessor:
             
         except Exception as e:
             self.logger.error("数据分析失败: %s", str(e))
-            from PyQt6 import QtWidgets as QW
-            from battery_analysis.i18n.language_manager import _
             QW.QMessageBox.error(
                 self.main_window,
                 _("error_title", "错误"),
@@ -527,10 +521,6 @@ class DataProcessor:
         self.logger.error("处理数据错误恢复: %s", error_msg)
         
         # 创建自定义对话框
-        from PyQt6 import QtWidgets as QW
-        from PyQt6 import QtCore as QC
-        from PyQt6 import QtGui as QG
-        
         dialog = QW.QDialog(self.main_window)
         dialog.setWindowTitle("数据加载错误 - 恢复选项")
         dialog.setModal(True)
@@ -613,9 +603,6 @@ class DataProcessor:
         """
         打开数据目录选择对话框
         """
-        from PyQt6 import QtWidgets as QW
-        from battery_analysis.i18n.language_manager import _
-        
         self.main_window.statusBar_BatteryAnalysis.showMessage(
             _("selecting_data_directory", "选择数据目录...")
         )

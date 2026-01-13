@@ -64,14 +64,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         # 处理可能包含浮点数的电流值
         try:
-            self.listCurrentLevel = [safe_int_convert(listPulseCurrent[c].strip())
-                                     for c in range(len(listPulseCurrent))]
+            self.listCurrentLevel = [safe_int_convert(item.strip()) for item in listPulseCurrent]
         except (ValueError, TypeError):
             # 如果转换失败，使用默认值
             self.listCurrentLevel = [0] * len(listPulseCurrent)
 
-        self.listVoltageLevel = [
-            safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
+        self.listVoltageLevel = [safe_float_convert(item.strip()) for item in listCutoffVoltage]
 
     # ------------------------------
     # 服务和控制器获取方法

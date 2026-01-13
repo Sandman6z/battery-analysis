@@ -13,6 +13,7 @@ from docx import Document
 from matplotlib.ticker import MultipleLocator
 import matplotlib.pyplot as plt
 import re
+from pathlib import Path
 
 # 配置matplotlib支持中文显示
 plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
@@ -262,19 +263,21 @@ class XlsxWordWriter:
                     "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
                 logging.warning("使用默认电池类型基础规格")
 
-            strBatteryType = ""
-            for battery_type in listBatteryTypeBase:
-                if battery_type.strip() in self.listTestInfo[2]:
-                    strBatteryType = battery_type
-                    break
+            # 简化电池类型匹配逻辑
+            test_info_type = self.listTestInfo[2]
+            # 移除空格以便更好地匹配
+            stripped_types = [battery_type.strip() for battery_type in listBatteryTypeBase]
+            # 查找匹配的电池类型
+            strBatteryType = next((battery_type for battery_type in stripped_types 
+                                  if battery_type in test_info_type), None)
 
             # 如果没有匹配到，使用列表中的第一个or直接使用测试信息
             if not strBatteryType:
-                if listBatteryTypeBase:
-                    strBatteryType = listBatteryTypeBase[0]
+                if stripped_types:
+                    strBatteryType = stripped_types[0]
                     logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
                 else:
-                    strBatteryType = self.listTestInfo[2]  # 直接使用测试信息中的类型
+                    strBatteryType = test_info_type  # 直接使用测试信息中的类型
                     logging.warning("电池类型列表empty，直接使用测试信息: %s", strBatteryType)
         except (IndexError, TypeError, ValueError) as e:
             logging.error("获取电池类型时发生错误: %s", e)
@@ -548,7 +551,7 @@ class XlsxWordWriter:
             f"#Battery Date Code: {self.listTestInfo[5]}",
             f"#Temperature: {self.listTestInfo[6]}",
             f"#Test Profile: {self.listTestInfo[13]}",
-            f"#Version: V1.0",
+            f"#Version: V{__version__}",
             f"#END HEADER"
         ]
         for i, info in enumerate(header_info):
@@ -565,7 +568,7 @@ class XlsxWordWriter:
             f"#Battery Date Code: {self.listTestInfo[5]}",
             f"#Temperature: {self.listTestInfo[6]}",
             f"#Test Profile: {self.listTestInfo[13]}",
-            f"#Version: V1.0",
+            f"#Version: V{__version__}",
             f"#END HEADER"
         ]
         for info in csv_header_info:
@@ -1574,35 +1577,41 @@ class JsonWriter:
         self.strResultJsonPath = os.path.join(
             self.strResultPath, f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}_{self.strFileCurrentType}_{safe_temperature}.json")
         self.listBatteryVoltage = []
-        for v in range(len(self.listVoltageLevel)):
-            self.listBatteryVoltage.append(len(str(self.listVoltageLevel[v])) < 4 and str(
-                self.listVoltageLevel[v]) + '0' * (4 - len(str(self.listVoltageLevel[v]))) or str(self.listVoltageLevel[v]))
+        for v, voltage_level in enumerate(self.listVoltageLevel):
+            voltage_str = str(voltage_level)
+            formatted_voltage = voltage_str + '0' * (4 - len(voltage_str)) if len(voltage_str) < 4 else voltage_str
+            self.listBatteryVoltage.append(formatted_voltage)
 
         self.UJS_FormatJson()
 
     def UJS_FormatJson(self) -> None:
-        for i in range(len(self.listBatteryInfo[1])):
+        for i, battery_info in enumerate(self.listBatteryInfo[1]):
             index = -1
-            dictMeasurements = []
-            for c in range(len(self.listCurrentLevel)):
-                dictMeasurements.append({})
+            dictMeasurements = [{} for _ in self.listCurrentLevel]
             dictTestRun = {}
-            for j in range(len(self.listBatteryInfo[0][i])):
+            
+            # 填充测量数据
+            for j, value in enumerate(self.listBatteryInfo[0][i]):
                 if j % (len(self.listVoltageLevel)) == 0:
                     index += 1
-                if self.listBatteryInfo[0][i][j] != 0 and self.listBatteryVoltage[j % len(self.listBatteryVoltage)] != "":
-                    dictMeasurements[index].update({self.listBatteryVoltage[j % len(
-                        self.listBatteryVoltage)]: self.listBatteryInfo[0][i][j]})
+                if value != 0 and self.listBatteryVoltage[j % len(self.listBatteryVoltage)] != "":
+                    voltage_key = self.listBatteryVoltage[j % len(self.listBatteryVoltage)]
+                    dictMeasurements[index][voltage_key] = value
+            
+            # 生成电池名称
             try:
-                battery_name_split = self.listBatteryInfo[1][i].split("BTS")[
-                    1].split("_")
+                battery_name_split = battery_info.split("BTS")[1].split("_")
                 battery_name = f"{battery_name_split[2]}_{battery_name_split[3]}"
             except IndexError:
                 battery_name = f"Battery_{i}"
-            listResults = []
-            for c in range(len(self.listCurrentLevel)):
-                listResults.append(
-                    {"scenario": f"{self.listCurrentLevel[c]}mA", "measurements": dictMeasurements[c]})
+            
+            # 构建结果列表
+            listResults = [
+                {"scenario": f"{current}mA", "measurements": dictMeasurements[c]}
+                for c, current in enumerate(self.listCurrentLevel)
+            ]
+            
+            # 更新测试运行字典并添加到列表
             dictTestRun.update({"slot": battery_name, "results": listResults})
             self.listTestRun.append(dictTestRun)
 
@@ -1621,9 +1630,9 @@ class JsonWriter:
                 logging.info("使用默认电池类型基础规格")
 
             strBatteryType = ""
-            for b in range(len(listBatteryTypeBase)):
-                if listBatteryTypeBase[b].strip() in self.listTestInfo[2]:
-                    strBatteryType = listBatteryTypeBase[b]
+            for battery_type in listBatteryTypeBase:
+                if battery_type.strip() in self.listTestInfo[2]:
+                    strBatteryType = battery_type
                     break
 
             # 如果没有找到匹配项，使用默认值

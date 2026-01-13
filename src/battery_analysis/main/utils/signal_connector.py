@@ -237,40 +237,13 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setEnabled(True)
 
                 # 增强的错误消息处理
-                error_title = "电池分析错误"
-                error_msg = "分析电池数据when出现错误。"
-                error_details = threadinfo
-
-                # 根据错误内容提供更具体的建议
-                suggestions = []
-                if "input path" in error_details.lower() or "找不到文件" in error_details:
-                    suggestions.append("请检查输入路径是否correct")
-                    suggestions.append("确保包含必要的数据文件")
-                if "格式" in error_details or "format" in error_details.lower():
-                    suggestions.append("检查数据文件格式是否符合要求")
-                if "权限" in error_details or "permission" in error_details.lower():
-                    suggestions.append("确保您有足够的文件操作权限")
-
-                # 如果没有具体建议，提供通用建议
-                if not suggestions:
-                    suggestions.append("检查输入数据的完整性")
-                    suggestions.append("确保文件路径不包含特殊字符")
-                    suggestions.append("重新选择有效的输入和输出目录")
-
-                # 构建完整的错误消息
-                full_error_msg = f"{error_msg}:\n\n{error_details}\n\n建议解决步骤:\n"
-                full_error_msg += "\n".join([f"- {s}" for s in suggestions])
-
-                # 显示详细的错误对话框
-                QW.QMessageBox.critical(
-                    self.main_window,
-                    error_title,
-                    full_error_msg,
-                    QW.QMessageBox.StandardButton.Ok
+                # 电池分析错误处理
+                self._handle_error(
+                    "电池分析错误",
+                    "分析电池数据时出现错误。",
+                    threadinfo,
+                    True  # 需要关闭进度条
                 )
-
-                self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[错误]: {error_title}")
 
             # 文件写入错误处理 (stateindex == 2)
             elif stateindex == 2:
@@ -280,29 +253,12 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setText("Rerun")
                 self.main_window.pushButton_Run.setEnabled(True)
 
-                error_title = "报告生成错误"
-                error_msg = "生成分析报告when出现错误。"
-                error_details = threadinfo
-
-                suggestions = [
-                    "检查输出路径是否存在且可写",
-                    "确保有足够的磁盘空间",
-                    "关闭可能正在使用输出文件的其他程序",
-                    "尝试选择不同的输出目录"
-                ]
-
-                full_error_msg = f"{error_msg}:\n\n{error_details}\n\n建议解决步骤:\n"
-                full_error_msg += "\n".join([f"- {s}" for s in suggestions])
-
-                QW.QMessageBox.critical(
-                    self.main_window,
-                    error_title,
-                    full_error_msg,
-                    QW.QMessageBox.StandardButton.Ok
+                self._handle_error(
+                    "报告生成错误",
+                    "生成分析报告时出现错误。",
+                    threadinfo,
+                    False  # 进度条已关闭
                 )
-
-                self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[错误]: {error_title}")
 
             # 其他错误情况
             else:
@@ -310,6 +266,64 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setEnabled(True)
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
                     f"[错误]: {threadinfo}")
+    
+    def _handle_error(self, error_title, error_msg, error_details, need_close_progress=True):
+        """
+        通用错误处理方法
+        
+        Args:
+            error_title: 错误标题
+            error_msg: 错误消息
+            error_details: 错误详情
+            need_close_progress: 是否需要关闭进度条
+        """
+        if need_close_progress:
+            self._close_progress_dialog()
+            self.main_window.pushButton_Run.setText("Rerun")
+            self.main_window.pushButton_Run.setEnabled(True)
+        
+        # 根据错误内容提供更具体的建议
+        suggestions = []
+        error_details_lower = error_details.lower() if isinstance(error_details, str) else str(error_details).lower()
+        error_details_str = error_details if isinstance(error_details, str) else str(error_details)
+        
+        if "input path" in error_details_lower or "找不到文件" in error_details_str:
+            suggestions.append("请检查输入路径是否正确")
+            suggestions.append("确保包含必要的数据文件")
+        if "格式" in error_details_str or "format" in error_details_lower:
+            suggestions.append("检查数据文件格式是否符合要求")
+        if "权限" in error_details_str or "permission" in error_details_lower:
+            suggestions.append("确保您有足够的文件操作权限")
+        if "output" in error_details_lower or "写入" in error_details_str:
+            suggestions.extend([
+                "检查输出路径是否存在且可写",
+                "确保有足够的磁盘空间",
+                "关闭可能正在使用输出文件的其他程序",
+                "尝试选择不同的输出目录"
+            ])
+
+        # 如果没有具体建议，提供通用建议
+        if not suggestions:
+            suggestions.extend([
+                "检查输入数据的完整性",
+                "确保文件路径不包含特殊字符",
+                "重新选择有效的输入和输出目录"
+            ])
+
+        # 构建完整的错误消息
+        full_error_msg = f"{error_msg}:\n\n{error_details_str}\n\n建议解决步骤:\n"
+        full_error_msg += "\n".join([f"- {s}" for s in suggestions])
+
+        # 显示详细的错误对话框
+        QW.QMessageBox.critical(
+            self.main_window,
+            error_title,
+            full_error_msg,
+            QW.QMessageBox.StandardButton.Ok
+        )
+
+        self.main_window.statusBar_BatteryAnalysis.showMessage(
+            f"[错误]: {error_title}")
 
     def _on_file_selected(self, event):
         """事件总线文件选择处理"""

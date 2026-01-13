@@ -165,9 +165,9 @@ class ValidationManager:
             pass
         else:
             self.main_window.checker_battery_type.set_error(
-                f"No battery type named {self.main_window.comboBox_BatteryType.currentText()}")
+                _("unknown_battery_type", f"No battery type named {self.main_window.comboBox_BatteryType.currentText()}"))
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                f"[Error]: No battery type named {self.main_window.comboBox_BatteryType.currentText()}")
+                _("unknown_battery_type_error", "[Error]: No battery type named {}").format(self.main_window.comboBox_BatteryType.currentText()))
     
     def check_specification(self) -> None:
         """
