@@ -7,6 +7,7 @@
 import logging
 import os
 import csv
+import re
 from pathlib import Path
 import pandas as pd
 
@@ -101,12 +102,46 @@ class DataProcessor:
         """
         self.logger.info("获取Excel文件信息")
         
-        # 保留原有UI逻辑，只优化Excel文件处理部分
         # 清除检查器状态
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
         
-        # 断开信号连接，避免在处理过程中触发不必要的事件
+        # 断开信号连接
+        self._disconnect_specification_signals()
+        
+        # 获取输入路径
+        input_dir = self.main_window.lineEdit_InputPath.text()
+        
+        # 检查输入路径是否存在
+        if not os.path.exists(input_dir):
+            self.logger.error("输入路径不存在: %s", input_dir)
+            return
+        
+        # 查找所有Excel文件
+        excel_files = [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        
+        # 如果没有找到Excel文件，清除相关控件
+        if not excel_files:
+            self._handle_no_excel_files(input_dir)
+            return
+        
+        # 使用pandas处理Excel文件
+        excel_data = self._process_excel_files(input_dir, excel_files)
+        
+        # 更新UI控件
+        self._update_ui_with_excel_info(excel_files, excel_data)
+        
+        # 如果有Excel文件，处理第一个文件的信息
+        if excel_files:
+            self._process_first_excel_file(excel_files[0])
+        
+        # 重新连接信号
+        self._reconnect_specification_signals()
+        
+        self.logger.info("Excel文件信息获取完成")
+    
+    def _disconnect_specification_signals(self):
+        """断开规格相关信号连接"""
         try:
             self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
                 self.main_window.check_specification
@@ -116,50 +151,41 @@ class DataProcessor:
             )
         except (TypeError, AttributeError):
             pass
+    
+    def _handle_no_excel_files(self, input_dir):
+        """处理没有找到Excel文件的情况"""
+        self.logger.warning("没有找到Excel文件: %s", input_dir)
         
-        # 获取输入路径
-        strInPutDir = self.main_window.lineEdit_InputPath.text()
+        # 清除相关控件
+        self.main_window.comboBox_BatteryType.setCurrentIndex(-1)
+        self.main_window.comboBox_Specification_Type.clear()
+        self.main_window.comboBox_Specification_Type.addItems(
+            self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
+        self.main_window.comboBox_Specification_Type.addItems(
+            self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
+        self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
+        self.main_window.comboBox_Specification_Method.clear()
+        self.main_window.comboBox_Specification_Method.addItems(
+            self.main_window.get_config("BatteryConfig/SpecificationMethod"))
+        self.main_window.comboBox_Specification_Method.setCurrentIndex(-1)
+        self.main_window.comboBox_Manufacturer.setCurrentIndex(-1)
+        self.main_window.lineEdit_BatchDateCode.setText("")
+        self.main_window.lineEdit_SamplesQty.setText("")
+        self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
+        self.main_window.lineEdit_CalculationNominalCapacity.setText("")
         
-        # 检查输入路径是否存在
-        if not os.path.exists(strInPutDir):
-            self.logger.error("输入路径不存在: %s", strInPutDir)
-            return
-        
-        # 查找所有Excel文件
-        listAllInXlsx = [f for f in os.listdir(strInPutDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-        
-        # 如果没有找到Excel文件，清除相关控件
-        if not listAllInXlsx:
-            self.logger.warning("没有找到Excel文件")
-            # 清除相关控件
-            self.main_window.comboBox_BatteryType.setCurrentIndex(-1)
-            self.main_window.comboBox_Specification_Type.clear()
-            self.main_window.comboBox_Specification_Type.addItems(
-                self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
-            self.main_window.comboBox_Specification_Type.addItems(
-                self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
-            self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
-            self.main_window.comboBox_Specification_Method.clear()
-            self.main_window.comboBox_Specification_Method.addItems(
-                self.main_window.get_config("BatteryConfig/SpecificationMethod"))
-            self.main_window.comboBox_Specification_Method.setCurrentIndex(-1)
-            self.main_window.comboBox_Manufacturer.setCurrentIndex(-1)
-            self.main_window.lineEdit_BatchDateCode.setText("")
-            self.main_window.lineEdit_SamplesQty.setText("")
-            self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
-            self.main_window.lineEdit_CalculationNominalCapacity.setText("")
-            # 设置错误信息
-            if hasattr(self.main_window, 'checker_input_xlsx'):
-                self.main_window.checker_input_xlsx.set_error("Input path has no data")
-            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-                self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Input path has no data")
-            return
-        
-        # 使用pandas处理Excel文件
+        # 设置错误信息
+        if hasattr(self.main_window, 'checker_input_xlsx'):
+            self.main_window.checker_input_xlsx.set_error("Input path has no data")
+        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Input path has no data")
+    
+    def _process_excel_files(self, input_dir, excel_files):
+        """处理Excel文件并提取信息"""
         excel_data = []
-        for filename in listAllInXlsx:
+        for filename in excel_files:
             try:
-                file_path = os.path.join(strInPutDir, filename)
+                file_path = os.path.join(input_dir, filename)
                 self.logger.info("使用pandas处理Excel文件: %s", filename)
                 
                 # 使用pandas读取Excel文件
@@ -179,105 +205,116 @@ class DataProcessor:
             except Exception as e:
                 self.logger.error("处理Excel文件失败 %s: %s", filename, str(e))
                 continue
-        
-        # 更新UI控件
+        return excel_data
+    
+    def _update_ui_with_excel_info(self, excel_files, excel_data):
+        """使用Excel信息更新UI控件"""
         self.logger.info("成功处理 %d 个Excel文件，开始更新UI控件", len(excel_data))
         
         # 设置样本数量
-        self.main_window.lineEdit_SamplesQty.setText(str(len(listAllInXlsx)))
+        self.main_window.lineEdit_SamplesQty.setText(str(len(excel_files)))
         
         # 重置检查器状态为正常
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
             self.main_window.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+    
+    def _process_first_excel_file(self, filename):
+        """处理第一个Excel文件的详细信息"""
+        self.main_window.construction_method = ""
         
-        # 如果有Excel文件，处理第一个文件的信息
-        if listAllInXlsx:
-            strSampleInputXlsxTitle = listAllInXlsx[0]
-            self.main_window.construction_method = ""
-            
-            # 查找构造方法
-            for c in range(self.main_window.comboBox_ConstructionMethod.count()):
-                if self.main_window.comboBox_ConstructionMethod.itemText(c) in strSampleInputXlsxTitle:
-                    self.main_window.construction_method = self.main_window.comboBox_ConstructionMethod.itemText(c)
-                    break
-            
-            # 获取规格类型和方法
-            listAllSpecificationType = \
-                self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") \
-                + self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell")
-            listAllSpecificationMethod = self.main_window.get_config("BatteryConfig/SpecificationMethod")
-            
-            # 优先匹配最长的规格类型，避免短匹配优先
-            intIndexType = -1
-            max_match_length = 0
-            for t in range(len(listAllSpecificationType)):
-                spec_type = listAllSpecificationType[t]
-                if spec_type in strSampleInputXlsxTitle and len(spec_type) > max_match_length:
-                    intIndexType = t
-                    max_match_length = len(spec_type)
-            
-            if intIndexType != -1:
-                self.main_window.comboBox_Specification_Type.setCurrentIndex(intIndexType)
-            
-            # 匹配规格方法
-            intIndexMethod = -1
-            max_match_length = 0
-            for m in range(len(listAllSpecificationMethod)):
-                if listAllSpecificationMethod[m] in strSampleInputXlsxTitle and len(
-                        listAllSpecificationMethod[m]) > max_match_length:
-                    intIndexMethod = m
-                    max_match_length = len(listAllSpecificationMethod[m])
-            
-            if intIndexMethod != -1:
-                self.main_window.comboBox_Specification_Method.setCurrentIndex(intIndexMethod)
-            
-            # 匹配制造商
-            for m in range(self.main_window.comboBox_Manufacturer.count()):
-                if self.main_window.comboBox_Manufacturer.itemText(m) in strSampleInputXlsxTitle:
-                    self.main_window.comboBox_Manufacturer.setCurrentIndex(m)
-                    break
-            
-            # 设置电池类型（根据规格类型自动匹配）
-            if hasattr(self.main_window, 'check_specification'):
-                # check_specification方法会根据规格类型和方法自动设置电池类型
-                pass
-            
-            # 提取批次日期代码
-            import re
-            listBatchDateCode = re.findall("DC(.*?),", strSampleInputXlsxTitle)
-            if len(listBatchDateCode) == 1:
-                self.main_window.lineEdit_BatchDateCode.setText(listBatchDateCode[0].strip())
-            
-            # 提取脉冲电流
-            listPulseCurrentToSplit = re.findall(r"\(([\d.]+[-\d.]+)mA", strSampleInputXlsxTitle)
-            if len(listPulseCurrentToSplit) == 1:
-                listPulseCurrent = listPulseCurrentToSplit[0].split("-")
-                try:
-                    # 将字符串转换为浮点数，保留小数精度
-                    self.main_window.listCurrentLevel = [float(c.strip()) for c in listPulseCurrent]
-                except ValueError:
-                    # 处理转换失败的情况
-                    self.main_window.listCurrentLevel = [int(float(c.strip())) for c in listPulseCurrent]
-                self.main_window.config.setValue("BatteryConfig/PulseCurrent", listPulseCurrent)
-            
-            # 提取恒流电流
-            self.main_window.cc_current = ""
-            list_cc_current_to_split = re.findall(r"mA,(.*?)\)", strSampleInputXlsxTitle)
-            if len(list_cc_current_to_split) == 1:
-                str_cc_current_to_split = list_cc_current_to_split[0].replace("mAh", "")
-                list_cc_current_to_split = re.findall(r"([\d.]+)mA", str_cc_current_to_split)
-                if len(list_cc_current_to_split) >= 1:
-                    self.main_window.cc_current = list_cc_current_to_split[-1]
-            
-            # 从Excel数据中提取电池容量信息
-            if excel_data:
-                # 这里可以根据实际需求从excel_data中提取容量信息
-                # 例如：假设从文件名或文件内容中提取
-                pass
+        # 查找构造方法
+        for c in range(self.main_window.comboBox_ConstructionMethod.count()):
+            if self.main_window.comboBox_ConstructionMethod.itemText(c) in filename:
+                self.main_window.construction_method = self.main_window.comboBox_ConstructionMethod.itemText(c)
+                break
         
-        # 重新连接信号
+        # 获取规格类型和方法
+        all_spec_types = self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") + \
+                        self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell")
+        all_spec_methods = self.main_window.get_config("BatteryConfig/SpecificationMethod")
+        
+        # 优先匹配最长的规格类型，避免短匹配优先
+        self._set_specification_type(filename, all_spec_types)
+        
+        # 匹配规格方法
+        self._set_specification_method(filename, all_spec_methods)
+        
+        # 匹配制造商
+        self._set_manufacturer(filename)
+        
+        # 提取批次日期代码
+        self._extract_batch_date_code(filename)
+        
+        # 提取脉冲电流
+        self._extract_pulse_current(filename)
+        
+        # 提取恒流电流
+        self._extract_cc_current(filename)
+    
+    def _set_specification_type(self, filename, all_spec_types):
+        """设置规格类型"""
+        type_index = -1
+        max_match_length = 0
+        for t, spec_type in enumerate(all_spec_types):
+            if spec_type in filename and len(spec_type) > max_match_length:
+                type_index = t
+                max_match_length = len(spec_type)
+        
+        if type_index != -1:
+            self.main_window.comboBox_Specification_Type.setCurrentIndex(type_index)
+    
+    def _set_specification_method(self, filename, all_spec_methods):
+        """设置规格方法"""
+        method_index = -1
+        max_match_length = 0
+        for m, method in enumerate(all_spec_methods):
+            if method in filename and len(method) > max_match_length:
+                method_index = m
+                max_match_length = len(method)
+        
+        if method_index != -1:
+            self.main_window.comboBox_Specification_Method.setCurrentIndex(method_index)
+    
+    def _set_manufacturer(self, filename):
+        """设置制造商"""
+        for m in range(self.main_window.comboBox_Manufacturer.count()):
+            if self.main_window.comboBox_Manufacturer.itemText(m) in filename:
+                self.main_window.comboBox_Manufacturer.setCurrentIndex(m)
+                break
+    
+    def _extract_batch_date_code(self, filename):
+        """提取批次日期代码"""
+        batch_date_codes = re.findall("DC(.*?),", filename)
+        if len(batch_date_codes) == 1:
+            self.main_window.lineEdit_BatchDateCode.setText(batch_date_codes[0].strip())
+    
+    def _extract_pulse_current(self, filename):
+        """提取脉冲电流"""
+        pulse_current_matches = re.findall(r"\(([\d.]+[-\d.]+)mA", filename)
+        if len(pulse_current_matches) == 1:
+            pulse_current_values = pulse_current_matches[0].split("-")
+            try:
+                # 将字符串转换为浮点数，保留小数精度
+                self.main_window.listCurrentLevel = [float(c.strip()) for c in pulse_current_values]
+            except ValueError:
+                # 处理转换失败的情况
+                self.main_window.listCurrentLevel = [int(float(c.strip())) for c in pulse_current_values]
+            self.main_window.config.setValue("BatteryConfig/PulseCurrent", pulse_current_values)
+    
+    def _extract_cc_current(self, filename):
+        """提取恒流电流"""
+        self.main_window.cc_current = ""
+        cc_current_matches = re.findall(r"mA,(.*?)\)", filename)
+        if len(cc_current_matches) == 1:
+            cc_current_str = cc_current_matches[0].replace("mAh", "")
+            cc_current_values = re.findall(r"([\d.]+)mA", cc_current_str)
+            if len(cc_current_values) >= 1:
+                self.main_window.cc_current = cc_current_values[-1]
+    
+    def _reconnect_specification_signals(self):
+        """重新连接规格相关信号"""
         try:
             self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
                 self.main_window.check_specification
@@ -290,8 +327,6 @@ class DataProcessor:
             self.main_window.check_specification()
         except (TypeError, AttributeError):
             pass
-        
-        self.logger.info("Excel文件信息获取完成")
     
     def save_table(self) -> None:
         """

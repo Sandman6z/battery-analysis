@@ -90,9 +90,37 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             try:
                 self._services[service_name] = self._service_container.get(
                     service_name)
-            except (TypeError, AttributeError, OSError, ValueError, ImportError) as e:
+                self.logger.debug("Successfully retrieved service: %s", service_name)
+            except TypeError as e:
                 self.logger.warning(
-                    "Failed to get service %s: %s", service_name, e)
+                    "Failed to get service %s due to type error: %s", service_name, e)
+                self.logger.debug("TypeError details: %s", str(e))
+                self._services[service_name] = None
+            except AttributeError as e:
+                self.logger.warning(
+                    "Failed to get service %s due to attribute error: %s", service_name, e)
+                self.logger.debug("AttributeError details: %s", str(e))
+                self._services[service_name] = None
+            except OSError as e:
+                self.logger.warning(
+                    "Failed to get service %s due to OS error: %s", service_name, e)
+                self.logger.debug("OSError details: %s", str(e))
+                self._services[service_name] = None
+            except ValueError as e:
+                self.logger.warning(
+                    "Failed to get service %s due to value error: %s", service_name, e)
+                self.logger.debug("ValueError details: %s", str(e))
+                self._services[service_name] = None
+            except ImportError as e:
+                self.logger.warning(
+                    "Failed to get service %s due to import error: %s", service_name, e)
+                self.logger.debug("ImportError details: %s", str(e))
+                self._services[service_name] = None
+            except Exception as e:
+                # 捕获其他未预期的异常
+                self.logger.warning(
+                    "Failed to get service %s due to unexpected error: %s", service_name, e)
+                self.logger.debug("Unexpected error details: %s", str(e))
                 self._services[service_name] = None
         return self._services[service_name]
 
@@ -110,9 +138,37 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             try:
                 self._controllers[controller_name] = self._service_container.get(
                     controller_name)
-            except (TypeError, AttributeError, OSError, ValueError, ImportError) as e:
+                self.logger.debug("Successfully retrieved controller: %s", controller_name)
+            except TypeError as e:
                 self.logger.warning(
-                    "Failed to get controller %s: %s", controller_name, e)
+                    "Failed to get controller %s due to type error: %s", controller_name, e)
+                self.logger.debug("TypeError details: %s", str(e))
+                self._controllers[controller_name] = None
+            except AttributeError as e:
+                self.logger.warning(
+                    "Failed to get controller %s due to attribute error: %s", controller_name, e)
+                self.logger.debug("AttributeError details: %s", str(e))
+                self._controllers[controller_name] = None
+            except OSError as e:
+                self.logger.warning(
+                    "Failed to get controller %s due to OS error: %s", controller_name, e)
+                self.logger.debug("OSError details: %s", str(e))
+                self._controllers[controller_name] = None
+            except ValueError as e:
+                self.logger.warning(
+                    "Failed to get controller %s due to value error: %s", controller_name, e)
+                self.logger.debug("ValueError details: %s", str(e))
+                self._controllers[controller_name] = None
+            except ImportError as e:
+                self.logger.warning(
+                    "Failed to get controller %s due to import error: %s", controller_name, e)
+                self.logger.debug("ImportError details: %s", str(e))
+                self._controllers[controller_name] = None
+            except Exception as e:
+                # 捕获其他未预期的异常
+                self.logger.warning(
+                    "Failed to get controller %s due to unexpected error: %s", controller_name, e)
+                self.logger.debug("Unexpected error details: %s", str(e))
                 self._controllers[controller_name] = None
         return self._controllers[controller_name]
 
@@ -149,16 +205,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:
                 if icon_path.exists():
-                    self.logger.debug("找到应用图标: %s", icon_path)
+                    self.logger.debug(_("found_app_icon", "找到应用图标: %s"), icon_path)
                     return QG.QIcon(str(icon_path))
 
             # 如果都找不到，使用默认图标
-            self.logger.warning("未找到应用图标文件，使用默认图标")
+            self.logger.warning(_("app_icon_not_found", "未找到应用图标文件，使用默认图标"))
             return QG.QIcon()
 
         except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
             # 捕获所有可能的异常，确保应用能正常启动
-            self.logger.error("加载应用图标失败: %s", e)
+            self.logger.error(_("app_icon_load_failed", "加载应用图标失败: %s"), e)
             return QG.QIcon()
 
     # ------------------------------
