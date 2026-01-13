@@ -320,21 +320,20 @@ class BuildManager(BuildConfig):
             python_exec_dir = Path(sys.executable).parent
             basic_paths = [
                 # Python可执行文件所在目录
-                os.path.join(os.path.dirname(sys.executable), 'python311.dll'),
-                python_exec_dir / 'python311.dll',
+                os.path.join(os.path.dirname(sys.executable), 'python313.dll'),
+                python_exec_dir / 'python313.dll',
                 # Python安装根目录
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'python311.dll'),
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'python313.dll'),
                 # DLLs目录
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', 'python311.dll'),
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', 'python313.dll'),
                 # PYTHONHOME环境变量指定的目录
-                os.path.join(os.environ.get('PYTHONHOME', ''), 'python311.dll'),
-                Path(sys.prefix) / 'python311.dll',
+                os.path.join(os.environ.get('PYTHONHOME', ''), 'python313.dll'),
+                Path(sys.prefix) / 'python313.dll',
                 # CI环境中常见的Python安装路径
-                r'C:\Program Files\Python311\python311.dll',
-                r'C:\Program Files (x86)\Python311\python311.dll',
-                r'D:\Python311\python311.dll',
+                r'C:\Program Files\python313\python313.dll',
+                r'C:\Program Files (x86)\python313\python313.dll',
                 # 让PyInstaller尝试在PATH中查找
-                'python311.dll'
+                'python313.dll'
             ]
 
             # 去重路径列表
@@ -385,6 +384,11 @@ class BuildManager(BuildConfig):
 
         datas.append(f'("{config_path_posix}", "config")')
         datas.append(f'("{pyproject_path_posix}", ".")')
+        
+        # 添加locale目录，确保翻译文件被正确包含
+        locale_path_posix = (self.project_root / 'locale').as_posix()
+        datas.append(f'("{locale_path_posix}", "locale")')
+        
         datas_str = ',\n        '.join(datas)
 
         # 构建hiddenimports字符串
@@ -565,7 +569,6 @@ exe = EXE(
         cmd_args = [
             sys.executable, '-m', 'PyInstaller',
             '--log-level=INFO',
-            '--hidden-import=pywin32',
             '--hidden-import=pywintypes',
             f'--name={app_config["exe_name"]}',
             f'--icon={app_config["icon_name"]}',
@@ -597,6 +600,7 @@ exe = EXE(
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "pyproject.toml"))};.',
+            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "locale"))};locale',
             '--path', f'{src_path}',
             '--path', f'{self.project_root}'
         ])
@@ -640,7 +644,7 @@ exe = EXE(
         if python_dll:
             cmd_args.append(f'--add-binary={python_dll};.')
         else:
-            logger.warning("Could not find python311.dll")
+            logger.warning("Could not find python313.dll")
         
         return cmd_args
     

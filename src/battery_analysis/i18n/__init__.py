@@ -17,7 +17,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Module constants
-LOCALEDIR = Path(__file__).parent.parent.parent.parent / "locale"
+# Determine LOCALEDIR based on environment
+import sys
+if hasattr(sys, '_MEIPASS'):
+    # Running in PyInstaller bundle
+    LOCALEDIR = Path(sys._MEIPASS) / "locale"
+else:
+    # Running in development environment
+    LOCALEDIR = Path(__file__).parent.parent.parent.parent / "locale"
+
+logger.info("Using locale directory: %s", LOCALEDIR)
 
 # Global translation registry (legacy - now using PO translator)
 _translations: Dict[str, Dict[str, str]] = {}
