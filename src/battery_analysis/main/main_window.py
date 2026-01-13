@@ -546,6 +546,53 @@ def main() -> None:
     # 优化PyQt6的警告处理
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
 
+    # 实现单例模式，确保只有一个应用程序实例可以运行
+    # 使用跨平台的命名管道或文件锁定机制
+    import tempfile
+    import sys
+    
+    # 定义锁文件路径
+    lock_file_path = os.path.join(tempfile.gettempdir(), "battery_analyzer.lock")
+    
+    # 尝试以独占方式打开文件（跨平台方案）
+    try:
+        # 使用os.O_EXCL标志确保只有一个进程可以创建文件
+        # 同时使用os.O_RDWR以便后续可以读取和写入
+        lock_fd = os.open(lock_file_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+        # 写入当前进程ID，方便调试
+        os.write(lock_fd, str(os.getpid()).encode())
+    except OSError:
+        # 文件已存在，说明可能已有实例在运行
+        try:
+            # 尝试读取现有锁文件，检查进程是否还在运行
+            with open(lock_file_path, 'r') as f:
+                pid_str = f.read().strip()
+                if pid_str:
+                    pid = int(pid_str)
+                    # 检查进程是否存在
+                    if os.name == 'nt':  # Windows
+                        import ctypes
+                        # 使用Windows API检查进程是否存在
+                        kernel32 = ctypes.windll.kernel32
+                        handle = kernel32.OpenProcess(1, 0, pid)
+                        if handle != 0:
+                            kernel32.CloseHandle(handle)
+                            print("应用程序已经在运行中，无法重复启动。")
+                            sys.exit(0)
+                    else:  # Unix/Linux
+                        # 使用kill(0, 0)检查进程是否存在
+                        os.kill(pid, 0)
+                        print("应用程序已经在运行中，无法重复启动。")
+                        sys.exit(0)
+            # 进程不存在，删除旧锁文件并创建新锁
+            os.remove(lock_file_path)
+            lock_fd = os.open(lock_file_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+            os.write(lock_fd, str(os.getpid()).encode())
+        except Exception:
+            # 任何异常都视为已有实例在运行
+            print("应用程序已经在运行中，无法重复启动。")
+            sys.exit(0)
+
     # 优化matplotlib配置，避免font cache构建警告
     # 使用QtAgg后端，自动检测Qt绑定（兼容PyQt6）
     matplotlib.use('QtAgg')
@@ -574,7 +621,16 @@ def main() -> None:
             new_height = min(window.height(), int(screen_rect.height() * 0.9))
             window.resize(new_width, new_height)
 
-    sys.exit(app.exec())
+    result = app.exec()
+    
+    # 释放锁，关闭文件描述符并删除锁文件
+    try:
+        os.close(lock_fd)
+        os.remove(lock_file_path)
+    except:
+        pass
+    
+    sys.exit(result)
 
 
 if __name__ == '__main__':

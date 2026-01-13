@@ -236,8 +236,7 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setText("Rerun")
                 self.main_window.pushButton_Run.setEnabled(True)
 
-                # 增强的错误消息处理
-                # 电池分析错误处理
+                # 增强的电池分析错误处理
                 self._handle_error(
                     "电池分析错误",
                     "分析电池数据时出现错误。",
