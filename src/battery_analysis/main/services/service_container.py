@@ -6,8 +6,10 @@
 实现控制反转和单例模式
 """
 
+from __future__ import annotations
+
 import logging
-from typing import Optional, Dict, Any, Type, Callable, TypeVar, Generic
+from typing import Optional, Dict, Any, Type, Callable, TypeVar, Generic, List
 from abc import ABC, abstractmethod
 
 
@@ -120,13 +122,19 @@ class ServiceContainer(IServiceContainer):
         # 服务依赖映射
         self._dependencies: Dict[str, Dict[str, str]] = {}
         
-        # 初始化服务
-        self._initialize_services()
+        # 延迟注册函数列表
+        self._service_registrations: Dict[str, Callable[[], bool]] = {}
+        
+        # 是否已初始化服务注册
+        self._services_initialized = False
     
     def _initialize_services(self):
         """
         初始化默认服务，按照分层架构注册服务
         """
+        if self._services_initialized:
+            return
+        
         try:
             # 1. 注册核心基础设施服务
             self._register_infrastructure_services()
@@ -141,6 +149,7 @@ class ServiceContainer(IServiceContainer):
             self._register_controllers()
             
             self.logger.info("Default services initialized successfully according to layered architecture")
+            self._services_initialized = True
             
         except ImportError as e:
             self.logger.warning("Failed to import services: %s", e)
@@ -376,7 +385,7 @@ class ServiceContainer(IServiceContainer):
     
     def get(self, name: str) -> Optional[T]:
         """
-        获取服务，支持依赖注入
+        获取服务，支持依赖注入和延迟注册
 
         Args:
             name: 服务名称
@@ -389,45 +398,147 @@ class ServiceContainer(IServiceContainer):
             if name in self._instances:
                 return self._instances[name]
             
-            # 如果没有注册该服务，返回None
+            # 如果服务未注册，尝试初始化服务注册
+            if not self._services_initialized:
+                self.logger.debug("Initializing services...")
+                self._initialize_services()
+            
+            # 如果服务仍未注册，返回None
             if name not in self._services:
                 self.logger.warning("Service not found: %s", name)
                 return None
             
-            # 获取服务类
-            service_class = self._services[name]
+            # 使用迭代方式解析依赖，避免递归调用
+            return self._resolve_service_with_dependencies(name)
+            
+        except (TypeError, AttributeError, KeyError, RecursionError) as e:
+            self.logger.error("Failed to get service %s: %s", name, e)
+            return None
+    
+    def _resolve_service_with_dependencies(self, name: str) -> Optional[T]:
+        """
+        使用迭代方式解析服务依赖，避免递归调用
+
+        Args:
+            name: 服务名称
+
+        Returns:
+            T: 服务实例，如果不存在则返回None
+        """
+        # 已解析的服务
+        resolved = {}
+        # 待解析的服务队列
+        queue = [name]
+        # 服务依赖关系图
+        dependency_graph = {}
+        
+        # 构建依赖关系图
+        while queue:
+            current_name = queue.pop(0)
+            
+            # 如果服务已实例化，直接使用
+            if current_name in self._instances:
+                resolved[current_name] = self._instances[current_name]
+                continue
+            
+            # 如果服务已解析，跳过
+            if current_name in resolved:
+                continue
+            
+            # 如果服务未注册，返回None
+            if current_name not in self._services:
+                self.logger.error("Service not found in dependency resolution: %s", current_name)
+                return None
             
             # 获取服务依赖
-            dependencies = self._dependencies.get(name, {})
+            dependencies = self._dependencies.get(current_name, {})
+            dependency_graph[current_name] = list(dependencies.values())
+            
+            # 将依赖添加到队列
+            for dep_name in dependencies.values():
+                if dep_name not in resolved and dep_name not in queue:
+                    queue.append(dep_name)
+        
+        # 拓扑排序，解决依赖顺序
+        sorted_services = self._topological_sort(dependency_graph)
+        if not sorted_services:
+            self.logger.error("Circular dependency detected in services")
+            return None
+        
+        # 按照拓扑顺序实例化服务
+        for service_name in sorted_services:
+            if service_name in resolved or service_name in self._instances:
+                continue
+            
+            # 获取服务类
+            service_class = self._services[service_name]
+            dependencies = self._dependencies.get(service_name, {})
             
             # 解析依赖
             resolved_dependencies = {}
-            for param_name, service_dependency in dependencies.items():
-                dependency_instance = self.get(service_dependency)
-                if dependency_instance is None:
-                    self.logger.error("Failed to resolve dependency %s for service %s", 
-                                     service_dependency, name)
+            for param_name, dep_name in dependencies.items():
+                if dep_name not in resolved and dep_name not in self._instances:
+                    self.logger.error("Failed to resolve dependency %s for service %s", dep_name, service_name)
                     return None
-                resolved_dependencies[param_name] = dependency_instance
+                resolved_dependencies[param_name] = resolved.get(dep_name, self._instances[dep_name])
             
-            # 创建服务实例（带依赖注入）
+            # 创建服务实例
             try:
                 instance = service_class(**resolved_dependencies)
             except (ImportError, TypeError, ValueError, OSError) as e:
-                self.logger.error("Failed to create service instance %s: %s", name, e)
-                self.logger.debug("Service %s constructor parameters: %s", 
-                                name, list(resolved_dependencies.keys()))
+                self.logger.error("Failed to create service instance %s: %s", service_name, e)
+                self.logger.debug("Service %s constructor parameters: %s", service_name, list(resolved_dependencies.keys()))
                 return None
             
-            # 如果是单例，缓存实例
-            if self._singletons.get(name, True):
-                self._instances[name] = instance
+            # 缓存实例
+            if self._singletons.get(service_name, True):
+                self._instances[service_name] = instance
+            resolved[service_name] = instance
+        
+        # 返回目标服务实例
+        return resolved.get(name, self._instances.get(name))
+    
+    def _topological_sort(self, graph: Dict[str, list]) -> list:
+        """
+        对服务依赖图进行拓扑排序
+
+        Args:
+            graph: 服务依赖关系图
+
+        Returns:
+            list: 拓扑排序后的服务列表，空列表表示存在循环依赖
+        """
+        # 计算每个节点的入度
+        in_degree = {}
+        for node in graph:
+            in_degree[node] = 0
+        
+        for node in graph:
+            for neighbor in graph[node]:
+                if neighbor not in in_degree:
+                    in_degree[neighbor] = 0
+                in_degree[neighbor] += 1
+        
+        # 将入度为0的节点加入队列
+        queue = [node for node in in_degree if in_degree[node] == 0]
+        result = []
+        
+        while queue:
+            current = queue.pop(0)
+            result.append(current)
             
-            return instance
-            
-        except (TypeError, AttributeError, KeyError) as e:
-            self.logger.error("Failed to get service %s: %s", name, e)
-            return None
+            # 更新邻接节点的入度
+            for neighbor in graph.get(current, []):
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    queue.append(neighbor)
+        
+        # 检查是否存在循环依赖
+        if len(result) != len(in_degree):
+            self.logger.warning("Circular dependency detected in services: %s", set(in_degree.keys()) - set(result))
+            return []
+        
+        return result
     
     def has(self, name: str) -> bool:
         """

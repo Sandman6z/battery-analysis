@@ -16,44 +16,47 @@ def filter_data(
         import numpy as np
         
         for charge_data, voltage_data in zip(plt_charge_list, plt_voltage_list):
-            charge_np = np.array(charge_data)
-            voltage_np = np.array(voltage_data)
+            # 直接转换为numpy数组，避免重复转换
+            charge_np = np.asarray(charge_data)
+            voltage_np = np.asarray(voltage_data)
             
             # 计算差值
-            charge_diff = np.diff(charge_data)
-            voltage_diff = np.diff(voltage_data)
+            charge_diff = np.diff(charge_np)
+            voltage_diff = np.diff(voltage_np)
             
-            # 计算斜率
+            # 计算斜率，使用更高效的方式
             with np.errstate(divide='ignore', invalid='ignore'):
-                slopes = np.abs(voltage_diff / charge_diff)
-                slopes[charge_diff == 0] = slope_max  # 处理除数为0的情况
+                # 使用numpy的where函数高效处理除数为0的情况
+                slopes = np.abs(np.where(charge_diff != 0, voltage_diff / charge_diff, slope_max))
             
             # 计算电压差值绝对值
             voltage_diff_abs = np.abs(voltage_diff)
             
-            # 生成过滤掩码
+            # 生成过滤掩码，合并条件
             mask = (slopes < slope_max) & (voltage_diff_abs < difference_max)
             
-            # 确保第一个点总是保留
-            filtered_mask = np.zeros(len(charge_data), dtype=bool)
+            # 确保第一个点总是保留，使用更高效的掩码生成方式
+            filtered_mask = np.zeros(len(charge_np), dtype=bool)
             filtered_mask[0] = True
             filtered_mask[1:] = mask
             
-            # 应用过滤
-            filtered_charge = charge_np[filtered_mask]
-            filtered_voltage = voltage_np[filtered_mask]
-            
-            plt_charge_filtered.append(filtered_charge.tolist())
-            plt_voltage_filtered.append(filtered_voltage.tolist())
+            # 应用过滤，直接获取结果
+            plt_charge_filtered.append(charge_np[filtered_mask].tolist())
+            plt_voltage_filtered.append(voltage_np[filtered_mask].tolist())
     except ImportError:
         # 若numpy不可用，使用优化后的原算法
         for charge_data, voltage_data in zip(plt_charge_list, plt_voltage_list):
+            # 使用列表推导式和生成器表达式优化
             filtered_charge = [charge_data[0]]
             filtered_voltage = [voltage_data[0]]
             
-            for c in range(1, len(charge_data)):
-                charge_diff = charge_data[c] - charge_data[c-1]
-                voltage_diff = voltage_data[c] - voltage_data[c-1]
+            # 使用zip和enumerate优化循环
+            for i in range(1, len(charge_data)):
+                prev_charge, curr_charge = charge_data[i-1], charge_data[i]
+                prev_voltage, curr_voltage = voltage_data[i-1], voltage_data[i]
+                
+                charge_diff = curr_charge - prev_charge
+                voltage_diff = curr_voltage - prev_voltage
                 
                 if charge_diff == 0:
                     slope = slope_max
@@ -64,8 +67,8 @@ def filter_data(
                 
                 # 只保留符合条件的点
                 if slope < slope_max and voltage_diff_abs < difference_max:
-                    filtered_charge.append(charge_data[c])
-                    filtered_voltage.append(voltage_data[c])
+                    filtered_charge.append(curr_charge)
+                    filtered_voltage.append(curr_voltage)
             
             plt_charge_filtered.append(filtered_charge)
             plt_voltage_filtered.append(filtered_voltage)
