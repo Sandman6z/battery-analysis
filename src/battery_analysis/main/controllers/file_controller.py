@@ -6,6 +6,7 @@
 import os
 import sys
 import logging
+import configparser
 from PyQt6 import QtCore as QC
 
 

@@ -316,23 +316,34 @@ class BuildManager(BuildConfig):
             return ci_dll_path
         else:
             logger.debug("未找到CI环境变量中的Python DLL路径，尝试本地路径")
+            
+            # 获取当前Python版本号（如311, 313）
+            import sys
+            python_version = f"python{sys.version_info.major}{sys.version_info.minor}.dll"
+            logger.debug(f"当前Python版本DLL: {python_version}")
+            
             # 2. 本地环境的基本路径查找，包括更全面的可能路径
             python_exec_dir = Path(sys.executable).parent
             basic_paths = [
-                # Python可执行文件所在目录
+                # 当前Python版本的DLL
+                os.path.join(os.path.dirname(sys.executable), python_version),
+                python_exec_dir / python_version,
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), python_version),
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', python_version),
+                os.path.join(os.environ.get('PYTHONHOME', ''), python_version),
+                Path(sys.prefix) / python_version,
+                # 常见的Python 3.13版本DLL
                 os.path.join(os.path.dirname(sys.executable), 'python313.dll'),
                 python_exec_dir / 'python313.dll',
-                # Python安装根目录
                 os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'python313.dll'),
-                # DLLs目录
                 os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', 'python313.dll'),
-                # PYTHONHOME环境变量指定的目录
                 os.path.join(os.environ.get('PYTHONHOME', ''), 'python313.dll'),
                 Path(sys.prefix) / 'python313.dll',
                 # CI环境中常见的Python安装路径
                 r'C:\Program Files\python313\python313.dll',
                 r'C:\Program Files (x86)\python313\python313.dll',
                 # 让PyInstaller尝试在PATH中查找
+                python_version,
                 'python313.dll'
             ]
 

@@ -17,10 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python 3.11
+    - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.13'
     
     - name: Install uv
       uses: astral-sh/setup-uv@v3
@@ -44,9 +44,9 @@ jobs:
       run: |
         uv add flake8
         # 停止构建如果有Python语法错误或未定义名称
-        uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.venv,__pycache__,build,dist
         # 警告但不停止构建其他问题
-        uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=.venv,__pycache__,build,dist
     
     - name: Run tests with pytest
       run: |
@@ -68,10 +68,10 @@ jobs:
         
         # 检查常见的DLL路径 - PowerShell数组使用空格分隔元素
         $possibleDllPaths = @(
-            (Join-Path $pythonDir 'python311.dll'),
-            (Join-Path $pythonHome 'python311.dll'),
-            (Join-Path (Join-Path $pythonHome 'DLLs') 'python311.dll'),
-            (Join-Path $pythonHome 'libs/python311.dll')
+            (Join-Path $pythonDir 'python313.dll'),
+            (Join-Path $pythonHome 'python313.dll'),
+            (Join-Path (Join-Path $pythonHome 'DLLs') 'python313.dll'),
+            (Join-Path $pythonHome 'libs/python313.dll')
         )
         
         $dllFound = $false

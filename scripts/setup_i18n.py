@@ -8,6 +8,7 @@ application and updates existing files to use standard i18n patterns.
 
 import os
 import sys
+import re
 import shutil
 import logging
 from pathlib import Path

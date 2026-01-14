@@ -5,6 +5,7 @@
 负责处理可视化工具的启动、管理和错误处理
 """
 
+import os
 import logging
 import matplotlib
 import subprocess
