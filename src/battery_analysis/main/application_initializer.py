@@ -101,7 +101,9 @@ class ApplicationInitializer:
         
         # 设置Qt消息处理器
         QApplication.setApplicationName("Battery Analyzer")
-        QApplication.setApplicationVersion("2.3.0")
+        from battery_analysis.utils.version import Version
+        app_version = Version().version
+        QApplication.setApplicationVersion(app_version)
     
     def _setup_matplotlib(self):
         """设置matplotlib配置"""

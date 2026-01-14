@@ -55,10 +55,8 @@ class VersionManager:
             strCsvSha256Path = strOutoutDir + "/SHA256.csv"
             strCsvMd5Path = strOutoutDir + "/MD5.csv"
             
-            # 忽略旧的MD5记录，新SHA256版本从1.0开始重新计数
             if os.path.exists(strCsvMd5Path) and not os.path.exists(strCsvSha256Path):
-                # 仅创建新的SHA256.csv文件，不迁移旧数据
-                self.logger.info(f"忽略旧的MD5.csv记录，新SHA256版本从1.0开始计数")
+                self.logger.info(f"SHA256版本从1.0开始计数")
             
             strCsvMd5Path = strCsvSha256Path
             # 使用FileUtils.calc_checksum计算SHA-256校验和
