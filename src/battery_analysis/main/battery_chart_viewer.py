@@ -714,19 +714,30 @@ class BatteryChartViewer:
                 voltage_temp = [voltage_single[0]]
 
                 for c in range(1, len(charge_single)):
-                    # 计算斜率，避免除以零
-                    charge_diff = charge_single[c] - charge_single[c - 1]
-                    if charge_diff == 0:
-                        slope = slope_max
-                    else:
-                        slope = abs(
-                            (voltage_single[c] - voltage_single[c - 1]) / charge_diff)
+                    try:
+                        # 确保数据是数字类型
+                        charge_curr = float(charge_single[c])
+                        charge_prev = float(charge_single[c - 1])
+                        voltage_curr = float(voltage_single[c])
+                        voltage_prev = float(voltage_single[c - 1])
+                        
+                        # 计算斜率，避免除以零
+                        charge_diff = charge_curr - charge_prev
+                        if charge_diff == 0:
+                            slope = slope_max
+                        else:
+                            voltage_diff = voltage_curr - voltage_prev
+                            slope = abs(voltage_diff / charge_diff)
 
-                    # 根据斜率和电压差异进行过滤
-                    if (slope < slope_max
-                            and abs(voltage_single[c] - voltage_single[c - 1]) < difference_max):
-                        charge_temp.append(charge_single[c])
-                        voltage_temp.append(voltage_single[c])
+                        # 根据斜率和电压差异进行过滤
+                        voltage_diff_abs = abs(voltage_diff)
+                        if slope < slope_max and voltage_diff_abs < difference_max:
+                            charge_temp.append(charge_curr)
+                            voltage_temp.append(voltage_curr)
+                    except (ValueError, TypeError) as e:
+                        # 跳过无法转换为数字的数据点
+                        logging.warning(f"过滤数据时遇到非数字值，跳过此点: {e}")
+                        continue
 
                 charge_single = charge_temp
                 voltage_single = voltage_temp

@@ -16,59 +16,109 @@ def filter_data(
         import numpy as np
         
         for charge_data, voltage_data in zip(plt_charge_list, plt_voltage_list):
-            # 直接转换为numpy数组，避免重复转换
-            charge_np = np.asarray(charge_data)
-            voltage_np = np.asarray(voltage_data)
-            
-            # 计算差值
-            charge_diff = np.diff(charge_np)
-            voltage_diff = np.diff(voltage_np)
-            
-            # 计算斜率，使用更高效的方式
-            with np.errstate(divide='ignore', invalid='ignore'):
-                # 使用numpy的where函数高效处理除数为0的情况
-                slopes = np.abs(np.where(charge_diff != 0, voltage_diff / charge_diff, slope_max))
-            
-            # 计算电压差值绝对值
-            voltage_diff_abs = np.abs(voltage_diff)
-            
-            # 生成过滤掩码，合并条件
-            mask = (slopes < slope_max) & (voltage_diff_abs < difference_max)
-            
-            # 确保第一个点总是保留，使用更高效的掩码生成方式
-            filtered_mask = np.zeros(len(charge_np), dtype=bool)
-            filtered_mask[0] = True
-            filtered_mask[1:] = mask
-            
-            # 应用过滤，直接获取结果
-            plt_charge_filtered.append(charge_np[filtered_mask].tolist())
-            plt_voltage_filtered.append(voltage_np[filtered_mask].tolist())
+            try:
+                # 直接转换为numpy数组，避免重复转换
+                charge_np = np.asarray(charge_data, dtype=float)
+                voltage_np = np.asarray(voltage_data, dtype=float)
+                
+                # 计算差值
+                charge_diff = np.diff(charge_np)
+                voltage_diff = np.diff(voltage_np)
+                
+                # 计算斜率，使用更高效的方式
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    # 使用numpy的where函数高效处理除数为0的情况
+                    slopes = np.abs(np.where(charge_diff != 0, voltage_diff / charge_diff, slope_max))
+                
+                # 计算电压差值绝对值
+                voltage_diff_abs = np.abs(voltage_diff)
+                
+                # 生成过滤掩码，合并条件
+                mask = (slopes < slope_max) & (voltage_diff_abs < difference_max)
+                
+                # 确保第一个点总是保留，使用更高效的掩码生成方式
+                filtered_mask = np.zeros(len(charge_np), dtype=bool)
+                filtered_mask[0] = True
+                filtered_mask[1:] = mask
+                
+                # 应用过滤，直接获取结果
+                plt_charge_filtered.append(charge_np[filtered_mask].tolist())
+                plt_voltage_filtered.append(voltage_np[filtered_mask].tolist())
+            except (ValueError, TypeError) as e:
+                # 处理numpy转换错误
+                logging.warning(f"使用numpy过滤数据时出错，切换到备用算法: {e}")
+                # 切换到备用算法
+                filtered_charge = [float(charge_data[0])]
+                filtered_voltage = [float(voltage_data[0])]
+                
+                for i in range(1, len(charge_data)):
+                    try:
+                        prev_charge = float(charge_data[i-1])
+                        curr_charge = float(charge_data[i])
+                        prev_voltage = float(voltage_data[i-1])
+                        curr_voltage = float(voltage_data[i])
+                        
+                        charge_diff = curr_charge - prev_charge
+                        voltage_diff = curr_voltage - prev_voltage
+                        
+                        if charge_diff == 0:
+                            slope = slope_max
+                        else:
+                            slope = abs(voltage_diff / charge_diff)
+                        
+                        voltage_diff_abs = abs(voltage_diff)
+                        
+                        # 只保留符合条件的点
+                        if slope < slope_max and voltage_diff_abs < difference_max:
+                            filtered_charge.append(curr_charge)
+                            filtered_voltage.append(curr_voltage)
+                    except (ValueError, TypeError) as inner_e:
+                        logging.warning(f"过滤数据时遇到非数字值，跳过此点: {inner_e}")
+                        continue
+                
+                plt_charge_filtered.append(filtered_charge)
+                plt_voltage_filtered.append(filtered_voltage)
     except ImportError:
         # 若numpy不可用，使用优化后的原算法
         for charge_data, voltage_data in zip(plt_charge_list, plt_voltage_list):
             # 使用列表推导式和生成器表达式优化
-            filtered_charge = [charge_data[0]]
-            filtered_voltage = [voltage_data[0]]
+            filtered_charge = []
+            filtered_voltage = []
             
-            # 使用zip和enumerate优化循环
-            for i in range(1, len(charge_data)):
-                prev_charge, curr_charge = charge_data[i-1], charge_data[i]
-                prev_voltage, curr_voltage = voltage_data[i-1], voltage_data[i]
+            # 确保至少有一个数据点
+            if charge_data and voltage_data:
+                try:
+                    filtered_charge = [float(charge_data[0])]
+                    filtered_voltage = [float(voltage_data[0])]
+                except (ValueError, TypeError) as e:
+                    logging.warning(f"过滤数据时遇到非数字值，跳过此电池数据: {e}")
+                    continue
                 
-                charge_diff = curr_charge - prev_charge
-                voltage_diff = curr_voltage - prev_voltage
-                
-                if charge_diff == 0:
-                    slope = slope_max
-                else:
-                    slope = abs(voltage_diff / charge_diff)
-                
-                voltage_diff_abs = abs(voltage_diff)
-                
-                # 只保留符合条件的点
-                if slope < slope_max and voltage_diff_abs < difference_max:
-                    filtered_charge.append(curr_charge)
-                    filtered_voltage.append(curr_voltage)
+                # 使用zip和enumerate优化循环
+                for i in range(1, len(charge_data)):
+                    try:
+                        prev_charge = float(charge_data[i-1])
+                        curr_charge = float(charge_data[i])
+                        prev_voltage = float(voltage_data[i-1])
+                        curr_voltage = float(voltage_data[i])
+                        
+                        charge_diff = curr_charge - prev_charge
+                        voltage_diff = curr_voltage - prev_voltage
+                        
+                        if charge_diff == 0:
+                            slope = slope_max
+                        else:
+                            slope = abs(voltage_diff / charge_diff)
+                        
+                        voltage_diff_abs = abs(voltage_diff)
+                        
+                        # 只保留符合条件的点
+                        if slope < slope_max and voltage_diff_abs < difference_max:
+                            filtered_charge.append(curr_charge)
+                            filtered_voltage.append(curr_voltage)
+                    except (ValueError, TypeError) as e:
+                        logging.warning(f"过滤数据时遇到非数字值，跳过此点: {e}")
+                        continue
             
             plt_charge_filtered.append(filtered_charge)
             plt_voltage_filtered.append(filtered_voltage)

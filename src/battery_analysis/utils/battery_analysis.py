@@ -413,8 +413,13 @@ class BatteryAnalysis:
         cycle_cumulative_charge = [0.0] * cycleRows
         total_charge = 0.0
         for c1 in range(2, cycleRows):
-            total_charge += abs(cycleCharge[c1])
-            cycle_cumulative_charge[c1] = total_charge
+            try:
+                charge_value = float(cycleCharge[c1])
+                total_charge += abs(charge_value)
+                cycle_cumulative_charge[c1] = total_charge
+            except (ValueError, TypeError) as e:
+                logging.warning(f"处理cycleCharge数据时遇到非数字值，跳过此点: {e}")
+                continue
 
         # 2. 创建step数据的字典索引，加速查找
         step_dict = {}
@@ -423,7 +428,12 @@ class BatteryAnalysis:
             if cycle_key not in step_dict:
                 step_dict[cycle_key] = []
             if stepStep[c2] not in ("脉冲", "Pulse"):
-                step_dict[cycle_key].append(abs(stepCharge[c2]))
+                try:
+                    charge_value = float(stepCharge[c2])
+                    step_dict[cycle_key].append(abs(charge_value))
+                except (ValueError, TypeError) as e:
+                    logging.warning(f"处理stepCharge数据时遇到非数字值，跳过此点: {e}")
+                    continue
 
         # 3. 合并posi2_charge和list_posi2_charge功能，减少代码重复
         def calculate_charge(positions, is_single=True):
@@ -457,7 +467,12 @@ class BatteryAnalysis:
                     intCharge += sum(step_dict[_cycle])
 
                 # 添加当前记录的充电量
-                intCharge += abs(recordCharge[intPosi])
+                try:
+                    charge_value = float(recordCharge[intPosi])
+                    intCharge += abs(charge_value)
+                except (ValueError, TypeError) as e:
+                    logging.warning(f"处理recordCharge数据时遇到非数字值，跳过此点: {e}")
+                    continue
 
                 if is_single:
                     results.append(round(intCharge))
