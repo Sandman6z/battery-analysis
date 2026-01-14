@@ -33,9 +33,9 @@ from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
 
-# 配置日志
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+# 导入并使用新的日志管理器
+from battery_analysis.utils.log_manager import get_logger
+logger = get_logger('main_window')
 
 
 class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
@@ -524,65 +524,21 @@ def main() -> None:
     multiprocessing.freeze_support()
     # 优化PyQt6的警告处理
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
-
-    # 实现单例模式，确保只有一个应用程序实例可以运行
-    # 使用跨平台的命名管道或文件锁定机制
-    import tempfile
-    import sys
     
-    # 定义锁文件路径
-    lock_file_path = os.path.join(tempfile.gettempdir(), "battery_analyzer.lock")
+    # 导入应用程序初始化器
+    from battery_analysis.main.application_initializer import ApplicationInitializer
     
-    # 尝试以独占方式打开文件（跨平台方案）
-    try:
-        # 使用os.O_EXCL标志确保只有一个进程可以创建文件
-        # 同时使用os.O_RDWR以便后续可以读取和写入
-        lock_fd = os.open(lock_file_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
-        # 写入当前进程ID，方便调试
-        os.write(lock_fd, str(os.getpid()).encode())
-    except OSError:
-        # 文件已存在，说明可能已有实例在运行
-        try:
-            # 尝试读取现有锁文件，检查进程是否还在运行
-            with open(lock_file_path, 'r') as f:
-                pid_str = f.read().strip()
-                if pid_str:
-                    pid = int(pid_str)
-                    # 检查进程是否存在
-                    if os.name == 'nt':  # Windows
-                        import ctypes
-                        # 使用Windows API检查进程是否存在
-                        kernel32 = ctypes.windll.kernel32
-                        handle = kernel32.OpenProcess(1, 0, pid)
-                        if handle != 0:
-                            kernel32.CloseHandle(handle)
-                            print("应用程序已经在运行中，无法重复启动。")
-                            sys.exit(0)
-                    else:  # Unix/Linux
-                        # 使用kill(0, 0)检查进程是否存在
-                        os.kill(pid, 0)
-                        print("应用程序已经在运行中，无法重复启动。")
-                        sys.exit(0)
-            # 进程不存在，删除旧锁文件并创建新锁
-            os.remove(lock_file_path)
-            lock_fd = os.open(lock_file_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
-            os.write(lock_fd, str(os.getpid()).encode())
-        except Exception:
-            # 任何异常都视为已有实例在运行
-            print("应用程序已经在运行中，无法重复启动。")
-            sys.exit(0)
-
-    # 优化matplotlib配置，避免font cache构建警告
-    # 使用QtAgg后端，自动检测Qt绑定（兼容PyQt6）
-    matplotlib.use('QtAgg')
-    matplotlib.rcParams['font.family'] = 'sans-serif'
-    matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial',
-                                              'DejaVu Sans', 'Liberation Sans', 'Times New Roman']
-    matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
-
-    app = QW.QApplication(sys.argv)
-    # 设置应用程序样式为Fusion，确保在不同Windows版本上表现一致
-    app.setStyle(QW.QStyleFactory.create("Fusion"))
+    # 创建应用程序初始化器实例
+    initializer = ApplicationInitializer()
+    
+    # 执行应用程序初始化
+    if not initializer.initialize():
+        sys.exit(1)
+    
+    # 创建QApplication实例
+    app = initializer.create_application()
+    
+    # 创建主窗口
     window = Main()
     # 设置窗口最小尺寸为更小的值，确保在小分辨率屏幕上也能显示标题栏
     window.setMinimumSize(800, 600)  # 设置一个合理的最小尺寸
@@ -600,14 +556,8 @@ def main() -> None:
             new_height = min(window.height(), int(screen_rect.height() * 0.9))
             window.resize(new_width, new_height)
 
-    result = app.exec()
-    
-    # 释放锁，关闭文件描述符并删除锁文件
-    try:
-        os.close(lock_fd)
-        os.remove(lock_file_path)
-    except:
-        pass
+    # 运行应用程序事件循环
+    result = initializer.run_application(app, window)
     
     sys.exit(result)
 

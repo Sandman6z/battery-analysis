@@ -158,9 +158,25 @@ def clear_all_caches() -> None:
     _global_cache.clear()
 
 
+# 导入日志管理和错误报告功能
+from battery_analysis.utils.log_manager import (
+    get_logger,
+    get_log_directory,
+    clear_old_logs
+)
+from battery_analysis.utils.error_report_generator import (
+    generate_error_report,
+    get_report_info
+)
+
 # 导出公共API
 __all__ = [
     'Cache',
     'cache',
-    'clear_all_caches'
+    'clear_all_caches',
+    'get_logger',
+    'get_log_directory',
+    'clear_old_logs',
+    'generate_error_report',
+    'get_report_info'
 ]

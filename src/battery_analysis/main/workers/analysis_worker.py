@@ -92,7 +92,7 @@ class AnalysisWorker(QC.QRunnable):
             self.signals.progress_update.emit(0, "准备分析...")
 
             # 检查并创建目录
-            version_dir = f"{self.str_output_path}/V{self.list_test_info[16]}"
+            version_dir = f"{self.str_output_path}/v{self.list_test_info[16]}"
             if os.path.exists(version_dir):
                 shutil.rmtree(version_dir)
             if self.b_cancel_requested:
@@ -241,7 +241,7 @@ class AnalysisWorker(QC.QRunnable):
                 # 重命名目录
                 try:
                     final_dir = f"{self.str_output_path}/" \
-                        f"{self.str_test_date}_V{self.list_test_info[16]}"
+                        f"{self.str_test_date}_v{self.list_test_info[16]}"
                     if os.path.exists(final_dir):
                         shutil.rmtree(final_dir)
 

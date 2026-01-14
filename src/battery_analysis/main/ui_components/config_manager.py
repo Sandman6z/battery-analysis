@@ -81,7 +81,7 @@ class ConfigManager:
     
     def get_config(self, config_key: str) -> List[str]:
         """
-        获取配置值并处理为列表格式
+        获取配置值并处理为列表格式，每次都重新加载配置文件以获取最新值
         
         Args:
             config_key: 配置键
@@ -89,7 +89,9 @@ class ConfigManager:
         Returns:
             配置值列表
         """
-        # 获取配置值并处理为列表格式，移除所有DEBUG打印以避免UI卡死
+        # 每次获取配置值前重新加载配置文件，确保获取到最新的配置
+        self._initialize_config()
+        
         # 如果没有配置文件，直接返回空列表
         if not self.b_has_config:
             return []
@@ -356,6 +358,6 @@ class ConfigManager:
         try:
             self.config.setValue(
                 "PltConfig/Path", f"{self.main_window.lineEdit_OutputPath.text()}/"
-                f"{strTestDate}_V{self.main_window.lineEdit_Version.text()}")
+                f"{strTestDate}_v{self.main_window.lineEdit_Version.text()}")
         except (AttributeError, TypeError, ValueError, OSError) as e:
             self.logger.error("重命名图表路径失败: %s", e)

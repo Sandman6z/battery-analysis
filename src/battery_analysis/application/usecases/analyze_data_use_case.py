@@ -96,6 +96,8 @@ class AnalyzeDataUseCase:
         """
         try:
             self.logger.info("开始执行数据分析用例")
+            self.logger.debug("输入参数: input_path=%s, output_path=%s, battery_type=%s", 
+                           input_data.input_path, input_data.output_path, input_data.battery_type)
 
             # 验证输入数据
             validation_errors = input_data.validate()
@@ -110,6 +112,8 @@ class AnalyzeDataUseCase:
 
             # 查找所有Excel文件
             excel_files = self._find_excel_files(input_data.input_path)
+            self.logger.info("找到 %d 个Excel文件", len(excel_files))
+            
             if not excel_files:
                 self.logger.warning("没有找到Excel文件")
                 return AnalyzeDataOutput(
@@ -127,7 +131,10 @@ class AnalyzeDataUseCase:
 
             for excel_file in excel_files:
                 try:
-                    self.logger.info("处理Excel文件: %s", excel_file.filename)
+                    self.logger.info("开始处理Excel文件: %s", excel_file.filename)
+                    self.logger.debug("文件路径: %s, 大小: %d bytes, 修改时间: %s", 
+                                   str(excel_file.path), excel_file.size, 
+                                   datetime.fromtimestamp(excel_file.modified_time).strftime('%Y-%m-%d %H:%M:%S'))
 
                     # 处理Excel文件，提取电池数据
                     battery_data_dict = self._process_excel_file(excel_file)
@@ -138,6 +145,7 @@ class AnalyzeDataUseCase:
 
                     # 从字典数据创建Battery实体对象
                     battery = self._create_battery_entity(battery_data_dict, excel_file)
+                    self.logger.debug("创建电池实体: %s, 序列号: %s", battery.model, battery.serial_number)
 
                     # 验证电池数据
                     validation_result = self.battery_analysis_service.validate_battery_data(battery)
@@ -150,21 +158,30 @@ class AnalyzeDataUseCase:
                         continue
 
                     # 计算电池健康状态
+                    self.logger.info("开始计算电池健康状态: %s", battery.serial_number)
                     updated_battery = self.battery_analysis_service.calculate_battery_health(
                         battery
                     )
+                    self.logger.debug("电池健康状态计算完成: %s, 健康状态: %s", 
+                                   updated_battery.serial_number, updated_battery.health_status)
 
                     # 分析电池性能
+                    self.logger.info("开始分析电池性能: %s", updated_battery.serial_number)
                     performance_analysis = (
                         self.battery_analysis_service.analyze_battery_performance(
                             updated_battery
                         )
                     )
+                    self.logger.debug("电池性能分析完成: %s, 结果: %s", 
+                                   updated_battery.serial_number, performance_analysis)
 
                     # 预测电池寿命
+                    self.logger.info("开始预测电池寿命: %s", updated_battery.serial_number)
                     lifetime_prediction = self.battery_analysis_service.predict_battery_lifetime(
                         updated_battery
                     )
+                    self.logger.debug("电池寿命预测完成: %s, 预测结果: %s", 
+                                   updated_battery.serial_number, lifetime_prediction)
 
                     # 整合分析结果
                     analysis_result = {
@@ -175,6 +192,7 @@ class AnalyzeDataUseCase:
                     }
 
                     # 保存Battery实体对象到仓库
+                    self.logger.info("保存电池实体到仓库: %s", updated_battery.serial_number)
                     self.battery_repository.save(updated_battery)
 
                     # 添加到分析结果列表
@@ -186,33 +204,39 @@ class AnalyzeDataUseCase:
                     self.logger.info("成功处理电池数据: %s", battery.serial_number)
 
                 except Exception as e:
-                    self.logger.error("处理Excel文件失败 %s: %s", excel_file.filename, str(e))
+                    self.logger.error("处理Excel文件失败 %s: %s", excel_file.filename, str(e), exc_info=True)
                     continue
 
             # 如果有多个电池，进行比较分析
             comparison_result = None
             if len(analysis_results) > 1:
+                self.logger.info("开始电池比较分析，共 %d 个电池", len(analysis_results))
                 # 提取Battery实体对象列表
                 batteries = [result['battery'] for result in analysis_results]
                 comparison_result = self.battery_analysis_service.compare_batteries(batteries)
                 self.logger.info("电池比较分析完成")
+                self.logger.debug("比较结果: %s", comparison_result)
 
             # 保存比较结果（如果有）
             if comparison_result:
                 # 这里可以添加保存比较结果的逻辑
+                self.logger.info("保存电池比较结果")
                 pass
 
             self.logger.info("数据分析用例执行成功")
+            result_message = f"数据分析完成，共处理 {processed_files} 个文件，分析 {analyzed_batteries} 个电池"
+            self.logger.info(result_message)
+            
             return AnalyzeDataOutput(
                 success=True,
-                message=f"数据分析完成，共处理 {processed_files} 个文件，分析 {analyzed_batteries} 个电池",
+                message=result_message,
                 analyzed_batteries=analyzed_batteries,
                 processed_files=processed_files,
                 excel_files=excel_files
             )
 
         except Exception as e:
-            self.logger.error("数据分析用例执行失败: %s", str(e))
+            self.logger.critical("数据分析用例执行失败: %s", str(e), exc_info=True)
             return AnalyzeDataOutput(
                 success=False,
                 message=f"数据分析失败: {str(e)}",

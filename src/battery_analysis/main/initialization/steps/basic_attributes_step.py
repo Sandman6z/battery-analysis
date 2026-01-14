@@ -49,8 +49,8 @@ class BasicAttributesInitializationStep(InitializationStep):
             main_window.test_information = ""
             main_window.specification_type = ""
             main_window.cc_current = ""
-            main_window.md5_checksum = ""
-            main_window.md5_checksum_run = ""
+            main_window.sha256_checksum = ""
+            main_window.sha256_checksum_run = ""
             
             self.logger.info("基本属性初始化完成")
             return True

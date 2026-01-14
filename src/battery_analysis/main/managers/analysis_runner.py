@@ -161,7 +161,7 @@ class AnalysisRunner:
 
             # 更新配置
             self.main_window.update_config(test_info)
-            self.main_window.md5_checksum_run = self.main_window.md5_checksum
+            self.main_window.sha256_checksum_run = self.main_window.sha256_checksum
             self.main_window.statusBar_BatteryAnalysis.showMessage("status:ok")
 
             # 启动分析

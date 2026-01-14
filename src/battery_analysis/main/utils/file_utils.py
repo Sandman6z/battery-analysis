@@ -78,36 +78,36 @@ class FileUtils:
         return icon_paths
     
     @staticmethod
-    def calc_md5checksum(file_list):
+    def calc_checksum(file_list):
         """
-        计算文件列表的MD5校验和
+        计算文件列表的SHA-256校验和
         
         Args:
-            file_list: 要计算MD5的文件路径列表
+            file_list: 要计算校验和的文件路径列表
             
         Returns:
-            计算得到的MD5校验和字符串
+            计算得到的SHA-256校验和字符串
         """
         try:
             # 确保file_list是列表
             if not isinstance(file_list, list):
                 file_list = [file_list]
             
-            # 创建MD5对象
-            md5 = hashlib.md5()
+            # 创建SHA-256对象
+            sha256 = hashlib.sha256()
             
-            # 遍历文件列表，计算MD5
+            # 遍历文件列表，计算SHA-256
             for file_path in file_list:
                 with open(file_path, 'rb') as f:
                     # 分块读取文件，避免内存问题
                     for chunk in iter(lambda: f.read(4096), b''):
-                        md5.update(chunk)
+                        sha256.update(chunk)
             
-            # 返回MD5校验和
-            return md5.hexdigest()
+            # 返回SHA-256校验和
+            return sha256.hexdigest()
         except Exception as e:
             # 记录错误但不中断程序
             import logging
             logger = logging.getLogger(__name__)
-            logger.error("计算MD5校验和失败: %s", e)
+            logger.error("计算SHA-256校验和失败: %s", e)
             return ""

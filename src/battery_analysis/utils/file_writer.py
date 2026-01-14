@@ -144,7 +144,7 @@ class XlsxWordWriter:
                 logging.warning("无法从文件名提取日期，使用默认值: %s", td)
         # 使用os.path.join确保路径分隔符一致性
         self.strResultPath = os.path.join(
-            strResultPath, f"{td}_V{listTestInfo[16]}")
+            strResultPath, f"{td}_v{listTestInfo[16]}")
 
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
@@ -236,7 +236,7 @@ class XlsxWordWriter:
         from pathlib import Path
         report_name = (
             f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}"
-            f"_TD{td}_V{self.listTestInfo[16]}.docx"
+            f"_TD{td}_v{self.listTestInfo[16]}.docx"
         )
         result_dir = Path(self.strResultPath).parent
         self.strReportWordPath = str(result_dir / report_name)
@@ -551,7 +551,7 @@ class XlsxWordWriter:
             f"#Battery Date Code: {self.listTestInfo[5]}",
             f"#Temperature: {self.listTestInfo[6]}",
             f"#Test Profile: {self.listTestInfo[13]}",
-            f"#Version: V{__version__}",
+            f"#Version: v{__version__}",
             f"#END HEADER"
         ]
         for i, info in enumerate(header_info):
@@ -568,7 +568,7 @@ class XlsxWordWriter:
             f"#Battery Date Code: {self.listTestInfo[5]}",
             f"#Temperature: {self.listTestInfo[6]}",
             f"#Test Profile: {self.listTestInfo[13]}",
-            f"#Version: V{__version__}",
+            f"#Version: v{__version__}"
             f"#END HEADER"
         ]
         for info in csv_header_info:
@@ -1561,7 +1561,7 @@ class JsonWriter:
             td = f"{sy}{sm}{sd}"
         except ValueError:
             td = "00000000"
-        self.strResultPath = f"{strResultPath}/{td}_V{listTestInfo[16]}"
+        self.strResultPath = f"{strResultPath}/{td}_v{listTestInfo[16]}"
         self.dictJson = {}
         self.listTestRun = []
         self.dictMeasurements = {}
