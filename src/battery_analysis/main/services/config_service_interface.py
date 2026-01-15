@@ -104,12 +104,13 @@ class IConfigService(ABC):
         pass
     
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
+    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
         """
         查找配置文件路径
         
         Args:
             file_name: 配置文件名称
+            use_cache: 是否使用缓存的配置文件路径，默认为False
             
         Returns:
             Optional[Path]: 配置文件路径，如果未找到则返回None

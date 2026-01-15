@@ -55,17 +55,20 @@ class ConfigManager:
         try:
             config_service = self.main_window._get_service("config")
             if config_service:
-                config_path_result = config_service.find_config_file()
+                # 不使用缓存，确保获取最新的配置文件路径
+                config_path_result = config_service.find_config_file(use_cache=False)
                 self.config_path = str(config_path_result) if config_path_result else None
             else:
                 # 降级到直接导入
                 from battery_analysis.utils.config_utils import find_config_file
-                self.config_path = find_config_file()
+                # 不使用缓存，确保获取最新的配置文件路径
+                self.config_path = find_config_file(use_cache=False)
         except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to get config service: %s", e)
             # 降级到直接导入
             from battery_analysis.utils.config_utils import find_config_file
-            self.config_path = find_config_file()
+            # 不使用缓存，确保获取最新的配置文件路径
+            self.config_path = find_config_file(use_cache=False)
         
         # 添加对None值的检查，避免TypeError
         if self.config_path is None or not Path(self.config_path).exists():
