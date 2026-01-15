@@ -199,16 +199,26 @@ class BuildManager(BuildConfig):
 
         # 不再复制pyproject.toml到构建目录，版本号已直接在构建脚本中处理
 
-        # 创建setting.ini
-        config = CaseSensitiveConfigParser()
+        # 创建setting.ini - 保留原始注释
         config_path = self.project_root / "config" / "setting.ini"
         if config_path.exists():
-            config.read(str(config_path), encoding='utf-8')
-            if config.has_section("PltConfig"):
-                config.set("PltConfig", "Path", "")
-                config.set("PltConfig", "Title", "")
+            # 直接读取原始文件内容
+            with open(config_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # 手动修改需要更改的部分
+            import re
+            # 先找到PltConfig section的位置
+            plt_config_pattern = re.compile(r'(\[PltConfig\])(.*?)(?:\[|$)', re.DOTALL)
+            match = plt_config_pattern.search(content)
+            if match:
+                # 替换整个PltConfig section
+                updated_plt_config = '[PltConfig]\nPath=\nTitle=\n'
+                content = plt_config_pattern.sub(updated_plt_config, content)
+            
+            # 写入修改后的内容
             with open(build_dir / "setting.ini", 'w', encoding='utf-8') as f:
-                config.write(f)
+                f.write(content)
             logger.info("已创建: %s", build_dir / 'setting.ini')
         else:
             logger.warning("%s 不存在，无法创建setting.ini", config_path)
