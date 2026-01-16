@@ -6,6 +6,7 @@
 """
 
 import logging
+import concurrent.futures
 from typing import List, Dict, Any, Optional
 from battery_analysis.main.initialization.initialization_step import InitializationStep
 
@@ -54,42 +55,93 @@ class InitializationOrchestrator:
         # 按优先级排序步骤
         sorted_steps = sorted(self._steps)
         
+        # 按优先级分组步骤
+        priority_groups = {}
+        for step in sorted_steps:
+            if step.get_priority() not in priority_groups:
+                priority_groups[step.get_priority()] = []
+            priority_groups[step.get_priority()].append(step)
+        
         # 执行所有步骤
         all_success = True
         executed_count = 0
         failed_count = 0
         
-        for step in sorted_steps:
-            self.logger.debug("准备执行步骤: %s (优先级: %d)", step.get_name(), step.get_priority())
+        # 按优先级顺序执行每组步骤
+        for priority in sorted(priority_groups.keys()):
+            steps_in_group = priority_groups[priority]
+            self.logger.debug("执行优先级组: %d, 包含步骤: %d个", priority, len(steps_in_group))
             
-            # 检查是否可以执行
-            if not step.can_execute(main_window):
-                self.logger.warning("跳过步骤: %s (条件不满足)", step.get_name())
+            # 过滤出可以执行的步骤
+            executable_steps = [step for step in steps_in_group if step.can_execute(main_window)]
+            
+            if not executable_steps:
+                self.logger.debug("跳过优先级组: %d (无步骤可执行)", priority)
                 continue
             
-            try:
-                # 执行步骤
-                success = step.execute(main_window)
-                self._executed_steps[step.get_name()] = success
+            # 如果只有一个步骤，直接执行
+            if len(executable_steps) == 1:
+                step = executable_steps[0]
+                self._execute_step(step, main_window)
+                if step.get_name() in self._executed_steps:
+                    if self._executed_steps[step.get_name()]:
+                        executed_count += 1
+                    else:
+                        failed_count += 1
+                        all_success = False
+            else:
+                # 并行执行多个步骤
+                self.logger.info("并行执行步骤: %s", ", ".join([step.get_name() for step in executable_steps]))
                 
-                if success:
-                    self.logger.info("步骤执行成功: %s", step.get_name())
-                    executed_count += 1
-                else:
-                    self.logger.error("步骤执行失败: %s", step.get_name())
-                    failed_count += 1
-                    all_success = False
+                # 使用线程池并行执行
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    # 提交所有任务
+                    future_to_step = {executor.submit(self._execute_step, step, main_window): step for step in executable_steps}
                     
-            except Exception as e:
-                self.logger.exception("步骤执行异常: %s", step.get_name())
-                self._executed_steps[step.get_name()] = False
-                failed_count += 1
-                all_success = False
+                    # 获取结果
+                    for future in concurrent.futures.as_completed(future_to_step):
+                        step = future_to_step[future]
+                        try:
+                            future.result()
+                            if step.get_name() in self._executed_steps:
+                                if self._executed_steps[step.get_name()]:
+                                    executed_count += 1
+                                else:
+                                    failed_count += 1
+                                    all_success = False
+                        except Exception as e:
+                            self.logger.exception("获取步骤执行结果异常: %s", step.get_name())
+                            failed_count += 1
+                            all_success = False
         
         self.logger.info("初始化流程完成 - 成功: %d, 失败: %d, 总计: %d", 
                        executed_count, failed_count, executed_count + failed_count)
         
         return all_success
+    
+    def _execute_step(self, step: InitializationStep, main_window) -> None:
+        """
+        执行单个初始化步骤
+        
+        Args:
+            step: 初始化步骤
+            main_window: 主窗口实例
+        """
+        self.logger.debug("准备执行步骤: %s (优先级: %d)", step.get_name(), step.get_priority())
+        
+        try:
+            # 执行步骤
+            success = step.execute(main_window)
+            self._executed_steps[step.get_name()] = success
+            
+            if success:
+                self.logger.info("步骤执行成功: %s", step.get_name())
+            else:
+                self.logger.error("步骤执行失败: %s", step.get_name())
+                
+        except Exception as e:
+            self.logger.exception("步骤执行异常: %s", step.get_name())
+            self._executed_steps[step.get_name()] = False
     
     def get_step(self, name: str) -> Optional[InitializationStep]:
         """

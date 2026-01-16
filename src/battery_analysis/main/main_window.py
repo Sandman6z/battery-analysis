@@ -12,29 +12,23 @@
 import logging
 import multiprocessing
 import os
-import re
 import sys
-import time
 import warnings
 from pathlib import Path
 from typing import Any
 
 # 第三方库导入
-import matplotlib
 import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
-from battery_analysis.i18n.language_manager import _, get_language_manager
 from battery_analysis.main.managers.initialization_manager import InitializationManager
-from battery_analysis.main.utils import FileUtils
-from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
+from battery_analysis.utils.log_manager import get_logger
 
 # 导入并使用新的日志管理器
-from battery_analysis.utils.log_manager import get_logger
 logger = get_logger('main_window')
 
 
@@ -175,6 +169,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             QIcon: 应用程序图标
         """
         try:
+            # 延迟导入FileUtils和语言管理器
+            from battery_analysis.main.utils import FileUtils
+            from battery_analysis.i18n.language_manager import _
+            
             # 使用FileUtils获取所有可能的图标路径
             icon_paths = FileUtils.get_icon_paths(
                 self.env_detector, self.current_directory)
@@ -191,7 +189,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
             # 捕获所有可能的异常，确保应用能正常启动
-            self.logger.error(_("app_icon_load_failed", "加载应用图标失败: %s"), e)
+            self.logger.error("加载应用图标失败: %s", e)
             return QG.QIcon()
 
     # ------------------------------
@@ -199,6 +197,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # ------------------------------
     def _on_language_changed(self, language_code):
         """语言切换处理"""
+        # 延迟导入语言管理器
+        from battery_analysis.i18n.language_manager import _
+        
         window_title = f"Battery Analyzer v{self.version}"
         self.setWindowTitle(window_title)
 
@@ -215,6 +216,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def _update_ui_texts(self):
         """更新UI文本为当前语言"""
+        # 延迟导入语言管理器
+        from battery_analysis.i18n.language_manager import _
+        
         if hasattr(self, 'signal_connector') and self.signal_connector.progress_dialog:
             self.signal_connector.progress_dialog.setWindowTitle(
                 _("progress_title", "Battery Analysis Progress"))

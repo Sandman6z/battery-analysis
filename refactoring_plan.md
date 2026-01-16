@@ -63,16 +63,16 @@
 - **no-else-continue**: continue 语句后不必要的 else 块，可以简化
 
 ## 概述
-- 分析日期: 2026-01-04 16:38:08
-- 总文件数: 65
-- 存在问题的文件数: 65
+- 分析日期: 2026-01-16 10:11:18
+- 总文件数: 127
+- 存在问题的文件数: 127
 
 ## 文件: scripts\build.py
 
 ### 问题统计
-- 问题总数: 6
-- 警告(Warning): 1
-- 规范(Convention): 3
+- 问题总数: 13
+- 警告(Warning): 4
+- 规范(Convention): 7
 - 重构(Refactor): 2
 
 ### 详细问题
@@ -82,31 +82,73 @@
 - 描述: Parameter 'optionstr' has been renamed to 'option_str' in overriding 'CaseSensitiveConfigParser.optionxform' method
 - 符号: arguments-renamed
 
-#### 行 314, 列 8
+#### 行 210, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (re)
+- 符号: import-outside-toplevel
+
+#### 行 324, 列 8
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 354, 列 4
+#### 行 331, 列 12
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'sys' from outer scope (line 5)
+- 符号: redefined-outer-name
+
+#### 行 331, 列 12
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'sys' (imported line 5)
+- 符号: reimported
+
+#### 行 331, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (sys)
+- 符号: import-outside-toplevel
+
+#### 行 333, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 374, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (7/5)
 - 符号: too-many-positional-arguments
 
-#### 行 450, 列 23
+#### 行 422, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 423, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 475, 列 23
 - 类型: convention
 - 代码: C0209
 - 描述: Formatting a regular string which could be an f-string
 - 符号: consider-using-f-string
 
-#### 行 587, 列 8
+#### 行 611, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (ast)
 - 符号: import-outside-toplevel
 
-#### 行 693, 列 4
+#### 行 733, 列 4
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (argparse)
@@ -115,8 +157,8 @@
 ## 文件: scripts\compile_translations.py
 
 ### 问题统计
-- 问题总数: 14
-- 警告(Warning): 7
+- 问题总数: 11
+- 警告(Warning): 4
 - 规范(Convention): 4
 - 重构(Refactor): 3
 
@@ -151,18 +193,6 @@
 - 描述: "result.returncode == 0" can be simplified to "not result.returncode", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 84, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 152, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 179, 列 17
 - 类型: warning
 - 代码: W1510
@@ -180,12 +210,6 @@
 - 代码: C1805
 - 描述: "result.returncode == 0" can be simplified to "not result.returncode", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 191, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 196, 列 0
 - 类型: refactor
@@ -208,8 +232,8 @@
 ## 文件: scripts\extract_translations.py
 
 ### 问题统计
-- 问题总数: 15
-- 警告(Warning): 10
+- 问题总数: 10
+- 警告(Warning): 5
 - 规范(Convention): 3
 - 重构(Refactor): 2
 
@@ -232,12 +256,6 @@
 - 描述: Unused variable 'context'
 - 符号: unused-variable
 
-#### 行 87, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 125, 列 17
 - 类型: warning
 - 代码: W1510
@@ -255,24 +273,6 @@
 - 代码: C1805
 - 描述: "result.returncode == 0" can be simplified to "not result.returncode", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 138, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 194, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 233, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 325, 列 17
 - 类型: warning
@@ -292,30 +292,11 @@
 - 描述: "result.returncode == 0" can be simplified to "not result.returncode", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 339, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 345, 列 0
 - 类型: convention
 - 代码: C0304
 - 描述: Final newline missing
 - 符号: missing-final-newline
-
-## 文件: scripts\fix_logging_fstrings.py
-
-### 问题统计
-- 问题总数: 1
-- 警告(Warning): 1
-
-### 详细问题
-#### 行 10, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import os
-- 符号: unused-import
 
 ## 文件: scripts\po_translator.py
 
@@ -350,55 +331,12 @@
 - 描述: Final newline missing
 - 符号: missing-final-newline
 
-## 文件: scripts\refactor_by_type.py
-
-### 问题统计
-- 问题总数: 6
-- 警告(Warning): 6
-
-### 详细问题
-#### 行 23, 列 4
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'overview' from outer scope (line 121)
-- 符号: redefined-outer-name
-
-#### 行 33, 列 4
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'issues_by_type' from outer scope (line 121)
-- 符号: redefined-outer-name
-
-#### 行 68, 列 28
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'overview' from outer scope (line 121)
-- 符号: redefined-outer-name
-
-#### 行 68, 列 38
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'issues_by_type' from outer scope (line 121)
-- 符号: redefined-outer-name
-
-#### 行 96, 列 20
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 106, 列 20
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
 ## 文件: scripts\run_pylint.py
 
 ### 问题统计
-- 问题总数: 15
-- 警告(Warning): 9
-- 规范(Convention): 3
+- 问题总数: 9
+- 警告(Warning): 5
+- 规范(Convention): 1
 - 重构(Refactor): 3
 
 ### 详细问题
@@ -420,29 +358,11 @@
 - 描述: "process.returncode == 0" can be simplified to "not process.returncode", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 119, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 160, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 175, 列 4
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'json_output'
 - 符号: unused-variable
-
-#### 行 281, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 285, 列 0
 - 类型: refactor
@@ -456,23 +376,11 @@
 - 描述: Too many statements (106/50)
 - 符号: too-many-statements
 
-#### 行 289, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 356, 列 20
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
-
-#### 行 360, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
 
 #### 行 374, 列 28
 - 类型: warning
@@ -486,17 +394,11 @@
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 411, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 ## 文件: scripts\run_tests.py
 
 ### 问题统计
-- 问题总数: 4
-- 警告(Warning): 2
+- 问题总数: 3
+- 警告(Warning): 1
 - 规范(Convention): 1
 - 重构(Refactor): 1
 
@@ -519,19 +421,12 @@
 - 描述: "result.returncode == 0" can be simplified to "not result.returncode", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 64, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 ## 文件: scripts\setup_i18n.py
 
 ### 问题统计
-- 问题总数: 10
-- 错误(Error): 1
-- 警告(Warning): 8
-- 规范(Convention): 1
+- 问题总数: 7
+- 警告(Warning): 5
+- 规范(Convention): 2
 
 ### 详细问题
 #### 行 9, 列 0
@@ -540,55 +435,37 @@
 - 描述: Unused import os
 - 符号: unused-import
 
-#### 行 10, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import sys
-- 符号: unused-import
-
-#### 行 14, 列 0
+#### 行 15, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Dict imported from typing
 - 符号: unused-import
 
-#### 行 14, 列 0
+#### 行 15, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused List imported from typing
 - 符号: unused-import
 
-#### 行 14, 列 0
+#### 行 15, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Any imported from typing
 - 符号: unused-import
 
-#### 行 101, 列 25
-- 类型: error
-- 代码: E0602
-- 描述: Undefined variable '_'
-- 符号: undefined-variable
+#### 行 22, 列 0
+- 类型: convention
+- 代码: C0413
+- 描述: Import "from battery_analysis.i18n import _" should be placed at the top of the module
+- 符号: wrong-import-position
 
-#### 行 126, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 148, 列 8
+#### 行 156, 列 8
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'import_pattern'
 - 符号: unused-variable
 
-#### 行 184, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 372, 列 0
+#### 行 380, 列 0
 - 类型: convention
 - 代码: C0304
 - 描述: Final newline missing
@@ -607,136 +484,461 @@
 - 描述: Import "import battery_analysis.utils" should be placed at the top of the module
 - 符号: wrong-import-position
 
-## 文件: src\battery_analysis\chart\interfaces\ichart_manager.py
+## 文件: src\battery_analysis\application\usecases\analyze_data_use_case.py
 
 ### 问题统计
-- 问题总数: 14
-- 警告(Warning): 14
+- 问题总数: 17
+- 错误(Error): 11
+- 警告(Warning): 5
+- 重构(Refactor): 1
 
 ### 详细问题
-#### 行 10, 列 0
+#### 行 87, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (62/50)
+- 符号: too-many-statements
+
+#### 行 137, 列 35
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'datetime'
+- 符号: undefined-variable
+
+#### 行 148, 列 79
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'Battery' has no 'model' member
+- 符号: no-member
+
+#### 行 206, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 224, 列 16
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 238, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 283, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 412, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1123
+- 描述: Unexpected keyword argument 'model' in constructor call
+- 符号: unexpected-keyword-arg
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1123
+- 描述: Unexpected keyword argument 'chemistry' in constructor call
+- 符号: unexpected-keyword-arg
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'model_number' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'production_date' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'battery_type' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'max_voltage' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'min_voltage' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'max_current' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 445, 列 15
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'weight' in constructor call
+- 符号: no-value-for-parameter
+
+## 文件: src\battery_analysis\application\usecases\calculate_battery_use_case.py
+
+### 问题统计
+- 问题总数: 12
+- 错误(Error): 9
+- 警告(Warning): 2
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused List imported from typing
+- 符号: unused-import
+
+#### 行 16, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (12/7)
+- 符号: too-many-instance-attributes
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1123
+- 描述: Unexpected keyword argument 'model' in constructor call
+- 符号: unexpected-keyword-arg
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1123
+- 描述: Unexpected keyword argument 'chemistry' in constructor call
+- 符号: unexpected-keyword-arg
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'model_number' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'production_date' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'battery_type' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'max_voltage' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'min_voltage' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'max_current' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 112, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'weight' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 138, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\application\usecases\generate_report_use_case.py
+
+### 问题统计
+- 问题总数: 9
+- 警告(Warning): 9
+
+### 详细问题
+#### 行 167, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 198, 列 17
+- 类型: warning
+- 代码: W1514
+- 描述: Using open without explicitly specifying an encoding
+- 符号: unspecified-encoding
+
+#### 行 199, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 200, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 216, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 261, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 307, 列 21
+- 类型: warning
+- 代码: W1514
+- 描述: Using open without explicitly specifying an encoding
+- 符号: unspecified-encoding
+
+#### 行 308, 列 28
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 324, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\domain\entities\battery.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused List imported from typing
+- 符号: unused-import
+
+#### 行 14, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (14/7)
+- 符号: too-many-instance-attributes
+
+## 文件: src\battery_analysis\domain\entities\configuration.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 8, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Optional imported from typing
 - 符号: unused-import
 
-#### 行 10, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Union imported from typing
-- 符号: unused-import
+#### 行 13, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (11/7)
+- 符号: too-many-instance-attributes
 
-#### 行 47, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 60, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 70, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 81, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 90, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 93, 列 53
-- 类型: warning
-- 代码: W0622
-- 描述: Redefining built-in 'format'
-- 符号: redefined-builtin
-
-#### 行 105, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 117, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 126, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 140, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 150, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-#### 行 160, 列 8
-- 类型: warning
-- 代码: W2301
-- 描述: Unnecessary ellipsis constant
-- 符号: unnecessary-ellipsis
-
-## 文件: src\battery_analysis\data\interfaces\idataprocessor.py
+## 文件: src\battery_analysis\domain\entities\test_profile.py
 
 ### 问题统计
-- 问题总数: 17
-- 警告(Warning): 16
-- 规范(Convention): 1
+- 问题总数: 1
+- 重构(Refactor): 1
 
 ### 详细问题
-#### 行 35, 列 40
-- 类型: warning
-- 代码: W0622
-- 描述: Redefining built-in 'format'
-- 符号: redefined-builtin
+#### 行 13, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (23/7)
+- 符号: too-many-instance-attributes
 
-#### 行 46, 列 8
+## 文件: src\battery_analysis\domain\entities\test_result.py
+
+### 问题统计
+- 问题总数: 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 14, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (17/7)
+- 符号: too-many-instance-attributes
+
+## 文件: src\battery_analysis\domain\repositories\battery_repository.py
+
+### 问题统计
+- 问题总数: 11
+- 警告(Warning): 11
+
+### 详细问题
+#### 行 27, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 49, 列 51
-- 类型: warning
-- 代码: W0622
-- 描述: Redefining built-in 'format'
-- 符号: redefined-builtin
-
-#### 行 61, 列 8
+#### 行 39, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 73, 列 8
+#### 行 51, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 86, 列 8
+#### 行 63, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 75, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 88, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 100, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 113, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 125, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 137, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 146, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+## 文件: src\battery_analysis\domain\repositories\configuration_repository.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 3
+
+### 详细问题
+#### 行 21, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 33, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 42, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+## 文件: src\battery_analysis\domain\repositories\test_profile_repository.py
+
+### 问题统计
+- 问题总数: 9
+- 警告(Warning): 9
+
+### 详细问题
+#### 行 26, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 38, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 50, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 62, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 74, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 87, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
@@ -748,61 +950,231 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 112, 列 8
+#### 行 111, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 126, 列 8
+#### 行 120, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 141, 列 8
+## 文件: src\battery_analysis\domain\repositories\test_result_repository.py
+
+### 问题统计
+- 问题总数: 8
+- 警告(Warning): 8
+
+### 详细问题
+#### 行 27, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 153, 列 8
+#### 行 39, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 166, 列 8
+#### 行 51, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 180, 列 8
+#### 行 64, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 194, 列 8
+#### 行 77, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 207, 列 8
+#### 行 89, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 220, 列 0
+#### 行 101, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 113, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+## 文件: src\battery_analysis\domain\services\battery_analysis_service.py
+
+### 问题统计
+- 问题总数: 8
+- 警告(Warning): 8
+
+### 详细问题
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 29, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 42, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 55, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 69, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 82, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 94, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 107, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+## 文件: src\battery_analysis\domain\services\impl\battery_analysis_service_impl.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 164, 列 8
 - 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.data_utils.detect_outliers)
+- 符号: import-outside-toplevel
 
-#### 行 220, 列 8
+## 文件: src\battery_analysis\domain\services\impl\test_service_impl.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 20, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (6/5)
+- 符号: too-many-positional-arguments
+
+## 文件: src\battery_analysis\domain\services\test_service.py
+
+### 问题统计
+- 问题总数: 10
+- 警告(Warning): 9
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused datetime imported from datetime
+- 符号: unused-import
+
+#### 行 20, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (6/5)
+- 符号: too-many-positional-arguments
+
+#### 行 35, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 48, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 60, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 72, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 84, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 96, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 110, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
@@ -811,137 +1183,125 @@
 ## 文件: src\battery_analysis\i18n\__init__.py
 
 ### 问题统计
-- 问题总数: 20
-- 警告(Warning): 13
-- 规范(Convention): 3
-- 重构(Refactor): 4
+- 问题总数: 18
+- 警告(Warning): 8
+- 规范(Convention): 4
+- 重构(Refactor): 6
 
 ### 详细问题
-#### 行 62, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 21, 列 0
+- 类型: convention
+- 代码: C0413
+- 描述: Import "import sys" should be placed at the top of the module
+- 符号: wrong-import-position
 
-#### 行 124, 列 4
+#### 行 24, 列 21
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _MEIPASS of a client class
+- 符号: protected-access
+
+#### 行 133, 列 4
 - 类型: warning
 - 代码: W0603
 - 描述: Using the global statement
 - 符号: global-statement
 
-#### 行 135, 列 8
+#### 行 183, 列 8
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 144, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 146, 列 8
+#### 行 194, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (traceback)
 - 符号: import-outside-toplevel
 
-#### 行 165, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 240, 列 0
+- 类型: refactor
+- 代码: R0911
+- 描述: Too many return statements (8/6)
+- 符号: too-many-return-statements
 
-#### 行 183, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 192, 列 0
+#### 行 240, 列 0
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (15/12)
+- 描述: Too many branches (20/12)
 - 符号: too-many-branches
 
-#### 行 205, 列 16
+#### 行 251, 列 12
 - 类型: warning
 - 代码: W0621
 - 描述: Redefining name 'locale' from outer scope (line 9)
 - 符号: redefined-outer-name
 
-#### 行 205, 列 16
+#### 行 251, 列 12
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'locale' (imported line 9)
 - 符号: reimported
 
-#### 行 205, 列 16
+#### 行 251, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (locale)
 - 符号: import-outside-toplevel
 
-#### 行 209, 列 32
+#### 行 257, 列 32
 - 类型: warning
 - 代码: W4902
 - 描述: Using deprecated method getdefaultlocale()
 - 符号: deprecated-method
 
-#### 行 226, 列 15
+#### 行 274, 列 15
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0705
+- 描述: Catching previously caught exception type ValueError
+- 符号: duplicate-except
 
-#### 行 241, 列 20
+#### 行 285, 列 24
+- 类型: convention
+- 代码: C0207
+- 描述: Use system_locale.split('_', maxsplit=1)[0] instead
+- 符号: use-maxsplit-arg
+
+#### 行 292, 列 16
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
 - 符号: no-else-return
 
-#### 行 245, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 303, 列 12
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
+- 符号: no-else-return
 
-#### 行 267, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 283, 列 0
+#### 行 352, 列 0
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (13/12)
 - 符号: too-many-branches
 
-#### 行 298, 列 28
+#### 行 367, 列 28
 - 类型: warning
 - 代码: W4902
 - 描述: Using deprecated method getdefaultlocale()
 - 符号: deprecated-method
 
-#### 行 315, 列 11
+#### 行 384, 列 11
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 339, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
+- 代码: W0705
+- 描述: Catching previously caught exception type ValueError
+- 符号: duplicate-except
 
 ## 文件: src\battery_analysis\i18n\language_manager.py
 
 ### 问题统计
-- 问题总数: 18
-- 警告(Warning): 13
+- 问题总数: 14
+- 警告(Warning): 9
 - 规范(Convention): 3
 - 重构(Refactor): 2
 
@@ -982,23 +1342,11 @@
 - 描述: Import outside toplevel (._po_translator)
 - 符号: import-outside-toplevel
 
-#### 行 176, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 219, 列 34
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'locale_code'
 - 符号: unused-argument
-
-#### 行 230, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 251, 列 8
 - 类型: warning
@@ -1030,18 +1378,6 @@
 - 描述: Unused import json
 - 符号: unused-import
 
-#### 行 317, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 350, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 368, 列 4
 - 类型: warning
 - 代码: W0603
@@ -1057,9 +1393,8 @@
 ## 文件: src\battery_analysis\i18n\preferences_dialog.py
 
 ### 问题统计
-- 问题总数: 10
-- 警告(Warning): 8
-- 规范(Convention): 1
+- 问题总数: 5
+- 警告(Warning): 4
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -1093,728 +1428,1413 @@
 - 描述: Too many instance attributes (13/7)
 - 符号: too-many-instance-attributes
 
-#### 行 256, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+## 文件: src\battery_analysis\infrastructure\repositories\battery_repository_impl.py
 
-#### 行 280, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
 
-#### 行 308, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+### 详细问题
+#### 行 183, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
 
-#### 行 350, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+## 文件: src\battery_analysis\infrastructure\services\battery_analysis_service_impl.py
 
-#### 行 371, 列 0
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 1
+- 规范(Convention): 4
+
+### 详细问题
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 213, 列 0
 - 类型: convention
 - 代码: C0327
 - 描述: Mixed line endings LF and CRLF
 - 符号: mixed-line-endings
 
-## 文件: src\battery_analysis\main\battery_chart_viewer.py
+#### 行 217, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.data_utils.detect_outliers)
+- 符号: import-outside-toplevel
+
+#### 行 225, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 252, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: src\battery_analysis\main\application_initializer.py
 
 ### 问题统计
-- 问题总数: 114
-- 警告(Warning): 75
-- 规范(Convention): 19
-- 重构(Refactor): 20
+- 问题总数: 19
+- 警告(Warning): 17
+- 规范(Convention): 2
 
 ### 详细问题
-#### 行 1, 列 0
-- 类型: convention
-- 代码: C0302
-- 描述: Too many lines in module (2141/1000)
-- 符号: too-many-lines
-
-#### 行 31, 列 0
+#### 行 8, 列 0
 - 类型: warning
 - 代码: W0611
-- 描述: Unused import math
+- 描述: Unused import os
 - 符号: unused-import
 
-#### 行 37, 列 0
+#### 行 10, 列 0
 - 类型: warning
 - 代码: W0611
-- 描述: Unused QtCore imported from PyQt6 as QC
+- 描述: Unused import tempfile
 - 符号: unused-import
 
-#### 行 42, 列 0
+#### 行 12, 列 0
 - 类型: warning
 - 代码: W0611
-- 描述: Unused CheckButtons imported from matplotlib.widgets
+- 描述: Unused import datetime
 - 符号: unused-import
 
-#### 行 43, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Rectangle imported from matplotlib.patches
-- 符号: unused-import
-
-#### 行 44, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused to_rgba imported from matplotlib.colors
-- 符号: unused-import
-
-#### 行 116, 列 0
-- 类型: refactor
-- 代码: R0902
-- 描述: Too many instance attributes (27/7)
-- 符号: too-many-instance-attributes
-
-#### 行 150, 列 23
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'data_path' from outer scope (line 2127)
-- 符号: redefined-outer-name
-
-#### 行 224, 列 28
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'data_path' from outer scope (line 2127)
-- 符号: redefined-outer-name
-
-#### 行 260, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 294, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 405, 列 12
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 413, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 421, 列 12
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 430, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 437, 列 12
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 448, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 464, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 479, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 484, 列 8
-- 类型: refactor
-- 代码: R1702
-- 描述: Too many nested blocks (6/5)
-- 符号: too-many-nested-blocks
-
-#### 行 503, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 533, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "file_size == 0" can be simplified to "not file_size", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 542, 列 63
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'f' from outer scope (line 2104)
-- 符号: redefined-outer-name
-
-#### 行 560, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "self.intBatteryNum == 0" can be simplified to "not self.intBatteryNum", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 590, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 629, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "loop == 0" can be simplified to "not loop", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 677, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 683, 列 4
-- 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (6/5)
-- 符号: too-many-positional-arguments
-
-#### 行 704, 列 8
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 716, 列 23
-- 类型: convention
-- 代码: C1805
-- 描述: "charge_diff == 0" can be simplified to "not charge_diff", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 752, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 755, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (67/50)
-- 符号: too-many-statements
-
-#### 行 788, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 803, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 825, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 869, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 887, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 905, 列 22
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'dirs'
-- 符号: unused-variable
-
-#### 行 917, 列 20
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 925, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 927, 列 12
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'traceback' from outer scope (line 30)
-- 符号: redefined-outer-name
-
-#### 行 927, 列 12
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'traceback' (imported line 30)
-- 符号: reimported
-
-#### 行 927, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (traceback)
-- 符号: import-outside-toplevel
-
-#### 行 930, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (66/50)
-- 符号: too-many-statements
-
-#### 行 1014, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (datetime)
-- 符号: import-outside-toplevel
-
-#### 行 1045, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1063, 列 8
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'matplotlib' from outer scope (line 39)
-- 符号: redefined-outer-name
-
-#### 行 1063, 列 8
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'matplotlib' (imported line 39)
-- 符号: reimported
-
-#### 行 1063, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (matplotlib)
-- 符号: import-outside-toplevel
-
-#### 行 1064, 列 8
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'plt' from outer scope (line 40)
-- 符号: redefined-outer-name
-
-#### 行 1064, 列 8
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'matplotlib.pyplot' (imported line 40)
-- 符号: reimported
-
-#### 行 1064, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (matplotlib.pyplot)
-- 符号: import-outside-toplevel
-
-#### 行 1064, 列 8
-- 类型: warning
-- 代码: W0611
-- 描述: Unused matplotlib.pyplot imported as plt
-- 符号: unused-import
-
-#### 行 1101, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1124, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1135, 列 16
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (datetime)
-- 符号: import-outside-toplevel
-
-#### 行 1137, 列 12
-- 类型: warning
-- 代码: W0702
-- 描述: No exception type(s) specified
-- 符号: bare-except
-
-#### 行 1143, 列 16
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'configparser' from outer scope (line 29)
-- 符号: redefined-outer-name
-
-#### 行 1143, 列 16
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'configparser' (imported line 29)
-- 符号: reimported
-
-#### 行 1143, 列 16
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (configparser)
-- 符号: import-outside-toplevel
-
-#### 行 1150, 列 12
-- 类型: warning
-- 代码: W0702
-- 描述: No exception type(s) specified
-- 符号: bare-except
-
-#### 行 1182, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1185, 列 18
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1187, 列 4
-- 类型: refactor
-- 代码: R1710
-- 描述: Either all return statements in a function should return an expression, or none of them should.
-- 符号: inconsistent-return-statements
-
-#### 行 1276, 列 12
-- 类型: warning
-- 代码: W0707
-- 描述: Consider explicitly re-raising using 'raise ImportError(f'PyQt6依赖缺失: {e}. 请确保已正确安装PyQt6') from e'
-- 符号: raise-missing-from
-
-#### 行 1295, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1354, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1359, 列 4
-- 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (10/5)
-- 符号: too-many-positional-arguments
-
-#### 行 1447, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1459, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1474, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1477, 列 16
+#### 行 25, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 1519, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1524, 列 8
+#### 行 42, 列 16
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (threading)
+- 描述: Import outside toplevel (battery_analysis.utils.error_report_generator.generate_error_report)
 - 符号: import-outside-toplevel
 
-#### 行 1553, 列 15
+#### 行 45, 列 20
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 46, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1570, 列 15
+#### 行 47, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 74, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1607, 列 15
+#### 行 75, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 87, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'qt_message_handler'
+- 符号: unused-variable
+
+#### 行 104, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.version.Version)
+- 符号: import-outside-toplevel
+
+#### 行 135, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1648, 列 15
+#### 行 136, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 159, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1651, 列 4
-- 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (7/5)
-- 符号: too-many-positional-arguments
+#### 行 160, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
 
-#### 行 1677, 列 15
+#### 行 179, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1694, 列 32
-- 类型: warning
-- 代码: W0108
-- 描述: Lambda may not be necessary
-- 符号: unnecessary-lambda
-
-#### 行 1699, 列 32
-- 类型: warning
-- 代码: W0108
-- 描述: Lambda may not be necessary
-- 符号: unnecessary-lambda
-
-#### 行 1705, 列 12
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'file_button_states' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1711, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1725, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1728, 列 4
-- 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (7/5)
-- 符号: too-many-positional-arguments
-
-#### 行 1797, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1810, 列 12
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'filter_button_state' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1814, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1859, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'battery_button_states' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1867, 列 4
-- 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (8/5)
-- 符号: too-many-positional-arguments
-
-#### 行 1867, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (56/50)
-- 符号: too-many-statements
-
-#### 行 1868, 列 38
+#### 行 192, 列 35
 - 类型: warning
 - 代码: W0613
-- 描述: Unused argument 'check_filter'
+- 描述: Unused argument 'window'
 - 符号: unused-argument
 
-#### 行 1928, 列 16
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 1937, 列 16
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 1945, 列 16
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 1959, 列 19
+#### 行 198, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1990, 列 15
+## 文件: src\battery_analysis\main\battery_chart_viewer.py
+
+### 问题统计
+- 问题总数: 72
+- 警告(Warning): 28
+- 规范(Convention): 21
+- 重构(Refactor): 23
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0302
+- 描述: Too many lines in module (2183/1000)
+- 符号: too-many-lines
+
+#### 行 112, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (27/7)
+- 符号: too-many-instance-attributes
+
+#### 行 146, 列 23
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0621
+- 描述: Redefining name 'data_path' from outer scope (line 2169)
+- 符号: redefined-outer-name
 
-#### 行 1993, 列 4
+#### 行 220, 列 28
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'data_path' from outer scope (line 2169)
+- 符号: redefined-outer-name
+
+#### 行 401, 列 12
 - 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (6/5)
-- 符号: too-many-positional-arguments
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
 
-#### 行 2000, 列 21
+#### 行 417, 列 12
 - 类型: refactor
-- 代码: R1735
-- 描述: Consider using '{"boxstyle": 'round,pad=0.5', "fc": 'yellow', "alpha": 0.7}' instead of a call to 'dict'.
-- 符号: use-dict-literal
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
 
-#### 行 2001, 列 27
+#### 行 433, 列 12
 - 类型: refactor
-- 代码: R1735
-- 描述: Consider using '{"arrowstyle": '->'}' instead of a call to 'dict'.
-- 符号: use-dict-literal
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
 
-#### 行 2006, 列 12
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (14/12)
-- 符号: too-many-branches
-
-#### 行 2007, 列 16
+#### 行 480, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 2042, 列 35
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 529, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "file_size == 0" can be simplified to "not file_size", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 2071, 列 15
+#### 行 538, 列 63
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0621
+- 描述: Redefining name 'f' from outer scope (line 2141)
+- 符号: redefined-outer-name
 
-#### 行 2078, 列 4
+#### 行 556, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "self.intBatteryNum == 0" can be simplified to "not self.intBatteryNum", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 623, 列 8
+- 类型: refactor
+- 代码: R1702
+- 描述: Too many nested blocks (7/5)
+- 符号: too-many-nested-blocks
+
+#### 行 623, 列 8
+- 类型: refactor
+- 代码: R1702
+- 描述: Too many nested blocks (6/5)
+- 符号: too-many-nested-blocks
+
+#### 行 625, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "loop == 0" can be simplified to "not loop", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 639, 列 28
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 686, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (6/5)
+- 符号: too-many-positional-arguments
+
+#### 行 707, 列 8
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 726, 列 27
+- 类型: convention
+- 代码: C1805
+- 描述: "charge_diff == 0" can be simplified to "not charge_diff", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 739, 列 24
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 769, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (67/50)
+- 符号: too-many-statements
+
+#### 行 919, 列 22
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'dirs'
+- 符号: unused-variable
+
+#### 行 931, 列 20
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
+
+#### 行 952, 列 20
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
+
+#### 行 962, 列 12
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'traceback' from outer scope (line 30)
+- 符号: redefined-outer-name
+
+#### 行 962, 列 12
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'traceback' (imported line 30)
+- 符号: reimported
+
+#### 行 962, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (traceback)
+- 符号: import-outside-toplevel
+
+#### 行 965, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (66/50)
+- 符号: too-many-statements
+
+#### 行 1049, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (datetime)
+- 符号: import-outside-toplevel
+
+#### 行 1098, 列 8
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'matplotlib' from outer scope (line 37)
+- 符号: redefined-outer-name
+
+#### 行 1098, 列 8
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'matplotlib' (imported line 37)
+- 符号: reimported
+
+#### 行 1098, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib)
+- 符号: import-outside-toplevel
+
+#### 行 1099, 列 8
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'plt' from outer scope (line 38)
+- 符号: redefined-outer-name
+
+#### 行 1099, 列 8
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'matplotlib.pyplot' (imported line 38)
+- 符号: reimported
+
+#### 行 1099, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib.pyplot)
+- 符号: import-outside-toplevel
+
+#### 行 1099, 列 8
+- 类型: warning
+- 代码: W0611
+- 描述: Unused matplotlib.pyplot imported as plt
+- 符号: unused-import
+
+#### 行 1170, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (datetime)
+- 符号: import-outside-toplevel
+
+#### 行 1172, 列 12
+- 类型: warning
+- 代码: W0702
+- 描述: No exception type(s) specified
+- 符号: bare-except
+
+#### 行 1177, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.version.Version)
+- 符号: import-outside-toplevel
+
+#### 行 1217, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.version.Version)
+- 符号: import-outside-toplevel
+
+#### 行 1224, 列 4
+- 类型: refactor
+- 代码: R1710
+- 描述: Either all return statements in a function should return an expression, or none of them should.
+- 符号: inconsistent-return-statements
+
+#### 行 1313, 列 12
+- 类型: warning
+- 代码: W0707
+- 描述: Consider explicitly re-raising using 'raise ImportError(f'PyQt6依赖缺失: {e}. 请确保已正确安装PyQt6') from e'
+- 符号: raise-missing-from
+
+#### 行 1314, 列 15
+- 类型: warning
+- 代码: W0705
+- 描述: Catching previously caught exception type ImportError
+- 符号: duplicate-except
+
+#### 行 1396, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (10/5)
+- 符号: too-many-positional-arguments
+
+#### 行 1514, 列 16
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 1561, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (threading)
+- 符号: import-outside-toplevel
+
+#### 行 1688, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (7/5)
+- 符号: too-many-positional-arguments
+
+#### 行 1731, 列 32
+- 类型: warning
+- 代码: W0108
+- 描述: Lambda may not be necessary
+- 符号: unnecessary-lambda
+
+#### 行 1736, 列 32
+- 类型: warning
+- 代码: W0108
+- 描述: Lambda may not be necessary
+- 符号: unnecessary-lambda
+
+#### 行 1742, 列 12
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'file_button_states' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1765, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (7/5)
+- 符号: too-many-positional-arguments
+
+#### 行 1835, 列 0
+- 类型: warning
+- 代码: W0311
+- 描述: Bad indentation. Found 24 spaces, expected 20
+- 符号: bad-indentation
+
+#### 行 1847, 列 12
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'filter_button_state' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1896, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'battery_button_states' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1904, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (8/5)
+- 符号: too-many-positional-arguments
+
+#### 行 1904, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (56/50)
+- 符号: too-many-statements
+
+#### 行 1905, 列 38
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'check_filter'
+- 符号: unused-argument
+
+#### 行 1965, 列 16
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 1974, 列 16
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 1982, 列 16
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 1997, 列 0
+- 类型: warning
+- 代码: W0311
+- 描述: Bad indentation. Found 24 spaces, expected 16
+- 符号: bad-indentation
+
+#### 行 2030, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (6/5)
+- 符号: too-many-positional-arguments
+
+#### 行 2037, 列 21
+- 类型: refactor
+- 代码: R1735
+- 描述: Consider using '{"boxstyle": 'round,pad=0.5', "fc": 'yellow', "alpha": 0.7}' instead of a call to 'dict'.
+- 符号: use-dict-literal
+
+#### 行 2038, 列 27
+- 类型: refactor
+- 代码: R1735
+- 描述: Consider using '{"arrowstyle": '->'}' instead of a call to 'dict'.
+- 符号: use-dict-literal
+
+#### 行 2043, 列 12
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (14/12)
+- 符号: too-many-branches
+
+#### 行 2044, 列 16
+- 类型: refactor
+- 代码: R1702
+- 描述: Too many nested blocks (6/5)
+- 符号: too-many-nested-blocks
+
+#### 行 2079, 列 28
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 2115, 列 4
 - 类型: warning
 - 代码: W0105
 - 描述: String statement has no effect
 - 符号: pointless-string-statement
 
-#### 行 2086, 列 4
+#### 行 2123, 列 4
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'sys' (imported line 26)
 - 符号: reimported
 
-#### 行 2086, 列 4
+#### 行 2123, 列 4
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package sys are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2087, 列 4
+#### 行 2124, 列 4
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package PyQt6 are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2094, 列 8
+#### 行 2131, 列 8
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package battery_analysis are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2094, 列 8
+#### 行 2131, 列 8
 - 类型: warning
 - 代码: W0611
 - 描述: Unused apply_modern_theme imported from battery_analysis.ui.styles.style_manager
 - 符号: unused-import
 
-#### 行 2115, 列 19
+## 文件: src\battery_analysis\main\business_logic\battery_calculator.py
+
+### 问题统计
+- 问题总数: 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 51, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (13/12)
+- 符号: too-many-branches
+
+## 文件: src\battery_analysis\main\business_logic\data_processor.py
+
+### 问题统计
+- 问题总数: 13
+- 错误(Error): 1
+- 警告(Warning): 9
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import csv
+- 符号: unused-import
+
+#### 行 11, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Path imported from pathlib
+- 符号: unused-import
+
+#### 行 64, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2117, 列 11
+#### 行 89, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (concurrent.futures.ProcessPoolExecutor, concurrent.futures.as_completed)
+- 符号: import-outside-toplevel
+
+#### 行 110, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2124, 列 15
+#### 行 227, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
+
+#### 行 406, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.main_window.Checker)
+- 符号: import-outside-toplevel
+
+#### 行 406, 列 12
+- 类型: error
+- 代码: E0611
+- 描述: No name 'Checker' in module 'battery_analysis.main.main_window'
+- 符号: no-name-in-module
+
+#### 行 465, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (concurrent.futures.ProcessPoolExecutor, concurrent.futures.as_completed)
+- 符号: import-outside-toplevel
+
+#### 行 487, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 539, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 613, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute '_error_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 637, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute '_error_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+## 文件: src\battery_analysis\main\business_logic\environment_manager.py
+
+### 问题统计
+- 问题总数: 8
+- 警告(Warning): 6
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 11, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused EnvironmentType imported from battery_analysis.utils.environment_utils
+- 符号: unused-import
+
+#### 行 34, 列 34
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 50, 列 38
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 55, 列 20
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'EnvironmentType' from outer scope (line 11)
+- 符号: redefined-outer-name
+
+#### 行 55, 列 20
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'EnvironmentType' (imported line 11)
+- 符号: reimported
+
+#### 行 55, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
+
+#### 行 59, 列 16
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'EnvironmentType' (imported line 11)
+- 符号: reimported
+
+#### 行 59, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\business_logic\help_manager.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 3
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import subprocess
+- 符号: unused-import
+
+#### 行 11, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Path imported from pathlib
+- 符号: unused-import
+
+#### 行 14, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused QtCore imported from PyQt6 as QC
+- 符号: unused-import
+
+#### 行 85, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (PyQt6.QtGui.QDesktopServices)
+- 符号: import-outside-toplevel
+
+#### 行 86, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (PyQt6.QtCore.QUrl)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\business_logic\user_settings_manager.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 1
+- 重构(Refactor): 5
+
+### 详细问题
+#### 行 14, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Any imported from typing
+- 符号: unused-import
+
+#### 行 39, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (14/12)
+- 符号: too-many-branches
+
+#### 行 39, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (53/50)
+- 符号: too-many-statements
+
+#### 行 152, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (25/12)
+- 符号: too-many-branches
+
+#### 行 152, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (65/50)
+- 符号: too-many-statements
+
+#### 行 156, 列 8
+- 类型: refactor
+- 代码: R1702
+- 描述: Too many nested blocks (6/5)
+- 符号: too-many-nested-blocks
+
+## 文件: src\battery_analysis\main\business_logic\validation_manager.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 1
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 16, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused PyQt6.QtWidgets imported as QW
+- 符号: unused-import
+
+#### 行 172, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (17/12)
+- 符号: too-many-branches
+
+#### 行 197, 列 12
+- 类型: refactor
+- 代码: R1723
+- 描述: Unnecessary "elif" after "break", remove the leading "el" from "elif"
+- 符号: no-else-break
+
+## 文件: src\battery_analysis\main\business_logic\version_manager.py
+
+### 问题统计
+- 问题总数: 24
+- 警告(Warning): 12
+- 规范(Convention): 6
+- 重构(Refactor): 6
+
+### 详细问题
+#### 行 15, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused List imported from typing
+- 符号: unused-import
+
+#### 行 15, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Any imported from typing
+- 符号: unused-import
+
+#### 行 18, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused PyQt6.QtWidgets imported as QW
+- 符号: unused-import
+
+#### 行 21, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused _ imported from battery_analysis.i18n.language_manager
+- 符号: unused-import
+
+#### 行 39, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (14/12)
+- 符号: too-many-branches
+
+#### 行 39, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (67/50)
+- 符号: too-many-statements
+
+#### 行 59, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 59, 列 33
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 63, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.utils.file_utils.FileUtils)
+- 符号: import-outside-toplevel
+
+#### 行 65, 列 49
+- 类型: convention
+- 代码: C1805
+- 描述: "os.path.getsize(strCsvMd5Path) != 0" can be simplified to "os.path.getsize(strCsvMd5Path)", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 67, 列 20
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
+
+#### 行 108, 列 20
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
+
+#### 行 117, 列 27
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 123, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (win32api)
+- 符号: import-outside-toplevel
+
+#### 行 124, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (win32con)
+- 符号: import-outside-toplevel
+
+#### 行 131, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (23/12)
+- 符号: too-many-branches
+
+#### 行 131, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (80/50)
+- 符号: too-many-statements
+
+#### 行 183, 列 32
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'version_major'
+- 符号: unused-variable
+
+#### 行 184, 列 32
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'version_minor'
+- 符号: unused-variable
+
+#### 行 207, 列 35
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 215, 列 28
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (win32api)
+- 符号: import-outside-toplevel
+
+#### 行 216, 列 28
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (win32con)
+- 符号: import-outside-toplevel
+
+#### 行 224, 列 23
+- 类型: warning
+- 代码: W0705
+- 描述: Catching previously caught exception type PermissionError
+- 符号: duplicate-except
+
+#### 行 246, 列 23
+- 类型: warning
+- 代码: W0705
+- 描述: Catching previously caught exception type PermissionError
+- 符号: duplicate-except
+
+## 文件: src\battery_analysis\main\business_logic\visualization_manager.py
+
+### 问题统计
+- 问题总数: 13
+- 警告(Warning): 6
+- 规范(Convention): 6
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import matplotlib
+- 符号: unused-import
+
+#### 行 11, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "subprocess" should be placed before third party import "matplotlib"
+- 符号: wrong-import-order
+
+#### 行 12, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "sys" should be placed before third party import "matplotlib"
+- 符号: wrong-import-order
+
+#### 行 12, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import sys
+- 符号: unused-import
+
+#### 行 13, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "traceback" should be placed before third party import "matplotlib"
+- 符号: wrong-import-order
+
+#### 行 14, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "matplotlib"
+- 符号: wrong-import-order
+
+#### 行 14, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Path imported from pathlib
+- 符号: unused-import
+
+#### 行 15, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "typing.Optional" should be placed before third party import "matplotlib"
+- 符号: wrong-import-order
+
+#### 行 15, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 19, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused QtCore imported from PyQt6 as QC
+- 符号: unused-import
+
+#### 行 20, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused QtGui imported from PyQt6 as QG
+- 符号: unused-import
+
+#### 行 64, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib.pyplot)
+- 符号: import-outside-toplevel
+
+#### 行 110, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (52/50)
+- 符号: too-many-statements
+
+## 文件: src\battery_analysis\main\commands\command.py
+
+### 问题统计
+- 问题总数: 47
+- 错误(Error): 6
+- 警告(Warning): 41
+
+### 详细问题
+#### 行 25, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 49, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 50, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 76, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 77, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 102, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 103, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 128, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 129, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 154, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 155, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 180, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 181, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 185, 列 0
+- 类型: error
+- 代码: E0102
+- 描述: class already defined line 28
+- 符号: function-redefined
+
+#### 行 206, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 207, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 211, 列 0
+- 类型: error
+- 代码: E0102
+- 描述: class already defined line 54
+- 符号: function-redefined
+
+#### 行 233, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 234, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 238, 列 0
+- 类型: error
+- 代码: E0102
+- 描述: class already defined line 159
+- 符号: function-redefined
+
+#### 行 259, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 260, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 264, 列 0
+- 类型: error
+- 代码: E0102
+- 描述: class already defined line 133
+- 符号: function-redefined
+
+#### 行 285, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 286, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 290, 列 0
+- 类型: error
+- 代码: E0102
+- 描述: class already defined line 81
+- 符号: function-redefined
+
+#### 行 311, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 312, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 316, 列 0
+- 类型: error
+- 代码: E0102
+- 描述: class already defined line 107
+- 符号: function-redefined
+
+#### 行 337, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 338, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 363, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 364, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 390, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 391, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 417, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 418, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 443, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 444, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 469, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 470, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 497, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 498, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 522, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 523, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 550, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 551, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
 
 ## 文件: src\battery_analysis\main\controllers\__init__.py
 
@@ -1832,48 +2852,22 @@
 ## 文件: src\battery_analysis\main\controllers\file_controller.py
 
 ### 问题统计
-- 问题总数: 3
-- 警告(Warning): 2
+- 问题总数: 1
 - 规范(Convention): 1
 
 ### 详细问题
-#### 行 28, 列 8
+#### 行 29, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.service_container.get_service_container)
 - 符号: import-outside-toplevel
 
-#### 行 105, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 128, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-## 文件: src\battery_analysis\main\controllers\main_controller.py
-
-### 问题统计
-- 问题总数: 1
-- 警告(Warning): 1
-
-### 详细问题
-#### 行 166, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 ## 文件: src\battery_analysis\main\controllers\validation_controller.py
 
 ### 问题统计
-- 问题总数: 10
-- 警告(Warning): 5
-- 规范(Convention): 4
+- 问题总数: 5
+- 警告(Warning): 3
+- 规范(Convention): 1
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -1889,18 +2883,6 @@
 - 描述: Import outside toplevel (battery_analysis.main.services.service_container.get_service_container)
 - 符号: import-outside-toplevel
 
-#### 行 33, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 55, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 57, 列 4
 - 类型: refactor
 - 代码: R0911
@@ -1913,35 +2895,17 @@
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 100, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 131, 列 17
 - 类型: warning
 - 代码: W1514
 - 描述: Using open without explicitly specifying an encoding
 - 符号: unspecified-encoding
 
-#### 行 134, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 185, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 ## 文件: src\battery_analysis\main\controllers\visualizer_controller.py
 
 ### 问题统计
-- 问题总数: 13
-- 警告(Warning): 4
+- 问题总数: 12
+- 警告(Warning): 3
 - 规范(Convention): 5
 - 重构(Refactor): 4
 
@@ -2018,18 +2982,57 @@
 - 描述: Import outside toplevel (matplotlib.pyplot)
 - 符号: import-outside-toplevel
 
-#### 行 373, 列 15
+## 文件: src\battery_analysis\main\dialogs\data_error_dialog.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 4
+- 规范(Convention): 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 4, 列 0
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0611
+- 描述: Unused QtCore imported from PyQt6 as QC
+- 符号: unused-import
+
+#### 行 20, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (52/50)
+- 符号: too-many-statements
+
+#### 行 56, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'retry_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 62, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'default_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 67, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'cancel_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 135, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (os)
+- 符号: import-outside-toplevel
 
 ## 文件: src\battery_analysis\main\factories\visualizer_factory.py
 
 ### 问题统计
 - 问题总数: 6
-- 警告(Warning): 5
-- 规范(Convention): 1
+- 警告(Warning): 4
+- 规范(Convention): 2
 
 ### 详细问题
 #### 行 10, 列 0
@@ -2038,42 +3041,408 @@
 - 描述: Unused Any imported from typing
 - 符号: unused-import
 
-#### 行 66, 列 15
+#### 行 129, 列 20
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _search_for_data_files of a client class
+- 符号: protected-access
+
+#### 行 133, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _search_for_data_files of a client class
+- 符号: protected-access
+
+#### 行 140, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.controllers.main_controller.MainController)
+- 符号: import-outside-toplevel
+
+#### 行 140, 列 20
+- 类型: warning
+- 代码: W0611
+- 描述: Unused MainController imported from battery_analysis.main.controllers.main_controller
+- 符号: unused-import
+
+#### 行 141, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.services.service_container.get_service_container)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\handlers\temperature_handler.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 1
+- 规范(Convention): 1
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 43, 列 12
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
+
+#### 行 47, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 134, 列 15
+#### 行 59, 列 8
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
+
+#### 行 86, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: src\battery_analysis\main\initialization\initialization_orchestrator.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 3
+
+### 详细问题
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Any imported from typing
+- 符号: unused-import
+
+#### 行 83, 列 12
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 83, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 159, 列 15
+## 文件: src\battery_analysis\main\initialization\initialization_step.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 40, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 82, 列 26
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'main_window'
+- 符号: unused-argument
+
+## 文件: src\battery_analysis\main\initialization\steps\basic_attributes_step.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 4
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 29, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.__version__)
+- 符号: import-outside-toplevel
+
+#### 行 36, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _services of a client class
+- 符号: protected-access
+
+#### 行 37, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _controllers of a client class
+- 符号: protected-access
+
+#### 行 57, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 57, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 180, 列 15
+## 文件: src\battery_analysis\main\initialization\steps\battery_config_initialization_step.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 54, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 233, 列 0
+#### 行 55, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+## 文件: src\battery_analysis\main\initialization\steps\command_manager_initialization_step.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 32, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 32, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\initialization\steps\environment_initialization_step.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 31, 列 0
 - 类型: convention
 - 代码: C0327
 - 描述: Mixed line endings LF and CRLF
 - 符号: mixed-line-endings
 
+#### 行 46, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 49, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (ctypes)
+- 符号: import-outside-toplevel
+
+#### 行 59, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 59, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\initialization\steps\handlers_initialization_step.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 49, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 49, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\initialization\steps\language_initialization_step.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 5
+
+### 详细问题
+#### 行 37, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _initialize_environment_info of a client class
+- 符号: protected-access
+
+#### 行 40, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _ensure_env_info_keys of a client class
+- 符号: protected-access
+
+#### 行 44, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 44, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 59, 列 70
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _on_language_changed of a client class
+- 符号: protected-access
+
+## 文件: src\battery_analysis\main\initialization\steps\managers_initialization_step.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 79, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 79, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\initialization\steps\presenters_initialization_step.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 33, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 33, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\initialization\steps\processors_initialization_step.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 32, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 32, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\initialization\steps\services_initialization_step.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 3
+
+### 详细问题
+#### 行 29, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _service_container of a client class
+- 符号: protected-access
+
+#### 行 32, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 32, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\initialization\steps\styles_initialization_step.py
+
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 28, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.ui.styles.style_manager)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\initialization\steps\ui_setup_step.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 3
+
+### 详细问题
+#### 行 29, 列 34
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_controller of a client class
+- 符号: protected-access
+
+#### 行 42, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 42, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
 ## 文件: src\battery_analysis\main\interfaces\ivisualizer.py
 
 ### 问题统计
-- 问题总数: 9
+- 问题总数: 8
 - 警告(Warning): 8
-- 规范(Convention): 1
 
 ### 详细问题
 #### 行 9, 列 0
@@ -2118,12 +3487,6 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 90, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 90, 列 8
 - 类型: warning
 - 代码: W0107
@@ -2133,678 +3496,386 @@
 ## 文件: src\battery_analysis\main\main_window.py
 
 ### 问题统计
-- 问题总数: 110
-- 警告(Warning): 50
-- 规范(Convention): 30
-- 重构(Refactor): 30
+- 问题总数: 19
+- 警告(Warning): 14
+- 规范(Convention): 1
+- 重构(Refactor): 4
 
 ### 详细问题
-#### 行 1, 列 0
-- 类型: convention
-- 代码: C0302
-- 描述: Too many lines in module (3153/1000)
-- 符号: too-many-lines
-
-#### 行 34, 列 0
+#### 行 14, 列 0
 - 类型: warning
 - 代码: W0611
-- 描述: Unused IVisualizer imported from battery_analysis.main.interfaces.ivisualizer
+- 描述: Unused import os
 - 符号: unused-import
 
-#### 行 36, 列 0
+#### 行 15, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import re
+- 符号: unused-import
+
+#### 行 17, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import time
+- 符号: unused-import
+
+#### 行 19, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Path imported from pathlib
+- 符号: unused-import
+
+#### 行 20, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Any imported from typing
+- 符号: unused-import
+
+#### 行 23, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import matplotlib
+- 符号: unused-import
+
+#### 行 29, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused get_language_manager imported from battery_analysis.i18n.language_manager
+- 符号: unused-import
+
+#### 行 32, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused resources_rc imported from battery_analysis.resources
 - 符号: unused-import
 
-#### 行 182, 列 0
-- 类型: refactor
-- 代码: R0902
-- 描述: Too many instance attributes (34/7)
-- 符号: too-many-instance-attributes
-
-#### 行 182, 列 0
+#### 行 41, 列 0
 - 类型: refactor
 - 代码: R0904
-- 描述: Too many public methods (53/20)
+- 描述: Too many public methods (45/20)
 - 符号: too-many-public-methods
 
-#### 行 185, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (22/12)
-- 符号: too-many-branches
+#### 行 67, 列 12
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'listCurrentLevel' defined outside __init__
+- 符号: attribute-defined-outside-init
 
-#### 行 185, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (104/50)
-- 符号: too-many-statements
+#### 行 70, 列 12
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'listCurrentLevel' defined outside __init__
+- 符号: attribute-defined-outside-init
 
-#### 行 187, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.__version__)
-- 符号: import-outside-toplevel
+#### 行 72, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'listVoltageLevel' defined outside __init__
+- 符号: attribute-defined-outside-init
 
-#### 行 239, 列 15
+#### 行 120, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 250, 列 20
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
-- 符号: import-outside-toplevel
-
-#### 行 252, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 254, 列 16
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
-- 符号: import-outside-toplevel
-
-#### 行 263, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (ctypes)
-- 符号: import-outside-toplevel
-
-#### 行 274, 列 16
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
-- 符号: import-outside-toplevel
-
-#### 行 276, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 279, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
-- 符号: import-outside-toplevel
-
-#### 行 308, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 318, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.ui.styles.style_manager)
-- 符号: import-outside-toplevel
-
-#### 行 322, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 335, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.config_parser.safe_int_convert, battery_analysis.utils.config_parser.safe_float_convert)
-- 符号: import-outside-toplevel
-
-#### 行 361, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 379, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 398, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 415, 列 16
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
-- 符号: import-outside-toplevel
-
-#### 行 416, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 418, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
-- 符号: import-outside-toplevel
-
-#### 行 484, 列 23
-- 类型: convention
-- 代码: C1804
-- 描述: "item != ''" can be simplified to "item", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 491, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 548, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 684, 列 8
+#### 行 232, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 725, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 780, 列 8
-- 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
-
-#### 行 833, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (20/12)
-- 符号: too-many-branches
-
-#### 行 833, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (53/50)
-- 符号: too-many-statements
-
-#### 行 913, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 963, 列 8
-- 类型: refactor
-- 代码: R0917
-- 描述: Too many positional arguments (6/5)
-- 符号: too-many-positional-arguments
-
-#### 行 1011, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.__version__)
-- 符号: import-outside-toplevel
-
-#### 行 1137, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1152, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1173, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (22/12)
-- 符号: too-many-branches
-
-#### 行 1238, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1266, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1283, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1298, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1310, 列 11
+#### 行 308, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 1316, 列 11
+#### 行 314, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 1322, 列 11
+#### 行 320, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 1432, 列 15
+#### 行 423, 列 42
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0613
+- 描述: Unused argument 'index'
+- 符号: unused-argument
 
-#### 行 1435, 列 12
+#### 行 529, 列 4
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (traceback)
+- 描述: Import outside toplevel (battery_analysis.main.application_initializer.ApplicationInitializer)
 - 符号: import-outside-toplevel
 
-#### 行 1456, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (52/50)
-- 符号: too-many-statements
+## 文件: src\battery_analysis\main\managers\analysis_runner.py
 
-#### 行 1487, 列 8
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 2
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 14, 列 0
 - 类型: warning
-- 代码: W0201
-- 描述: Attribute 'retry_option' defined outside __init__
-- 符号: attribute-defined-outside-init
+- 代码: W0611
+- 描述: Unused import os
+- 符号: unused-import
 
-#### 行 1493, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'default_option' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1498, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'cancel_option' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 1592, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1731, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1763, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (14/12)
-- 符号: too-many-branches
-
-#### 行 1792, 列 87
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1798, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1803, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1809, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1814, 列 24
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1818, 列 86
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 1823, 列 20
+#### 行 95, 列 57
 - 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.ui.styles.style_manager)
-- 符号: import-outside-toplevel
+- 代码: C1805
+- 描述: "self.main_window.spinBox_Temperature.value() == 0" can be simplified to "not self.main_window.spinBox_Temperature.value()", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 1825, 列 88
+#### 行 153, 列 26
 - 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
+- 代码: W0212
+- 描述: Access to a protected member _get_controller of a client class
+- 符号: protected-access
 
-#### 行 1826, 列 16
+## 文件: src\battery_analysis\main\managers\command_manager.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 4
+
+### 详细问题
+#### 行 87, 列 12
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'e'
 - 符号: unused-variable
 
-#### 行 1826, 列 23
+#### 行 87, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 1867, 列 95
+#### 行 88, 列 16
 - 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
 
-#### 行 1868, 列 15
+#### 行 91, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+## 文件: src\battery_analysis\main\managers\environment_manager.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 2
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 23, 列 34
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 40, 列 38
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 45, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
+
+#### 行 49, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\managers\path_manager.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 2
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 4, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Path imported from pathlib
+- 符号: unused-import
+
+#### 行 93, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 2012, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (17/12)
-- 符号: too-many-branches
+#### 行 162, 列 11
+- 类型: convention
+- 代码: C1804
+- 描述: "selected_dir != ''" can be simplified to "selected_dir", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 2034, 列 12
-- 类型: refactor
-- 代码: R1723
-- 描述: Unnecessary "elif" after "break", remove the leading "el" from "elif"
-- 符号: no-else-break
+#### 行 175, 列 11
+- 类型: convention
+- 代码: C1804
+- 描述: "selected_dir != ''" can be simplified to "selected_dir", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 2086, 列 4
+## 文件: src\battery_analysis\main\managers\report_manager.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 4
+
+### 详细问题
+#### 行 61, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 68, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 91, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 98, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+## 文件: src\battery_analysis\main\managers\test_profile_manager.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 90, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.handlers.temperature_handler.TemperatureType)
+- 符号: import-outside-toplevel
+
+#### 行 90, 列 12
+- 类型: warning
+- 代码: W0611
+- 描述: Unused TemperatureType imported from battery_analysis.main.handlers.temperature_handler
+- 符号: unused-import
+
+## 文件: src\battery_analysis\main\managers\visualization_manager.py
+
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 70, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.dialogs.data_error_dialog.DataErrorRecoveryDialog)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\presenters\main_presenter.py
+
+### 问题统计
+- 问题总数: 8
+- 警告(Warning): 6
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Any imported from typing
+- 符号: unused-import
+
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Dict imported from typing
+- 符号: unused-import
+
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused List imported from typing
+- 符号: unused-import
+
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused CalculateBatteryUseCase imported from battery_analysis.application.usecases.calculate_battery_use_case
+- 符号: unused-import
+
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused AnalyzeDataUseCase imported from battery_analysis.application.usecases.analyze_data_use_case
+- 符号: unused-import
+
+#### 行 11, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused GenerateReportUseCase imported from battery_analysis.application.usecases.generate_report_use_case
+- 符号: unused-import
+
+#### 行 14, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (18/7)
+- 符号: too-many-instance-attributes
+
+#### 行 257, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (13/12)
 - 符号: too-many-branches
 
-#### 行 2086, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (54/50)
-- 符号: too-many-statements
+## 文件: src\battery_analysis\main\services\__init__.py
 
-#### 行 2180, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (16/12)
-- 符号: too-many-branches
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
 
-#### 行 2180, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (64/50)
-- 符号: too-many-statements
-
-#### 行 2207, 列 11
+### 详细问题
+#### 行 44, 列 0
 - 类型: convention
-- 代码: C1804
-- 描述: "strInDataXlsxDir != ''" can be simplified to "strInDataXlsxDir", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2225, 列 16
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 2229, 列 16
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 2278, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (16/12)
-- 符号: too-many-branches
-
-#### 行 2278, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (68/50)
-- 符号: too-many-statements
-
-#### 行 2318, 列 49
-- 类型: convention
-- 代码: C1805
-- 描述: "os.path.getsize(strCsvMd5Path) != 0" can be simplified to "os.path.getsize(strCsvMd5Path)", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2320, 列 20
-- 类型: refactor
-- 代码: R1732
-- 描述: Consider using 'with' for resource-allocating operations
-- 符号: consider-using-with
-
-#### 行 2346, 列 20
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 2364, 列 20
-- 类型: refactor
-- 代码: R1732
-- 描述: Consider using 'with' for resource-allocating operations
-- 符号: consider-using-with
-
-#### 行 2379, 列 20
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (win32api)
-- 符号: import-outside-toplevel
-
-#### 行 2380, 列 20
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (win32con)
-- 符号: import-outside-toplevel
-
-#### 行 2387, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (13/12)
-- 符号: too-many-branches
-
-#### 行 2460, 列 31
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 2480, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 2492, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.current_directory != ''" can be simplified to "self.current_directory", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2500, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.current_directory != ''" can be simplified to "self.current_directory", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2513, 列 8
-- 类型: warning
-- 代码: W0105
-- 描述: String statement has no effect
-- 符号: pointless-string-statement
-
-#### 行 2598, 列 12
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 2605, 列 11
-- 类型: convention
-- 代码: C1804
-- 描述: "self.test_information != ''" can be simplified to "self.test_information", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 2661, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (21/12)
-- 符号: too-many-branches
-
-#### 行 2661, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (83/50)
-- 符号: too-many-statements
-
-#### 行 2762, 列 8
-- 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
-
-#### 行 2764, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (16/12)
-- 符号: too-many-branches
-
-#### 行 2764, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (77/50)
-- 符号: too-many-statements
-
-#### 行 2775, 列 19
-- 类型: convention
-- 代码: C1805
-- 描述: "stateindex == 0" can be simplified to "not stateindex", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2787, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "stateindex == 0" can be simplified to "not stateindex", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 2925, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (24/12)
-- 符号: too-many-branches
-
-#### 行 2925, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (83/50)
-- 符号: too-many-statements
-
-#### 行 2956, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 3009, 列 28
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (win32api)
-- 符号: import-outside-toplevel
-
-#### 行 3010, 列 28
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (win32con)
-- 符号: import-outside-toplevel
-
-#### 行 3012, 列 31
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 3018, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 3035, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 3040, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 3044, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
 
 ## 文件: src\battery_analysis\main\services\application_service.py
 
 ### 问题统计
-- 问题总数: 8
-- 警告(Warning): 4
-- 规范(Convention): 3
+- 问题总数: 9
+- 警告(Warning): 7
+- 规范(Convention): 1
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -2820,76 +3891,88 @@
 - 描述: Unused Path imported from pathlib
 - 符号: unused-import
 
-#### 行 21, 列 0
+#### 行 17, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused get_environment_detector imported from battery_analysis.utils.environment_utils
 - 符号: unused-import
 
-#### 行 24, 列 0
+#### 行 20, 列 0
 - 类型: refactor
 - 代码: R0902
-- 描述: Too many instance attributes (15/7)
+- 描述: Too many instance attributes (19/7)
 - 符号: too-many-instance-attributes
 
-#### 行 109, 列 12
+#### 行 143, 列 8
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.main.controllers.file_controller.FileController)
+- 描述: Import outside toplevel (battery_analysis.main.services.event_bus.EventType)
 - 符号: import-outside-toplevel
 
-#### 行 110, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.main.controllers.main_controller.MainController)
-- 符号: import-outside-toplevel
-
-#### 行 111, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.main.controllers.validation_controller.ValidationController)
-- 符号: import-outside-toplevel
-
-#### 行 128, 列 15
+#### 行 147, 列 12
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0108
+- 描述: Lambda may not be necessary
+- 符号: unnecessary-lambda
+
+#### 行 150, 列 12
+- 类型: warning
+- 代码: W0108
+- 描述: Lambda may not be necessary
+- 符号: unnecessary-lambda
+
+#### 行 153, 列 12
+- 类型: warning
+- 代码: W0108
+- 描述: Lambda may not be necessary
+- 符号: unnecessary-lambda
+
+#### 行 184, 列 37
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'event'
+- 符号: unused-argument
 
 ## 文件: src\battery_analysis\main\services\config_service.py
 
 ### 问题统计
-- 问题总数: 13
-- 警告(Warning): 9
-- 规范(Convention): 2
-- 重构(Refactor): 2
+- 问题总数: 12
+- 警告(Warning): 8
+- 规范(Convention): 3
+- 重构(Refactor): 1
 
 ### 详细问题
-#### 行 58, 列 16
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
-- 符号: no-else-return
-
-#### 行 70, 列 15
+#### 行 48, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 106, 列 15
+#### 行 66, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 118, 列 12
+#### 行 78, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 132, 列 15
+#### 行 87, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 123, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 139, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -2901,43 +3984,31 @@
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 184, 列 15
+#### 行 187, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 215, 列 15
+#### 行 206, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 237, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 210, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
-#### 行 263, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 278, 列 12
+#### 行 222, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
 - 符号: import-outside-toplevel
 
-#### 行 281, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 299, 列 0
+#### 行 227, 列 0
 - 类型: convention
 - 代码: C0327
 - 描述: Mixed line endings LF and CRLF
@@ -2946,9 +4017,9 @@
 ## 文件: src\battery_analysis\main\services\config_service_interface.py
 
 ### 问题统计
-- 问题总数: 9
+- 问题总数: 10
 - 警告(Warning): 8
-- 规范(Convention): 1
+- 规范(Convention): 2
 
 ### 详细问题
 #### 行 31, 列 8
@@ -2993,13 +4064,19 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 117, 列 0
+#### 行 106, 列 0
 - 类型: convention
 - 代码: C0327
 - 描述: Mixed line endings LF and CRLF
 - 符号: mixed-line-endings
 
-#### 行 117, 列 8
+#### 行 118, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 118, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
@@ -3008,9 +4085,8 @@
 ## 文件: src\battery_analysis\main\services\data_processing_service_interface.py
 
 ### 问题统计
-- 问题总数: 15
+- 问题总数: 14
 - 警告(Warning): 14
-- 规范(Convention): 1
 
 ### 详细问题
 #### 行 9, 列 0
@@ -3091,12 +4167,6 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 176, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 176, 列 8
 - 类型: warning
 - 代码: W0107
@@ -3106,9 +4176,8 @@
 ## 文件: src\battery_analysis\main\services\document_service_interface.py
 
 ### 问题统计
-- 问题总数: 14
+- 问题总数: 13
 - 警告(Warning): 12
-- 规范(Convention): 1
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -3184,12 +4253,6 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 170, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 170, 列 8
 - 类型: warning
 - 代码: W0107
@@ -3199,16 +4262,10 @@
 ## 文件: src\battery_analysis\main\services\environment_service.py
 
 ### 问题统计
-- 问题总数: 5
-- 警告(Warning): 5
+- 问题总数: 4
+- 警告(Warning): 4
 
 ### 详细问题
-#### 行 51, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 79, 列 8
 - 类型: warning
 - 代码: W0107
@@ -3236,60 +4293,27 @@
 ## 文件: src\battery_analysis\main\services\event_bus.py
 
 ### 问题统计
-- 问题总数: 7
-- 警告(Warning): 5
-- 规范(Convention): 1
-- 重构(Refactor): 1
+- 问题总数: 2
+- 警告(Warning): 2
 
 ### 详细问题
-#### 行 9, 列 0
+#### 行 11, 列 0
 - 类型: warning
 - 代码: W0611
-- 描述: Unused Optional imported from typing
+- 描述: Unused Set imported from typing
 - 符号: unused-import
 
-#### 行 156, 列 15
+#### 行 12, 列 0
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 172, 列 12
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 180, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 198, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 203, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 272, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
+- 代码: W0611
+- 描述: Unused QThread imported from PyQt6.QtCore
+- 符号: unused-import
 
 ## 文件: src\battery_analysis\main\services\file_service.py
 
 ### 问题统计
-- 问题总数: 18
-- 错误(Error): 1
-- 警告(Warning): 12
+- 问题总数: 6
+- 警告(Warning): 1
 - 规范(Convention): 4
 - 重构(Refactor): 1
 
@@ -3300,41 +4324,11 @@
 - 描述: Unused import os
 - 符号: unused-import
 
-#### 行 13, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 43, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 75, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 104, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 120, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
-
-#### 行 125, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 140, 列 12
 - 类型: convention
@@ -3348,30 +4342,6 @@
 - 描述: Import outside toplevel (win32con)
 - 符号: import-outside-toplevel
 
-#### 行 150, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 175, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 201, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 228, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 245, 列 12
 - 类型: convention
 - 代码: C0415
@@ -3384,30 +4354,11 @@
 - 描述: Import outside toplevel (win32con)
 - 符号: import-outside-toplevel
 
-#### 行 265, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 308, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 340, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 ## 文件: src\battery_analysis\main\services\file_service_interface.py
 
 ### 问题统计
-- 问题总数: 11
+- 问题总数: 10
 - 警告(Warning): 10
-- 规范(Convention): 1
 
 ### 详细问题
 #### 行 30, 列 8
@@ -3464,12 +4415,6 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 152, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 152, 列 8
 - 类型: warning
 - 代码: W0107
@@ -3479,8 +4424,8 @@
 ## 文件: src\battery_analysis\main\services\i18n_service.py
 
 ### 问题统计
-- 问题总数: 15
-- 警告(Warning): 9
+- 问题总数: 9
+- 警告(Warning): 3
 - 规范(Convention): 1
 - 重构(Refactor): 5
 
@@ -3503,23 +4448,11 @@
 - 描述: Import outside toplevel (battery_analysis.i18n.language_manager.get_language_manager)
 - 符号: import-outside-toplevel
 
-#### 行 101, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 118, 列 16
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
-
-#### 行 126, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 143, 列 16
 - 类型: refactor
@@ -3527,23 +4460,11 @@
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 155, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 167, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
-
-#### 行 172, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 184, 列 12
 - 类型: refactor
@@ -3551,23 +4472,11 @@
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 190, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 202, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
-
-#### 行 208, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 #### 行 212, 列 49
 - 类型: warning
@@ -3578,8 +4487,8 @@
 ## 文件: src\battery_analysis\main\services\progress_service.py
 
 ### 问题统计
-- 问题总数: 10
-- 警告(Warning): 9
+- 问题总数: 3
+- 警告(Warning): 2
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -3595,255 +4504,208 @@
 - 描述: Unused Any imported from typing
 - 符号: unused-import
 
-#### 行 120, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 157, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 191, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 229, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 267, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 282, 列 12
+#### 行 283, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 290, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 315, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 ## 文件: src\battery_analysis\main\services\service_container.py
 
 ### 问题统计
-- 问题总数: 33
-- 警告(Warning): 21
-- 规范(Convention): 12
+- 问题总数: 32
+- 警告(Warning): 10
+- 规范(Convention): 20
+- 重构(Refactor): 2
 
 ### 详细问题
-#### 行 35, 列 8
+#### 行 12, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused List imported from typing
+- 符号: unused-import
+
+#### 行 37, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 49, 列 8
+#### 行 51, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 62, 列 8
+#### 行 64, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 75, 列 8
+#### 行 77, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 88, 列 8
+#### 行 90, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 98, 列 8
+#### 行 100, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 129, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.main.services.application_service.ApplicationService)
-- 符号: import-outside-toplevel
+#### 行 103, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (8/7)
+- 符号: too-many-instance-attributes
 
-#### 行 130, 列 12
+#### 行 163, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.config_service.ConfigService)
 - 符号: import-outside-toplevel
 
-#### 行 131, 列 12
+#### 行 164, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.event_bus.EventBus)
 - 符号: import-outside-toplevel
 
-#### 行 132, 列 12
+#### 行 165, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.environment_service.EnvironmentService)
 - 符号: import-outside-toplevel
 
-#### 行 133, 列 12
+#### 行 166, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.file_service.FileService)
 - 符号: import-outside-toplevel
 
-#### 行 134, 列 12
+#### 行 167, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.i18n_service.I18nService)
 - 符号: import-outside-toplevel
 
-#### 行 135, 列 12
+#### 行 168, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.progress_service.ProgressService)
 - 符号: import-outside-toplevel
 
-#### 行 136, 列 12
+#### 行 169, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.validation_service.ValidationService)
 - 符号: import-outside-toplevel
 
-#### 行 154, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 190, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.infrastructure.repositories.battery_repository_impl.BatteryRepositoryImpl)
+- 符号: import-outside-toplevel
 
-#### 行 160, 列 16
+#### 行 191, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.infrastructure.services.battery_analysis_service_impl.BatteryAnalysisServiceImpl)
+- 符号: import-outside-toplevel
+
+#### 行 214, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.application.usecases.calculate_battery_use_case.CalculateBatteryUseCase)
+- 符号: import-outside-toplevel
+
+#### 行 215, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.application.usecases.analyze_data_use_case.AnalyzeDataUseCase)
+- 符号: import-outside-toplevel
+
+#### 行 216, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.application.usecases.generate_report_use_case.GenerateReportUseCase)
+- 符号: import-outside-toplevel
+
+#### 行 263, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.services.application_service.ApplicationService)
+- 符号: import-outside-toplevel
+
+#### 行 283, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.file_controller.FileController)
 - 符号: import-outside-toplevel
 
-#### 行 161, 列 16
+#### 行 284, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.main_controller.MainController)
 - 符号: import-outside-toplevel
 
-#### 行 162, 列 16
+#### 行 285, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.validation_controller.ValidationController)
 - 符号: import-outside-toplevel
 
-#### 行 163, 列 16
+#### 行 286, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.visualizer_controller.VisualizerController)
 - 符号: import-outside-toplevel
 
-#### 行 177, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 418, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (13/12)
+- 符号: too-many-branches
 
-#### 行 216, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 523, 列 0
+- 类型: convention
+- 代码: C0206
+- 描述: Consider iterating with .items()
+- 符号: consider-using-dict-items
 
-#### 行 244, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 523, 列 47
+- 类型: convention
+- 代码: C1805
+- 描述: "in_degree[node] == 0" can be simplified to "not in_degree[node]", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 274, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+#### 行 533, 列 19
+- 类型: convention
+- 代码: C1805
+- 描述: "in_degree[neighbor] == 0" can be simplified to "not in_degree[neighbor]", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 284, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 332, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 350, 列 18
+#### 行 609, 列 18
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'service_class'
 - 符号: unused-variable
 
-#### 行 356, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 377, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 389, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 403, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 409, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 450, 列 4
+#### 行 710, 列 4
 - 类型: warning
 - 代码: W0603
 - 描述: Using the global statement
 - 符号: global-statement
 
-#### 行 463, 列 4
+#### 行 723, 列 4
 - 类型: warning
 - 代码: W0603
 - 描述: Using the global statement
@@ -3852,9 +4714,8 @@
 ## 文件: src\battery_analysis\main\services\validation_service.py
 
 ### 问题统计
-- 问题总数: 3
+- 问题总数: 2
 - 警告(Warning): 2
-- 规范(Convention): 1
 
 ### 详细问题
 #### 行 11, 列 0
@@ -3869,18 +4730,11 @@
 - 描述: Unused variable 'f'
 - 符号: unused-variable
 
-#### 行 266, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 ## 文件: src\battery_analysis\main\services\validation_service_interface.py
 
 ### 问题统计
-- 问题总数: 10
+- 问题总数: 9
 - 警告(Warning): 9
-- 规范(Convention): 1
 
 ### 详细问题
 #### 行 9, 列 0
@@ -3931,25 +4785,751 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 122, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 122, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
+## 文件: src\battery_analysis\main\ui\language_handler.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 1
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 96, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 110, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.i18n._)
+- 符号: import-outside-toplevel
+
+#### 行 161, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: src\battery_analysis\main\ui_components\__init__.py
+
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 35, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: src\battery_analysis\main\ui_components\config_manager.py
+
+### 问题统计
+- 问题总数: 14
+- 警告(Warning): 6
+- 规范(Convention): 6
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 13, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import os
+- 符号: unused-import
+
+#### 行 15, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Any imported from typing
+- 符号: unused-import
+
+#### 行 21, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused safe_float_convert imported from battery_analysis.utils.config_parser
+- 符号: unused-import
+
+#### 行 21, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused safe_int_convert imported from battery_analysis.utils.config_parser
+- 符号: unused-import
+
+#### 行 56, 列 29
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 63, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
+- 符号: import-outside-toplevel
+
+#### 行 69, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
+- 符号: import-outside-toplevel
+
+#### 行 107, 列 23
+- 类型: convention
+- 代码: C1804
+- 描述: "item != ''" can be simplified to "item", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
+
+#### 行 132, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (26/12)
+- 符号: too-many-branches
+
+#### 行 132, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (57/50)
+- 符号: too-many-statements
+
+#### 行 215, 列 34
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_controller of a client class
+- 符号: protected-access
+
+#### 行 226, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.i18n.language_manager._)
+- 符号: import-outside-toplevel
+
+#### 行 227, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (PyQt6.QtWidgets)
+- 符号: import-outside-toplevel
+
+#### 行 311, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.utils.Checker)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\ui_components\dialog_manager.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 3
+- 规范(Convention): 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 16, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import traceback
+- 符号: unused-import
+
+#### 行 63, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (time)
+- 符号: import-outside-toplevel
+
+#### 行 168, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (52/50)
+- 符号: too-many-statements
+
+#### 行 239, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _open_data_directory_dialog of a client class
+- 符号: protected-access
+
+#### 行 273, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+## 文件: src\battery_analysis\main\ui_components\dialogs.py
+
+### 问题统计
+- 问题总数: 12
+- 警告(Warning): 6
+- 规范(Convention): 5
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 49, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.__version__)
+- 符号: import-outside-toplevel
+
+#### 行 64, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.i18n.preferences_dialog.PreferencesDialog)
+- 符号: import-outside-toplevel
+
+#### 行 90, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.ui.user_manual_dialog.UserManualDialog)
+- 符号: import-outside-toplevel
+
+#### 行 106, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (PyQt6.QtGui.QDesktopServices)
+- 符号: import-outside-toplevel
+
+#### 行 107, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (PyQt6.QtCore.QUrl)
+- 符号: import-outside-toplevel
+
+#### 行 183, 列 20
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _open_report of a client class
+- 符号: protected-access
+
+#### 行 186, 列 20
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _open_report_path of a client class
+- 符号: protected-access
+
+#### 行 189, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 277, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute '_error_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 283, 列 8
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
+- 符号: no-else-return
+
+#### 行 286, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _open_data_directory_dialog of a client class
+- 符号: protected-access
+
+#### 行 303, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute '_error_option' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+## 文件: src\battery_analysis\main\ui_components\menu_manager.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 2
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 18, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused PyQt6.QtWidgets imported as QW
+- 符号: unused-import
+
+#### 行 39, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (27/12)
+- 符号: too-many-branches
+
+#### 行 39, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (78/50)
+- 符号: too-many-statements
+
+#### 行 252, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+## 文件: src\battery_analysis\main\ui_components\message_manager.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 12, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused _ imported from battery_analysis.i18n.language_manager
+- 符号: unused-import
+
+#### 行 57, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: src\battery_analysis\main\ui_components\progress_dialog.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 2
+
+### 详细问题
+#### 行 12, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import logging
+- 符号: unused-import
+
+#### 行 16, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused PyQt6.QtGui imported as QG
+- 符号: unused-import
+
+## 文件: src\battery_analysis\main\ui_components\table_manager.py
+
+### 问题统计
+- 问题总数: 2
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 111, 列 12
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 118, 列 11
+- 类型: convention
+- 代码: C1804
+- 描述: "self.main_window.test_information != ''" can be simplified to "self.main_window.test_information", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
+
+## 文件: src\battery_analysis\main\ui_components\theme_manager.py
+
+### 问题统计
+- 问题总数: 12
+- 警告(Warning): 10
+- 规范(Convention): 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 16, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused PyQt6.QtCore imported as QC
+- 符号: unused-import
+
+#### 行 74, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (13/12)
+- 符号: too-many-branches
+
+#### 行 95, 列 99
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 101, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 106, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 112, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 117, 列 24
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 121, 列 98
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 126, 列 20
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.ui.styles.style_manager)
+- 符号: import-outside-toplevel
+
+#### 行 128, 列 100
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+#### 行 129, 列 16
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 170, 列 107
+- 类型: warning
+- 代码: W1309
+- 描述: Using an f-string that does not have any interpolated variables
+- 符号: f-string-without-interpolation
+
+## 文件: src\battery_analysis\main\ui_components\ui_manager.py
+
+### 问题统计
+- 问题总数: 10
+- 警告(Warning): 4
+- 规范(Convention): 3
+- 重构(Refactor): 3
+
+### 详细问题
+#### 行 13, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import os
+- 符号: unused-import
+
+#### 行 14, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import re
+- 符号: unused-import
+
+#### 行 48, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.ui_components.window_setup.WindowSetup)
+- 符号: import-outside-toplevel
+
+#### 行 57, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.ui_components.window_setup.WindowSetup)
+- 符号: import-outside-toplevel
+
+#### 行 59, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _load_application_icon of a client class
+- 符号: protected-access
+
+#### 行 358, 列 8
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (6/5)
+- 符号: too-many-positional-arguments
+
+#### 行 406, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.__version__)
+- 符号: import-outside-toplevel
+
+#### 行 464, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (26/12)
+- 符号: too-many-branches
+
+#### 行 464, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (57/50)
+- 符号: too-many-statements
+
+#### 行 545, 列 34
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_controller of a client class
+- 符号: protected-access
+
+## 文件: src\battery_analysis\main\ui_components\window_setup.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 9, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused QtWidgets imported from PyQt6 as QW
+- 符号: unused-import
+
+#### 行 57, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (pathlib.Path)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\utils\__init__.py
+
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 24, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: src\battery_analysis\main\utils\environment_adapter.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 2
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 38, 列 26
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 54, 列 26
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 59, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
+
+#### 行 62, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.environment_utils.EnvironmentType)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\utils\file_utils.py
+
+### 问题统计
+- 问题总数: 3
+- 警告(Warning): 2
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 103, 列 46
+- 类型: warning
+- 代码: W0640
+- 描述: Cell variable f defined in loop
+- 符号: cell-var-from-loop
+
+#### 行 108, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 110, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (logging)
+- 符号: import-outside-toplevel
+
+## 文件: src\battery_analysis\main\utils\service_locator.py
+
+### 问题统计
+- 问题总数: 11
+- 警告(Warning): 10
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 37, 列 31
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _services of a client class
+- 符号: protected-access
+
+#### 行 39, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _services of a client class
+- 符号: protected-access
+
+#### 行 39, 列 59
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _service_container of a client class
+- 符号: protected-access
+
+#### 行 42, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _services of a client class
+- 符号: protected-access
+
+#### 行 43, 列 15
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _services of a client class
+- 符号: protected-access
+
+#### 行 55, 列 34
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _controllers of a client class
+- 符号: protected-access
+
+#### 行 57, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _controllers of a client class
+- 符号: protected-access
+
+#### 行 57, 列 65
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _service_container of a client class
+- 符号: protected-access
+
+#### 行 60, 列 16
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _controllers of a client class
+- 符号: protected-access
+
+#### 行 61, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+#### 行 61, 列 15
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _controllers of a client class
+- 符号: protected-access
+
+## 文件: src\battery_analysis\main\utils\signal_connector.py
+
+### 问题统计
+- 问题总数: 11
+- 警告(Warning): 7
+- 规范(Convention): 3
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 13, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Any imported from typing
+- 符号: unused-import
+
+#### 行 57, 列 15
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_controller of a client class
+- 符号: protected-access
+
+#### 行 61, 列 15
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 103, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.services.event_bus.EventType)
+- 符号: import-outside-toplevel
+
+#### 行 146, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (54/50)
+- 符号: too-many-statements
+
+#### 行 161, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "stateindex == 0" can be simplified to "not stateindex", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 182, 列 16
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'ok_button'
+- 符号: unused-variable
+
+#### 行 191, 列 24
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _open_report of a client class
+- 符号: protected-access
+
+#### 行 195, 列 24
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _open_report_path of a client class
+- 符号: protected-access
+
+#### 行 343, 列 8
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 352, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.ui_components.progress_dialog.ProgressDialog)
+- 符号: import-outside-toplevel
+
 ## 文件: src\battery_analysis\main\workers\analysis_worker.py
 
 ### 问题统计
-- 问题总数: 24
-- 警告(Warning): 14
+- 问题总数: 17
+- 警告(Warning): 6
 - 规范(Convention): 6
-- 重构(Refactor): 4
+- 重构(Refactor): 5
 
 ### 详细问题
 #### 行 6, 列 0
@@ -3978,21 +5558,27 @@
 
 #### 行 69, 列 4
 - 类型: refactor
+- 代码: R0911
+- 描述: Too many return statements (17/6)
+- 符号: too-many-return-statements
+
+#### 行 69, 列 4
+- 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (38/12)
+- 描述: Too many branches (49/12)
 - 符号: too-many-branches
 
 #### 行 69, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (139/50)
+- 描述: Too many statements (172/50)
 - 符号: too-many-statements
 
 #### 行 87, 列 15
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0705
+- 描述: Catching previously caught exception type RuntimeError
+- 符号: duplicate-except
 
 #### 行 90, 列 8
 - 类型: refactor
@@ -4006,95 +5592,47 @@
 - 描述: Import outside toplevel (battery_analysis.utils.battery_analysis)
 - 符号: import-outside-toplevel
 
-#### 行 121, 列 15
+#### 行 131, 列 15
 - 类型: convention
 - 代码: C1804
 - 描述: "self.str_error_battery == ''" can be simplified to "not self.str_error_battery", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 165, 列 24
-- 类型: warning
-- 代码: W0702
-- 描述: No exception type(s) specified
-- 符号: bare-except
-
-#### 行 188, 列 32
-- 类型: warning
-- 代码: W0702
-- 描述: No exception type(s) specified
-- 符号: bare-except
-
-#### 行 196, 列 36
-- 类型: warning
-- 代码: W0702
-- 描述: No exception type(s) specified
-- 符号: bare-except
-
-#### 行 199, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 223, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 236, 列 20
+#### 行 274, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.file_writer)
 - 符号: import-outside-toplevel
 
-#### 行 255, 列 23
+#### 行 301, 列 23
 - 类型: convention
 - 代码: C1804
 - 描述: "self.str_error_xlsx != ''" can be simplified to "self.str_error_xlsx", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 268, 列 27
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 270, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 274, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 282, 列 19
+#### 行 346, 列 19
 - 类型: convention
 - 代码: C1804
 - 描述: "self.str_error_battery != ''" can be simplified to "self.str_error_battery", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 285, 列 23
+#### 行 349, 列 23
 - 类型: convention
 - 代码: C1804
 - 描述: "self.str_error_xlsx != ''" can be simplified to "self.str_error_xlsx", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 293, 列 19
+#### 行 357, 列 19
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0705
+- 描述: Catching previously caught exception type RuntimeError
+- 符号: duplicate-except
 
-#### 行 313, 列 15
+#### 行 377, 列 15
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0705
+- 描述: Catching previously caught exception type RuntimeError
+- 符号: duplicate-except
 
 ## 文件: src\battery_analysis\resources\resources_rc.py
 
@@ -4112,9 +5650,9 @@
 ## 文件: src\battery_analysis\ui\frameworks\pyqt6_ui_framework.py
 
 ### 问题统计
-- 问题总数: 27
+- 问题总数: 24
 - 警告(Warning): 3
-- 规范(Convention): 24
+- 规范(Convention): 21
 
 ### 详细问题
 #### 行 9, 列 0
@@ -4213,23 +5751,11 @@
 - 描述: Import outside toplevel (tkinter.messagebox)
 - 符号: import-outside-toplevel
 
-#### 行 305, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 306, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (tkinter.filedialog)
 - 符号: import-outside-toplevel
-
-#### 行 309, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
 
 #### 行 327, 列 12
 - 类型: convention
@@ -4273,18 +5799,11 @@
 - 描述: "entry.get() == ''" can be simplified to "not entry.get()", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 419, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 ## 文件: src\battery_analysis\ui\interfaces\iuiframework.py
 
 ### 问题统计
-- 问题总数: 13
+- 问题总数: 12
 - 警告(Warning): 12
-- 规范(Convention): 1
 
 ### 详细问题
 #### 行 10, 列 0
@@ -4353,830 +5872,19 @@
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 173, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 173, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-## 文件: src\battery_analysis\ui\modern_battery_viewer.py
-
-### 问题统计
-- 问题总数: 58
-- 错误(Error): 3
-- 警告(Warning): 46
-- 规范(Convention): 8
-- 重构(Refactor): 1
-
-### 详细问题
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Dict imported from typing
-- 符号: unused-import
-
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Any imported from typing
-- 符号: unused-import
-
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused List imported from typing
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QMenuBar imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QStatusBar imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QToolBar imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QGroupBox imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 19, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QThread imported from PyQt6.QtCore
-- 符号: unused-import
-
-#### 行 20, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QIcon imported from PyQt6.QtGui
-- 符号: unused-import
-
-#### 行 21, 列 0
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'QAction' (imported line 20)
-- 符号: reimported
-
-#### 行 21, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QAction imported from PyQt6.QtGui as QGuiAction
-- 符号: unused-import
-
-#### 行 23, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused matplotlib.pyplot imported as plt
-- 符号: unused-import
-
-#### 行 24, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused numpy imported as np
-- 符号: unused-import
-
-#### 行 26, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 27, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 28, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 28, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused create_styled_button imported from ui.styles
-- 符号: unused-import
-
-#### 行 31, 列 0
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'sys' (imported line 10)
-- 符号: reimported
-
-#### 行 31, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "sys" should be placed before third party imports "PyQt6.QtWidgets.QMainWindow", "PyQt6.QtCore.Qt", "PyQt6.QtGui.QFont", "PyQt6.QtGui.QAction", "matplotlib.pyplot", "numpy" and local imports "ui.modern_theme.modern_theme", "ui.modern_chart_widget.ModernChartWidget", "ui.styles.style_manager"
-- 符号: wrong-import-order
-
-#### 行 31, 列 0
-- 类型: convention
-- 代码: C0412
-- 描述: Imports from package sys are not grouped
-- 符号: ungrouped-imports
-
-#### 行 32, 列 0
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'Path' (imported line 11)
-- 符号: reimported
-
-#### 行 32, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: standard import "pathlib.Path" should be placed before third party imports "PyQt6.QtWidgets.QMainWindow", "PyQt6.QtCore.Qt", "PyQt6.QtGui.QFont", "PyQt6.QtGui.QAction", "matplotlib.pyplot", "numpy" and local imports "ui.modern_theme.modern_theme", "ui.modern_chart_widget.ModernChartWidget", "ui.styles.style_manager"
-- 符号: wrong-import-order
-
-#### 行 32, 列 0
-- 类型: convention
-- 代码: C0412
-- 描述: Imports from package pathlib are not grouped
-- 符号: ungrouped-imports
-
-#### 行 45, 列 0
-- 类型: convention
-- 代码: C0413
-- 描述: Import "from battery_analysis.main.battery_chart_viewer import BatteryChartViewer" should be placed at the top of the module
-- 符号: wrong-import-position
-
-#### 行 45, 列 0
-- 类型: convention
-- 代码: C0411
-- 描述: first party import "battery_analysis.main.battery_chart_viewer.BatteryChartViewer" should be placed before local imports "ui.modern_theme.modern_theme", "ui.modern_chart_widget.ModernChartWidget", "ui.styles.style_manager"
-- 符号: wrong-import-order
-
-#### 行 48, 列 0
-- 类型: refactor
-- 代码: R0902
-- 描述: Too many instance attributes (32/7)
-- 符号: too-many-instance-attributes
-
-#### 行 169, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'path_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 172, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'path_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 176, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'browse_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 185, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'load_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 210, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'chart_type_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 218, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_filtered_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 222, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_raw_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 226, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_grid_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 230, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_legend_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 240, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'battery_filter_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 271, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'filter_strength_spinbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 285, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'sampling_spinbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 295, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'apply_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 315, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'data_status_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 319, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'data_details_text' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 325, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'stats_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 371, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'analysis_type_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 374, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'run_analysis_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 384, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'analysis_result_text' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 551, 列 16
-- 类型: warning
-- 代码: W0719
-- 描述: Raising too general exception: Exception
-- 符号: broad-exception-raised
-
-#### 行 553, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 569, 列 41
-- 类型: warning
-- 代码: W0613
-- 描述: Unused argument 'state'
-- 符号: unused-argument
-
-#### 行 576, 列 41
-- 类型: warning
-- 代码: W0613
-- 描述: Unused argument 'battery_filter'
-- 符号: unused-argument
-
-#### 行 587, 列 8
-- 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
-
-#### 行 597, 列 12
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'filter_strength'
-- 符号: unused-variable
-
-#### 行 598, 列 12
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'sampling_interval'
-- 符号: unused-variable
-
-#### 行 605, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 642, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 746, 列 4
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'sys' (imported line 10)
-- 符号: reimported
-
-#### 行 746, 列 4
-- 类型: convention
-- 代码: C0412
-- 描述: Imports from package sys are not grouped
-- 符号: ungrouped-imports
-
-#### 行 751, 列 4
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _setup_matplotlib_theme of a client class
-- 符号: protected-access
-
-#### 行 757, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-## 文件: src\battery_analysis\ui\modern_battery_viewer_refactored.py
-
-### 问题统计
-- 问题总数: 46
-- 错误(Error): 4
-- 警告(Warning): 40
-- 规范(Convention): 1
-- 重构(Refactor): 1
-
-### 详细问题
-#### 行 11, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Path imported from pathlib
-- 符号: unused-import
-
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Dict imported from typing
-- 符号: unused-import
-
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Any imported from typing
-- 符号: unused-import
-
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused List imported from typing
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QMenuBar imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QStatusBar imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QToolBar imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QGroupBox imported from PyQt6.QtWidgets
-- 符号: unused-import
-
-#### 行 19, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QThread imported from PyQt6.QtCore
-- 符号: unused-import
-
-#### 行 20, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QFont imported from PyQt6.QtGui
-- 符号: unused-import
-
-#### 行 20, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QIcon imported from PyQt6.QtGui
-- 符号: unused-import
-
-#### 行 22, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused matplotlib.pyplot imported as plt
-- 符号: unused-import
-
-#### 行 23, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused numpy imported as np
-- 符号: unused-import
-
-#### 行 25, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 25, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused modern_theme imported from ui.modern_theme
-- 符号: unused-import
-
-#### 行 26, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 27, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 28, 列 0
-- 类型: error
-- 代码: E0402
-- 描述: Attempted relative import beyond top-level package
-- 符号: relative-beyond-top-level
-
-#### 行 28, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused BatteryChartViewer imported from battery_chart_viewer
-- 符号: unused-import
-
-#### 行 31, 列 0
-- 类型: refactor
-- 代码: R0902
-- 描述: Too many instance attributes (32/7)
-- 符号: too-many-instance-attributes
-
-#### 行 140, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'path_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 143, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'path_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 147, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'browse_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 156, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'load_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 184, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'chart_type_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 192, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_filtered_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 196, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_raw_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 200, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_grid_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 204, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'show_legend_checkbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 214, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'battery_filter_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 245, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'filter_strength_spinbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 259, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'sampling_spinbox' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 269, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'apply_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 292, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'data_status_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 296, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'data_details_text' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 302, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'stats_label' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 347, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'analysis_type_combo' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 351, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'run_analysis_button' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 364, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'analysis_result_text' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 519, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 530, 列 41
-- 类型: warning
-- 代码: W0613
-- 描述: Unused argument 'state'
-- 符号: unused-argument
-
-#### 行 535, 列 41
-- 类型: warning
-- 代码: W0613
-- 描述: Unused argument 'battery_name'
-- 符号: unused-argument
-
-#### 行 540, 列 43
-- 类型: warning
-- 代码: W0613
-- 描述: Unused argument 'value'
-- 符号: unused-argument
-
-#### 行 587, 列 37
-- 类型: warning
-- 代码: W0613
-- 描述: Unused argument 'data'
-- 符号: unused-argument
-
-#### 行 631, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 637, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-## 文件: src\battery_analysis\ui\modern_chart_widget.py
-
-### 问题统计
-- 问题总数: 16
-- 警告(Warning): 13
-- 规范(Convention): 2
-- 重构(Refactor): 1
-
-### 详细问题
-#### 行 8, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import sys
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QIcon imported from PyQt6.QtGui
-- 符号: unused-import
-
-#### 行 14, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused QPixmap imported from PyQt6.QtGui
-- 符号: unused-import
-
-#### 行 16, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused matplotlib.pyplot imported as plt
-- 符号: unused-import
-
-#### 行 17, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import matplotlib
-- 符号: unused-import
-
-#### 行 26, 列 0
-- 类型: refactor
-- 代码: R0902
-- 描述: Too many instance attributes (17/7)
-- 符号: too-many-instance-attributes
-
-#### 行 185, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 310, 列 12
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _style_axes of a client class
-- 符号: protected-access
-
-#### 行 322, 列 8
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _style_axes of a client class
-- 符号: protected-access
-
-#### 行 383, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 404, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 413, 列 8
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'chart_styles'
-- 符号: unused-variable
-
-#### 行 446, 列 15
-- 类型: convention
-- 代码: C1805
-- 描述: "i == 0" can be simplified to "not i", if it is strictly an int, as 0 is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-zero
-
-#### 行 487, 列 37
-- 类型: warning
-- 代码: W0622
-- 描述: Redefining built-in 'format'
-- 符号: redefined-builtin
-
-#### 行 496, 列 19
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 515, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-## 文件: src\battery_analysis\ui\modern_theme.py
-
-### 问题统计
-- 问题总数: 8
-- 警告(Warning): 5
-- 规范(Convention): 1
-- 重构(Refactor): 2
-
-### 详细问题
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused numpy imported as np
-- 符号: unused-import
-
-#### 行 117, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 142, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'gradient_cmap' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 155, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'heat_cmap' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 161, 列 8
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
-- 符号: no-else-return
-
-#### 行 241, 列 8
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 265, 列 4
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _setup_matplotlib_theme of a client class
-- 符号: protected-access
-
-#### 行 273, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 ## 文件: src\battery_analysis\ui\styles\style_manager.py
 
 ### 问题统计
-- 问题总数: 13
-- 警告(Warning): 10
+- 问题总数: 15
+- 警告(Warning): 11
 - 规范(Convention): 3
+- 重构(Refactor): 1
 
 ### 详细问题
 #### 行 8, 列 0
@@ -5185,91 +5893,103 @@
 - 描述: Unused import os
 - 符号: unused-import
 
+#### 行 12, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused QVBoxLayout imported from PyQt6.QtWidgets
+- 符号: unused-import
+
 #### 行 14, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused QFontDatabase imported from PyQt6.QtGui
 - 符号: unused-import
 
-#### 行 31, 列 12
+#### 行 35, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (58/50)
+- 符号: too-many-statements
+
+#### 行 248, 列 16
 - 类型: warning
 - 代码: W0621
 - 描述: Redefining name 'QFontDatabase' from outer scope (line 14)
 - 符号: redefined-outer-name
 
-#### 行 31, 列 12
+#### 行 248, 列 16
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'QFontDatabase' (imported line 14)
 - 符号: reimported
 
-#### 行 31, 列 12
+#### 行 248, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (PyQt6.QtGui.QFontDatabase)
 - 符号: import-outside-toplevel
 
-#### 行 33, 列 15
+#### 行 277, 列 8
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0621
+- 描述: Redefining name 'QPushButton' from outer scope (line 12)
+- 符号: redefined-outer-name
 
-#### 行 95, 列 19
+#### 行 277, 列 8
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0404
+- 描述: Reimport 'QPushButton' (imported line 12)
+- 符号: reimported
 
-#### 行 130, 列 23
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 152, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 210, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 221, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 228, 列 8
+#### 行 277, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (PyQt6.QtWidgets.QPushButton)
 - 符号: import-outside-toplevel
 
-#### 行 251, 列 8
+#### 行 300, 列 8
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'QGroupBox' from outer scope (line 12)
+- 符号: redefined-outer-name
+
+#### 行 300, 列 8
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'QVBoxLayout' from outer scope (line 12)
+- 符号: redefined-outer-name
+
+#### 行 300, 列 8
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'QGroupBox' (imported line 12)
+- 符号: reimported
+
+#### 行 300, 列 8
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'QVBoxLayout' (imported line 12)
+- 符号: reimported
+
+#### 行 300, 列 8
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (PyQt6.QtWidgets.QGroupBox)
+- 描述: Import outside toplevel (PyQt6.QtWidgets.QGroupBox, PyQt6.QtWidgets.QVBoxLayout)
 - 符号: import-outside-toplevel
 
 ## 文件: src\battery_analysis\ui\ui_main_window.py
 
 ### 问题统计
-- 问题总数: 127
-- 警告(Warning): 122
+- 问题总数: 135
+- 警告(Warning): 129
 - 规范(Convention): 2
-- 重构(Refactor): 3
+- 重构(Refactor): 4
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (1384/1000)
+- 描述: Too many lines in module (1561/1000)
 - 符号: too-many-lines
 
 #### 行 1, 列 0
@@ -5280,14 +6000,20 @@
 
 #### 行 12, 列 0
 - 类型: refactor
+- 代码: R0205
+- 描述: Class 'Ui_MainWindow' inherits from object, can be safely removed from bases in python3
+- 符号: useless-object-inheritance
+
+#### 行 12, 列 0
+- 类型: refactor
 - 代码: R0902
-- 描述: Too many instance attributes (122/7)
+- 描述: Too many instance attributes (129/7)
 - 符号: too-many-instance-attributes
 
 #### 行 13, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (1012/50)
+- 描述: Too many statements (1131/50)
 - 符号: too-many-statements
 
 #### 行 24, 列 8
@@ -5320,719 +6046,837 @@
 - 描述: Attribute 'verticalLayout_8' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 50, 列 8
+#### 行 51, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'verticalLayout_10' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 55, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_Temperature' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 53, 列 8
+#### 行 58, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'label_TemperatureType' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 72, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'comboBox_Temperature' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 121, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'horizontalLayout_3' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 123, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_Temperature' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 67, 列 8
+#### 行 137, 列 8
 - 类型: warning
 - 代码: W0201
-- 描述: Attribute 'lineEdit_Temperature' defined outside __init__
+- 描述: Attribute 'spinBox_Temperature' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 95, 列 8
+#### 行 149, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_AcceleratedAging' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 98, 列 8
+#### 行 153, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_AcceleratedAging' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 112, 列 8
+#### 行 167, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'spinBox_AcceleratedAging' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 131, 列 8
+#### 行 186, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'frame_2' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 136, 列 8
+#### 行 191, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayoutWidget_3' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 139, 列 8
+#### 行 194, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayout_5' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 142, 列 8
+#### 行 198, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_Manufacturer' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 145, 列 8
+#### 行 202, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_Manufacturer' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 159, 列 8
+#### 行 216, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'comboBox_Manufacturer' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 203, 列 8
+#### 行 265, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_BatchDateCode' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 206, 列 8
+#### 行 268, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_BatchDateCode' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 220, 列 8
+#### 行 282, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_BatchDateCode' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 239, 列 8
+#### 行 301, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_SamplesQty' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 242, 列 8
+#### 行 304, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_SamplesQty' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 256, 列 8
+#### 行 318, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_SamplesQty' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 275, 列 8
+#### 行 337, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'frame_3' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 280, 列 8
+#### 行 347, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayoutWidget_4' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 283, 列 8
+#### 行 350, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayout_7' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 286, 列 8
+#### 行 354, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_BatteryType' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 289, 列 8
+#### 行 357, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_BatteryType' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 303, 列 8
+#### 行 371, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'comboBox_BatteryType' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 353, 列 8
+#### 行 421, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_ConstructionMethod' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 356, 列 8
+#### 行 424, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_ConstructionMethod' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 370, 列 8
+#### 行 438, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'comboBox_ConstructionMethod' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 419, 列 8
+#### 行 487, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_Specification' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 422, 列 8
+#### 行 491, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_Specification' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 436, 列 8
+#### 行 505, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayout_4' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 441, 列 8
+#### 行 510, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'comboBox_Specification_Method' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 490, 列 8
+#### 行 559, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'comboBox_Specification_Type' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 542, 列 8
+#### 行 611, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'frame_4' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 547, 列 8
+#### 行 616, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayoutWidget_6' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 550, 列 8
+#### 行 619, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayout_9' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 553, 列 8
+#### 行 623, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_RequiredUseableCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 556, 列 8
+#### 行 626, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_RequiredUseableCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 570, 列 8
+#### 行 640, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_RequiredUseableCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 589, 列 8
+#### 行 659, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_CalculationNominalCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 592, 列 8
+#### 行 662, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_CalculationNominalCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 601, 列 8
+#### 行 676, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_CalculationNominalCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 619, 列 8
+#### 行 694, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_DatasheetNominalCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 622, 列 8
+#### 行 697, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_DatasheetNominalCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 636, 列 8
+#### 行 711, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_DatasheetNominalCapacity' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 659, 列 8
+#### 行 734, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'groupBox_TestConfig' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 671, 列 8
+#### 行 751, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayoutWidget_8' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 678, 列 8
+#### 行 758, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_TestProfile' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 681, 列 8
+#### 行 762, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_TestProfile' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 695, 列 8
+#### 行 776, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_TestProfile' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 719, 列 8
+#### 行 800, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'pushButton_TestProfile' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 733, 列 8
+#### 行 814, 列 8
 - 类型: warning
 - 代码: W0201
-- 描述: Attribute 'horizontalLayoutWidget_10' defined outside __init__
+- 描述: Attribute 'horizontalLayoutWidget' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 740, 列 8
+#### 行 817, 列 8
 - 类型: warning
 - 代码: W0201
-- 描述: Attribute 'horizontalLayout_TestedBy' defined outside __init__
+- 描述: Attribute 'horizontalLayout' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 743, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'label_TestedBy' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 757, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'comboBox_TestedBy' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 799, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'horizontalLayoutWidget_9' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 806, 列 8
+#### 行 821, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_TesterLocation' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 809, 列 8
+#### 行 826, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_TesterLocation' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 823, 列 8
+#### 行 840, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'comboBox_TesterLocation' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 870, 列 8
+#### 行 892, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'horizontalLayout_TestedBy' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 897, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'label_TestedBy' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 911, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'comboBox_TestedBy' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 959, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'groupBox_Path' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 877, 列 8
+#### 行 966, 列 8
 - 类型: warning
 - 代码: W0201
-- 描述: Attribute 'horizontalLayoutWidget_11' defined outside __init__
+- 描述: Attribute 'verticalLayoutWidget_2' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 884, 列 8
+#### 行 969, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'verticalLayout_6' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 973, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_InputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 887, 列 8
+#### 行 976, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_InputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 901, 列 8
+#### 行 990, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_InputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 920, 列 8
+#### 行 1014, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'pushButton_InputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 934, 列 8
-- 类型: warning
-- 代码: W0201
-- 描述: Attribute 'horizontalLayoutWidget_12' defined outside __init__
-- 符号: attribute-defined-outside-init
-
-#### 行 941, 列 8
+#### 行 1029, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_OutputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 944, 列 8
+#### 行 1032, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_OutputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 953, 列 8
+#### 行 1046, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_OutputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 972, 列 8
+#### 行 1070, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'pushButton_OutputPath' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 981, 列 8
+#### 行 1080, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'groupBox_TestInformation' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 991, 列 8
+#### 行 1090, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'scrollArea' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 995, 列 8
+#### 行 1094, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'scrollAreaWidgetContents' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1003, 列 8
+#### 行 1102, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayout_3' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1005, 列 8
+#### 行 1104, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'tableWidget_TestInformation' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1093, 列 8
+#### 行 1188, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'frame_RunButton' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1098, 列 8
+#### 行 1198, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayoutWidget' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1104, 列 8
+#### 行 1204, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayout_RunAndVersion' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1107, 列 8
+#### 行 1208, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'frame_7' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1111, 列 8
+#### 行 1217, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'pushButton_Run' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1153, 列 8
+#### 行 1261, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'frame_6' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1163, 列 8
+#### 行 1271, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'progressBar' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1173, 列 8
+#### 行 1281, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'verticalLayout' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1175, 列 8
+#### 行 1283, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'horizontalLayout_Version' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1179, 列 8
+#### 行 1287, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'label_Version' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1192, 列 8
+#### 行 1300, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'lineEdit_Version' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1214, 列 8
+#### 行 1322, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'horizontalLayout_ReportedBy' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1325, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'label_ReportedBy' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1339, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'comboBox_ReportedBy' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 1389, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'statusBar_BatteryAnalysis' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1217, 列 8
+#### 行 1392, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'menuBar' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1220, 列 8
+#### 行 1395, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'menuFile' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1222, 列 8
+#### 行 1397, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'menuEdit' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1224, 列 8
+#### 行 1399, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'menuView' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1226, 列 8
+#### 行 1401, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'menuTools' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1228, 列 8
+#### 行 1403, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'menuHelp' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1231, 列 8
+#### 行 1406, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionNew' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1233, 列 8
+#### 行 1408, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionOpen' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1235, 列 8
+#### 行 1410, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionSave' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1237, 列 8
+#### 行 1412, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionSave_As' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1239, 列 8
+#### 行 1414, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionExport_Report' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1241, 列 8
+#### 行 1416, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionExit' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1243, 列 8
+#### 行 1418, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionUndo' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1245, 列 8
+#### 行 1420, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionRedo' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1247, 列 8
+#### 行 1422, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionCut' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1249, 列 8
+#### 行 1424, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionCopy' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1251, 列 8
+#### 行 1426, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionPaste' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1253, 列 8
+#### 行 1428, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionPreferences' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1255, 列 8
+#### 行 1430, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionShow_Toolbar' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1257, 列 8
+#### 行 1432, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionShow_Statusbar' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1259, 列 8
+#### 行 1434, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionZoom_In' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1261, 列 8
+#### 行 1436, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionZoom_Out' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1263, 列 8
+#### 行 1438, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionReset_Zoom' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1265, 列 8
+#### 行 1440, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionCalculate_Battery' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1267, 列 8
+#### 行 1442, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionAnalyze_Data' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1269, 列 8
+#### 行 1444, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionGenerate_Report' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1271, 列 8
+#### 行 1446, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionBatch_Processing' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1273, 列 8
+#### 行 1448, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionUser_Mannual' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1275, 列 8
+#### 行 1450, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionOnline_Help' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1277, 列 8
+#### 行 1452, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionAbout' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1279, 列 8
+#### 行 1454, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'actionBatteryChartViewer' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1324, 列 4
+#### 行 1499, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (61/50)
+- 描述: Too many statements (63/50)
 - 符号: too-many-statements
+
+## 文件: src\battery_analysis\utils\__init__.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 114, 列 10
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'max_size'
+- 符号: unused-argument
+
+#### 行 114, 列 32
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'ttl'
+- 符号: unused-argument
+
+#### 行 129, 列 18
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _generate_key of a client class
+- 符号: protected-access
+
+#### 行 162, 列 0
+- 类型: convention
+- 代码: C0413
+- 描述: Import "from battery_analysis.utils.log_manager import get_logger, get_log_directory, clear_old_logs" should be placed at the top of the module
+- 符号: wrong-import-position
+
+#### 行 167, 列 0
+- 类型: convention
+- 代码: C0413
+- 描述: Import "from battery_analysis.utils.error_report_generator import generate_error_report, get_report_info" should be placed at the top of the module
+- 符号: wrong-import-position
+
+#### 行 182, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: src\battery_analysis\utils\base_service.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 3
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 61, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 62, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 87, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
 
 ## 文件: src\battery_analysis\utils\battery_analysis.py
 
 ### 问题统计
-- 问题总数: 27
-- 警告(Warning): 2
+- 问题总数: 30
+- 警告(Warning): 5
 - 规范(Convention): 13
 - 重构(Refactor): 12
 
@@ -6112,173 +6956,264 @@
 #### 行 25, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (13/12)
+- 描述: Too many branches (16/12)
 - 符号: too-many-branches
 
 #### 行 25, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (69/50)
+- 描述: Too many statements (79/50)
 - 符号: too-many-statements
 
-#### 行 97, 列 20
+#### 行 114, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.resource_manager.ResourceManager)
 - 符号: import-outside-toplevel
 
-#### 行 123, 列 32
+#### 行 140, 列 32
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise BatteryAnalysisException(f'处理失败: {str(e)}') from e'
 - 符号: raise-missing-from
 
-#### 行 139, 列 28
+#### 行 156, 列 28
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise BatteryAnalysisException(f'并行处理失败: {str(e)}') from e'
 - 符号: raise-missing-from
 
-#### 行 170, 列 4
+#### 行 187, 列 4
 - 类型: refactor
 - 代码: R0911
 - 描述: Too many return statements (8/6)
 - 符号: too-many-return-statements
 
-#### 行 170, 列 4
+#### 行 187, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (32/12)
 - 符号: too-many-branches
 
-#### 行 170, 列 4
+#### 行 187, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (76/50)
 - 符号: too-many-statements
 
-#### 行 180, 列 8
+#### 行 197, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (12/5)
 - 符号: too-many-nested-blocks
 
-#### 行 180, 列 8
+#### 行 197, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (11/5)
 - 符号: too-many-nested-blocks
 
-#### 行 180, 列 8
+#### 行 197, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (12/5)
 - 符号: too-many-nested-blocks
 
-#### 行 180, 列 8
+#### 行 197, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (11/5)
 - 符号: too-many-nested-blocks
 
-#### 行 315, 列 4
+#### 行 332, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (19/12)
+- 描述: Too many branches (22/12)
 - 符号: too-many-branches
 
-#### 行 315, 列 4
+#### 行 332, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (95/50)
+- 描述: Too many statements (114/50)
 - 符号: too-many-statements
 
-#### 行 405, 列 56
+#### 行 429, 列 56
 - 类型: convention
 - 代码: C1805
 - 描述: "listLevelToRow[c_idx][v_idx] == 0" can be simplified to "not listLevelToRow[c_idx][v_idx]", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-## 文件: src\battery_analysis\utils\config_parser.py
+#### 行 443, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 457, 列 20
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 496, 列 20
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+## 文件: src\battery_analysis\utils\config_manager.py
 
 ### 问题统计
-- 问题总数: 11
-- 警告(Warning): 8
-- 规范(Convention): 1
-- 重构(Refactor): 2
+- 问题总数: 12
+- 警告(Warning): 11
+- 重构(Refactor): 1
 
 ### 详细问题
 #### 行 9, 列 0
 - 类型: warning
 - 代码: W0611
-- 描述: Unused Union imported from typing
+- 描述: Unused Path imported from pathlib
 - 符号: unused-import
 
-#### 行 9, 列 0
+#### 行 10, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Optional imported from typing
 - 符号: unused-import
 
-#### 行 15, 列 4
+#### 行 39, 列 12
 - 类型: warning
-- 代码: W0107
-- 描述: Unnecessary pass statement
-- 符号: unnecessary-pass
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
 
-#### 行 92, 列 4
+#### 行 42, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 61, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 64, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 91, 列 16
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
 - 符号: no-else-return
 
-#### 行 101, 列 0
+#### 行 103, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 138, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 161, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 180, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 193, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+## 文件: src\battery_analysis\utils\config_parser.py
+
+### 问题统计
+- 问题总数: 10
+- 警告(Warning): 8
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Union imported from typing
+- 符号: unused-import
+
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 16, 列 4
+- 类型: warning
+- 代码: W0107
+- 描述: Unnecessary pass statement
+- 符号: unnecessary-pass
+
+#### 行 93, 列 4
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
+- 符号: no-else-return
+
+#### 行 102, 列 0
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (6/5)
 - 符号: too-many-positional-arguments
 
-#### 行 101, 列 22
+#### 行 102, 列 22
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'config' from outer scope (line 210)
+- 描述: Redefining name 'config' from outer scope (line 211)
 - 符号: redefined-outer-name
 
-#### 行 159, 列 8
+#### 行 160, 列 8
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise ConfigParseError(f'解析配置 {section}/{option} 失败: {e}') from e'
 - 符号: raise-missing-from
 
-#### 行 162, 列 31
+#### 行 163, 列 31
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'config' from outer scope (line 210)
+- 描述: Redefining name 'config' from outer scope (line 211)
 - 符号: redefined-outer-name
 
-#### 行 183, 列 25
+#### 行 184, 列 25
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'config' from outer scope (line 210)
+- 描述: Redefining name 'config' from outer scope (line 211)
 - 符号: redefined-outer-name
 
-#### 行 207, 列 4
+#### 行 208, 列 4
 - 类型: warning
 - 代码: W0404
-- 描述: Reimport 'ConfigParser' (imported line 10)
+- 描述: Reimport 'ConfigParser' (imported line 11)
 - 符号: reimported
-
-#### 行 230, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\utils\config_utils.py
 
 ### 问题统计
-- 问题总数: 5
-- 警告(Warning): 5
+- 问题总数: 3
+- 警告(Warning): 3
 
 ### 详细问题
 #### 行 7, 列 0
@@ -6298,18 +7233,6 @@
 - 代码: W0612
 - 描述: Unused variable 'paths'
 - 符号: unused-variable
-
-#### 行 188, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 220, 列 11
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
 
 ## 文件: src\battery_analysis\utils\csv_utils.py
 
@@ -6351,8 +7274,11 @@
 ## 文件: src\battery_analysis\utils\data_utils.py
 
 ### 问题统计
-- 问题总数: 3
-- 规范(Convention): 3
+- 问题总数: 12
+- 错误(Error): 4
+- 警告(Warning): 1
+- 规范(Convention): 5
+- 重构(Refactor): 2
 
 ### 详细问题
 #### 行 1, 列 0
@@ -6361,24 +7287,78 @@
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
 
-#### 行 10, 列 4
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (16/12)
+- 符号: too-many-branches
 
-#### 行 18, 列 19
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (73/50)
+- 符号: too-many-statements
+
+#### 行 4, 列 4
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'times'
+- 符号: unused-argument
+
+#### 行 16, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (numpy)
+- 符号: import-outside-toplevel
+
+#### 行 31, 列 45
 - 类型: convention
 - 代码: C1805
-- 描述: "_lisPltChargeSingle[_c] - _lisPltChargeSingle[_c - 1] == 0" can be simplified to "not _lisPltChargeSingle[_c] - _lisPltChargeSingle[_c - 1]", if it is strictly an int, as 0 is falsey
+- 描述: "charge_diff != 0" can be simplified to "charge_diff", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 49, 列 16
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'logging'
+- 符号: undefined-variable
+
+#### 行 64, 列 27
+- 类型: convention
+- 代码: C1805
+- 描述: "charge_diff == 0" can be simplified to "not charge_diff", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 76, 列 24
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'logging'
+- 符号: undefined-variable
+
+#### 行 94, 列 20
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'logging'
+- 符号: undefined-variable
+
+#### 行 108, 列 27
+- 类型: convention
+- 代码: C1805
+- 描述: "charge_diff == 0" can be simplified to "not charge_diff", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 120, 列 24
+- 类型: error
+- 代码: E0602
+- 描述: Undefined variable 'logging'
+- 符号: undefined-variable
 
 ## 文件: src\battery_analysis\utils\environment_utils.py
 
 ### 问题统计
-- 问题总数: 11
-- 警告(Warning): 4
-- 规范(Convention): 4
+- 问题总数: 9
+- 警告(Warning): 3
+- 规范(Convention): 3
 - 重构(Refactor): 3
 
 ### 详细问题
@@ -6412,12 +7392,6 @@
 - 描述: Import outside toplevel (PyQt6.QtGui.QGuiApplication)
 - 符号: import-outside-toplevel
 
-#### 行 209, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
 #### 行 223, 列 16
 - 类型: convention
 - 代码: C0415
@@ -6442,11 +7416,236 @@
 - 描述: Using the global statement
 - 符号: global-statement
 
-#### 行 338, 列 0
+## 文件: src\battery_analysis\utils\error_report_generator.py
+
+### 问题统计
+- 问题总数: 37
+- 警告(Warning): 29
+- 规范(Convention): 6
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 15, 列 0
 - 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
+- 代码: C0411
+- 描述: standard import "zipfile" should be placed before third party import "psutil"
+- 符号: wrong-import-order
+
+#### 行 16, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "tempfile" should be placed before third party import "psutil"
+- 符号: wrong-import-order
+
+#### 行 17, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "psutil"
+- 符号: wrong-import-order
+
+#### 行 29, 列 4
+- 类型: refactor
+- 代码: R0911
+- 描述: Too many return statements (8/6)
+- 符号: too-many-return-statements
+
+#### 行 39, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (subprocess)
+- 符号: import-outside-toplevel
+
+#### 行 40, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (winreg)
+- 符号: import-outside-toplevel
+
+#### 行 62, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 67, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 74, 列 25
+- 类型: warning
+- 代码: W1510
+- 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
+- 符号: subprocess-run-check
+
+#### 行 82, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 83, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 87, 列 25
+- 类型: warning
+- 代码: W1510
+- 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
+- 符号: subprocess-run-check
+
+#### 行 93, 列 16
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
+- 符号: no-else-return
+
+#### 行 99, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 100, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 103, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 104, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 117, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (winreg)
+- 符号: import-outside-toplevel
+
+#### 行 123, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 124, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 174, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 175, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 201, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 202, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 224, 列 24
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 225, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 226, 列 24
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 227, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 228, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 284, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 285, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 326, 列 24
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 327, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 328, 列 24
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 344, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 351, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 352, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
 
 ## 文件: src\battery_analysis\utils\excel_utils.py
 
@@ -6495,16 +7694,16 @@
 ## 文件: src\battery_analysis\utils\file_writer.py
 
 ### 问题统计
-- 问题总数: 92
-- 警告(Warning): 29
-- 规范(Convention): 51
-- 重构(Refactor): 12
+- 问题总数: 86
+- 警告(Warning): 25
+- 规范(Convention): 50
+- 重构(Refactor): 11
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (1657/1000)
+- 描述: Too many lines in module (1671/1000)
 - 符号: too-many-lines
 
 #### 行 1, 列 0
@@ -6555,235 +7754,229 @@
 - 描述: standard import "re" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT", "docx.Document", "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 21, 列 0
+#### 行 16, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT", "docx.Document", "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
+- 符号: wrong-import-order
+
+#### 行 16, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Path imported from pathlib
+- 符号: unused-import
+
+#### 行 22, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import xlsxwriter as xwt" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 21, 列 0
+#### 行 22, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "xlsxwriter" should be placed before first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 22, 列 0
+#### 行 23, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import os" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 22, 列 0
+#### 行 23, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "os" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 23, 列 0
+#### 行 24, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import csv" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 23, 列 0
+#### 行 24, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "csv" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 24, 列 0
+#### 行 25, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import json" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 24, 列 0
+#### 行 25, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "json" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 25, 列 0
+#### 行 26, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import math" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 25, 列 0
+#### 行 26, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "math" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 26, 列 0
+#### 行 27, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import datetime" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 26, 列 0
+#### 行 27, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "datetime" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 27, 列 0
+#### 行 28, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import traceback" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 27, 列 0
+#### 行 28, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "traceback" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 28, 列 0
+#### 行 29, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import configparser" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 28, 列 0
+#### 行 29, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "configparser" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 29, 列 0
+#### 行 30, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import logging" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 29, 列 0
+#### 行 30, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: standard import "logging" should be placed before third party imports "docx.shared.Pt", "docx.enum.text.WD_LINE_SPACING", "docx.enum.table.WD_TABLE_ALIGNMENT" (...) "matplotlib.ticker.MultipleLocator", "matplotlib.pyplot", "xlsxwriter" and first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.excel_utils", "battery_analysis.utils.numeric_utils", "battery_analysis.utils.exception_type.BatteryAnalysisException" 
 - 符号: wrong-import-order
 
-#### 行 32, 列 0
+#### 行 33, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "from battery_analysis import __version__" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 32, 列 0
+#### 行 33, 列 0
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package battery_analysis are not grouped
 - 符号: ungrouped-imports
 
-#### 行 33, 列 0
+#### 行 34, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "from battery_analysis.utils.config_utils import find_config_file" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 36, 列 0
+#### 行 37, 列 0
 - 类型: convention
 - 代码: C0413
 - 描述: Import "import matplotlib" should be placed at the top of the module
 - 符号: wrong-import-position
 
-#### 行 36, 列 0
+#### 行 37, 列 0
 - 类型: convention
 - 代码: C0411
 - 描述: third party import "matplotlib" should be placed before first party imports "battery_analysis.utils.csv_utils", "battery_analysis.utils.plot_utils", "battery_analysis.utils.data_utils" (...) "battery_analysis.utils.exception_type.BatteryAnalysisException", "battery_analysis.__version__", "battery_analysis.utils.config_utils.find_config_file" 
 - 符号: wrong-import-order
 
-#### 行 36, 列 0
+#### 行 37, 列 0
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package matplotlib are not grouped
 - 符号: ungrouped-imports
 
-#### 行 40, 列 0
+#### 行 41, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (31/7)
 - 符号: too-many-instance-attributes
 
-#### 行 41, 列 4
+#### 行 42, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (38/12)
+- 描述: Too many branches (36/12)
 - 符号: too-many-branches
 
-#### 行 41, 列 4
+#### 行 42, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (140/50)
 - 符号: too-many-statements
 
-#### 行 71, 列 15
+#### 行 236, 列 8
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0621
+- 描述: Redefining name 'Path' from outer scope (line 16)
+- 符号: redefined-outer-name
 
-#### 行 233, 列 8
+#### 行 236, 列 8
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'Path' (imported line 16)
+- 符号: reimported
+
+#### 行 236, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (pathlib.Path)
 - 符号: import-outside-toplevel
 
-#### 行 264, 列 12
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 277, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 295, 列 4
+#### 行 301, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (131/12)
 - 符号: too-many-branches
 
-#### 行 295, 列 4
+#### 行 301, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (467/50)
 - 符号: too-many-statements
 
-#### 行 524, 列 12
+#### 行 530, 列 12
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 538, 列 12
+#### 行 544, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 539, 列 12
+#### 行 545, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 540, 列 12
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 548, 列 12
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 549, 列 12
+#### 行 546, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
@@ -6795,136 +7988,118 @@
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 556, 列 12
+#### 行 561, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 557, 列 12
+#### 行 562, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 565, 列 12
+#### 行 563, 列 12
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 566, 列 12
-- 类型: warning
-- 代码: W1309
-- 描述: Using an f-string that does not have any interpolated variables
-- 符号: f-string-without-interpolation
-
-#### 行 745, 列 23
+#### 行 751, 列 23
 - 类型: convention
 - 代码: C1805
 - 描述: "self.listBatteryCharge[b][i] != 0" can be simplified to "self.listBatteryCharge[b][i]", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 793, 列 8
+#### 行 799, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 878, 列 19
+#### 行 884, 列 19
 - 类型: convention
 - 代码: C1805
 - 描述: "c == 0" can be simplified to "not c", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 878, 列 30
+#### 行 884, 列 30
 - 类型: convention
 - 代码: C1805
 - 描述: "v == 0" can be simplified to "not v", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 889, 列 21
+#### 行 895, 列 21
 - 类型: convention
 - 代码: C1805
 - 描述: "c == 0" can be simplified to "not c", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 891, 列 55
+#### 行 897, 列 55
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 905, 列 31
+#### 行 911, 列 31
 - 类型: convention
 - 代码: C1805
 - 描述: "v == 0" can be simplified to "not v", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 907, 列 55
+#### 行 913, 列 55
 - 类型: warning
 - 代码: W1309
 - 描述: Using an f-string that does not have any interpolated variables
 - 符号: f-string-without-interpolation
 
-#### 行 1357, 列 8
+#### 行 1154, 列 52
+- 类型: convention
+- 代码: C0207
+- 描述: Use listStrContent[18].rsplit('\\', maxsplit=1)[-1] instead
+- 符号: use-maxsplit-arg
+
+#### 行 1239, 列 51
+- 类型: convention
+- 代码: C0207
+- 描述: Use listStrContent[18].rsplit('\\', maxsplit=1)[-1] instead
+- 符号: use-maxsplit-arg
+
+#### 行 1363, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 1360, 列 12
+#### 行 1366, 列 12
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1375, 列 16
+#### 行 1381, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1380, 列 31
+#### 行 1386, 列 31
 - 类型: convention
 - 代码: C1805
 - 描述: "i == 0" can be simplified to "not i", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 1390, 列 28
+#### 行 1396, 列 28
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _element of a client class
 - 符号: protected-access
 
-#### 行 1390, 列 66
+#### 行 1396, 列 66
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _element of a client class
-- 符号: protected-access
-
-#### 行 1412, 列 20
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _p of a client class
-- 符号: protected-access
-
-#### 行 1412, 列 41
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _tbl of a client class
-- 符号: protected-access
-
-#### 行 1415, 列 20
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _p of a client class
-- 符号: protected-access
-
-#### 行 1415, 列 41
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
 #### 行 1418, 列 20
@@ -6951,184 +8126,395 @@
 - 描述: Access to a protected member _tbl of a client class
 - 符号: protected-access
 
-#### 行 1440, 列 4
+#### 行 1424, 列 20
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _p of a client class
+- 符号: protected-access
+
+#### 行 1424, 列 41
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _tbl of a client class
+- 符号: protected-access
+
+#### 行 1427, 列 20
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _p of a client class
+- 符号: protected-access
+
+#### 行 1427, 列 41
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _tbl of a client class
+- 符号: protected-access
+
+#### 行 1446, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (56/50)
 - 符号: too-many-statements
 
-#### 行 1445, 列 24
+#### 行 1451, 列 24
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"linewidth": 1, "color": 'red'}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 1472, 列 12
+#### 行 1478, 列 12
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 1478, 列 15
+#### 行 1484, 列 15
 - 类型: convention
 - 代码: C1805
 - 描述: "loop != 0" can be simplified to "loop", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 1532, 列 0
+#### 行 1538, 列 0
 - 类型: refactor
 - 代码: R0902
 - 描述: Too many instance attributes (13/7)
 - 符号: too-many-instance-attributes
 
-#### 行 1543, 列 16
+#### 行 1549, 列 16
 - 类型: warning
 - 代码: W0719
 - 描述: Raising too general exception: Exception
 - 符号: broad-exception-raised
 
-#### 行 1544, 列 15
+#### 行 1580, 列 12
 - 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
+- 代码: W0612
+- 描述: Unused variable 'v'
+- 符号: unused-variable
 
-#### 行 1572, 列 8
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 1578, 列 4
-- 类型: refactor
-- 代码: R0912
-- 描述: Too many branches (13/12)
-- 符号: too-many-branches
-
-#### 行 1586, 列 19
+#### 行 1595, 列 19
 - 类型: convention
 - 代码: C1805
 - 描述: "j % len(self.listVoltageLevel) == 0" can be simplified to "not j % len(self.listVoltageLevel)", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 1588, 列 19
+#### 行 1597, 列 19
 - 类型: convention
 - 代码: C1805
-- 描述: "self.listBatteryInfo[0][i][j] != 0" can be simplified to "self.listBatteryInfo[0][i][j]", if it is strictly an int, as 0 is falsey
+- 描述: "value != 0" can be simplified to "value", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 1588, 列 58
+#### 行 1597, 列 34
 - 类型: convention
 - 代码: C1804
 - 描述: "self.listBatteryVoltage[j % len(self.listBatteryVoltage)] != ''" can be simplified to "self.listBatteryVoltage[j % len(self.listBatteryVoltage)]", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 1598, 列 12
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 1619, 列 12
-- 类型: convention
-- 代码: C0200
-- 描述: Consider using enumerate instead of iterating with range and len
-- 符号: consider-using-enumerate
-
-#### 行 1628, 列 15
-- 类型: warning
-- 代码: W0718
-- 描述: Catching too general exception Exception
-- 符号: broad-exception-caught
-
-#### 行 1642, 列 13
+#### 行 1656, 列 13
 - 类型: warning
 - 代码: W1514
 - 描述: Using open without explicitly specifying an encoding
 - 符号: unspecified-encoding
 
-#### 行 1652, 列 15
+## 文件: src\battery_analysis\utils\log_manager.py
+
+### 问题统计
+- 问题总数: 37
+- 警告(Warning): 31
+- 规范(Convention): 4
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 18, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "psutil"
+- 符号: wrong-import-order
+
+#### 行 96, 列 4
+- 类型: refactor
+- 代码: R0911
+- 描述: Too many return statements (8/6)
+- 符号: too-many-return-statements
+
+#### 行 106, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (subprocess)
+- 符号: import-outside-toplevel
+
+#### 行 107, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (winreg)
+- 符号: import-outside-toplevel
+
+#### 行 129, 列 23
 - 类型: warning
 - 代码: W0718
-- 描述: Catching too general exception BaseException
+- 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-## 文件: src\battery_analysis\utils\plot_utils.py
+#### 行 134, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
-### 问题统计
-- 问题总数: 1
-- 规范(Convention): 1
+#### 行 141, 列 25
+- 类型: warning
+- 代码: W1510
+- 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
+- 符号: subprocess-run-check
 
-### 详细问题
-#### 行 50, 列 0
+#### 行 149, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 150, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 154, 列 25
+- 类型: warning
+- 代码: W1510
+- 描述: 'subprocess.run' used without explicitly defining the value for 'check'.
+- 符号: subprocess-run-check
+
+#### 行 160, 列 16
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
+- 符号: no-else-return
+
+#### 行 166, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 167, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 170, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 171, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 184, 列 12
 - 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
+- 代码: C0415
+- 描述: Import outside toplevel (winreg)
+- 符号: import-outside-toplevel
 
-## 文件: src\battery_analysis\utils\test_environment_detection.py
+#### 行 190, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 191, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 198, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 199, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 203, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 204, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 206, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 207, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 211, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 212, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 213, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 216, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 217, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 220, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 221, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 222, 列 8
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 268, 列 24
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 269, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 270, 列 24
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 271, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 272, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+## 文件: src\battery_analysis\utils\parallel_utils.py
 
 ### 问题统计
-- 问题总数: 1
-- 错误(Error): 1
+- 问题总数: 7
+- 警告(Warning): 3
+- 规范(Convention): 1
+- 重构(Refactor): 3
 
 ### 详细问题
-#### 行 417, 列 119
-- 类型: error
-- 代码: E0001
-- 描述: Parsing failed: 'invalid decimal literal (battery_analysis.utils.test_environment_detection, line 417)'
-- 符号: syntax-error
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Tuple imported from typing
+- 符号: unused-import
 
-## 文件: src\battery_analysis\utils\test_environment_final.py
+#### 行 17, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (9/7)
+- 符号: too-many-instance-attributes
 
-### 问题统计
-- 问题总数: 1
-- 错误(Error): 1
+#### 行 22, 列 23
+- 类型: warning
+- 代码: W0622
+- 描述: Redefining built-in 'id'
+- 符号: redefined-builtin
 
-### 详细问题
-#### 行 504, 列 149
-- 类型: error
-- 代码: E0001
-- 描述: Parsing failed: 'invalid decimal literal (battery_analysis.utils.test_environment_final, line 504)'
-- 符号: syntax-error
+#### 行 126, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
-## 文件: src\battery_analysis\utils\test_environment_scenarios.py
+#### 行 168, 列 4
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (7/5)
+- 符号: too-many-positional-arguments
 
-### 问题统计
-- 问题总数: 1
-- 错误(Error): 1
+#### 行 270, 列 0
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (6/5)
+- 符号: too-many-positional-arguments
 
-### 详细问题
-#### 行 473, 列 128
-- 类型: error
-- 代码: E0001
-- 描述: Parsing failed: 'invalid decimal literal (battery_analysis.utils.test_environment_scenarios, line 473)'
-- 符号: syntax-error
+#### 行 302, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
 
 ## 文件: src\battery_analysis\utils\version.py
 
 ### 问题统计
-- 问题总数: 3
-- 错误(Error): 1
+- 问题总数: 2
 - 信息(Info): 2
 
 ### 详细问题
-#### 行 59, 列 40
-- 类型: error
-- 代码: E0203
-- 描述: Access to member 'version' before its definition line 63
-- 符号: access-member-before-definition
-
-#### 行 139, 列 0
+#### 行 138, 列 0
 - 类型: info
 - 代码: I0011
 - 描述: Locally disabling protected-access (W0212)
 - 符号: locally-disabled
 
-#### 行 139, 列 0
+#### 行 138, 列 0
 - 类型: info
 - 代码: I0020
-- 描述: Suppressed 'protected-access' (from line 139)
+- 描述: Suppressed 'protected-access' (from line 138)
 - 符号: suppressed-message
 
 ## 文件: src\battery_analysis\utils\word_utils.py
@@ -7165,17 +8551,10 @@
 ## 文件: tests\battery_analysis\main\test_main_window.py
 
 ### 问题统计
-- 问题总数: 5
+- 问题总数: 3
 - 信息(Info): 3
-- 规范(Convention): 2
 
 ### 详细问题
-#### 行 5, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 7, 列 0
 - 类型: info
 - 代码: I0011
@@ -7190,261 +8569,606 @@
 
 #### 行 7, 列 0
 - 类型: info
-- 代码: I0020
-- 描述: Suppressed 'import-error' (from line 7)
-- 符号: suppressed-message
-
-#### 行 8, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
+- 代码: I0021
+- 描述: Useless suppression of 'import-error'
+- 符号: useless-suppression
 
 ## 文件: tests\battery_analysis\utils\test_file_writer.py
 
 ### 问题统计
-- 问题总数: 58
+- 问题总数: 73
 - 规范(Convention): 1
-- 重构(Refactor): 57
+- 重构(Refactor): 72
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[51:86]
-==modern_battery_viewer_refactored:[34:72]
-    data_loaded = pyqtSignal(str)  # 数据加载完成信号
-    visualization_changed = pyqtSignal(str)  # 可视化变化信号
-
-    def __init__(self, data_path: Optional[str] = None, parent=None):
-        super().__init__(parent)
-        self.colors = ModernColorScheme()
-        self.data_path = data_path
-        self.current_viewer = None
-        self.chart_widget = None
-
-        # 数据存储
-        self.raw_data = {}
-        self.processed_data = {}
-        self.battery_names = []
-
-        # UI组件
-        self.tabs = None
-        self.chart_area = None
-        self.control_panel = None
-        self.data_info_panel = None
-
-        self._setup_ui()
-        self._setup_menus()
-        self._setup_toolbars()
-        self._setup_statusbar()
-        self._connect_signals()
-
-        # 应用现代化样式
-        self._apply_styles()
-
-        # 如果提供了数据路径，自动加载
-        if self.data_path and os.path.exists(self.data_path):
-            QTimer.singleShot(100, lambda: self.load_data(self.data_path))
-
-    def _setup_ui(self):
-        """设置用户界面"""
-
-        # 设置主窗口属性
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[209:237]
-==modern_battery_viewer_refactored:[183:211]
-        self.chart_type_combo = QComboBox()
-        self.chart_type_combo.addItems(["折线图", "散点图", "面积图", "对比图"])
-        self.chart_type_combo.currentTextChanged.connect(self._on_chart_type_changed)
-
-        chart_type_layout.addWidget(chart_type_label)
-        chart_type_layout.addWidget(self.chart_type_combo)
-
-        # 显示选项
-        self.show_filtered_checkbox = QCheckBox("显示过滤数据")
-        self.show_filtered_checkbox.setChecked(True)
-        self.show_filtered_checkbox.stateChanged.connect(self._on_display_option_changed)
-
-        self.show_raw_checkbox = QCheckBox("显示原始数据")
-        self.show_raw_checkbox.setChecked(False)
-        self.show_raw_checkbox.stateChanged.connect(self._on_display_option_changed)
-
-        self.show_grid_checkbox = QCheckBox("显示网格")
-        self.show_grid_checkbox.setChecked(True)
-        self.show_grid_checkbox.stateChanged.connect(self._on_display_option_changed)
-
-        self.show_legend_checkbox = QCheckBox("显示图例")
-        self.show_legend_checkbox.setChecked(True)
-        self.show_legend_checkbox.stateChanged.connect(self._on_display_option_changed)
-
-        # 电池选择
-        battery_layout = QHBoxLayout()
-
-        battery_label = QLabel("电池选择:")
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[239:268]
-==modern_battery_viewer_refactored:[213:242]
-        self.battery_filter_combo = QComboBox()
-        self.battery_filter_combo.setEditable(True)
-        self.battery_filter_combo.currentTextChanged.connect(self._on_battery_filter_changed)
-
-        battery_layout.addWidget(battery_label)
-        battery_layout.addWidget(self.battery_filter_combo)
-
-        # 添加到布局
-        layout.addLayout(chart_type_layout)
-        layout.addWidget(self.show_filtered_checkbox)
-        layout.addWidget(self.show_raw_checkbox)
-        layout.addWidget(self.show_grid_checkbox)
-        layout.addWidget(self.show_legend_checkbox)
-        layout.addLayout(battery_layout)
-
-        parent.addWidget(group)
-
-    def _create_processing_control_group(self, parent):
-        """创建数据处理控制组"""
-
-        # 使用样式管理器创建主题化分组框
-        group = create_styled_groupbox(self, "⚙️ 数据处理", "processing")
-        layout = QVBoxLayout(group)
-        layout.setSpacing(10)
-
-        # 过滤参数
-        filter_layout = QHBoxLayout()
-
-        filter_label = QLabel("过滤强度:")
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[133:169]
-==modern_battery_viewer_refactored:[104:140]
-        control_frame.setMaximumWidth(350)
-        control_frame.setMinimumWidth(300)
-
-        control_layout = QVBoxLayout(control_frame)
-        control_layout.setContentsMargins(15, 15, 15, 15)
-        control_layout.setSpacing(12)
-
-        # 数据加载控制
-        self._create_data_control_group(control_layout)
-
-        # 图表显示控制
-        self._create_display_control_group(control_layout)
-
-        # 数据处理控制
-        self._create_processing_control_group(control_layout)
-
-        # 数据信息面板
-        self._create_data_info_panel(control_layout)
-
-        # 添加弹簧
-        control_layout.addStretch()
-
-        parent.addWidget(control_frame)
-
-    def _create_data_control_group(self, parent):
-        """创建数据控制组"""
-
-        # 使用样式管理器创建主题化分组框
-        group = create_styled_groupbox(self, "📁 数据管理", "data")
-        layout = QVBoxLayout(group)
-        layout.setSpacing(12)
-
-        # 数据路径选择
-        path_layout = QHBoxLayout()
-
-        self.path_label = QLabel("数据路径:")
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[498:523]
-==modern_battery_viewer_refactored:[480:506]
-        directory = QFileDialog.getExistingDirectory(
-            self,
-            "选择数据目录",
-            self.path_combo.currentText() or ".",
-            QFileDialog.Option.ShowDirsOnly
-        )
-
-        if directory:
-            self.path_combo.setCurrentText(directory)
-
-    @pyqtSlot()
-    def load_data(self, data_path: Optional[str] = None):
-        """加载数据"""
-
-        if data_path is None:
-            data_path = self.path_combo.currentText()
-
-        if not data_path or not os.path.exists(data_path):
-            QMessageBox.warning(self, "警告", "请选择有效的数据路径")
-            return
+==battery_analysis.utils.error_report_generator:[34:132]
+==battery_analysis.utils.log_manager:[101:195]
+        if platform.system() != 'Windows':
+            return "非Windows系统"
 
         try:
-            self.statusBar().showMessage('正在加载数据...')
+            import subprocess
+            import winreg
 
-            # 使用原有的BatteryChartViewer加载数据
+            # 方法1: 尝试从注册表获取激活状态
+            try:
+                # 尝试从注册表获取激活状态，但不记录过多调试日志
+                # 只在成功获取时记录，失败时直接尝试其他方法
+                try:
+                    key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"
+                    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, access=winreg.KEY_READ) as key:
+                        license_status = winreg.QueryValueEx(key, "LicenseStatus")[0]
+
+                        status_map = {
+                            0: "未激活",
+                            1: "已激活",
+                            2: "OOBGrace",
+                            3: "OOTGrace",
+                            4: "NonGenuineGrace",
+                            5: "Notification",
+                            6: "ExtendedGrace"
+                        }
+
+                        return f"Windows 激活状态: {status_map.get(license_status, f'未知状态 ({license_status})')}"
+                except Exception:
+                    # 注册表访问失败，不记录详细日志，直接尝试下一种方法
+                    pass
+
+                # 不尝试Wow6432Node路径，减少不必要的日志
+            except Exception:
+                # 捕获所有注册表相关异常，不记录详细日志
+                pass
+
+            # 方法2: 尝试使用cscript执行slmgr.vbs
+            try:
+                slmgr_path = "C:\\Windows\\System32\\slmgr.vbs"
+                result = subprocess.run(
+                    ['cscript', slmgr_path, '/xpr'],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+                return result.stdout.strip() if result.stdout.strip() else "无法获取激活状态"
+            except Exception as slmgr_error:
+                self.logger.debug(f"使用slmgr获取激活状态失败: {slmgr_error}")
+
+            # 方法3: 尝试使用wmic命令
+            try:
+                result = subprocess.run(
+                    ['wmic', 'path', 'SoftwareLicensingProduct', 'where', 'ApplicationID="55c92734-d682-4d71-983e-d6ec3f16059f"', 'get', 'LicenseStatus', '/value'],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if "LicenseStatus=1" in result.stdout:
+                    return "Windows 已激活"
+                elif "LicenseStatus=0" in result.stdout:
+                    return "Windows 未激活"
+                else:
+                    return "无法获取激活状态"
+            except Exception as wmic_error:
+                self.logger.debug(f"使用wmic获取激活状态失败: {wmic_error}")
+
+            return "无法获取激活状态"
+        except Exception as e:
+            self.logger.debug(f"获取Windows激活状态失败: {e}")
+            return "获取激活状态失败"
+
+    def _get_windows_edition(self):
+        """获取Windows系统版本类型
+
+        Returns:
+            str: 系统版本类型
+        """
+        if platform.system() != 'Windows':
+            return "非Windows系统"
+
+        try:
+            import winreg
+            # 从注册表获取系统版本
+            key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path) as key:
+                product_name = winreg.QueryValueEx(key, "ProductName")[0]
+                return product_name
+        except Exception as e:
+            self.logger.debug(f"获取Windows版本类型失败: {e}")
+            return "获取版本类型失败"
+
+    def _log_environment_info(self):
+        """记录应用程序运行环境信息"""
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[105:132]
-==modern_battery_viewer_refactored:[77:104]
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+==ui_components.config_manager:[135:208]
+==ui_components.ui_manager:[467:538]
+        try:
+            # 使用用户设置管理器加载配置
+            user_config = self.user_settings_manager.load_user_settings()
 
-        # 主布局
-        main_layout = QHBoxLayout(central_widget)
-        main_layout.setContentsMargins(5, 5, 5, 5)
-        main_layout.setSpacing(5)
+            # 更新UI控件
+            # 电池类型相关设置
+            if user_config.get("BatteryType"):
+                index = self.main_window.comboBox_BatteryType.findText(user_config["BatteryType"])
+                if index >= 0:
+                    self.main_window.comboBox_BatteryType.setCurrentIndex(index)
 
-        # 创建分割器
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        main_layout.addWidget(splitter)
+            if user_config.get("ConstructionMethod"):
+                index = self.main_window.comboBox_ConstructionMethod.findText(
+                    user_config["ConstructionMethod"])
+                if index >= 0:
+                    self.main_window.comboBox_ConstructionMethod.setCurrentIndex(index)
 
-        # 左侧控制面板
-        self._create_control_panel(splitter)
+            if user_config.get("SpecificationType"):
+                index = self.main_window.comboBox_Specification_Type.findText(
+                    user_config["SpecificationType"])
+                if index >= 0:
+                    self.main_window.comboBox_Specification_Type.setCurrentIndex(index)
 
-        # 右侧图表区域
-        self._create_chart_area(splitter)
+            if user_config.get("SpecificationMethod"):
+                index = self.main_window.comboBox_Specification_Method.findText(
+                    user_config["SpecificationMethod"])
+                if index >= 0:
+                    self.main_window.comboBox_Specification_Method.setCurrentIndex(
+                        index)
 
-        # 设置分割器比例
-        splitter.setStretchFactor(0, 1)  # 控制面板
-        splitter.setStretchFactor(1, 3)  # 图表区域
+            if user_config.get("Manufacturer"):
+                index = self.main_window.comboBox_Manufacturer.findText(user_config["Manufacturer"])
+                if index >= 0:
+                    self.main_window.comboBox_Manufacturer.setCurrentIndex(index)
 
-    def _create_control_panel(self, parent):
-        """创建左侧控制面板"""
+            if user_config.get("TesterLocation"):
+                index = self.main_window.comboBox_TesterLocation.findText(
+                    user_config["TesterLocation"])
+                if index >= 0:
+                    self.main_window.comboBox_TesterLocation.setCurrentIndex(index)
 
-        control_frame = QFrame()
-        control_frame.setObjectName("control_frame")
+            if user_config.get("TestedBy"):
+                index = self.main_window.comboBox_TestedBy.findText(user_config["TestedBy"])
+                if index >= 0:
+                    self.main_window.comboBox_TestedBy.setCurrentIndex(index)
+                else:
+                    # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
+                    self.main_window.comboBox_TestedBy.setCurrentText(user_config["TestedBy"])
+
+            if user_config.get("ReportedBy"):
+                index = self.main_window.comboBox_ReportedBy.findText(user_config["ReportedBy"])
+                if index >= 0:
+                    self.main_window.comboBox_ReportedBy.setCurrentIndex(index)
+                else:
+                    # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
+                    self.main_window.comboBox_ReportedBy.setCurrentText(user_config["ReportedBy"])
+
+            # 加载温度设置
+            if user_config.get("TemperatureType"):
+                self.main_window.comboBox_Temperature.setCurrentText(user_config["TemperatureType"])
+                # 同时更新spinBox的启用状态
+                if user_config["TemperatureType"] == "Freezer Temperature":
+                    self.main_window.spinBox_Temperature.setEnabled(True)
+                else:
+                    self.main_window.spinBox_Temperature.setEnabled(False)
+
+            # 加载冷冻温度数值设置
+            if user_config.get("FreezerTemperature"):
+                try:
+                    self.main_window.spinBox_Temperature.setValue(int(user_config["FreezerTemperature"]))
+                except (ValueError, TypeError):
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:176]
-==idataprocessor:[45:193]
+==business_logic.visualization_manager:[197:240]
+==dialogs.data_error_dialog:[107:149]
+            else:
+                # 取消操作
+                self.main_window.statusBar_BatteryAnalysis.showMessage("操作已取消")
+                QW.QMessageBox.information(
+                    self.main_window,
+                    "取消",
+                    "操作已取消。您可以通过菜单 'File -> Open Data' 重新尝试。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+        else:
+            self.main_window.statusBar_BatteryAnalysis.showMessage("操作已取消")
+
+    def _open_data_directory_dialog(self):
+        """打开数据目录选择对话框"""
+        try:
+            # 打开目录选择对话框
+            directory = QW.QFileDialog.getExistingDirectory(
+                self.main_window,
+                "选择包含电池数据的目录",
+                "",
+                QW.QFileDialog.Option.ShowDirsOnly | QW.QFileDialog.Option.DontResolveSymlinks
+            )
+
+            if directory:
+                self.main_window.statusBar_BatteryAnalysis.showMessage(f"已选择目录: {directory}")
+
+                # 检查目录中是否有Info_Image.csv文件
+                import os
+                info_image_path = os.path.join(directory, "Info_Image.csv")
+                if os.path.exists(info_image_path):
+                    QW.QMessageBox.information(
+                        self.main_window,
+                        "数据目录确认",
+                        f"找到数据文件: {info_image_path}\n\n应用将尝试使用此数据重新启动可视化工具。",
+                        QW.QMessageBox.StandardButton.Ok
+                    )
+
+                    # 更新界面上的配置路径
+                    if hasattr(self.main_window, 'lineEdit_TestProfile'):
+                        self.main_window.lineEdit_TestProfile.setText(directory)
+
+                    # 重新运行可视化工具
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==business_logic.environment_manager:[13:63]
+==managers.environment_manager:[4:59]
+class EnvironmentManager:
+    """环境信息管理器"""
+
+    def __init__(self, main_window):
+        """
+        初始化环境管理器
+
+        Args:
+            main_window: 主窗口实例
+        """
+        self.main_window = main_window
+        self.logger = logging.getLogger(__name__)
+
+    def initialize_environment_info(self):
+        """
+        初始化环境信息
+        """
+        try:
+            environment_service = self.main_window._get_service("environment")
+            if environment_service:
+                if hasattr(environment_service, 'env_info'):
+                    self.main_window.env_info = environment_service.env_info
+                elif hasattr(environment_service, 'initialize'):
+                    if environment_service.initialize() and hasattr(environment_service, 'env_info'):
+                        self.main_window.env_info = environment_service.env_info
+        except (AttributeError, TypeError, ImportError, OSError) as e:
+            self.logger.warning("Failed to initialize environment service: %s", e)
+
+    def ensure_env_info_keys(self):
+        """
+        确保环境信息包含必要的键
+        """
+        # 确保environment_type键存在
+        if 'environment_type' not in self.main_window.env_info:
+            try:
+                environment_service = self.main_window._get_service("environment")
+                if environment_service and hasattr(environment_service, 'EnvironmentType'):
+                    self.main_window.env_info['environment_type'] = environment_service.EnvironmentType.DEVELOPMENT
+                else:
+                    # 降级到直接导入
+                    from battery_analysis.utils.environment_utils import EnvironmentType
+                    self.main_window.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+            except (AttributeError, TypeError, ImportError) as e:
+                self.logger.warning("Failed to get EnvironmentType: %s", e)
+                from battery_analysis.utils.environment_utils import EnvironmentType
+                self.main_window.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+
+        # 确保gui_available键存在
+        if 'gui_available' not in self.main_window.env_info:
+            self.main_window.env_info['gui_available'] = True
+
+    def initialize_all(self):
+        """
+        初始化所有环境信息
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[70:121]
+==impl.battery_analysis_service_impl:[41:85]
+        if not test_results:
+            return {
+                "total_cycles": 0,
+                "average_capacity": 0.0,
+                "capacity_fade_rate": 0.0,
+                "estimated_remaining_cycles": 0
+            }
+
+        # 按循环次数排序
+        sorted_results = sorted(test_results, key=lambda x: x.cycle_count)
+
+        # 计算总循环次数
+        total_cycles = sorted_results[-1].cycle_count
+
+        # 计算平均容量
+        average_capacity = sum(result.capacity for result in test_results) / len(test_results)
+
+        # 计算容量衰减率
+        initial_capacity = sorted_results[0].capacity if sorted_results else 0.0
+        final_capacity = sorted_results[-1].capacity if sorted_results else 0.0
+        capacity_fade = initial_capacity - final_capacity
+        capacity_fade_rate = (capacity_fade / initial_capacity) * 100 if initial_capacity > 0 else 0.0
+
+        # 估算剩余循环次数（简单模型）
+        # 假设当容量衰减到80%时，电池寿命结束
+        remaining_capacity_percent = (final_capacity / battery.nominal_capacity) * 100
+        estimated_remaining_cycles = 0
+
+        if remaining_capacity_percent > 80 and capacity_fade_rate > 0:
+            remaining_capacity_needed = remaining_capacity_percent - 80
+            estimated_remaining_cycles = int((remaining_capacity_needed / capacity_fade_rate) * total_cycles)
+
+        return {
+            "total_cycles": total_cycles,
+            "average_capacity": round(average_capacity, 2),
+            "capacity_fade_rate": round(capacity_fade_rate, 2),
+            "estimated_remaining_cycles": estimated_remaining_cycles
+        }
+
+    def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
+        """
+        验证测试结果是否符合测试配置要求
+
+        Args:
+            test_result: 测试结果实体
+            test_profile: 测试配置实体
+            battery: 电池实体
+
+        Returns:
+            验证结果，包含是否通过和详细信息
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==business_logic.visualization_manager:[161:195]
+==dialogs.data_error_dialog:[71:105]
+        button_layout = QW.QHBoxLayout()
+
+        ok_button = QW.QPushButton("确定")
+        ok_button.clicked.connect(dialog.accept)
+        button_layout.addWidget(ok_button)
+
+        cancel_button = QW.QPushButton("取消")
+        cancel_button.clicked.connect(dialog.reject)
+        button_layout.addWidget(cancel_button)
+
+        layout.addLayout(button_layout)
+
+        # 显示对话框
+        if dialog.exec() == QW.QDialog.DialogCode.Accepted:
+            selected_id = button_group.checkedId()
+
+            if selected_id == 1:
+                # 重新选择数据目录
+                self.main_window.statusBar_BatteryAnalysis.showMessage("正在打开数据目录选择...")
+                self._open_data_directory_dialog()
+
+            elif selected_id == 2:
+                # 使用默认配置重新启动
+                self.main_window.statusBar_BatteryAnalysis.showMessage("使用默认配置重新启动...")
+                QW.QMessageBox.information(
+                    self.main_window,
+                    "重新启动",
+                    "应用将使用默认配置重新启动。\n\n请确保您有有效的数据文件可用。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                # 清空配置字段并重新启动
+                if hasattr(self.main_window, 'lineEdit_TestProfile'):
+                    self.main_window.lineEdit_TestProfile.clear()
+                # 递归调用，但使用默认配置
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[123:166]
+==impl.battery_analysis_service_impl:[85:123]
+        validation_results = {
+            "is_valid": True,
+            "details": [],
+            "failed_checks": []
+        }
+
+        # 检查温度范围
+        if test_result.temperature < test_profile.min_temperature or test_result.temperature > test_profile.max_temperature:
+            validation_results["is_valid"] = False
+            validation_results["failed_checks"].append("temperature_range")
+            validation_results["details"].append(f"温度 {test_result.temperature}°C 超出允许范围 [{test_profile.min_temperature}, {test_profile.max_temperature}]°C")
+
+        # 检查电压范围
+        if test_result.voltage > test_profile.test_voltage * 1.1 or test_result.voltage < test_profile.test_voltage * 0.9:
+            validation_results["is_valid"] = False
+            validation_results["failed_checks"].append("voltage_range")
+            validation_results["details"].append(f"电压 {test_result.voltage}V 超出允许范围 [{test_profile.test_voltage * 0.9}, {test_profile.test_voltage * 1.1}]V")
+
+        # 检查电流范围
+        if abs(test_result.current) > test_profile.test_current * 1.2:
+            validation_results["is_valid"] = False
+            validation_results["failed_checks"].append("current_range")
+            validation_results["details"].append(f"电流 {test_result.current}A 超出允许范围 [-{test_profile.test_current * 1.2}, {test_profile.test_current * 1.2}]A")
+
+        # 检查容量是否在合理范围内
+        if test_result.capacity < battery.nominal_capacity * 0.5 or test_result.capacity > battery.nominal_capacity * 1.2:
+            validation_results["is_valid"] = False
+            validation_results["failed_checks"].append("capacity_range")
+            validation_results["details"].append(f"容量 {test_result.capacity}Ah 超出合理范围 [{battery.nominal_capacity * 0.5}, {battery.nominal_capacity * 1.2}]Ah")
+
+        return validation_results
+
+    def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
+        """计算电池性能指标
+
+        计算各种电池性能指标
+        """
+        # 计算健康状态
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==business_logic.visualization_manager:[241:260]
+==dialogs.data_error_dialog:[150:169]
+                else:
+                    QW.QMessageBox.warning(
+                        self.main_window,
+                        "数据目录无效",
+                        f"在选择的目录中没有找到 Info_Image.csv 文件:\n\n{directory}\n\n请确保选择的目录包含有效的电池数据文件。",
+                        QW.QMessageBox.StandardButton.Ok
+                    )
+                    self.main_window.statusBar_BatteryAnalysis.showMessage("无效的数据目录")
+            else:
+                self.main_window.statusBar_BatteryAnalysis.showMessage("未选择目录")
+
+        except (OSError, TypeError, ValueError, RuntimeError, PermissionError, FileNotFoundError) as e:
+            self.logger.error("打开数据目录对话框时出错: %s", str(e))
+            QW.QMessageBox.critical(
+                self.main_window,
+                "错误",
+                f"打开目录选择对话框时出错:\n\n{str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==business_logic.visualization_manager:[117:145]
+==dialogs.data_error_dialog:[27:55]
+        dialog = QW.QDialog(self.main_window)
+        dialog.setWindowTitle("数据加载错误 - 恢复选项")
+        dialog.setModal(True)
+        dialog.resize(500, 300)
+
+        layout = QW.QVBoxLayout(dialog)
+
+        # 错误信息标签
+        error_label = QW.QLabel("无法加载电池数据，请选择如何继续:")
+        error_label.setWordWrap(True)
+        error_label.setStyleSheet("font-weight: bold; color: red;")
+        layout.addWidget(error_label)
+
+        # 详细错误信息
+        details_label = QW.QLabel(f"错误详情: {error_msg}")
+        details_label.setWordWrap(True)
+        details_label.setStyleSheet("background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc;")
+        layout.addWidget(details_label)
+
+        # 恢复选项说明
+        help_label = QW.QLabel("请选择以下恢复选项之一:")
+        help_label.setStyleSheet("margin-top: 10px; font-weight: bold;")
+        layout.addWidget(help_label)
+
+        # 按钮组
+        button_group = QW.QButtonGroup(dialog)
+
+        # 选项1: 重新选择数据目录
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==business_logic.validation_manager:[377:393]
+==ui_components.ui_manager:[559:575]
+            self.main_window.label_BatteryType,
+            self.main_window.label_ConstructionMethod,
+            self.main_window.label_Specification,
+            self.main_window.label_Manufacturer,
+            self.main_window.label_BatchDateCode,
+            self.main_window.label_SamplesQty,
+            self.main_window.label_Temperature,
+            self.main_window.label_DatasheetNominalCapacity,
+            self.main_window.label_CalculationNominalCapacity,
+            self.main_window.label_AcceleratedAging,
+            self.main_window.label_RequiredUseableCapacity,
+            self.main_window.label_TesterLocation,
+            self.main_window.label_TestedBy,
+            self.main_window.label_TestProfile,
+            self.main_window.label_InputPath,
+            self.main_window.label_OutputPath,
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[169:201]
+==impl.battery_analysis_service_impl:[123:150]
+        soh = self.calculate_state_of_health(test_result, battery)
+
+        # 计算充电效率（简单模型）
+        charge_efficiency = 100.0 - (test_result.internal_resistance * 0.1)  # 内阻越大，效率越低
+        charge_efficiency = max(0.0, min(100.0, charge_efficiency))
+
+        # 计算能量密度 (Wh/kg)
+        energy = test_result.capacity * test_result.voltage  # Wh
+        energy_density = energy / battery.weight if battery.weight > 0 else 0.0
+
+        # 计算功率密度 (W/kg)
+        power = test_result.voltage * test_result.current  # W
+        power_density = power / battery.weight if battery.weight > 0 else 0.0
+
+        return {
+            "soh": round(soh, 2),
+            "charge_efficiency": round(charge_efficiency, 2),
+            "energy_density": round(energy_density, 2),
+            "power_density": round(power_density, 2),
+            "temperature_stability": round(100.0 - abs(test_result.temperature - 25.0) * 2, 2)  # 越接近25°C，稳定性越高
+        }
+
+    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
+        """检测测试结果中的异常
+
+        识别测试结果中的异常值
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[241:252]
+==impl.battery_analysis_service_impl:[197:208]
+        return {
+            "test_id_1": test_result1.test_id,
+            "test_id_2": test_result2.test_id,
+            "cycle_count_difference": test_result2.cycle_count - test_result1.cycle_count,
+            "capacity_difference": round(test_result2.capacity - test_result1.capacity, 3),
+            "capacity_difference_percent": round(((test_result2.capacity - test_result1.capacity) / test_result1.capacity * 100) if test_result1.capacity > 0 else 0, 2),
+            "internal_resistance_difference": round(test_result2.internal_resistance - test_result1.internal_resistance, 3),
+            "temperature_difference": round(test_result2.temperature - test_result1.temperature, 2),
+            "voltage_difference": round(test_result2.voltage - test_result1.voltage, 3),
+            "current_difference": round(test_result2.current - test_result1.current, 3)
+        }
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[26:146]
+==services.data_processing_service_interface:[31:176]
         pass
 
     @abstractmethod
@@ -7596,635 +9320,36 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==idataprocessor:[60:206]
-==iuiframework:[38:173]
-        pass
+==ui_components.menu_manager:[205:225]
+==ui_components.window_setup:[82:104]
+        if hasattr(self.main_window, 'actionShow_Toolbar') and hasattr(self.main_window, 'toolBar'):
+            self.main_window.toolBar.setVisible(self.main_window.actionShow_Toolbar.isChecked())
+        elif hasattr(self.main_window, 'toolBar'):
+            # 如果没有actionShow_Toolbar，只是切换显示状态
+            self.main_window.toolBar.setVisible(not self.main_window.toolBar.isVisible())
 
-    @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
-
-        Args:
-            data: 初始数据
-
-        Returns:
-            Any: 数据框对象
+    def toggle_statusbar_safe(self):
         """
-        pass
-
-    @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
+        安全地切换状态栏的显示/隐藏状态
         """
-        pass
+        if hasattr(self.main_window, 'actionShow_Statusbar') and hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            self.main_window.statusBar_BatteryAnalysis.setVisible(
+                self.main_window.actionShow_Statusbar.isChecked())
+        elif hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            # 如果没有actionShow_Statusbar，只是切换显示状态
+            self.main_window.statusBar_BatteryAnalysis.setVisible(
+                not self.main_window.statusBar_BatteryAnalysis.isVisible())
 
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-        pass
-
-    @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
-
-        Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
-
-        Returns:
-            Any: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
+    def zoom_in(self):
+        """放大界面元素"""
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[346:368]
-==modern_battery_viewer_refactored:[322:344]
-        self.chart_widget = ModernChartWidget()
-        self.chart_widget.data_changed.connect(self._on_chart_data_changed)
-        self.tabs.addTab(self.chart_widget, "📊 数据图表")
-
-        # 分析标签页
-        analysis_widget = self._create_analysis_widget()
-        self.tabs.addTab(analysis_widget, "📈 数据分析")
-
-        chart_layout.addWidget(self.tabs)
-
-        parent.addWidget(chart_frame)
-
-    def _create_analysis_widget(self):
-        """创建分析面板"""
-
-        analysis_widget = QWidget()
-        layout = QVBoxLayout(analysis_widget)
-
-        # 分析控制
-        analysis_control_layout = QHBoxLayout()
-
-        analysis_type_label = QLabel("分析类型:")
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[44:176]
-==idataprocessor:[45:179]
-        pass
-
-    @abstractmethod
-    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
-        """保存数据文件
-
-        Args:
-            data: 数据对象
-            file_path: 保存路径
-            format: 数据格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
-
-        Args:
-            data: 初始数据
-
-        Returns:
-            Any: 数据框对象
-        """
-        pass
-
-    @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
-        """
-        pass
-
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-        pass
-
-    @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
-
-        Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
-
-        Returns:
-            Any: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:175]
-==idataprocessor:[98:220]
-        pass
-
-    @abstractmethod
-    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        分析电池性能
-
-        Args:
-            data: 电池数据列表
-
-        Returns:
-            Dict[str, Any]: 分析结果
-        """
-        pass
-
-    @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
-        """
-        计算统计数据
-
-        Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
-
-        Returns:
-            Dict[str, float]: 统计数据
-        """
-        pass
-
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
-
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
-
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
-        pass
-
-    @abstractmethod
-    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        """
-        合并多个电池数据集
-
-        Args:
-            data_list: 数据集列表
-
-        Returns:
-            List[Dict[str, Any]]: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def extract_features(self, data: List[Dict[str, Any]],
-                        feature_types: List[str]) -> Dict[str, Any]:
-        """
-        提取数据特征
-
-        Args:
-            data: 原始数据
-            feature_types: 特征类型列表
-
-        Returns:
-            Dict[str, Any]: 提取的特征
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==document_service_interface:[29:170]
-==idataprocessor:[60:193]
-        pass
-
-    @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
-        """
-        保存Word文档
-
-        Args:
-            document: Word文档对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
-        """
-        向Word文档添加表格
-
-        Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
-
-        Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
-        """
-        生成报告
-
-        Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
-
-        Returns:
-            bool: 生成是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_background_color(self, cell: Any, color: str) -> bool:
-        """
-        设置单元格背景色
-
-        Args:
-            cell: 单元格对象
-            color: 颜色值（十六进制或颜色名称）
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==file_service_interface:[29:152]
-==idataprocessor:[72:206]
+==services.document_service_interface:[29:170]
+==services.file_service_interface:[29:152]
         pass
 
     @abstractmethod
@@ -8354,37 +9479,516 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[378:399]
-==modern_battery_viewer_refactored:[358:379]
-        analysis_control_layout.addWidget(analysis_type_label)
-        analysis_control_layout.addWidget(self.analysis_type_combo)
-        analysis_control_layout.addWidget(self.run_analysis_button)
+==battery_repository:[38:146]
+==services.data_processing_service_interface:[31:175]
+        pass
 
-        # 分析结果
-        self.analysis_result_text = QTextEdit()
-        self.analysis_result_text.setReadOnly(True)
+    @abstractmethod
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
 
-        layout.addLayout(analysis_control_layout)
-        layout.addWidget(self.analysis_result_text)
+        Args:
+            model_number: 电池型号
 
-        return analysis_widget
+        Returns:
+            电池实体对象列表
+        """
+        pass
 
-    def _setup_menus(self):
-        """设置菜单栏"""
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
 
-        menubar = self.menuBar()
+        Args:
+            manufacturer: 制造商
 
-        # 文件菜单
-        file_menu = menubar.addMenu('文件(&F)')
+        Returns:
+            电池实体对象列表
+        """
+        pass
 
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计电池数量
+
+        Returns:
+            电池数量
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==data_processing_service_interface:[59:176]
-==idataprocessor:[45:165]
+==battery_repository:[26:145]
+==services.data_processing_service_interface:[44:176]
+        pass
+
+    @abstractmethod
+    def find_by_serial_number(self, serial_number: str) -> Optional[Battery]:
+        """根据序列号查找电池
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            电池实体对象，或None
+        """
+        pass
+
+    @abstractmethod
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
+
+        Args:
+            model_number: 电池型号
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计电池数量
+
+        Returns:
+            电池数量
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==iuiframework:[38:160]
+==services.file_service_interface:[43:152]
+        pass
+
+    @abstractmethod
+    def create_main_window(self) -> Any:
+        """创建主窗口
+
+        Returns:
+            Any: 主窗口实例
+        """
+        pass
+
+    @abstractmethod
+    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
+        """创建进度对话框
+
+        Args:
+            parent: 父窗口
+
+        Returns:
+            Any: 进度对话框实例
+        """
+        pass
+
+    @abstractmethod
+    def show_message_box(self,
+                        parent: Optional[Any],
+                        title: str,
+                        message: str,
+                        msg_type: MessageBoxType) -> Any:
+        """显示消息框
+
+        Args:
+            parent: 父窗口
+            title: 窗口标题
+            message: 消息内容
+            msg_type: 消息类型
+
+        Returns:
+            Any: 消息框实例
+        """
+        pass
+
+    @abstractmethod
+    def create_file_dialog(self,
+                          parent: Optional[Any],
+                          caption: str,
+                          directory: str = "",
+                          filter_pattern: str = "") -> Any:
+        """创建文件选择对话框
+
+        Args:
+            parent: 父窗口
+            caption: 对话框标题
+            directory: 默认目录
+            filter_pattern: 文件过滤器
+
+        Returns:
+            Any: 文件对话框实例
+        """
+        pass
+
+    @abstractmethod
+    def create_label(self, parent: Any, text: str) -> Any:
+        """创建标签控件
+
+        Args:
+            parent: 父控件
+            text: 标签文本
+
+        Returns:
+            Any: 标签控件实例
+        """
+        pass
+
+    @abstractmethod
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
+
+        Args:
+            parent: 父控件
+            text: 按钮文本
+
+        Returns:
+            Any: 按钮控件实例
+        """
+        pass
+
+    @abstractmethod
+    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
+        """创建输入框控件
+
+        Args:
+            parent: 父控件
+            placeholder: 占位符文本
+
+        Returns:
+            Any: 输入框控件实例
+        """
+        pass
+
+    @abstractmethod
+    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
+        """创建表格控件
+
+        Args:
+            parent: 父控件
+            rows: 行数
+            columns: 列数
+
+        Returns:
+            Any: 表格控件实例
+        """
+        pass
+
+    @abstractmethod
+    def set_layout(self, parent: Any, layout: Any) -> None:
+        """设置布局管理器
+
+        Args:
+            parent: 父控件
+            layout: 布局管理器
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.document_service_interface:[43:170]
+==services.file_service_interface:[29:151]
+        pass
+
+    @abstractmethod
+    def add_table_to_word(self, document: Any, table_data: List[List[str]],
+                         table_style: Optional[str] = None) -> bool:
+        """
+        向Word文档添加表格
+
+        Args:
+            document: Word文档对象
+            table_data: 表格数据，二维列表
+            table_style: 表格样式
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_image_to_word(self, document: Any, image_path: str,
+                         width: Optional[float] = None) -> bool:
+        """
+        向Word文档添加图片
+
+        Args:
+            document: Word文档对象
+            image_path: 图片文件路径
+            width: 图片宽度
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
+        """
+        创建Excel工作簿
+
+        Args:
+            template_path: Excel模板文件路径
+
+        Returns:
+            Any: Excel工作簿对象
+        """
+        pass
+
+    @abstractmethod
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
+
+        Args:
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
+
+        Args:
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
+        """
+        生成报告
+
+        Args:
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
+
+        Returns:
+            bool: 生成是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+        """
+        设置单元格背景色
+
+        Args:
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.data_processing_service_interface:[59:176]
+==services.document_service_interface:[29:169]
         pass
 
     @abstractmethod
@@ -8508,8 +10112,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:160]
-==idataprocessor:[111:220]
+==battery_repository:[50:146]
+==services.data_processing_service_interface:[31:160]
         pass
 
     @abstractmethod
@@ -8645,778 +10249,117 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==document_service_interface:[29:169]
-==file_service_interface:[43:152]
+==battery_repository:[26:136]
+==test_profile_repository:[25:120]
         pass
 
     @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
-        """
-        保存Word文档
+    def find_by_serial_number(self, serial_number: str) -> Optional[Battery]:
+        """根据序列号查找电池
 
         Args:
-            document: Word文档对象
-            output_path: 输出文件路径
+            serial_number: 电池序列号
 
         Returns:
-            bool: 保存是否成功
+            电池实体对象，或None
         """
         pass
 
     @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
-        """
-        向Word文档添加表格
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
 
         Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
+            model_number: 电池型号
 
         Returns:
-            bool: 添加是否成功
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
 
         Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
+            manufacturer: 制造商
 
         Returns:
-            bool: 添加是否成功
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
-        """
-        生成报告
-
-        Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
-
-        Returns:
-            bool: 生成是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_background_color(self, cell: Any, color: str) -> bool:
-        """
-        设置单元格背景色
-
-        Args:
-            cell: 单元格对象
-            color: 颜色值（十六进制或颜色名称）
-
-        Returns:
-            bool: 设置是否成功
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==document_service_interface:[43:170]
-==file_service_interface:[29:151]
-        pass
-
-    @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
-        """
-        向Word文档添加表格
-
-        Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
-
-        Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
-        """
-        生成报告
-
-        Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
-
-        Returns:
-            bool: 生成是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_background_color(self, cell: Any, color: str) -> bool:
-        """
-        设置单元格背景色
-
-        Args:
-            cell: 单元格对象
-            color: 颜色值（十六进制或颜色名称）
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[171:184]
-==modern_battery_viewer_refactored:[142:155]
-        self.path_combo = QComboBox()
-        self.path_combo.setEditable(True)
-        self.path_combo.setMinimumWidth(150)
-
-        self.browse_button = QPushButton("浏览")
-        self.browse_button.setMaximumWidth(60)
-        self.browse_button.clicked.connect(self._browse_data_path)
-
-        path_layout.addWidget(self.path_label)
-        path_layout.addWidget(self.path_combo)
-        path_layout.addWidget(self.browse_button)
-
-        # 加载按钮 - 使用样式管理器创建
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[30:117]
-==idataprocessor:[45:152]
-        pass
-
-    @abstractmethod
-    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
-        """保存数据文件
-
-        Args:
-            data: 数据对象
-            file_path: 保存路径
-            format: 数据格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
-
-        Args:
-            data: 初始数据
-
-        Returns:
-            Any: 数据框对象
-        """
-        pass
-
-    @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
-        """
-        pass
-
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-        pass
-
-    @abstractmethod
-    def merge_data(self, left: Any, right: Any, on: Union[str, List[str]], how: str = "inner") -> Any:
-        """合并数据
-
-        Args:
-            left: 左数据
-            right: 右数据
-            on: 合并字段
-            how: 合并方式
-
-        Returns:
-            Any: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[31:147]
-==idataprocessor:[125:220]
-        pass
-
-    @abstractmethod
-    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        分析电池性能
-
-        Args:
-            data: 电池数据列表
-
-        Returns:
-            Dict[str, Any]: 分析结果
-        """
-        pass
-
-    @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
-        """
-        计算统计数据
-
-        Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
-
-        Returns:
-            Dict[str, float]: 统计数据
-        """
-        pass
-
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
-
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
-
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==idataprocessor:[60:165]
-==validation_service_interface:[28:122]
-        pass
-
-    @abstractmethod
-    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
-        """
-        验证文件路径的有效性
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
-        """
-        验证目录路径的有效性
-
-        Args:
-            directory_path: 目录路径
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
-        """
-        验证数值是否在有效范围内
-
-        Args:
-            value: 要验证的值
-            min_val: 最小值
-            max_val: 最大值
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_email(self, email: str) -> Tuple[bool, str]:
-        """
-        验证邮箱地址格式
-
-        Args:
-            email: 邮箱地址
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
-        """
-        验证电话号码格式
-
-        Args:
-            phone: 电话号码
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
-        """
-        验证电池类型是否有效
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
 
         Args:
             battery_type: 电池类型
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
-        """
-        验证容量值是否有效
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
 
         Args:
-            capacity: 容量值
+            start_date: 开始日期
+            end_date: 结束日期
 
         Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[75:176]
-==document_service_interface:[29:155]
-        pass
-
-    @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
-        """
-        保存Word文档
-
-        Args:
-            document: Word文档对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
-        """
-        向Word文档添加表格
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
 
         Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
+            status: 电池状态
 
         Returns:
-            bool: 添加是否成功
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
 
         Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
 
         Returns:
-            bool: 添加是否成功
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
 
         Args:
-            template_path: Excel模板文件路径
+            battery: 电池实体对象
 
         Returns:
-            Any: Excel工作簿对象
+            更新后的电池实体对象
         """
         pass
 
     @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
 
         Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
+            serial_number: 电池序列号
 
         Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
-        """
-        生成报告
-
-        Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
-
-        Returns:
-            bool: 生成是否成功
+            是否删除成功
         """
 - 符号: duplicate-code
 
@@ -9424,127 +10367,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==document_service_interface:[59:170]
-==file_service_interface:[29:138]
-        pass
-
-    @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
-
-        Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
-        """
-        生成报告
-
-        Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
-
-        Returns:
-            bool: 生成是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_background_color(self, cell: Any, color: str) -> bool:
-        """
-        设置单元格背景色
-
-        Args:
-            cell: 单元格对象
-            color: 颜色值（十六进制或颜色名称）
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==file_service_interface:[57:152]
 ==iuiframework:[38:150]
+==services.file_service_interface:[57:152]
         pass
 
     @abstractmethod
@@ -9663,643 +10487,8 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[190:207]
-==modern_battery_viewer_refactored:[164:181]
-        layout.addLayout(path_layout)
-        layout.addWidget(self.load_button)
-
-        parent.addWidget(group)
-
-    def _create_display_control_group(self, parent):
-        """创建显示控制组"""
-
-        # 使用样式管理器创建主题化分组框
-        group = create_styled_groupbox(self, "🎨 显示控制", "display")
-        layout = QVBoxLayout(group)
-        layout.setSpacing(10)
-
-        # 图表类型
-        chart_type_layout = QHBoxLayout()
-
-        chart_type_label = QLabel("图表类型:")
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[270:282]
-==modern_battery_viewer_refactored:[244:256]
-        self.filter_strength_spinbox = QSpinBox()
-        self.filter_strength_spinbox.setRange(1, 10)
-        self.filter_strength_spinbox.setValue(3)
-        self.filter_strength_spinbox.valueChanged.connect(self._on_filter_parameter_changed)
-
-        filter_layout.addWidget(filter_label)
-        filter_layout.addWidget(self.filter_strength_spinbox)
-
-        # 采样间隔
-        sampling_layout = QHBoxLayout()
-
-        sampling_label = QLabel("采样间隔:")
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[328:343]
-==modern_battery_viewer_refactored:[305:322]
-        layout.addWidget(self.data_status_label)
-        layout.addWidget(self.data_details_text)
-        layout.addWidget(self.stats_label)
-
-        parent.addWidget(group)
-
-    def _create_chart_area(self, parent):
-        """创建右侧图表区域"""
-
-        chart_frame = QFrame()
-        chart_layout = QVBoxLayout(chart_frame)
-        chart_layout.setContentsMargins(5, 5, 5, 5)
-
-        # 标签页控件
-        self.tabs = QTabWidget()
-
-        # 图表标签页
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==idataprocessor:[45:140]
-==ivisualizer:[29:90]
-        pass
-
-    @abstractmethod
-    def load_data(self, data_path: str) -> bool:
-        """
-        加载数据
-
-        Args:
-            data_path: 数据路径
-
-        Returns:
-            bool: 是否成功加载数据
-        """
-        pass
-
-    @abstractmethod
-    def clear_data(self) -> None:
-        """
-        清除所有数据，回到初始状态
-        """
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
-
-        Args:
-            config: 配置字典
-        """
-        pass
-
-    @abstractmethod
-    def get_config(self) -> dict:
-        """
-        获取当前配置
-
-        Returns:
-            dict: 当前配置字典
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[30:116]
-==idataprocessor:[140:220]
-        pass
-
-    @abstractmethod
-    def get_column_names(self, data: Any) -> List[str]:
-        """获取列名
-
-        Args:
-            data: 数据对象
-
-        Returns:
-            List[str]: 列名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_column_data(self, data: Any, column: str) -> Any:
-        """获取列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-
-        Returns:
-            Any: 列数据
-        """
-        pass
-
-    @abstractmethod
-    def set_column_data(self, data: Any, column: str, values: Any) -> bool:
-        """设置列数据
-
-        Args:
-            data: 数据对象
-            column: 列名
-            values: 新数据
-
-        Returns:
-            bool: 是否设置成功
-        """
-        pass
-
-    @abstractmethod
-    def convert_data_type(self, data: Any, column: str, data_type: DataType) -> bool:
-        """转换数据类型
-
-        Args:
-            data: 数据对象
-            column: 列名
-            data_type: 目标类型
-
-        Returns:
-            bool: 是否转换成功
-        """
-        pass
-
-    @abstractmethod
-    def get_statistics(self, data: Any, columns: Optional[List[str]] = None) -> Dict[str, Any]:
-        """获取统计信息
-
-        Args:
-            data: 数据对象
-            columns: 指定列（None表示所有列）
-
-        Returns:
-            Dict[str, Any]: 统计信息
-        """
-        pass
-
-    @abstractmethod
-    def handle_missing_values(self, data: Any, strategy: str = "drop") -> Any:
-        """处理缺失值
-
-        Args:
-            data: 数据对象
-            strategy: 处理策略（drop、fill、interpolate等）
-
-        Returns:
-            Any: 处理后的数据
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[44:117]
-==data_processing_service_interface:[31:131]
-        pass
-
-    @abstractmethod
-    def save_config(self) -> bool:
-        """
-        保存配置到文件
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
-
-        Args:
-            config_path: 配置文件路径，None表示使用默认路径
-
-        Returns:
-            bool: 加载是否成功
-        """
-        pass
-
-    @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
-        """
-        pass
-
-    @abstractmethod
-    def has_config_key(self, key: str) -> bool:
-        """
-        检查配置键是否存在
-
-        Args:
-            key: 配置键
-
-        Returns:
-            bool: 键是否存在
-        """
-        pass
-
-    @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
-        """
-        查找配置文件路径
-
-        Args:
-            file_name: 配置文件名称
-
-        Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==data_processing_service_interface:[90:176]
-==document_service_interface:[29:138]
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
-        pass
-
-    @abstractmethod
-    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        """
-        合并多个电池数据集
-
-        Args:
-            data_list: 数据集列表
-
-        Returns:
-            List[Dict[str, Any]]: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def extract_features(self, data: List[Dict[str, Any]],
-                        feature_types: List[str]) -> Dict[str, Any]:
-        """
-        提取数据特征
-
-        Args:
-            data: 原始数据
-            feature_types: 特征类型列表
-
-        Returns:
-            Dict[str, Any]: 提取的特征
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==document_service_interface:[75:170]
-==file_service_interface:[29:124]
-        pass
-
-    @abstractmethod
-    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
-        """
-        删除目录
-
-        Args:
-            path: 目录路径
-            recursive: 是否递归删除
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
-        """
-        列出目录中的文件
-
-        Args:
-            directory: 目录路径
-            pattern: 文件名模式
-
-        Returns:
-            List[str]: 文件名列表
-        """
-        pass
-
-    @abstractmethod
-    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
-        """
-        获取文件大小
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            Optional[int]: 文件大小，失败返回None
-        """
-        pass
-
-    @abstractmethod
-    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
-        """
-        设置文件属性
-
-        Args:
-            file_path: 文件路径
-            attributes: 属性字典
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        隐藏文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
-        """
-        检查文件是否隐藏
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            bool: 文件是否隐藏
-        """
-        pass
-
-    @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        复制文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==file_service_interface:[70:152]
-==validation_service_interface:[28:121]
-        pass
-
-    @abstractmethod
-    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
-        """
-        设置文件属性
-
-        Args:
-            file_path: 文件路径
-            attributes: 属性字典
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        隐藏文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
-        """
-        检查文件是否隐藏
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            bool: 文件是否隐藏
-        """
-        pass
-
-    @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        复制文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        移动文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        删除文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==iuiframework:[38:136]
-==validation_service_interface:[41:122]
-        pass
-
-    @abstractmethod
-    def create_main_window(self) -> Any:
-        """创建主窗口
-
-        Returns:
-            Any: 主窗口实例
-        """
-        pass
-
-    @abstractmethod
-    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
-        """创建进度对话框
-
-        Args:
-            parent: 父窗口
-
-        Returns:
-            Any: 进度对话框实例
-        """
-        pass
-
-    @abstractmethod
-    def show_message_box(self,
-                        parent: Optional[Any],
-                        title: str,
-                        message: str,
-                        msg_type: MessageBoxType) -> Any:
-        """显示消息框
-
-        Args:
-            parent: 父窗口
-            title: 窗口标题
-            message: 消息内容
-            msg_type: 消息类型
-
-        Returns:
-            Any: 消息框实例
-        """
+==iuiframework:[78:173]
+==services.file_service_interface:[29:138]
         pass
 
     @abstractmethod
@@ -10332,647 +10521,6 @@
         Returns:
             Any: 标签控件实例
         """
-        pass
-
-    @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
-
-        Args:
-            parent: 父控件
-            text: 按钮文本
-
-        Returns:
-            Any: 按钮控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
-
-        Args:
-            parent: 父控件
-            placeholder: 占位符文本
-
-        Returns:
-            Any: 输入框控件实例
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[284:294]
-==modern_battery_viewer_refactored:[258:268]
-        self.sampling_spinbox = QSpinBox()
-        self.sampling_spinbox.setRange(1, 100)
-        self.sampling_spinbox.setValue(5)
-        self.sampling_spinbox.setSuffix(" ms")
-        self.sampling_spinbox.valueChanged.connect(self._on_filter_parameter_changed)
-
-        sampling_layout.addWidget(sampling_label)
-        sampling_layout.addWidget(self.sampling_spinbox)
-
-        # 应用按钮
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==modern_battery_viewer:[300:315]
-==modern_battery_viewer_refactored:[277:292]
-        layout.addLayout(filter_layout)
-        layout.addLayout(sampling_layout)
-        layout.addWidget(self.apply_button)
-
-        parent.addWidget(group)
-
-    def _create_data_info_panel(self, parent):
-        """创建数据信息面板"""
-
-        # 使用样式管理器创建主题化分组框
-        group = create_styled_groupbox(self, "📊 数据信息", "info")
-        layout = QVBoxLayout(group)
-
-        # 数据状态
-        self.data_status_label = QLabel("未加载数据")
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==idataprocessor:[45:125]
-==ivisualizer:[42:90]
-        pass
-
-    @abstractmethod
-    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
-        """保存数据文件
-
-        Args:
-            data: 数据对象
-            file_path: 保存路径
-            format: 数据格式
-            **kwargs: 保存参数
-
-        Returns:
-            bool: 是否保存成功
-        """
-        pass
-
-    @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
-
-        Args:
-            data: 初始数据
-
-        Returns:
-            Any: 数据框对象
-        """
-        pass
-
-    @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
-
-        Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
-        """
-        pass
-
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-        pass
-
-    @abstractmethod
-    def sort_data(self, data: Any, by: Union[str, List[str]], ascending: bool = True) -> Any:
-        """排序数据
-
-        Args:
-            data: 数据对象
-            by: 排序字段
-            ascending: 是否升序
-
-        Returns:
-            Any: 排序后的数据
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==idataprocessor:[152:220]
-==ivisualizer:[29:89]
-        pass
-
-    @abstractmethod
-    def load_data(self, data_path: str) -> bool:
-        """
-        加载数据
-
-        Args:
-            data_path: 数据路径
-
-        Returns:
-            bool: 是否成功加载数据
-        """
-        pass
-
-    @abstractmethod
-    def clear_data(self) -> None:
-        """
-        清除所有数据，回到初始状态
-        """
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
-
-        Args:
-            config: 配置字典
-        """
-        pass
-
-    @abstractmethod
-    def get_config(self) -> dict:
-        """
-        获取当前配置
-
-        Returns:
-            dict: 当前配置字典
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==idataprocessor:[60:140]
-==service_container:[34:100]
-        pass
-
-    @abstractmethod
-    def register_instance(self, name: str, instance: T) -> bool:
-        """
-        注册实例
-
-        Args:
-            name: 服务名称
-            instance: 服务实例
-
-        Returns:
-            bool: 注册是否成功
-        """
-        pass
-
-    @abstractmethod
-    def get(self, name: str) -> Optional[T]:
-        """
-        获取服务
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            T: 服务实例，如果不存在则返回None
-        """
-        pass
-
-    @abstractmethod
-    def has(self, name: str) -> bool:
-        """
-        检查服务是否存在
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            bool: 服务是否存在
-        """
-        pass
-
-    @abstractmethod
-    def unregister(self, name: str) -> bool:
-        """
-        注销服务
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            bool: 注销是否成功
-        """
-        pass
-
-    @abstractmethod
-    def shutdown(self) -> bool:
-        """
-        关闭容器
-
-        Returns:
-            bool: 关闭是否成功
-        """
-        pass
-
-
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[30:103]
-==data_processing_service_interface:[105:176]
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
-        pass
-
-    @abstractmethod
-    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        """
-        合并多个电池数据集
-
-        Args:
-            data_list: 数据集列表
-
-        Returns:
-            List[Dict[str, Any]]: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def extract_features(self, data: List[Dict[str, Any]],
-                        feature_types: List[str]) -> Dict[str, Any]:
-        """
-        提取数据特征
-
-        Args:
-            data: 原始数据
-            feature_types: 特征类型列表
-
-        Returns:
-            Dict[str, Any]: 提取的特征
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[54:117]
-==data_processing_service_interface:[31:118]
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
-
-        Args:
-            config_path: 配置文件路径，None表示使用默认路径
-
-        Returns:
-            bool: 加载是否成功
-        """
-        pass
-
-    @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
-        """
-        pass
-
-    @abstractmethod
-    def has_config_key(self, key: str) -> bool:
-        """
-        检查配置键是否存在
-
-        Args:
-            key: 配置键
-
-        Returns:
-            bool: 键是否存在
-        """
-        pass
-
-    @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
-        """
-        查找配置文件路径
-
-        Args:
-            file_name: 配置文件名称
-
-        Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==document_service_interface:[29:117]
-==file_service_interface:[84:152]
-        pass
-
-    @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
-        """
-        保存Word文档
-
-        Args:
-            document: Word文档对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
-        """
-        向Word文档添加表格
-
-        Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
-        """
-        向Word文档添加图片
-
-        Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==document_service_interface:[88:170]
-==file_service_interface:[29:110]
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
-        """
-        生成报告
-
-        Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
-
-        Returns:
-            bool: 生成是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_background_color(self, cell: Any, color: str) -> bool:
-        """
-        设置单元格背景色
-
-        Args:
-            cell: 单元格对象
-            color: 颜色值（十六进制或颜色名称）
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==iuiframework:[110:173]
-==validation_service_interface:[28:108]
         pass
 
     @abstractmethod
@@ -11042,435 +10590,262 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==iuiframework:[38:123]
-==validation_service_interface:[54:122]
+==services.data_processing_service_interface:[44:160]
+==services.validation_service_interface:[28:122]
         pass
 
     @abstractmethod
-    def create_main_window(self) -> Any:
-        """创建主窗口
-
-        Returns:
-            Any: 主窗口实例
+    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
         """
-        pass
-
-    @abstractmethod
-    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
-        """创建进度对话框
+        验证文件路径的有效性
 
         Args:
-            parent: 父窗口
+            file_path: 文件路径
 
         Returns:
-            Any: 进度对话框实例
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def show_message_box(self,
-                        parent: Optional[Any],
-                        title: str,
-                        message: str,
-                        msg_type: MessageBoxType) -> Any:
-        """显示消息框
+    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
+        """
+        验证目录路径的有效性
 
         Args:
-            parent: 父窗口
-            title: 窗口标题
-            message: 消息内容
-            msg_type: 消息类型
+            directory_path: 目录路径
 
         Returns:
-            Any: 消息框实例
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_file_dialog(self,
-                          parent: Optional[Any],
-                          caption: str,
-                          directory: str = "",
-                          filter_pattern: str = "") -> Any:
-        """创建文件选择对话框
+    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
+        """
+        验证数值是否在有效范围内
 
         Args:
-            parent: 父窗口
-            caption: 对话框标题
-            directory: 默认目录
-            filter_pattern: 文件过滤器
+            value: 要验证的值
+            min_val: 最小值
+            max_val: 最大值
 
         Returns:
-            Any: 文件对话框实例
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
+    def validate_email(self, email: str) -> Tuple[bool, str]:
+        """
+        验证邮箱地址格式
 
         Args:
-            parent: 父控件
-            text: 标签文本
+            email: 邮箱地址
 
         Returns:
-            Any: 标签控件实例
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
+        """
+        验证电话号码格式
 
         Args:
-            parent: 父控件
-            text: 按钮文本
+            phone: 电话号码
 
         Returns:
-            Any: 按钮控件实例
+            tuple: (是否有效, 错误消息)
         """
+        pass
+
+    @abstractmethod
+    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
+        """
+        验证电池类型是否有效
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
+        """
+        验证容量值是否有效
+
+        Args:
+            capacity: 容量值
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==po_translator:[82:87]
-==setup_i18n:[218:223]
-    test_strings = [
-        "battery-analyzer",
-        "Preferences",
-        "Language",
-        "OK",
+==services.data_processing_service_interface:[75:176]
+==services.document_service_interface:[29:155]
+        pass
+
+    @abstractmethod
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
+        """
+        检测异常值
+
+        Args:
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
+
+        Returns:
+            List[int]: 异常值的索引列表
+        """
+        pass
+
+    @abstractmethod
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
+        """
+        生成模拟电池数据
+
+        Args:
+            battery_count: 电池数量
+            data_points: 数据点数量
+
+        Returns:
+            List[Dict[str, Any]]: 模拟数据
+        """
+        pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
+
+        Returns:
+            bool: 导出是否成功
+        """
+        pass
+
+    @abstractmethod
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
+
+        Args:
+            data_list: 数据集列表
+
+        Returns:
+            List[Dict[str, Any]]: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
+
+        Args:
+            data: 原始数据
+            feature_types: 特征类型列表
+
+        Returns:
+            Dict[str, Any]: 提取的特征
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==idataprocessor:[45:111]
-==ivisualizer:[49:90]
+==services.data_processing_service_interface:[31:147]
+==services.document_service_interface:[59:170]
         pass
 
     @abstractmethod
-    def save_data(self, data: Any, file_path: str, format: DataFormat, **kwargs) -> bool:
-        """保存数据文件
+    def add_image_to_word(self, document: Any, image_path: str,
+                         width: Optional[float] = None) -> bool:
+        """
+        向Word文档添加图片
 
         Args:
-            data: 数据对象
-            file_path: 保存路径
-            format: 数据格式
-            **kwargs: 保存参数
+            document: Word文档对象
+            image_path: 图片文件路径
+            width: 图片宽度
 
         Returns:
-            bool: 是否保存成功
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def create_dataframe(self, data: Optional[Union[Dict, List, Any]] = None) -> Any:
-        """创建数据框
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
+        """
+        创建Excel工作簿
 
         Args:
-            data: 初始数据
+            template_path: Excel模板文件路径
 
         Returns:
-            Any: 数据框对象
+            Any: Excel工作簿对象
         """
         pass
 
     @abstractmethod
-    def filter_data(self, data: Any, conditions: Dict[str, Any]) -> Any:
-        """过滤数据
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
 
         Args:
-            data: 数据对象
-            conditions: 过滤条件
-
-        Returns:
-            Any: 过滤后的数据
-        """
-        pass
-
-    @abstractmethod
-    def group_data(self, data: Any, by: Union[str, List[str]]) -> Any:
-        """分组数据
-
-        Args:
-            data: 数据对象
-            by: 分组字段
-
-        Returns:
-            Any: 分组后的数据
-        """
-        pass
-
-    @abstractmethod
-    def aggregate_data(self, data: Any, aggregations: Dict[str, Dict[str, str]]) -> Any:
-        """聚合数据
-
-        Args:
-            data: 数据对象
-            aggregations: 聚合规则
-
-        Returns:
-            Any: 聚合后的数据
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==idataprocessor:[165:220]
-==ivisualizer:[29:79]
-        pass
-
-    @abstractmethod
-    def load_data(self, data_path: str) -> bool:
-        """
-        加载数据
-
-        Args:
-            data_path: 数据路径
-
-        Returns:
-            bool: 是否成功加载数据
-        """
-        pass
-
-    @abstractmethod
-    def clear_data(self) -> None:
-        """
-        清除所有数据，回到初始状态
-        """
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
-
-        Args:
-            config: 配置字典
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[30:90]
-==data_processing_service_interface:[118:176]
-        pass
-
-    @abstractmethod
-    def set_config_value(self, key: str, value: Any) -> bool:
-        """
-        设置配置值
-
-        Args:
-            key: 配置键
-            value: 配置值
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def save_config(self) -> bool:
-        """
-        保存配置到文件
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
 
         Returns:
             bool: 保存是否成功
         """
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
-
-        Args:
-            config_path: 配置文件路径，None表示使用默认路径
-
-        Returns:
-            bool: 加载是否成功
-        """
-        pass
-
-    @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==config_service_interface:[67:117]
-==data_processing_service_interface:[31:105]
-        pass
-
-    @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
-
-        Args:
-            section: 配置节名称
-
-        Returns:
-            Dict[str, Any]: 配置节内容
-        """
-        pass
-
-    @abstractmethod
-    def has_config_key(self, key: str) -> bool:
-        """
-        检查配置键是否存在
-
-        Args:
-            key: 配置键
-
-        Returns:
-            bool: 键是否存在
-        """
-        pass
-
-    @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini") -> Optional[Path]:
-        """
-        查找配置文件路径
-
-        Args:
-            file_name: 配置文件名称
-
-        Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==document_service_interface:[29:102]
-==file_service_interface:[97:152]
-        pass
-
-    @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
-        """
-        检查文件是否隐藏
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            bool: 文件是否隐藏
-        """
-        pass
-
-    @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        复制文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        移动文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        删除文件
-
-        Args:
-            file_path: 文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==document_service_interface:[102:170]
-==file_service_interface:[29:97]
         pass
 
     @abstractmethod
@@ -11545,8 +10920,1501 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==service_container:[34:97]
-==validation_service_interface:[69:122]
+==business_logic.visualization_manager:[98:117]
+==managers.visualization_manager:[72:85]
+            else:
+                # 对于其他错误，显示标准错误对话框
+                QW.QMessageBox.critical(
+                    self.main_window,
+                    "错误",
+                    f"启动可视化工具时出错:\n\n{error_msg}\n\n请检查配置文件或联系技术支持。",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+
+            self.main_window.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+
+    def _handle_data_error_recovery(self, error_msg: str):
+        """
+        处理数据相关错误的恢复选项
+
+        Args:
+            error_msg: 错误信息
+        """
+        # 创建自定义对话框
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[203:219]
+==impl.battery_analysis_service_impl:[150:167]
+        anomalies = []
+
+        if len(test_results) < 3:  # 数据不足，无法检测异常
+            return anomalies
+
+        # 计算各项指标的平均值和标准差
+        capacities = [result.capacity for result in test_results]
+        voltages = [result.voltage for result in test_results]
+        currents = [result.current for result in test_results]
+        temperatures = [result.temperature for result in test_results]
+        internal_resistances = [result.internal_resistance for result in test_results]
+
+        # 使用公共工具函数进行异常检测
+        from battery_analysis.utils.data_utils import detect_outliers as common_detect_outliers
+
+        # 预计算各项指标的统计量，避免重复计算
+        def precompute_stats(data):
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[50:145]
+==services.config_service_interface:[30:118]
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计电池数量
+
+        Returns:
+            电池数量
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[38:136]
+==test_result_repository:[26:113]
+        pass
+
+    @abstractmethod
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
+
+        Args:
+            model_number: 电池型号
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[62:146]
+==test_profile_repository:[25:119]
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计电池数量
+
+        Returns:
+            电池数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[26:124]
+==test_profile_repository:[37:120]
+        pass
+
+    @abstractmethod
+    def find_by_name(self, name: str) -> List[TestProfile]:
+        """根据名称查找测试配置文件
+
+        Args:
+            name: 测试配置文件名称
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[TestProfile]:
+        """根据电池类型查找测试配置文件
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[TestProfile]:
+        """根据制造商查找测试配置文件
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestProfile]:
+        """查找所有测试配置文件
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, test_profile: TestProfile) -> TestProfile:
+        """更新测试配置文件
+
+        Args:
+            test_profile: 测试配置文件实体对象
+
+        Returns:
+            更新后的测试配置文件实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, profile_id: str) -> bool:
+        """删除测试配置文件
+
+        Args:
+            profile_id: 测试配置文件ID
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计测试配置文件数量
+
+        Returns:
+            测试配置文件数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==ui_components.config_manager:[211:219]
+==ui_components.ui_manager:[541:549]
+            if user_config.get("OutputPath"):
+                self.main_window.lineEdit_OutputPath.setText(user_config["OutputPath"])
+                # 更新控制器的输出路径
+                main_controller = self.main_window._get_controller("main_controller")
+                if main_controller:
+                    main_controller.set_project_context(
+                        output_path=user_config["OutputPath"])
+        except (AttributeError, TypeError, KeyError, OSError) as e:
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.file_service_interface:[70:152]
+==services.validation_service_interface:[28:121]
+        pass
+
+    @abstractmethod
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
+
+        Args:
+            file_path: 文件路径
+            attributes: 属性字典
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            bool: 文件是否隐藏
+        """
+        pass
+
+    @abstractmethod
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.file_service_interface:[29:124]
+==services.validation_service_interface:[41:122]
+        pass
+
+    @abstractmethod
+    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+        """
+        删除目录
+
+        Args:
+            path: 目录路径
+            recursive: 是否递归删除
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+        """
+        列出目录中的文件
+
+        Args:
+            directory: 目录路径
+            pattern: 文件名模式
+
+        Returns:
+            List[str]: 文件名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            Optional[int]: 文件大小，失败返回None
+        """
+        pass
+
+    @abstractmethod
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
+
+        Args:
+            file_path: 文件路径
+            attributes: 属性字典
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            bool: 文件是否隐藏
+        """
+        pass
+
+    @abstractmethod
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.data_processing_service_interface:[90:176]
+==services.document_service_interface:[29:138]
+        pass
+
+    @abstractmethod
+    def save_word_document(self, document: Any, output_path: str) -> bool:
+        """
+        保存Word文档
+
+        Args:
+            document: Word文档对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_table_to_word(self, document: Any, table_data: List[List[str]],
+                         table_style: Optional[str] = None) -> bool:
+        """
+        向Word文档添加表格
+
+        Args:
+            document: Word文档对象
+            table_data: 表格数据，二维列表
+            table_style: 表格样式
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_image_to_word(self, document: Any, image_path: str,
+                         width: Optional[float] = None) -> bool:
+        """
+        向Word文档添加图片
+
+        Args:
+            document: Word文档对象
+            image_path: 图片文件路径
+            width: 图片宽度
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
+        """
+        创建Excel工作簿
+
+        Args:
+            template_path: Excel模板文件路径
+
+        Returns:
+            Any: Excel工作簿对象
+        """
+        pass
+
+    @abstractmethod
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
+
+        Args:
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
+
+        Args:
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
+
+        Returns:
+            bool: 设置是否成功
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.data_processing_service_interface:[31:131]
+==services.document_service_interface:[75:170]
+        pass
+
+    @abstractmethod
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
+        """
+        创建Excel工作簿
+
+        Args:
+            template_path: Excel模板文件路径
+
+        Returns:
+            Any: Excel工作簿对象
+        """
+        pass
+
+    @abstractmethod
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
+
+        Args:
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
+
+        Args:
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
+        """
+        生成报告
+
+        Args:
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
+
+        Returns:
+            bool: 生成是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+        """
+        设置单元格背景色
+
+        Args:
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.config_service_interface:[30:117]
+==test_result_repository:[38:113]
+        pass
+
+    @abstractmethod
+    def set_config_value(self, key: str, value: Any) -> bool:
+        """
+        设置配置值
+
+        Args:
+            key: 配置键
+            value: 配置值
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def save_config(self) -> bool:
+        """
+        保存配置到文件
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def load_config(self, config_path: Optional[str] = None) -> bool:
+        """
+        从文件加载配置
+
+        Args:
+            config_path: 配置文件路径，None表示使用默认路径
+
+        Returns:
+            bool: 加载是否成功
+        """
+        pass
+
+    @abstractmethod
+    def get_config_sections(self) -> List[str]:
+        """
+        获取所有配置节名称
+
+        Returns:
+            List[str]: 配置节名称列表
+        """
+        pass
+
+    @abstractmethod
+    def get_section_config(self, section: str) -> Dict[str, Any]:
+        """
+        获取指定配置节的所有键值对
+
+        Args:
+            section: 配置节名称
+
+        Returns:
+            Dict[str, Any]: 配置节内容
+        """
+        pass
+
+    @abstractmethod
+    def has_config_key(self, key: str) -> bool:
+        """
+        检查配置键是否存在
+
+        Args:
+            key: 配置键
+
+        Returns:
+            bool: 键是否存在
+        """
+        pass
+
+    @abstractmethod
+    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
+        """
+        查找配置文件路径
+
+        Args:
+            file_name: 配置文件名称
+            use_cache: 是否使用缓存的配置文件路径，默认为False
+
+        Returns:
+            Optional[Path]: 配置文件路径，如果未找到则返回None
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.config_service_interface:[44:118]
+==test_result_repository:[26:112]
+        pass
+
+    @abstractmethod
+    def find_by_id(self, test_id: str) -> Optional[TestResult]:
+        """根据ID查找测试结果
+
+        Args:
+            test_id: 测试结果ID
+
+        Returns:
+            测试结果实体对象，或None
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_serial(self, serial_number: str) -> List[TestResult]:
+        """根据电池序列号查找测试结果
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_date_range(self, start_date: datetime, end_date: datetime) -> List[TestResult]:
+        """根据日期范围查找测试结果
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
+        """查找所有测试结果
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, test_result: TestResult) -> TestResult:
+        """更新测试结果
+
+        Args:
+            test_result: 测试结果实体对象
+
+        Returns:
+            更新后的测试结果实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, test_id: str) -> bool:
+        """删除测试结果
+
+        Args:
+            test_id: 测试结果ID
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count_by_battery_serial(self, serial_number: str) -> int:
+        """统计电池的测试结果数量
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            测试结果数量
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[62:145]
+==interfaces.ivisualizer:[29:90]
+        pass
+
+    @abstractmethod
+    def load_data(self, data_path: str) -> bool:
+        """
+        加载数据
+
+        Args:
+            data_path: 数据路径
+
+        Returns:
+            bool: 是否成功加载数据
+        """
+        pass
+
+    @abstractmethod
+    def clear_data(self) -> None:
+        """
+        清除所有数据，回到初始状态
+        """
+        pass
+
+    @abstractmethod
+    def is_data_loaded(self) -> bool:
+        """
+        检查是否有数据已加载
+
+        Returns:
+            bool: 是否已加载数据
+        """
+        pass
+
+    @abstractmethod
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
+
+        Returns:
+            dict: 状态信息字典
+        """
+        pass
+
+    @abstractmethod
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
+
+        Args:
+            config: 配置字典
+        """
+        pass
+
+    @abstractmethod
+    def get_config(self) -> dict:
+        """
+        获取当前配置
+
+        Returns:
+            dict: 当前配置字典
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[50:136]
+==test_service:[34:110]
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service:[28:107]
+==battery_repository:[38:124]
+        pass
+
+    @abstractmethod
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
+
+        Args:
+            model_number: 电池型号
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[74:146]
+==test_profile_repository:[25:110]
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计电池数量
+
+        Returns:
+            电池数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[26:112]
+==test_profile_repository:[49:120]
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[TestProfile]:
+        """根据电池类型查找测试配置文件
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[TestProfile]:
+        """根据制造商查找测试配置文件
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestProfile]:
+        """查找所有测试配置文件
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, test_profile: TestProfile) -> TestProfile:
+        """更新测试配置文件
+
+        Args:
+            test_profile: 测试配置文件实体对象
+
+        Returns:
+            更新后的测试配置文件实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, profile_id: str) -> bool:
+        """删除测试配置文件
+
+        Args:
+            profile_id: 测试配置文件ID
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计测试配置文件数量
+
+        Returns:
+            测试配置文件数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==iuiframework:[38:123]
+==services.validation_service_interface:[54:122]
+        pass
+
+    @abstractmethod
+    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
+        """
+        验证数值是否在有效范围内
+
+        Args:
+            value: 要验证的值
+            min_val: 最小值
+            max_val: 最大值
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
         pass
 
     @abstractmethod
@@ -11606,49 +12474,985 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==service_container:[48:100]
-==validation_service_interface:[28:95]
+==iuiframework:[110:173]
+==services.validation_service_interface:[28:108]
         pass
 
     @abstractmethod
-    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
+
+        Args:
+            parent: 父控件
+            text: 按钮文本
+
+        Returns:
+            Any: 按钮控件实例
         """
-        验证文件路径的有效性
+        pass
+
+    @abstractmethod
+    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
+        """创建输入框控件
+
+        Args:
+            parent: 父控件
+            placeholder: 占位符文本
+
+        Returns:
+            Any: 输入框控件实例
+        """
+        pass
+
+    @abstractmethod
+    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
+        """创建表格控件
+
+        Args:
+            parent: 父控件
+            rows: 行数
+            columns: 列数
+
+        Returns:
+            Any: 表格控件实例
+        """
+        pass
+
+    @abstractmethod
+    def set_layout(self, parent: Any, layout: Any) -> None:
+        """设置布局管理器
+
+        Args:
+            parent: 父控件
+            layout: 布局管理器
+        """
+        pass
+
+    @abstractmethod
+    def exec_application(self, app: Any) -> int:
+        """运行应用程序
+
+        Args:
+            app: 应用程序实例
+
+        Returns:
+            int: 退出代码
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.document_service_interface:[88:170]
+==services.file_service_interface:[29:110]
+        pass
+
+    @abstractmethod
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
+
+        Args:
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_style(self, worksheet: Any, row: int, col: int,
+                      font_name: Optional[str] = None, font_size: Optional[int] = None,
+                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+        """
+        设置单元格样式
+
+        Args:
+            worksheet: Excel工作表对象
+            row: 行号
+            col: 列号
+            font_name: 字体名称
+            font_size: 字体大小
+            bold: 是否加粗
+            background_color: 背景色
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def generate_report(self, report_type: str, data: Dict[str, Any],
+                       output_path: str, template_path: Optional[str] = None) -> bool:
+        """
+        生成报告
+
+        Args:
+            report_type: 报告类型（如"word", "excel"）
+            data: 报告数据
+            output_path: 输出文件路径
+            template_path: 模板文件路径
+
+        Returns:
+            bool: 生成是否成功
+        """
+        pass
+
+    @abstractmethod
+    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+        """
+        设置单元格背景色
+
+        Args:
+            cell: 单元格对象
+            color: 颜色值（十六进制或颜色名称）
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.document_service_interface:[29:117]
+==services.file_service_interface:[84:152]
+        pass
+
+    @abstractmethod
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
 
         Args:
             file_path: 文件路径
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
         """
-        验证目录路径的有效性
+        检查文件是否隐藏
 
         Args:
-            directory_path: 目录路径
+            file_path: 文件路径
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            bool: 文件是否隐藏
         """
         pass
 
     @abstractmethod
-    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
         """
-        验证数值是否在有效范围内
+        复制文件
 
         Args:
-            value: 要验证的值
-            min_val: 最小值
-            max_val: 最大值
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            tuple: (是否有效, 错误消息)
+            tuple: (是否成功, 错误消息)
         """
+        pass
+
+    @abstractmethod
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.config_service_interface:[54:118]
+==services.data_processing_service_interface:[31:118]
+        pass
+
+    @abstractmethod
+    def load_config(self, config_path: Optional[str] = None) -> bool:
+        """
+        从文件加载配置
+
+        Args:
+            config_path: 配置文件路径，None表示使用默认路径
+
+        Returns:
+            bool: 加载是否成功
+        """
+        pass
+
+    @abstractmethod
+    def get_config_sections(self) -> List[str]:
+        """
+        获取所有配置节名称
+
+        Returns:
+            List[str]: 配置节名称列表
+        """
+        pass
+
+    @abstractmethod
+    def get_section_config(self, section: str) -> Dict[str, Any]:
+        """
+        获取指定配置节的所有键值对
+
+        Args:
+            section: 配置节名称
+
+        Returns:
+            Dict[str, Any]: 配置节内容
+        """
+        pass
+
+    @abstractmethod
+    def has_config_key(self, key: str) -> bool:
+        """
+        检查配置键是否存在
+
+        Args:
+            key: 配置键
+
+        Returns:
+            bool: 键是否存在
+        """
+        pass
+
+    @abstractmethod
+    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
+        """
+        查找配置文件路径
+
+        Args:
+            file_name: 配置文件名称
+            use_cache: 是否使用缓存的配置文件路径，默认为False
+
+        Returns:
+            Optional[Path]: 配置文件路径，如果未找到则返回None
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.config_service_interface:[30:103]
+==services.data_processing_service_interface:[105:176]
+        pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
+
+        Returns:
+            bool: 导出是否成功
+        """
+        pass
+
+    @abstractmethod
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
+
+        Args:
+            data_list: 数据集列表
+
+        Returns:
+            List[Dict[str, Any]]: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
+
+        Args:
+            data: 原始数据
+            feature_types: 特征类型列表
+
+        Returns:
+            Dict[str, Any]: 提取的特征
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==interfaces.ivisualizer:[29:89]
+==test_service:[47:110]
+        pass
+
+    @abstractmethod
+    def validate_test_profile(self, test_profile: TestProfile) -> Dict[str, Any]:
+        """验证测试配置是否有效
+
+        Args:
+            test_profile: 测试配置实体
+
+        Returns:
+            验证结果，包含是否有效和详细信息
+        """
+        pass
+
+    @abstractmethod
+    def generate_test_id(self, battery: Battery) -> str:
+        """生成测试ID
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            生成的测试ID
+        """
+        pass
+
+    @abstractmethod
+    def get_test_summary(self, test_results: List[TestResult]) -> Dict[str, Any]:
+        """获取测试结果摘要
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            测试结果摘要
+        """
+        pass
+
+    @abstractmethod
+    def calculate_test_statistics(self, test_results: List[TestResult]) -> Dict[str, float]:
+        """计算测试统计信息
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            测试统计信息
+        """
+        pass
+
+    @abstractmethod
+    def group_test_results_by_criteria(self, test_results: List[TestResult],
+                                      criteria: str) -> Dict[str, List[TestResult]]:
+        """按指定条件分组测试结果
+
+        Args:
+            test_results: 测试结果列表
+            criteria: 分组条件 (如: 'date', 'battery_type', 'operator')
+
+        Returns:
+            按条件分组的测试结果
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==interfaces.ivisualizer:[42:90]
+==test_service:[34:109]
+        pass
+
+    @abstractmethod
+    def update_test_result(self, test_result: TestResult, test_data: Dict[str, Any]) -> TestResult:
+        """更新测试结果
+
+        Args:
+            test_result: 测试结果实体
+            test_data: 更新的测试数据
+
+        Returns:
+            更新后的测试结果实体
+        """
+        pass
+
+    @abstractmethod
+    def validate_test_profile(self, test_profile: TestProfile) -> Dict[str, Any]:
+        """验证测试配置是否有效
+
+        Args:
+            test_profile: 测试配置实体
+
+        Returns:
+            验证结果，包含是否有效和详细信息
+        """
+        pass
+
+    @abstractmethod
+    def generate_test_id(self, battery: Battery) -> str:
+        """生成测试ID
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            生成的测试ID
+        """
+        pass
+
+    @abstractmethod
+    def get_test_summary(self, test_results: List[TestResult]) -> Dict[str, Any]:
+        """获取测试结果摘要
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            测试结果摘要
+        """
+        pass
+
+    @abstractmethod
+    def calculate_test_statistics(self, test_results: List[TestResult]) -> Dict[str, float]:
+        """计算测试统计信息
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            测试统计信息
+        """
+        pass
+
+    @abstractmethod
+    def group_test_results_by_criteria(self, test_results: List[TestResult],
+                                      criteria: str) -> Dict[str, List[TestResult]]:
+        """按指定条件分组测试结果
+
+        Args:
+            test_results: 测试结果列表
+            criteria: 分组条件 (如: 'date', 'battery_type', 'operator')
+
+        Returns:
+            按条件分组的测试结果
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service:[28:106]
+==test_result_repository:[50:113]
+        pass
+
+    @abstractmethod
+    def find_by_date_range(self, start_date: datetime, end_date: datetime) -> List[TestResult]:
+        """根据日期范围查找测试结果
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
+        """查找所有测试结果
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, test_result: TestResult) -> TestResult:
+        """更新测试结果
+
+        Args:
+            test_result: 测试结果实体对象
+
+        Returns:
+            更新后的测试结果实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, test_id: str) -> bool:
+        """删除测试结果
+
+        Args:
+            test_id: 测试结果ID
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count_by_battery_serial(self, serial_number: str) -> int:
+        """统计电池的测试结果数量
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            测试结果数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service:[41:107]
+==test_result_repository:[26:100]
+        pass
+
+    @abstractmethod
+    def analyze_cycle_life(self, test_results: List[TestResult], battery: Battery) -> Dict[str, Any]:
+        """分析电池循环寿命
+
+        Args:
+            test_results: 测试结果列表
+            battery: 电池实体
+
+        Returns:
+            循环寿命分析结果
+        """
+        pass
+
+    @abstractmethod
+    def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
+        """验证测试结果是否符合测试配置要求
+
+        Args:
+            test_result: 测试结果实体
+            test_profile: 测试配置实体
+            battery: 电池实体
+
+        Returns:
+            验证结果，包含是否通过和详细信息
+        """
+        pass
+
+    @abstractmethod
+    def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
+        """计算电池性能指标
+
+        Args:
+            test_result: 测试结果实体
+            battery: 电池实体
+
+        Returns:
+            性能指标字典
+        """
+        pass
+
+    @abstractmethod
+    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
+        """检测测试结果中的异常
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            异常列表
+        """
+        pass
+
+    @abstractmethod
+    def compare_test_results(self, test_result1: TestResult, test_result2: TestResult) -> Dict[str, Any]:
+        """比较两个测试结果
+
+        Args:
+            test_result1: 第一个测试结果
+            test_result2: 第二个测试结果
+
+        Returns:
+            比较结果
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[38:112]
+==services.service_container:[36:102]
+        pass
+
+    @abstractmethod
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
+
+        Args:
+            model_number: 电池型号
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[87:146]
+==test_profile_repository:[25:98]
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计电池数量
+
+        Returns:
+            电池数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[26:99]
+==test_profile_repository:[61:120]
+        pass
+
+    @abstractmethod
+    def find_by_serial_number(self, serial_number: str) -> Optional[Battery]:
+        """根据序列号查找电池
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            电池实体对象，或None
+        """
+        pass
+
+    @abstractmethod
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
+
+        Args:
+            model_number: 电池型号
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.service_container:[50:102]
+==services.validation_service_interface:[28:95]
+        pass
+
+    @abstractmethod
+    def get(self, name: str) -> Optional[T]:
+        """
+        获取服务
+
+        Args:
+            name: 服务名称
+
+        Returns:
+            T: 服务实例，如果不存在则返回None
+        """
+        pass
+
+    @abstractmethod
+    def has(self, name: str) -> bool:
+        """
+        检查服务是否存在
+
+        Args:
+            name: 服务名称
+
+        Returns:
+            bool: 服务是否存在
+        """
+        pass
+
+    @abstractmethod
+    def unregister(self, name: str) -> bool:
+        """
+        注销服务
+
+        Args:
+            name: 服务名称
+
+        Returns:
+            bool: 注销是否成功
+        """
+        pass
+
+    @abstractmethod
+    def shutdown(self) -> bool:
+        """
+        关闭容器
+
+        Returns:
+            bool: 关闭是否成功
+        """
+        pass
+
+
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.service_container:[36:99]
+==services.validation_service_interface:[69:122]
         pass
 
     @abstractmethod
@@ -11675,55 +13479,721 @@
         Returns:
             tuple: (是否有效, 错误消息)
         """
+        pass
+
+    @abstractmethod
+    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
+        """
+        验证电池类型是否有效
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
+        """
+        验证容量值是否有效
+
+        Args:
+            capacity: 容量值
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[478:498]
-==modern_battery_viewer_refactored:[454:470]
-        self.statusBar().addPermanentWidget(self.data_status_indicator)
+==services.document_service_interface:[102:170]
+==services.file_service_interface:[29:97]
+        pass
 
-        # 添加进度条（隐藏状态）
-        self.progress_label = QLabel()
-        self.statusBar().addPermanentWidget(self.progress_label)
+    @abstractmethod
+    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+        """
+        删除目录
 
-    def _connect_signals(self):
-        """连接信号和槽"""
+        Args:
+            path: 目录路径
+            recursive: 是否递归删除
 
-        if self.chart_widget:
-            self.chart_widget.data_changed.connect(self._on_chart_data_changed)
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
 
+    @abstractmethod
+    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+        """
+        列出目录中的文件
 
+        Args:
+            directory: 目录路径
+            pattern: 文件名模式
 
-    # 槽函数实现
+        Returns:
+            List[str]: 文件名列表
+        """
+        pass
 
-    @pyqtSlot()
-    def _browse_data_path(self):
-        """浏览数据路径"""
+    @abstractmethod
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
 
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            Optional[int]: 文件大小，失败返回None
+        """
+        pass
+
+    @abstractmethod
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
+
+        Args:
+            file_path: 文件路径
+            attributes: 属性字典
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==modern_battery_viewer:[652:667]
-==modern_battery_viewer_refactored:[567:580]
-        self.statusBar().showMessage('视图已刷新')
+==services.document_service_interface:[29:102]
+==services.file_service_interface:[97:152]
+        pass
 
-    @pyqtSlot()
-    def _toggle_fullscreen(self):
-        """切换全屏模式"""
-        if self.isFullScreen():
-            self.showNormal()
-        else:
-            self.showFullScreen()
+    @abstractmethod
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
 
-    @pyqtSlot()
-    def _show_about(self):
-        """显示关于信息"""
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            bool: 文件是否隐藏
+        """
+        pass
+
+    @abstractmethod
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.config_service_interface:[67:118]
+==services.data_processing_service_interface:[31:105]
+        pass
+
+    @abstractmethod
+    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        分析电池性能
+
+        Args:
+            data: 电池数据列表
+
+        Returns:
+            Dict[str, Any]: 分析结果
+        """
+        pass
+
+    @abstractmethod
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
+        """
+        计算统计数据
+
+        Args:
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
+
+        Returns:
+            Dict[str, float]: 统计数据
+        """
+        pass
+
+    @abstractmethod
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
+        """
+        数据平滑处理
+
+        Args:
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
+
+        Returns:
+            List[float]: 平滑后的数据
+        """
+        pass
+
+    @abstractmethod
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
+        """
+        检测异常值
+
+        Args:
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
+
+        Returns:
+            List[int]: 异常值的索引列表
+        """
+        pass
+
+    @abstractmethod
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
+        """
+        生成模拟电池数据
+
+        Args:
+            battery_count: 电池数量
+            data_points: 数据点数量
+
+        Returns:
+            List[Dict[str, Any]]: 模拟数据
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.config_service_interface:[30:90]
+==services.data_processing_service_interface:[118:176]
+        pass
+
+    @abstractmethod
+    def set_config_value(self, key: str, value: Any) -> bool:
+        """
+        设置配置值
+
+        Args:
+            key: 配置键
+            value: 配置值
+
+        Returns:
+            bool: 设置是否成功
+        """
+        pass
+
+    @abstractmethod
+    def save_config(self) -> bool:
+        """
+        保存配置到文件
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
+    def load_config(self, config_path: Optional[str] = None) -> bool:
+        """
+        从文件加载配置
+
+        Args:
+            config_path: 配置文件路径，None表示使用默认路径
+
+        Returns:
+            bool: 加载是否成功
+        """
+        pass
+
+    @abstractmethod
+    def get_config_sections(self) -> List[str]:
+        """
+        获取所有配置节名称
+
+        Returns:
+            List[str]: 配置节名称列表
+        """
+        pass
+
+    @abstractmethod
+    def get_section_config(self, section: str) -> Dict[str, Any]:
+        """
+        获取指定配置节的所有键值对
+
+        Args:
+            section: 配置节名称
+
+        Returns:
+            Dict[str, Any]: 配置节内容
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==interfaces.ivisualizer:[29:79]
+==test_service:[59:110]
+        pass
+
+    @abstractmethod
+    def load_data(self, data_path: str) -> bool:
+        """
+        加载数据
+
+        Args:
+            data_path: 数据路径
+
+        Returns:
+            bool: 是否成功加载数据
+        """
+        pass
+
+    @abstractmethod
+    def clear_data(self) -> None:
+        """
+        清除所有数据，回到初始状态
+        """
+        pass
+
+    @abstractmethod
+    def is_data_loaded(self) -> bool:
+        """
+        检查是否有数据已加载
+
+        Returns:
+            bool: 是否已加载数据
+        """
+        pass
+
+    @abstractmethod
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
+
+        Returns:
+            dict: 状态信息字典
+        """
+        pass
+
+    @abstractmethod
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
+
+        Args:
+            config: 配置字典
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==interfaces.ivisualizer:[49:90]
+==test_service:[34:95]
+        pass
+
+    @abstractmethod
+    def is_data_loaded(self) -> bool:
+        """
+        检查是否有数据已加载
+
+        Returns:
+            bool: 是否已加载数据
+        """
+        pass
+
+    @abstractmethod
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
+
+        Returns:
+            dict: 状态信息字典
+        """
+        pass
+
+    @abstractmethod
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
+
+        Args:
+            config: 配置字典
+        """
+        pass
+
+    @abstractmethod
+    def get_config(self) -> dict:
+        """
+        获取当前配置
+
+        Returns:
+            dict: 当前配置字典
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service:[28:93]
+==test_result_repository:[63:113]
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
+        """查找所有测试结果
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, test_result: TestResult) -> TestResult:
+        """更新测试结果
+
+        Args:
+            test_result: 测试结果实体对象
+
+        Returns:
+            更新后的测试结果实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, test_id: str) -> bool:
+        """删除测试结果
+
+        Args:
+            test_id: 测试结果ID
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count_by_battery_serial(self, serial_number: str) -> int:
+        """统计电池的测试结果数量
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            测试结果数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service:[54:107]
+==test_result_repository:[26:88]
+        pass
+
+    @abstractmethod
+    def find_by_id(self, test_id: str) -> Optional[TestResult]:
+        """根据ID查找测试结果
+
+        Args:
+            test_id: 测试结果ID
+
+        Returns:
+            测试结果实体对象，或None
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_serial(self, serial_number: str) -> List[TestResult]:
+        """根据电池序列号查找测试结果
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_date_range(self, start_date: datetime, end_date: datetime) -> List[TestResult]:
+        """根据日期范围查找测试结果
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
+        """查找所有测试结果
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            测试结果实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, test_result: TestResult) -> TestResult:
+        """更新测试结果
+
+        Args:
+            test_result: 测试结果实体对象
+
+        Returns:
+            更新后的测试结果实体对象
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[99:146]
+==test_profile_repository:[25:86]
+        pass
+
+    @abstractmethod
+    def find_by_id(self, profile_id: str) -> Optional[TestProfile]:
+        """根据ID查找测试配置文件
+
+        Args:
+            profile_id: 测试配置文件ID
+
+        Returns:
+            测试配置文件实体对象，或None
+        """
+        pass
+
+    @abstractmethod
+    def find_by_name(self, name: str) -> List[TestProfile]:
+        """根据名称查找测试配置文件
+
+        Args:
+            name: 测试配置文件名称
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[TestProfile]:
+        """根据电池类型查找测试配置文件
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[TestProfile]:
+        """根据制造商查找测试配置文件
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestProfile]:
+        """查找所有测试配置文件
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_repository:[26:87]
+==test_profile_repository:[73:120]
+        pass
+
+    @abstractmethod
+    def find_by_serial_number(self, serial_number: str) -> Optional[Battery]:
+        """根据序列号查找电池
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            电池实体对象，或None
+        """
+        pass
+
+    @abstractmethod
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
+
+        Args:
+            model_number: 电池型号
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==analyze_data_use_case:[395:400]
+==business_logic.data_processor:[477:482]
+                        'total_records': len(df),
+                        'columns': df.columns.tolist(),
+                        'numeric_columns': df.select_dtypes(include=['number']).columns.tolist(),
+                        'non_numeric_columns': df.select_dtypes(exclude=['number']).columns.tolist(),
+                        'missing_values': df.isnull().sum().to_dict(),
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==po_translator:[82:87]
+==setup_i18n:[226:231]
+    test_strings = [
+        "battery-analyzer",
+        "Preferences",
+        "Language",
+        "OK",
 - 符号: duplicate-code
 
 #### 行 67, 列 11

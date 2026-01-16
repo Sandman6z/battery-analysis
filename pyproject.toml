@@ -25,7 +25,6 @@ classifiers = [
 ]
 keywords = ["battery", "analysis", "GUI", "PyQt6", "data-visualization"]
 dependencies = [
-    "gitpython>=3.1.45,<4.0.0",
     "matplotlib>=3.8.0,<4.0.0",
     "numpy>=1.24.0,<3.0.0",
     "openpyxl>=3.1.0,<4.0.0",

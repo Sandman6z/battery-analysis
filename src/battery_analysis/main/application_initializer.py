@@ -7,10 +7,7 @@
 
 import os
 import sys
-import tempfile
 import logging
-import datetime
-import matplotlib
 from PyQt6.QtWidgets import QApplication, QMessageBox, QStyleFactory
 
 # 获取日志记录器
@@ -107,6 +104,9 @@ class ApplicationInitializer:
     
     def _setup_matplotlib(self):
         """设置matplotlib配置"""
+        # 延迟导入matplotlib
+        import matplotlib
+        
         # 优化matplotlib配置，避免font cache构建警告
         # 使用QtAgg后端，自动检测Qt绑定（兼容PyQt6）
         matplotlib.use('QtAgg')

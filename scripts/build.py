@@ -420,7 +420,7 @@ class BuildManager(BuildConfig):
         console_mode = str(self.console_mode or debug_mode).lower()
         debug_mode_str = str(debug_mode).lower()
         strip_mode = str(not debug_mode).lower()
-        upx_mode = str(not debug_mode).lower()
+        upx_mode = "false"  # 禁用UPX压缩，避免可能的问题
 
         # 先处理版本号分割，以便在spec模板中使用
         # 确保版本号严格按照pyproject.toml中的3位语义化格式处理
