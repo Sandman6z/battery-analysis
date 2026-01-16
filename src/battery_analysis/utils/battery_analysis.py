@@ -23,9 +23,24 @@ logging.basicConfig(level=logging.INFO,
 
 class BatteryAnalysis:
     def __init__(self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list) -> None:
+        # Check if listTestInfo has enough elements
+        if len(listTestInfo) < 19:
+            logging.error("测试信息列表格式错误: 缺少必要的信息。需要至少19个元素，但只找到%d个", len(listTestInfo))
+            raise BatteryAnalysisException(f"测试信息列表格式错误: 缺少必要的信息。需要至少19个元素，但只找到{len(listTestInfo)}个")
+        
         # list for current level and voltage level, next get them in main_window.py
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
+        
+        # Check if current and voltage level lists are valid
+        if not self.listCurrentLevel:
+            logging.error("当前等级列表为空")
+            raise BatteryAnalysisException("当前等级列表为空")
+        
+        if not self.listVoltageLevel:
+            logging.error("电压等级列表为空")
+            raise BatteryAnalysisException("电压等级列表为空")
+        
         self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
 
         # input .xlsx directory and result txt path
@@ -346,21 +361,28 @@ class BatteryAnalysis:
         except (FileNotFoundError, PermissionError, rd.XLRDError) as e:
             logging.error("读取Excel文件失败: %s, 错误: %s", strPath, e)
             raise BatteryAnalysisException(f"无法打开Excel文件: {strPath}") from e
+        
+        # Check if we have enough sheets
+        sheets = rb.sheets()
+        if len(sheets) < 3:
+            logging.error("Excel文件格式错误: %s, 缺少必要的工作表。需要至少3个工作表，但只找到%d个", strPath, len(sheets))
+            raise BatteryAnalysisException(f"Excel文件格式错误: {strPath} 缺少必要的工作表。需要至少3个工作表，但只找到{len(sheets)}个")
+        
         # cycle sheet
-        cycleTable = rb.sheets()[0]
+        cycleTable = sheets[0]
         cycleRows = cycleTable.nrows
         cycleCycle = cycleTable.col_values(0)
         cycleBegin = cycleTable.col_values(1)
         cycleEnd = cycleTable.col_values(2)
         cycleCharge = cycleTable.col_values(3)
         # step sheet
-        stepTable = rb.sheets()[1]
+        stepTable = sheets[1]
         stepRows = stepTable.nrows
         stepCycle = stepTable.col_values(0)
         stepStep = stepTable.col_values(1)
         stepCharge = stepTable.col_values(2)
         # record sheet
-        recordTable = rb.sheets()[2]
+        recordTable = sheets[2]
         recordRows = recordTable.nrows
         recordCycle = recordTable.col_values(0)
         recordStep = recordTable.col_values(1)
