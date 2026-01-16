@@ -181,6 +181,8 @@ class BatteryChartViewer:
         self.intBatteryNum = 0  # 默认没有电池数据
         self.loaded_data = False  # 数据加载状态标记
         self.current_fig = None  # 当前图表实例引用
+        self.last_data_path = None  # 上次加载的数据路径
+        self.last_data_timestamp = None  # 上次加载的数据时间戳
 
         # 初始化坐标轴范围和刻度
         # [xmin, xmax, ymin, ymax]
@@ -576,6 +578,19 @@ class BatteryChartViewer:
                 self.intBatteryNum = 0
                 return
 
+            # 更新数据加载信息
+            self.last_data_path = self.strPltPath
+            if self.strInfoImageCsvPath:
+                import os
+                import datetime
+                try:
+                    if os.path.exists(self.strInfoImageCsvPath):
+                        timestamp = os.path.getmtime(self.strInfoImageCsvPath)
+                        self.last_data_timestamp = timestamp
+                        logging.info("更新数据时间戳: %s", datetime.datetime.fromtimestamp(timestamp))
+                except Exception as e:
+                    logging.warning("更新数据时间戳时出错: %s", e)
+
             logging.info("成功读取并处理CSV数据，包含%d个电池的真实测试数据", self.intBatteryNum)
         except FileNotFoundError:
             logging.error("错误: 文件未找到: %s", self.strInfoImageCsvPath)
@@ -776,6 +791,55 @@ class BatteryChartViewer:
             # 开始绘制图表
             logging.info("开始绘制图表")
 
+            # 确保Matplotlib使用正确的后端
+            import matplotlib
+            if matplotlib.get_backend() != 'QtAgg':
+                logging.info("当前Matplotlib后端: %s, 切换到QtAgg后端", matplotlib.get_backend())
+                matplotlib.use('QtAgg')
+
+            # 导入pyplot并确保它在整个方法中可用
+            import matplotlib.pyplot as plt
+
+            # 检查是否需要检测数据更新
+            if self.loaded_data and self.last_data_path and self.strInfoImageCsvPath:
+                import os
+                import datetime
+                try:
+                    if os.path.exists(self.strInfoImageCsvPath):
+                        current_timestamp = os.path.getmtime(self.strInfoImageCsvPath)
+                        # 检查数据是否有更新
+                        if self.last_data_timestamp and current_timestamp > self.last_data_timestamp:
+                            logging.info("检测到数据更新: 上次加载时间 %s, 当前文件时间 %s", 
+                                        datetime.datetime.fromtimestamp(self.last_data_timestamp),
+                                        datetime.datetime.fromtimestamp(current_timestamp))
+                            
+                            # 弹框提示用户是否重新加载
+                            try:
+                                from PyQt6.QtWidgets import QMessageBox
+                                reply = QMessageBox.question(
+                                    None,  # 父窗口
+                                    "数据更新",  # 标题
+                                    "检测到分析结果已更新，是否重新加载最新版的图形？",  # 消息
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,  # 按钮
+                                    QMessageBox.StandardButton.Yes  # 默认按钮
+                                )
+                                
+                                if reply == QMessageBox.StandardButton.Yes:
+                                    logging.info("用户选择重新加载最新数据")
+                                    # 重新加载数据
+                                    if not self.load_data():
+                                        logging.error("重新加载数据失败")
+                                    else:
+                                        logging.info("重新加载数据成功")
+                                else:
+                                    logging.info("用户选择保持原有数据显示")
+                            except Exception as msg_error:
+                                logging.warning("显示更新提示框时出错: %s", msg_error)
+                                # 即使提示框显示失败，也继续显示图表
+                except Exception as check_error:
+                    logging.warning("检测数据更新时出错: %s", check_error)
+                    # 即使检测出错，也继续显示图表
+
             # 执行多层次的数据有效性检查
             if self.intBatteryNum <= 0:
                 logging.error("错误: 没有有效的电池数据可供显示")
@@ -788,6 +852,15 @@ class BatteryChartViewer:
                 self._show_error_plot()
                 return True
 
+            # 清理之前的图表实例（如果存在）
+            if hasattr(self, 'current_fig') and self.current_fig is not None:
+                try:
+                    plt.close(self.current_fig)
+                    self.current_fig = None
+                    logging.info("已关闭之前的图表实例")
+                except Exception as e:
+                    logging.warning("关闭之前的图表实例时出错: %s", e)
+
             # 初始化图表和轴
             try:
                 fig, ax, title_fontdict, axis_fontdict = self._initialize_figure()
@@ -798,7 +871,11 @@ class BatteryChartViewer:
                 self.current_fig = fig
 
                 # 添加菜单栏
-                self._add_menu_bar(fig)
+                try:
+                    self._add_menu_bar(fig)
+                except Exception as menu_error:
+                    logging.warning("添加菜单栏时出错: %s", menu_error)
+                    # 即使菜单栏添加失败，仍然继续显示图表
             except (OSError, ValueError, TypeError) as init_error:
                 logging.error("图表初始化失败: %s", str(init_error))
                 self._show_error_plot()

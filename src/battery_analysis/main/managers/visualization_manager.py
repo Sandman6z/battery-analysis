@@ -26,6 +26,14 @@ class VisualizationManager:
             self.logger.info("检测到布尔类型的xml_path参数，忽略它")
             xml_path = None
         
+        # 如果未提供xml_path，尝试从主窗口获取
+        if xml_path is None and hasattr(self.main_window, 'lineEdit_TestProfile'):
+            xml_path = self.main_window.lineEdit_TestProfile.text()
+            if xml_path:
+                self.logger.info("从主窗口获取到XML路径: %s", xml_path)
+            else:
+                self.logger.info("主窗口未设置XML路径")
+        
         self.main_window.statusBar_BatteryAnalysis.showMessage("启动可视化工具...")
 
         try:
@@ -38,8 +46,8 @@ class VisualizationManager:
             if visualizer is None:
                 raise RuntimeError("无法创建可视化器实例")
 
-            # 显示可视化
-            show_success = visualizer.show_figure()
+            # 显示可视化（传递XML路径，让viewer处理数据搜索和加载）
+            show_success = visualizer.show_figure(xml_path=xml_path)
             
             if show_success:
                 self.logger.info("可视化工具已启动")
