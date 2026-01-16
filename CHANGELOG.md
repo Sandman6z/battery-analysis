@@ -1,3 +1,28 @@
+### v2.5.0
+
+#### 功能增强
+- feat: 实现并行初始化，使用ThreadPoolExecutor优化启动速度
+- feat: 移除未使用的依赖，减少打包体积
+
+#### 重构优化
+- refactor: 优化代码结构，提高可维护性
+- refactor: 改进初始化流程，实现优先级分组和并行执行
+
+#### 构建和CI/CD
+- build: 升级版本至2.5.0
+
+### v2.4.1
+
+#### 功能增强
+- feat: 优化导入结构，减少启动时的导入时间
+
+#### 重构优化
+- refactor: 移除未使用的导入（re, time, matplotlib）
+- refactor: 修复UI图标缺失问题，添加resources_rc导入
+
+#### 构建和CI/CD
+- build: 禁用UPX压缩以解决构建问题
+
 ### v2.4.0
 
 #### 功能增强
