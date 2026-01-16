@@ -24,6 +24,7 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.main.managers.initialization_manager import InitializationManager
+from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
 from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
 from battery_analysis.utils.log_manager import get_logger
