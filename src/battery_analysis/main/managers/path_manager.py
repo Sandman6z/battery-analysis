@@ -40,22 +40,91 @@ class PathManager:
         Returns:
             bool: 验证是否通过
         """
+        from battery_analysis.utils.file_validator import FileValidator
+        
+        validator = FileValidator()
+        
         # 验证文件是否存在
-        if not os.path.exists(file_path):
+        is_valid, error_msg = validator.validate_file_exists(file_path)
+        if not is_valid:
             QW.QMessageBox.warning(
                 self.main_window,
                 "文件错误",
-                f"选择的文件不存在:\n{file_path}",
+                error_msg,
                 QW.QMessageBox.StandardButton.Ok
             )
             return False
         
-        # 验证文件扩展名
-        if not file_path.lower().endswith('.xml'):
+        # 获取文件名
+        filename = os.path.basename(file_path)
+        
+        # 验证XML文件名
+        is_valid, error_msg = validator.validate_xml_filename(filename)
+        if not is_valid:
+            QW.QMessageBox.warning(
+                self.main_window,
+                "文件名错误",
+                error_msg,
+                QW.QMessageBox.StandardButton.Ok
+            )
+            return False
+        
+        # 验证文件是否为空
+        is_valid, error_msg = validator.validate_file_not_empty(file_path)
+        if not is_valid:
+            QW.QMessageBox.warning(
+                self.main_window,
+                "文件错误",
+                error_msg,
+                QW.QMessageBox.StandardButton.Ok
+            )
+            return False
+        
+        # 验证XML文件内容
+        try:
+            import xml.etree.ElementTree as ET
+            
+            # 尝试使用不同编码解析XML文件
+            try:
+                # 尝试默认编码解析
+                tree = ET.parse(file_path)
+                root = tree.getroot()
+            except UnicodeDecodeError:
+                # 尝试使用UTF-8编码解析
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    xml_content = f.read()
+                tree = ET.ElementTree(ET.fromstring(xml_content))
+                root = tree.getroot()
+            except Exception as e:
+                # 尝试使用GBK编码解析
+                with open(file_path, 'r', encoding='gbk', errors='ignore') as f:
+                    xml_content = f.read()
+                tree = ET.ElementTree(ET.fromstring(xml_content))
+                root = tree.getroot()
+            
+            # 验证XML是否有根元素
+            if root is None:
+                QW.QMessageBox.warning(
+                    self.main_window,
+                    "文件格式错误",
+                    f"XML文件格式错误: {filename} 缺少根元素",
+                    QW.QMessageBox.StandardButton.Ok
+                )
+                return False
+            
+        except ET.ParseError as e:
             QW.QMessageBox.warning(
                 self.main_window,
                 "文件格式错误",
-                "请选择XML格式的Test Profile文件",
+                f"XML文件解析失败: {filename} - {str(e)}",
+                QW.QMessageBox.StandardButton.Ok
+            )
+            return False
+        except Exception as e:
+            QW.QMessageBox.warning(
+                self.main_window,
+                "文件错误",
+                f"验证XML文件时发生错误: {filename} - {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
             return False
@@ -117,8 +186,20 @@ class PathManager:
         Args:
             parent_dir: 父目录路径
         """
+        from battery_analysis.utils.file_validator import FileValidator
+        validator = FileValidator()
+        
         # 自动设置output path为同级的3_analysis results文件夹
         output_path = os.path.join(parent_dir, "3_analysis results")
+        
+        # 验证输出目录
+        is_valid, error_msg = validator.validate_output_directory(output_path)
+        if not is_valid:
+            self.logger.warning("输出目录验证失败: %s", error_msg)
+            # 仍然设置路径，但会在创建时失败
+            self.main_window.lineEdit_OutputPath.setText(output_path)
+            return True
+        
         if os.path.exists(output_path) and os.path.isdir(output_path):
             self.main_window.lineEdit_OutputPath.setText(output_path)
         else:
@@ -156,24 +237,52 @@ class PathManager:
         """
         选择输入路径
         """
+        from battery_analysis.utils.file_validator import FileValidator
+        validator = FileValidator()
+        
         selected_dir = QW.QFileDialog.getExistingDirectory(
             self.main_window, "Select Input Path", self.main_window.current_directory)
         
         if selected_dir != "":
-            self.main_window.lineEdit_InputPath.setText(selected_dir)
-            self.main_window.sigSetVersion.emit()
-            self.main_window.current_directory = os.path.join(selected_dir, "../../")
-            self.logger.info("手动设置输入路径: %s", selected_dir)
+            # 验证输入目录
+            is_valid, error_msg = validator.validate_input_directory(selected_dir)
+            if is_valid:
+                self.main_window.lineEdit_InputPath.setText(selected_dir)
+                self.main_window.sigSetVersion.emit()
+                self.main_window.current_directory = os.path.join(selected_dir, "../../")
+                self.logger.info("手动设置输入路径: %s", selected_dir)
+            else:
+                self.logger.warning("输入目录验证失败: %s", error_msg)
+                QW.QMessageBox.warning(
+                    self.main_window,
+                    "目录错误",
+                    error_msg,
+                    QW.QMessageBox.StandardButton.Ok
+                )
     
     def select_outputpath(self) -> None:
         """
         选择输出路径
         """
+        from battery_analysis.utils.file_validator import FileValidator
+        validator = FileValidator()
+        
         selected_dir = QW.QFileDialog.getExistingDirectory(
             self.main_window, "Select Output Path", self.main_window.current_directory)
         
         if selected_dir != "":
-            self.main_window.lineEdit_OutputPath.setText(selected_dir)
-            self.main_window.sigSetVersion.emit()
-            self.main_window.current_directory = os.path.join(selected_dir, "../")
-            self.logger.info("手动设置输出路径: %s", selected_dir)
+            # 验证输出目录
+            is_valid, error_msg = validator.validate_output_directory(selected_dir)
+            if is_valid:
+                self.main_window.lineEdit_OutputPath.setText(selected_dir)
+                self.main_window.sigSetVersion.emit()
+                self.main_window.current_directory = os.path.join(selected_dir, "../")
+                self.logger.info("手动设置输出路径: %s", selected_dir)
+            else:
+                self.logger.warning("输出目录验证失败: %s", error_msg)
+                QW.QMessageBox.warning(
+                    self.main_window,
+                    "目录错误",
+                    error_msg,
+                    QW.QMessageBox.StandardButton.Ok
+                )

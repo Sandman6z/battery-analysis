@@ -1522,9 +1522,10 @@ class BatteryChartViewer:
                         self._update_button_style(state)
                     return
                     
-                # 检查鼠标是否在按钮范围内 - 统一检测范围
+                # 检查鼠标是否在按钮范围内 - 精确检测范围
+                # 使用按钮的实际边界进行检测
                 is_in_button = (x <= event.xdata <= x + width and 
-                              y - 0.01 <= event.ydata <= y + height + 0.01)
+                              y <= event.ydata <= y + height)
                 
                 if is_in_button and not state['hover']:
                     # 鼠标进入按钮区域
@@ -1541,9 +1542,10 @@ class BatteryChartViewer:
                 if event.inaxes != ax:
                     return
                     
-                # 检查点击是否在按钮范围内 - 修复点击位置偏移
+                # 检查点击是否在按钮范围内 - 精确检测范围，避免重叠
+                # 使用按钮的实际边界进行检测，确保底部按钮的点击区域正确
                 if (x <= event.xdata <= x + width and 
-                    y - 0.01 <= event.ydata <= y + height + 0.01):
+                    y <= event.ydata <= y + height):
                     
                     if is_toggle:
                         # 切换按钮状态
@@ -1983,9 +1985,16 @@ class BatteryChartViewer:
         """创建电池选择现代化按钮"""
         # 创建现代化按钮轴
         ax_buttons = fig.add_axes(rect)
+        # 设置坐标范围，确保坐标系正确
         ax_buttons.set_xlim(0, 1)
         ax_buttons.set_ylim(0, 1)
         ax_buttons.axis('off')
+        
+        # 确保坐标系正确，原点在左下角
+        ax_buttons.invert_yaxis = False
+        
+        # 重置按钮状态列表
+        self.battery_button_states = []
 
         # 准备电池信息和按钮状态 - 改为正序
         battery_info = []
@@ -2008,14 +2017,17 @@ class BatteryChartViewer:
         # 按索引正序排列（确保正序显示）
         battery_info.sort(key=lambda x: x['index'])
 
-        # 计算按钮布局参数 - 适配紧凑布局
+        # 计算按钮布局参数 - 使用表格布局
         num_valid_batteries = min(self.intBatteryNum - start_idx, end_idx - start_idx)
         if num_valid_batteries > 0:
-            button_height = 0.92 / num_valid_batteries
-            button_spacing = 0.04 / (num_valid_batteries + 1)
+            # 计算每个按钮的高度，使用表格布局
+            total_height = 0.95
+            button_height = total_height / num_valid_batteries
+            # 按钮宽度固定
+            button_width = 0.96
         else:
             button_height = 0.1
-            button_spacing = 0.45
+            button_width = 0.96
 
         # 存储按钮状态引用
         button_states = []
@@ -2073,16 +2085,21 @@ class BatteryChartViewer:
             except (AttributeError, TypeError, ValueError, IndexError) as e:
                         logging.error("执行电池选择时出错: %s", e)
 
-        # 创建现代化按钮
-        for i, battery in enumerate(battery_info):
-            if battery['is_none']:
-                continue
-                
-            y_pos = button_spacing + i * (button_height + button_spacing)
+        # 创建现代化按钮 - 使用表格布局，确保点击区域准确
+        valid_batteries = [battery for battery in battery_info if not battery['is_none']]
+        num_valid = len(valid_batteries)
+        
+        # 直接使用原始顺序，使通道数按正常顺序（1, 2, 3...）从上到下显示
+        # 使用表格布局，从顶部开始排列按钮
+        for i, battery in enumerate(valid_batteries):
+            # 计算按钮位置，使用表格布局
+            # 从顶部开始，确保所有按钮的位置和大小精确
+            # 修正位置计算，确保按钮之间没有重叠
+            y_pos = i * button_height
             
-            # 创建现代化按钮 - 适配紧凑布局
+            # 创建现代化按钮 - 适配表格布局
             button_state = self._create_modern_button(
-                ax_buttons, 0.02, y_pos, 0.96, button_height,
+                ax_buttons, 0.02, y_pos, button_width, button_height,
                 battery['name'][:12] + '...' if len(battery['name']) > 12 else battery['name'], 
                 lambda idx=battery['index']: toggle_battery_visibility(idx, button_state),
                 is_toggle=True, 

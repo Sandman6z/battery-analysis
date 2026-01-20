@@ -134,9 +134,18 @@ class DataProcessor:
         # 获取输入路径
         input_dir = self.main_window.lineEdit_InputPath.text()
         
-        # 检查输入路径是否存在
-        if not os.path.exists(input_dir):
-            self.logger.error("输入路径不存在: %s", input_dir)
+        # 使用FileValidator验证输入目录
+        from battery_analysis.utils.file_validator import FileValidator
+        validator = FileValidator()
+        
+        # 验证输入目录
+        is_valid, error_msg = validator.validate_input_directory(input_dir)
+        if not is_valid:
+            self.logger.error(error_msg)
+            if hasattr(self.main_window, 'checker_input_xlsx'):
+                self.main_window.checker_input_xlsx.set_error(error_msg)
+            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[错误]: {error_msg.split(':')[0]}")
             return
         
         # 查找所有Excel文件
@@ -149,6 +158,15 @@ class DataProcessor:
         
         # 使用pandas处理Excel文件
         excel_data = self._process_excel_files(input_dir, excel_files)
+        
+        # 如果没有成功处理的文件，显示错误
+        if not excel_data:
+            self.logger.error("没有成功处理的Excel文件")
+            if hasattr(self.main_window, 'checker_input_xlsx'):
+                self.main_window.checker_input_xlsx.set_error("没有成功处理的Excel文件，请检查文件格式")
+            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                self.main_window.statusBar_BatteryAnalysis.showMessage("[错误]: 没有成功处理的Excel文件")
+            return
         
         # 更新UI控件
         self._update_ui_with_excel_info(excel_files, excel_data)
@@ -202,16 +220,138 @@ class DataProcessor:
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
             self.main_window.statusBar_BatteryAnalysis.showMessage(_("input_path_no_data", "[Error]: Input path has no data"))
     
+    def _validate_excel_filename(self, filename):
+        """验证Excel文件名的有效性
+        
+        Args:
+            filename: 文件名
+            
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        from battery_analysis.utils.file_validator import FileValidator
+        
+        validator = FileValidator()
+        return validator.validate_excel_filename(filename)
+    
+    def _validate_excel_file_content(self, df, filename):
+        """
+        验证Excel文件内容的有效性
+        
+        Args:
+            df: 数据框
+            filename: 文件名
+            
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        # 验证sheet页是否为空
+        if df.empty:
+            return False, f"Sheet页为空: {filename}"
+        
+        # 验证是否有列数据
+        if len(df.columns) == 0:
+            return False, f"Sheet页无列数据: {filename}"
+        
+        # 验证是否有行数据
+        if len(df) == 0:
+            return False, f"Sheet页无行数据: {filename}"
+        
+        # 尝试转换列数据类型，看是否能得到数值列
+        numeric_columns = df.select_dtypes(include=['number']).columns
+        
+        # 如果没有数值列，尝试将可能的数值列转换为数值类型
+        if len(numeric_columns) == 0:
+            has_potential_numeric = False
+            for col in df.columns:
+                try:
+                    # 尝试转换为数值类型
+                    pd.to_numeric(df[col], errors='coerce')
+                    has_potential_numeric = True
+                    break
+                except:
+                    pass
+            
+            # 如果有潜在的数值列，只警告不报错
+            if has_potential_numeric:
+                self.logger.warning(f"Sheet页可能包含数值数据但未被识别: {filename}")
+            else:
+                # 只有当完全没有潜在数值列时才报错
+                self.logger.warning(f"Sheet页无数值列数据: {filename}")
+                # 这里改为警告，不返回错误，因为某些测试文件可能确实不需要数值列
+        
+        # 验证数据是否包含必要的信息
+        # 检查是否有常见的电池测试列名
+        common_columns = ['Capacity', '容量', 'Voltage', '电压', 'Current', '电流', 'Cycle', '循环', 'Temperature', '温度', 'Time', '时间']
+        has_common_column = False
+        for col in df.columns:
+            if col in common_columns:
+                has_common_column = True
+                break
+        
+        if not has_common_column:
+            self.logger.warning(f"Sheet页可能缺少必要的列: {filename}, 找到列: {list(df.columns)}")
+            # 这里只警告，不返回错误，因为不同的测试可能有不同的列名
+        
+        return True, ""
+    
+    def _validate_excel_file(self, file_path, filename):
+        """
+        验证Excel文件的有效性
+        
+        Args:
+            file_path: Excel文件路径
+            filename: 文件名
+            
+        Returns:
+            tuple: (是否有效, 错误消息, 数据框)
+        """
+        from battery_analysis.utils.file_validator import FileValidator
+        validator = FileValidator()
+        
+        # 验证文件名
+        is_valid, error_msg = self._validate_excel_filename(filename)
+        if not is_valid:
+            return False, error_msg, None
+        
+        # 验证文件是否为空
+        is_valid, error_msg = validator.validate_file_not_empty(file_path)
+        if not is_valid:
+            return False, error_msg, None
+        
+        try:
+            # 尝试读取Excel文件
+            df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+            
+            # 验证文件内容
+            is_valid, error_msg = self._validate_excel_file_content(df, filename)
+            if not is_valid:
+                return False, error_msg, None
+            
+            return True, "", df
+            
+        except Exception as e:
+            return False, f"Excel文件读取失败: {filename} - {str(e)}", None
+    
     def _process_excel_files(self, input_dir, excel_files):
         """处理Excel文件并提取信息"""
         excel_data = []
+        error_files = []
+        
         for filename in excel_files:
+            file_path = os.path.join(input_dir, filename)
+            self.logger.info("验证Excel文件: %s", filename)
+            
+            # 验证Excel文件
+            is_valid, error_msg, df = self._validate_excel_file(file_path, filename)
+            
+            if not is_valid:
+                self.logger.error(error_msg)
+                error_files.append((filename, error_msg))
+                continue
+            
             try:
-                file_path = os.path.join(input_dir, filename)
                 self.logger.info("使用pandas处理Excel文件: %s", filename)
-                
-                # 使用pandas读取Excel文件
-                df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
                 
                 # 提取文件信息
                 file_info = {
@@ -225,8 +365,39 @@ class DataProcessor:
                 excel_data.append(file_info)
                 
             except Exception as e:
-                self.logger.error("处理Excel文件失败 %s: %s", filename, str(e))
+                error_msg = f"处理Excel文件失败: {filename} - {str(e)}"
+                self.logger.error(error_msg)
+                error_files.append((filename, error_msg))
                 continue
+        
+        # 显示错误文件信息
+        if error_files:
+            error_message = "以下文件存在问题:\n"
+            for filename, msg in error_files:
+                error_message += f"- {filename}: {msg}\n"
+            
+            # 显示状态栏错误信息
+            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[错误]: 发现{len(error_files)}个问题文件")
+            
+            # 显示检查器错误信息
+            if hasattr(self.main_window, 'checker_input_xlsx'):
+                self.main_window.checker_input_xlsx.set_error(error_message)
+            
+            # 显示详细的错误对话框
+            try:
+                from PyQt6.QtWidgets import QMessageBox
+                msg_box = QMessageBox(self.main_window)
+                msg_box.setIcon(QMessageBox.Icon.Warning)
+                msg_box.setWindowTitle("文件验证错误")
+                msg_box.setText(f"发现 {len(error_files)} 个问题文件，无法分析")
+                msg_box.setInformativeText("请检查文件格式和内容后重试")
+                msg_box.setDetailedText(error_message)
+                msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                msg_box.exec()
+            except Exception as msg_error:
+                self.logger.warning("显示错误对话框时出错: %s", msg_error)
+        
         return excel_data
     
     def _update_ui_with_excel_info(self, excel_files, excel_data):
