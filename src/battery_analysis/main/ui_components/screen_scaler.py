@@ -79,8 +79,13 @@ class ScreenScaler:
             # 使用较小的缩放比例，确保窗口在屏幕上完全显示
             scale_factor = min(width_scale, height_scale)
             
+            # 对于小屏幕，使用更小的缩放因子，确保窗口能够完全显示
+            if screen_width < 1366 or screen_height < 768:
+                # 对于低分辨率屏幕，进一步减小缩放因子
+                scale_factor = scale_factor * 0.8
+            
             # 限制缩放因子范围，避免过小或过大
-            scale_factor = max(0.6, min(scale_factor, 1.5))
+            scale_factor = max(0.4, min(scale_factor, 1.5))
             
             self.current_scale_factor = scale_factor
             self.logger.debug(f"计算的缩放因子: {scale_factor}")
@@ -122,8 +127,8 @@ class ScreenScaler:
                 return
             
             # 设置最小尺寸为缩放后的合理值
-            min_width = int(800 * scale_factor)
-            min_height = int(600 * scale_factor)
+            min_width = int(600 * scale_factor)
+            min_height = int(400 * scale_factor)
             self.main_window.setMinimumSize(min_width, min_height)
             
             # 调整窗口尺寸
@@ -148,9 +153,85 @@ class ScreenScaler:
                 # 应用新的窗口位置
                 self.main_window.setGeometry(window_geometry)
             
+            # 调整内部组件的大小和布局
+            self._scale_internal_components(scale_factor)
+            
             self.last_scale_factor = scale_factor
             self.logger.info(f"应用缩放因子: {scale_factor}，新窗口尺寸: {new_width}x{new_height}")
         except Exception as e:
             self.logger.error("应用缩放失败: %s", e)
         finally:
             self.is_scaling = False
+    
+    def _scale_internal_components(self, scale_factor):
+        """
+        调整内部组件的大小和布局
+        
+        Args:
+            scale_factor: 缩放因子
+        """
+        try:
+            # 调整字体大小
+            font = self.main_window.font()
+            font_size = font.pointSize()
+            if font_size > 0:
+                new_font_size = int(font_size * scale_factor)
+                font.setPointSize(max(8, new_font_size))  # 确保字体大小不小于8
+                self.main_window.setFont(font)
+            
+            # 调整布局间距
+            self._adjust_layouts(scale_factor)
+            
+            # 调整表格列宽
+            if hasattr(self.main_window, 'tableWidget_TestInformation'):
+                table = self.main_window.tableWidget_TestInformation
+                table.resizeColumnsToContents()
+                
+        except Exception as e:
+            self.logger.warning("调整内部组件失败: %s", e)
+    
+    def _adjust_layouts(self, scale_factor):
+        """
+        调整布局间距
+        
+        Args:
+            scale_factor: 缩放因子
+        """
+        try:
+            # 遍历所有布局，调整间距
+            def adjust_layout(layout):
+                if layout:
+                    # 调整布局间距
+                    layout.setContentsMargins(
+                        int(layout.contentsMargins().left() * scale_factor),
+                        int(layout.contentsMargins().top() * scale_factor),
+                        int(layout.contentsMargins().right() * scale_factor),
+                        int(layout.contentsMargins().bottom() * scale_factor)
+                    )
+                    
+                    # 调整布局内组件间距
+                    spacing = layout.spacing()
+                    if spacing > 0:
+                        layout.setSpacing(int(spacing * scale_factor))
+                    
+                    # 递归调整子布局
+                    for i in range(layout.count()):
+                        item = layout.itemAt(i)
+                        if item:
+                            widget = item.widget()
+                            if widget:
+                                # 调整组件大小
+                                size_policy = widget.sizePolicy()
+                                widget.setSizePolicy(size_policy)
+                            else:
+                                sub_layout = item.layout()
+                                if sub_layout:
+                                    adjust_layout(sub_layout)
+            
+            # 调整主窗口的布局
+            main_layout = self.main_window.layout()
+            if main_layout:
+                adjust_layout(main_layout)
+                
+        except Exception as e:
+            self.logger.warning("调整布局失败: %s", e)

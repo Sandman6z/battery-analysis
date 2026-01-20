@@ -353,64 +353,159 @@ class DataProcessor:
         excel_data = []
         error_files = []
         
+        # 导入独立的资源管理模块
+        from battery_analysis.utils.resource_monitor import get_resource_monitor
+        from battery_analysis.utils.concurrency_controller import get_concurrency_controller
+        from battery_analysis.utils.resource_pool import ResourcePool
+        from battery_analysis.utils.memory_mapper import MemoryMapper
+        
+        # 获取实例
+        resource_monitor = get_resource_monitor()
+        concurrency_controller = get_concurrency_controller()
+        memory_mapper = MemoryMapper()
+        
+        # 1. 检查系统资源状态，判断是否应该节流处理
+        if resource_monitor.should_throttle_processing():
+            self.logger.warning("系统资源紧张，将减少并发处理数量")
+        
+        # 2. 创建文件处理器资源池
+        def create_file_processor():
+            from battery_analysis.utils.file_validator import FileValidator
+            return FileValidator()
+        
+        file_processor_pool = ResourcePool.create_pool("file_processors", create_file_processor, max_size=5)
+        
         for filename in excel_files:
             file_path = os.path.join(input_dir, filename)
-            self.logger.info("开始处理Excel文件: %s", filename)
             
-            # 1. 实时验证：文件路径验证
-            self.logger.info("1. 验证文件路径: %s", filename)
-            from battery_analysis.utils.file_validator import FileValidator
-            validator = FileValidator()
-            is_valid, error_msg = validator.validate_path_access(file_path, 'r')
-            if not is_valid:
-                self.logger.error(error_msg)
-                error_files.append((filename, error_msg))
-                continue
-            
-            # 2. 实时验证：文件完整性验证
-            self.logger.info("2. 验证文件完整性: %s", filename)
-            is_valid, error_msg, df = self._validate_excel_file(file_path, filename)
-            if not is_valid:
-                self.logger.error(error_msg)
-                error_files.append((filename, error_msg))
+            # 3. 并发控制：尝试获取任务槽位
+            if not concurrency_controller.acquire_task_slot():
+                self.logger.warning(f"任务槽位已满，跳过处理文件: {filename}")
+                error_files.append((filename, "系统繁忙，请稍后再试"))
                 continue
             
             try:
-                # 3. 实时验证：数据处理前验证
+                self.logger.info("开始处理Excel文件: %s", filename)
+                
+                # 4. 动态资源限制：检查文件大小限制
+                file_size = os.path.getsize(file_path)
+                size_limit = resource_monitor.get_recommended_file_size_limit()
+                if file_size > size_limit:
+                    self.logger.error(f"文件大小超过限制: {filename} ({file_size / (1024 * 1024):.2f}MB > {size_limit / (1024 * 1024):.2f}MB)")
+                    error_files.append((filename, f"文件大小超过限制 ({file_size / (1024 * 1024):.2f}MB > {size_limit / (1024 * 1024):.2f}MB)"))
+                    continue
+                
+                # 5. 实时验证：文件路径验证
+                self.logger.info("1. 验证文件路径: %s", filename)
+                from battery_analysis.utils.file_validator import FileValidator
+                validator = FileValidator()
+                is_valid, error_msg = validator.validate_path_access(file_path, 'r')
+                if not is_valid:
+                    self.logger.error(error_msg)
+                    error_files.append((filename, error_msg))
+                    continue
+                
+                # 6. 实时验证：文件完整性验证
+                self.logger.info("2. 验证文件完整性: %s", filename)
+                # 使用分层超时机制
+                import time
+                start_time = time.time()
+                
+                # 获取推荐的超时因子
+                strategy = resource_monitor.get_processing_strategy()
+                timeout_factor = strategy['recommended_timeout_factor']
+                
+                # 基础超时时间
+                base_timeout = 60.0  # 基础读取超时60秒
+                timeout = base_timeout * timeout_factor
+                
+                try:
+                    is_valid, error_msg, df = self._validate_excel_file(file_path, filename)
+                    elapsed_time = time.time() - start_time
+                    if elapsed_time > timeout:
+                        self.logger.warning(f"文件验证超时: {filename} ({elapsed_time:.2f}s > {timeout:.2f}s)")
+                    
+                    if not is_valid:
+                        self.logger.error(error_msg)
+                        error_files.append((filename, error_msg))
+                        continue
+                except Exception as e:
+                    self.logger.error(f"文件验证异常: {filename} - {str(e)}")
+                    error_files.append((filename, f"文件验证异常: {str(e)}"))
+                    continue
+                
+                # 7. 内存映射：尝试使用内存映射处理大文件
+                if memory_mapper.is_large_file(file_path):
+                    mm = memory_mapper.map_file(file_path)
+                    if mm:
+                        self.logger.info(f"使用内存映射处理大文件: {filename}")
+                        # 这里可以使用内存映射对象进行操作
+                        memory_mapper.close_mmap(mm)  # 记得关闭内存映射
+                
+                # 8. 实时验证：数据处理前验证
                 self.logger.info("3. 准备处理Excel文件: %s", filename)
                 # 检查数据规模
                 if len(df) > 100000:
                     self.logger.warning(f"文件数据量较大: {filename} ({len(df)}行)")
                 
-                self.logger.info("4. 提取文件信息: %s", filename)
-                # 提取文件信息
-                file_info = {
-                    'filename': filename,
-                    'sheet_name': df.columns.tolist(),
-                    'row_count': len(df),
-                    'column_count': len(df.columns),
-                    'first_five_rows': df.head().to_dict('records')
-                }
+                # 9. 资源池管理：从资源池获取文件处理器
+                file_processor = file_processor_pool.acquire()
+                if not file_processor:
+                    self.logger.warning(f"无法获取文件处理器，使用临时处理器: {filename}")
+                    file_processor = create_file_processor()
+                    use_temp_processor = True
+                else:
+                    use_temp_processor = False
                 
-                # 4. 实时验证：数据一致性检查
-                self.logger.info("5. 验证数据一致性: %s", filename)
-                # 检查列名一致性
-                if len(df.columns) > 50:
-                    self.logger.warning(f"文件列数较多: {filename} ({len(df.columns)}列)")
-                
-                # 检查数据类型一致性
-                numeric_cols = df.select_dtypes(include=['number']).columns
-                if len(numeric_cols) == 0:
-                    self.logger.warning(f"文件可能缺少数值数据: {filename}")
-                
-                excel_data.append(file_info)
-                self.logger.info("Excel文件处理完成: %s", filename)
+                try:
+                    self.logger.info("4. 提取文件信息: %s", filename)
+                    # 提取文件信息
+                    file_info = {
+                        'filename': filename,
+                        'sheet_name': df.columns.tolist(),
+                        'row_count': len(df),
+                        'column_count': len(df.columns),
+                        'first_five_rows': df.head().to_dict('records')
+                    }
+                    
+                    # 10. 实时验证：数据一致性检查
+                    self.logger.info("5. 验证数据一致性: %s", filename)
+                    # 检查列名一致性
+                    if len(df.columns) > 50:
+                        self.logger.warning(f"文件列数较多: {filename} ({len(df.columns)}列)")
+                    
+                    # 检查数据类型一致性
+                    numeric_cols = df.select_dtypes(include=['number']).columns
+                    if len(numeric_cols) == 0:
+                        self.logger.warning(f"文件可能缺少数值数据: {filename}")
+                    
+                    excel_data.append(file_info)
+                    self.logger.info("Excel文件处理完成: %s", filename)
+                    
+                finally:
+                    # 释放资源回资源池
+                    if not use_temp_processor and file_processor:
+                        file_processor_pool.release(file_processor)
                 
             except Exception as e:
                 error_msg = f"处理Excel文件失败: {filename} - {str(e)}"
                 self.logger.error(error_msg)
                 error_files.append((filename, error_msg))
-                continue
+            finally:
+                # 释放任务槽位
+                concurrency_controller.release_task_slot()
+                
+                # 打印系统资源状态
+                status = resource_monitor.get_system_status()
+                self.logger.debug(
+                    f"系统资源状态 - "
+                    f"CPU: {status['cpu_usage']:.2f}%, "
+                    f"内存: {status['memory_usage']:.2f}% (可用: {status['memory_available'] / (1024 * 1024 * 1024):.2f}GB), "
+                    f"磁盘: {status['disk_usage']:.2f}%"
+                )
+        
+        # 清理资源池
+        ResourcePool.remove_pool("file_processors")
         
         # 显示错误文件信息
         if error_files:
