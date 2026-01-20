@@ -1,3 +1,22 @@
+### v2.6.0
+
+#### 功能增强
+- feat: 添加文件验证模块并优化路径管理
+- feat(visualization): 增强可视化工具的数据加载和更新检测功能
+- feat(配置服务): 为配置文件查找添加缓存选项
+
+#### 重构优化
+- refactor: 优化初始化流程并改进模块导入
+- refactor(deps): 移除未使用的gitpython依赖
+- refactor(config): 在setting.ini中添加配置组命名规范的注释
+
+#### 修复和改进
+- fix(battery_analysis): 添加输入参数验证和错误处理
+- fix(build): 保留setting.ini原始注释并更新PltConfig配置
+
+#### 构建和CI/CD
+- build: 升级版本至2.6.0
+
 ### v2.5.0
 
 #### 功能增强
