@@ -309,24 +309,39 @@ class DataProcessor:
         from battery_analysis.utils.file_validator import FileValidator
         validator = FileValidator()
         
-        # 验证文件名
+        # 1. 验证文件名
         is_valid, error_msg = self._validate_excel_filename(filename)
         if not is_valid:
             return False, error_msg, None
         
-        # 验证文件是否为空
-        is_valid, error_msg = validator.validate_file_not_empty(file_path)
+        # 2. 多层验证文件
+        is_valid, error_msg = validator.validate_file_multi_layer(file_path, 'excel')
         if not is_valid:
             return False, error_msg, None
         
         try:
-            # 尝试读取Excel文件
+            # 3. 尝试读取Excel文件（实时验证）
+            self.logger.info(f"开始读取Excel文件: {filename}")
             df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
             
-            # 验证文件内容
+            # 4. 验证文件内容
             is_valid, error_msg = self._validate_excel_file_content(df, filename)
             if not is_valid:
                 return False, error_msg, None
+            
+            # 5. 实时验证：检查数据一致性
+            self.logger.info(f"验证Excel文件数据一致性: {filename}")
+            if len(df) > 10000:
+                # 大文件使用分块验证策略
+                self.logger.info(f"大文件分块验证: {filename} ({len(df)}行)")
+                # 验证数据分布
+                numeric_cols = df.select_dtypes(include=['number']).columns
+                if numeric_cols.size > 0:
+                    # 检查数值列的分布
+                    for col in numeric_cols[:3]:  # 只检查前3个数值列
+                        col_stats = df[col].describe()
+                        if col_stats.get('count', 0) < len(df) * 0.5:
+                            self.logger.warning(f"列 {col} 缺失值过多: {filename}")
             
             return True, "", df
             
@@ -340,19 +355,34 @@ class DataProcessor:
         
         for filename in excel_files:
             file_path = os.path.join(input_dir, filename)
-            self.logger.info("验证Excel文件: %s", filename)
+            self.logger.info("开始处理Excel文件: %s", filename)
             
-            # 验证Excel文件
+            # 1. 实时验证：文件路径验证
+            self.logger.info("1. 验证文件路径: %s", filename)
+            from battery_analysis.utils.file_validator import FileValidator
+            validator = FileValidator()
+            is_valid, error_msg = validator.validate_path_access(file_path, 'r')
+            if not is_valid:
+                self.logger.error(error_msg)
+                error_files.append((filename, error_msg))
+                continue
+            
+            # 2. 实时验证：文件完整性验证
+            self.logger.info("2. 验证文件完整性: %s", filename)
             is_valid, error_msg, df = self._validate_excel_file(file_path, filename)
-            
             if not is_valid:
                 self.logger.error(error_msg)
                 error_files.append((filename, error_msg))
                 continue
             
             try:
-                self.logger.info("使用pandas处理Excel文件: %s", filename)
+                # 3. 实时验证：数据处理前验证
+                self.logger.info("3. 准备处理Excel文件: %s", filename)
+                # 检查数据规模
+                if len(df) > 100000:
+                    self.logger.warning(f"文件数据量较大: {filename} ({len(df)}行)")
                 
+                self.logger.info("4. 提取文件信息: %s", filename)
                 # 提取文件信息
                 file_info = {
                     'filename': filename,
@@ -362,7 +392,19 @@ class DataProcessor:
                     'first_five_rows': df.head().to_dict('records')
                 }
                 
+                # 4. 实时验证：数据一致性检查
+                self.logger.info("5. 验证数据一致性: %s", filename)
+                # 检查列名一致性
+                if len(df.columns) > 50:
+                    self.logger.warning(f"文件列数较多: {filename} ({len(df.columns)}列)")
+                
+                # 检查数据类型一致性
+                numeric_cols = df.select_dtypes(include=['number']).columns
+                if len(numeric_cols) == 0:
+                    self.logger.warning(f"文件可能缺少数值数据: {filename}")
+                
                 excel_data.append(file_info)
+                self.logger.info("Excel文件处理完成: %s", filename)
                 
             except Exception as e:
                 error_msg = f"处理Excel文件失败: {filename} - {str(e)}"

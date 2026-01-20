@@ -39,6 +39,9 @@ class UIManager:
         self.logger = logging.getLogger(__name__)
         # 初始化用户设置管理器
         self.user_settings_manager = UserSettingsManager(self.main_window.config_path)
+        # 初始化屏幕缩放管理器
+        from battery_analysis.main.ui_components.screen_scaler import ScreenScaler
+        self.screen_scaler = ScreenScaler(main_window)
     
     def init_window(self):
         """
@@ -581,3 +584,9 @@ class UIManager:
                 label.setStyleSheet("")
         except (AttributeError, TypeError, RuntimeError) as e:
             self.logger.warning("初始化部件颜色失败: %s", e)
+    
+    def apply_scale(self):
+        """
+        应用缩放因子到窗口和UI组件
+        """
+        self.screen_scaler.apply_scale()

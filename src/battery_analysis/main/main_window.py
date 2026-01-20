@@ -522,6 +522,21 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         super().resizeEvent(event)
         if hasattr(self, 'tableWidget_TestInformation'):
             self.tableWidget_TestInformation.resizeColumnsToContents()
+    
+    def moveEvent(self, event):
+        """窗口移动时的事件处理函数"""
+        super().moveEvent(event)
+        # 当窗口移动到新屏幕时，重新计算并应用缩放
+        if hasattr(self, 'ui_manager'):
+            self.ui_manager.apply_scale()
+    
+    def changeEvent(self, event):
+        """窗口状态变化时的事件处理函数"""
+        super().changeEvent(event)
+        # 当窗口状态改变时（如从最小化恢复），检查是否需要调整缩放
+        if event.type() == QC.QEvent.Type.WindowStateChange:
+            if hasattr(self, 'ui_manager'):
+                self.ui_manager.apply_scale()
 
 
 def main() -> None:
@@ -549,17 +564,9 @@ def main() -> None:
     window.setMinimumSize(800, 600)  # 设置一个合理的最小尺寸
     window.show()
 
-    # 获取屏幕可用区域
-    screen_rect = app.primaryScreen().availableGeometry()
-
-    # 确保窗口不会超出屏幕边界
-    window_handle = window.windowHandle()
-    if window_handle:
-        # 如果窗口太大，调整为适合屏幕
-        if window.width() > screen_rect.width() or window.height() > screen_rect.height():
-            new_width = min(window.width(), int(screen_rect.width() * 0.9))
-            new_height = min(window.height(), int(screen_rect.height() * 0.9))
-            window.resize(new_width, new_height)
+    # 应用屏幕分辨率缩放
+    if hasattr(window, 'ui_manager'):
+        window.ui_manager.apply_scale()
 
     # 运行应用程序事件循环
     result = initializer.run_application(app, window)

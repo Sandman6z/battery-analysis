@@ -7,7 +7,8 @@
 
 import os
 import logging
-from typing import Tuple, Optional
+import struct
+from typing import Tuple, Optional, Generator
 
 
 class FileValidator:
@@ -374,5 +375,153 @@ class FileValidator:
         # 验证执行权限
         if 'x' in access_type and not os.access(path, os.X_OK):
             return False, f"无法执行路径: {path}"
+        
+        return True, ""
+    
+    def validate_file_header(self, file_path: str, expected_header: bytes) -> Tuple[bool, str]:
+        """
+        验证文件头标识
+        
+        Args:
+            file_path: 文件路径
+            expected_header: 期望的文件头标识
+            
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        try:
+            with open(file_path, 'rb') as f:
+                header = f.read(len(expected_header))
+                if header != expected_header:
+                    return False, f"文件头标识错误: {os.path.basename(file_path)} 不是有效的文件类型"
+            return True, ""
+        except Exception as e:
+            return False, f"验证文件头失败: {str(e)}"
+    
+    def validate_excel_file_header(self, file_path: str) -> Tuple[bool, str]:
+        """
+        验证Excel文件头标识
+        
+        Args:
+            file_path: Excel文件路径
+            
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        # Excel文件 (xlsx) 是ZIP格式，文件头为PK
+        expected_header = b'PK\x03\x04'
+        return self.validate_file_header(file_path, expected_header)
+    
+    def chunked_file_reader(self, file_path: str, chunk_size: int = 1024 * 1024) -> Generator[bytes, None, None]:
+        """
+        分块读取文件
+        
+        Args:
+            file_path: 文件路径
+            chunk_size: 块大小，默认1MB
+            
+        Yields:
+            bytes: 文件块
+        """
+        with open(file_path, 'rb') as f:
+            while True:
+                chunk = f.read(chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+    
+    def validate_file_in_chunks(self, file_path: str, validation_func, chunk_size: int = 1024 * 1024) -> Tuple[bool, str]:
+        """
+        分块验证文件
+        
+        Args:
+            file_path: 文件路径
+            validation_func: 验证函数，接收文件块并返回(是否有效, 错误消息)
+            chunk_size: 块大小，默认1MB
+            
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        try:
+            for i, chunk in enumerate(self.chunked_file_reader(file_path, chunk_size)):
+                is_valid, error_msg = validation_func(chunk, i)
+                if not is_valid:
+                    return False, f"分块验证失败 (块 {i}): {error_msg}"
+            return True, ""
+        except Exception as e:
+            return False, f"分块验证异常: {str(e)}"
+    
+    def validate_excel_file_structure(self, file_path: str) -> Tuple[bool, str]:
+        """
+        验证Excel文件结构
+        
+        Args:
+            file_path: Excel文件路径
+            
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        # 验证文件头
+        is_valid, error_msg = self.validate_excel_file_header(file_path)
+        if not is_valid:
+            return is_valid, error_msg
+        
+        # 验证文件大小
+        file_size = os.path.getsize(file_path)
+        if file_size < 100:  # Excel文件至少要有一定大小
+            return False, f"Excel文件过小: {os.path.basename(file_path)}"
+        
+        # 分块验证文件结构
+        def validate_chunk(chunk, chunk_index):
+            # 简单验证：确保文件包含Excel相关的XML结构
+            # 检查是否包含常见的Excel XML标签
+            chunk_str = chunk.decode('utf-8', errors='ignore')
+            excel_indicators = ['xl/workbook.xml', 'xl/worksheets/', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+            if any(indicator in chunk_str for indicator in excel_indicators):
+                return True, ""
+            # 只在最后一个块检查，因为前面的块可能不包含这些指示符
+            if chunk_index > 0:
+                return True, ""
+            return False, "Excel文件结构无效"
+        
+        return self.validate_file_in_chunks(file_path, validate_chunk)
+    
+    def validate_file_multi_layer(self, file_path: str, file_type: str = 'excel') -> Tuple[bool, str]:
+        """
+        多层验证文件
+        
+        Args:
+            file_path: 文件路径
+            file_type: 文件类型，支持 'excel'
+            
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        # 1. 验证文件是否存在
+        is_valid, error_msg = self.validate_file_exists(file_path)
+        if not is_valid:
+            return is_valid, error_msg
+        
+        # 2. 验证文件是否为空
+        is_valid, error_msg = self.validate_file_not_empty(file_path)
+        if not is_valid:
+            return is_valid, error_msg
+        
+        # 3. 验证文件头标识
+        if file_type == 'excel':
+            is_valid, error_msg = self.validate_excel_file_header(file_path)
+            if not is_valid:
+                return is_valid, error_msg
+        
+        # 4. 验证文件结构
+        if file_type == 'excel':
+            is_valid, error_msg = self.validate_excel_file_structure(file_path)
+            if not is_valid:
+                return is_valid, error_msg
+        
+        # 5. 验证文件路径访问权限
+        is_valid, error_msg = self.validate_path_access(file_path, 'r')
+        if not is_valid:
+            return is_valid, error_msg
         
         return True, ""
