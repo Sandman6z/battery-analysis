@@ -5,13 +5,27 @@
 """
 
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from typing import Any, Callable, List, Dict, Optional, Tuple, TypeVar, Generic
+from typing import Any, Callable, List, Dict, Optional, TypeVar, Generic
+from dataclasses import dataclass
 import logging
 import time
 
 
 T = TypeVar('T')
 R = TypeVar('R')
+
+
+@dataclass
+class ExecutionParams:
+    """
+    执行参数配置
+    """
+    func: Callable[[T], R]
+    args_list: List[T]
+    task_ids: Optional[List[str]] = None
+    pool_type: Optional[str] = None
+    max_workers: Optional[int] = None
+    progress_callback: Optional[Callable[[int, int], None]] = None
 
 
 class Task(Generic[T, R]):
@@ -70,8 +84,8 @@ class ParallelProcessor:
         self.logger = logging.getLogger(__name__)
         
     def execute_tasks(
-        self, 
-        tasks: List[Task], 
+        self,
+        tasks: List[Task],
         progress_callback: Optional[Callable[[int, int], None]] = None
     ) -> Dict[str, Any]:
         """
@@ -136,7 +150,7 @@ class ParallelProcessor:
             
             results["completed"] = completed_count
             results["end_time"] = time.time()
-            self.logger.info("Parallel processing completed: %d/%d tasks succeeded", 
+            self.logger.info("Parallel processing completed: %d/%d tasks succeeded",
                            len(results["success"]), len(tasks))
             
         finally:
@@ -166,55 +180,45 @@ class ParallelProcessor:
             raise
     
     def execute_function(
-        self, 
-        func: Callable[[T], R], 
-        args_list: List[T], 
-        task_ids: Optional[List[str]] = None,
-        pool_type: Optional[str] = None,
-        max_workers: Optional[int] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None
+        self,
+        params: ExecutionParams
     ) -> Dict[str, Any]:
         """
         执行单个函数的多个参数
         
         Args:
-            func: 要执行的函数
-            args_list: 参数列表
-            task_ids: 任务ID列表，可选
-            pool_type: 池类型，覆盖实例设置
-            max_workers: 最大工作线程/进程数，覆盖实例设置
-            progress_callback: 进度回调函数
+            params: 执行参数配置
         
         Returns:
             Dict[str, Any]: 执行结果
         """
         # 创建任务列表
         tasks = []
-        for i, args in enumerate(args_list):
-            task_id = task_ids[i] if task_ids and i < len(task_ids) else f"task_{i}"
-            task = Task(task_id, func, args)
+        for i, args in enumerate(params.args_list):
+            task_id = params.task_ids[i] if params.task_ids and i < len(params.task_ids) else f"task_{i}"
+            task = Task(task_id, params.func, args)
             tasks.append(task)
         
         # 执行任务
         original_pool_type = self.pool_type
         original_max_workers = self.max_workers
         
-        if pool_type:
-            self.pool_type = pool_type
-        if max_workers:
-            self.max_workers = max_workers
+        if params.pool_type:
+            self.pool_type = params.pool_type
+        if params.max_workers:
+            self.max_workers = params.max_workers
         
         try:
-            return self.execute_tasks(tasks, progress_callback)
+            return self.execute_tasks(tasks, params.progress_callback)
         finally:
             # 恢复原始设置
             self.pool_type = original_pool_type
             self.max_workers = original_max_workers
     
     def map(
-        self, 
-        func: Callable[[T], R], 
-        iterable: List[T], 
+        self,
+        func: Callable[[T], R],
+        iterable: List[T],
         pool_type: Optional[str] = None,
         max_workers: Optional[int] = None
     ) -> List[R]:
@@ -234,7 +238,13 @@ class ParallelProcessor:
         args_list = list(iterable)
         
         # 执行任务
-        results = self.execute_function(func, args_list, pool_type=pool_type, max_workers=max_workers)
+        execution_params = ExecutionParams(
+            func=func,
+            args_list=args_list,
+            pool_type=pool_type,
+            max_workers=max_workers
+        )
+        results = self.execute_function(execution_params)
         
         # 提取结果
         result_list = []
@@ -246,8 +256,8 @@ class ParallelProcessor:
 
 
 def parallel_map(
-    func: Callable[[T], R], 
-    iterable: List[T], 
+    func: Callable[[T], R],
+    iterable: List[T],
     pool_type: str = "process",
     max_workers: Optional[int] = None
 ) -> List[R]:
@@ -268,8 +278,8 @@ def parallel_map(
 
 
 def parallel_execute(
-    func: Callable[[T], R], 
-    args_list: List[T], 
+    func: Callable[[T], R],
+    args_list: List[T],
     task_ids: Optional[List[str]] = None,
     pool_type: str = "process",
     max_workers: Optional[int] = None,
@@ -290,13 +300,20 @@ def parallel_execute(
         Dict[str, Any]: 执行结果
     """
     processor = ParallelProcessor(pool_type=pool_type, max_workers=max_workers)
-    return processor.execute_function(func, args_list, task_ids, progress_callback=progress_callback)
+    execution_params = ExecutionParams(
+        func=func,
+        args_list=args_list,
+        task_ids=task_ids,
+        progress_callback=progress_callback
+    )
+    return processor.execute_function(execution_params)
 
 
 # 导出公共API
 __all__ = [
     'Task',
     'ParallelProcessor',
+    'ExecutionParams',
     'parallel_map',
     'parallel_execute'
 ]
