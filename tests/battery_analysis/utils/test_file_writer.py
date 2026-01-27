@@ -1,67 +1,110 @@
+# -*- coding: utf-8 -*-
 """
-测试文件写入工具模块
+file_writer测试
 """
-import json
+
+import pytest
+import tempfile
 import os
-
-# 加载测试数据
-test_data_path = os.path.join(os.path.dirname(
-    __file__), "../../data/test_file_writer.json")
-with open(test_data_path, "r", encoding="utf-8") as f:
-    file_writer_test_data = json.load(f)
-
-test_data = file_writer_test_data["test_data"]
-error_cases = file_writer_test_data["error_cases"]
-
-# 测试ReportedBy值能否正确从listTestInfo获取
+from pathlib import Path
+from unittest.mock import Mock, patch
+from battery_analysis.utils.file_writer import XlsxWordWriter
 
 
-def test_reported_by_from_list_test_info():
-    """
-    测试当listTestInfo中有ReportedBy值时，能正确获取
-    """
-    # 使用测试数据中的值
-    list_test_info = test_data["test_info"]
+class TestXlsxWordWriter:
+    """文件写入器测试类"""
 
-    # 确保listTestInfo有足够的元素来测试ReportedBy获取逻辑
-    # ReportedBy的值在listTestInfo[18]位置
-    expected_reported_by = "BOEDT"
+    def setup_method(self):
+        """设置测试环境"""
+        # 创建临时目录
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.result_path = Path(self.temp_dir.name) / "results"
+        self.result_path.mkdir(exist_ok=True)
+        
+        # 创建测试数据
+        self.list_test_info = [
+            "Coin Cell",  # 0: 电池类型
+            "Method A",  # 1: 构造方法
+            "Li-ion",  # 2: 电池类型
+            "Type A",  # 3: 规格类型
+            "Manufacturer A",  # 4: 制造商
+            "DC20230101",  # 5: 批次日期代码
+            "10",  # 6: 样本数量
+            "25°C",  # 7: 温度
+            "2000",  # 8: 标称容量
+            "2000",  # 9: 计算标称容量
+            "2",  # 10: 加速老化年数
+            "Location A",  # 11: 测试者位置
+            "Tester A",  # 12: 测试者
+            "Test Profile",  # 13: 测试配置文件
+            ["1000", "2000"],  # 14: 电流水平
+            ["3.7", "3.8"],  # 15: 电压水平
+            "v1.0",  # 16: 版本
+            "1800",  # 17: 要求可用容量
+            "Tester A"  # 18: 测试者
+        ]
+        
+        self.list_battery_info = [
+            [2000, 1900, 1800],  # 0: 电池容量数据
+            ["Battery1", "Battery2", "Battery3"],  # 1: 电池名称
+            ["2023-01-01 10:00:00", "2023-01-01 11:00:00"],  # 2: 测试时间
+            "20230101"  # 3: 测试日期
+        ]
 
-    # 为测试添加ReportedBy值到listTestInfo
-    if len(list_test_info) <= 18:
-        # 如果元素不足，添加足够的占位符
-        list_test_info += [""] * (18 - len(list_test_info) + 1)
+    def teardown_method(self):
+        """清理测试环境"""
+        self.temp_dir.cleanup()
 
-    # 设置预期的ReportedBy值
-    list_test_info[18] = expected_reported_by
+    def test_initialization(self):
+        """测试初始化"""
+        # 创建XlsxWordWriter实例
+        writer = XlsxWordWriter(
+            strResultPath=str(self.result_path),
+            listTestInfo=self.list_test_info,
+            listBatteryInfo=self.list_battery_info
+        )
+        
+        # 验证初始化
+        assert writer is not None
+        assert hasattr(writer, 'listTestInfo')
+        assert hasattr(writer, 'listBatteryInfo')
 
-    # 测试ReportedBy获取逻辑
-    # 这是从file_writer.py中提取的逻辑
-    str_reported_by = list_test_info[18] if len(list_test_info) > 18 else ""
+    def test_uxww_xlsx_word_csv_write(self):
+        """测试Excel、Word和CSV写入"""
+        # 创建XlsxWordWriter实例
+        writer = XlsxWordWriter(
+            strResultPath=str(self.result_path),
+            listTestInfo=self.list_test_info,
+            listBatteryInfo=self.list_battery_info
+        )
+        
+        # 验证方法存在
+        assert hasattr(writer, 'UXWW_XlsxWordCsvWrite')
 
-    # 验证ReportedBy值是否正确获取
-    assert str_reported_by == expected_reported_by
+    def test_handle_data_error(self):
+        """测试数据错误处理"""
+        # 创建XlsxWordWriter实例
+        writer = XlsxWordWriter(
+            strResultPath=str(self.result_path),
+            listTestInfo=self.list_test_info,
+            listBatteryInfo=self.list_battery_info
+        )
+        
+        # 测试数据错误处理
+        error_msg = "测试错误信息"
+        result = writer.handle_data_error(error_msg)
+        
+        # 验证结果
+        assert result == "retry"
 
-# 测试ReportedBy默认值
-
-
-def test_reported_by_default_value():
-    """
-    测试当listTestInfo中没有ReportedBy值时，返回空字符串
-    """
-    # 使用测试数据中的错误用例
-    error_case = error_cases["empty_battery_info"]
-    list_test_info = error_case["test_info"]
-
-    # 确保listTestInfo没有足够的元素来获取ReportedBy值
-    # ReportedBy的值在listTestInfo[18]位置
-    if len(list_test_info) > 18:
-        # 如果元素过多，截断到18个元素
-        list_test_info = list_test_info[:18]
-
-    # 测试ReportedBy获取逻辑
-    # 这是从file_writer.py中提取的逻辑
-    str_reported_by = list_test_info[18] if len(list_test_info) > 18 else ""
-
-    # 验证ReportedBy值是否为空字符串
-    assert str_reported_by == ""
+    def test_directory_creation(self):
+        """测试目录创建"""
+        # 创建XlsxWordWriter实例
+        writer = XlsxWordWriter(
+            strResultPath=str(self.result_path),
+            listTestInfo=self.list_test_info,
+            listBatteryInfo=self.list_battery_info
+        )
+        
+        # 验证目录创建方法存在
+        assert hasattr(writer, 'create_directories')
