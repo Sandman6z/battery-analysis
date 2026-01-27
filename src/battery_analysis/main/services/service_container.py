@@ -109,6 +109,8 @@ class ServiceContainer(IServiceContainer):
         """
         初始化服务容器
         """
+        import time
+        
         self.logger = logging.getLogger(__name__)
         
         # 服务注册表
@@ -127,6 +129,11 @@ class ServiceContainer(IServiceContainer):
         
         # 是否已初始化服务注册
         self._services_initialized = False
+        
+        # 资源使用跟踪
+        self._resource_usage: Dict[str, Dict[str, Any]] = {}
+        self._last_access_time: Dict[str, float] = {}
+        self._start_time = time.time()
     
     def _initialize_services(self):
         """
@@ -393,9 +400,22 @@ class ServiceContainer(IServiceContainer):
         Returns:
             T: 服务实例，如果不存在则返回None
         """
+        import time
+        
         try:
             # 如果实例已存在，直接返回
             if name in self._instances:
+                # 更新最后访问时间
+                self._last_access_time[name] = time.time()
+                # 更新资源使用统计
+                if name not in self._resource_usage:
+                    self._resource_usage[name] = {
+                        'access_count': 0,
+                        'total_time': 0,
+                        'last_access': time.time()
+                    }
+                self._resource_usage[name]['access_count'] += 1
+                self._resource_usage[name]['last_access'] = time.time()
                 return self._instances[name]
             
             # 如果服务未注册，尝试初始化服务注册
@@ -409,7 +429,18 @@ class ServiceContainer(IServiceContainer):
                 return None
             
             # 使用迭代方式解析依赖，避免递归调用
-            return self._resolve_service_with_dependencies(name)
+            instance = self._resolve_service_with_dependencies(name)
+            
+            # 如果成功获取实例，记录访问时间
+            if instance and name in self._instances:
+                self._last_access_time[name] = time.time()
+                self._resource_usage[name] = {
+                    'access_count': 1,
+                    'total_time': 0,
+                    'last_access': time.time()
+                }
+            
+            return instance
             
         except (TypeError, AttributeError, KeyError, RecursionError) as e:
             self.logger.error("Failed to get service %s: %s", name, e)
@@ -676,6 +707,8 @@ class ServiceContainer(IServiceContainer):
         Returns:
             Dict[str, Dict[str, Any]]: 服务信息
         """
+        import time
+        
         info = {}
         
         for name in set(list(self._services.keys()) + list(self._instances.keys())):
@@ -691,9 +724,92 @@ class ServiceContainer(IServiceContainer):
             if name in self._instances:
                 service_info['instance'] = type(self._instances[name]).__name__
             
+            # 添加资源使用信息
+            if name in self._resource_usage:
+                service_info['resource_usage'] = self._resource_usage[name]
+            
+            # 添加最后访问时间
+            if name in self._last_access_time:
+                service_info['last_access'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._last_access_time[name]))
+            
             info[name] = service_info
         
         return info
+    
+    def release_unused_resources(self, idle_time: int = 300):
+        """
+        释放长时间未使用的资源
+
+        Args:
+            idle_time: 空闲时间阈值（秒），默认300秒（5分钟）
+        """
+        import time
+        
+        current_time = time.time()
+        unused_services = []
+        
+        # 识别长时间未使用的服务
+        for name, last_access in self._last_access_time.items():
+            if current_time - last_access > idle_time:
+                unused_services.append(name)
+        
+        # 释放未使用的服务
+        released_count = 0
+        for service_name in unused_services:
+            if service_name in self._instances:
+                try:
+                    instance = self._instances[service_name]
+                    # 调用服务的shutdown方法（如果存在）
+                    if hasattr(instance, 'shutdown'):
+                        try:
+                            instance.shutdown()
+                            self.logger.debug("Service %s shutdown", service_name)
+                        except Exception as e:
+                            self.logger.error("Failed to shutdown service %s: %s", service_name, e)
+                    
+                    # 从实例字典中删除
+                    del self._instances[service_name]
+                    # 从最后访问时间字典中删除
+                    if service_name in self._last_access_time:
+                        del self._last_access_time[service_name]
+                    # 从资源使用字典中删除
+                    if service_name in self._resource_usage:
+                        del self._resource_usage[service_name]
+                    
+                    released_count += 1
+                    self.logger.debug("Released unused service: %s", service_name)
+                    
+                except Exception as e:
+                    self.logger.error("Failed to release service %s: %s", service_name, e)
+        
+        if released_count > 0:
+            self.logger.info("Released %d unused services", released_count)
+        
+        return released_count
+    
+    def get_resource_usage(self) -> Dict[str, Dict[str, Any]]:
+        """
+        获取资源使用统计信息
+
+        Returns:
+            Dict[str, Dict[str, Any]]: 资源使用统计
+        """
+        import time
+        
+        usage_stats = {}
+        total_services = len(self._services)
+        active_instances = len(self._instances)
+        
+        usage_stats['summary'] = {
+            'total_services': total_services,
+            'active_instances': active_instances,
+            'uptime_seconds': time.time() - self._start_time,
+            'services_in_use': len(self._last_access_time)
+        }
+        
+        usage_stats['details'] = self._resource_usage
+        
+        return usage_stats
 
 
 # 全局服务容器实例
@@ -722,3 +838,164 @@ def set_service_container(container: ServiceContainer):
     """
     global _global_container
     _global_container = container
+
+
+class ServiceContext:
+    """
+    服务上下文管理器，确保资源正确释放
+    
+    示例用法：
+    
+    with ServiceContext('file') as file_service:
+        # 使用文件服务
+        file_service.create_directory('output')
+    # 退出上下文时自动处理资源
+    """
+    
+    def __init__(self, service_name, auto_release: bool = True):
+        """
+        初始化服务上下文管理器
+        
+        Args:
+            service_name: 服务名称
+            auto_release: 是否在退出上下文时自动释放资源，默认True
+        """
+        self.service_name = service_name
+        self.auto_release = auto_release
+        self.service = None
+        self.container = get_service_container()
+    
+    def __enter__(self):
+        """
+        进入上下文，获取服务实例
+        
+        Returns:
+            服务实例
+        """
+        self.service = self.container.get(self.service_name)
+        if self.service:
+            # 记录服务获取
+            self.container.logger.debug("Service %s acquired through context manager", self.service_name)
+        else:
+            self.container.logger.warning("Failed to acquire service %s through context manager", self.service_name)
+        return self.service
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        退出上下文，处理资源释放
+        
+        Args:
+            exc_type: 异常类型
+            exc_val: 异常值
+            exc_tb: 异常回溯
+            
+        Returns:
+            bool: 是否抑制异常
+        """
+        if self.service:
+            try:
+                # 检查服务是否有close方法
+                if hasattr(self.service, 'close'):
+                    try:
+                        self.service.close()
+                        self.container.logger.debug("Service %s closed", self.service_name)
+                    except Exception as e:
+                        self.container.logger.error("Failed to close service %s: %s", self.service_name, e)
+                # 检查服务是否有shutdown方法
+                elif hasattr(self.service, 'shutdown'):
+                    try:
+                        self.service.shutdown()
+                        self.container.logger.debug("Service %s shutdown", self.service_name)
+                    except Exception as e:
+                        self.container.logger.error("Failed to shutdown service %s: %s", self.service_name, e)
+                
+                # 如果启用自动释放，从容器中移除实例
+                if self.auto_release:
+                    # 注意：这里不直接删除实例，而是依赖容器的资源释放机制
+                    # 这样可以确保依赖该服务的其他组件不受影响
+                    pass
+                    
+            except Exception as e:
+                self.container.logger.error("Error in service context exit: %s", e)
+        
+        # 不抑制异常
+        return False
+
+
+class MultiServiceContext:
+    """
+    多服务上下文管理器，同时管理多个服务的资源
+    
+    示例用法：
+    
+    with MultiServiceContext(['file', 'config']) as services:
+        file_service, config_service = services['file'], services['config']
+        # 使用多个服务
+    # 退出上下文时自动处理所有资源
+    """
+    
+    def __init__(self, service_names, auto_release: bool = True):
+        """
+        初始化多服务上下文管理器
+        
+        Args:
+            service_names: 服务名称列表
+            auto_release: 是否在退出上下文时自动释放资源，默认True
+        """
+        self.service_names = service_names
+        self.auto_release = auto_release
+        self.services = {}
+        self.container = get_service_container()
+    
+    def __enter__(self):
+        """
+        进入上下文，获取所有服务实例
+        
+        Returns:
+            dict: 服务名称到服务实例的映射
+        """
+        for service_name in self.service_names:
+            service = self.container.get(service_name)
+            if service:
+                self.services[service_name] = service
+                self.container.logger.debug("Service %s acquired through multi-service context", service_name)
+            else:
+                self.container.logger.warning("Failed to acquire service %s through multi-service context", service_name)
+        return self.services
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        退出上下文，处理所有资源释放
+        
+        Args:
+            exc_type: 异常类型
+            exc_val: 异常值
+            exc_tb: 异常回溯
+            
+        Returns:
+            bool: 是否抑制异常
+        """
+        for service_name, service in self.services.items():
+            try:
+                # 检查服务是否有close方法
+                if hasattr(service, 'close'):
+                    try:
+                        service.close()
+                        self.container.logger.debug("Service %s closed", service_name)
+                    except Exception as e:
+                        self.container.logger.error("Failed to close service %s: %s", service_name, e)
+                # 检查服务是否有shutdown方法
+                elif hasattr(service, 'shutdown'):
+                    try:
+                        service.shutdown()
+                        self.container.logger.debug("Service %s shutdown", service_name)
+                    except Exception as e:
+                        self.container.logger.error("Failed to shutdown service %s: %s", service_name, e)
+            except Exception as e:
+                self.container.logger.error("Error in multi-service context exit for %s: %s", service_name, e)
+        
+        # 清空服务字典
+        self.services.clear()
+        
+        # 不抑制异常
+        return False

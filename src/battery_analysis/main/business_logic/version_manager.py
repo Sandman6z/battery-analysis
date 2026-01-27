@@ -77,6 +77,14 @@ class VersionManager:
                     listChecksum = []
                     listTimes = []
 
+                # 检查当前校验和是否已存在
+                current_checksum = self.main_window.sha256_checksum
+                existing_index = -1
+                for i, checksum in enumerate(listChecksum):
+                    if checksum == current_checksum:
+                        existing_index = i
+                        break
+
                 os.remove(strCsvMd5Path)
                 f = open(strCsvMd5Path, mode='w', newline='', encoding='utf-8')
                 csvSHA256Writer = csv.writer(f)
@@ -84,17 +92,28 @@ class VersionManager:
                 if not listChecksum:
                     # 第一次运行，主版本号从1开始
                     csvSHA256Writer.writerow(["Checksums:"])
-                    csvSHA256Writer.writerow([self.main_window.sha256_checksum])
+                    csvSHA256Writer.writerow([current_checksum])
                     csvSHA256Writer.writerow(["Times:"])
                     csvSHA256Writer.writerow(["0"])
                     self.main_window.lineEdit_Version.setText("1.0")
+                elif existing_index >= 0:
+                    # 校验和已存在，使用现有的版本号
+                    intVersionMajor = existing_index + 1
+                    intVersionMinor = 0
+                    
+                    csvSHA256Writer.writerow(["Checksums:"])
+                    csvSHA256Writer.writerow(listChecksum)
+                    csvSHA256Writer.writerow(["Times:"])
+                    csvSHA256Writer.writerow(listTimes)
+                    self.main_window.lineEdit_Version.setText(
+                        f"{intVersionMajor}.{intVersionMinor}")
                 else:
-                    # 每次运行都递增主版本号，次版本号保持0
+                    # 校验和不存在，增加主版本号
                     intVersionMajor = len(listChecksum) + 1  # 主版本号 = 现有版本数量 + 1
                     intVersionMinor = 0  # 次版本号始终为0
                     
                     # 将当前校验和添加到列表，作为新的主版本
-                    listChecksum.append(self.main_window.sha256_checksum)
+                    listChecksum.append(current_checksum)
                     listTimes.append("0")
                     
                     csvSHA256Writer.writerow(["Checksums:"])
