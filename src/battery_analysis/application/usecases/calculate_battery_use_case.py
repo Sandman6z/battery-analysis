@@ -109,13 +109,19 @@ class CalculateBatteryUseCase:
                 )
             
             # 创建电池实体
+            from datetime import datetime
             battery = Battery(
-                model=input_data.battery_type,
-                manufacturer=input_data.manufacturer,
                 serial_number=input_data.barcode,
-                chemistry="Lithium-ion",  # 这里可以根据实际情况从输入中获取
+                model_number=input_data.specification_type,
+                manufacturer=input_data.manufacturer,
+                production_date=datetime.now(),
+                battery_type=input_data.battery_type,
+                nominal_voltage=3.7,  # 示例值，实际应从输入或配置中获取
                 nominal_capacity=2.0,  # 示例值，实际应从输入或配置中获取
-                nominal_voltage=3.7  # 示例值，实际应从输入或配置中获取
+                max_voltage=4.2,  # 示例值，实际应从输入或配置中获取
+                min_voltage=2.5,  # 示例值，实际应从输入或配置中获取
+                max_current=5.0,  # 示例值，实际应从输入或配置中获取
+                weight=0.1  # 示例值，实际应从输入或配置中获取
             )
             
             # 计算电池健康状态

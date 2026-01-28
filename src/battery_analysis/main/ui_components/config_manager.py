@@ -300,7 +300,7 @@ class ConfigManager:
     
     def update_config(self, test_info) -> None:
         """
-        更新配置文件中的图表相关设置
+        更新内存中的图表相关设置，不再修改配置文件
         
         Args:
             test_info: 测试信息列表
@@ -313,10 +313,9 @@ class ConfigManager:
             
             self.main_window.checker_update_config.clear()
             
-            # 更新图表配置路径
-            self.config.setValue(
-                "PltConfig/Path", f"{self.main_window.lineEdit_OutputPath.text()}/V{test_info[16]}")
-
+            # 不再更新配置文件，只在内存中处理
+            # 图表路径和标题将在需要时动态计算
+            
             bSetTitle = False
             rules = self.main_window.get_config("BatteryConfig/Rules")
             specification_type = self.main_window.comboBox_Specification_Type.currentText()
@@ -327,20 +326,8 @@ class ConfigManager:
                 rule_parts = rule.split("/")
                 if not self.main_window.cc_current:
                     self.main_window.cc_current = rule_parts[5]
-                if rule_parts[0] == specification_type:
-                    self.config.setValue(
-                        "PltConfig/Title",
-                        f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
-                        f"-{test_info[8]}mAh@{self.main_window.cc_current}mA, "
-                        f"{strPulseCurrent[:-1]}, {test_info[7]}")
-                    bSetTitle = True
-                    break
-                if rule_parts[0] in specification_type:
-                    self.config.setValue(
-                        "PltConfig/Title",
-                        f"{test_info[4]} {test_info[2]} {test_info[3]}({test_info[5]}), "
-                        f"-{test_info[8]}mAh@{self.main_window.cc_current}mA, "
-                        f"{strPulseCurrent[:-1]}, {test_info[7]}")
+                if rule_parts[0] == specification_type or rule_parts[0] in specification_type:
+                    # 标题信息将在需要时动态生成
                     bSetTitle = True
                     break
             
@@ -353,14 +340,14 @@ class ConfigManager:
     
     def rename_pltPath(self, strTestDate):
         """
-        根据测试日期重命名图表保存路径
+        根据测试日期重命名图表保存路径，不再修改配置文件
         
         Args:
             strTestDate: 测试日期字符串
         """
         try:
-            self.config.setValue(
-                "PltConfig/Path", f"{self.main_window.lineEdit_OutputPath.text()}/"
-                f"{strTestDate}_v{self.main_window.lineEdit_Version.text()}")
+            # 不再更新配置文件，只在内存中处理
+            # 图表路径将在需要时动态计算
+            pass
         except (AttributeError, TypeError, ValueError, OSError) as e:
             self.logger.error("重命名图表路径失败: %s", e)

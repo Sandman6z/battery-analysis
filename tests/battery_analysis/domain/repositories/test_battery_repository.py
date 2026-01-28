@@ -11,7 +11,7 @@ class TestBatteryRepositoryInterface:
         
         repository = Mock(spec=BatteryRepository)
         assert hasattr(repository, 'save')
-        assert hasattr(repository, 'find_by_id')
+        assert hasattr(repository, 'find_by_serial_number')
         assert hasattr(repository, 'find_all')
         assert hasattr(repository, 'delete')
 
@@ -25,14 +25,14 @@ class TestBatteryRepositoryInterface:
         repository.save(battery)
         repository.save.assert_called_once_with(battery)
 
-    def test_find_by_id_method_signature(self):
-        """测试find_by_id方法签名"""
+    def test_find_by_serial_number_method_signature(self):
+        """测试find_by_serial_number方法签名"""
         from battery_analysis.domain.repositories.battery_repository import BatteryRepository
         
         repository = Mock(spec=BatteryRepository)
-        battery_id = "test-id"
-        repository.find_by_id(battery_id)
-        repository.find_by_id.assert_called_once_with(battery_id)
+        serial_number = "test-serial"
+        repository.find_by_serial_number(serial_number)
+        repository.find_by_serial_number.assert_called_once_with(serial_number)
 
     def test_find_all_method_signature(self):
         """测试find_all方法签名"""
