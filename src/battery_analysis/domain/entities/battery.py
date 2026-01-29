@@ -35,6 +35,7 @@ class Battery:
     # 电池状态
     warranty_period: Optional[int] = None  # 保修期 (月)
     status: str = "active"  # 电池状态: active, retired, defective
+    health_status: Optional[str] = None  # 健康状态: good, fair, poor
     
     def __post_init__(self):
         """初始化后验证"""
