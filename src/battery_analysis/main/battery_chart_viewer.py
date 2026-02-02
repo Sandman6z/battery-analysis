@@ -1840,6 +1840,40 @@ class BatteryChartViewer:
                 logging.warning("当前没有打开的visualizer窗口")
         except (AttributeError, TypeError, RuntimeError) as e:
             logging.error("关闭viewer窗口时出错: %s", e)
+    
+    def __del__(self):
+        """
+        析构函数，确保在对象销毁时释放所有资源
+        """
+        try:
+            # 关闭图表窗口
+            if hasattr(self, 'current_fig') and self.current_fig is not None:
+                import matplotlib.pyplot as plt
+                plt.close(self.current_fig)
+                self.current_fig = None
+                logging.info("析构函数：关闭图表窗口")
+            
+            # 清理Matplotlib状态
+            if hasattr(self, '_cleanup_matplotlib_state'):
+                self._cleanup_matplotlib_state()
+                logging.info("析构函数：清理Matplotlib状态")
+            
+            # 释放数据资源
+            if hasattr(self, 'listPlt'):
+                try:
+                    for c in range(len(self.listPlt)):
+                        if len(self.listPlt[c]) >= 4:
+                            self.listPlt[c][0].clear()  # 充电数据
+                            self.listPlt[c][1].clear()  # 电压数据
+                            self.listPlt[c][2].clear()  # 过滤后充电数据
+                            self.listPlt[c][3].clear()  # 过滤后电压数据
+                    logging.info("析构函数：释放数据资源")
+                except Exception as e:
+                    logging.error("析构函数：释放数据资源时出错: %s", e)
+            
+            logging.info("BatteryChartViewer对象已销毁，资源已释放")
+        except Exception as e:
+            logging.error("析构函数执行异常: %s", e)
 
     def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered,
                            title_fontdict, axis_fontdict):

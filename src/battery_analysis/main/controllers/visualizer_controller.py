@@ -107,6 +107,38 @@ class VisualizerController:
             battery_chart_viewer.BatteryChartViewer: 可视化器实例
         """
         try:
+            # 释放旧的可视化器实例
+            if hasattr(self, 'visualizer') and self.visualizer is not None:
+                logging.info("释放旧的可视化器实例")
+                try:
+                    # 关闭图表窗口
+                    if hasattr(self.visualizer, 'current_fig') and self.visualizer.current_fig is not None:
+                        import matplotlib.pyplot as plt
+                        plt.close(self.visualizer.current_fig)
+                        self.visualizer.current_fig = None
+                    
+                    # 清理Matplotlib状态
+                    if hasattr(self.visualizer, '_cleanup_matplotlib_state'):
+                        self.visualizer._cleanup_matplotlib_state()
+                    
+                    # 释放数据资源
+                    if hasattr(self.visualizer, 'listPlt'):
+                        try:
+                            for c in range(len(self.visualizer.listPlt)):
+                                if len(self.visualizer.listPlt[c]) >= 4:
+                                    self.visualizer.listPlt[c][0].clear()  # 充电数据
+                                    self.visualizer.listPlt[c][1].clear()  # 电压数据
+                                    self.visualizer.listPlt[c][2].clear()  # 过滤后充电数据
+                                    self.visualizer.listPlt[c][3].clear()  # 过滤后电压数据
+                        except Exception as e:
+                            logging.error("释放数据资源时出错: %s", e)
+                    
+                    # 清理引用
+                    self.visualizer = None
+                    logging.info("旧的可视化器实例已成功释放")
+                except Exception as e:
+                    logging.error("释放旧的可视化器实例时出错: %s", e)
+            
             # 强制设置Matplotlib使用QtAgg后端
             import matplotlib
             if matplotlib.get_backend() != 'QtAgg':

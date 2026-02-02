@@ -87,14 +87,19 @@ class DataProcessor:
             
             # 使用并行处理Excel文件
             from concurrent.futures import ProcessPoolExecutor, as_completed
+            from battery_analysis.utils.resource_manager import ResourceManager
             excel_data = []
             
             def process_file(filename):
                 file_path = os.path.join(directory, filename)
                 return self.process_excel_with_pandas(file_path)
             
+            # 获取最优进程数
+            optimal_process_count = ResourceManager.get_optimal_process_count()
+            actual_process_count = min(optimal_process_count, len(listAllInXlsx))
+            
             # 使用进程池并行处理
-            with ProcessPoolExecutor(max_workers=min(8, len(listAllInXlsx))) as executor:
+            with ProcessPoolExecutor(max_workers=actual_process_count) as executor:
                 # 提交所有任务
                 future_to_file = {executor.submit(process_file, filename): filename for filename in listAllInXlsx}
                 
@@ -662,10 +667,15 @@ class DataProcessor:
                     }
             
             # 使用进程池并行处理
+            from battery_analysis.utils.resource_manager import ResourceManager
             all_data = []
             failed_files = []
             
-            with ProcessPoolExecutor(max_workers=min(8, len(excel_files))) as executor:
+            # 获取最优进程数
+            optimal_process_count = ResourceManager.get_optimal_process_count()
+            actual_process_count = min(optimal_process_count, len(excel_files))
+            
+            with ProcessPoolExecutor(max_workers=actual_process_count) as executor:
                 # 提交所有任务
                 file_infos = [(filename, input_path) for filename in excel_files]
                 future_to_file = {executor.submit(analyze_single_file, file_info): file_info[0] for file_info in file_infos}
