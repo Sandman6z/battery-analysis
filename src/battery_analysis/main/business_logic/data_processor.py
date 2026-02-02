@@ -30,6 +30,47 @@ class DataProcessor:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
+        # 初始化缓存
+        self._cache = {
+            'excel_files': {},  # 缓存Excel文件内容
+            'directory_files': {},  # 缓存目录文件列表
+            'file_validation': {}  # 缓存文件验证结果
+        }
+    
+    def _invalidate_cache(self, path=None):
+        """
+        使缓存失效
+        
+        Args:
+            path: 可选的路径，用于更精确地失效缓存
+        """
+        if path:
+            # 失效与特定路径相关的缓存
+            path_str = str(path)
+            # 失效Excel文件缓存
+            if path_str in self._cache['excel_files']:
+                del self._cache['excel_files'][path_str]
+            # 失效文件验证缓存
+            if path_str in self._cache['file_validation']:
+                del self._cache['file_validation'][path_str]
+            # 失效目录文件列表缓存
+            for dir_path in list(self._cache['directory_files'].keys()):
+                if path_str.startswith(dir_path):
+                    del self._cache['directory_files'][dir_path]
+        else:
+            # 完全清空缓存
+            self._cache = {
+                'excel_files': {},
+                'directory_files': {},
+                'file_validation': {}
+            }
+    
+    def clear_cache(self):
+        """
+        清空所有缓存
+        """
+        self._invalidate_cache()
+        self.logger.info("DataProcessor cache cleared")
     
     def optimize_dataframe_memory(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -68,6 +109,11 @@ class DataProcessor:
             dict: 包含文件信息的字典
         """
         try:
+            # 检查缓存
+            if file_path in self._cache['excel_files']:
+                self.logger.info("从缓存读取Excel文件信息: %s", file_path)
+                return self._cache['excel_files'][file_path]
+            
             self.logger.info("使用pandas处理Excel文件: %s", file_path)
             
             # 使用pandas读取Excel文件，指定引擎和优化参数
@@ -88,6 +134,9 @@ class DataProcessor:
                 'basic_stats': df.describe().to_dict()
             }
             
+            # 缓存结果
+            self._cache['excel_files'][file_path] = file_info
+            
             return file_info
             
         except Exception as e:
@@ -107,8 +156,12 @@ class DataProcessor:
         try:
             self.logger.info("使用pandas批量处理目录中的Excel文件: %s", directory)
             
-            # 查找所有Excel文件
-            listAllInXlsx = [f for f in os.listdir(directory) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+            # 查找所有Excel文件（使用缓存）
+            if directory not in self._cache['directory_files']:
+                self.logger.info("扫描目录查找Excel文件: %s", directory)
+                self._cache['directory_files'][directory] = [f for f in os.listdir(directory) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+            
+            listAllInXlsx = self._cache['directory_files'][directory]
             
             if not listAllInXlsx:
                 self.logger.warning("目录中没有找到Excel文件: %s", directory)
@@ -182,8 +235,12 @@ class DataProcessor:
                 self.main_window.statusBar_BatteryAnalysis.showMessage(f"[错误]: {error_msg.split(':')[0]}")
             return
         
-        # 查找所有Excel文件
-        excel_files = [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        # 查找所有Excel文件（使用缓存）
+        if input_dir not in self._cache['directory_files']:
+            self.logger.info("扫描目录查找Excel文件: %s", input_dir)
+            self._cache['directory_files'][input_dir] = [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        
+        excel_files = self._cache['directory_files'][input_dir]
         
         # 如果没有找到Excel文件，清除相关控件
         if not excel_files:
@@ -340,18 +397,28 @@ class DataProcessor:
         Returns:
             tuple: (是否有效, 错误消息, 数据框)
         """
+        # 检查缓存
+        cache_key = f"{file_path}:{filename}"
+        if cache_key in self._cache['file_validation']:
+            self.logger.info("从缓存读取文件验证结果: %s", file_path)
+            return self._cache['file_validation'][cache_key]
+        
         from battery_analysis.utils.file_validator import FileValidator
         validator = FileValidator()
         
         # 验证文件名
         is_valid, error_msg = self._validate_excel_filename(filename)
         if not is_valid:
-            return False, error_msg, None
+            result = (False, error_msg, None)
+            self._cache['file_validation'][cache_key] = result
+            return result
         
         # 验证文件是否为空
         is_valid, error_msg = validator.validate_file_not_empty(file_path)
         if not is_valid:
-            return False, error_msg, None
+            result = (False, error_msg, None)
+            self._cache['file_validation'][cache_key] = result
+            return result
         
         try:
             # 尝试读取Excel文件
@@ -363,12 +430,18 @@ class DataProcessor:
             # 验证文件内容
             is_valid, error_msg = self._validate_excel_file_content(df, filename)
             if not is_valid:
-                return False, error_msg, None
+                result = (False, error_msg, None)
+                self._cache['file_validation'][cache_key] = result
+                return result
             
-            return True, "", df
+            result = (True, "", df)
+            self._cache['file_validation'][cache_key] = result
+            return result
             
         except Exception as e:
-            return False, f"Excel文件读取失败: {filename} - {str(e)}", None
+            result = (False, f"Excel文件读取失败: {filename} - {str(e)}", None)
+            self._cache['file_validation'][cache_key] = result
+            return result
     
     def _process_excel_files(self, input_dir, excel_files):
         """处理Excel文件并提取信息"""
@@ -466,22 +539,48 @@ class DataProcessor:
         all_spec_methods = self.main_window.get_config("BatteryConfig/SpecificationMethod")
         
         # 优先匹配最长的规格类型，避免短匹配优先
-        self._set_specification_type(filename, all_spec_types)
+        sorted_spec_types = sorted(enumerate(all_spec_types), key=lambda x: len(x[1]), reverse=True)
+        for t, spec_type in sorted_spec_types:
+            if spec_type in filename:
+                self.main_window.comboBox_Specification_Type.setCurrentIndex(t)
+                break
         
         # 匹配规格方法
-        self._set_specification_method(filename, all_spec_methods)
+        sorted_spec_methods = sorted(enumerate(all_spec_methods), key=lambda x: len(x[1]), reverse=True)
+        for m, method in sorted_spec_methods:
+            if method in filename:
+                self.main_window.comboBox_Specification_Method.setCurrentIndex(m)
+                break
         
         # 匹配制造商
-        self._set_manufacturer(filename)
+        for m in range(self.main_window.comboBox_Manufacturer.count()):
+            if self.main_window.comboBox_Manufacturer.itemText(m) in filename:
+                self.main_window.comboBox_Manufacturer.setCurrentIndex(m)
+                break
         
         # 提取批次日期代码
-        self._extract_batch_date_code(filename)
+        batch_date_codes = re.findall("DC(.*?),", filename)
+        if batch_date_codes:
+            self.main_window.lineEdit_BatchDateCode.setText(batch_date_codes[0].strip())
         
         # 提取脉冲电流
-        self._extract_pulse_current(filename)
+        pulse_current_match = re.search(r"\(([\d.]+[-\d.]+)mA", filename)
+        if pulse_current_match:
+            pulse_current_values = pulse_current_match.group(1).split("-")
+            try:
+                self.main_window.listCurrentLevel = [float(c.strip()) for c in pulse_current_values]
+            except ValueError:
+                self.main_window.listCurrentLevel = [int(float(c.strip())) for c in pulse_current_values]
+            self.main_window.config.setValue("BatteryConfig/PulseCurrent", pulse_current_values)
         
         # 提取恒流电流
-        self._extract_cc_current(filename)
+        self.main_window.cc_current = ""
+        cc_current_match = re.search(r"mA,(.*?)\)", filename)
+        if cc_current_match:
+            cc_current_str = cc_current_match.group(1).replace("mAh", "")
+            cc_current_value = re.search(r"([\d.]+)mA", cc_current_str)
+            if cc_current_value:
+                self.main_window.cc_current = cc_current_value.group(1)
     
     def _set_specification_type(self, filename, all_spec_types):
         """设置规格类型，使用预处理和高效匹配"""
@@ -657,8 +756,12 @@ class DataProcessor:
         )
         
         try:
-            # 查找所有Excel文件
-            excel_files = [f for f in os.listdir(input_path) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+            # 查找所有Excel文件（使用缓存）
+            if input_path not in self._cache['directory_files']:
+                self.logger.info("扫描目录查找Excel文件: %s", input_path)
+                self._cache['directory_files'][input_path] = [f for f in os.listdir(input_path) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+            
+            excel_files = self._cache['directory_files'][input_path]
             
             if not excel_files:
                 self.logger.warning("没有找到Excel文件")

@@ -23,6 +23,58 @@ class FileService(IFileService):
         初始化文件服务
         """
         self.logger = logging.getLogger(__name__)
+        # 初始化缓存，用于存储文件系统操作结果
+        self._cache = {
+            'list_files': {},
+            'get_file_size': {},
+            'is_file_hidden': {},
+            'get_directory_info': {},
+            'get_file_info': {}
+        }
+    
+    def _invalidate_cache(self, path=None):
+        """
+        使缓存失效
+        
+        Args:
+            path: 可选的路径，用于更精确地失效缓存
+        """
+        if path:
+            # 失效与特定路径相关的缓存
+            path_str = str(path)
+            for cache_type in self._cache:
+                if cache_type == 'list_files':
+                    # 失效包含此路径的目录列表缓存
+                    keys_to_remove = []
+                    for key in self._cache[cache_type]:
+                        if path_str in key:
+                            keys_to_remove.append(key)
+                    for key in keys_to_remove:
+                        del self._cache[cache_type][key]
+                elif cache_type in ['get_file_size', 'is_file_hidden', 'get_file_info']:
+                    # 失效特定文件的缓存
+                    if path_str in self._cache[cache_type]:
+                        del self._cache[cache_type][path_str]
+                elif cache_type == 'get_directory_info':
+                    # 失效特定目录的缓存
+                    if path_str in self._cache[cache_type]:
+                        del self._cache[cache_type][path_str]
+        else:
+            # 完全清空缓存
+            self._cache = {
+                'list_files': {},
+                'get_file_size': {},
+                'is_file_hidden': {},
+                'get_directory_info': {},
+                'get_file_info': {}
+            }
+    
+    def clear_cache(self):
+        """
+        清空所有缓存
+        """
+        self._invalidate_cache()
+        self.logger.info("FileService cache cleared")
     
     def create_directory(self, path: Union[str, Path]) -> Tuple[bool, str]:
         """
@@ -38,6 +90,10 @@ class FileService(IFileService):
             directory = Path(path)
             directory.mkdir(parents=True, exist_ok=True)
             self.logger.info("Directory created: %s", path)
+            
+            # 使缓存失效
+            self._invalidate_cache(path)
+            
             return True, ""
             
         except (OSError, PermissionError, IsADirectoryError) as e:
@@ -70,6 +126,10 @@ class FileService(IFileService):
                 dir_path.rmdir()
             
             self.logger.info("Directory deleted: %s", path)
+            
+            # 使缓存失效
+            self._invalidate_cache(path)
+            
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, NotADirectoryError) as e:
@@ -89,6 +149,13 @@ class FileService(IFileService):
             List[str]: 文件名列表
         """
         try:
+            # 构建缓存键
+            cache_key = f"{str(directory)}:{pattern}"
+            
+            # 检查缓存
+            if cache_key in self._cache['list_files']:
+                return self._cache['list_files'][cache_key]
+            
             dir_path = Path(directory)
             if not dir_path.exists() or not dir_path.is_dir():
                 self.logger.error("Directory not found: %s", directory)
@@ -98,6 +165,9 @@ class FileService(IFileService):
                 files = [f.name for f in dir_path.glob(pattern) if f.is_file()]
             else:
                 files = [f.name for f in dir_path.iterdir() if f.is_file()]
+            
+            # 缓存结果
+            self._cache['list_files'][cache_key] = files
             
             return files
             
@@ -116,9 +186,18 @@ class FileService(IFileService):
             Optional[int]: 文件大小，失败返回None
         """
         try:
+            file_path_str = str(file_path)
+            
+            # 检查缓存
+            if file_path_str in self._cache['get_file_size']:
+                return self._cache['get_file_size'][file_path_str]
+            
             path = Path(file_path)
             if path.exists() and path.is_file():
-                return path.stat().st_size
+                size = path.stat().st_size
+                # 缓存结果
+                self._cache['get_file_size'][file_path_str] = size
+                return size
             else:
                 return None
                 
@@ -137,12 +216,23 @@ class FileService(IFileService):
             bool: 文件是否隐藏
         """
         try:
+            file_path_str = str(file_path)
+            
+            # 检查缓存
+            if file_path_str in self._cache['is_file_hidden']:
+                return self._cache['is_file_hidden'][file_path_str]
+            
             import win32api
             import win32con
             
-            path = str(file_path)
+            path = file_path_str
             attrs = win32api.GetFileAttributes(path)
-            return bool(attrs & win32con.FILE_ATTRIBUTE_HIDDEN)
+            hidden = bool(attrs & win32con.FILE_ATTRIBUTE_HIDDEN)
+            
+            # 缓存结果
+            self._cache['is_file_hidden'][file_path_str] = hidden
+            
+            return hidden
             
         except ImportError:
             self.logger.warning("win32api不可用，无法检查文件隐藏属性")
@@ -170,6 +260,11 @@ class FileService(IFileService):
             # 复制文件
             shutil.copy2(source, destination)
             self.logger.info("文件复制成功: %s -> %s", source, destination)
+            
+            # 使缓存失效
+            self._invalidate_cache(source)
+            self._invalidate_cache(destination)
+            
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
@@ -196,6 +291,11 @@ class FileService(IFileService):
             # 移动文件
             shutil.move(str(source), str(destination))
             self.logger.info("文件移动成功: %s -> %s", source, destination)
+            
+            # 使缓存失效
+            self._invalidate_cache(source)
+            self._invalidate_cache(destination)
+            
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
@@ -223,6 +323,10 @@ class FileService(IFileService):
             
             path.unlink()
             self.logger.info("文件删除成功: %s", file_path)
+            
+            # 使缓存失效
+            self._invalidate_cache(file_path)
+            
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
@@ -256,6 +360,10 @@ class FileService(IFileService):
                 win32api.SetFileAttributes(path, current_attrs | win32con.FILE_ATTRIBUTE_READONLY)
             
             self.logger.info("File attributes set for %s: %s", file_path, attributes)
+            
+            # 使缓存失效
+            self._invalidate_cache(file_path)
+            
             return True, ""
             
         except ImportError:
@@ -290,11 +398,15 @@ class FileService(IFileService):
             Dict[str, Any]: 目录信息
         """
         try:
+            # 检查缓存
+            if directory in self._cache['get_directory_info']:
+                return self._cache['get_directory_info'][directory]
+            
             dir_path = Path(directory)
             if not dir_path.exists():
                 return {}
             
-            return {
+            info = {
                 'path': str(dir_path),
                 'exists': True,
                 'is_directory': True,
@@ -304,6 +416,11 @@ class FileService(IFileService):
                 'files': self.list_files(directory),
                 'subdirectories': [str(p) for p in dir_path.iterdir() if p.is_dir()]
             }
+            
+            # 缓存结果
+            self._cache['get_directory_info'][directory] = info
+            
+            return info
             
         except (OSError, PermissionError, FileNotFoundError, NotADirectoryError) as e:
             self.logger.error("Failed to get directory info for %s: %s", directory, e)
@@ -320,12 +437,16 @@ class FileService(IFileService):
             Dict[str, Any]: 文件信息
         """
         try:
+            # 检查缓存
+            if file_path in self._cache['get_file_info']:
+                return self._cache['get_file_info'][file_path]
+            
             path = Path(file_path)
             if not path.exists():
                 return {}
             
             stat = path.stat()
-            return {
+            info = {
                 'path': str(path),
                 'exists': True,
                 'is_directory': False,
@@ -336,6 +457,11 @@ class FileService(IFileService):
                 'name': path.name,
                 'stem': path.stem
             }
+            
+            # 缓存结果
+            self._cache['get_file_info'][file_path] = info
+            
+            return info
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
             self.logger.error("Failed to get file info for %s: %s", file_path, e)
