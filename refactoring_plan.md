@@ -63,9 +63,9 @@
 - **no-else-continue**: continue 语句后不必要的 else 块，可以简化
 
 ## 概述
-- 分析日期: 2026-01-16 10:11:18
-- 总文件数: 127
-- 存在问题的文件数: 127
+- 分析日期: 2026-02-02 16:11:45
+- 总文件数: 217
+- 存在问题的文件数: 217
 
 ## 文件: scripts\build.py
 
@@ -598,9 +598,9 @@
 ## 文件: src\battery_analysis\application\usecases\calculate_battery_use_case.py
 
 ### 问题统计
-- 问题总数: 12
-- 错误(Error): 9
+- 问题总数: 6
 - 警告(Warning): 2
+- 规范(Convention): 3
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -616,61 +616,25 @@
 - 描述: Too many instance attributes (12/7)
 - 符号: too-many-instance-attributes
 
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1123
-- 描述: Unexpected keyword argument 'model' in constructor call
-- 符号: unexpected-keyword-arg
+#### 行 112, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1123
-- 描述: Unexpected keyword argument 'chemistry' in constructor call
-- 符号: unexpected-keyword-arg
+#### 行 112, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (datetime.datetime)
+- 符号: import-outside-toplevel
 
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1120
-- 描述: No value for argument 'model_number' in constructor call
-- 符号: no-value-for-parameter
+#### 行 125, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1120
-- 描述: No value for argument 'production_date' in constructor call
-- 符号: no-value-for-parameter
-
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1120
-- 描述: No value for argument 'battery_type' in constructor call
-- 符号: no-value-for-parameter
-
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1120
-- 描述: No value for argument 'max_voltage' in constructor call
-- 符号: no-value-for-parameter
-
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1120
-- 描述: No value for argument 'min_voltage' in constructor call
-- 符号: no-value-for-parameter
-
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1120
-- 描述: No value for argument 'max_current' in constructor call
-- 符号: no-value-for-parameter
-
-#### 行 112, 列 22
-- 类型: error
-- 代码: E1120
-- 描述: No value for argument 'weight' in constructor call
-- 符号: no-value-for-parameter
-
-#### 行 138, 列 15
+#### 行 144, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -754,7 +718,7 @@
 #### 行 14, 列 0
 - 类型: refactor
 - 代码: R0902
-- 描述: Too many instance attributes (14/7)
+- 描述: Too many instance attributes (15/7)
 - 符号: too-many-instance-attributes
 
 ## 文件: src\battery_analysis\domain\entities\configuration.py
@@ -1075,22 +1039,33 @@
 ## 文件: src\battery_analysis\domain\services\impl\battery_analysis_service_impl.py
 
 ### 问题统计
-- 问题总数: 2
-- 警告(Warning): 1
-- 规范(Convention): 1
+- 问题总数: 4
+- 规范(Convention): 4
 
 ### 详细问题
-#### 行 8, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Optional imported from typing
-- 符号: unused-import
-
-#### 行 164, 列 8
+#### 行 305, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.data_utils.detect_outliers)
 - 符号: import-outside-toplevel
+
+#### 行 482, 列 12
+- 类型: convention
+- 代码: C0206
+- 描述: Consider iterating with .items()
+- 符号: consider-using-dict-items
+
+#### 行 484, 列 12
+- 类型: convention
+- 代码: C0206
+- 描述: Consider iterating with .items()
+- 符号: consider-using-dict-items
+
+#### 行 486, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
 
 ## 文件: src\battery_analysis\domain\services\impl\test_service_impl.py
 
@@ -1444,36 +1419,29 @@
 ## 文件: src\battery_analysis\infrastructure\services\battery_analysis_service_impl.py
 
 ### 问题统计
-- 问题总数: 5
-- 警告(Warning): 1
+- 问题总数: 4
 - 规范(Convention): 4
 
 ### 详细问题
-#### 行 8, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused Optional imported from typing
-- 符号: unused-import
-
-#### 行 213, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 217, 列 8
+#### 行 355, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.data_utils.detect_outliers)
 - 符号: import-outside-toplevel
 
-#### 行 225, 列 0
+#### 行 563, 列 12
 - 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
+- 代码: C0206
+- 描述: Consider iterating with .items()
+- 符号: consider-using-dict-items
 
-#### 行 252, 列 0
+#### 行 565, 列 12
+- 类型: convention
+- 代码: C0206
+- 描述: Consider iterating with .items()
+- 符号: consider-using-dict-items
+
+#### 行 567, 列 0
 - 类型: convention
 - 代码: C0304
 - 描述: Final newline missing
@@ -1482,9 +1450,9 @@
 ## 文件: src\battery_analysis\main\application_initializer.py
 
 ### 问题统计
-- 问题总数: 19
-- 警告(Warning): 17
-- 规范(Convention): 2
+- 问题总数: 18
+- 警告(Warning): 15
+- 规范(Convention): 3
 
 ### 详细问题
 #### 行 8, 列 0
@@ -1493,70 +1461,64 @@
 - 描述: Unused import os
 - 符号: unused-import
 
-#### 行 10, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import tempfile
-- 符号: unused-import
-
-#### 行 12, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import datetime
-- 符号: unused-import
-
-#### 行 25, 列 8
+#### 行 22, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 42, 列 16
+#### 行 39, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.error_report_generator.generate_error_report)
 - 符号: import-outside-toplevel
 
-#### 行 45, 列 20
+#### 行 42, 列 20
 - 类型: warning
 - 代码: W1203
 - 描述: Use lazy % formatting in logging functions
 - 符号: logging-fstring-interpolation
 
-#### 行 46, 列 19
+#### 行 43, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 47, 列 16
+#### 行 44, 列 16
 - 类型: warning
 - 代码: W1203
 - 描述: Use lazy % formatting in logging functions
 - 符号: logging-fstring-interpolation
 
-#### 行 74, 列 19
+#### 行 71, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 75, 列 16
+#### 行 72, 列 16
 - 类型: warning
 - 代码: W1203
 - 描述: Use lazy % formatting in logging functions
 - 符号: logging-fstring-interpolation
 
-#### 行 87, 列 8
+#### 行 84, 列 8
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'qt_message_handler'
 - 符号: unused-variable
 
-#### 行 104, 列 8
+#### 行 101, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.version.Version)
+- 符号: import-outside-toplevel
+
+#### 行 108, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib)
 - 符号: import-outside-toplevel
 
 #### 行 135, 列 15
@@ -1604,439 +1566,643 @@
 ## 文件: src\battery_analysis\main\battery_chart_viewer.py
 
 ### 问题统计
-- 问题总数: 72
-- 警告(Warning): 28
-- 规范(Convention): 21
-- 重构(Refactor): 23
+- 问题总数: 106
+- 警告(Warning): 49
+- 规范(Convention): 30
+- 重构(Refactor): 27
 
 ### 详细问题
 #### 行 1, 列 0
 - 类型: convention
 - 代码: C0302
-- 描述: Too many lines in module (2183/1000)
+- 描述: Too many lines in module (2311/1000)
 - 符号: too-many-lines
 
 #### 行 112, 列 0
 - 类型: refactor
 - 代码: R0902
-- 描述: Too many instance attributes (27/7)
+- 描述: Too many instance attributes (29/7)
 - 符号: too-many-instance-attributes
 
 #### 行 146, 列 23
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'data_path' from outer scope (line 2169)
+- 描述: Redefining name 'data_path' from outer scope (line 2297)
 - 符号: redefined-outer-name
 
-#### 行 220, 列 28
+#### 行 222, 列 28
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'data_path' from outer scope (line 2169)
+- 描述: Redefining name 'data_path' from outer scope (line 2297)
 - 符号: redefined-outer-name
 
-#### 行 401, 列 12
+#### 行 403, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 417, 列 12
+#### 行 419, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 433, 列 12
+#### 行 435, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 480, 列 8
+#### 行 482, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 529, 列 15
+#### 行 504, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (13/12)
+- 符号: too-many-branches
+
+#### 行 504, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (59/50)
+- 符号: too-many-statements
+
+#### 行 531, 列 15
 - 类型: convention
 - 代码: C1805
 - 描述: "file_size == 0" can be simplified to "not file_size", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 538, 列 63
+#### 行 540, 列 63
 - 类型: warning
 - 代码: W0621
-- 描述: Redefining name 'f' from outer scope (line 2141)
+- 描述: Redefining name 'f' from outer scope (line 2269)
 - 符号: redefined-outer-name
 
-#### 行 556, 列 15
+#### 行 558, 列 15
 - 类型: convention
 - 代码: C1805
 - 描述: "self.intBatteryNum == 0" can be simplified to "not self.intBatteryNum", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 623, 列 8
+#### 行 584, 列 16
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'os' from outer scope (line 32)
+- 符号: redefined-outer-name
+
+#### 行 584, 列 16
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'os' (imported line 32)
+- 符号: reimported
+
+#### 行 584, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (os)
+- 符号: import-outside-toplevel
+
+#### 行 585, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (datetime)
+- 符号: import-outside-toplevel
+
+#### 行 591, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 638, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 623, 列 8
+#### 行 638, 列 8
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 625, 列 15
+#### 行 640, 列 15
 - 类型: convention
 - 代码: C1805
 - 描述: "loop == 0" can be simplified to "not loop", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 639, 列 28
+#### 行 654, 列 28
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 686, 列 4
+#### 行 701, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (6/5)
 - 符号: too-many-positional-arguments
 
-#### 行 707, 列 8
+#### 行 722, 列 8
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 726, 列 27
+#### 行 741, 列 27
 - 类型: convention
 - 代码: C1805
 - 描述: "charge_diff == 0" can be simplified to "not charge_diff", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 739, 列 24
+#### 行 754, 列 24
 - 类型: warning
 - 代码: W1203
 - 描述: Use lazy % formatting in logging functions
 - 符号: logging-fstring-interpolation
 
-#### 行 769, 列 4
+#### 行 784, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (24/12)
+- 符号: too-many-branches
+
+#### 行 784, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (67/50)
+- 描述: Too many statements (105/50)
 - 符号: too-many-statements
 
-#### 行 919, 列 22
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'dirs'
-- 符号: unused-variable
-
-#### 行 931, 列 20
+#### 行 790, 列 8
 - 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
+- 代码: R1702
+- 描述: Too many nested blocks (8/5)
+- 符号: too-many-nested-blocks
 
-#### 行 952, 列 20
-- 类型: refactor
-- 代码: R1705
-- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
-- 符号: no-else-return
-
-#### 行 962, 列 12
-- 类型: warning
-- 代码: W0621
-- 描述: Redefining name 'traceback' from outer scope (line 30)
-- 符号: redefined-outer-name
-
-#### 行 962, 列 12
-- 类型: warning
-- 代码: W0404
-- 描述: Reimport 'traceback' (imported line 30)
-- 符号: reimported
-
-#### 行 962, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (traceback)
-- 符号: import-outside-toplevel
-
-#### 行 965, 列 4
-- 类型: refactor
-- 代码: R0915
-- 描述: Too many statements (66/50)
-- 符号: too-many-statements
-
-#### 行 1049, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (datetime)
-- 符号: import-outside-toplevel
-
-#### 行 1098, 列 8
+#### 行 795, 列 12
 - 类型: warning
 - 代码: W0621
 - 描述: Redefining name 'matplotlib' from outer scope (line 37)
 - 符号: redefined-outer-name
 
-#### 行 1098, 列 8
+#### 行 795, 列 12
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'matplotlib' (imported line 37)
 - 符号: reimported
 
-#### 行 1098, 列 8
+#### 行 795, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib)
 - 符号: import-outside-toplevel
 
-#### 行 1099, 列 8
+#### 行 801, 列 12
 - 类型: warning
 - 代码: W0621
 - 描述: Redefining name 'plt' from outer scope (line 38)
 - 符号: redefined-outer-name
 
-#### 行 1099, 列 8
+#### 行 801, 列 12
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'matplotlib.pyplot' (imported line 38)
 - 符号: reimported
 
-#### 行 1099, 列 8
+#### 行 801, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib.pyplot)
 - 符号: import-outside-toplevel
 
-#### 行 1099, 列 8
+#### 行 805, 列 16
 - 类型: warning
-- 代码: W0611
-- 描述: Unused matplotlib.pyplot imported as plt
-- 符号: unused-import
+- 代码: W0621
+- 描述: Redefining name 'os' from outer scope (line 32)
+- 符号: redefined-outer-name
 
-#### 行 1170, 列 16
+#### 行 805, 列 16
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'os' (imported line 32)
+- 符号: reimported
+
+#### 行 805, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (os)
+- 符号: import-outside-toplevel
+
+#### 行 806, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (datetime)
 - 符号: import-outside-toplevel
 
-#### 行 1172, 列 12
+#### 行 818, 列 32
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'QMessageBox' from outer scope (line 35)
+- 符号: redefined-outer-name
+
+#### 行 818, 列 32
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'QMessageBox' (imported line 35)
+- 符号: reimported
+
+#### 行 818, 列 32
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (PyQt6.QtWidgets.QMessageBox)
+- 符号: import-outside-toplevel
+
+#### 行 836, 列 35
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 839, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 861, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 876, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 996, 列 22
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'dirs'
+- 符号: unused-variable
+
+#### 行 1008, 列 20
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
+
+#### 行 1029, 列 20
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
+- 符号: no-else-return
+
+#### 行 1039, 列 12
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'traceback' from outer scope (line 30)
+- 符号: redefined-outer-name
+
+#### 行 1039, 列 12
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'traceback' (imported line 30)
+- 符号: reimported
+
+#### 行 1039, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (traceback)
+- 符号: import-outside-toplevel
+
+#### 行 1042, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (66/50)
+- 符号: too-many-statements
+
+#### 行 1126, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (datetime)
+- 符号: import-outside-toplevel
+
+#### 行 1175, 列 8
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'matplotlib' from outer scope (line 37)
+- 符号: redefined-outer-name
+
+#### 行 1175, 列 8
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'matplotlib' (imported line 37)
+- 符号: reimported
+
+#### 行 1175, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib)
+- 符号: import-outside-toplevel
+
+#### 行 1176, 列 8
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'plt' from outer scope (line 38)
+- 符号: redefined-outer-name
+
+#### 行 1176, 列 8
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'matplotlib.pyplot' (imported line 38)
+- 符号: reimported
+
+#### 行 1176, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib.pyplot)
+- 符号: import-outside-toplevel
+
+#### 行 1176, 列 8
+- 类型: warning
+- 代码: W0611
+- 描述: Unused matplotlib.pyplot imported as plt
+- 符号: unused-import
+
+#### 行 1247, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (datetime)
+- 符号: import-outside-toplevel
+
+#### 行 1249, 列 12
 - 类型: warning
 - 代码: W0702
 - 描述: No exception type(s) specified
 - 符号: bare-except
 
-#### 行 1177, 列 16
+#### 行 1254, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.version.Version)
 - 符号: import-outside-toplevel
 
-#### 行 1217, 列 16
+#### 行 1294, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.version.Version)
 - 符号: import-outside-toplevel
 
-#### 行 1224, 列 4
+#### 行 1301, 列 4
 - 类型: refactor
 - 代码: R1710
 - 描述: Either all return statements in a function should return an expression, or none of them should.
 - 符号: inconsistent-return-statements
 
-#### 行 1313, 列 12
+#### 行 1390, 列 12
 - 类型: warning
 - 代码: W0707
 - 描述: Consider explicitly re-raising using 'raise ImportError(f'PyQt6依赖缺失: {e}. 请确保已正确安装PyQt6') from e'
 - 符号: raise-missing-from
 
-#### 行 1314, 列 15
+#### 行 1391, 列 15
 - 类型: warning
 - 代码: W0705
 - 描述: Catching previously caught exception type ImportError
 - 符号: duplicate-except
 
-#### 行 1396, 列 4
+#### 行 1473, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (10/5)
 - 符号: too-many-positional-arguments
 
-#### 行 1514, 列 16
+#### 行 1593, 列 16
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 1561, 列 8
+#### 行 1640, 列 8
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (threading)
 - 符号: import-outside-toplevel
 
-#### 行 1688, 列 4
+#### 行 1767, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (7/5)
 - 符号: too-many-positional-arguments
 
-#### 行 1731, 列 32
+#### 行 1810, 列 32
 - 类型: warning
 - 代码: W0108
 - 描述: Lambda may not be necessary
 - 符号: unnecessary-lambda
 
-#### 行 1736, 列 32
+#### 行 1815, 列 32
 - 类型: warning
 - 代码: W0108
 - 描述: Lambda may not be necessary
 - 符号: unnecessary-lambda
 
-#### 行 1742, 列 12
+#### 行 1821, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'file_button_states' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1765, 列 4
+#### 行 1851, 列 16
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'plt' from outer scope (line 38)
+- 符号: redefined-outer-name
+
+#### 行 1851, 列 16
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'matplotlib.pyplot' (imported line 38)
+- 符号: reimported
+
+#### 行 1851, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib.pyplot)
+- 符号: import-outside-toplevel
+
+#### 行 1864, 列 20
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 1871, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1875, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 1878, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (7/5)
 - 符号: too-many-positional-arguments
 
-#### 行 1835, 列 0
+#### 行 1948, 列 0
 - 类型: warning
 - 代码: W0311
 - 描述: Bad indentation. Found 24 spaces, expected 20
 - 符号: bad-indentation
 
-#### 行 1847, 列 12
+#### 行 1960, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'filter_button_state' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1896, 列 8
+#### 行 2009, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'battery_button_states' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 1904, 列 4
+#### 行 2017, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (8/5)
 - 符号: too-many-positional-arguments
 
-#### 行 1904, 列 4
+#### 行 2017, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (56/50)
+- 描述: Too many statements (59/50)
 - 符号: too-many-statements
 
-#### 行 1905, 列 38
+#### 行 2018, 列 38
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'check_filter'
 - 符号: unused-argument
 
-#### 行 1965, 列 16
+#### 行 2031, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'battery_button_states' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 2088, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1974, 列 16
+#### 行 2097, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1982, 列 16
+#### 行 2105, 列 16
 - 类型: convention
 - 代码: C0200
 - 描述: Consider using enumerate instead of iterating with range and len
 - 符号: consider-using-enumerate
 
-#### 行 1997, 列 0
+#### 行 2120, 列 0
 - 类型: warning
 - 代码: W0311
 - 描述: Bad indentation. Found 24 spaces, expected 16
 - 符号: bad-indentation
 
-#### 行 2030, 列 4
+#### 行 2124, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'num_valid'
+- 符号: unused-variable
+
+#### 行 2158, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (6/5)
 - 符号: too-many-positional-arguments
 
-#### 行 2037, 列 21
+#### 行 2165, 列 21
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"boxstyle": 'round,pad=0.5', "fc": 'yellow', "alpha": 0.7}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 2038, 列 27
+#### 行 2166, 列 27
 - 类型: refactor
 - 代码: R1735
 - 描述: Consider using '{"arrowstyle": '->'}' instead of a call to 'dict'.
 - 符号: use-dict-literal
 
-#### 行 2043, 列 12
+#### 行 2171, 列 12
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (14/12)
 - 符号: too-many-branches
 
-#### 行 2044, 列 16
+#### 行 2172, 列 16
 - 类型: refactor
 - 代码: R1702
 - 描述: Too many nested blocks (6/5)
 - 符号: too-many-nested-blocks
 
-#### 行 2079, 列 28
+#### 行 2207, 列 28
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'e'
 - 符号: unused-variable
 
-#### 行 2115, 列 4
+#### 行 2243, 列 4
 - 类型: warning
 - 代码: W0105
 - 描述: String statement has no effect
 - 符号: pointless-string-statement
 
-#### 行 2123, 列 4
+#### 行 2251, 列 4
 - 类型: warning
 - 代码: W0404
 - 描述: Reimport 'sys' (imported line 26)
 - 符号: reimported
 
-#### 行 2123, 列 4
+#### 行 2251, 列 4
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package sys are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2124, 列 4
+#### 行 2252, 列 4
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package PyQt6 are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2131, 列 8
+#### 行 2259, 列 8
 - 类型: convention
 - 代码: C0412
 - 描述: Imports from package battery_analysis are not grouped
 - 符号: ungrouped-imports
 
-#### 行 2131, 列 8
+#### 行 2259, 列 8
 - 类型: warning
 - 代码: W0611
 - 描述: Unused apply_modern_theme imported from battery_analysis.ui.styles.style_manager
@@ -2058,10 +2224,11 @@
 ## 文件: src\battery_analysis\main\business_logic\data_processor.py
 
 ### 问题统计
-- 问题总数: 13
+- 问题总数: 31
 - 错误(Error): 1
-- 警告(Warning): 9
-- 规范(Convention): 3
+- 警告(Warning): 15
+- 规范(Convention): 13
+- 重构(Refactor): 2
 
 ### 详细问题
 #### 行 9, 列 0
@@ -2076,67 +2243,175 @@
 - 描述: Unused Path imported from pathlib
 - 符号: unused-import
 
-#### 行 64, 列 15
+#### 行 142, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 89, 列 12
+#### 行 171, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (concurrent.futures.ProcessPoolExecutor, concurrent.futures.as_completed)
 - 符号: import-outside-toplevel
 
-#### 行 110, 列 15
+#### 行 172, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.resource_manager.ResourceManager)
+- 符号: import-outside-toplevel
+
+#### 行 197, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 227, 列 19
+#### 行 225, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.file_validator.FileValidator)
+- 符号: import-outside-toplevel
+
+#### 行 235, 列 84
+- 类型: convention
+- 代码: C0207
+- 描述: Use error_msg.split(':', maxsplit=1)[0] instead
+- 符号: use-maxsplit-arg
+
+#### 行 323, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.file_validator.FileValidator)
+- 符号: import-outside-toplevel
+
+#### 行 344, 列 11
+- 类型: convention
+- 代码: C1805
+- 描述: "len(df.columns) == 0" can be simplified to "not len(df.columns)", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 348, 列 11
+- 类型: convention
+- 代码: C1805
+- 描述: "len(df) == 0" can be simplified to "not len(df)", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 355, 列 11
+- 类型: convention
+- 代码: C1805
+- 描述: "len(numeric_columns) == 0" can be simplified to "not len(numeric_columns)", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 363, 列 16
+- 类型: warning
+- 代码: W0702
+- 描述: No exception type(s) specified
+- 符号: bare-except
+
+#### 行 368, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 371, 列 16
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 384, 列 12
+- 类型: warning
+- 代码: W1203
+- 描述: Use lazy % formatting in logging functions
+- 符号: logging-fstring-interpolation
+
+#### 行 406, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.file_validator.FileValidator)
+- 符号: import-outside-toplevel
+
+#### 行 441, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 406, 列 12
+#### 行 477, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 499, 列 16
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (PyQt6.QtWidgets.QMessageBox)
+- 符号: import-outside-toplevel
+
+#### 行 508, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 526, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (13/12)
+- 符号: too-many-branches
+
+#### 行 713, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.main_window.Checker)
 - 符号: import-outside-toplevel
 
-#### 行 406, 列 12
+#### 行 713, 列 12
 - 类型: error
 - 代码: E0611
 - 描述: No name 'Checker' in module 'battery_analysis.main.main_window'
 - 符号: no-name-in-module
 
-#### 行 465, 列 12
+#### 行 737, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (51/50)
+- 符号: too-many-statements
+
+#### 行 776, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (concurrent.futures.ProcessPoolExecutor, concurrent.futures.as_completed)
 - 符号: import-outside-toplevel
 
-#### 行 487, 列 23
+#### 行 818, 列 23
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 539, 列 15
+#### 行 825, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.resource_manager.ResourceManager)
+- 符号: import-outside-toplevel
+
+#### 行 875, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 613, 列 8
+#### 行 949, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute '_error_option' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 637, 列 8
+#### 行 973, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute '_error_option' defined outside __init__
@@ -2342,13 +2617,13 @@
 #### 行 39, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (14/12)
+- 描述: Too many branches (17/12)
 - 符号: too-many-branches
 
 #### 行 39, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (67/50)
+- 描述: Too many statements (80/50)
 - 符号: too-many-statements
 
 #### 行 59, 列 16
@@ -2381,79 +2656,79 @@
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 108, 列 20
+#### 行 127, 列 20
 - 类型: refactor
 - 代码: R1732
 - 描述: Consider using 'with' for resource-allocating operations
 - 符号: consider-using-with
 
-#### 行 117, 列 27
+#### 行 136, 列 27
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _get_service of a client class
 - 符号: protected-access
 
-#### 行 123, 列 20
+#### 行 142, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32api)
 - 符号: import-outside-toplevel
 
-#### 行 124, 列 20
+#### 行 143, 列 20
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32con)
 - 符号: import-outside-toplevel
 
-#### 行 131, 列 4
+#### 行 150, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (23/12)
 - 符号: too-many-branches
 
-#### 行 131, 列 4
+#### 行 150, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (80/50)
 - 符号: too-many-statements
 
-#### 行 183, 列 32
+#### 行 202, 列 32
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'version_major'
 - 符号: unused-variable
 
-#### 行 184, 列 32
+#### 行 203, 列 32
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'version_minor'
 - 符号: unused-variable
 
-#### 行 207, 列 35
+#### 行 226, 列 35
 - 类型: warning
 - 代码: W0212
 - 描述: Access to a protected member _get_service of a client class
 - 符号: protected-access
 
-#### 行 215, 列 28
+#### 行 234, 列 28
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32api)
 - 符号: import-outside-toplevel
 
-#### 行 216, 列 28
+#### 行 235, 列 28
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32con)
 - 符号: import-outside-toplevel
 
-#### 行 224, 列 23
+#### 行 243, 列 23
 - 类型: warning
 - 代码: W0705
 - 描述: Catching previously caught exception type PermissionError
 - 符号: duplicate-except
 
-#### 行 246, 列 23
+#### 行 265, 列 23
 - 类型: warning
 - 代码: W0705
 - 描述: Catching previously caught exception type PermissionError
@@ -2534,13 +2809,13 @@
 - 描述: Unused QtGui imported from PyQt6 as QG
 - 符号: unused-import
 
-#### 行 64, 列 16
+#### 行 72, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib.pyplot)
 - 符号: import-outside-toplevel
 
-#### 行 110, 列 4
+#### 行 118, 列 4
 - 类型: refactor
 - 代码: R0915
 - 描述: Too many statements (52/50)
@@ -2904,22 +3179,22 @@
 ## 文件: src\battery_analysis\main\controllers\visualizer_controller.py
 
 ### 问题统计
-- 问题总数: 12
-- 警告(Warning): 3
-- 规范(Convention): 5
-- 重构(Refactor): 4
+- 问题总数: 18
+- 警告(Warning): 6
+- 规范(Convention): 7
+- 重构(Refactor): 5
 
 ### 详细问题
 #### 行 99, 列 4
 - 类型: refactor
 - 代码: R0912
-- 描述: Too many branches (33/12)
+- 描述: Too many branches (41/12)
 - 符号: too-many-branches
 
 #### 行 99, 列 4
 - 类型: refactor
 - 代码: R0915
-- 描述: Too many statements (108/50)
+- 描述: Too many statements (130/50)
 - 符号: too-many-statements
 
 #### 行 109, 列 8
@@ -2934,49 +3209,85 @@
 - 描述: Too many nested blocks (7/5)
 - 符号: too-many-nested-blocks
 
-#### 行 111, 列 12
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (matplotlib)
-- 符号: import-outside-toplevel
+#### 行 109, 列 8
+- 类型: refactor
+- 代码: R1702
+- 描述: Too many nested blocks (7/5)
+- 符号: too-many-nested-blocks
 
-#### 行 118, 列 28
-- 类型: convention
-- 代码: C1804
-- 描述: "xml_path != ''" can be simplified to "xml_path", if it is strictly a string, as an empty string is falsey
-- 符号: use-implicit-booleaness-not-comparison-to-string
-
-#### 行 253, 列 26
-- 类型: warning
-- 代码: W0612
-- 描述: Unused variable 'dirs'
-- 符号: unused-variable
-
-#### 行 282, 列 12
-- 类型: warning
-- 代码: W0719
-- 描述: Raising too general exception: Exception
-- 符号: broad-exception-raised
-
-#### 行 314, 列 8
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (matplotlib)
-- 符号: import-outside-toplevel
-
-#### 行 315, 列 8
+#### 行 116, 列 24
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib.pyplot)
 - 符号: import-outside-toplevel
 
-#### 行 315, 列 8
+#### 行 122, 列 24
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _cleanup_matplotlib_state of a client class
+- 符号: protected-access
+
+#### 行 127, 列 28
+- 类型: convention
+- 代码: C0200
+- 描述: Consider using enumerate instead of iterating with range and len
+- 符号: consider-using-enumerate
+
+#### 行 133, 列 31
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 139, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 143, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib)
+- 符号: import-outside-toplevel
+
+#### 行 150, 列 28
+- 类型: convention
+- 代码: C1804
+- 描述: "xml_path != ''" can be simplified to "xml_path", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
+
+#### 行 285, 列 26
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'dirs'
+- 符号: unused-variable
+
+#### 行 314, 列 12
+- 类型: warning
+- 代码: W0719
+- 描述: Raising too general exception: Exception
+- 符号: broad-exception-raised
+
+#### 行 346, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib)
+- 符号: import-outside-toplevel
+
+#### 行 347, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (matplotlib.pyplot)
+- 符号: import-outside-toplevel
+
+#### 行 347, 列 8
 - 类型: warning
 - 代码: W0611
 - 描述: Unused matplotlib.pyplot imported as plt
 - 符号: unused-import
 
-#### 行 356, 列 12
+#### 行 388, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (matplotlib.pyplot)
@@ -3030,9 +3341,10 @@
 ## 文件: src\battery_analysis\main\factories\visualizer_factory.py
 
 ### 问题统计
-- 问题总数: 6
+- 问题总数: 9
 - 警告(Warning): 4
-- 规范(Convention): 2
+- 规范(Convention): 1
+- 重构(Refactor): 4
 
 ### 详细问题
 #### 行 10, 列 0
@@ -3041,35 +3353,53 @@
 - 描述: Unused Any imported from typing
 - 符号: unused-import
 
-#### 行 129, 列 20
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _search_for_data_files of a client class
-- 符号: protected-access
+#### 行 108, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (38/12)
+- 符号: too-many-branches
 
-#### 行 133, 列 16
-- 类型: warning
-- 代码: W0212
-- 描述: Access to a protected member _search_for_data_files of a client class
-- 符号: protected-access
+#### 行 108, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (108/50)
+- 符号: too-many-statements
 
-#### 行 140, 列 20
+#### 行 119, 列 8
+- 类型: refactor
+- 代码: R1702
+- 描述: Too many nested blocks (10/5)
+- 符号: too-many-nested-blocks
+
+#### 行 119, 列 8
+- 类型: refactor
+- 代码: R1702
+- 描述: Too many nested blocks (8/5)
+- 符号: too-many-nested-blocks
+
+#### 行 126, 列 16
+- 类型: warning
+- 代码: W0621
+- 描述: Redefining name 'os' from outer scope (line 9)
+- 符号: redefined-outer-name
+
+#### 行 126, 列 16
+- 类型: warning
+- 代码: W0404
+- 描述: Reimport 'os' (imported line 9)
+- 符号: reimported
+
+#### 行 126, 列 16
 - 类型: convention
 - 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.main.controllers.main_controller.MainController)
+- 描述: Import outside toplevel (os)
 - 符号: import-outside-toplevel
 
-#### 行 140, 列 20
+#### 行 240, 列 31
 - 类型: warning
-- 代码: W0611
-- 描述: Unused MainController imported from battery_analysis.main.controllers.main_controller
-- 符号: unused-import
-
-#### 行 141, 列 20
-- 类型: convention
-- 代码: C0415
-- 描述: Import outside toplevel (battery_analysis.main.services.service_container.get_service_container)
-- 符号: import-outside-toplevel
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
 ## 文件: src\battery_analysis\main\handlers\temperature_handler.py
 
@@ -3107,23 +3437,42 @@
 ## 文件: src\battery_analysis\main\initialization\initialization_orchestrator.py
 
 ### 问题统计
-- 问题总数: 3
-- 警告(Warning): 3
+- 问题总数: 6
+- 警告(Warning): 5
+- 重构(Refactor): 1
 
 ### 详细问题
-#### 行 9, 列 0
+#### 行 10, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Any imported from typing
 - 符号: unused-import
 
-#### 行 83, 列 12
+#### 行 43, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (14/12)
+- 符号: too-many-branches
+
+#### 行 112, 列 24
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'e'
 - 符号: unused-variable
 
-#### 行 83, 列 19
+#### 行 112, 列 31
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 142, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 142, 列 15
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
@@ -3227,23 +3576,11 @@
 ## 文件: src\battery_analysis\main\initialization\steps\environment_initialization_step.py
 
 ### 问题统计
-- 问题总数: 5
+- 问题总数: 3
 - 警告(Warning): 2
-- 规范(Convention): 3
+- 规范(Convention): 1
 
 ### 详细问题
-#### 行 31, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 46, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 49, 列 16
 - 类型: convention
 - 代码: C0415
@@ -3497,8 +3834,8 @@
 
 ### 问题统计
 - 问题总数: 19
-- 警告(Warning): 14
-- 规范(Convention): 1
+- 警告(Warning): 10
+- 规范(Convention): 5
 - 重构(Refactor): 4
 
 ### 详细问题
@@ -3508,109 +3845,109 @@
 - 描述: Unused import os
 - 符号: unused-import
 
-#### 行 15, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import re
-- 符号: unused-import
-
 #### 行 17, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import time
-- 符号: unused-import
-
-#### 行 19, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Path imported from pathlib
 - 符号: unused-import
 
-#### 行 20, 列 0
+#### 行 18, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused Any imported from typing
 - 符号: unused-import
 
-#### 行 23, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused import matplotlib
-- 符号: unused-import
-
-#### 行 29, 列 0
-- 类型: warning
-- 代码: W0611
-- 描述: Unused get_language_manager imported from battery_analysis.i18n.language_manager
-- 符号: unused-import
-
-#### 行 32, 列 0
+#### 行 27, 列 0
 - 类型: warning
 - 代码: W0611
 - 描述: Unused resources_rc imported from battery_analysis.resources
 - 符号: unused-import
 
-#### 行 41, 列 0
+#### 行 36, 列 0
 - 类型: refactor
 - 代码: R0904
 - 描述: Too many public methods (45/20)
 - 符号: too-many-public-methods
 
-#### 行 67, 列 12
+#### 行 62, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listCurrentLevel' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 70, 列 12
+#### 行 65, 列 12
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listCurrentLevel' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 72, 列 8
+#### 行 67, 列 8
 - 类型: warning
 - 代码: W0201
 - 描述: Attribute 'listVoltageLevel' defined outside __init__
 - 符号: attribute-defined-outside-init
 
-#### 行 120, 列 19
+#### 行 115, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 232, 列 8
+#### 行 174, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.main.utils.FileUtils)
+- 符号: import-outside-toplevel
+
+#### 行 175, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.i18n.language_manager._)
+- 符号: import-outside-toplevel
+
+#### 行 202, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.i18n.language_manager._)
+- 符号: import-outside-toplevel
+
+#### 行 221, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.i18n.language_manager._)
+- 符号: import-outside-toplevel
+
+#### 行 237, 列 8
 - 类型: warning
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
 
-#### 行 308, 列 11
+#### 行 313, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 314, 列 11
+#### 行 319, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 320, 列 11
+#### 行 325, 列 11
 - 类型: refactor
 - 代码: R1701
 - 描述: Consider merging these isinstance calls to isinstance(focused_widget, (QW.QLineEdit, QW.QTextEdit))
 - 符号: consider-merging-isinstance
 
-#### 行 423, 列 42
+#### 行 428, 列 42
 - 类型: warning
 - 代码: W0613
 - 描述: Unused argument 'index'
 - 符号: unused-argument
 
-#### 行 529, 列 4
+#### 行 534, 列 4
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.application_initializer.ApplicationInitializer)
@@ -3708,9 +4045,10 @@
 ## 文件: src\battery_analysis\main\managers\path_manager.py
 
 ### 问题统计
-- 问题总数: 4
-- 警告(Warning): 2
-- 规范(Convention): 2
+- 问题总数: 13
+- 警告(Warning): 5
+- 规范(Convention): 7
+- 重构(Refactor): 1
 
 ### 详细问题
 #### 行 4, 列 0
@@ -3719,19 +4057,73 @@
 - 描述: Unused Path imported from pathlib
 - 符号: unused-import
 
-#### 行 93, 列 15
+#### 行 33, 列 4
+- 类型: refactor
+- 代码: R0911
+- 描述: Too many return statements (7/6)
+- 符号: too-many-return-statements
+
+#### 行 43, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.file_validator.FileValidator)
+- 符号: import-outside-toplevel
+
+#### 行 85, 列 12
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (xml.etree.ElementTree)
+- 符号: import-outside-toplevel
+
+#### 行 98, 列 12
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'e'
+- 符号: unused-variable
+
+#### 行 98, 列 19
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 162, 列 11
+#### 行 123, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 162, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 189, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.file_validator.FileValidator)
+- 符号: import-outside-toplevel
+
+#### 行 240, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.file_validator.FileValidator)
+- 符号: import-outside-toplevel
+
+#### 行 246, 列 11
 - 类型: convention
 - 代码: C1804
 - 描述: "selected_dir != ''" can be simplified to "selected_dir", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
 
-#### 行 175, 列 11
+#### 行 267, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.utils.file_validator.FileValidator)
+- 符号: import-outside-toplevel
+
+#### 行 273, 列 11
 - 类型: convention
 - 代码: C1804
 - 描述: "selected_dir != ''" can be simplified to "selected_dir", if it is strictly a string, as an empty string is falsey
@@ -3795,7 +4187,7 @@
 - 规范(Convention): 1
 
 ### 详细问题
-#### 行 70, 列 12
+#### 行 78, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.dialogs.data_error_dialog.DataErrorRecoveryDialog)
@@ -3936,9 +4328,9 @@
 ## 文件: src\battery_analysis\main\services\config_service.py
 
 ### 问题统计
-- 问题总数: 12
+- 问题总数: 10
 - 警告(Warning): 8
-- 规范(Convention): 3
+- 规范(Convention): 1
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -3996,30 +4388,17 @@
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 210, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 #### 行 222, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.utils.config_utils.find_config_file)
 - 符号: import-outside-toplevel
 
-#### 行 227, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
 ## 文件: src\battery_analysis\main\services\config_service_interface.py
 
 ### 问题统计
-- 问题总数: 10
+- 问题总数: 8
 - 警告(Warning): 8
-- 规范(Convention): 2
 
 ### 详细问题
 #### 行 31, 列 8
@@ -4063,18 +4442,6 @@
 - 代码: W0107
 - 描述: Unnecessary pass statement
 - 符号: unnecessary-pass
-
-#### 行 106, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
-
-#### 行 118, 列 0
-- 类型: convention
-- 代码: C0327
-- 描述: Mixed line endings LF and CRLF
-- 符号: mixed-line-endings
 
 #### 行 118, 列 8
 - 类型: warning
@@ -4312,9 +4679,9 @@
 ## 文件: src\battery_analysis\main\services\file_service.py
 
 ### 问题统计
-- 问题总数: 6
+- 问题总数: 7
 - 警告(Warning): 1
-- 规范(Convention): 4
+- 规范(Convention): 5
 - 重构(Refactor): 1
 
 ### 详细问题
@@ -4324,31 +4691,37 @@
 - 描述: Unused import os
 - 符号: unused-import
 
-#### 行 120, 列 12
+#### 行 45, 列 12
+- 类型: convention
+- 代码: C0206
+- 描述: Consider iterating with .items()
+- 符号: consider-using-dict-items
+
+#### 行 196, 列 12
 - 类型: refactor
 - 代码: R1705
 - 描述: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it
 - 符号: no-else-return
 
-#### 行 140, 列 12
+#### 行 225, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32api)
 - 符号: import-outside-toplevel
 
-#### 行 141, 列 12
+#### 行 226, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32con)
 - 符号: import-outside-toplevel
 
-#### 行 245, 列 12
+#### 行 349, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32api)
 - 符号: import-outside-toplevel
 
-#### 行 246, 列 12
+#### 行 350, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (win32con)
@@ -4513,12 +4886,18 @@
 ## 文件: src\battery_analysis\main\services\service_container.py
 
 ### 问题统计
-- 问题总数: 32
-- 警告(Warning): 10
-- 规范(Convention): 20
+- 问题总数: 46
+- 警告(Warning): 18
+- 规范(Convention): 26
 - 重构(Refactor): 2
 
 ### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0302
+- 描述: Too many lines in module (1001/1000)
+- 符号: too-many-lines
+
 #### 行 12, 列 0
 - 类型: warning
 - 代码: W0611
@@ -4564,152 +4943,230 @@
 #### 行 103, 列 0
 - 类型: refactor
 - 代码: R0902
-- 描述: Too many instance attributes (8/7)
+- 描述: Too many instance attributes (11/7)
 - 符号: too-many-instance-attributes
 
-#### 行 163, 列 12
+#### 行 112, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (time)
+- 符号: import-outside-toplevel
+
+#### 行 170, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.config_service.ConfigService)
 - 符号: import-outside-toplevel
 
-#### 行 164, 列 12
+#### 行 171, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.event_bus.EventBus)
 - 符号: import-outside-toplevel
 
-#### 行 165, 列 12
+#### 行 172, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.environment_service.EnvironmentService)
 - 符号: import-outside-toplevel
 
-#### 行 166, 列 12
+#### 行 173, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.file_service.FileService)
 - 符号: import-outside-toplevel
 
-#### 行 167, 列 12
+#### 行 174, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.i18n_service.I18nService)
 - 符号: import-outside-toplevel
 
-#### 行 168, 列 12
+#### 行 175, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.progress_service.ProgressService)
 - 符号: import-outside-toplevel
 
-#### 行 169, 列 12
+#### 行 176, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.validation_service.ValidationService)
 - 符号: import-outside-toplevel
 
-#### 行 190, 列 16
+#### 行 197, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.infrastructure.repositories.battery_repository_impl.BatteryRepositoryImpl)
 - 符号: import-outside-toplevel
 
-#### 行 191, 列 16
+#### 行 198, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.infrastructure.services.battery_analysis_service_impl.BatteryAnalysisServiceImpl)
 - 符号: import-outside-toplevel
 
-#### 行 214, 列 12
+#### 行 221, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.application.usecases.calculate_battery_use_case.CalculateBatteryUseCase)
 - 符号: import-outside-toplevel
 
-#### 行 215, 列 12
+#### 行 222, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.application.usecases.analyze_data_use_case.AnalyzeDataUseCase)
 - 符号: import-outside-toplevel
 
-#### 行 216, 列 12
+#### 行 223, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.application.usecases.generate_report_use_case.GenerateReportUseCase)
 - 符号: import-outside-toplevel
 
-#### 行 263, 列 12
+#### 行 270, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.services.application_service.ApplicationService)
 - 符号: import-outside-toplevel
 
-#### 行 283, 列 12
+#### 行 290, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.file_controller.FileController)
 - 符号: import-outside-toplevel
 
-#### 行 284, 列 12
+#### 行 291, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.main_controller.MainController)
 - 符号: import-outside-toplevel
 
-#### 行 285, 列 12
+#### 行 292, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.validation_controller.ValidationController)
 - 符号: import-outside-toplevel
 
-#### 行 286, 列 12
+#### 行 293, 列 12
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.controllers.visualizer_controller.VisualizerController)
 - 符号: import-outside-toplevel
 
-#### 行 418, 列 4
+#### 行 403, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (time)
+- 符号: import-outside-toplevel
+
+#### 行 449, 列 4
 - 类型: refactor
 - 代码: R0912
 - 描述: Too many branches (13/12)
 - 符号: too-many-branches
 
-#### 行 523, 列 0
+#### 行 554, 列 0
 - 类型: convention
 - 代码: C0206
 - 描述: Consider iterating with .items()
 - 符号: consider-using-dict-items
 
-#### 行 523, 列 47
+#### 行 554, 列 47
 - 类型: convention
 - 代码: C1805
 - 描述: "in_degree[node] == 0" can be simplified to "not in_degree[node]", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 533, 列 19
+#### 行 564, 列 19
 - 类型: convention
 - 代码: C1805
 - 描述: "in_degree[neighbor] == 0" can be simplified to "not in_degree[neighbor]", if it is strictly an int, as 0 is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-zero
 
-#### 行 609, 列 18
+#### 行 640, 列 18
 - 类型: warning
 - 代码: W0612
 - 描述: Unused variable 'service_class'
 - 符号: unused-variable
 
-#### 行 710, 列 4
+#### 行 710, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (time)
+- 符号: import-outside-toplevel
+
+#### 行 746, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (time)
+- 符号: import-outside-toplevel
+
+#### 行 767, 列 31
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 782, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 797, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (time)
+- 符号: import-outside-toplevel
+
+#### 行 826, 列 4
 - 类型: warning
 - 代码: W0603
 - 描述: Using the global statement
 - 符号: global-statement
 
-#### 行 723, 列 4
+#### 行 839, 列 4
 - 类型: warning
 - 代码: W0603
 - 描述: Using the global statement
 - 符号: global-statement
+
+#### 行 902, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 909, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 918, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 985, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 992, 列 27
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 994, 列 19
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
 
 ## 文件: src\battery_analysis\main\services\validation_service.py
 
@@ -4833,9 +5290,9 @@
 ## 文件: src\battery_analysis\main\ui_components\config_manager.py
 
 ### 问题统计
-- 问题总数: 14
-- 警告(Warning): 6
-- 规范(Convention): 6
+- 问题总数: 19
+- 警告(Warning): 9
+- 规范(Convention): 8
 - 重构(Refactor): 2
 
 ### 详细问题
@@ -4917,11 +5374,41 @@
 - 描述: Import outside toplevel (PyQt6.QtWidgets)
 - 符号: import-outside-toplevel
 
+#### 行 301, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
+
+#### 行 301, 列 28
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'test_info'
+- 符号: unused-argument
+
 #### 行 311, 列 16
 - 类型: convention
 - 代码: C0415
 - 描述: Import outside toplevel (battery_analysis.main.utils.Checker)
 - 符号: import-outside-toplevel
+
+#### 行 322, 列 12
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'strPulseCurrent'
+- 符号: unused-variable
+
+#### 行 341, 列 29
+- 类型: warning
+- 代码: W0613
+- 描述: Unused argument 'strTestDate'
+- 符号: unused-argument
+
+#### 行 353, 列 0
+- 类型: convention
+- 代码: C0327
+- 描述: Mixed line endings LF and CRLF
+- 符号: mixed-line-endings
 
 ## 文件: src\battery_analysis\main\ui_components\dialog_manager.py
 
@@ -7691,6 +8178,39 @@
 - 描述: Missing module docstring
 - 符号: missing-module-docstring
 
+## 文件: src\battery_analysis\utils\file_validator.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 1
+- 规范(Convention): 1
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Optional imported from typing
+- 符号: unused-import
+
+#### 行 103, 列 11
+- 类型: convention
+- 代码: C1805
+- 描述: "os.path.getsize(file_path) == 0" can be simplified to "not os.path.getsize(file_path)", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 158, 列 4
+- 类型: refactor
+- 代码: R0911
+- 描述: Too many return statements (7/6)
+- 符号: too-many-return-statements
+
+#### 行 315, 列 4
+- 类型: refactor
+- 代码: R0911
+- 描述: Too many return statements (7/6)
+- 符号: too-many-return-statements
+
 ## 文件: src\battery_analysis\utils\file_writer.py
 
 ### 问题统计
@@ -8450,10 +8970,10 @@
 ## 文件: src\battery_analysis\utils\parallel_utils.py
 
 ### 问题统计
-- 问题总数: 7
-- 警告(Warning): 3
+- 问题总数: 12
+- 警告(Warning): 5
 - 规范(Convention): 1
-- 重构(Refactor): 3
+- 重构(Refactor): 6
 
 ### 详细问题
 #### 行 8, 列 0
@@ -8474,25 +8994,55 @@
 - 描述: Redefining built-in 'id'
 - 符号: redefined-builtin
 
-#### 行 126, 列 23
+#### 行 111, 列 4
+- 类型: refactor
+- 代码: R0912
+- 描述: Too many branches (26/12)
+- 符号: too-many-branches
+
+#### 行 111, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (82/50)
+- 符号: too-many-statements
+
+#### 行 175, 列 35
 - 类型: warning
 - 代码: W0718
 - 描述: Catching too general exception Exception
 - 符号: broad-exception-caught
 
-#### 行 168, 列 4
+#### 行 183, 列 24
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'i'
+- 符号: unused-variable
+
+#### 行 228, 列 23
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 288, 列 4
 - 类型: refactor
 - 代码: R0917
-- 描述: Too many positional arguments (7/5)
+- 描述: Too many positional arguments (8/5)
 - 符号: too-many-positional-arguments
 
-#### 行 270, 列 0
+#### 行 336, 列 4
 - 类型: refactor
 - 代码: R0917
 - 描述: Too many positional arguments (6/5)
 - 符号: too-many-positional-arguments
 
-#### 行 302, 列 0
+#### 行 396, 列 0
+- 类型: refactor
+- 代码: R0917
+- 描述: Too many positional arguments (7/5)
+- 符号: too-many-positional-arguments
+
+#### 行 430, 列 0
 - 类型: convention
 - 代码: C0304
 - 描述: Final newline missing
@@ -8548,39 +9098,5501 @@
 - 描述: Suppressed 'protected-access' (from line 107)
 - 符号: suppressed-message
 
-## 文件: tests\battery_analysis\main\test_main_window.py
+## 文件: tests\battery_analysis\application\usecases\test_analyze_data_use_case.py
 
 ### 问题统计
-- 问题总数: 3
-- 信息(Info): 3
+- 问题总数: 22
+- 警告(Warning): 14
+- 规范(Convention): 7
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "tempfile" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "os" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import os
+- 符号: unused-import
+
+#### 行 9, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 11, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused AnalyzeDataOutput imported from battery_analysis.application.usecases.analyze_data_use_case
+- 符号: unused-import
+
+#### 行 23, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_battery_repository' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 24, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_battery_analysis_service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 27, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'use_case' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 33, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'temp_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 33, 列 24
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
+
+#### 行 34, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'input_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 35, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'output_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 92, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result.processed_files == 0" can be simplified to "not result.processed_files", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 93, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result.analyzed_batteries == 0" can be simplified to "not result.analyzed_batteries", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 110, 列 22
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _find_excel_files of a client class
+- 符号: protected-access
+
+#### 行 127, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (pandas)
+- 符号: import-outside-toplevel
+
+#### 行 149, 列 17
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _process_excel_file of a client class
+- 符号: protected-access
+
+#### 行 186, 列 22
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _create_battery_entity of a client class
+- 符号: protected-access
+
+#### 行 189, 列 15
+- 类型: warning
+- 代码: W0718
+- 描述: Catching too general exception Exception
+- 符号: broad-exception-caught
+
+#### 行 219, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'result'
+- 符号: unused-variable
+
+## 文件: tests\battery_analysis\application\usecases\test_calculate_battery_use_case.py
+
+### 问题统计
+- 问题总数: 7
+- 警告(Warning): 5
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused CalculateBatteryOutput imported from battery_analysis.application.usecases.calculate_battery_use_case
+- 符号: unused-import
+
+#### 行 20, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_battery_repository' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 21, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_battery_analysis_service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 24, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'use_case' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 182, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "len(errors) == 0" can be simplified to "not len(errors)", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+## 文件: tests\battery_analysis\application\usecases\test_generate_report_use_case.py
+
+### 问题统计
+- 问题总数: 13
+- 警告(Warning): 8
+- 规范(Convention): 4
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "tempfile" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "os" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 9, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 11, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused GenerateReportOutput imported from battery_analysis.application.usecases.generate_report_use_case
+- 符号: unused-import
+
+#### 行 14, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Battery imported from battery_analysis.domain.entities.battery
+- 符号: unused-import
+
+#### 行 23, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_battery_repository' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'use_case' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 31, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'temp_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 31, 列 24
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
+
+#### 行 32, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'output_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 33, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'data_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+## 文件: tests\battery_analysis\domain\entities\test_battery.py
+
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
 
 ### 详细问题
 #### 行 7, 列 0
-- 类型: info
-- 代码: I0011
-- 描述: Locally disabling import-error (E0401)
-- 符号: locally-disabled
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "datetime.datetime" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+## 文件: tests\battery_analysis\domain\entities\test_configuration.py
+
+### 问题统计
+- 问题总数: 2
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "tempfile" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+## 文件: tests\battery_analysis\domain\entities\test_test_profile.py
+
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 37, 列 11
+- 类型: convention
+- 代码: C1805
+- 描述: "test_profile.min_temperature == 0.0" can be simplified to "not test_profile.min_temperature", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+## 文件: tests\battery_analysis\domain\entities\test_test_result.py
+
+### 问题统计
+- 问题总数: 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "datetime.datetime" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+## 文件: tests\battery_analysis\domain\repositories\test_battery_repository.py
+
+### 问题统计
+- 问题总数: 10
+- 警告(Warning): 1
+- 规范(Convention): 9
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.battery_repository.BatteryRepository)
+- 符号: import-outside-toplevel
+
+#### 行 20, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.battery_repository.BatteryRepository)
+- 符号: import-outside-toplevel
+
+#### 行 21, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.entities.battery.Battery)
+- 符号: import-outside-toplevel
+
+#### 行 30, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.battery_repository.BatteryRepository)
+- 符号: import-outside-toplevel
+
+#### 行 39, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.battery_repository.BatteryRepository)
+- 符号: import-outside-toplevel
+
+#### 行 47, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.battery_repository.BatteryRepository)
+- 符号: import-outside-toplevel
+
+#### 行 52, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\domain\repositories\test_configuration_repository.py
+
+### 问题统计
+- 问题总数: 9
+- 警告(Warning): 1
+- 规范(Convention): 8
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.configuration_repository.ConfigurationRepository)
+- 符号: import-outside-toplevel
+
+#### 行 19, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.configuration_repository.ConfigurationRepository)
+- 符号: import-outside-toplevel
+
+#### 行 20, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.entities.configuration.Configuration)
+- 符号: import-outside-toplevel
+
+#### 行 29, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.configuration_repository.ConfigurationRepository)
+- 符号: import-outside-toplevel
+
+#### 行 37, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.configuration_repository.ConfigurationRepository)
+- 符号: import-outside-toplevel
+
+#### 行 41, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\domain\repositories\test_test_profile_repository.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 1
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 11, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.test_profile_repository.TestProfileRepository)
+- 符号: import-outside-toplevel
+
+#### 行 27, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.test_profile_repository.TestProfileRepository)
+- 符号: import-outside-toplevel
+
+#### 行 42, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\domain\repositories\test_test_result_repository.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 1
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.test_result_repository.TestResultRepository)
+- 符号: import-outside-toplevel
+
+#### 行 24, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.repositories.test_result_repository.TestResultRepository)
+- 符号: import-outside-toplevel
+
+#### 行 44, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\domain\services\impl\test_battery_analysis_service_impl.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 178, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\domain\services\impl\test_test_service_impl.py
+
+### 问题统计
+- 问题总数: 9
+- 警告(Warning): 4
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 100, 列 15
+- 类型: convention
+- 代码: C0121
+- 描述: Comparison 'result.is_passed == True' should be 'result.is_passed is True' if checking for the singleton value True, or 'result.is_passed' if testing for truthiness
+- 符号: singleton-comparison
+
+#### 行 139, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (datetime.datetime, datetime.timedelta)
+- 符号: import-outside-toplevel
+
+#### 行 139, 列 8
+- 类型: warning
+- 代码: W0611
+- 描述: Unused timedelta imported from datetime
+- 符号: unused-import
+
+#### 行 225, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\domain\services\test_battery_analysis_service.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 1
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.services.battery_analysis_service.BatteryAnalysisService)
+- 符号: import-outside-toplevel
+
+#### 行 23, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.services.battery_analysis_service.BatteryAnalysisService)
+- 符号: import-outside-toplevel
+
+#### 行 67, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\domain\services\test_test_service.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 1
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.services.test_service.TestService)
+- 符号: import-outside-toplevel
+
+#### 行 23, 列 8
+- 类型: convention
+- 代码: C0415
+- 描述: Import outside toplevel (battery_analysis.domain.services.test_service.TestService)
+- 符号: import-outside-toplevel
+
+#### 行 66, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\e2e\test_end_to_end.py
+
+### 问题统计
+- 问题总数: 10
+- 警告(Warning): 6
+- 规范(Convention): 3
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 5, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "os" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 6, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "tempfile" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party imports "pytest", "pandas"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused MagicMock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 25, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'temp_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 25, 列 24
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
+
+#### 行 26, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'input_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 27, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'output_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 46, 列 12
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'main_window' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 263, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _on_language_changed of a client class
+- 符号: protected-access
+
+## 文件: tests\battery_analysis\infrastructure\repositories\test_battery_repository_impl.py
+
+### 问题统计
+- 问题总数: 7
+- 警告(Warning): 5
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
 
 #### 行 7, 列 0
-- 类型: info
-- 代码: I0023
-- 描述: 'E0401' is cryptic: use '# pylint: disable=import-error' instead
-- 符号: use-symbolic-message-instead
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "datetime.datetime" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 18, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'repository' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 21, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'test_battery_1' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 35, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'test_battery_2' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 49, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'test_battery_3' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 232, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "self.repository.count() == 0" can be simplified to "not self.repository.count()", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+## 文件: tests\battery_analysis\infrastructure\services\test_battery_analysis_service_impl.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 3
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'BatteryAnalysisServiceImpl' has no 'analyze_data' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'BatteryAnalysisServiceImpl' has no 'generate_report' member
+- 符号: no-member
+
+#### 行 31, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'BatteryAnalysisServiceImpl' has no 'calculate_metrics' member
+- 符号: no-member
+
+#### 行 32, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\business_logic\test_battery_calculator.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 3
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 4, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 5, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 15, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_main_window' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 33, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'calculator' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 123, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\business_logic\test_data_processor.py
+
+### 问题统计
+- 问题总数: 16
+- 警告(Warning): 11
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 4, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 5, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "os" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 6, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "tempfile" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party imports "pytest", "pandas"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused MagicMock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 18, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_main_window' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 38, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'processor' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 92, 列 19
+- 类型: convention
+- 代码: C1803
+- 描述: "result == []" can be simplified to "not result", if it is strictly a sequence, as an empty list is falsey
+- 符号: use-implicit-booleaness-not-comparison
+
+#### 行 106, 列 17
+- 类型: warning
+- 代码: W1514
+- 描述: Using open without explicitly specifying an encoding
+- 符号: unspecified-encoding
+
+#### 行 108, 列 17
+- 类型: warning
+- 代码: W1514
+- 描述: Using open without explicitly specifying an encoding
+- 符号: unspecified-encoding
+
+#### 行 129, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _set_specification_type of a client class
+- 符号: protected-access
+
+#### 行 138, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _extract_batch_date_code of a client class
+- 符号: protected-access
+
+#### 行 151, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _extract_pulse_current of a client class
+- 符号: protected-access
+
+#### 行 160, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _extract_cc_current of a client class
+- 符号: protected-access
+
+#### 行 193, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _open_data_directory_dialog of a client class
+- 符号: protected-access
+
+#### 行 197, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\business_logic\test_environment_manager.py
+
+### 问题统计
+- 问题总数: 14
+- 警告(Warning): 13
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
 
 #### 行 7, 列 0
-- 类型: info
-- 代码: I0021
-- 描述: Useless suppression of 'import-error'
-- 符号: useless-suppression
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 7, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 17, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_main_window' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 21, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'environment_manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 30, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 33, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _initialize_environment_info of a client class
+- 符号: protected-access
+
+#### 行 47, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 50, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _initialize_environment_info of a client class
+- 符号: protected-access
+
+#### 行 59, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _get_service of a client class
+- 符号: protected-access
+
+#### 行 62, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _initialize_environment_info of a client class
+- 符号: protected-access
+
+#### 行 73, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _ensure_env_info_keys of a client class
+- 符号: protected-access
+
+#### 行 86, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _ensure_env_info_keys of a client class
+- 符号: protected-access
+
+#### 行 101, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _ensure_env_info_keys of a client class
+- 符号: protected-access
+
+## 文件: tests\battery_analysis\main\business_logic\test_help_manager.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 4
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 7, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused MagicMock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 17, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_main_window' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 21, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'help_manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+## 文件: tests\battery_analysis\main\business_logic\test_report_generator.py
+
+### 问题统计
+- 问题总数: 4
+- 警告(Warning): 3
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 17, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_main_window' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 22, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'report_generator' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+## 文件: tests\battery_analysis\main\controllers\test_file_controller.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'controller' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 37, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\controllers\test_main_controller.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'controller' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 43, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\controllers\test_validation_controller.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'controller' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 41, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\controllers\test_visualizer_controller.py
+
+### 问题统计
+- 问题总数: 8
+- 错误(Error): 3
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'controller' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 20, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'VisualizerController' has no 'create_chart' member
+- 符号: no-member
+
+#### 行 33, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'VisualizerController' has no 'update_chart' member
+- 符号: no-member
+
+#### 行 43, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'VisualizerController' has no 'export_chart' member
+- 符号: no-member
+
+#### 行 44, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_basic_attributes_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_battery_config_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_command_manager_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_environment_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_handlers_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_language_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_managers_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_presenters_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_processors_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_services_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_styles_initialization_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\steps\test_ui_setup_step.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'step' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\initialization\test_initialization_orchestrator.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 3
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'orchestrator' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 11, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'InitializationOrchestrator' has no 'initialize' member
+- 符号: no-member
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'InitializationOrchestrator' has no 'get_initialization_status' member
+- 符号: no-member
+
+#### 行 19, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'InitializationOrchestrator' has no 'cleanup' member
+- 符号: no-member
+
+#### 行 20, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\managers\test_analysis_runner.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'runner' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 22
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 19, 列 12
+- 类型: error
+- 代码: E1128
+- 描述: Assigning result of a function call, where the function returns None
+- 符号: assignment-from-none
+
+#### 行 19, 列 21
+- 类型: error
+- 代码: E1121
+- 描述: Too many positional arguments for method call
+- 符号: too-many-function-args
+
+#### 行 27, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'AnalysisRunner' has no 'cancel_analysis' member
+- 符号: no-member
+
+#### 行 31, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'AnalysisRunner' has no 'get_analysis_status' member
+- 符号: no-member
+
+#### 行 32, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\managers\test_command_manager.py
+
+### 问题统计
+- 问题总数: 11
+- 错误(Error): 5
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 13, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'CommandManager' has no 'register_command' member
+- 符号: no-member
+
+#### 行 20, 列 8
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'CommandManager' has no 'register_command' member
+- 符号: no-member
+
+#### 行 27, 列 8
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'CommandManager' has no 'register_command' member
+- 符号: no-member
+
+#### 行 28, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'CommandManager' has no 'unregister_command' member
+- 符号: no-member
+
+#### 行 29, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\managers\test_initialization_manager.py
+
+### 问题统计
+- 问题总数: 9
+- 错误(Error): 4
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 15, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'InitializationManager' has no 'initialize_application' member
+- 符号: no-member
+
+#### 行 19, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'InitializationManager' has no 'get_initialization_status' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'InitializationManager' has no 'cleanup' member
+- 符号: no-member
+
+#### 行 24, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\managers\test_path_manager.py
+
+### 问题统计
+- 问题总数: 12
+- 错误(Error): 5
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 11, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'PathManager' has no 'get_data_path' member
+- 符号: no-member
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'PathManager' has no 'get_report_path' member
+- 符号: no-member
+
+#### 行 19, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'PathManager' has no 'get_config_path' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'PathManager' has no 'ensure_paths_exist' member
+- 符号: no-member
+
+#### 行 24, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\managers\test_report_manager.py
+
+### 问题统计
+- 问题总数: 11
+- 错误(Error): 4
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ReportManager' has no 'generate_report' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ReportManager' has no 'save_report' member
+- 符号: no-member
+
+#### 行 31, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ReportManager' has no 'export_report' member
+- 符号: no-member
+
+#### 行 32, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\managers\test_test_profile_manager.py
+
+### 问题统计
+- 问题总数: 12
+- 错误(Error): 5
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 18, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'TestProfileManager' has no 'create_profile' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'TestProfileManager' has no 'load_profile' member
+- 符号: no-member
+
+#### 行 31, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'TestProfileManager' has no 'save_profile' member
+- 符号: no-member
+
+#### 行 35, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'TestProfileManager' has no 'list_profiles' member
+- 符号: no-member
+
+#### 行 36, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\managers\test_visualization_manager.py
+
+### 问题统计
+- 问题总数: 12
+- 错误(Error): 5
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 16, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'VisualizationManager' has no 'create_chart' member
+- 符号: no-member
+
+#### 行 25, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'VisualizationManager' has no 'update_chart' member
+- 符号: no-member
+
+#### 行 31, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'VisualizationManager' has no 'export_chart' member
+- 符号: no-member
+
+#### 行 36, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'VisualizationManager' has no 'destroy_chart' member
+- 符号: no-member
+
+#### 行 37, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\presenters\test_main_presenter.py
+
+### 问题统计
+- 问题总数: 11
+- 错误(Error): 4
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'presenter' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 25
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'view' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 14, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'MainPresenter' has no 'present_analysis_results' member
+- 符号: no-member
+
+#### 行 19, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'MainPresenter' has no 'present_error' member
+- 符号: no-member
+
+#### 行 25, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'MainPresenter' has no 'present_status_update' member
+- 符号: no-member
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_application_service.py
+
+### 问题统计
+- 问题总数: 15
+- 警告(Warning): 13
+- 规范(Convention): 1
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 11, 列 0
+- 类型: refactor
+- 代码: R0902
+- 描述: Too many instance attributes (8/7)
+- 符号: too-many-instance-attributes
+
+#### 行 60, 列 53
+- 类型: warning
+- 代码: W0108
+- 描述: Lambda may not be necessary
+- 符号: unnecessary-lambda
+
+#### 行 83, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'application_service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 86, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_event_bus' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 87, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_environment_service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 88, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_config_service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 89, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_i18n_service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 90, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_progress_service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 91, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_visualizer_factory' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 92, 列 16
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'mock_main_controller' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 192, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _on_progress_updated of a client class
+- 符号: protected-access
+
+#### 行 204, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _on_status_changed of a client class
+- 符号: protected-access
+
+#### 行 215, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _on_analysis_completed of a client class
+- 符号: protected-access
+
+## 文件: tests\battery_analysis\main\services\test_config_service.py
+
+### 问题统计
+- 问题总数: 7
+- 错误(Error): 2
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 24, 列 25
+- 类型: error
+- 代码: E1121
+- 描述: Too many positional arguments for method call
+- 符号: too-many-function-args
+
+#### 行 34, 列 17
+- 类型: error
+- 代码: E1121
+- 描述: Too many positional arguments for method call
+- 符号: too-many-function-args
+
+#### 行 36, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_environment_service.py
+
+### 问题统计
+- 问题总数: 9
+- 错误(Error): 2
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'EnvironmentService' has no 'check_environment' member
+- 符号: no-member
+
+#### 行 19, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'EnvironmentService' has no 'get_system_resources' member
+- 符号: no-member
+
+#### 行 20, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_event_bus.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'event_bus' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 29, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_file_service.py
+
+### 问题统计
+- 问题总数: 8
+- 错误(Error): 3
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 14, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'FileService' has no 'read_file' member
+- 符号: no-member
+
+#### 行 24, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'FileService' has no 'write_file' member
+- 符号: no-member
+
+#### 行 34, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'FileService' has no 'export_data' member
+- 符号: no-member
+
+#### 行 35, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_i18n_service.py
+
+### 问题统计
+- 问题总数: 9
+- 错误(Error): 2
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'I18nService' has no 'get_translation' member
+- 符号: no-member
+
+#### 行 17, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'I18nService' has no 'change_language' member
+- 符号: no-member
+
+#### 行 22, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_progress_service.py
+
+### 问题统计
+- 问题总数: 7
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 22, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_service_container.py
+
+### 问题统计
+- 问题总数: 11
+- 警告(Warning): 9
+- 规范(Convention): 2
+
+### 详细问题
+#### 行 4, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 5, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 5, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 5, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused MagicMock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 15, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'container' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 89, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'DependencyService'
+- 符号: unused-variable
+
+#### 行 120, 列 26
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _topological_sort of a client class
+- 符号: protected-access
+
+#### 行 218, 列 8
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'service'
+- 符号: unused-variable
+
+#### 行 252, 列 47
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'service'
+- 符号: unused-variable
+
+#### 行 262, 列 64
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'services'
+- 符号: unused-variable
+
+#### 行 314, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\services\test_validation_service.py
+
+### 问题统计
+- 问题总数: 9
+- 错误(Error): 3
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ValidationService' has no 'validate_data' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ValidationService' has no 'validate_configuration' member
+- 符号: no-member
+
+#### 行 30, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ValidationService' has no 'validate_file' member
+- 符号: no-member
+
+#### 行 31, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui\test_main_window.py
+
+### 问题统计
+- 问题总数: 14
+- 错误(Error): 3
+- 警告(Warning): 8
+- 规范(Convention): 1
+- 重构(Refactor): 2
+
+### 详细问题
+#### 行 5, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 5, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused MagicMock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 16, 列 0
+- 类型: refactor
+- 代码: R0904
+- 描述: Too many public methods (35/20)
+- 符号: too-many-public-methods
+
+#### 行 19, 列 4
+- 类型: refactor
+- 代码: R0915
+- 描述: Too many statements (77/50)
+- 符号: too-many-statements
+
+#### 行 31, 列 12
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'main_window' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 157, 列 12
+- 类型: warning
+- 代码: W0612
+- 描述: Unused variable 'icon'
+- 符号: unused-variable
+
+#### 行 157, 列 19
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _load_application_icon of a client class
+- 符号: protected-access
+
+#### 行 170, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _on_language_changed of a client class
+- 符号: protected-access
+
+#### 行 173, 列 12
+- 类型: error
+- 代码: E1101
+- 描述: Method '_update_ui_texts' has no 'assert_called_once' member
+- 符号: no-member
+
+#### 行 173, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _update_ui_texts of a client class
+- 符号: protected-access
+
+#### 行 174, 列 12
+- 类型: error
+- 代码: E1101
+- 描述: Method '_update_statusbar_messages' has no 'assert_called_once' member
+- 符号: no-member
+
+#### 行 174, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _update_statusbar_messages of a client class
+- 符号: protected-access
+
+#### 行 175, 列 12
+- 类型: error
+- 代码: E1101
+- 描述: Method '_refresh_dialogs' has no 'assert_called_once' member
+- 符号: no-member
+
+#### 行 175, 列 12
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _refresh_dialogs of a client class
+- 符号: protected-access
+
+## 文件: tests\battery_analysis\main\ui_components\test_config_manager.py
+
+### 问题统计
+- 问题总数: 12
+- 错误(Error): 5
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 11, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigManager' has no 'load_config' member
+- 符号: no-member
+
+#### 行 16, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigManager' has no 'save_config' member
+- 符号: no-member
+
+#### 行 22, 列 8
+- 类型: error
+- 代码: E1111
+- 描述: Assigning result of a function call, where the function has no return
+- 符号: assignment-from-no-return
+
+#### 行 22, 列 17
+- 类型: error
+- 代码: E1121
+- 描述: Too many positional arguments for method call
+- 符号: too-many-function-args
+
+#### 行 23, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_dialog_manager.py
+
+### 问题统计
+- 问题总数: 9
+- 错误(Error): 4
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 17, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'DialogManager' has no 'show_info_dialog' member
+- 符号: no-member
+
+#### 行 27, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'DialogManager' has no 'show_error_dialog' member
+- 符号: no-member
+
+#### 行 37, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'DialogManager' has no 'show_confirmation_dialog' member
+- 符号: no-member
+
+#### 行 38, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_menu_manager.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 4
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'MenuManager' has no 'create_menus' member
+- 符号: no-member
+
+#### 行 19, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'MenuManager' has no 'add_menu_item' member
+- 符号: no-member
+
+#### 行 25, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'MenuManager' has no 'remove_menu_item' member
+- 符号: no-member
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_message_manager.py
+
+### 问题统计
+- 问题总数: 12
+- 错误(Error): 5
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'parent' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 13, 列 8
+- 类型: error
+- 代码: E1111
+- 描述: Assigning result of a function call, where the function has no return
+- 符号: assignment-from-no-return
+
+#### 行 18, 列 8
+- 类型: error
+- 代码: E1111
+- 描述: Assigning result of a function call, where the function has no return
+- 符号: assignment-from-no-return
+
+#### 行 18, 列 17
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'message' in method call
+- 符号: no-value-for-parameter
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'MessageManager' has no 'show_success' member
+- 符号: no-member
+
+#### 行 24, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_progress_dialog.py
+
+### 问题统计
+- 问题总数: 8
+- 错误(Error): 1
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'dialog' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 13, 列 8
+- 类型: error
+- 代码: E1111
+- 描述: Assigning result of a function call, where the function has no return
+- 符号: assignment-from-no-return
+
+#### 行 24, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_table_manager.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 4
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'TableManager' has no 'create_table' member
+- 符号: no-member
+
+#### 行 18, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'TableManager' has no 'update_table' member
+- 符号: no-member
+
+#### 行 24, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'TableManager' has no 'export_table' member
+- 符号: no-member
+
+#### 行 25, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_theme_manager.py
+
+### 问题统计
+- 问题总数: 11
+- 错误(Error): 4
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ThemeManager' has no 'load_theme' member
+- 符号: no-member
+
+#### 行 16, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ThemeManager' has no 'get_current_theme' member
+- 符号: no-member
+
+#### 行 20, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ThemeManager' has no 'list_themes' member
+- 符号: no-member
+
+#### 行 21, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_ui_manager.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 4
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'UIManager' has no 'init_ui' member
+- 符号: no-member
+
+#### 行 18, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'UIManager' has no 'update_ui' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'UIManager' has no 'reset_ui' member
+- 符号: no-member
+
+#### 行 24, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\ui_components\test_window_setup.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 4
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'setup' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 21
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'WindowSetup' has no 'setup_window' member
+- 符号: no-member
+
+#### 行 17, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'WindowSetup' has no 'configure_layout' member
+- 符号: no-member
+
+#### 行 22, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'WindowSetup' has no 'setup_signals' member
+- 符号: no-member
+
+#### 行 23, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\main\workers\test_analysis_worker.py
+
+### 问题统计
+- 问题总数: 7
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'worker' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 28, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\ui\frameworks\test_pyqt6_ui_framework.py
+
+### 问题统计
+- 问题总数: 9
+- 错误(Error): 2
+- 警告(Warning): 3
+- 规范(Convention): 4
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'framework' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 20, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'PyQt6UIFramework' has no 'show_window' member
+- 符号: no-member
+
+#### 行 26, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'PyQt6UIFramework' has no 'run_application' member
+- 符号: no-member
+
+#### 行 27, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+#### 行 27, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result == 0" can be simplified to "not result", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+## 文件: tests\battery_analysis\ui\styles\test_style_manager.py
+
+### 问题统计
+- 问题总数: 7
+- 错误(Error): 1
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 18, 列 8
+- 类型: error
+- 代码: E1111
+- 描述: Assigning result of a function call, where the function has no return
+- 符号: assignment-from-no-return
+
+#### 行 23, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_base_service.py
+
+### 问题统计
+- 问题总数: 9
+- 错误(Error): 2
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'service' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'BaseService' has no 'log_info' member
+- 符号: no-member
+
+#### 行 20, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'BaseService' has no 'log_error' member
+- 符号: no-member
+
+#### 行 21, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_battery_analysis.py
+
+### 问题统计
+- 问题总数: 18
+- 错误(Error): 6
+- 警告(Warning): 5
+- 规范(Convention): 6
+- 重构(Refactor): 1
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 21, 列 16
+- 类型: refactor
+- 代码: R1705
+- 描述: Unnecessary "elif" after "return", remove the leading "el" from "elif"
+- 符号: no-else-return
+
+#### 行 21, 列 19
+- 类型: convention
+- 代码: C1805
+- 描述: "row == 0" can be simplified to "not row", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 21, 列 32
+- 类型: convention
+- 代码: C1805
+- 描述: "col == 0" can be simplified to "not col", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 23, 列 21
+- 类型: convention
+- 代码: C1805
+- 描述: "row == 0" can be simplified to "not row", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 31, 列 48
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'strPath' in method call
+- 符号: no-value-for-parameter
+
+#### 行 31, 列 48
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'type' in method call
+- 符号: no-value-for-parameter
+
+#### 行 41, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _str_compare_date of a client class
+- 符号: protected-access
+
+#### 行 41, 列 37
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'strDate1' in method call
+- 符号: no-value-for-parameter
+
+#### 行 41, 列 37
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'strDate2' in method call
+- 符号: no-value-for-parameter
+
+#### 行 41, 列 37
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'bEarlier' in method call
+- 符号: no-value-for-parameter
+
+#### 行 41, 列 37
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'type' in method call
+- 符号: no-value-for-parameter
+
+#### 行 41, 列 37
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _str_compare_date of a client class
+- 符号: protected-access
+
+#### 行 44, 列 17
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _str_compare_date of a client class
+- 符号: protected-access
+
+#### 行 48, 列 17
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _str_compare_date of a client class
+- 符号: protected-access
+
+#### 行 49, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_config_manager.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 3
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 11, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigManager' has no 'load_config' member
+- 符号: no-member
+
+#### 行 16, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigManager' has no 'save_config' member
+- 符号: no-member
+
+#### 行 22, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigManager' has no 'get_config_value' member
+- 符号: no-member
+
+#### 行 23, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_config_parser.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 3
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'parser' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigParser' has no 'parse_config' member
+- 符号: no-member
+
+#### 行 17, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigParser' has no 'format_config' member
+- 符号: no-member
+
+#### 行 22, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ConfigParser' has no 'validate_config' member
+- 符号: no-member
+
+#### 行 23, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_config_utils.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 27, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_csv_utils.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 39, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_data_utils.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 52, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_environment_adapter.py
+
+### 问题统计
+- 问题总数: 11
+- 错误(Error): 4
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'adapter' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 8, 列 23
+- 类型: error
+- 代码: E1120
+- 描述: No value for argument 'main_window' in constructor call
+- 符号: no-value-for-parameter
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'EnvironmentAdapter' has no 'get_environment_variable' member
+- 符号: no-member
+
+#### 行 18, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'EnvironmentAdapter' has no 'set_environment_variable' member
+- 符号: no-member
+
+#### 行 23, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'EnvironmentAdapter' has no 'delete_environment_variable' member
+- 符号: no-member
+
+#### 行 24, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_environment_utils.py
+
+### 问题统计
+- 问题总数: 7
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'detector' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 66, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_error_report_generator.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 3
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'generator' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 13, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ErrorReportGenerator' has no 'generate_report' member
+- 符号: no-member
+
+#### 行 19, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ErrorReportGenerator' has no 'save_report' member
+- 符号: no-member
+
+#### 行 24, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ErrorReportGenerator' has no 'format_error_message' member
+- 符号: no-member
+
+#### 行 25, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_excel_utils.py
+
+### 问题统计
+- 问题总数: 2
+- 警告(Warning): 1
+- 规范(Convention): 1
+
+### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+## 文件: tests\battery_analysis\utils\test_file_validator.py
+
+### 问题统计
+- 问题总数: 7
+- 错误(Error): 1
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'validator' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 28, 列 21
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'FileValidator' has no 'validate_file_size' member
+- 符号: no-member
+
+#### 行 29, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
 
 ## 文件: tests\battery_analysis\utils\test_file_writer.py
 
 ### 问题统计
-- 问题总数: 73
-- 规范(Convention): 1
-- 重构(Refactor): 72
+- 问题总数: 14
+- 错误(Error): 1
+- 警告(Warning): 8
+- 规范(Convention): 4
+- 重构(Refactor): 1
 
 ### 详细问题
+#### 行 6, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 7, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "tempfile" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "os" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 8, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import os
+- 符号: unused-import
+
+#### 行 9, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 10, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 20, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'temp_dir' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 20, 列 24
+- 类型: refactor
+- 代码: R1732
+- 描述: Consider using 'with' for resource-allocating operations
+- 符号: consider-using-with
+
+#### 行 21, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'result_path' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 25, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'list_test_info' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 47, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'list_battery_info' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 95, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'XlsxWordWriter' has no 'handle_data_error' member
+- 符号: no-member
+
+## 文件: tests\battery_analysis\utils\test_log_manager.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 3
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 15, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'LogManager' has no 'log_info' member
+- 符号: no-member
+
+#### 行 20, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'LogManager' has no 'log_error' member
+- 符号: no-member
+
+#### 行 25, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'LogManager' has no 'log_debug' member
+- 符号: no-member
+
+#### 行 26, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_numeric_utils.py
+
+### 问题统计
+- 问题总数: 12
+- 警告(Warning): 3
+- 规范(Convention): 9
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 18, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result == 0" can be simplified to "not result", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 32, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result == 0" can be simplified to "not result", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 38, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result == 0" can be simplified to "not result", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 51, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result == 0" can be simplified to "not result", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 64, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result == 0" can be simplified to "not result", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+#### 行 83, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+#### 行 83, 列 15
+- 类型: convention
+- 代码: C1805
+- 描述: "result_empty == 0" can be simplified to "not result_empty", if it is strictly an int, as 0 is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-zero
+
+## 文件: tests\battery_analysis\utils\test_parallel_utils.py
+
+### 问题统计
+- 问题总数: 8
+- 警告(Warning): 3
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 22, 列 0
+- 类型: convention
+- 代码: C0325
+- 描述: Unnecessary parens after 'not' keyword
+- 符号: superfluous-parens
+
+#### 行 22, 列 15
+- 类型: convention
+- 代码: C0117
+- 描述: Consider changing "not task2 < task1" to "task2 >= task1"
+- 符号: unnecessary-negation
+
+#### 行 75, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_plot_utils.py
+
+### 问题统计
+- 问题总数: 5
+- 警告(Warning): 2
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 3, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused matplotlib.pyplot imported as plt
+- 符号: unused-import
+
+#### 行 30, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_resource_manager.py
+
+### 问题统计
+- 问题总数: 10
+- 错误(Error): 3
+- 警告(Warning): 4
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 8, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'manager' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 12, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ResourceManager' has no 'get_resource_path' member
+- 符号: no-member
+
+#### 行 17, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ResourceManager' has no 'load_resource' member
+- 符号: no-member
+
+#### 行 21, 列 17
+- 类型: error
+- 代码: E1101
+- 描述: Instance of 'ResourceManager' has no 'list_resources' member
+- 符号: no-member
+
+#### 行 22, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_temperature_utils.py
+
+### 问题统计
+- 问题总数: 6
+- 警告(Warning): 3
+- 规范(Convention): 3
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 43, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_version.py
+
+### 问题统计
+- 问题总数: 13
+- 警告(Warning): 8
+- 规范(Convention): 5
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Mock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 4, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "sys" should be placed before third party import "pytest" and first party import "battery_analysis.utils.version.Version" 
+- 符号: wrong-import-order
+
+#### 行 4, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import sys
+- 符号: unused-import
+
+#### 行 5, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "pathlib.Path" should be placed before third party import "pytest" and first party import "battery_analysis.utils.version.Version" 
+- 符号: wrong-import-order
+
+#### 行 5, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused Path imported from pathlib
+- 符号: unused-import
+
+#### 行 11, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _instance of a client class
+- 符号: protected-access
+
+#### 行 12, 列 8
+- 类型: warning
+- 代码: W0201
+- 描述: Attribute 'version' defined outside __init__
+- 符号: attribute-defined-outside-init
+
+#### 行 38, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _instance of a client class
+- 符号: protected-access
+
+#### 行 50, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _instance of a client class
+- 符号: protected-access
+
+#### 行 54, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
+
+## 文件: tests\battery_analysis\utils\test_word_utils.py
+
+### 问题统计
+- 问题总数: 103
+- 警告(Warning): 5
+- 规范(Convention): 5
+- 重构(Refactor): 93
+
+### 详细问题
+#### 行 1, 列 0
+- 类型: convention
+- 代码: C0114
+- 描述: Missing module docstring
+- 符号: missing-module-docstring
+
+#### 行 1, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused import pytest
+- 符号: unused-import
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[27:196]
+==impl.battery_analysis_service_impl:[25:188]
+        self._max_cache_size = max_cache_size
+        self._cache_ttl = cache_ttl
+        self._cache = {
+            "calculate_battery_health": {},
+            "analyze_battery_performance": {},
+            "validate_battery_data": {},
+            "predict_battery_lifetime": {},
+            "compare_batteries": {}
+        }
+        self._cache_access_order = {
+            "calculate_battery_health": [],
+            "analyze_battery_performance": [],
+            "validate_battery_data": [],
+            "predict_battery_lifetime": [],
+            "compare_batteries": []
+        }
+        self._cache_timestamps = {}
+        self._cache_stats = {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0
+        }
+
+    def _generate_cache_key(self, method_name: str, *args, **kwargs) -> str:
+        """生成缓存键
+
+        Args:
+            method_name: 方法名称
+            *args: 位置参数
+            **kwargs: 关键字参数
+
+        Returns:
+            str: 生成的缓存键
+        """
+        key_parts = [method_name]
+
+        for arg in args:
+            if hasattr(arg, 'serial_number'):
+                key_parts.append(arg.serial_number)
+                if hasattr(arg, 'nominal_capacity'):
+                    key_parts.append(str(arg.nominal_capacity))
+                if hasattr(arg, 'nominal_voltage'):
+                    key_parts.append(str(arg.nominal_voltage))
+            elif isinstance(arg, list):
+                if arg and hasattr(arg[0], 'serial_number'):
+                    sorted_serials = sorted([b.serial_number for b in arg])
+                    key_parts.append("_".join(sorted_serials))
+                else:
+                    key_parts.append(str(len(arg)))
+            else:
+                key_parts.append(str(arg))
+
+        for k, v in sorted(kwargs.items()):
+            key_parts.append(f"{k}={v}")
+
+        return "_".join(key_parts)
+
+    def _is_cache_valid(self, method_name: str, cache_key: str) -> bool:
+        """检查缓存是否有效
+
+        Args:
+            method_name: 方法名称
+            cache_key: 缓存键
+
+        Returns:
+            bool: 缓存是否有效
+        """
+        if cache_key not in self._cache.get(method_name, {}):
+            return False
+
+        timestamp_key = f"{method_name}:{cache_key}"
+        if timestamp_key not in self._cache_timestamps:
+            return False
+
+        elapsed = time.time() - self._cache_timestamps[timestamp_key]
+        return elapsed < self._cache_ttl
+
+    def _check_and_evict_cache(self, method_name: str):
+        """检查并淘汰缓存
+
+        Args:
+            method_name: 方法名称
+        """
+        cache = self._cache.get(method_name, {})
+        if len(cache) < self._max_cache_size:
+            return
+
+        access_list = self._cache_access_order.get(method_name, [])
+        while len(cache) >= self._max_cache_size and access_list:
+            oldest_key = access_list.pop(0)
+            if oldest_key in cache:
+                del cache[oldest_key]
+                timestamp_key = f"{method_name}:{oldest_key}"
+                if timestamp_key in self._cache_timestamps:
+                    del self._cache_timestamps[timestamp_key]
+                self._cache_stats["evictions"] += 1
+
+    def _update_cache(self, method_name: str, cache_key: str, value: Any):
+        """更新缓存
+
+        Args:
+            method_name: 方法名称
+            cache_key: 缓存键
+            value: 缓存值
+        """
+        self._check_and_evict_cache(method_name)
+
+        if method_name not in self._cache:
+            self._cache[method_name] = {}
+        if method_name not in self._cache_access_order:
+            self._cache_access_order[method_name] = []
+
+        self._cache[method_name][cache_key] = value
+        self._cache_access_order[method_name].append(cache_key)
+        self._cache_timestamps[f"{method_name}:{cache_key}"] = time.time()
+
+    def _get_from_cache(self, method_name: str, cache_key: str) -> Optional[Any]:
+        """从缓存获取数据
+
+        Args:
+            method_name: 方法名称
+            cache_key: 缓存键
+
+        Returns:
+            Optional[Any]: 缓存的数据，如果不存在或已过期则返回None
+        """
+        if not self._is_cache_valid(method_name, cache_key):
+            self._cache_stats["misses"] += 1
+            return None
+
+        self._cache_stats["hits"] += 1
+
+        access_list = self._cache_access_order.get(method_name, [])
+        if cache_key in access_list:
+            access_list.remove(cache_key)
+            access_list.append(cache_key)
+
+        return self._cache.get(method_name, {}).get(cache_key)
+
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """获取缓存统计信息
+
+        Returns:
+            Dict[str, Any]: 缓存统计信息
+        """
+        total_requests = self._cache_stats["hits"] + self._cache_stats["misses"]
+        hit_rate = (self._cache_stats["hits"] / total_requests * 100) if total_requests > 0 else 0
+
+        return {
+            "hits": self._cache_stats["hits"],
+            "misses": self._cache_stats["misses"],
+            "evictions": self._cache_stats["evictions"],
+            "hit_rate": round(hit_rate, 2),
+            "total_cache_size": sum(len(cache) for cache in self._cache.values()),
+            "max_cache_size": self._max_cache_size,
+            "cache_ttl": self._cache_ttl
+        }
+
+    def calculate_state_of_health(self, test_result: TestResult, battery: Battery) -> float:
+        """计算电池健康状态(SOH)
+
+        使用当前容量与标称容量的比率计算SOH
+        """
+- 符号: duplicate-code
+
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
@@ -8766,7 +14778,7 @@
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==business_logic.visualization_manager:[197:240]
+==business_logic.visualization_manager:[205:248]
 ==dialogs.data_error_dialog:[107:149]
             else:
                 # 取消操作
@@ -8781,7 +14793,9 @@
             self.main_window.statusBar_BatteryAnalysis.showMessage("操作已取消")
 
     def _open_data_directory_dialog(self):
-        """打开数据目录选择对话框"""
+        """
+        打开数据目录选择对话框
+        """
         try:
             # 打开目录选择对话框
             directory = QW.QFileDialog.getExistingDirectory(
@@ -8795,7 +14809,6 @@
                 self.main_window.statusBar_BatteryAnalysis.showMessage(f"已选择目录: {directory}")
 
                 # 检查目录中是否有Info_Image.csv文件
-                import os
                 info_image_path = os.path.join(directory, "Info_Image.csv")
                 if os.path.exists(info_image_path):
                     QW.QMessageBox.information(
@@ -8819,7 +14832,9 @@
 ==business_logic.environment_manager:[13:63]
 ==managers.environment_manager:[4:59]
 class EnvironmentManager:
-    """环境信息管理器"""
+    """
+    环境管理器类，负责处理应用程序的环境信息和适配
+    """
 
     def __init__(self, main_window):
         """
@@ -8831,7 +14846,7 @@ class EnvironmentManager:
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
 
-    def initialize_environment_info(self):
+    def _initialize_environment_info(self):
         """
         初始化环境信息
         """
@@ -8846,11 +14861,10 @@ class EnvironmentManager:
         except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to initialize environment service: %s", e)
 
-    def ensure_env_info_keys(self):
+    def _ensure_env_info_keys(self):
         """
         确保环境信息包含必要的键
         """
-        # 确保environment_type键存在
         if 'environment_type' not in self.main_window.env_info:
             try:
                 environment_service = self.main_window._get_service("environment")
@@ -8865,22 +14879,60 @@ class EnvironmentManager:
                 from battery_analysis.utils.environment_utils import EnvironmentType
                 self.main_window.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
 
-        # 确保gui_available键存在
         if 'gui_available' not in self.main_window.env_info:
             self.main_window.env_info['gui_available'] = True
-
-    def initialize_all(self):
-        """
-        初始化所有环境信息
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis_service_impl:[70:121]
-==impl.battery_analysis_service_impl:[41:85]
+==battery_analysis_service_impl:[408:449]
+==impl.battery_analysis_service_impl:[358:394]
+        validation_result = {
+            "valid": True,
+            "model": True,
+            "serial_number": True,
+            "nominal_capacity": True,
+            "nominal_voltage": True
+        }
+
+        if not battery.model:
+            validation_result["model"] = False
+            validation_result["valid"] = False
+        if not battery.serial_number:
+            validation_result["serial_number"] = False
+            validation_result["valid"] = False
+        if battery.nominal_capacity <= 0:
+            validation_result["nominal_capacity"] = False
+            validation_result["valid"] = False
+        if battery.nominal_voltage <= 0:
+            validation_result["nominal_voltage"] = False
+            validation_result["valid"] = False
+
+        self._update_cache("validate_battery_data", cache_key, validation_result)
+
+        return validation_result
+
+    def calculate_battery_health(self, battery: Battery) -> Battery:
+        """计算电池健康状态
+
+        计算电池的健康状态并更新电池对象
+        """
+        cache_key = self._generate_cache_key("calculate_battery_health", battery)
+
+        cached_result = self._get_from_cache("calculate_battery_health", cache_key)
+        if cached_result is not None:
+            return cached_result
+
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[231:272]
+==impl.battery_analysis_service_impl:[205:239]
         if not test_results:
             return {
                 "total_cycles": 0,
@@ -8889,23 +14941,13 @@ class EnvironmentManager:
                 "estimated_remaining_cycles": 0
             }
 
-        # 按循环次数排序
         sorted_results = sorted(test_results, key=lambda x: x.cycle_count)
-
-        # 计算总循环次数
         total_cycles = sorted_results[-1].cycle_count
-
-        # 计算平均容量
         average_capacity = sum(result.capacity for result in test_results) / len(test_results)
-
-        # 计算容量衰减率
         initial_capacity = sorted_results[0].capacity if sorted_results else 0.0
         final_capacity = sorted_results[-1].capacity if sorted_results else 0.0
         capacity_fade = initial_capacity - final_capacity
         capacity_fade_rate = (capacity_fade / initial_capacity) * 100 if initial_capacity > 0 else 0.0
-
-        # 估算剩余循环次数（简单模型）
-        # 假设当容量衰减到80%时，电池寿命结束
         remaining_capacity_percent = (final_capacity / battery.nominal_capacity) * 100
         estimated_remaining_cycles = 0
 
@@ -8921,16 +14963,9 @@ class EnvironmentManager:
         }
 
     def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
-        """
-        验证测试结果是否符合测试配置要求
+        """验证测试结果是否符合测试配置要求
 
-        Args:
-            test_result: 测试结果实体
-            test_profile: 测试配置实体
-            battery: 电池实体
-
-        Returns:
-            验证结果，包含是否通过和详细信息
+        检查测试结果是否在测试配置的允许范围内
         """
 - 符号: duplicate-code
 
@@ -8938,7 +14973,7 @@ class EnvironmentManager:
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==business_logic.visualization_manager:[161:195]
+==business_logic.visualization_manager:[169:203]
 ==dialogs.data_error_dialog:[71:105]
         button_layout = QW.QHBoxLayout()
 
@@ -8980,33 +15015,29 @@ class EnvironmentManager:
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis_service_impl:[123:166]
-==impl.battery_analysis_service_impl:[85:123]
+==battery_analysis_service_impl:[274:313]
+==impl.battery_analysis_service_impl:[239:272]
         validation_results = {
             "is_valid": True,
             "details": [],
             "failed_checks": []
         }
 
-        # 检查温度范围
         if test_result.temperature < test_profile.min_temperature or test_result.temperature > test_profile.max_temperature:
             validation_results["is_valid"] = False
             validation_results["failed_checks"].append("temperature_range")
             validation_results["details"].append(f"温度 {test_result.temperature}°C 超出允许范围 [{test_profile.min_temperature}, {test_profile.max_temperature}]°C")
 
-        # 检查电压范围
         if test_result.voltage > test_profile.test_voltage * 1.1 or test_result.voltage < test_profile.test_voltage * 0.9:
             validation_results["is_valid"] = False
             validation_results["failed_checks"].append("voltage_range")
             validation_results["details"].append(f"电压 {test_result.voltage}V 超出允许范围 [{test_profile.test_voltage * 0.9}, {test_profile.test_voltage * 1.1}]V")
 
-        # 检查电流范围
         if abs(test_result.current) > test_profile.test_current * 1.2:
             validation_results["is_valid"] = False
             validation_results["failed_checks"].append("current_range")
             validation_results["details"].append(f"电流 {test_result.current}A 超出允许范围 [-{test_profile.test_current * 1.2}, {test_profile.test_current * 1.2}]A")
 
-        # 检查容量是否在合理范围内
         if test_result.capacity < battery.nominal_capacity * 0.5 or test_result.capacity > battery.nominal_capacity * 1.2:
             validation_results["is_valid"] = False
             validation_results["failed_checks"].append("capacity_range")
@@ -9015,18 +15046,23 @@ class EnvironmentManager:
         return validation_results
 
     def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
-        """计算电池性能指标
-
-        计算各种电池性能指标
         """
-        # 计算健康状态
+        计算电池性能指标
+
+        Args:
+            test_result: 测试结果实体
+            battery: 电池实体
+
+        Returns:
+            性能指标字典
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==business_logic.visualization_manager:[241:260]
+==business_logic.visualization_manager:[249:268]
 ==dialogs.data_error_dialog:[150:169]
                 else:
                     QW.QMessageBox.warning(
@@ -9053,7 +15089,7 @@ class EnvironmentManager:
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==business_logic.visualization_manager:[117:145]
+==business_logic.visualization_manager:[125:153]
 ==dialogs.data_error_dialog:[27:55]
         dialog = QW.QDialog(self.main_window)
         dialog.setWindowTitle("数据加载错误 - 恢复选项")
@@ -9091,65 +15127,63 @@ class EnvironmentManager:
 - 描述: Similar lines in 2 files
 ==business_logic.validation_manager:[377:393]
 ==ui_components.ui_manager:[559:575]
-            self.main_window.label_BatteryType,
-            self.main_window.label_ConstructionMethod,
-            self.main_window.label_Specification,
-            self.main_window.label_Manufacturer,
-            self.main_window.label_BatchDateCode,
-            self.main_window.label_SamplesQty,
-            self.main_window.label_Temperature,
-            self.main_window.label_DatasheetNominalCapacity,
-            self.main_window.label_CalculationNominalCapacity,
-            self.main_window.label_AcceleratedAging,
-            self.main_window.label_RequiredUseableCapacity,
-            self.main_window.label_TesterLocation,
-            self.main_window.label_TestedBy,
-            self.main_window.label_TestProfile,
-            self.main_window.label_InputPath,
-            self.main_window.label_OutputPath,
+                self.main_window.label_BatteryType,
+                self.main_window.label_ConstructionMethod,
+                self.main_window.label_Specification,
+                self.main_window.label_Manufacturer,
+                self.main_window.label_BatchDateCode,
+                self.main_window.label_SamplesQty,
+                self.main_window.label_Temperature,
+                self.main_window.label_DatasheetNominalCapacity,
+                self.main_window.label_CalculationNominalCapacity,
+                self.main_window.label_AcceleratedAging,
+                self.main_window.label_RequiredUseableCapacity,
+                self.main_window.label_TesterLocation,
+                self.main_window.label_TestedBy,
+                self.main_window.label_TestProfile,
+                self.main_window.label_InputPath,
+                self.main_window.label_OutputPath,
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis_service_impl:[169:201]
-==impl.battery_analysis_service_impl:[123:150]
-        soh = self.calculate_state_of_health(test_result, battery)
-
-        # 计算充电效率（简单模型）
-        charge_efficiency = 100.0 - (test_result.internal_resistance * 0.1)  # 内阻越大，效率越低
-        charge_efficiency = max(0.0, min(100.0, charge_efficiency))
-
-        # 计算能量密度 (Wh/kg)
-        energy = test_result.capacity * test_result.voltage  # Wh
-        energy_density = energy / battery.weight if battery.weight > 0 else 0.0
-
-        # 计算功率密度 (W/kg)
-        power = test_result.voltage * test_result.current  # W
-        power_density = power / battery.weight if battery.weight > 0 else 0.0
-
-        return {
-            "soh": round(soh, 2),
-            "charge_efficiency": round(charge_efficiency, 2),
-            "energy_density": round(energy_density, 2),
-            "power_density": round(power_density, 2),
-            "temperature_stability": round(100.0 - abs(test_result.temperature - 25.0) * 2, 2)  # 越接近25°C，稳定性越高
+==battery_analysis_service_impl:[533:559]
+==impl.battery_analysis_service_impl:[455:480]
+        comparison_result = {
+            "battery_count": len(batteries),
+            "average_health": "good",
+            "best_performer": batteries[0].serial_number if batteries else None,
+            "recommendations": "All batteries are in good condition"
         }
 
-    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
-        """检测测试结果中的异常
+        self._update_cache("compare_batteries", cache_key, comparison_result)
 
-        识别测试结果中的异常值
+        return comparison_result
+
+    def clear_cache(self, method_name: Optional[str] = None):
+        """清除缓存
+
+        Args:
+            method_name: 要清除的方法缓存名称，如果为None则清除所有缓存
         """
+        if method_name:
+            if method_name in self._cache:
+                self._cache[method_name].clear()
+            if method_name in self._cache_access_order:
+                self._cache_access_order[method_name].clear()
+            keys_to_remove = [k for k in self._cache_timestamps if k.startswith(method_name + ":")]
+            for k in keys_to_remove:
+                del self._cache_timestamps[k]
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis_service_impl:[241:252]
-==impl.battery_analysis_service_impl:[197:208]
+==battery_analysis_service_impl:[378:406]
+==impl.battery_analysis_service_impl:[335:358]
         return {
             "test_id_1": test_result1.test_id,
             "test_id_2": test_result2.test_id,
@@ -9161,6 +15195,150 @@ class EnvironmentManager:
             "voltage_difference": round(test_result2.voltage - test_result1.voltage, 3),
             "current_difference": round(test_result2.current - test_result1.current, 3)
         }
+
+    def validate_battery_data(self, battery: Battery) -> Dict[str, bool]:
+        """验证电池数据
+
+        验证电池数据是否有效
+        """
+        cache_key = self._generate_cache_key("validate_battery_data", battery)
+
+        cached_result = self._get_from_cache("validate_battery_data", cache_key)
+        if cached_result is not None:
+            return cached_result
+
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[315:341]
+==impl.battery_analysis_service_impl:[272:293]
+        soh = self.calculate_state_of_health(test_result, battery)
+        charge_efficiency = 100.0 - (test_result.internal_resistance * 0.1)
+        charge_efficiency = max(0.0, min(100.0, charge_efficiency))
+        energy = test_result.capacity * test_result.voltage
+        energy_density = energy / battery.weight if battery.weight > 0 else 0.0
+        power = test_result.voltage * test_result.current
+        power_density = power / battery.weight if battery.weight > 0 else 0.0
+
+        return {
+            "soh": round(soh, 2),
+            "charge_efficiency": round(charge_efficiency, 2),
+            "energy_density": round(energy_density, 2),
+            "power_density": round(power_density, 2),
+            "temperature_stability": round(100.0 - abs(test_result.temperature - 25.0) * 2, 2)
+        }
+
+    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
+        """
+        检测测试结果中的异常
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            异常列表
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_end_to_end:[36:57]
+==test_main_window:[21:41]
+        with patch('battery_analysis.main.main_window.InitializationManager') as mock_init_manager:
+            # 创建模拟的初始化管理器实例
+            mock_init_instance = Mock()
+            mock_init_manager.return_value = mock_init_instance
+
+            # 模拟初始化方法
+            mock_init_instance.initialize = Mock()
+
+            # 创建主窗口实例
+            self.main_window = Main()
+
+            # 模拟必要的属性和方法
+            self.main_window.ui_manager = Mock()
+            self.main_window.ui_manager.init_window = Mock()
+            self.main_window.ui_manager.init_widget = Mock()
+            self.main_window.ui_manager.connect_widget = Mock()
+
+            self.main_window.menu_manager = Mock()
+            self.main_window.menu_manager.connect_menu_actions = Mock()
+            self.main_window.menu_manager.setup_menu_shortcuts = Mock()
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[504:531]
+==impl.battery_analysis_service_impl:[433:455]
+        lifetime_prediction = {
+            "lifetime": "5 years",
+            "remaining_cycles": 500,
+            "estimated_end_date": "2029-01-01",
+            "status": "healthy"
+        }
+
+        self._update_cache("predict_battery_lifetime", cache_key, lifetime_prediction)
+
+        return lifetime_prediction
+
+    def compare_batteries(self, batteries: List[Battery]) -> Dict[str, Any]:
+        """
+        比较多个电池
+
+        Args:
+            batteries: 电池实体列表
+
+        Returns:
+            比较结果
+        """
+        cache_key = self._generate_cache_key("compare_batteries", batteries)
+
+        cached_result = self._get_from_cache("compare_batteries", cache_key)
+        if cached_result is not None:
+            return cached_result
+
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[475:502]
+==impl.battery_analysis_service_impl:[411:433]
+        performance_data = {
+            "performance": "good",
+            "estimated_lifetime": 5 * 365,
+            "efficiency": 95.0,
+            "recommendation": "正常使用"
+        }
+
+        self._update_cache("analyze_battery_performance", cache_key, performance_data)
+
+        return performance_data
+
+    def predict_battery_lifetime(self, battery: Battery) -> Dict[str, Any]:
+        """
+        预测电池寿命
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            寿命预测结果
+        """
+        cache_key = self._generate_cache_key("predict_battery_lifetime", battery)
+
+        cached_result = self._get_from_cache("predict_battery_lifetime", cache_key)
+        if cached_result is not None:
+            return cached_result
+
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -9320,6 +15498,126 @@ class EnvironmentManager:
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==test_services_initialization_step:[10:26]
+==test_styles_initialization_step:[10:26]
+        main_window = Mock()
+        result = self.step.execute(main_window)
+        assert isinstance(result, bool)
+
+    def test_get_name(self):
+        result = self.step.get_name()
+        assert isinstance(result, str)
+
+    def test_get_priority(self):
+        result = self.step.get_priority()
+        assert isinstance(result, int)
+
+    def test_can_execute(self):
+        main_window = Mock()
+        result = self.step.can_execute(main_window)
+        assert result is True
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_presenters_initialization_step:[10:26]
+==test_processors_initialization_step:[10:26]
+        main_window = Mock()
+        result = self.step.execute(main_window)
+        assert isinstance(result, bool)
+
+    def test_get_name(self):
+        result = self.step.get_name()
+        assert isinstance(result, str)
+
+    def test_get_priority(self):
+        result = self.step.get_priority()
+        assert isinstance(result, int)
+
+    def test_can_execute(self):
+        main_window = Mock()
+        result = self.step.can_execute(main_window)
+        assert result is True
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_language_initialization_step:[10:26]
+==test_managers_initialization_step:[10:26]
+        main_window = Mock()
+        result = self.step.execute(main_window)
+        assert isinstance(result, bool)
+
+    def test_get_name(self):
+        result = self.step.get_name()
+        assert isinstance(result, str)
+
+    def test_get_priority(self):
+        result = self.step.get_priority()
+        assert isinstance(result, int)
+
+    def test_can_execute(self):
+        main_window = Mock()
+        result = self.step.can_execute(main_window)
+        assert result is True
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_environment_initialization_step:[10:26]
+==test_handlers_initialization_step:[10:26]
+        main_window = Mock()
+        result = self.step.execute(main_window)
+        assert isinstance(result, bool)
+
+    def test_get_name(self):
+        result = self.step.get_name()
+        assert isinstance(result, str)
+
+    def test_get_priority(self):
+        result = self.step.get_priority()
+        assert isinstance(result, int)
+
+    def test_can_execute(self):
+        main_window = Mock()
+        result = self.step.can_execute(main_window)
+        assert result is True
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_battery_config_initialization_step:[10:26]
+==test_command_manager_initialization_step:[10:26]
+        main_window = Mock()
+        result = self.step.execute(main_window)
+        assert isinstance(result, bool)
+
+    def test_get_name(self):
+        result = self.step.get_name()
+        assert isinstance(result, str)
+
+    def test_get_priority(self):
+        result = self.step.get_priority()
+        assert isinstance(result, int)
+
+    def test_can_execute(self):
+        main_window = Mock()
+        result = self.step.can_execute(main_window)
+        assert result is True
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
 ==ui_components.menu_manager:[205:225]
 ==ui_components.window_setup:[82:104]
         if hasattr(self.main_window, 'actionShow_Toolbar') and hasattr(self.main_window, 'toolBar'):
@@ -9328,7 +15626,7 @@ class EnvironmentManager:
             # 如果没有actionShow_Toolbar，只是切换显示状态
             self.main_window.toolBar.setVisible(not self.main_window.toolBar.isVisible())
 
-    def toggle_statusbar_safe(self):
+    def toggle_statusbar_safe(self) -> None:
         """
         安全地切换状态栏的显示/隐藏状态
         """
@@ -9340,8 +15638,10 @@ class EnvironmentManager:
             self.main_window.statusBar_BatteryAnalysis.setVisible(
                 not self.main_window.statusBar_BatteryAnalysis.isVisible())
 
-    def zoom_in(self):
-        """放大界面元素"""
+    def setup_menu_shortcuts(self) -> None:
+        """
+        设置菜单快捷键
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -9600,122 +15900,135 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_serial_number(self, serial_number: str) -> Optional[Battery]:
-        """根据序列号查找电池
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
+        """
+        计算统计数据
 
         Args:
-            serial_number: 电池序列号
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
 
         Returns:
-            电池实体对象，或None
+            Dict[str, float]: 统计数据
         """
         pass
 
     @abstractmethod
-    def find_by_model_number(self, model_number: str) -> List[Battery]:
-        """根据型号查找电池
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
+        """
+        数据平滑处理
 
         Args:
-            model_number: 电池型号
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
 
         Returns:
-            电池实体对象列表
+            List[float]: 平滑后的数据
         """
         pass
 
     @abstractmethod
-    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
-        """根据制造商查找电池
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
+        """
+        检测异常值
 
         Args:
-            manufacturer: 制造商
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            电池实体对象列表
+            List[int]: 异常值的索引列表
         """
         pass
 
     @abstractmethod
-    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
-        """根据电池类型查找电池
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
+        """
+        生成模拟电池数据
 
         Args:
-            battery_type: 电池类型
+            battery_count: 电池数量
+            data_points: 数据点数量
 
         Returns:
-            电池实体对象列表
+            List[Dict[str, Any]]: 模拟数据
         """
         pass
 
     @abstractmethod
-    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
-        """根据生产日期范围查找电池
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
 
         Args:
-            start_date: 开始日期
-            end_date: 结束日期
+            data: 待验证的数据
 
         Returns:
-            电池实体对象列表
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
         """
         pass
 
     @abstractmethod
-    def find_by_status(self, status: str) -> List[Battery]:
-        """根据状态查找电池
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
 
         Args:
-            status: 电池状态
+            csv_path: CSV文件路径
 
         Returns:
-            电池实体对象列表
+            List[Dict[str, Any]]: 解析后的数据
         """
         pass
 
     @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
-        """查找所有电池
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
 
         Args:
-            limit: 返回结果数量限制
-            offset: 返回结果偏移量
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
 
         Returns:
-            电池实体对象列表
+            bool: 导出是否成功
         """
         pass
 
     @abstractmethod
-    def update(self, battery: Battery) -> Battery:
-        """更新电池信息
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
 
         Args:
-            battery: 电池实体对象
+            data_list: 数据集列表
 
         Returns:
-            更新后的电池实体对象
+            List[Dict[str, Any]]: 合并后的数据
         """
         pass
 
     @abstractmethod
-    def delete(self, serial_number: str) -> bool:
-        """删除电池信息
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
 
         Args:
-            serial_number: 电池序列号
+            data: 原始数据
+            feature_types: 特征类型列表
 
         Returns:
-            是否删除成功
+            Dict[str, Any]: 提取的特征
         """
         pass
-
-    @abstractmethod
-    def count(self) -> int:
-        """统计电池数量
-
-        Returns:
-            电池数量
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -9857,6 +16170,150 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
+    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+        """
+        删除目录
+
+        Args:
+            path: 目录路径
+            recursive: 是否递归删除
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+        """
+        列出目录中的文件
+
+        Args:
+            directory: 目录路径
+            pattern: 文件名模式
+
+        Returns:
+            List[str]: 文件名列表
+        """
+        pass
+
+    @abstractmethod
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            Optional[int]: 文件大小，失败返回None
+        """
+        pass
+
+    @abstractmethod
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
+
+        Args:
+            file_path: 文件路径
+            attributes: 属性字典
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            bool: 文件是否隐藏
+        """
+        pass
+
+    @abstractmethod
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
+
+        Args:
+            source: 源文件路径
+            destination: 目标文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否成功, 错误消息)
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.data_processing_service_interface:[59:176]
+==services.document_service_interface:[29:169]
+        pass
+
+    @abstractmethod
+    def save_word_document(self, document: Any, output_path: str) -> bool:
+        """
+        保存Word文档
+
+        Args:
+            document: Word文档对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
+        pass
+
+    @abstractmethod
     def add_table_to_word(self, document: Any, table_data: List[List[str]],
                          table_style: Optional[str] = None) -> bool:
         """
@@ -9980,132 +16437,28 @@ class EnvironmentManager:
         Returns:
             bool: 设置是否成功
         """
-        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==services.data_processing_service_interface:[59:176]
-==services.document_service_interface:[29:169]
-        pass
+==business_logic.visualization_manager:[52:66]
+==managers.visualization_manager:[24:36]
+        if isinstance(xml_path, bool):
+            self.logger.info("检测到布尔类型的xml_path参数，忽略它")
+            xml_path = None
 
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
+        # 如果未提供xml_path，尝试从主窗口获取
+        if xml_path is None and hasattr(self.main_window, 'lineEdit_TestProfile'):
+            xml_path = self.main_window.lineEdit_TestProfile.text()
+            if xml_path:
+                self.logger.info("从主窗口获取到XML路径: %s", xml_path)
+            else:
+                self.logger.info("主窗口未设置XML路径")
 
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
+        # viewer是独立工具，不需要从主UI获取数据路径，让其自行处理数据搜索
 
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-        pass
-
-    @abstractmethod
-    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
-        """
-        验证数据完整性
-
-        Args:
-            data: 待验证的数据
-
-        Returns:
-            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
-        """
-        pass
-
-    @abstractmethod
-    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
-        """
-        处理CSV数据文件
-
-        Args:
-            csv_path: CSV文件路径
-
-        Returns:
-            List[Dict[str, Any]]: 解析后的数据
-        """
-        pass
-
-    @abstractmethod
-    def export_processed_data(self, data: List[Dict[str, Any]],
-                            output_path: str, format: str = "csv") -> bool:
-        """
-        导出处理后的数据
-
-        Args:
-            data: 要导出的数据
-            output_path: 输出文件路径
-            format: 导出格式（"csv", "json", "excel"）
-
-        Returns:
-            bool: 导出是否成功
-        """
-        pass
-
-    @abstractmethod
-    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-        """
-        合并多个电池数据集
-
-        Args:
-            data_list: 数据集列表
-
-        Returns:
-            List[Dict[str, Any]]: 合并后的数据
-        """
-        pass
-
-    @abstractmethod
-    def extract_features(self, data: List[Dict[str, Any]],
-                        feature_types: List[str]) -> Dict[str, Any]:
-        """
-        提取数据特征
-
-        Args:
-            data: 原始数据
-            feature_types: 特征类型列表
-
-        Returns:
-            Dict[str, Any]: 提取的特征
-        """
-        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -10254,113 +16607,138 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_serial_number(self, serial_number: str) -> Optional[Battery]:
-        """根据序列号查找电池
+    def find_by_id(self, profile_id: str) -> Optional[TestProfile]:
+        """根据ID查找测试配置文件
 
         Args:
-            serial_number: 电池序列号
+            profile_id: 测试配置文件ID
 
         Returns:
-            电池实体对象，或None
+            测试配置文件实体对象，或None
         """
         pass
 
     @abstractmethod
-    def find_by_model_number(self, model_number: str) -> List[Battery]:
-        """根据型号查找电池
+    def find_by_name(self, name: str) -> List[TestProfile]:
+        """根据名称查找测试配置文件
 
         Args:
-            model_number: 电池型号
+            name: 测试配置文件名称
 
         Returns:
-            电池实体对象列表
+            测试配置文件实体对象列表
         """
         pass
 
     @abstractmethod
-    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
-        """根据制造商查找电池
-
-        Args:
-            manufacturer: 制造商
-
-        Returns:
-            电池实体对象列表
-        """
-        pass
-
-    @abstractmethod
-    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
-        """根据电池类型查找电池
+    def find_by_battery_type(self, battery_type: str) -> List[TestProfile]:
+        """根据电池类型查找测试配置文件
 
         Args:
             battery_type: 电池类型
 
         Returns:
-            电池实体对象列表
+            测试配置文件实体对象列表
         """
         pass
 
     @abstractmethod
-    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
-        """根据生产日期范围查找电池
+    def find_by_manufacturer(self, manufacturer: str) -> List[TestProfile]:
+        """根据制造商查找测试配置文件
 
         Args:
-            start_date: 开始日期
-            end_date: 结束日期
+            manufacturer: 制造商
 
         Returns:
-            电池实体对象列表
+            测试配置文件实体对象列表
         """
         pass
 
     @abstractmethod
-    def find_by_status(self, status: str) -> List[Battery]:
-        """根据状态查找电池
-
-        Args:
-            status: 电池状态
-
-        Returns:
-            电池实体对象列表
-        """
-        pass
-
-    @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
-        """查找所有电池
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestProfile]:
+        """查找所有测试配置文件
 
         Args:
             limit: 返回结果数量限制
             offset: 返回结果偏移量
 
         Returns:
-            电池实体对象列表
+            测试配置文件实体对象列表
         """
         pass
 
     @abstractmethod
-    def update(self, battery: Battery) -> Battery:
-        """更新电池信息
+    def update(self, test_profile: TestProfile) -> TestProfile:
+        """更新测试配置文件
 
         Args:
-            battery: 电池实体对象
+            test_profile: 测试配置文件实体对象
 
         Returns:
-            更新后的电池实体对象
+            更新后的测试配置文件实体对象
         """
         pass
 
     @abstractmethod
-    def delete(self, serial_number: str) -> bool:
-        """删除电池信息
+    def delete(self, profile_id: str) -> bool:
+        """删除测试配置文件
 
         Args:
-            serial_number: 电池序列号
+            profile_id: 测试配置文件ID
 
         Returns:
             是否删除成功
         """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计测试配置文件数量
+
+        Returns:
+            测试配置文件数量
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_config_manager:[5:20]
+==test_config_manager:[5:20]
+class TestConfigManager:
+    def setup_method(self):
+        self.manager = ConfigManager()
+
+    def test_load_config(self):
+        result = self.manager.load_config()
+        assert isinstance(result, dict)
+
+    def test_save_config(self):
+        config_data = {"settings": {}}
+        result = self.manager.save_config(config_data)
+        assert result is True
+
+    def test_update_config(self):
+        key = "test_key"
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_battery:[18:27]
+==test_battery_repository_impl:[25:34]
+            battery_type="Li-ion",
+            nominal_voltage=3.7,
+            nominal_capacity=2.0,
+            max_voltage=4.2,
+            min_voltage=3.0,
+            max_current=5.0,
+            weight=0.15
+        )
+
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -10372,115 +16750,98 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def create_main_window(self) -> Any:
-        """创建主窗口
+    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+        """
+        获取文件大小
+
+        Args:
+            file_path: 文件路径
 
         Returns:
-            Any: 主窗口实例
+            Optional[int]: 文件大小，失败返回None
         """
         pass
 
     @abstractmethod
-    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
-        """创建进度对话框
+    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+        """
+        设置文件属性
 
         Args:
-            parent: 父窗口
+            file_path: 文件路径
+            attributes: 属性字典
 
         Returns:
-            Any: 进度对话框实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def show_message_box(self,
-                        parent: Optional[Any],
-                        title: str,
-                        message: str,
-                        msg_type: MessageBoxType) -> Any:
-        """显示消息框
+    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        隐藏文件
 
         Args:
-            parent: 父窗口
-            title: 窗口标题
-            message: 消息内容
-            msg_type: 消息类型
+            file_path: 文件路径
 
         Returns:
-            Any: 消息框实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_file_dialog(self,
-                          parent: Optional[Any],
-                          caption: str,
-                          directory: str = "",
-                          filter_pattern: str = "") -> Any:
-        """创建文件选择对话框
+    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+        """
+        检查文件是否隐藏
 
         Args:
-            parent: 父窗口
-            caption: 对话框标题
-            directory: 默认目录
-            filter_pattern: 文件过滤器
+            file_path: 文件路径
 
         Returns:
-            Any: 文件对话框实例
+            bool: 文件是否隐藏
         """
         pass
 
     @abstractmethod
-    def create_label(self, parent: Any, text: str) -> Any:
-        """创建标签控件
+    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        复制文件
 
         Args:
-            parent: 父控件
-            text: 标签文本
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            Any: 标签控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
+    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        移动文件
 
         Args:
-            parent: 父控件
-            text: 按钮文本
+            source: 源文件路径
+            destination: 目标文件路径
 
         Returns:
-            Any: 按钮控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
 
     @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
+    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+        """
+        删除文件
 
         Args:
-            parent: 父控件
-            placeholder: 占位符文本
+            file_path: 文件路径
 
         Returns:
-            Any: 输入框控件实例
+            tuple: (是否成功, 错误消息)
         """
         pass
-
-    @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
-
-        Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
-
-        Returns:
-            Any: 表格控件实例
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -10920,51 +17281,42 @@ class EnvironmentManager:
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==business_logic.visualization_manager:[98:117]
-==managers.visualization_manager:[72:85]
-            else:
-                # 对于其他错误，显示标准错误对话框
-                QW.QMessageBox.critical(
-                    self.main_window,
-                    "错误",
-                    f"启动可视化工具时出错:\n\n{error_msg}\n\n请检查配置文件或联系技术支持。",
-                    QW.QMessageBox.StandardButton.Ok
-                )
+==business_logic.visualization_manager:[106:125]
+==managers.visualization_manager:[80:93]
+        else:
+            # 其他错误，显示标准错误对话框
+            QW.QMessageBox.critical(
+                self.main_window,
+                "错误",
+                f"启动可视化工具时出错:\n\n{error_msg}\n\n请检查配置文件或联系技术支持。",
+                QW.QMessageBox.StandardButton.Ok
+            )
 
-            self.main_window.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.main_window.statusBar_BatteryAnalysis.showMessage("状态:就绪")
 
-    def _handle_data_error_recovery(self, error_msg: str):
-        """
-        处理数据相关错误的恢复选项
-
-        Args:
-            error_msg: 错误信息
-        """
-        # 创建自定义对话框
+    def show_visualizer_error(self, error_msg: str):
+        """显示可视化错误消息"""
 - 符号: duplicate-code
 
 #### 行 1, 列 0
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
-==battery_analysis_service_impl:[203:219]
-==impl.battery_analysis_service_impl:[150:167]
+==battery_analysis_service_impl:[343:356]
+==impl.battery_analysis_service_impl:[293:307]
         anomalies = []
 
-        if len(test_results) < 3:  # 数据不足，无法检测异常
+        if len(test_results) < 3:
             return anomalies
 
-        # 计算各项指标的平均值和标准差
         capacities = [result.capacity for result in test_results]
         voltages = [result.voltage for result in test_results]
         currents = [result.current for result in test_results]
         temperatures = [result.temperature for result in test_results]
         internal_resistances = [result.internal_resistance for result in test_results]
 
-        # 使用公共工具函数进行异常检测
         from battery_analysis.utils.data_utils import detect_outliers as common_detect_outliers
 
-        # 预计算各项指标的统计量，避免重复计算
         def precompute_stats(data):
 - 符号: duplicate-code
 
@@ -10977,98 +17329,91 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
-        """根据制造商查找电池
+    def set_config_value(self, key: str, value: Any) -> bool:
+        """
+        设置配置值
 
         Args:
-            manufacturer: 制造商
+            key: 配置键
+            value: 配置值
 
         Returns:
-            电池实体对象列表
+            bool: 设置是否成功
         """
         pass
 
     @abstractmethod
-    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
-        """根据电池类型查找电池
-
-        Args:
-            battery_type: 电池类型
+    def save_config(self) -> bool:
+        """
+        保存配置到文件
 
         Returns:
-            电池实体对象列表
+            bool: 保存是否成功
         """
         pass
 
     @abstractmethod
-    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
-        """根据生产日期范围查找电池
+    def load_config(self, config_path: Optional[str] = None) -> bool:
+        """
+        从文件加载配置
 
         Args:
-            start_date: 开始日期
-            end_date: 结束日期
+            config_path: 配置文件路径，None表示使用默认路径
 
         Returns:
-            电池实体对象列表
+            bool: 加载是否成功
         """
         pass
 
     @abstractmethod
-    def find_by_status(self, status: str) -> List[Battery]:
-        """根据状态查找电池
-
-        Args:
-            status: 电池状态
+    def get_config_sections(self) -> List[str]:
+        """
+        获取所有配置节名称
 
         Returns:
-            电池实体对象列表
+            List[str]: 配置节名称列表
         """
         pass
 
     @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
-        """查找所有电池
+    def get_section_config(self, section: str) -> Dict[str, Any]:
+        """
+        获取指定配置节的所有键值对
 
         Args:
-            limit: 返回结果数量限制
-            offset: 返回结果偏移量
+            section: 配置节名称
 
         Returns:
-            电池实体对象列表
+            Dict[str, Any]: 配置节内容
         """
         pass
 
     @abstractmethod
-    def update(self, battery: Battery) -> Battery:
-        """更新电池信息
+    def has_config_key(self, key: str) -> bool:
+        """
+        检查配置键是否存在
 
         Args:
-            battery: 电池实体对象
+            key: 配置键
 
         Returns:
-            更新后的电池实体对象
+            bool: 键是否存在
         """
         pass
 
     @abstractmethod
-    def delete(self, serial_number: str) -> bool:
-        """删除电池信息
+    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
+        """
+        查找配置文件路径
 
         Args:
-            serial_number: 电池序列号
+            file_name: 配置文件名称
+            use_cache: 是否使用缓存的配置文件路径，默认为False
 
         Returns:
-            是否删除成功
+            Optional[Path]: 配置文件路径，如果未找到则返回None
         """
         pass
-
-    @abstractmethod
-    def count(self) -> int:
-        """统计电池数量
-
-        Returns:
-            电池数量
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11278,86 +17623,116 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_name(self, name: str) -> List[TestProfile]:
-        """根据名称查找测试配置文件
+    def find_by_serial_number(self, serial_number: str) -> Optional[Battery]:
+        """根据序列号查找电池
 
         Args:
-            name: 测试配置文件名称
+            serial_number: 电池序列号
 
         Returns:
-            测试配置文件实体对象列表
+            电池实体对象，或None
         """
         pass
 
     @abstractmethod
-    def find_by_battery_type(self, battery_type: str) -> List[TestProfile]:
-        """根据电池类型查找测试配置文件
+    def find_by_model_number(self, model_number: str) -> List[Battery]:
+        """根据型号查找电池
 
         Args:
-            battery_type: 电池类型
+            model_number: 电池型号
 
         Returns:
-            测试配置文件实体对象列表
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def find_by_manufacturer(self, manufacturer: str) -> List[TestProfile]:
-        """根据制造商查找测试配置文件
+    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
+        """根据制造商查找电池
 
         Args:
             manufacturer: 制造商
 
         Returns:
-            测试配置文件实体对象列表
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestProfile]:
-        """查找所有测试配置文件
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
+
+        Args:
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
 
         Args:
             limit: 返回结果数量限制
             offset: 返回结果偏移量
 
         Returns:
-            测试配置文件实体对象列表
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def update(self, test_profile: TestProfile) -> TestProfile:
-        """更新测试配置文件
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
 
         Args:
-            test_profile: 测试配置文件实体对象
+            battery: 电池实体对象
 
         Returns:
-            更新后的测试配置文件实体对象
+            更新后的电池实体对象
         """
-        pass
+- 符号: duplicate-code
 
-    @abstractmethod
-    def delete(self, profile_id: str) -> bool:
-        """删除测试配置文件
-
-        Args:
-            profile_id: 测试配置文件ID
-
-        Returns:
-            是否删除成功
-        """
-        pass
-
-    @abstractmethod
-    def count(self) -> int:
-        """统计测试配置文件数量
-
-        Returns:
-            测试配置文件数量
-        """
-        pass
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_battery:[181:188]
+==test_battery_repository_impl:[26:34]
+            nominal_voltage=3.7,
+            nominal_capacity=2.0,
+            max_voltage=4.2,
+            min_voltage=3.0,
+            max_current=5.0,
+            weight=0.15
+        )
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11385,85 +17760,96 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
         """
-        设置文件属性
-
-        Args:
-            file_path: 文件路径
-            attributes: 属性字典
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
-        pass
-
-    @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        隐藏文件
+        验证文件路径的有效性
 
         Args:
             file_path: 文件路径
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
         """
-        检查文件是否隐藏
+        验证目录路径的有效性
 
         Args:
-            file_path: 文件路径
+            directory_path: 目录路径
 
         Returns:
-            bool: 文件是否隐藏
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
         """
-        复制文件
+        验证数值是否在有效范围内
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            value: 要验证的值
+            min_val: 最小值
+            max_val: 最大值
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_email(self, email: str) -> Tuple[bool, str]:
         """
-        移动文件
+        验证邮箱地址格式
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            email: 邮箱地址
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
         """
-        删除文件
+        验证电话号码格式
 
         Args:
-            file_path: 文件路径
+            phone: 电话号码
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
+
+    @abstractmethod
+    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
+        """
+        验证电池类型是否有效
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
+        """
+        验证容量值是否有效
+
+        Args:
+            capacity: 容量值
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11475,98 +17861,84 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def delete_directory(self, path: Union[str, Path], recursive: bool = False) -> Tuple[bool, str]:
+    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
         """
-        删除目录
+        验证目录路径的有效性
 
         Args:
-            path: 目录路径
-            recursive: 是否递归删除
+            directory_path: 目录路径
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def list_files(self, directory: Union[str, Path], pattern: Optional[str] = None) -> List[str]:
+    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
         """
-        列出目录中的文件
+        验证数值是否在有效范围内
 
         Args:
-            directory: 目录路径
-            pattern: 文件名模式
+            value: 要验证的值
+            min_val: 最小值
+            max_val: 最大值
 
         Returns:
-            List[str]: 文件名列表
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def get_file_size(self, file_path: Union[str, Path]) -> Optional[int]:
+    def validate_email(self, email: str) -> Tuple[bool, str]:
         """
-        获取文件大小
+        验证邮箱地址格式
 
         Args:
-            file_path: 文件路径
+            email: 邮箱地址
 
         Returns:
-            Optional[int]: 文件大小，失败返回None
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def set_file_attributes(self, file_path: Union[str, Path], attributes: dict) -> Tuple[bool, str]:
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
         """
-        设置文件属性
+        验证电话号码格式
 
         Args:
-            file_path: 文件路径
-            attributes: 属性字典
+            phone: 电话号码
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_battery_type(self, battery_type: str) -> Tuple[bool, str]:
         """
-        隐藏文件
+        验证电池类型是否有效
 
         Args:
-            file_path: 文件路径
+            battery_type: 电池类型
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
         """
-        检查文件是否隐藏
+        验证容量值是否有效
 
         Args:
-            file_path: 文件路径
+            capacity: 容量值
 
         Returns:
-            bool: 文件是否隐藏
+            tuple: (是否有效, 错误消息)
         """
         pass
-
-    @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
-        """
-        复制文件
-
-        Args:
-            source: 源文件路径
-            destination: 目标文件路径
-
-        Returns:
-            tuple: (是否成功, 错误消息)
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11578,112 +17950,89 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def save_word_document(self, document: Any, output_path: str) -> bool:
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
         """
-        保存Word文档
+        生成模拟电池数据
 
         Args:
-            document: Word文档对象
+            battery_count: 电池数量
+            data_points: 数据点数量
+
+        Returns:
+            List[Dict[str, Any]]: 模拟数据
+        """
+        pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
             output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
 
         Returns:
-            bool: 保存是否成功
+            bool: 导出是否成功
         """
         pass
 
     @abstractmethod
-    def add_table_to_word(self, document: Any, table_data: List[List[str]],
-                         table_style: Optional[str] = None) -> bool:
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
         """
-        向Word文档添加表格
+        合并多个电池数据集
 
         Args:
-            document: Word文档对象
-            table_data: 表格数据，二维列表
-            table_style: 表格样式
+            data_list: 数据集列表
 
         Returns:
-            bool: 添加是否成功
+            List[Dict[str, Any]]: 合并后的数据
         """
         pass
 
     @abstractmethod
-    def add_image_to_word(self, document: Any, image_path: str,
-                         width: Optional[float] = None) -> bool:
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
         """
-        向Word文档添加图片
+        提取数据特征
 
         Args:
-            document: Word文档对象
-            image_path: 图片文件路径
-            width: 图片宽度
+            data: 原始数据
+            feature_types: 特征类型列表
 
         Returns:
-            bool: 添加是否成功
+            Dict[str, Any]: 提取的特征
         """
         pass
-
-    @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
-        """
-        创建Excel工作簿
-
-        Args:
-            template_path: Excel模板文件路径
-
-        Returns:
-            Any: Excel工作簿对象
-        """
-        pass
-
-    @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
-        """
-        保存Excel工作簿
-
-        Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
-        """
-        向Excel工作簿添加工作表
-
-        Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
-
-        Returns:
-            bool: 添加是否成功
-        """
-        pass
-
-    @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
-        """
-        设置单元格样式
-
-        Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
-
-        Returns:
-            bool: 设置是否成功
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11695,98 +18044,128 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
+    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        创建Excel工作簿
+        分析电池性能
 
         Args:
-            template_path: Excel模板文件路径
+            data: 电池数据列表
 
         Returns:
-            Any: Excel工作簿对象
+            Dict[str, Any]: 分析结果
         """
         pass
 
     @abstractmethod
-    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
         """
-        保存Excel工作簿
+        计算统计数据
 
         Args:
-            workbook: Excel工作簿对象
-            output_path: 输出文件路径
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
 
         Returns:
-            bool: 保存是否成功
+            Dict[str, float]: 统计数据
         """
         pass
 
     @abstractmethod
-    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
         """
-        向Excel工作簿添加工作表
+        数据平滑处理
 
         Args:
-            workbook: Excel工作簿对象
-            sheet_name: 工作表名称
-            data: 工作表数据
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
 
         Returns:
-            bool: 添加是否成功
+            List[float]: 平滑后的数据
         """
         pass
 
     @abstractmethod
-    def set_cell_style(self, worksheet: Any, row: int, col: int,
-                      font_name: Optional[str] = None, font_size: Optional[int] = None,
-                      bold: Optional[bool] = None, background_color: Optional[str] = None) -> bool:
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
         """
-        设置单元格样式
+        检测异常值
 
         Args:
-            worksheet: Excel工作表对象
-            row: 行号
-            col: 列号
-            font_name: 字体名称
-            font_size: 字体大小
-            bold: 是否加粗
-            background_color: 背景色
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            bool: 设置是否成功
+            List[int]: 异常值的索引列表
         """
         pass
 
     @abstractmethod
-    def generate_report(self, report_type: str, data: Dict[str, Any],
-                       output_path: str, template_path: Optional[str] = None) -> bool:
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
         """
-        生成报告
+        生成模拟电池数据
 
         Args:
-            report_type: 报告类型（如"word", "excel"）
-            data: 报告数据
-            output_path: 输出文件路径
-            template_path: 模板文件路径
+            battery_count: 电池数量
+            data_points: 数据点数量
 
         Returns:
-            bool: 生成是否成功
+            List[Dict[str, Any]]: 模拟数据
         """
         pass
 
     @abstractmethod
-    def set_cell_background_color(self, cell: Any, color: str) -> bool:
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
         """
-        设置单元格背景色
+        验证数据完整性
 
         Args:
-            cell: 单元格对象
-            color: 颜色值（十六进制或颜色名称）
+            data: 待验证的数据
 
         Returns:
-            bool: 设置是否成功
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
         """
         pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[451:473]
+==impl.battery_analysis_service_impl:[394:411]
+        battery.health_status = "good"
+
+        self._update_cache("calculate_battery_health", cache_key, battery)
+
+        return battery
+
+    def analyze_battery_performance(self, battery: Battery) -> Dict[str, Any]:
+        """分析电池性能
+
+        分析电池的性能指标
+        """
+        cache_key = self._generate_cache_key("analyze_battery_performance", battery)
+
+        cached_result = self._get_from_cache("analyze_battery_performance", cache_key)
+        if cached_result is not None:
+            return cached_result
+
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11798,90 +18177,78 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def set_config_value(self, key: str, value: Any) -> bool:
-        """
-        设置配置值
+    def find_by_battery_serial(self, serial_number: str) -> List[TestResult]:
+        """根据电池序列号查找测试结果
 
         Args:
-            key: 配置键
-            value: 配置值
+            serial_number: 电池序列号
 
         Returns:
-            bool: 设置是否成功
+            测试结果实体对象列表
         """
         pass
 
     @abstractmethod
-    def save_config(self) -> bool:
-        """
-        保存配置到文件
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
+    def find_by_date_range(self, start_date: datetime, end_date: datetime) -> List[TestResult]:
+        """根据日期范围查找测试结果
 
         Args:
-            config_path: 配置文件路径，None表示使用默认路径
+            start_date: 开始日期
+            end_date: 结束日期
 
         Returns:
-            bool: 加载是否成功
+            测试结果实体对象列表
         """
         pass
 
     @abstractmethod
-    def get_config_sections(self) -> List[str]:
-        """
-        获取所有配置节名称
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        pass
-
-    @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
-        """
-        获取指定配置节的所有键值对
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
+        """查找所有测试结果
 
         Args:
-            section: 配置节名称
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
 
         Returns:
-            Dict[str, Any]: 配置节内容
+            测试结果实体对象列表
         """
         pass
 
     @abstractmethod
-    def has_config_key(self, key: str) -> bool:
-        """
-        检查配置键是否存在
+    def update(self, test_result: TestResult) -> TestResult:
+        """更新测试结果
 
         Args:
-            key: 配置键
+            test_result: 测试结果实体对象
 
         Returns:
-            bool: 键是否存在
+            更新后的测试结果实体对象
         """
         pass
 
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
-        """
-        查找配置文件路径
+    def delete(self, test_id: str) -> bool:
+        """删除测试结果
 
         Args:
-            file_name: 配置文件名称
-            use_cache: 是否使用缓存的配置文件路径，默认为False
+            test_id: 测试结果ID
 
         Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
+            是否删除成功
         """
+        pass
+
+    @abstractmethod
+    def count_by_battery_serial(self, serial_number: str) -> int:
+        """统计电池的测试结果数量
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            测试结果数量
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -11987,64 +18354,86 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def load_data(self, data_path: str) -> bool:
-        """
-        加载数据
+    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
+        """根据电池类型查找电池
 
         Args:
-            data_path: 数据路径
+            battery_type: 电池类型
 
         Returns:
-            bool: 是否成功加载数据
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def clear_data(self) -> None:
-        """
-        清除所有数据，回到初始状态
-        """
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
+    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
+        """根据生产日期范围查找电池
 
         Args:
-            config: 配置字典
+            start_date: 开始日期
+            end_date: 结束日期
+
+        Returns:
+            电池实体对象列表
         """
         pass
 
     @abstractmethod
-    def get_config(self) -> dict:
-        """
-        获取当前配置
+    def find_by_status(self, status: str) -> List[Battery]:
+        """根据状态查找电池
+
+        Args:
+            status: 电池状态
 
         Returns:
-            dict: 当前配置字典
+            电池实体对象列表
         """
         pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
+        """查找所有电池
+
+        Args:
+            limit: 返回结果数量限制
+            offset: 返回结果偏移量
+
+        Returns:
+            电池实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def update(self, battery: Battery) -> Battery:
+        """更新电池信息
+
+        Args:
+            battery: 电池实体对象
+
+        Returns:
+            更新后的电池实体对象
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, serial_number: str) -> bool:
+        """删除电池信息
+
+        Args:
+            serial_number: 电池序列号
+
+        Returns:
+            是否删除成功
+        """
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
+        """统计电池数量
+
+        Returns:
+            电池数量
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -12244,75 +18633,88 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
-        """根据生产日期范围查找电池
+    def find_by_id(self, profile_id: str) -> Optional[TestProfile]:
+        """根据ID查找测试配置文件
 
         Args:
-            start_date: 开始日期
-            end_date: 结束日期
+            profile_id: 测试配置文件ID
 
         Returns:
-            电池实体对象列表
+            测试配置文件实体对象，或None
         """
         pass
 
     @abstractmethod
-    def find_by_status(self, status: str) -> List[Battery]:
-        """根据状态查找电池
+    def find_by_name(self, name: str) -> List[TestProfile]:
+        """根据名称查找测试配置文件
 
         Args:
-            status: 电池状态
+            name: 测试配置文件名称
 
         Returns:
-            电池实体对象列表
+            测试配置文件实体对象列表
         """
         pass
 
     @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
-        """查找所有电池
+    def find_by_battery_type(self, battery_type: str) -> List[TestProfile]:
+        """根据电池类型查找测试配置文件
+
+        Args:
+            battery_type: 电池类型
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_by_manufacturer(self, manufacturer: str) -> List[TestProfile]:
+        """根据制造商查找测试配置文件
+
+        Args:
+            manufacturer: 制造商
+
+        Returns:
+            测试配置文件实体对象列表
+        """
+        pass
+
+    @abstractmethod
+    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestProfile]:
+        """查找所有测试配置文件
 
         Args:
             limit: 返回结果数量限制
             offset: 返回结果偏移量
 
         Returns:
-            电池实体对象列表
+            测试配置文件实体对象列表
         """
         pass
 
     @abstractmethod
-    def update(self, battery: Battery) -> Battery:
-        """更新电池信息
+    def update(self, test_profile: TestProfile) -> TestProfile:
+        """更新测试配置文件
 
         Args:
-            battery: 电池实体对象
+            test_profile: 测试配置文件实体对象
 
         Returns:
-            更新后的电池实体对象
+            更新后的测试配置文件实体对象
         """
         pass
 
     @abstractmethod
-    def delete(self, serial_number: str) -> bool:
-        """删除电池信息
+    def delete(self, profile_id: str) -> bool:
+        """删除测试配置文件
 
         Args:
-            serial_number: 电池序列号
+            profile_id: 测试配置文件ID
 
         Returns:
             是否删除成功
         """
-        pass
-
-    @abstractmethod
-    def count(self) -> int:
-        """统计电池数量
-
-        Returns:
-            电池数量
-        """
-        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -12398,8 +18800,170 @@ class EnvironmentManager:
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==test_battery:[73:83]
+==test_battery_repository_impl:[27:34]
+            nominal_capacity=2.0,
+            max_voltage=4.2,
+            min_voltage=3.0,
+            max_current=5.0,
+            weight=0.15
+        )
+
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_battery:[143:149]
+==test_battery_repository_impl:[187:193]
+            battery_type="Li-ion",
+            nominal_voltage=3.7,
+            nominal_capacity=2.0,
+            max_voltage=4.2,
+            min_voltage=3.0,
+            max_current=5.0,
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==test_battery:[47:53]
+==test_battery_repository_impl:[25:31]
+        battery_type="Li-ion",
+        nominal_voltage=3.7,
+        nominal_capacity=2.0,
+        max_voltage=4.2,
+        min_voltage=3.0,
+        max_current=5.0,
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
 ==iuiframework:[38:123]
 ==services.validation_service_interface:[54:122]
+        pass
+
+    @abstractmethod
+    def create_main_window(self) -> Any:
+        """创建主窗口
+
+        Returns:
+            Any: 主窗口实例
+        """
+        pass
+
+    @abstractmethod
+    def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
+        """创建进度对话框
+
+        Args:
+            parent: 父窗口
+
+        Returns:
+            Any: 进度对话框实例
+        """
+        pass
+
+    @abstractmethod
+    def show_message_box(self,
+                        parent: Optional[Any],
+                        title: str,
+                        message: str,
+                        msg_type: MessageBoxType) -> Any:
+        """显示消息框
+
+        Args:
+            parent: 父窗口
+            title: 窗口标题
+            message: 消息内容
+            msg_type: 消息类型
+
+        Returns:
+            Any: 消息框实例
+        """
+        pass
+
+    @abstractmethod
+    def create_file_dialog(self,
+                          parent: Optional[Any],
+                          caption: str,
+                          directory: str = "",
+                          filter_pattern: str = "") -> Any:
+        """创建文件选择对话框
+
+        Args:
+            parent: 父窗口
+            caption: 对话框标题
+            directory: 默认目录
+            filter_pattern: 文件过滤器
+
+        Returns:
+            Any: 文件对话框实例
+        """
+        pass
+
+    @abstractmethod
+    def create_label(self, parent: Any, text: str) -> Any:
+        """创建标签控件
+
+        Args:
+            parent: 父控件
+            text: 标签文本
+
+        Returns:
+            Any: 标签控件实例
+        """
+        pass
+
+    @abstractmethod
+    def create_button(self, parent: Any, text: str) -> Any:
+        """创建按钮控件
+
+        Args:
+            parent: 父控件
+            text: 按钮文本
+
+        Returns:
+            Any: 按钮控件实例
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==iuiframework:[110:173]
+==services.validation_service_interface:[28:108]
+        pass
+
+    @abstractmethod
+    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
+        """
+        验证文件路径的有效性
+
+        Args:
+            file_path: 文件路径
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
+        pass
+
+    @abstractmethod
+    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
+        """
+        验证目录路径的有效性
+
+        Args:
+            directory_path: 目录路径
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
         pass
 
     @abstractmethod
@@ -12454,91 +19018,6 @@ class EnvironmentManager:
         Returns:
             tuple: (是否有效, 错误消息)
         """
-        pass
-
-    @abstractmethod
-    def validate_capacity_value(self, capacity: str) -> Tuple[bool, str]:
-        """
-        验证容量值是否有效
-
-        Args:
-            capacity: 容量值
-
-        Returns:
-            tuple: (是否有效, 错误消息)
-        """
-        pass
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==iuiframework:[110:173]
-==services.validation_service_interface:[28:108]
-        pass
-
-    @abstractmethod
-    def create_button(self, parent: Any, text: str) -> Any:
-        """创建按钮控件
-
-        Args:
-            parent: 父控件
-            text: 按钮文本
-
-        Returns:
-            Any: 按钮控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
-        """创建输入框控件
-
-        Args:
-            parent: 父控件
-            placeholder: 占位符文本
-
-        Returns:
-            Any: 输入框控件实例
-        """
-        pass
-
-    @abstractmethod
-    def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
-        """创建表格控件
-
-        Args:
-            parent: 父控件
-            rows: 行数
-            columns: 列数
-
-        Returns:
-            Any: 表格控件实例
-        """
-        pass
-
-    @abstractmethod
-    def set_layout(self, parent: Any, layout: Any) -> None:
-        """设置布局管理器
-
-        Args:
-            parent: 父控件
-            layout: 布局管理器
-        """
-        pass
-
-    @abstractmethod
-    def exec_application(self, app: Any) -> int:
-        """运行应用程序
-
-        Args:
-            app: 应用程序实例
-
-        Returns:
-            int: 退出代码
-        """
-        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -12640,71 +19119,91 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def hide_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+    def save_word_document(self, document: Any, output_path: str) -> bool:
         """
-        隐藏文件
+        保存Word文档
 
         Args:
-            file_path: 文件路径
+            document: Word文档对象
+            output_path: 输出文件路径
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            bool: 保存是否成功
         """
         pass
 
     @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+    def add_table_to_word(self, document: Any, table_data: List[List[str]],
+                         table_style: Optional[str] = None) -> bool:
         """
-        检查文件是否隐藏
+        向Word文档添加表格
 
         Args:
-            file_path: 文件路径
+            document: Word文档对象
+            table_data: 表格数据，二维列表
+            table_style: 表格样式
 
         Returns:
-            bool: 文件是否隐藏
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def add_image_to_word(self, document: Any, image_path: str,
+                         width: Optional[float] = None) -> bool:
         """
-        复制文件
+        向Word文档添加图片
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            document: Word文档对象
+            image_path: 图片文件路径
+            width: 图片宽度
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
         """
-        移动文件
+        创建Excel工作簿
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            template_path: Excel模板文件路径
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            Any: Excel工作簿对象
         """
         pass
 
     @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
         """
-        删除文件
+        保存Excel工作簿
 
         Args:
-            file_path: 文件路径
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            bool: 保存是否成功
         """
         pass
+
+    @abstractmethod
+    def add_sheet_to_excel(self, workbook: Any, sheet_name: str, data: List[List[Any]]) -> bool:
+        """
+        向Excel工作簿添加工作表
+
+        Args:
+            workbook: Excel工作簿对象
+            sheet_name: 工作表名称
+            data: 工作表数据
+
+        Returns:
+            bool: 添加是否成功
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -12716,67 +19215,90 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
+    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        从文件加载配置
+        分析电池性能
 
         Args:
-            config_path: 配置文件路径，None表示使用默认路径
+            data: 电池数据列表
 
         Returns:
-            bool: 加载是否成功
+            Dict[str, Any]: 分析结果
         """
         pass
 
     @abstractmethod
-    def get_config_sections(self) -> List[str]:
+    def calculate_statistics(self, data: List[Union[float, int]],
+                           statistics: List[str] = None) -> Dict[str, float]:
         """
-        获取所有配置节名称
+        计算统计数据
+
+        Args:
+            data: 数据列表
+            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
 
         Returns:
-            List[str]: 配置节名称列表
+            Dict[str, float]: 统计数据
         """
         pass
 
     @abstractmethod
-    def get_section_config(self, section: str) -> Dict[str, Any]:
+    def smooth_data(self, data: List[float], method: str = "moving_average",
+                   window_size: int = 5) -> List[float]:
         """
-        获取指定配置节的所有键值对
+        数据平滑处理
 
         Args:
-            section: 配置节名称
+            data: 原始数据
+            method: 平滑方法（"moving_average", "gaussian", "savgol"）
+            window_size: 窗口大小
 
         Returns:
-            Dict[str, Any]: 配置节内容
+            List[float]: 平滑后的数据
         """
         pass
 
     @abstractmethod
-    def has_config_key(self, key: str) -> bool:
+    def detect_outliers(self, data: List[Union[float, int]],
+                       method: str = "iqr") -> List[int]:
         """
-        检查配置键是否存在
+        检测异常值
 
         Args:
-            key: 配置键
+            data: 数据列表
+            method: 检测方法（"iqr", "zscore", "isolation_forest"）
 
         Returns:
-            bool: 键是否存在
+            List[int]: 异常值的索引列表
         """
         pass
 
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
+    def generate_mock_data(self, battery_count: int = 1,
+                          data_points: int = 100) -> List[Dict[str, Any]]:
         """
-        查找配置文件路径
+        生成模拟电池数据
 
         Args:
-            file_name: 配置文件名称
-            use_cache: 是否使用缓存的配置文件路径，默认为False
+            battery_count: 电池数量
+            data_points: 数据点数量
 
         Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
+            List[Dict[str, Any]]: 模拟数据
         """
         pass
+
+    @abstractmethod
+    def validate_data_integrity(self, data: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
+        """
+        验证数据完整性
+
+        Args:
+            data: 待验证的数据
+
+        Returns:
+            Tuple[bool, List[str]]: (是否有效, 错误信息列表)
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -12867,66 +19389,63 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def validate_test_profile(self, test_profile: TestProfile) -> Dict[str, Any]:
-        """验证测试配置是否有效
+    def load_data(self, data_path: str) -> bool:
+        """
+        加载数据
 
         Args:
-            test_profile: 测试配置实体
+            data_path: 数据路径
 
         Returns:
-            验证结果，包含是否有效和详细信息
+            bool: 是否成功加载数据
         """
         pass
 
     @abstractmethod
-    def generate_test_id(self, battery: Battery) -> str:
-        """生成测试ID
-
-        Args:
-            battery: 电池实体
-
-        Returns:
-            生成的测试ID
+    def clear_data(self) -> None:
+        """
+        清除所有数据，回到初始状态
         """
         pass
 
     @abstractmethod
-    def get_test_summary(self, test_results: List[TestResult]) -> Dict[str, Any]:
-        """获取测试结果摘要
-
-        Args:
-            test_results: 测试结果列表
+    def is_data_loaded(self) -> bool:
+        """
+        检查是否有数据已加载
 
         Returns:
-            测试结果摘要
+            bool: 是否已加载数据
         """
         pass
 
     @abstractmethod
-    def calculate_test_statistics(self, test_results: List[TestResult]) -> Dict[str, float]:
-        """计算测试统计信息
-
-        Args:
-            test_results: 测试结果列表
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
 
         Returns:
-            测试统计信息
+            dict: 状态信息字典
         """
         pass
 
     @abstractmethod
-    def group_test_results_by_criteria(self, test_results: List[TestResult],
-                                      criteria: str) -> Dict[str, List[TestResult]]:
-        """按指定条件分组测试结果
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
 
         Args:
-            test_results: 测试结果列表
-            criteria: 分组条件 (如: 'date', 'battery_type', 'operator')
-
-        Returns:
-            按条件分组的测试结果
+            config: 配置字典
         """
         pass
+
+    @abstractmethod
+    def get_config(self) -> dict:
+        """
+        获取当前配置
+
+        Returns:
+            dict: 当前配置字典
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -12938,78 +19457,51 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def update_test_result(self, test_result: TestResult, test_data: Dict[str, Any]) -> TestResult:
-        """更新测试结果
-
-        Args:
-            test_result: 测试结果实体
-            test_data: 更新的测试数据
-
-        Returns:
-            更新后的测试结果实体
+    def clear_data(self) -> None:
+        """
+        清除所有数据，回到初始状态
         """
         pass
 
     @abstractmethod
-    def validate_test_profile(self, test_profile: TestProfile) -> Dict[str, Any]:
-        """验证测试配置是否有效
-
-        Args:
-            test_profile: 测试配置实体
+    def is_data_loaded(self) -> bool:
+        """
+        检查是否有数据已加载
 
         Returns:
-            验证结果，包含是否有效和详细信息
+            bool: 是否已加载数据
         """
         pass
 
     @abstractmethod
-    def generate_test_id(self, battery: Battery) -> str:
-        """生成测试ID
-
-        Args:
-            battery: 电池实体
+    def get_status_info(self) -> dict:
+        """
+        获取状态信息
 
         Returns:
-            生成的测试ID
+            dict: 状态信息字典
         """
         pass
 
     @abstractmethod
-    def get_test_summary(self, test_results: List[TestResult]) -> Dict[str, Any]:
-        """获取测试结果摘要
+    def set_config(self, config: dict) -> None:
+        """
+        设置配置
 
         Args:
-            test_results: 测试结果列表
-
-        Returns:
-            测试结果摘要
+            config: 配置字典
         """
         pass
 
     @abstractmethod
-    def calculate_test_statistics(self, test_results: List[TestResult]) -> Dict[str, float]:
-        """计算测试统计信息
-
-        Args:
-            test_results: 测试结果列表
+    def get_config(self) -> dict:
+        """
+        获取当前配置
 
         Returns:
-            测试统计信息
+            dict: 当前配置字典
         """
         pass
-
-    @abstractmethod
-    def group_test_results_by_criteria(self, test_results: List[TestResult],
-                                      criteria: str) -> Dict[str, List[TestResult]]:
-        """按指定条件分组测试结果
-
-        Args:
-            test_results: 测试结果列表
-            criteria: 分组条件 (如: 'date', 'battery_type', 'operator')
-
-        Returns:
-            按条件分组的测试结果
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13021,66 +19513,81 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_date_range(self, start_date: datetime, end_date: datetime) -> List[TestResult]:
-        """根据日期范围查找测试结果
+    def calculate_state_of_charge(self, voltage: float, battery: Battery) -> float:
+        """计算电池充电状态(SOC)
 
         Args:
-            start_date: 开始日期
-            end_date: 结束日期
+            voltage: 当前电压 (V)
+            battery: 电池实体
 
         Returns:
-            测试结果实体对象列表
+            充电状态百分比 (0-100)
         """
         pass
 
     @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
-        """查找所有测试结果
+    def analyze_cycle_life(self, test_results: List[TestResult], battery: Battery) -> Dict[str, Any]:
+        """分析电池循环寿命
 
         Args:
-            limit: 返回结果数量限制
-            offset: 返回结果偏移量
+            test_results: 测试结果列表
+            battery: 电池实体
 
         Returns:
-            测试结果实体对象列表
+            循环寿命分析结果
         """
         pass
 
     @abstractmethod
-    def update(self, test_result: TestResult) -> TestResult:
-        """更新测试结果
+    def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
+        """验证测试结果是否符合测试配置要求
 
         Args:
-            test_result: 测试结果实体对象
+            test_result: 测试结果实体
+            test_profile: 测试配置实体
+            battery: 电池实体
 
         Returns:
-            更新后的测试结果实体对象
+            验证结果，包含是否通过和详细信息
         """
         pass
 
     @abstractmethod
-    def delete(self, test_id: str) -> bool:
-        """删除测试结果
+    def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
+        """计算电池性能指标
 
         Args:
-            test_id: 测试结果ID
+            test_result: 测试结果实体
+            battery: 电池实体
 
         Returns:
-            是否删除成功
+            性能指标字典
         """
         pass
 
     @abstractmethod
-    def count_by_battery_serial(self, serial_number: str) -> int:
-        """统计电池的测试结果数量
+    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
+        """检测测试结果中的异常
 
         Args:
-            serial_number: 电池序列号
+            test_results: 测试结果列表
 
         Returns:
-            测试结果数量
+            异常列表
         """
         pass
+
+    @abstractmethod
+    def compare_test_results(self, test_result1: TestResult, test_result2: TestResult) -> Dict[str, Any]:
+        """比较两个测试结果
+
+        Args:
+            test_result1: 第一个测试结果
+            test_result2: 第二个测试结果
+
+        Returns:
+            比较结果
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13166,77 +19673,69 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_model_number(self, model_number: str) -> List[Battery]:
-        """根据型号查找电池
+    def register_instance(self, name: str, instance: T) -> bool:
+        """
+        注册实例
 
         Args:
-            model_number: 电池型号
+            name: 服务名称
+            instance: 服务实例
 
         Returns:
-            电池实体对象列表
+            bool: 注册是否成功
         """
         pass
 
     @abstractmethod
-    def find_by_manufacturer(self, manufacturer: str) -> List[Battery]:
-        """根据制造商查找电池
+    def get(self, name: str) -> Optional[T]:
+        """
+        获取服务
 
         Args:
-            manufacturer: 制造商
+            name: 服务名称
 
         Returns:
-            电池实体对象列表
+            T: 服务实例，如果不存在则返回None
         """
         pass
 
     @abstractmethod
-    def find_by_battery_type(self, battery_type: str) -> List[Battery]:
-        """根据电池类型查找电池
+    def has(self, name: str) -> bool:
+        """
+        检查服务是否存在
 
         Args:
-            battery_type: 电池类型
+            name: 服务名称
 
         Returns:
-            电池实体对象列表
+            bool: 服务是否存在
         """
         pass
 
     @abstractmethod
-    def find_by_production_date_range(self, start_date: datetime, end_date: datetime) -> List[Battery]:
-        """根据生产日期范围查找电池
+    def unregister(self, name: str) -> bool:
+        """
+        注销服务
 
         Args:
-            start_date: 开始日期
-            end_date: 结束日期
+            name: 服务名称
 
         Returns:
-            电池实体对象列表
+            bool: 注销是否成功
         """
         pass
 
     @abstractmethod
-    def find_by_status(self, status: str) -> List[Battery]:
-        """根据状态查找电池
-
-        Args:
-            status: 电池状态
+    def shutdown(self) -> bool:
+        """
+        关闭容器
 
         Returns:
-            电池实体对象列表
+            bool: 关闭是否成功
         """
         pass
 
-    @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[Battery]:
-        """查找所有电池
 
-        Args:
-            limit: 返回结果数量限制
-            offset: 返回结果偏移量
-
-        Returns:
-            电池实体对象列表
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13391,60 +19890,88 @@ class EnvironmentManager:
 - 类型: refactor
 - 代码: R0801
 - 描述: Similar lines in 2 files
+==test_battery:[125:130]
+==test_battery_repository_impl:[25:30]
+            battery_type="Li-ion",
+            nominal_voltage=3.7,
+            nominal_capacity=2.0,
+            max_voltage=4.2,
+            min_voltage=3.0,
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
 ==services.service_container:[50:102]
 ==services.validation_service_interface:[28:95]
         pass
 
     @abstractmethod
-    def get(self, name: str) -> Optional[T]:
+    def validate_file_path(self, file_path: str) -> Tuple[bool, str]:
         """
-        获取服务
+        验证文件路径的有效性
 
         Args:
-            name: 服务名称
+            file_path: 文件路径
 
         Returns:
-            T: 服务实例，如果不存在则返回None
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def has(self, name: str) -> bool:
+    def validate_directory_path(self, directory_path: str) -> Tuple[bool, str]:
         """
-        检查服务是否存在
+        验证目录路径的有效性
 
         Args:
-            name: 服务名称
+            directory_path: 目录路径
 
         Returns:
-            bool: 服务是否存在
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def unregister(self, name: str) -> bool:
+    def validate_numeric_value(self, value: Any, min_val: float = None, max_val: float = None) -> Tuple[bool, str]:
         """
-        注销服务
+        验证数值是否在有效范围内
 
         Args:
-            name: 服务名称
+            value: 要验证的值
+            min_val: 最小值
+            max_val: 最大值
 
         Returns:
-            bool: 注销是否成功
+            tuple: (是否有效, 错误消息)
         """
         pass
 
     @abstractmethod
-    def shutdown(self) -> bool:
+    def validate_email(self, email: str) -> Tuple[bool, str]:
         """
-        关闭容器
+        验证邮箱地址格式
+
+        Args:
+            email: 邮箱地址
 
         Returns:
-            bool: 关闭是否成功
+            tuple: (是否有效, 错误消息)
         """
         pass
 
+    @abstractmethod
+    def validate_phone_number(self, phone: str) -> Tuple[bool, str]:
+        """
+        验证电话号码格式
 
+        Args:
+            phone: 电话号码
+
+        Returns:
+            tuple: (是否有效, 错误消息)
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13593,58 +20120,76 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def is_file_hidden(self, file_path: Union[str, Path]) -> bool:
+    def save_word_document(self, document: Any, output_path: str) -> bool:
         """
-        检查文件是否隐藏
+        保存Word文档
 
         Args:
-            file_path: 文件路径
+            document: Word文档对象
+            output_path: 输出文件路径
 
         Returns:
-            bool: 文件是否隐藏
+            bool: 保存是否成功
         """
         pass
 
     @abstractmethod
-    def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def add_table_to_word(self, document: Any, table_data: List[List[str]],
+                         table_style: Optional[str] = None) -> bool:
         """
-        复制文件
+        向Word文档添加表格
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            document: Word文档对象
+            table_data: 表格数据，二维列表
+            table_style: 表格样式
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def move_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
+    def add_image_to_word(self, document: Any, image_path: str,
+                         width: Optional[float] = None) -> bool:
         """
-        移动文件
+        向Word文档添加图片
 
         Args:
-            source: 源文件路径
-            destination: 目标文件路径
+            document: Word文档对象
+            image_path: 图片文件路径
+            width: 图片宽度
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            bool: 添加是否成功
         """
         pass
 
     @abstractmethod
-    def delete_file(self, file_path: Union[str, Path]) -> Tuple[bool, str]:
+    def create_excel_workbook(self, template_path: Optional[str] = None) -> Any:
         """
-        删除文件
+        创建Excel工作簿
 
         Args:
-            file_path: 文件路径
+            template_path: Excel模板文件路径
 
         Returns:
-            tuple: (是否成功, 错误消息)
+            Any: Excel工作簿对象
         """
         pass
+
+    @abstractmethod
+    def save_excel_workbook(self, workbook: Any, output_path: str) -> bool:
+        """
+        保存Excel工作簿
+
+        Args:
+            workbook: Excel工作簿对象
+            output_path: 输出文件路径
+
+        Returns:
+            bool: 保存是否成功
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13653,125 +20198,6 @@ class EnvironmentManager:
 - 描述: Similar lines in 2 files
 ==services.config_service_interface:[67:118]
 ==services.data_processing_service_interface:[31:105]
-        pass
-
-    @abstractmethod
-    def analyze_battery_performance(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        分析电池性能
-
-        Args:
-            data: 电池数据列表
-
-        Returns:
-            Dict[str, Any]: 分析结果
-        """
-        pass
-
-    @abstractmethod
-    def calculate_statistics(self, data: List[Union[float, int]],
-                           statistics: List[str] = None) -> Dict[str, float]:
-        """
-        计算统计数据
-
-        Args:
-            data: 数据列表
-            statistics: 统计类型列表（如["mean", "std", "min", "max"]）
-
-        Returns:
-            Dict[str, float]: 统计数据
-        """
-        pass
-
-    @abstractmethod
-    def smooth_data(self, data: List[float], method: str = "moving_average",
-                   window_size: int = 5) -> List[float]:
-        """
-        数据平滑处理
-
-        Args:
-            data: 原始数据
-            method: 平滑方法（"moving_average", "gaussian", "savgol"）
-            window_size: 窗口大小
-
-        Returns:
-            List[float]: 平滑后的数据
-        """
-        pass
-
-    @abstractmethod
-    def detect_outliers(self, data: List[Union[float, int]],
-                       method: str = "iqr") -> List[int]:
-        """
-        检测异常值
-
-        Args:
-            data: 数据列表
-            method: 检测方法（"iqr", "zscore", "isolation_forest"）
-
-        Returns:
-            List[int]: 异常值的索引列表
-        """
-        pass
-
-    @abstractmethod
-    def generate_mock_data(self, battery_count: int = 1,
-                          data_points: int = 100) -> List[Dict[str, Any]]:
-        """
-        生成模拟电池数据
-
-        Args:
-            battery_count: 电池数量
-            data_points: 数据点数量
-
-        Returns:
-            List[Dict[str, Any]]: 模拟数据
-        """
-- 符号: duplicate-code
-
-#### 行 1, 列 0
-- 类型: refactor
-- 代码: R0801
-- 描述: Similar lines in 2 files
-==services.config_service_interface:[30:90]
-==services.data_processing_service_interface:[118:176]
-        pass
-
-    @abstractmethod
-    def set_config_value(self, key: str, value: Any) -> bool:
-        """
-        设置配置值
-
-        Args:
-            key: 配置键
-            value: 配置值
-
-        Returns:
-            bool: 设置是否成功
-        """
-        pass
-
-    @abstractmethod
-    def save_config(self) -> bool:
-        """
-        保存配置到文件
-
-        Returns:
-            bool: 保存是否成功
-        """
-        pass
-
-    @abstractmethod
-    def load_config(self, config_path: Optional[str] = None) -> bool:
-        """
-        从文件加载配置
-
-        Args:
-            config_path: 配置文件路径，None表示使用默认路径
-
-        Returns:
-            bool: 加载是否成功
-        """
         pass
 
     @abstractmethod
@@ -13795,6 +20221,100 @@ class EnvironmentManager:
         Returns:
             Dict[str, Any]: 配置节内容
         """
+        pass
+
+    @abstractmethod
+    def has_config_key(self, key: str) -> bool:
+        """
+        检查配置键是否存在
+
+        Args:
+            key: 配置键
+
+        Returns:
+            bool: 键是否存在
+        """
+        pass
+
+    @abstractmethod
+    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
+        """
+        查找配置文件路径
+
+        Args:
+            file_name: 配置文件名称
+            use_cache: 是否使用缓存的配置文件路径，默认为False
+
+        Returns:
+            Optional[Path]: 配置文件路径，如果未找到则返回None
+        """
+        pass
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==services.config_service_interface:[30:90]
+==services.data_processing_service_interface:[118:176]
+        pass
+
+    @abstractmethod
+    def process_csv_data(self, csv_path: str) -> List[Dict[str, Any]]:
+        """
+        处理CSV数据文件
+
+        Args:
+            csv_path: CSV文件路径
+
+        Returns:
+            List[Dict[str, Any]]: 解析后的数据
+        """
+        pass
+
+    @abstractmethod
+    def export_processed_data(self, data: List[Dict[str, Any]],
+                            output_path: str, format: str = "csv") -> bool:
+        """
+        导出处理后的数据
+
+        Args:
+            data: 要导出的数据
+            output_path: 输出文件路径
+            format: 导出格式（"csv", "json", "excel"）
+
+        Returns:
+            bool: 导出是否成功
+        """
+        pass
+
+    @abstractmethod
+    def merge_battery_data(self, data_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        合并多个电池数据集
+
+        Args:
+            data_list: 数据集列表
+
+        Returns:
+            List[Dict[str, Any]]: 合并后的数据
+        """
+        pass
+
+    @abstractmethod
+    def extract_features(self, data: List[Dict[str, Any]],
+                        feature_types: List[str]) -> Dict[str, Any]:
+        """
+        提取数据特征
+
+        Args:
+            data: 原始数据
+            feature_types: 特征类型列表
+
+        Returns:
+            Dict[str, Any]: 提取的特征
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13806,53 +20326,54 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def load_data(self, data_path: str) -> bool:
-        """
-        加载数据
+    def generate_test_id(self, battery: Battery) -> str:
+        """生成测试ID
 
         Args:
-            data_path: 数据路径
+            battery: 电池实体
 
         Returns:
-            bool: 是否成功加载数据
+            生成的测试ID
         """
         pass
 
     @abstractmethod
-    def clear_data(self) -> None:
-        """
-        清除所有数据，回到初始状态
-        """
-        pass
-
-    @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
+    def get_test_summary(self, test_results: List[TestResult]) -> Dict[str, Any]:
+        """获取测试结果摘要
 
         Args:
-            config: 配置字典
+            test_results: 测试结果列表
+
+        Returns:
+            测试结果摘要
         """
+        pass
+
+    @abstractmethod
+    def calculate_test_statistics(self, test_results: List[TestResult]) -> Dict[str, float]:
+        """计算测试统计信息
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            测试统计信息
+        """
+        pass
+
+    @abstractmethod
+    def group_test_results_by_criteria(self, test_results: List[TestResult],
+                                      criteria: str) -> Dict[str, List[TestResult]]:
+        """按指定条件分组测试结果
+
+        Args:
+            test_results: 测试结果列表
+            criteria: 分组条件 (如: 'date', 'battery_type', 'operator')
+
+        Returns:
+            按条件分组的测试结果
+        """
+        pass
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13864,44 +20385,77 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def is_data_loaded(self) -> bool:
-        """
-        检查是否有数据已加载
-
-        Returns:
-            bool: 是否已加载数据
-        """
-        pass
-
-    @abstractmethod
-    def get_status_info(self) -> dict:
-        """
-        获取状态信息
-
-        Returns:
-            dict: 状态信息字典
-        """
-        pass
-
-    @abstractmethod
-    def set_config(self, config: dict) -> None:
-        """
-        设置配置
+    def update_test_result(self, test_result: TestResult, test_data: Dict[str, Any]) -> TestResult:
+        """更新测试结果
 
         Args:
-            config: 配置字典
+            test_result: 测试结果实体
+            test_data: 更新的测试数据
+
+        Returns:
+            更新后的测试结果实体
         """
         pass
 
     @abstractmethod
-    def get_config(self) -> dict:
-        """
-        获取当前配置
+    def validate_test_profile(self, test_profile: TestProfile) -> Dict[str, Any]:
+        """验证测试配置是否有效
+
+        Args:
+            test_profile: 测试配置实体
 
         Returns:
-            dict: 当前配置字典
+            验证结果，包含是否有效和详细信息
         """
         pass
+
+    @abstractmethod
+    def generate_test_id(self, battery: Battery) -> str:
+        """生成测试ID
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            生成的测试ID
+        """
+        pass
+
+    @abstractmethod
+    def get_test_summary(self, test_results: List[TestResult]) -> Dict[str, Any]:
+        """获取测试结果摘要
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            测试结果摘要
+        """
+        pass
+
+    @abstractmethod
+    def calculate_test_statistics(self, test_results: List[TestResult]) -> Dict[str, float]:
+        """计算测试统计信息
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            测试统计信息
+        """
+- 符号: duplicate-code
+
+#### 行 1, 列 0
+- 类型: refactor
+- 代码: R0801
+- 描述: Similar lines in 2 files
+==battery_analysis_service_impl:[562:567]
+==impl.battery_analysis_service_impl:[481:486]
+            for key in self._cache:
+                self._cache[key].clear()
+            for key in self._cache_access_order:
+                self._cache_access_order[key].clear()
+            self._cache_timestamps.clear()
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13913,53 +20467,68 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
-        """查找所有测试结果
+    def calculate_state_of_charge(self, voltage: float, battery: Battery) -> float:
+        """计算电池充电状态(SOC)
 
         Args:
-            limit: 返回结果数量限制
-            offset: 返回结果偏移量
+            voltage: 当前电压 (V)
+            battery: 电池实体
 
         Returns:
-            测试结果实体对象列表
+            充电状态百分比 (0-100)
         """
         pass
 
     @abstractmethod
-    def update(self, test_result: TestResult) -> TestResult:
-        """更新测试结果
+    def analyze_cycle_life(self, test_results: List[TestResult], battery: Battery) -> Dict[str, Any]:
+        """分析电池循环寿命
 
         Args:
-            test_result: 测试结果实体对象
+            test_results: 测试结果列表
+            battery: 电池实体
 
         Returns:
-            更新后的测试结果实体对象
+            循环寿命分析结果
         """
         pass
 
     @abstractmethod
-    def delete(self, test_id: str) -> bool:
-        """删除测试结果
+    def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
+        """验证测试结果是否符合测试配置要求
 
         Args:
-            test_id: 测试结果ID
+            test_result: 测试结果实体
+            test_profile: 测试配置实体
+            battery: 电池实体
 
         Returns:
-            是否删除成功
+            验证结果，包含是否通过和详细信息
         """
         pass
 
     @abstractmethod
-    def count_by_battery_serial(self, serial_number: str) -> int:
-        """统计电池的测试结果数量
+    def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
+        """计算电池性能指标
 
         Args:
-            serial_number: 电池序列号
+            test_result: 测试结果实体
+            battery: 电池实体
 
         Returns:
-            测试结果数量
+            性能指标字典
         """
         pass
+
+    @abstractmethod
+    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
+        """检测测试结果中的异常
+
+        Args:
+            test_results: 测试结果列表
+
+        Returns:
+            异常列表
+        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -13971,65 +20540,56 @@ class EnvironmentManager:
         pass
 
     @abstractmethod
-    def find_by_id(self, test_id: str) -> Optional[TestResult]:
-        """根据ID查找测试结果
+    def validate_test_result(self, test_result: TestResult, test_profile: TestProfile, battery: Battery) -> Dict[str, Any]:
+        """验证测试结果是否符合测试配置要求
 
         Args:
-            test_id: 测试结果ID
+            test_result: 测试结果实体
+            test_profile: 测试配置实体
+            battery: 电池实体
 
         Returns:
-            测试结果实体对象，或None
+            验证结果，包含是否通过和详细信息
         """
         pass
 
     @abstractmethod
-    def find_by_battery_serial(self, serial_number: str) -> List[TestResult]:
-        """根据电池序列号查找测试结果
+    def calculate_performance_metrics(self, test_result: TestResult, battery: Battery) -> Dict[str, float]:
+        """计算电池性能指标
 
         Args:
-            serial_number: 电池序列号
+            test_result: 测试结果实体
+            battery: 电池实体
 
         Returns:
-            测试结果实体对象列表
+            性能指标字典
         """
         pass
 
     @abstractmethod
-    def find_by_date_range(self, start_date: datetime, end_date: datetime) -> List[TestResult]:
-        """根据日期范围查找测试结果
+    def detect_anomalies(self, test_results: List[TestResult]) -> List[Dict[str, Any]]:
+        """检测测试结果中的异常
 
         Args:
-            start_date: 开始日期
-            end_date: 结束日期
+            test_results: 测试结果列表
 
         Returns:
-            测试结果实体对象列表
+            异常列表
         """
         pass
 
     @abstractmethod
-    def find_all(self, limit: int = 100, offset: int = 0) -> List[TestResult]:
-        """查找所有测试结果
+    def compare_test_results(self, test_result1: TestResult, test_result2: TestResult) -> Dict[str, Any]:
+        """比较两个测试结果
 
         Args:
-            limit: 返回结果数量限制
-            offset: 返回结果偏移量
+            test_result1: 第一个测试结果
+            test_result2: 第二个测试结果
 
         Returns:
-            测试结果实体对象列表
+            比较结果
         """
         pass
-
-    @abstractmethod
-    def update(self, test_result: TestResult) -> TestResult:
-        """更新测试结果
-
-        Args:
-            test_result: 测试结果实体对象
-
-        Returns:
-            更新后的测试结果实体对象
-        """
 - 符号: duplicate-code
 
 #### 行 1, 列 0
@@ -14175,7 +20735,7 @@ class EnvironmentManager:
 - 代码: R0801
 - 描述: Similar lines in 2 files
 ==analyze_data_use_case:[395:400]
-==business_logic.data_processor:[477:482]
+==business_logic.data_processor:[808:813]
                         'total_records': len(df),
                         'columns': df.columns.tolist(),
                         'numeric_columns': df.select_dtypes(include=['number']).columns.tolist(),
@@ -14196,9 +20756,51 @@ class EnvironmentManager:
         "OK",
 - 符号: duplicate-code
 
-#### 行 67, 列 11
+#### 行 2, 列 0
+- 类型: convention
+- 代码: C0411
+- 描述: standard import "unittest.mock.Mock" should be placed before third party import "pytest"
+- 符号: wrong-import-order
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused patch imported from unittest.mock
+- 符号: unused-import
+
+#### 行 2, 列 0
+- 类型: warning
+- 代码: W0611
+- 描述: Unused MagicMock imported from unittest.mock
+- 符号: unused-import
+
+#### 行 12, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _tc of a client class
+- 符号: protected-access
+
+#### 行 36, 列 15
 - 类型: convention
 - 代码: C1804
-- 描述: "str_reported_by == ''" can be simplified to "not str_reported_by", if it is strictly a string, as an empty string is falsey
+- 描述: "result == ''" can be simplified to "not result", if it is strictly a string, as an empty string is falsey
 - 符号: use-implicit-booleaness-not-comparison-to-string
+
+#### 行 45, 列 15
+- 类型: convention
+- 代码: C1804
+- 描述: "result == ''" can be simplified to "not result", if it is strictly a string, as an empty string is falsey
+- 符号: use-implicit-booleaness-not-comparison-to-string
+
+#### 行 54, 列 8
+- 类型: warning
+- 代码: W0212
+- 描述: Access to a protected member _p of a client class
+- 符号: protected-access
+
+#### 行 58, 列 0
+- 类型: convention
+- 代码: C0304
+- 描述: Final newline missing
+- 符号: missing-final-newline
 

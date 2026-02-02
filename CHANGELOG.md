@@ -1,3 +1,27 @@
+### v2.7.0
+
+#### 功能增强
+- feat: 增强配置值解析逻辑并修复路径配置
+- feat(多语言支持): 添加语言处理器并更新配置
+- feat(配置管理): 为配置文件查找添加缓存选项
+
+#### 重构优化
+- refactor(环境适配): 将环境相关方法提取到独立的环境适配器模块
+- refactor(信号处理): 将线程状态处理逻辑从主窗口移至信号连接器
+- refactor(ui): 将缩放功能移至menu_manager并清理主窗口代码
+- refactor(ui_manager): 将用户设置加载功能从主窗口移至UI管理器
+- refactor(信号连接): 将信号连接逻辑提取到独立的SignalConnector类
+- refactor(progress_dialog): 将进度对话框类移至独立模块并更新配置
+- refactor(ui): 将状态栏消息更新和菜单连接逻辑移至menu_manager
+- refactor(main_window): 将工具栏和菜单功能委托给menu_manager
+
+#### 修复和改进
+- fix: 简化窗口标题生成逻辑，移除国际化支持
+- fix: 解决循环导入问题并优化控制器初始化
+
+#### 构建和CI/CD
+- build: 升级版本至2.7.0
+
 ### v2.6.0
 
 #### 功能增强
