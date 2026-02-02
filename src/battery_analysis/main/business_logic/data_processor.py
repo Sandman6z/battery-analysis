@@ -31,6 +31,32 @@ class DataProcessor:
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
     
+    def optimize_dataframe_memory(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        优化DataFrame内存使用
+        
+        Args:
+            df: 原始DataFrame
+            
+        Returns:
+            pd.DataFrame: 优化内存后的DataFrame
+        """
+        # 优化数值列
+        for col in df.select_dtypes(include=['int64']).columns:
+            df[col] = pd.to_numeric(df[col], downcast='integer')
+        
+        for col in df.select_dtypes(include=['float64']).columns:
+            df[col] = pd.to_numeric(df[col], downcast='float')
+        
+        # 优化对象列
+        for col in df.select_dtypes(include=['object']).columns:
+            # 检查唯一值比例
+            unique_ratio = len(df[col].unique()) / len(df[col])
+            if unique_ratio < 0.5:
+                df[col] = df[col].astype('category')
+        
+        return df
+    
     def process_excel_with_pandas(self, file_path: str) -> dict:
         """
         使用pandas处理单个Excel文件，提取关键信息
@@ -44,8 +70,11 @@ class DataProcessor:
         try:
             self.logger.info("使用pandas处理Excel文件: %s", file_path)
             
-            # 使用pandas读取Excel文件
+            # 使用pandas读取Excel文件，指定引擎和优化参数
             df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+            
+            # 优化DataFrame内存使用
+            df = self.optimize_dataframe_memory(df)
             
             # 提取文件信息
             file_info = {
@@ -327,6 +356,9 @@ class DataProcessor:
         try:
             # 尝试读取Excel文件
             df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+            
+            # 优化DataFrame内存使用
+            df = self.optimize_dataframe_memory(df)
             
             # 验证文件内容
             is_valid, error_msg = self._validate_excel_file_content(df, filename)
@@ -647,6 +679,26 @@ class DataProcessor:
                     file_path = os.path.join(input_path, filename)
                     # 使用pandas读取Excel文件
                     df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+                    
+                    # 优化DataFrame内存使用
+                    # 复制内存优化函数的逻辑，因为在子进程中无法访问实例方法
+                    def optimize_df_memory(df):
+                        # 优化数值列
+                        for col in df.select_dtypes(include=['int64']).columns:
+                            df[col] = pd.to_numeric(df[col], downcast='integer')
+                        
+                        for col in df.select_dtypes(include=['float64']).columns:
+                            df[col] = pd.to_numeric(df[col], downcast='float')
+                        
+                        # 优化对象列
+                        for col in df.select_dtypes(include=['object']).columns:
+                            # 检查唯一值比例
+                            unique_ratio = len(df[col].unique()) / len(df[col])
+                            if unique_ratio < 0.5:
+                                df[col] = df[col].astype('category')
+                        return df
+                    
+                    df = optimize_df_memory(df)
                     
                     # 基本数据分析
                     analysis_result = {
