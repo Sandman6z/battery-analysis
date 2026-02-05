@@ -1,92 +1,132 @@
 name: Sync to Wiki
-
 on:
   push:
-    branches: [main, "feat/*"]
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
   sync-wiki:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     env:
       PYTHONIOENCODING: utf-8
       PYTHONUTF8: 1
+      WIKI_URL: https://github.com/${{ github.repository }}.wiki.git
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Wiki initialization Check
+      - name: Ensure GH PAT is provided
+        if: ${{ secrets.GH_PAT == '' }}
         run: |
-          # 检查Wiki是否已初始化
-          echo "Checking if Wiki is initialized..."
-          
-          # 直接检查wiki.git仓库是否存在
-          WIKI_URL="https://github.com/${{ github.repository }}.wiki.git"
-          echo "Checking Wiki repository at: $WIKI_URL"
-          
-          # 使用git ls-remote检查仓库是否存在
-          if git ls-remote --exit-code "$WIKI_URL" > /dev/null 2>&1; then
-            echo "✓ Wiki repository exists and is accessible"
+          echo "Missing GH_PAT secret. Create a secret named GH_PAT with a PAT that has repo scope."
+          exit 1
+
+      - name: Prepare and sync wiki
+        env:
+          TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          set -euo pipefail
+
+          echo "Checking wiki remote: $WIKI_URL"
+          if git ls-remote --exit-code "$WIKI_URL" >/dev/null 2>&1; then
+            echo "Wiki repo exists and is accessible."
+            CLONE=true
           else
-            echo "✗ Wiki repository not found or inaccessible"
-            echo "Please manually initialize Wiki in GitHub settings:"
-            echo "1. Go to GitHub repository > Settings > Features > Wiki"
-            echo "2. Enable Wiki feature"
-            echo "3. Create at least one Wiki page to initialize the repository"
-            exit 0
+            echo "Wiki repo not found. Attempting to enable wiki via GitHub API..."
+            # Try enabling wiki via API (requires token with admin/repo scope)
+            ENABLE_RESP=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X PATCH \
+              -H "Authorization: token $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/${{ github.repository }} -d '{"has_wiki":true}')
+            echo "API response code: $ENABLE_RESP"
+            sleep 1
+
+            # Re-check remote after attempting enable
+            if git ls-remote --exit-code "$WIKI_URL" >/dev/null 2>&1; then
+              echo "Wiki repo created and accessible."
+              CLONE=true
+            else
+              echo "Wiki still not accessible. Will initialize the wiki repo locally and push initial commit."
+              CLONE=false
+            fi
           fi
 
-      # Sync Markdown to Wiki manually without using hardcoded master branch action
-      - name: Sync Markdown to Wiki manually
-        run: |
-          # Clone the Wiki repository
-          git clone https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.wiki.git temp_wiki
-          
-          # Set git configuration
-          git config --global user.name "${{ github.event.head_commit.author.name }}"
-          git config --global user.email "${{ github.event.head_commit.author.email }}"
-          
-          # Navigate to Wiki directory
-          cd temp_wiki
-          
-          # Check current branch and create if needed
-          CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
-          echo "Current Wiki branch: $CURRENT_BRANCH"
-          
-          # Create main branch if it doesn't exist
-          if [ ! "$CURRENT_BRANCH" = "main" ]; then
-            git checkout -b main
-            git push -u origin main
-          fi
-          
-          # Clear existing Wiki content (keep .git directory)
-          find . -type f -not -name ".git*" -not -path "./.git/*" -delete
-          
-          # Copy documentation files
-          cp -r ../docs/* .
-          
-          # Convert README.md to Home.md if it exists
-          if [ -f "README.md" ]; then
-            mv README.md Home.md
-          fi
-          
-          # Add all files
-          git add -A
-          
-          # Check if there are changes to commit
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
+          if [ "$CLONE" = "true" ]; then
+            echo "Cloning wiki..."
+            # Use x-access-token form to avoid exposing token in logs (still be careful)
+            git clone https://x-access-token:$TOKEN@github.com/${{ github.repository }}.wiki.git temp_wiki
+            cd temp_wiki
+            # Ensure we are on main if possible
+            BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
+            echo "Wiki HEAD branch: $BRANCH"
           else
-            # Commit changes
-            git commit -m "Update Wiki - ${{ github.event.head_commit.message }}"
-            # Push changes
-            git push origin main
+            echo "Creating temp wiki repo"
+            rm -rf temp_wiki
+            mkdir temp_wiki
+            cd temp_wiki
+            git init
+            git remote add origin https://x-access-token:$TOKEN@github.com/${{ github.repository }}.wiki.git
+            # Create an initial Home.md if none provided
+            if [ -f ../docs/README.md ]; then
+              cp ../docs/README.md Home.md
+            else
+              echo "# Home" > Home.md
+            fi
+            git add Home.md
+            git commit -m "Initialize Wiki"
+            # Try pushing main then master
+            if git push -u origin main 2>/dev/null; then
+              echo "Pushed initial commit to main"
+            elif git push -u origin master 2>/dev/null; then
+              echo "Pushed initial commit to master"
+            else
+              echo "Initial push failed; the wiki remote may not accept pushes yet. Exiting."
+              exit 1
+            fi
           fi
-          
-          # Navigate back and clean up
+
+          # At this point we are in temp_wiki (if cloned or just created)
+          # Clean wiki contents (preserve .git)
+          echo "Syncing docs/ into wiki..."
+          # Remove everything except .git
+          find . -maxdepth 1 -mindepth 1 ! -name ".git" -exec rm -rf {} +
+
+          # Copy docs into wiki
+          if [ -d ../docs ]; then
+            cp -r ../docs/* .
+          else
+            echo "No docs/ directory found at root. Provide files under docs/ or modify the workflow."
+          fi
+
+          # Convert README.md to Home.md (wiki home page)
+          if [ -f "README.md" ]; then
+            mv -f README.md Home.md
+          fi
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            GIT_NAME="${{ github.event.head_commit.author.name || github.actor }}"
+            GIT_EMAIL="${{ github.event.head_commit.author.email || format('%s@users.noreply.github.com', github.actor) }}"
+            git config user.name "$GIT_NAME"
+            git config user.email "$GIT_EMAIL"
+            # Commit and push to whichever branch exists
+            git commit -m "Update Wiki - ${{ github.sha }} - ${{ github.event.head_commit.message }}"
+            # Try pushing to current branch; fallback to main/master
+            if git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
+              CURRENT=$(git rev-parse --abbrev-ref HEAD)
+              git push origin "$CURRENT" || true
+            fi
+            git push origin main 2>/dev/null || git push origin master
+          fi
+
           cd ..
           rm -rf temp_wiki
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
