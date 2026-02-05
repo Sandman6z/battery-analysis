@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Ensure GH PAT is provided
-        if: secrets.GH_PAT == ''
+        if: ${{ secrets.GH_PAT == '' }}
         run: |
           echo "Missing GH_PAT secret. Create a secret named GH_PAT with a PAT that has repo scope."
           exit 1
