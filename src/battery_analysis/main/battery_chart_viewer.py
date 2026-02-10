@@ -490,8 +490,8 @@ class BatteryChartViewer:
                                 self.maxXaxis = int(rule_parts[2])
                                 logging.info(
                                     "根据规则设置maxXaxis: %s", self.maxXaxis)
-                                # 同步更新坐标轴范围和刻度
-                                self.listAxis = [self.plot_config.axis_special[0], self.maxXaxis, self.plot_config.axis_special[2], self.plot_config.axis_special[3]]
+                                # 同步更新坐标轴范围和刻度，使用较高的y轴最大值以确保所有数据都能显示
+                                self.listAxis = [self.plot_config.axis_special[0], self.maxXaxis, self.plot_config.axis_special[2], 5.0]
                                 self.listXTicks = list(
                                     range(0, self.maxXaxis + 1, 100))
                                 break
@@ -2291,6 +2291,32 @@ class BatteryChartViewer:
                 # 更新纵轴范围
                 ax.set_ylim(y_min, y_max)
                 logging.info(f"动态调整纵轴范围: [{y_min:.4f}, {y_max:.4f}]")
+                
+                # 根据计算的范围动态调整Y轴刻度间隔
+                # 计算合适的刻度间隔，目标是10-20个刻度
+                y_range_actual = y_max - y_min
+                target_ticks = 15  # 目标刻度数量
+                optimal_interval = y_range_actual / target_ticks
+                
+                # 找到最接近的合适间隔值
+                # 对于小范围（< 5V）使用0.1, 0.2, 0.5
+                # 对于中等范围（5-20V）使用0.5, 1.0, 2.0
+                # 对于大范围（> 20V）使用1.0, 2.0, 5.0, 10.0
+                if y_range_actual < 5:
+                    intervals = [0.1, 0.2, 0.5]
+                elif y_range_actual < 20:
+                    intervals = [0.5, 1.0, 2.0]
+                else:
+                    intervals = [1.0, 2.0, 5.0, 10.0]
+                
+                # 找到最接近optimal_interval的间隔
+                best_interval = min(intervals, key=lambda x: abs(x - optimal_interval))
+                
+                # 更新Y轴主刻度
+                from matplotlib.ticker import MultipleLocator
+                y_major_locator = MultipleLocator(best_interval)
+                ax.yaxis.set_major_locator(y_major_locator)
+                logging.info(f"动态调整Y轴刻度间隔: {best_interval}")
             else:
                 logging.warning("无法计算有效的纵轴范围，使用默认值")
         except (AttributeError, ValueError, TypeError) as e:
