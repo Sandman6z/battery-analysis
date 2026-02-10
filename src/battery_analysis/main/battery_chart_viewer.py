@@ -891,6 +891,9 @@ class BatteryChartViewer:
                 if valid_data_found:
                     logging.info(
                         "成功绘制了 %d 条过滤曲线和 %d 条原始曲线", len(lines_filtered), len(lines_unfiltered))
+                    
+                    # 动态计算纵轴范围，确保所有数据都能显示
+                    self._adjust_y_axis_range(ax)
             except (OSError, ValueError, TypeError, IndexError) as plot_error:
                 logging.error("绘制电池曲线时出错: %s", str(plot_error))
                 lines_unfiltered, lines_filtered = [], []
@@ -2237,6 +2240,61 @@ class BatteryChartViewer:
             logging.warning("添加悬停功能时出错: %s", e)
 
     # 注意：_show_error_plot方法已在前面定义，此方法已更新为增强版
+
+    def _adjust_y_axis_range(self, ax):
+        """
+        动态调整纵轴范围，确保所有数据都能显示
+        
+        Args:
+            ax: matplotlib轴对象
+        """
+        try:
+            # 初始化最小和最大值
+            y_min = float('inf')
+            y_max = float('-inf')
+            
+            # 遍历所有电池和电流级别的数据，找到最小值和最大值
+            for b in range(self.intBatteryNum):
+                for c in range(self.intCurrentLevelNum):
+                    try:
+                        # 检查原始数据
+                        if c < len(self.listPlt) and b < len(self.listPlt[c][1]):
+                            voltage_data = self.listPlt[c][1][b]
+                            if voltage_data:
+                                current_min = min(voltage_data)
+                                current_max = max(voltage_data)
+                                y_min = min(y_min, current_min)
+                                y_max = max(y_max, current_max)
+                        
+                        # 检查过滤后的数据
+                        if c < len(self.listPlt) and b < len(self.listPlt[c][3]):
+                            filtered_voltage_data = self.listPlt[c][3][b]
+                            if filtered_voltage_data:
+                                current_min = min(filtered_voltage_data)
+                                current_max = max(filtered_voltage_data)
+                                y_min = min(y_min, current_min)
+                                y_max = max(y_max, current_max)
+                    except (IndexError, ValueError, TypeError):
+                        # 跳过无效数据
+                        continue
+            
+            # 如果找到有效的数据范围
+            if y_min != float('inf') and y_max != float('-inf'):
+                # 添加10%的边距，确保数据不会紧贴坐标轴
+                y_range = y_max - y_min
+                y_min = y_min - 0.1 * y_range
+                y_max = y_max + 0.1 * y_range
+                
+                # 确保最小值不为负数（电压不能为负）
+                y_min = max(y_min, 0)
+                
+                # 更新纵轴范围
+                ax.set_ylim(y_min, y_max)
+                logging.info(f"动态调整纵轴范围: [{y_min:.4f}, {y_max:.4f}]")
+            else:
+                logging.warning("无法计算有效的纵轴范围，使用默认值")
+        except (AttributeError, ValueError, TypeError) as e:
+            logging.error("调整纵轴范围时出错: %s", e)
 
 
 if __name__ == '__main__':
