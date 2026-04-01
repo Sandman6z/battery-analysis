@@ -1,3 +1,14 @@
+### v2.8.0
+
+#### 功能增强
+- feat: 添加自定义配置文件路径功能
+- feat(ui): 新增 Specification Type/Method/Manufacturer 等下拉框组件
+- feat(i18n): 增强偏好设置对话框的国际化支持
+- feat(validation): 增强验证管理器功能
+
+#### 构建和CI/CD
+- build: 升级版本至2.8.0
+
 ### v2.7.0
 
 #### 功能增强
