@@ -1,4 +1,14 @@
 {
     "python.analysis.typeCheckingMode": "off",
-    "python.analysis.autoImportCompletions": false
+    "python.analysis.autoImportCompletions": false,
+    "python.defaultInterpreterPath": "${workspaceFolder}\.venv\Scripts\python.exe",
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests",
+        "--cov=battery_analysis",
+        "--cov-report=html"
+    ],
+    "python.testing.cwd": "${workspaceFolder}",
+    "python.testing.autoTestDiscoverOnSaveEnabled": true
 }

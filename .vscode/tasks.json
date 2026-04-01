@@ -34,6 +34,22 @@
             "problemMatcher": [
                 "$python"
             ]
+        },
+        {
+            "label": "Run Coverage Tests",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                ". '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m pytest tests/ --cov=battery_analysis --cov-report=html"
+            ],
+            "problemMatcher": [
+                "$python"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ]
 }

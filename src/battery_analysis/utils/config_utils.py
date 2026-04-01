@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 import logging
+from typing import Optional
 
 # 导入新的环境检测工具
 from .environment_utils import get_environment_detector, EnvironmentType
@@ -18,14 +19,54 @@ logger = logging.getLogger(__name__)
 _config_path_cache = {}
 
 
+def clear_config_cache() -> None:
+    """
+    清除配置文件路径缓存
+
+    当用户更改配置文件路径设置后，需要调用此函数清除缓存
+    """
+    global _config_path_cache
+    _config_path_cache.clear()
+    logger.info("配置文件路径缓存已清除")
+
+
+def _get_custom_config_path() -> Optional[str]:
+    """
+    获取用户自定义的配置文件路径
+
+    从QSettings中读取用户自定义的配置路径设置
+
+    Returns:
+        用户自定义的配置路径，如果没有设置则返回None
+    """
+    try:
+        from PyQt6.QtCore import QSettings
+        settings = QSettings()
+        # 尝试读取不同的键名，确保兼容性
+        custom_path = settings.value("config/custom_config_path", "", type=str)
+        if not custom_path:
+            custom_path = settings.value("custom_config_path", "", type=str)
+        logger.info(f"读取到的自定义配置路径: '{custom_path}'")
+        
+        # 即使文件不存在，也返回路径，让调用者处理不存在的情况
+        if custom_path:
+            logger.info(f"返回自定义配置路径: '{custom_path}'")
+            return custom_path
+        else:
+            logger.info("未设置自定义配置路径")
+    except Exception as e:
+        logger.error("无法读取自定义配置路径: %s", e)
+    return None
+
+
 def find_config_file(
-    file_name: str = "setting.ini", 
-    config_dir: str = "config", 
+    file_name: str = "setting.ini",
+    config_dir: str = "config",
     use_cache: bool = True
 ) -> str:
     """
     在多个可能的位置查找配置文件，并返回第一个找到的配置文件的路径。
-    
+
     支持的环境：
     - 开发环境（IDE、命令行）
     - PyInstaller打包环境
@@ -47,10 +88,17 @@ def find_config_file(
     if use_cache and cache_key in _config_path_cache:
         return _config_path_cache[cache_key]
 
+    # 首先检查是否有用户自定义的配置路径
+    custom_path = _get_custom_config_path()
+    if custom_path:
+        logger.info("使用用户自定义配置文件: %s", custom_path)
+        _config_path_cache[cache_key] = str(custom_path)
+        return str(custom_path)
+
     # 使用新的环境检测器
     env_detector = get_environment_detector()
     env_info = env_detector.get_environment_info()
-    
+
     # 根据环境类型调整搜索策略
     if env_info['environment_type'] == EnvironmentType.CONTAINER:
         logger.debug("容器环境：优先使用标准路径")

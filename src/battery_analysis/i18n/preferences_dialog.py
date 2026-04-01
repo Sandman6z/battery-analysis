@@ -6,6 +6,7 @@ This module implements the preferences dialog for language and other application
 """
 
 import logging
+import os
 from typing import Optional
 
 import PyQt6.QtCore as QC
@@ -14,6 +15,7 @@ import PyQt6.QtWidgets as QW
 
 from . import _, get_available_locales, set_locale, get_current_locale
 from .language_manager import get_language_manager
+from ..utils.config_utils import find_config_file
 
 
 class PreferencesDialog(QW.QDialog):
@@ -47,7 +49,14 @@ class PreferencesDialog(QW.QDialog):
         self.cancel_button = None
         self.apply_button = None
         self.tab_widget = None
-        
+
+        # Config tab attributes
+        self.config_path_label = None
+        self.config_path_lineedit = None
+        self.config_browse_button = None
+        self.config_validate_button = None
+        self.config_status_label = None
+
         # Initialize UI
         self._setup_ui()
         self._load_settings()
@@ -65,10 +74,13 @@ class PreferencesDialog(QW.QDialog):
         
         # Create General tab
         self._create_general_tab()
-        
+
         # Create Language tab
         self._create_language_tab()
-        
+
+        # Create Config tab
+        self._create_config_tab()
+
         # Create buttons
         self._create_buttons(main_layout)
     
@@ -174,10 +186,138 @@ class PreferencesDialog(QW.QDialog):
         
         # Add stretch
         language_layout.addStretch()
-        
+
         # Add tab
         self.tab_widget.addTab(language_widget, _("language", "Language"))
-    
+
+    def _create_config_tab(self):
+        """Create the configuration file settings tab"""
+        config_widget = QW.QWidget()
+        config_layout = QW.QVBoxLayout(config_widget)
+
+        # Config file path group
+        config_group = QW.QGroupBox(_("config_file_settings", "Configuration File Settings"))
+        config_group_layout = QW.QVBoxLayout(config_group)
+
+        # Current config path display
+        current_path_layout = QW.QHBoxLayout()
+        current_path_layout.addWidget(QW.QLabel(_("current_config_path", "Current Config Path:")))
+        self.config_path_label = QW.QLabel(_("not_loaded", "Not loaded"))
+        self.config_path_label.setStyleSheet("color: gray;")
+        current_path_layout.addWidget(self.config_path_label, 1)
+        config_group_layout.addLayout(current_path_layout)
+
+        # Config path selection
+        path_layout = QW.QHBoxLayout()
+        path_layout.addWidget(QW.QLabel(_("custom_config_path", "Custom Config Path:")))
+        self.config_path_lineedit = QW.QLineEdit()
+        self.config_path_lineedit.setPlaceholderText(_("enter_config_path", "Enter custom configuration file path..."))
+        self.config_browse_button = QW.QPushButton(_("browse", "Browse..."))
+        self.config_browse_button.clicked.connect(self._browse_config_file)
+        path_layout.addWidget(self.config_path_lineedit, 1)
+        path_layout.addWidget(self.config_browse_button)
+        config_group_layout.addLayout(path_layout)
+
+        # Validate button
+        validate_layout = QW.QHBoxLayout()
+        self.config_validate_button = QW.QPushButton(_("validate_config", "Validate Configuration"))
+        self.config_validate_button.clicked.connect(self._validate_config_file)
+        self.config_status_label = QW.QLabel()
+        self.config_status_label.setWordWrap(True)
+        validate_layout.addWidget(self.config_validate_button)
+        validate_layout.addWidget(self.config_status_label, 1)
+        config_group_layout.addLayout(validate_layout)
+
+        config_layout.addWidget(config_group)
+
+        # Required sections info
+        info_group = QW.QGroupBox(_("required_sections", "Required Sections in Config File"))
+        info_layout = QW.QVBoxLayout(info_group)
+
+        required_sections = [
+            "[BatteryConfig] - Battery type, specification types, rules",
+            "[TestConfig] - Tester location, tested by",
+            "[PltConfig] - Plot path and title",
+        ]
+        for section in required_sections:
+            info_layout.addWidget(QW.QLabel(f"• {section}"))
+
+        info_layout.addStretch()
+        config_layout.addWidget(info_group)
+
+        # Reset to default button
+        reset_layout = QW.QHBoxLayout()
+        reset_button = QW.QPushButton(_("reset_to_default", "Reset to Default"))
+        reset_button.clicked.connect(self._reset_config_path)
+        reset_layout.addWidget(reset_button)
+        reset_layout.addStretch()
+        config_layout.addLayout(reset_layout)
+
+        # Add stretch
+        config_layout.addStretch()
+
+        # Add tab
+        self.tab_widget.addTab(config_widget, _("config", "Config"))
+
+    def _browse_config_file(self):
+        """Open file dialog to browse for config file"""
+        file_path, filter_ = QW.QFileDialog.getOpenFileName(
+            self,
+            _("select_config_file", "Select Configuration File"),
+            "",
+            "INI Files (*.ini);;All Files (*)"
+        )
+        if file_path:
+            self.config_path_lineedit.setText(file_path)
+            self._validate_config_file()
+
+    def _validate_config_file(self):
+        """Validate the selected configuration file"""
+        file_path = self.config_path_lineedit.text().strip()
+
+        if not file_path:
+            self.config_status_label.setText(_("please_enter_path", "Please enter a configuration file path"))
+            self.config_status_label.setStyleSheet("color: orange;")
+            return
+
+        if not os.path.exists(file_path):
+            self.config_status_label.setText(_("file_not_exists", "File does not exist"))
+            self.config_status_label.setStyleSheet("color: red;")
+            return
+
+        if not file_path.lower().endswith('.ini'):
+            self.config_status_label.setText(_("not_ini_file", "File is not an INI file"))
+            self.config_status_label.setStyleSheet("color: red;")
+            return
+
+        try:
+            import configparser
+            parser = configparser.ConfigParser()
+            parser.read(file_path, encoding='utf-8')
+
+            required_sections = ['BatteryConfig', 'TestConfig', 'PltConfig']
+            missing_sections = [s for s in required_sections if not parser.has_section(s)]
+
+            if missing_sections:
+                self.config_status_label.setText(
+                    _("missing_sections", f"Missing required sections: {', '.join(missing_sections)}")
+                )
+                self.config_status_label.setStyleSheet("color: orange;")
+            else:
+                self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
+                self.config_status_label.setStyleSheet("color: green;")
+
+        except Exception as e:
+            self.config_status_label.setText(_("config_parse_error", f"Error parsing config: {str(e)}"))
+            self.config_status_label.setStyleSheet("color: red;")
+
+    def _reset_config_path(self):
+        """Reset config path to default"""
+        self.config_path_lineedit.clear()
+        self.config_status_label.setText("")
+        settings = QC.QSettings()
+        settings.remove("config/custom_config_path")
+
     def _populate_language_combo(self):
         """Populate the language combo box with available languages"""
         self.language_combo.clear()
@@ -250,7 +390,20 @@ class PreferencesDialog(QW.QDialog):
             
             # Update translation status
             self._update_translation_status(current_locale)
-            
+
+            # Load config path settings
+            custom_config_path = settings.value("config/custom_config_path", "", type=str)
+            self.config_path_lineedit.setText(custom_config_path)
+
+            # Display current active config path
+            current_config = find_config_file()
+            if current_config:
+                self.config_path_label.setText(current_config)
+                self.config_path_label.setStyleSheet("color: green;")
+            else:
+                self.config_path_label.setText(_("using_default", "Using default paths"))
+                self.config_path_label.setStyleSheet("color: gray;")
+
             self.logger.debug("Settings loaded successfully")
             
         except (OSError, ValueError, ImportError, AttributeError) as e:
@@ -332,7 +485,22 @@ class PreferencesDialog(QW.QDialog):
             if current_index >= 0:
                 selected_locale = self.language_combo.itemData(current_index)
                 settings.setValue("language/locale", selected_locale)
-            
+
+            # Save custom config path
+            custom_path = self.config_path_lineedit.text().strip()
+            self.logger.info(f"保存自定义配置路径: '{custom_path}'")
+            if custom_path:
+                if os.path.exists(custom_path):
+                    settings.setValue("config/custom_config_path", custom_path)
+                    self.logger.info(f"成功保存自定义配置路径: '{custom_path}'")
+                else:
+                    self.logger.warning(f"配置文件不存在: '{custom_path}'")
+                    settings.setValue("config/custom_config_path", custom_path)
+                    self.logger.info(f"已保存配置路径（文件不存在）: '{custom_path}'")
+            else:
+                settings.remove("config/custom_config_path")
+                self.logger.info("已清除自定义配置路径设置")
+
             settings.sync()
             
             self.logger.info("Settings applied successfully")

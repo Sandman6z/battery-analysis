@@ -126,6 +126,8 @@ class ValidationManager:
             self.main_window.comboBox_Specification_Type.clear()
             self.main_window.comboBox_Specification_Type.addItems(
                 self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
+            self.main_window.comboBox_Specification_Type.setEnabled(True)
+            self.main_window.comboBox_Specification_Method.setEnabled(True)
             self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
             self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
                 self.main_window.check_specification)
@@ -152,6 +154,8 @@ class ValidationManager:
             self.main_window.comboBox_Specification_Type.clear()
             self.main_window.comboBox_Specification_Type.addItems(
                 self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
+            self.main_window.comboBox_Specification_Type.setEnabled(True)
+            self.main_window.comboBox_Specification_Method.setEnabled(True)
             self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
             self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
                 self.main_window.check_specification)
@@ -162,7 +166,24 @@ class ValidationManager:
                     self.main_window.comboBox_Specification_Type.setCurrentIndex(t)
                     break
         elif not self.main_window.comboBox_BatteryType.currentText():
-            pass
+            self.main_window.comboBox_ConstructionMethod.setEnabled(False)
+            self.main_window.comboBox_ConstructionMethod.setCurrentIndex(-1)
+            self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
+            self.main_window.lineEdit_CalculationNominalCapacity.setText("")
+            self.main_window.lineEdit_RequiredUseableCapacity.setText("")
+            self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
+                self.main_window.check_specification)
+            self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
+                self.main_window.check_specification)
+            self.main_window.comboBox_Specification_Type.clear()
+            self.main_window.comboBox_Specification_Type.setEnabled(False)
+            self.main_window.comboBox_Specification_Method.setEnabled(False)
+            self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
+            self.main_window.comboBox_Specification_Method.setCurrentIndex(-1)
+            self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
+                self.main_window.check_specification)
+            self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
+                self.main_window.check_specification)
         else:
             self.main_window.checker_battery_type.set_error(
                 _("unknown_battery_type", f"No battery type named {self.main_window.comboBox_BatteryType.currentText()}"))

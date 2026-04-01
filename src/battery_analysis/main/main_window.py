@@ -278,12 +278,97 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def on_preferences_applied(self) -> None:
         """首选项应用后的处理"""
         try:
-            # 这里可以添加首选项应用后的特殊处理
-            # 比如重新加载某些设置、更新界面等
-            self.logger.info("首选项已应用")
+            from battery_analysis.utils.config_utils import clear_config_cache
+            clear_config_cache()
+            self.logger.info("首选项已应用，配置缓存已清除")
+
+            from PyQt6.QtCore import QSettings
+            settings = QSettings()
+            custom_path = settings.value("config/custom_config_path", "", type=str)
+            self.logger.info(f"读取到的自定义配置路径: '{custom_path}'")
+            
+            # 无论是否设置了自定义路径，都重新加载配置
+            self.logger.info("开始重新加载配置...")
+            self.reload_configuration()
 
         except (OSError, ValueError, ImportError) as e:
             self.logger.error("应用首选项后处理时发生错误: %s", e)
+
+    def reload_configuration(self) -> None:
+        """
+        重新加载配置文件并更新UI组件
+        
+        当用户更改配置文件路径后，调用此方法可以在运行时重新加载配置
+        """
+        try:
+            self.logger.info("开始重新加载配置...")
+            
+            # 清除配置缓存
+            from battery_analysis.utils.config_utils import clear_config_cache
+            clear_config_cache()
+            self.logger.info("配置缓存已清除")
+            
+            # 重新初始化配置管理器
+            if hasattr(self, 'config_manager'):
+                self.config_manager._initialize_config()
+                self.logger.info("配置管理器已重新初始化")
+            else:
+                self.logger.warning("config_manager 不存在")
+            
+            # 重新填充下拉框
+            if hasattr(self, 'ui_manager'):
+                self.ui_manager.init_combobox()
+                self.logger.info("UI组件已重新初始化")
+            else:
+                self.logger.warning("ui_manager 不存在")
+            
+            # 重新加载用户设置
+            if hasattr(self, 'user_settings_manager'):
+                self.user_settings_manager.load_user_settings()
+                self.logger.info("用户设置已重新加载")
+            else:
+                self.logger.warning("user_settings_manager 不存在")
+            
+            # 刷新界面
+            self.refresh_ui()
+            
+            self.logger.info("配置已成功重新加载")
+            
+            QW.QMessageBox.information(
+                self,
+                "Configuration Reloaded",
+                "Configuration has been reloaded successfully. Changes are now in effect."
+            )
+            
+        except Exception as e:
+            self.logger.error("重新加载配置时发生错误: %s", e)
+            QW.QMessageBox.warning(
+                self,
+                "Error",
+                f"Failed to reload configuration: {str(e)}"
+            )
+
+    def refresh_ui(self) -> None:
+        """
+        刷新界面显示
+        """
+        try:
+            # 刷新状态条
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage("Configuration reloaded successfully")
+            
+            # 刷新所有下拉框的当前选择
+            if hasattr(self, 'comboBox_Specification_Type'):
+                current_text = self.comboBox_Specification_Type.currentText()
+                if current_text:
+                    index = self.comboBox_Specification_Type.findText(current_text)
+                    if index >= 0:
+                        self.comboBox_Specification_Type.setCurrentIndex(index)
+            
+            self.logger.info("界面已刷新")
+            
+        except Exception as e:
+            self.logger.error("刷新界面时发生错误: %s", e)
 
     def toggle_toolbar_safe(self) -> None:
         """安全地切换工具栏的显示/隐藏状态（委托给menu_manager）"""

@@ -123,4 +123,9 @@ packages = ["battery_analysis"]
 package-dir = {"" = "src"}
 include-package-data = true
 
+[dependency-groups]
+dev = [
+    "pytest-cov>=7.0.0",
+]
+
 # 依赖组已在[project.optional-dependencies]中定义，无需重复定义

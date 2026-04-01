@@ -296,6 +296,17 @@ class UIManager:
         """
         初始化组合框设置
         """
+        # 清除现有项目
+        self.main_window.comboBox_BatteryType.clear()
+        self.main_window.comboBox_ConstructionMethod.clear()
+        self.main_window.comboBox_Specification_Type.clear()
+        self.main_window.comboBox_Specification_Method.clear()
+        self.main_window.comboBox_Manufacturer.clear()
+        self.main_window.comboBox_TesterLocation.clear()
+        self.main_window.comboBox_TestedBy.clear()
+        self.main_window.comboBox_ReportedBy.clear()
+        
+        # 添加新项目
         self.main_window.comboBox_BatteryType.addItems(
             self.main_window.get_config("BatteryConfig/BatteryType"))
         self.main_window.comboBox_ConstructionMethod.addItems(
@@ -316,8 +327,9 @@ class UIManager:
         self.main_window.comboBox_TestedBy.addItems(tested_by_list)
         self.main_window.comboBox_ReportedBy.addItems(tested_by_list)
         
-        # 为comboBox_Temperature添加选项
-        self.main_window.comboBox_Temperature.addItems(["Room Temperature", "Freezer Temperature"])
+        # 为comboBox_Temperature添加选项（只添加一次，不需要清除）
+        if self.main_window.comboBox_Temperature.count() == 0:
+            self.main_window.comboBox_Temperature.addItems(["Room Temperature", "Freezer Temperature"])
         # 设置默认值为Room Temperature
         self.main_window.comboBox_Temperature.setCurrentText("Room Temperature")
         # 默认禁用spinBox_Temperature
@@ -333,6 +345,8 @@ class UIManager:
         self.main_window.comboBox_ReportedBy.setCurrentIndex(-1)
 
         self.main_window.comboBox_ConstructionMethod.setEnabled(False)
+        self.main_window.comboBox_Specification_Type.setEnabled(False)
+        self.main_window.comboBox_Specification_Method.setEnabled(False)
 
         # 加载用户配置的设置
         self.load_user_settings()
