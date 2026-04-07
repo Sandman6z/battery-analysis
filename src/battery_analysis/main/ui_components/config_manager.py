@@ -51,6 +51,8 @@ class ConfigManager:
         """
         初始化配置文件
         """
+        self.logger.info("[_initialize_config] 开始初始化配置文件...")
+
         # 改进的配置文件路径查找逻辑（使用配置服务）
         try:
             config_service = self.main_window._get_service("config")
@@ -58,29 +60,37 @@ class ConfigManager:
                 # 不使用缓存，确保获取最新的配置文件路径
                 config_path_result = config_service.find_config_file(use_cache=False)
                 self.config_path = str(config_path_result) if config_path_result else None
+                self.logger.info(f"[_initialize_config] 从config_service获取路径: {self.config_path}")
             else:
                 # 降级到直接导入
                 from battery_analysis.utils.config_utils import find_config_file
                 # 不使用缓存，确保获取最新的配置文件路径
                 self.config_path = find_config_file(use_cache=False)
+                self.logger.info(f"[_initialize_config] 从find_config_file获取路径: {self.config_path}")
         except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to get config service: %s", e)
             # 降级到直接导入
             from battery_analysis.utils.config_utils import find_config_file
             # 不使用缓存，确保获取最新的配置文件路径
             self.config_path = find_config_file(use_cache=False)
+            self.logger.info(f"[_initialize_config] 异常后从find_config_file获取路径: {self.config_path}")
         
         # 添加对None值的检查，避免TypeError
-        if self.config_path is None or not Path(self.config_path).exists():
+        config_path_obj = Path(self.config_path) if self.config_path else None
+        path_exists = config_path_obj.exists() if config_path_obj else False
+        self.logger.info(f"[_initialize_config] config_path: {self.config_path}, exists: {path_exists}")
+
+        if self.config_path is None or not path_exists:
             self.b_has_config = False
-            # 创建默认配置设置
-            self.config = QC.QSettings()
+            self.logger.info(f"[_initialize_config] 配置文件不存在，设置b_has_config=False")
         else:
             self.b_has_config = True
+            # 每次都创建新的QSettings实例，确保读取最新文件内容
             self.config = QC.QSettings(
                 self.config_path,
                 QC.QSettings.Format.IniFormat
             )
+            self.logger.info(f"[_initialize_config] QSettings已创建，文件: {self.config_path}")
     
     def get_config(self, config_key: str) -> List[str]:
         """
@@ -95,11 +105,13 @@ class ConfigManager:
         # 每次获取配置值前重新加载配置文件，确保获取到最新的配置
         self._initialize_config()
         
-        # 如果没有配置文件，直接返回空列表
-        if not self.b_has_config:
-            return []
-
         try:
+            # 如果没有配置文件，直接返回空列表
+            if not self.b_has_config or self.config is None:
+                return []
+
+            # 强制QSettings从文件重新同步，确保读取最新数据
+            self.config.sync()
             value = self.config.value(config_key)
             if isinstance(value, list):
                 list_value = []

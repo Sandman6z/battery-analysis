@@ -18,12 +18,42 @@ logger = logging.getLogger(__name__)
 # 配置文件路径缓存
 _config_path_cache = {}
 
+# 模块级缓存：存储用户自定义配置路径
+_custom_config_path_cache = None
+
+
+def set_custom_config_path(path: str) -> None:
+    """
+    设置用户自定义的配置文件路径
+
+    当用户通过首选项对话框设置自定义配置路径时调用此函数
+    以便在配置缓存清除后仍能获取到正确的路径
+
+    Args:
+        path: 自定义配置路径
+    """
+    global _custom_config_path_cache
+    _custom_config_path_cache = path
+    logger.info(f"已设置自定义配置路径缓存: '{path}'")
+
+
+def clear_custom_config_path() -> None:
+    """
+    清除用户自定义的配置文件路径缓存
+
+    当用户清除自定义配置路径设置时调用此函数
+    """
+    global _custom_config_path_cache
+    _custom_config_path_cache = None
+    logger.info("已清除自定义配置路径缓存")
+
 
 def clear_config_cache() -> None:
     """
     清除配置文件路径缓存
 
     当用户更改配置文件路径设置后，需要调用此函数清除缓存
+    注意：不清除 _custom_config_path_cache，因为那是用户设置的自定义路径
     """
     global _config_path_cache
     _config_path_cache.clear()
@@ -39,6 +69,16 @@ def _get_custom_config_path() -> Optional[str]:
     Returns:
         用户自定义的配置路径，如果没有设置则返回None
     """
+    global _custom_config_path_cache
+
+    logger.info(f"[_get_custom_config_path] 模块级缓存: '{_custom_config_path_cache}'")
+
+    # 首先检查模块级缓存
+    if _custom_config_path_cache:
+        logger.info(f"使用模块级缓存的自定义配置路径: '{_custom_config_path_cache}'")
+        return _custom_config_path_cache
+
+    # 如果模块级缓存没有，则从QSettings读取
     try:
         from PyQt6.QtCore import QSettings
         settings = QSettings()
@@ -46,10 +86,12 @@ def _get_custom_config_path() -> Optional[str]:
         custom_path = settings.value("config/custom_config_path", "", type=str)
         if not custom_path:
             custom_path = settings.value("custom_config_path", "", type=str)
-        logger.info(f"读取到的自定义配置路径: '{custom_path}'")
-        
+        logger.info(f"从QSettings读取到的自定义配置路径: '{custom_path}'")
+
         # 即使文件不存在，也返回路径，让调用者处理不存在的情况
         if custom_path:
+            # 更新模块级缓存
+            _custom_config_path_cache = custom_path
             logger.info(f"返回自定义配置路径: '{custom_path}'")
             return custom_path
         else:
@@ -86,10 +128,13 @@ def find_config_file(
 
     # 如果使用缓存且缓存中存在，则直接返回
     if use_cache and cache_key in _config_path_cache:
-        return _config_path_cache[cache_key]
+        cached = _config_path_cache[cache_key]
+        logger.info(f"[find_config_file] 使用路径缓存: {cached}")
+        return cached
 
-    # 首先检查是否有用户自定义的配置路径
+    # 首先检查是否有用户自定义的配置路径（这个检查不应该被缓存）
     custom_path = _get_custom_config_path()
+    logger.info(f"[find_config_file] _get_custom_config_path() 返回: {custom_path}")
     if custom_path:
         logger.info("使用用户自定义配置文件: %s", custom_path)
         _config_path_cache[cache_key] = str(custom_path)

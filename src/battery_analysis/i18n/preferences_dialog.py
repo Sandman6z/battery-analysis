@@ -502,8 +502,8 @@ class PreferencesDialog(QW.QDialog):
                 self.logger.info("已清除自定义配置路径设置")
 
             settings.sync()
-            
-            self.logger.info("Settings applied successfully")
+            settings.flush()
+            self.logger.info("Settings applied and flushed successfully")
             
             # Emit signal that preferences have been applied
             self.preferences_applied.emit()

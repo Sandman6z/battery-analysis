@@ -278,15 +278,31 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def on_preferences_applied(self) -> None:
         """首选项应用后的处理"""
         try:
-            from battery_analysis.utils.config_utils import clear_config_cache
+            from battery_analysis.utils.config_utils import (
+                clear_config_cache, set_custom_config_path, clear_custom_config_path,
+                _get_custom_config_path
+            )
+            from PyQt6.QtCore import QSettings
+
             clear_config_cache()
             self.logger.info("首选项已应用，配置缓存已清除")
 
-            from PyQt6.QtCore import QSettings
+            # 立即读取验证
             settings = QSettings()
             custom_path = settings.value("config/custom_config_path", "", type=str)
-            self.logger.info(f"读取到的自定义配置路径: '{custom_path}'")
-            
+            self.logger.info(f"[on_preferences_applied] QSettings读取到的路径: '{custom_path}'")
+
+            # 更新模块级缓存
+            if custom_path:
+                set_custom_config_path(custom_path)
+                self.logger.info(f"[on_preferences_applied] 已设置模块级缓存: '{custom_path}'")
+            else:
+                clear_custom_config_path()
+                self.logger.info("[on_preferences_applied] 已清除模块级缓存")
+
+            # 验证模块级缓存
+            self.logger.info(f"[on_preferences_applied] 验证模块级缓存: '{_get_custom_config_path()}'")
+
             # 无论是否设置了自定义路径，都重新加载配置
             self.logger.info("开始重新加载配置...")
             self.reload_configuration()
@@ -297,26 +313,28 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def reload_configuration(self) -> None:
         """
         重新加载配置文件并更新UI组件
-        
+
         当用户更改配置文件路径后，调用此方法可以在运行时重新加载配置
         """
         try:
-            self.logger.info("开始重新加载配置...")
-            
+            self.logger.info("[reload_configuration] 开始重新加载配置...")
+
             # 清除配置缓存
-            from battery_analysis.utils.config_utils import clear_config_cache
+            from battery_analysis.utils.config_utils import clear_config_cache, _get_custom_config_path
             clear_config_cache()
             self.logger.info("配置缓存已清除")
-            
+            self.logger.info(f"[reload_configuration] 清除缓存后自定义路径: {_get_custom_config_path()}")
+
             # 重新初始化配置管理器
             if hasattr(self, 'config_manager'):
                 self.config_manager._initialize_config()
-                self.logger.info("配置管理器已重新初始化")
+                self.logger.info(f"[reload_configuration] 配置管理器已重新初始化，新路径: {self.config_manager.config_path}")
             else:
                 self.logger.warning("config_manager 不存在")
-            
+
             # 重新填充下拉框
             if hasattr(self, 'ui_manager'):
+                self.logger.info("[reload_configuration] 重新初始化UI组件...")
                 self.ui_manager.init_combobox()
                 self.logger.info("UI组件已重新初始化")
             else:
