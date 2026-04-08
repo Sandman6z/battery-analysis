@@ -225,7 +225,9 @@ class EnvironmentDetector:
                 screens = user32.GetSystemMetrics(80)  # SM_CMONITORS
                 if screens > 0:
                     return f"windows_monitor_{screens}"
-            except:
+            except (ImportError, OSError, AttributeError) as e:
+                # ctypes导入失败或Windows API调用失败
+                logging.debug(f"无法检测显示器数量: {e}")
                 pass
         
         return None

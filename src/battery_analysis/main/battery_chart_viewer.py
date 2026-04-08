@@ -1249,7 +1249,9 @@ class BatteryChartViewer:
             try:
                 import datetime
                 current_time = datetime.datetime.now().strftime("%Y")
-            except:
+            except (ImportError, OSError, ValueError) as e:
+                # datetime导入失败或时间获取失败，使用默认年份
+                logging.warning(f"获取当前年份失败: {e}")
                 current_time = "2024"
             
             # 使用项目统一的版本管理系统

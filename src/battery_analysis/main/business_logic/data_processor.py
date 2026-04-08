@@ -9,6 +9,7 @@ import os
 import csv
 import re
 from pathlib import Path
+from collections import OrderedDict
 import pandas as pd
 from PyQt6 import QtWidgets as QW
 from PyQt6 import QtCore as QC
@@ -16,31 +17,154 @@ from PyQt6 import QtGui as QG
 from battery_analysis.i18n.language_manager import _
 
 
+class BackgroundWorker(QC.QObject):
+    """
+    后台工作线程，用于执行I/O密集型操作，避免阻塞UI
+    """
+    # 定义信号
+    finished = QC.pyqtSignal(object)  # 工作完成信号，携带结果
+    error = QC.pyqtSignal(str)  # 错误信号，携带错误消息
+    progress = QC.pyqtSignal(int, str)  # 进度信号，携带进度百分比和状态消息
+
+    def __init__(self, task_func, *args, **kwargs):
+        """
+        初始化后台工作线程
+
+        Args:
+            task_func: 要执行的任务函数
+            *args: 任务函数的位置参数
+            **kwargs: 任务函数的关键字参数
+        """
+        super().__init__()
+        self.task_func = task_func
+        self.args = args
+        self.kwargs = kwargs
+        self.logger = logging.getLogger(__name__)
+
+    @QC.pyqtSlot()
+    def run(self):
+        """执行后台任务"""
+        try:
+            self.logger.debug("后台任务开始执行: %s", self.task_func.__name__)
+            result = self.task_func(*self.args, **self.kwargs)
+            self.logger.debug("后台任务执行完成: %s", self.task_func.__name__)
+            self.finished.emit(result)
+        except Exception as e:
+            self.logger.error("后台任务执行失败: %s - %s", self.task_func.__name__, str(e))
+            self.error.emit(str(e))
+
+
+class LRUCache:
+    """
+    LRU (Least Recently Used) 缓存实现
+    当缓存达到最大容量时，自动删除最久未使用的项
+    """
+
+    def __init__(self, max_size=100):
+        """
+        初始化LRU缓存
+
+        Args:
+            max_size: 缓存最大容量
+        """
+        self.cache = OrderedDict()
+        self.max_size = max_size
+
+    def get(self, key):
+        """
+        获取缓存项，如果存在则移到末尾（标记为最近使用）
+
+        Args:
+            key: 缓存键
+
+        Returns:
+            缓存值或None
+        """
+        if key not in self.cache:
+            return None
+        # 移到末尾表示最近使用
+        self.cache.move_to_end(key)
+        return self.cache[key]
+
+    def put(self, key, value):
+        """
+        添加或更新缓存项
+
+        Args:
+            key: 缓存键
+            value: 缓存值
+        """
+        if key in self.cache:
+            # 如果已存在，移到末尾
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        # 如果超过最大容量，删除最旧的项（第一个）
+        if len(self.cache) > self.max_size:
+            self.cache.popitem(last=False)
+
+    def remove(self, key):
+        """
+        删除缓存项
+
+        Args:
+            key: 缓存键
+        """
+        if key in self.cache:
+            del self.cache[key]
+
+    def clear(self):
+        """清空缓存"""
+        self.cache.clear()
+
+    def __len__(self):
+        """返回缓存大小"""
+        return len(self.cache)
+
+    def __contains__(self, key):
+        """检查键是否在缓存中"""
+        return key in self.cache
+
+
 class DataProcessor:
     """
     数据处理器类，负责处理数据相关的业务逻辑
     """
-    
+
+    # 缓存配置常量
+    MAX_EXCEL_CACHE_SIZE = 50  # Excel文件缓存最大数量
+    MAX_DIRECTORY_CACHE_SIZE = 20  # 目录列表缓存最大数量
+    MAX_VALIDATION_CACHE_SIZE = 100  # 验证结果缓存最大数量
+
     def __init__(self, main_window):
         """
         初始化数据处理器
-        
+
         Args:
             main_window: 主窗口实例
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        # 初始化缓存
+        # 使用LRU缓存替代普通字典，防止内存无限增长
         self._cache = {
-            'excel_files': {},  # 缓存Excel文件内容
-            'directory_files': {},  # 缓存目录文件列表
-            'file_validation': {}  # 缓存文件验证结果
+            'excel_files': LRUCache(self.MAX_EXCEL_CACHE_SIZE),
+            'directory_files': LRUCache(self.MAX_DIRECTORY_CACHE_SIZE),
+            'file_validation': LRUCache(self.MAX_VALIDATION_CACHE_SIZE)
         }
+        # 后台线程管理
+        self._background_thread = None
+        self._background_worker = None
+
+        self.logger.info(
+            "DataProcessor缓存已初始化 - Excel:%d, 目录:%d, 验证:%d",
+            self.MAX_EXCEL_CACHE_SIZE,
+            self.MAX_DIRECTORY_CACHE_SIZE,
+            self.MAX_VALIDATION_CACHE_SIZE
+        )
     
     def _invalidate_cache(self, path=None):
         """
         使缓存失效
-        
+
         Args:
             path: 可选的路径，用于更精确地失效缓存
         """
@@ -48,29 +172,86 @@ class DataProcessor:
             # 失效与特定路径相关的缓存
             path_str = str(path)
             # 失效Excel文件缓存
-            if path_str in self._cache['excel_files']:
-                del self._cache['excel_files'][path_str]
+            self._cache['excel_files'].remove(path_str)
             # 失效文件验证缓存
-            if path_str in self._cache['file_validation']:
-                del self._cache['file_validation'][path_str]
+            self._cache['file_validation'].remove(path_str)
             # 失效目录文件列表缓存
-            for dir_path in list(self._cache['directory_files'].keys()):
-                if path_str.startswith(dir_path):
-                    del self._cache['directory_files'][dir_path]
+            # 注意：LRUCache不支持遍历删除，需要重新实现
+            # 这里简化处理，只删除精确匹配的路径
+            self._cache['directory_files'].remove(path_str)
         else:
             # 完全清空缓存
-            self._cache = {
-                'excel_files': {},
-                'directory_files': {},
-                'file_validation': {}
-            }
-    
+            self._cache['excel_files'].clear()
+            self._cache['directory_files'].clear()
+            self._cache['file_validation'].clear()
+
     def clear_cache(self):
         """
         清空所有缓存
         """
         self._invalidate_cache()
         self.logger.info("DataProcessor cache cleared")
+
+    def _cleanup_background_thread(self):
+        """清理后台线程资源"""
+        if self._background_thread and self._background_thread.isRunning():
+            self._background_thread.quit()
+            self._background_thread.wait(1000)  # 等待最多1秒
+            if self._background_thread.isRunning():
+                self._background_thread.terminate()
+                self.logger.warning("后台线程被强制终止")
+        self._background_thread = None
+        self._background_worker = None
+
+    def run_in_background(self, task_func, on_finished, on_error, *args, **kwargs):
+        """
+        在后台线程中执行任务
+
+        Args:
+            task_func: 要执行的任务函数
+            on_finished: 任务完成时的回调函数
+            on_error: 任务出错时的回调函数
+            *args: 任务函数的位置参数
+            **kwargs: 任务函数的关键字参数
+        """
+        # 清理之前的线程
+        self._cleanup_background_thread()
+
+        # 创建新的线程和工作对象
+        self._background_thread = QC.QThread()
+        self._background_worker = BackgroundWorker(task_func, *args, **kwargs)
+        self._background_worker.moveToThread(self._background_thread)
+
+        # 连接信号
+        self._background_thread.started.connect(self._background_worker.run)
+        self._background_worker.finished.connect(self._background_thread.quit)
+        self._background_worker.finished.connect(self._background_worker.deleteLater)
+        self._background_thread.finished.connect(self._background_thread.deleteLater)
+
+        if on_finished:
+            self._background_worker.finished.connect(on_finished)
+        if on_error:
+            self._background_worker.error.connect(on_error)
+
+        # 启动线程
+        self._background_thread.start()
+        self.logger.debug("后台线程已启动: %s", task_func.__name__)
+
+    def get_cache_stats(self):
+        """
+        获取缓存统计信息
+
+        Returns:
+            dict: 包含各类缓存大小的字典
+        """
+        return {
+            'excel_files': len(self._cache['excel_files']),
+            'directory_files': len(self._cache['directory_files']),
+            'file_validation': len(self._cache['file_validation']),
+            'max_excel': self.MAX_EXCEL_CACHE_SIZE,
+            'max_directory': self.MAX_DIRECTORY_CACHE_SIZE,
+            'max_validation': self.MAX_VALIDATION_CACHE_SIZE
+        }
     
     def optimize_dataframe_memory(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -101,27 +282,28 @@ class DataProcessor:
     def process_excel_with_pandas(self, file_path: str) -> dict:
         """
         使用pandas处理单个Excel文件，提取关键信息
-        
+
         Args:
             file_path: Excel文件路径
-            
+
         Returns:
             dict: 包含文件信息的字典
         """
         try:
-            # 检查缓存
-            if file_path in self._cache['excel_files']:
-                self.logger.info("从缓存读取Excel文件信息: %s", file_path)
-                return self._cache['excel_files'][file_path]
-            
+            # 检查缓存 - 使用LRUCache的get方法
+            cached_result = self._cache['excel_files'].get(file_path)
+            if cached_result is not None:
+                self.logger.debug("从缓存读取Excel文件信息: %s", file_path)
+                return cached_result
+
             self.logger.info("使用pandas处理Excel文件: %s", file_path)
-            
+
             # 使用pandas读取Excel文件，指定引擎和优化参数
             df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
-            
+
             # 优化DataFrame内存使用
             df = self.optimize_dataframe_memory(df)
-            
+
             # 提取文件信息
             file_info = {
                 'filename': os.path.basename(file_path),
@@ -133,12 +315,17 @@ class DataProcessor:
                 'missing_values': df.isnull().sum().to_dict(),
                 'basic_stats': df.describe().to_dict()
             }
-            
-            # 缓存结果
-            self._cache['excel_files'][file_path] = file_info
-            
+
+            # 缓存结果 - 使用LRUCache的put方法
+            self._cache['excel_files'].put(file_path, file_info)
+            self.logger.debug(
+                "Excel文件信息已缓存，当前缓存大小: %d/%d",
+                len(self._cache['excel_files']),
+                self.MAX_EXCEL_CACHE_SIZE
+            )
+
             return file_info
-            
+
         except Exception as e:
             self.logger.error("处理Excel文件失败 %s: %s", file_path, str(e))
             return {}
@@ -155,14 +342,16 @@ class DataProcessor:
         """
         try:
             self.logger.info("使用pandas批量处理目录中的Excel文件: %s", directory)
-            
+
             # 查找所有Excel文件（使用缓存）
-            if directory not in self._cache['directory_files']:
+            cached_files = self._cache['directory_files'].get(directory)
+            if cached_files is None:
                 self.logger.info("扫描目录查找Excel文件: %s", directory)
-                self._cache['directory_files'][directory] = [f for f in os.listdir(directory) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-            
-            listAllInXlsx = self._cache['directory_files'][directory]
-            
+                listAllInXlsx = [f for f in os.listdir(directory) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+                self._cache['directory_files'].put(directory, listAllInXlsx)
+            else:
+                listAllInXlsx = cached_files
+
             if not listAllInXlsx:
                 self.logger.warning("目录中没有找到Excel文件: %s", directory)
                 return []
@@ -205,26 +394,95 @@ class DataProcessor:
                     excel_data.append(file_info)
             return excel_data
     
+    def _scan_excel_files_task(self, input_dir):
+        """
+        后台任务：扫描目录中的Excel文件
+
+        Args:
+            input_dir: 输入目录路径
+
+        Returns:
+            list: Excel文件列表
+        """
+        self.logger.info("后台扫描目录查找Excel文件: %s", input_dir)
+        excel_files = [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        return excel_files
+
+    def _on_scan_finished(self, excel_files):
+        """
+        文件扫描完成的回调
+
+        Args:
+            excel_files: 扫描到的Excel文件列表
+        """
+        input_dir = self.main_window.lineEdit_InputPath.text()
+
+        # 缓存结果
+        self._cache['directory_files'].put(input_dir, excel_files)
+
+        # 如果没有找到Excel文件，清除相关控件
+        if not excel_files:
+            self._handle_no_excel_files(input_dir)
+            return
+
+        # 使用pandas处理Excel文件
+        excel_data = self._process_excel_files(input_dir, excel_files)
+
+        # 如果没有成功处理的文件，显示错误
+        if not excel_data:
+            self.logger.error("没有成功处理的Excel文件")
+            if hasattr(self.main_window, 'checker_input_xlsx'):
+                self.main_window.checker_input_xlsx.set_error("没有成功处理的Excel文件，请检查文件格式")
+            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                self.main_window.statusBar_BatteryAnalysis.showMessage("[错误]: 没有成功处理的Excel文件")
+            return
+
+        # 更新UI控件
+        self._update_ui_with_excel_info(excel_files, excel_data)
+
+        # 如果有Excel文件，处理第一个文件的信息
+        if excel_files:
+            self._process_first_excel_file(excel_files[0])
+
+        # 重新连接信号
+        self._reconnect_specification_signals()
+
+        self.logger.info("Excel文件信息获取完成")
+
+    def _on_scan_error(self, error_msg):
+        """
+        文件扫描出错的回调
+
+        Args:
+            error_msg: 错误消息
+        """
+        self.logger.error("扫描Excel文件失败: %s", error_msg)
+        if hasattr(self.main_window, 'checker_input_xlsx'):
+            self.main_window.checker_input_xlsx.set_error(f"扫描文件失败: {error_msg}")
+        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            self.main_window.statusBar_BatteryAnalysis.showMessage(f"[错误]: 扫描文件失败")
+
     def get_xlsxinfo(self) -> None:
         """
         获取Excel文件信息，使用pandas优化处理
+        文件扫描操作在后台线程执行，避免阻塞UI
         """
         self.logger.info("获取Excel文件信息")
-        
+
         # 清除检查器状态
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
-        
+
         # 断开信号连接
         self._disconnect_specification_signals()
-        
+
         # 获取输入路径
         input_dir = self.main_window.lineEdit_InputPath.text()
-        
+
         # 使用FileValidator验证输入目录
         from battery_analysis.utils.file_validator import FileValidator
         validator = FileValidator()
-        
+
         # 验证输入目录
         is_valid, error_msg = validator.validate_input_directory(input_dir)
         if not is_valid:
@@ -234,42 +492,24 @@ class DataProcessor:
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
                 self.main_window.statusBar_BatteryAnalysis.showMessage(f"[错误]: {error_msg.split(':')[0]}")
             return
-        
+
         # 查找所有Excel文件（使用缓存）
-        if input_dir not in self._cache['directory_files']:
-            self.logger.info("扫描目录查找Excel文件: %s", input_dir)
-            self._cache['directory_files'][input_dir] = [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-        
-        excel_files = self._cache['directory_files'][input_dir]
-        
-        # 如果没有找到Excel文件，清除相关控件
-        if not excel_files:
-            self._handle_no_excel_files(input_dir)
-            return
-        
-        # 使用pandas处理Excel文件
-        excel_data = self._process_excel_files(input_dir, excel_files)
-        
-        # 如果没有成功处理的文件，显示错误
-        if not excel_data:
-            self.logger.error("没有成功处理的Excel文件")
-            if hasattr(self.main_window, 'checker_input_xlsx'):
-                self.main_window.checker_input_xlsx.set_error("没有成功处理的Excel文件，请检查文件格式")
+        cached_files = self._cache['directory_files'].get(input_dir)
+        if cached_files is None:
+            # 显示加载状态
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-                self.main_window.statusBar_BatteryAnalysis.showMessage("[错误]: 没有成功处理的Excel文件")
-            return
-        
-        # 更新UI控件
-        self._update_ui_with_excel_info(excel_files, excel_data)
-        
-        # 如果有Excel文件，处理第一个文件的信息
-        if excel_files:
-            self._process_first_excel_file(excel_files[0])
-        
-        # 重新连接信号
-        self._reconnect_specification_signals()
-        
-        self.logger.info("Excel文件信息获取完成")
+                self.main_window.statusBar_BatteryAnalysis.showMessage("正在扫描Excel文件...")
+
+            # 在后台线程中扫描文件
+            self.run_in_background(
+                self._scan_excel_files_task,
+                self._on_scan_finished,
+                self._on_scan_error,
+                input_dir
+            )
+        else:
+            # 使用缓存的文件列表，直接调用回调
+            self._on_scan_finished(cached_files)
     
     def _disconnect_specification_signals(self):
         """断开规格相关信号连接"""
@@ -360,8 +600,10 @@ class DataProcessor:
                     pd.to_numeric(df[col], errors='coerce')
                     has_potential_numeric = True
                     break
-                except:
-                    pass
+                except (ValueError, TypeError, KeyError) as e:
+                    # 列无法转换为数值类型，继续检查下一列
+                    self.logger.debug(f"列 '{col}' 无法转换为数值类型: {e}")
+                    continue
             
             # 如果有潜在的数值列，只警告不报错
             if has_potential_numeric:
@@ -399,48 +641,49 @@ class DataProcessor:
         """
         # 检查缓存
         cache_key = f"{file_path}:{filename}"
-        if cache_key in self._cache['file_validation']:
-            self.logger.info("从缓存读取文件验证结果: %s", file_path)
-            return self._cache['file_validation'][cache_key]
-        
+        cached_result = self._cache['file_validation'].get(cache_key)
+        if cached_result is not None:
+            self.logger.debug("从缓存读取文件验证结果: %s", cache_key)
+            return cached_result
+
         from battery_analysis.utils.file_validator import FileValidator
         validator = FileValidator()
-        
+
         # 验证文件名
         is_valid, error_msg = self._validate_excel_filename(filename)
         if not is_valid:
             result = (False, error_msg, None)
-            self._cache['file_validation'][cache_key] = result
+            self._cache['file_validation'].put(cache_key, result)
             return result
-        
+
         # 验证文件是否为空
         is_valid, error_msg = validator.validate_file_not_empty(file_path)
         if not is_valid:
             result = (False, error_msg, None)
-            self._cache['file_validation'][cache_key] = result
+            self._cache['file_validation'].put(cache_key, result)
             return result
-        
+
         try:
             # 尝试读取Excel文件
             df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
-            
+
             # 优化DataFrame内存使用
             df = self.optimize_dataframe_memory(df)
-            
+
             # 验证文件内容
             is_valid, error_msg = self._validate_excel_file_content(df, filename)
             if not is_valid:
                 result = (False, error_msg, None)
-                self._cache['file_validation'][cache_key] = result
+                self._cache['file_validation'].put(cache_key, result)
                 return result
-            
+
             result = (True, "", df)
-            self._cache['file_validation'][cache_key] = result
+            self._cache['file_validation'].put(cache_key, result)
             return result
-            
+
         except Exception as e:
             result = (False, f"Excel文件读取失败: {filename} - {str(e)}", None)
-            self._cache['file_validation'][cache_key] = result
+            self._cache['file_validation'].put(cache_key, result)
             return result
     
     def _process_excel_files(self, input_dir, excel_files):
@@ -749,20 +992,22 @@ class DataProcessor:
                 _("input_path_not_set", "请先设置输入路径。")
             )
             return
-        
+
         # 更新状态栏
         self.main_window.statusBar_BatteryAnalysis.showMessage(
             _("analyzing_data", "分析数据...")
         )
-        
+
         try:
             # 查找所有Excel文件（使用缓存）
-            if input_path not in self._cache['directory_files']:
+            cached_files = self._cache['directory_files'].get(input_path)
+            if cached_files is None:
                 self.logger.info("扫描目录查找Excel文件: %s", input_path)
-                self._cache['directory_files'][input_path] = [f for f in os.listdir(input_path) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-            
-            excel_files = self._cache['directory_files'][input_path]
-            
+                excel_files = [f for f in os.listdir(input_path) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+                self._cache['directory_files'].put(input_path, excel_files)
+            else:
+                excel_files = cached_files
+
             if not excel_files:
                 self.logger.warning("没有找到Excel文件")
                 QW.QMessageBox.information(

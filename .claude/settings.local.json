@@ -40,7 +40,13 @@
       "Bash(chcp 65001)",
       "Bash(python scripts/generate_changelog_simple.py --version v2.9.0)",
       "Bash(ls -lh scripts/*.py)",
-      "Bash(python -c \"import tomllib; f=open\\('pyproject.toml','rb'\\); print\\(tomllib.load\\(f\\)['project']['version']\\)\")"
+      "Bash(python -c \"import tomllib; f=open\\('pyproject.toml','rb'\\); print\\(tomllib.load\\(f\\)['project']['version']\\)\")",
+      "Bash(find ./src/battery_analysis -name \"*.py\" -exec wc -l {} +)",
+      "Bash(python -m py_compile src/battery_analysis/main/business_logic/data_processor.py)",
+      "Bash(python -m py_compile src/battery_analysis/utils/log_manager.py)",
+      "Bash(python -m py_compile src/battery_analysis/utils/log_manager.py src/battery_analysis/utils/error_report_generator.py src/battery_analysis/main/battery_chart_viewer.py src/battery_analysis/utils/environment_utils.py)",
+      "Bash(python -c ':*)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, 'src'\\); from battery_analysis.main.business_logic.data_processor import DataProcessor, LRUCache, BackgroundWorker; print\\('Import successful'\\)\")"
     ]
   }
 }

@@ -57,15 +57,17 @@ class ErrorReportGenerator:
                             5: "Notification",
                             6: "ExtendedGrace"
                         }
-                        
+
                         return f"Windows 激活状态: {status_map.get(license_status, f'未知状态 ({license_status})')}"
-                except Exception:
+                except (OSError, PermissionError, FileNotFoundError) as e:
                     # 注册表访问失败，不记录详细日志，直接尝试下一种方法
+                    logging.debug(f"注册表访问失败: {e}")
                     pass
-                
+
                 # 不尝试Wow6432Node路径，减少不必要的日志
-            except Exception:
+            except (OSError, PermissionError, ImportError) as e:
                 # 捕获所有注册表相关异常，不记录详细日志
+                logging.debug(f"Windows激活状态检测失败: {e}")
                 pass
                 
             # 方法2: 尝试使用cscript执行slmgr.vbs

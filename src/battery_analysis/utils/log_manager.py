@@ -124,15 +124,17 @@ class LogManager:
                             5: "Notification",
                             6: "ExtendedGrace"
                         }
-                        
+
                         return f"Windows 激活状态: {status_map.get(license_status, f'未知状态 ({license_status})')}"
-                except Exception:
+                except (OSError, PermissionError, FileNotFoundError) as e:
                     # 注册表访问失败，不记录详细日志，直接尝试下一种方法
+                    logging.debug(f"注册表访问失败: {e}")
                     pass
-                
+
                 # 不尝试Wow6432Node路径，减少不必要的日志
-            except Exception:
+            except (OSError, PermissionError, ImportError) as e:
                 # 捕获所有注册表相关异常，不记录详细日志
+                logging.debug(f"Windows激活状态检测失败: {e}")
                 pass
                 
             # 方法2: 尝试使用cscript执行slmgr.vbs
@@ -245,7 +247,8 @@ class LogManager:
     
     def _cleanup_old_logs(self, keep_count=10):
         """清理旧日志文件，只保留指定数量的最新日志
-        
+        此方法在后台线程中异步执行，避免阻塞应用启动
+
         Args:
             keep_count: 要保留的日志文件数量
         """
@@ -255,10 +258,10 @@ class LogManager:
             # 匹配所有日志文件：主日志文件和归档日志文件
             for log_file in self.log_dir.glob('battery_analysis*.log*'):
                 all_logs.append(log_file)
-            
+
             # 按修改时间排序（最新的在前）
             all_logs.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-            
+
             # 如果日志文件数量超过要保留的数量，删除旧的
             if len(all_logs) > keep_count:
                 logs_to_delete = all_logs[keep_count:]
@@ -266,18 +269,27 @@ class LogManager:
                     try:
                         log_file.unlink()
                         self.logger.info(f"已清理旧日志文件: {log_file}")
-                    except Exception as e:
+                    except (OSError, PermissionError) as e:
                         self.logger.warning(f"清理日志文件 {log_file} 失败: {e}")
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             self.logger.error(f"清理旧日志文件失败: {e}")
-    
+
     def clear_old_logs(self, keep_count=10):
         """清理旧日志文件，只保留指定数量的最新日志
-        
+        使用线程池异步执行，避免阻塞主线程
+
         Args:
             keep_count: 要保留的日志文件数量
         """
-        self._cleanup_old_logs(keep_count)
+        import threading
+        cleanup_thread = threading.Thread(
+            target=self._cleanup_old_logs,
+            args=(keep_count,),
+            daemon=True,
+            name="LogCleanupThread"
+        )
+        cleanup_thread.start()
+        self.logger.debug("日志清理任务已在后台启动")
 
 
 # 创建全局日志管理器实例
