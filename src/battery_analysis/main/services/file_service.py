@@ -74,7 +74,7 @@ class FileService(IFileService):
         清空所有缓存
         """
         self._invalidate_cache()
-        self.logger.info("FileService cache cleared")
+        self.logger.debug("FileService cache cleared")
     
     def create_directory(self, path: Union[str, Path]) -> Tuple[bool, str]:
         """
@@ -89,7 +89,7 @@ class FileService(IFileService):
         try:
             directory = Path(path)
             directory.mkdir(parents=True, exist_ok=True)
-            self.logger.info("Directory created: %s", path)
+            self.logger.debug("Directory created: %s", path)
             
             # 使缓存失效
             self._invalidate_cache(path)
@@ -125,7 +125,7 @@ class FileService(IFileService):
             else:
                 dir_path.rmdir()
             
-            self.logger.info("Directory deleted: %s", path)
+            self.logger.debug("Directory deleted: %s", path)
             
             # 使缓存失效
             self._invalidate_cache(path)
@@ -256,15 +256,14 @@ class FileService(IFileService):
             # 确保目标目录存在
             dest_path = Path(destination)
             dest_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             # 复制文件
             shutil.copy2(source, destination)
-            self.logger.info("文件复制成功: %s -> %s", source, destination)
-            
+
             # 使缓存失效
             self._invalidate_cache(source)
             self._invalidate_cache(destination)
-            
+
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
@@ -287,15 +286,14 @@ class FileService(IFileService):
             # 确保目标目录存在
             dest_path = Path(destination)
             dest_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             # 移动文件
             shutil.move(str(source), str(destination))
-            self.logger.info("文件移动成功: %s -> %s", source, destination)
-            
+
             # 使缓存失效
             self._invalidate_cache(source)
             self._invalidate_cache(destination)
-            
+
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
@@ -317,16 +315,15 @@ class FileService(IFileService):
             path = Path(file_path)
             if not path.exists():
                 return False, f"文件不存在: {file_path}"
-            
+
             if not path.is_file():
                 return False, f"路径不是文件: {file_path}"
-            
+
             path.unlink()
-            self.logger.info("文件删除成功: %s", file_path)
-            
+
             # 使缓存失效
             self._invalidate_cache(file_path)
-            
+
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
@@ -359,7 +356,7 @@ class FileService(IFileService):
                 current_attrs = win32api.GetFileAttributes(path)
                 win32api.SetFileAttributes(path, current_attrs | win32con.FILE_ATTRIBUTE_READONLY)
             
-            self.logger.info("File attributes set for %s: %s", file_path, attributes)
+            self.logger.debug("File attributes set for %s: %s", file_path, attributes)
             
             # 使缓存失效
             self._invalidate_cache(file_path)

@@ -24,7 +24,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
             cache_ttl: 缓存过期时间（秒），默认3600秒（1小时）
         """
         self.logger = logging.getLogger(__name__)
-        self.logger.info("初始化BatteryAnalysisServiceImpl")
+        self.logger.debug("初始化BatteryAnalysisServiceImpl")
         self._max_cache_size = max_cache_size
         self._cache_ttl = cache_ttl
         self._cache = {
@@ -194,7 +194,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         Returns:
             健康状态百分比 (0-100)
         """
-        self.logger.info("计算电池健康状态(SOH): %s", battery.serial_number)
+        self.logger.debug("计算电池健康状态(SOH): %s", battery.serial_number)
         
         soh = (test_result.capacity / battery.nominal_capacity) * 100
         return max(0.0, min(100.0, soh))
@@ -210,7 +210,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         Returns:
             充电状态百分比 (0-100)
         """
-        self.logger.info("计算电池充电状态(SOC): %s, 电压: %.2fV", battery.serial_number, voltage)
+        self.logger.debug("计算电池充电状态(SOC): %s, 电压: %.2fV", battery.serial_number, voltage)
         
         voltage_range = battery.max_voltage - battery.min_voltage
         soc = ((voltage - battery.min_voltage) / voltage_range) * 100
@@ -227,7 +227,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         Returns:
             循环寿命分析结果
         """
-        self.logger.info("分析电池循环寿命: %s, 测试结果数量: %d", battery.serial_number, len(test_results))
+        self.logger.debug("分析电池循环寿命: %s, 测试结果数量: %d", battery.serial_number, len(test_results))
         
         if not test_results:
             return {
@@ -270,7 +270,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         Returns:
             验证结果，包含是否通过和详细信息
         """
-        self.logger.info("验证测试结果: %s, 测试ID: %s", battery.serial_number, test_result.test_id)
+        self.logger.debug("验证测试结果: %s, 测试ID: %s", battery.serial_number, test_result.test_id)
         
         validation_results = {
             "is_valid": True,
@@ -311,7 +311,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         Returns:
             性能指标字典
         """
-        self.logger.info("计算电池性能指标: %s, 测试ID: %s", battery.serial_number, test_result.test_id)
+        self.logger.debug("计算电池性能指标: %s, 测试ID: %s", battery.serial_number, test_result.test_id)
         
         soh = self.calculate_state_of_health(test_result, battery)
         charge_efficiency = 100.0 - (test_result.internal_resistance * 0.1)
@@ -339,7 +339,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         Returns:
             异常列表
         """
-        self.logger.info("检测测试结果中的异常, 测试结果数量: %d", len(test_results))
+        self.logger.debug("检测测试结果中的异常, 测试结果数量: %d", len(test_results))
         
         anomalies = []
         
@@ -374,7 +374,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         Returns:
             比较结果
         """
-        self.logger.info("比较两个测试结果: %s 和 %s", test_result1.test_id, test_result2.test_id)
+        self.logger.debug("比较两个测试结果: %s 和 %s", test_result1.test_id, test_result2.test_id)
         
         return {
             "test_id_1": test_result1.test_id,
@@ -404,7 +404,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         if cached_result is not None:
             return cached_result
         
-        self.logger.info("验证电池数据: %s", battery.serial_number)
+        self.logger.debug("验证电池数据: %s", battery.serial_number)
         
         validation_result = {
             "valid": True,
@@ -447,7 +447,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         if cached_result is not None:
             return cached_result
         
-        self.logger.info("计算电池健康状态: %s", battery.serial_number)
+        self.logger.debug("计算电池健康状态: %s", battery.serial_number)
         
         battery.health_status = "good"
         
@@ -471,7 +471,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         if cached_result is not None:
             return cached_result
         
-        self.logger.info("分析电池性能: %s", battery.serial_number)
+        self.logger.debug("分析电池性能: %s", battery.serial_number)
         
         performance_data = {
             "performance": "good",
@@ -500,7 +500,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         if cached_result is not None:
             return cached_result
         
-        self.logger.info("预测电池寿命: %s", battery.serial_number)
+        self.logger.debug("预测电池寿命: %s", battery.serial_number)
         
         lifetime_prediction = {
             "lifetime": "5 years",
@@ -529,7 +529,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         if cached_result is not None:
             return cached_result
         
-        self.logger.info("比较多个电池, 电池数量: %d", len(batteries))
+        self.logger.debug("比较多个电池, 电池数量: %d", len(batteries))
         
         comparison_result = {
             "battery_count": len(batteries),
@@ -557,9 +557,9 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
             keys_to_remove = [k for k in self._cache_timestamps if k.startswith(method_name + ":")]
             for k in keys_to_remove:
                 del self._cache_timestamps[k]
-            self.logger.info("清除缓存: %s", method_name)
+            self.logger.debug("清除缓存: %s", method_name)
         else:
-            self.logger.info("清除所有缓存")
+            self.logger.debug("清除所有缓存")
             for key in self._cache:
                 self._cache[key].clear()
             for key in self._cache_access_order:

@@ -78,9 +78,26 @@ class BatteryAnalysis:
         self._max_buffer_size = 1024 * 10  # 10KB缓冲区
 
         try:
-            # get all input .xlsx path
-            self.listAllInXlsx = [self.strInDataXlsxDir + f for f in os.listdir(
+            # get all input .xlsx path with natural sorting
+            def natural_sort_key(filename):
+                """
+                提取文件名中的数字部分用于自然排序
+                针对格式: BTS83_40_5_4_2818580619_...
+                将所有数字段转换为整数进行比较，确保 5_4, 5_5, 5_6... 正确排序
+                """
+                # 将文件名分割成文本和数字部分
+                # re.split(r'(\d+)', ...) 会保留分隔符（数字部分）
+                parts = re.split(r'(\d+)', filename)
+                # 将数字部分转换为整数，文本部分转为小写
+                # 这样比较时: ['BTS', 83, '_', 40, '_', 5, '_', 4, ...]
+                # 数字按数值大小比较，而不是字符串字典序
+                return [int(part) if part.isdigit() else part.lower() for part in parts]
+
+            # 获取所有xlsx文件并按自然顺序排序
+            xlsx_files = [f for f in os.listdir(
                 self.strInDataXlsxDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+            xlsx_files.sort(key=natural_sort_key)
+            self.listAllInXlsx = [self.strInDataXlsxDir + f for f in xlsx_files]
 
             if not self.listAllInXlsx:
                 raise BatteryAnalysisException(
@@ -108,7 +125,7 @@ class BatteryAnalysis:
 
                 if is_frozen or sys.platform.startswith('win'):
                     # 在WindowsorPyInstaller环境下，使用进程池但避免递归启动问题
-                    logging.info("使用进程池并行处理")
+                    logging.debug("使用进程池并行处理")
 
                     # 使用资源管理器获取最优进程数
                     from battery_analysis.utils.resource_manager import ResourceManager
@@ -118,22 +135,22 @@ class BatteryAnalysis:
                     ctx = ResourceManager.get_processing_context()
 
                     with concurrent.futures.ProcessPoolExecutor(
-                        max_workers=max_processes, 
+                        max_workers=max_processes,
                         mp_context=ctx
                     ) as executor:
-                        # 提交所有任务
-                        future_to_args = {
-                            executor.submit(self._parallel_process_file, args): args 
+                        # 提交所有任务，保持顺序映射
+                        futures = [
+                            executor.submit(self._parallel_process_file, args)
                             for args in process_args
-                        }
+                        ]
 
-                        # 获取结果
-                        for future in concurrent.futures.as_completed(future_to_args):
+                        # 按提交顺序获取结果，保持文件顺序
+                        for future in futures:
                             try:
                                 result = future.result()
                                 results.append(result)
                             except (
-                                FileNotFoundError, PermissionError, ValueError, 
+                                FileNotFoundError, PermissionError, ValueError,
                                 KeyError, IndexError
                             ) as e:
                                 logging.error("处理文件whenerror occurred: %s", e)
@@ -141,7 +158,7 @@ class BatteryAnalysis:
                                     f"处理失败: {str(e)}")
                 else:
                     # 在非Windows环境下，使用进程池并行处理以获得更好的CPU利用率
-                    logging.info("在非Windows环境中，使用进程池并行处理以获得最佳性能")
+                    logging.debug("在非Windows环境中，使用进程池并行处理以获得最佳性能")
                     cpu_count = min(multiprocessing.cpu_count(), 4)
                     with multiprocessing.Pool(processes=cpu_count) as pool:
                         try:
@@ -280,7 +297,7 @@ class BatteryAnalysis:
 
             # 如果找不到Test Date字段，尝试从文件名提取
             file_name = os.path.basename(strPath)
-            logging.info("从文件名解析日期: %s", file_name)
+            logging.debug("从文件名解析日期: %s", file_name)
 
             # 尝试从文件名中提取日期
             # 匹配文件名中所有连续的数字组
@@ -291,7 +308,7 @@ class BatteryAnalysis:
                 # 提取前8位作为日期（如果长度足够）
                 if len(last_digit_group) >= 8:
                     date_str = last_digit_group[:8]
-                    logging.info("提取日期: %s", date_str)
+                    logging.debug("提取日期: %s", date_str)
                     # 验证提取的日期是否有效（简单验证：年份在合理范围）
                     try:
                         year = int(date_str[:4])
@@ -313,11 +330,11 @@ class BatteryAnalysis:
                         if pattern == r'(\d{2})\.(\d{2})\.(\d{4})':
                             day, month, year = match.groups()
                             result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                            logging.info("从文件名提取到日期: %s", result)
+                            logging.debug("从文件名提取到日期: %s", result)
                             return result
                         year, month, day = match.groups()
                         result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                        logging.info("从文件名提取到日期: %s", result)
+                        logging.debug("从文件名提取到日期: %s", result)
                         return result
                     except (ValueError, AttributeError) as e:
                         logging.warning("从文件名解析日期失败: %s", e)

@@ -9,6 +9,7 @@ import os
 import sys
 import logging
 from PyQt6.QtWidgets import QApplication, QMessageBox, QStyleFactory
+from PyQt6.QtGui import QFont, QFontDatabase
 
 # 获取日志记录器
 logger = logging.getLogger(__name__)
@@ -90,7 +91,7 @@ class ApplicationInitializer:
                 logger.warning("Qt警告: %s (文件: %s, 行: %d)", 
                             message, context.file, context.line)
             elif mode == QApplication.qtHandlerType.InfoMsg:
-                logger.info("Qt信息: %s (文件: %s, 行: %d)", 
+                logger.debug("Qt信息: %s (文件: %s, 行: %d)",
                          message, context.file, context.line)
             else:
                 logger.debug("Qt调试: %s (文件: %s, 行: %d)", 
@@ -187,6 +188,13 @@ class ApplicationInitializer:
         app = QApplication(sys.argv)
         # 设置应用程序样式为Fusion，确保在不同Windows版本上表现一致
         app.setStyle(QStyleFactory.create("Fusion"))
+
+        # 设置支持 emoji 的字体
+        font = QFont()
+        # Windows 系统使用 Segoe UI Emoji 支持 emoji
+        font.setFamilies(["Segoe UI", "Segoe UI Emoji", "SimHei", "Microsoft YaHei"])
+        app.setFont(font)
+
         return app
     
     def run_application(self, app, window):

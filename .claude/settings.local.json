@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find src:*)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"初始化/self.logger.debug\\(\"初始化/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"保存电池/self.logger.debug\\(\"保存电池/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"查找/self.logger.debug\\(\"查找/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"更新电池/self.logger.debug\\(\"更新电池/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"删除电池/self.logger.debug\\(\"删除电池/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"统计/self.logger.debug\\(\"统计/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"计算/self.logger.debug\\(\"计算/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"分析/self.logger.debug\\(\"分析/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"验证/self.logger.debug\\(\"验证/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"检测/self.logger.debug\\(\"检测/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"比较/self.logger.debug\\(\"比较/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"预测/self.logger.debug\\(\"预测/g' {} \\\\;)",
+      "Bash(find . -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"清除/self.logger.debug\\(\"清除/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"初始化/self.logger.debug\\(\"初始化/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"保存电池/self.logger.debug\\(\"保存电池/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"根据/self.logger.debug\\(\"根据/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"更新电池/self.logger.debug\\(\"更新电池/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"删除电池/self.logger.debug\\(\"删除电池/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"统计/self.logger.debug\\(\"统计/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"计算/self.logger.debug\\(\"计算/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"分析/self.logger.debug\\(\"分析/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"验证/self.logger.debug\\(\"验证/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"检测/self.logger.debug\\(\"检测/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"比较/self.logger.debug\\(\"比较/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"预测/self.logger.debug\\(\"预测/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"清除/self.logger.debug\\(\"清除/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/infrastructure\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"查找/self.logger.debug\\(\"查找/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Progress /self.logger.debug\\(\"Progress /g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"FileService cache/self.logger.debug\\(\"FileService cache/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Directory created/self.logger.debug\\(\"Directory created/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Status changed/self.logger.debug\\(\"Status changed/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Language set/self.logger.debug\\(\"Language set/g' {} \\\\;)",
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Translation reload/self.logger.debug\\(\"Translation reload/g' {} \\\\;)"
+    ]
+  }
+}

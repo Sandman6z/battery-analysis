@@ -126,7 +126,7 @@ class ProgressService(QObject, IProgressService):
         """
         处理进度完成事件
         """
-        self.logger.info("Progress completed")
+        self.logger.debug("Progress completed")
         self._is_completed = True
         self._is_active = False
     
@@ -135,7 +135,7 @@ class ProgressService(QObject, IProgressService):
         """
         处理进度开始事件
         """
-        self.logger.info("Progress started")
+        self.logger.debug("Progress started")
         self._is_completed = False
         self._is_active = True
     
@@ -224,7 +224,7 @@ class ProgressService(QObject, IProgressService):
             self._is_completed = False
             self._is_active = False
             
-            self.logger.info("Progress reset")
+            self.logger.debug("Progress reset")
             return True
             
         except (TypeError, AttributeError) as e:

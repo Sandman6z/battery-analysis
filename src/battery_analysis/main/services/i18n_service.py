@@ -142,14 +142,14 @@ class I18nService(II18nService):
                 success = self._language_manager.set_locale(language_code)
                 if success:
                     self._current_language = language_code
-                    self.logger.info("Language set to: %s", language_code)
+                    self.logger.debug("Language set to: %s", language_code)
                     return True
                 else:
                     self.logger.error("Failed to set language: %s", language_code)
                     return False
             else:
                 self._current_language = language_code
-                self.logger.info("Language set to (simple): %s", language_code)
+                self.logger.debug("Language set to (simple): %s", language_code)
                 return True
                 
         except (AttributeError, ValueError, OSError) as e:
@@ -202,7 +202,7 @@ class I18nService(II18nService):
             if self._language_manager:
                 return self._language_manager.reload_translations()
             else:
-                self.logger.info("Translation reload skipped (simple implementation)")
+                self.logger.debug("Translation reload skipped (simple implementation)")
                 return True
                 
         except (AttributeError, OSError, IOError) as e:

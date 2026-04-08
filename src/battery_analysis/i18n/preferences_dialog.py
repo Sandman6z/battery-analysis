@@ -488,32 +488,23 @@ class PreferencesDialog(QW.QDialog):
 
             # Save custom config path
             custom_path = self.config_path_lineedit.text().strip()
-            self.logger.info(f"保存自定义配置路径: '{custom_path}'")
+            self.logger.debug(f"保存自定义配置路径: '{custom_path}'")
             if custom_path:
                 if os.path.exists(custom_path):
                     settings.setValue("config/custom_config_path", custom_path)
-                    self.logger.info(f"成功保存自定义配置路径: '{custom_path}'")
+                    self.logger.debug(f"成功保存自定义配置路径: '{custom_path}'")
                 else:
                     self.logger.warning(f"配置文件不存在: '{custom_path}'")
                     settings.setValue("config/custom_config_path", custom_path)
-                    self.logger.info(f"已保存配置路径（文件不存在）: '{custom_path}'")
+                    self.logger.debug(f"已保存配置路径（文件不存在）: '{custom_path}'")
             else:
                 settings.remove("config/custom_config_path")
-                self.logger.info("已清除自定义配置路径设置")
 
             settings.sync()
-            settings.flush()
-            self.logger.info("Settings applied and flushed successfully")
-            
+            self.logger.info("Settings applied successfully")
+
             # Emit signal that preferences have been applied
             self.preferences_applied.emit()
-            
-            # Show confirmation
-            QW.QMessageBox.information(
-                self,
-                _("information", "Information"),
-                _("settings_applied", "Settings have been applied successfully.")
-            )
             
         except (OSError, ValueError, AttributeError, TypeError) as e:
             self.logger.error("Failed to apply settings: %s", e)

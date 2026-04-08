@@ -695,7 +695,7 @@ class ServiceContainer(IServiceContainer):
                     self.logger.error("Failed to shutdown service %s: %s", name, e)
             
             self._instances.clear()
-            self.logger.info("All service instances cleared")
+            self.logger.debug("All service instances cleared")
             
         except (TypeError, AttributeError, OSError) as e:
             self.logger.error("Failed to clear service instances: %s", e)
@@ -783,7 +783,7 @@ class ServiceContainer(IServiceContainer):
                     self.logger.error("Failed to release service %s: %s", service_name, e)
         
         if released_count > 0:
-            self.logger.info("Released %d unused services", released_count)
+            self.logger.debug("Released %d unused services", released_count)
         
         return released_count
     

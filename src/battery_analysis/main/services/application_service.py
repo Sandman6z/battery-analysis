@@ -179,7 +179,7 @@ class ApplicationService:
         status = event.data["status"]
         code = event.data["code"]
         message = event.data["message"]
-        self.logger.info("Status changed: %s, Code: %s, Message: %s", status, code, message)
+        self.logger.debug("Status changed: %s, Code: %s, Message: %s", status, code, message)
 
     def _on_analysis_completed(self, event):
         """
@@ -208,7 +208,7 @@ class ApplicationService:
         
         self.current_visualizer = self.visualizer_factory.create_visualizer(name, **kwargs)
         if self.current_visualizer:
-            self.logger.info("Created visualizer: %s", name)
+            self.logger.debug("Created visualizer: %s", name)
         else:
             self.logger.error("Failed to create visualizer: %s", name)
         
