@@ -34,7 +34,13 @@
       "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Directory created/self.logger.debug\\(\"Directory created/g' {} \\\\;)",
       "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Status changed/self.logger.debug\\(\"Status changed/g' {} \\\\;)",
       "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Language set/self.logger.debug\\(\"Language set/g' {} \\\\;)",
-      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Translation reload/self.logger.debug\\(\"Translation reload/g' {} \\\\;)"
+      "Bash(find \"c:/Users/boe/Documents/BOEDT/battery-analysis/src/battery_analysis/main/services\" -name \"*.py\" -type f -exec sed -i 's/self\\\\.logger\\\\.info\\(\"Translation reload/self.logger.debug\\(\"Translation reload/g' {} \\\\;)",
+      "Bash(chmod +x scripts/generate_changelog.py)",
+      "Bash(python scripts/generate_changelog.py --output)",
+      "Bash(chcp 65001)",
+      "Bash(python scripts/generate_changelog_simple.py --version v2.9.0)",
+      "Bash(ls -lh scripts/*.py)",
+      "Bash(python -c \"import tomllib; f=open\\('pyproject.toml','rb'\\); print\\(tomllib.load\\(f\\)['project']['version']\\)\")"
     ]
   }
 }

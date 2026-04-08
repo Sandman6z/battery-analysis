@@ -1,3 +1,53 @@
+### v2.8.2 (Unreleased)
+
+#### 功能增强
+- feat: 添加Nuitka打包指南和打包脚本，优化打包流程
+- feat(配置): 添加配置管理功能并优化UI组件初始化
+- feat(battery_chart_viewer): 添加动态调整纵轴范围功能
+
+#### 修复和改进
+- fix(battery_chart_viewer): 优化动态调整Y轴范围和刻度间隔逻辑
+- fix(ci): 修复 GitHub Actions 中 secrets.GH_PAT 的条件判断语法
+- fix(ci): 修复GH_PAT条件判断语法错误
+
+#### 重构优化
+- refactor: 清理临时测试脚本，添加Nuitka构建脚本
+
+#### 构建和CI/CD
+- ci(workflow): 改进wiki同步工作流的可靠性和健壮性
+
+#### 文档
+- docs: 添加NUITKA_BUILD.md打包指南文档
+- docs: 添加CHANGELOG维护指南
+- docs: 精简和整合文档目录
+
+### v2.8.2 (Unreleased)
+
+#### 功能增强
+- feat: 添加Nuitka打包指南和打包脚本，优化打包流程
+- feat(配置): 添加配置管理功能并优化UI组件初始化
+- feat(battery_chart_viewer): 添加动态调整纵轴范围功能
+- feat(缓存): 为FileService和DataProcessor添加缓存机制
+
+#### 修复和改进
+- fix(battery_chart_viewer): 优化动态调整Y轴范围和刻度间隔逻辑
+- fix(ci): 修复 GitHub Actions 中 secrets.GH_PAT 的条件判断语法
+
+#### 性能优化
+- perf(data_processor): 优化DataFrame内存使用以减少内存消耗
+
+#### 重构优化
+- refactor: 清理临时测试脚本和过时文档，精简项目结构
+
+#### 构建和CI/CD
+- build: 升级版本至2.8.0
+- ci(workflow): 改进wiki同步工作流的可靠性和健壮性
+
+#### 文档
+- docs: 添加NUITKA_BUILD.md打包指南
+- docs: 添加CHANGELOG维护指南
+- docs: 精简和整合文档目录，删除历史报告文档
+
 ### v2.8.1
 
 #### 修复和改进
