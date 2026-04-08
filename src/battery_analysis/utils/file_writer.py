@@ -146,6 +146,9 @@ class XlsxWordWriter:
         self.strResultPath = os.path.join(
             strResultPath, f"{td}_v{listTestInfo[16]}")
 
+        # 确保输出目录存在，如果不存在则自动创建
+        os.makedirs(self.strResultPath, exist_ok=True)
+
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
         self.intCurrentLevelNum = len(self.listCurrentLevel)

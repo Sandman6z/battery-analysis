@@ -91,7 +91,10 @@ class AnalysisWorker(QC.QRunnable):
             # 发送初始进度
             self.signals.progress_update.emit(0, "准备分析...")
 
-            # 检查并创建目录
+            # 确保输出根目录存在（3_analysis results）
+            os.makedirs(self.str_output_path, exist_ok=True)
+
+            # 检查并创建版本目录
             version_dir = f"{self.str_output_path}/v{self.list_test_info[16]}"
             if os.path.exists(version_dir):
                 shutil.rmtree(version_dir)
