@@ -338,7 +338,7 @@ class AnalysisWorker(QC.QRunnable):
                     logging.error("文件写入过程中发生错误: %s", e)
                     self.str_error_xlsx = f"文件写入错误: {str(e)}"
 
-        except (ImportError, OSError, PermissionError, IOError, ValueError, TypeError) as e:
+        except (ImportError, OSError, PermissionError, IOError, ValueError, TypeError, IndexError) as e:
             logging.error("线程运行过程中发生错误: %s", e)
             # 将未捕获的异常信息传递给UI层
             self.str_error_xlsx = f"线程运行错误: {str(e)}"

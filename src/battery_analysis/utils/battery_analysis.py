@@ -388,24 +388,43 @@ class BatteryAnalysis:
         # cycle sheet
         cycleTable = sheets[0]
         cycleRows = cycleTable.nrows
-        cycleCycle = cycleTable.col_values(0)
-        cycleBegin = cycleTable.col_values(1)
-        cycleEnd = cycleTable.col_values(2)
-        cycleCharge = cycleTable.col_values(3)
+        
+        # 安全读取列，确保不会越界
+        cycleCycle = cycleTable.col_values(0) if cycleTable.ncols > 0 else []
+        cycleBegin = cycleTable.col_values(1) if cycleTable.ncols > 1 else []
+        cycleEnd = cycleTable.col_values(2) if cycleTable.ncols > 2 else []
+        cycleCharge = cycleTable.col_values(3) if cycleTable.ncols > 3 else []
+        
+        # 检查必要的列是否存在
+        if len(cycleCycle) < 3 or len(cycleBegin) < 3 or len(cycleEnd) < 3 or len(cycleCharge) < 3:
+            logging.error("Excel文件格式错误: %s, 第一个工作表缺少必要的列数据", strPath)
+            raise BatteryAnalysisException(f"Excel文件格式错误: {strPath} 第一个工作表缺少必要的列数据")
+        
         # step sheet
         stepTable = sheets[1]
         stepRows = stepTable.nrows
-        stepCycle = stepTable.col_values(0)
-        stepStep = stepTable.col_values(1)
-        stepCharge = stepTable.col_values(2)
+        stepCycle = stepTable.col_values(0) if stepTable.ncols > 0 else []
+        stepStep = stepTable.col_values(1) if stepTable.ncols > 1 else []
+        stepCharge = stepTable.col_values(2) if stepTable.ncols > 2 else []
+        
+        # 检查必要的列是否存在
+        if len(stepCycle) < 3 or len(stepStep) < 3 or len(stepCharge) < 3:
+            logging.error("Excel文件格式错误: %s, 第二个工作表缺少必要的列数据", strPath)
+            raise BatteryAnalysisException(f"Excel文件格式错误: {strPath} 第二个工作表缺少必要的列数据")
+        
         # record sheet
         recordTable = sheets[2]
         recordRows = recordTable.nrows
-        recordCycle = recordTable.col_values(0)
-        recordStep = recordTable.col_values(1)
-        recordCurrent = recordTable.col_values(2)
-        recordVoltage = recordTable.col_values(3)
-        recordCharge = recordTable.col_values(4)
+        recordCycle = recordTable.col_values(0) if recordTable.ncols > 0 else []
+        recordStep = recordTable.col_values(1) if recordTable.ncols > 1 else []
+        recordCurrent = recordTable.col_values(2) if recordTable.ncols > 2 else []
+        recordVoltage = recordTable.col_values(3) if recordTable.ncols > 3 else []
+        recordCharge = recordTable.col_values(4) if recordTable.ncols > 4 else []
+        
+        # 检查必要的列是否存在
+        if len(recordCycle) < 3 or len(recordStep) < 3 or len(recordCurrent) < 3 or len(recordVoltage) < 3 or len(recordCharge) < 3:
+            logging.error("Excel文件格式错误: %s, 第三个工作表缺少必要的列数据", strPath)
+            raise BatteryAnalysisException(f"Excel文件格式错误: {strPath} 第三个工作表缺少必要的列数据")
 
         # 处理when间戳
         listTimeStamp = [cycleBegin[2], cycleEnd[-1]]

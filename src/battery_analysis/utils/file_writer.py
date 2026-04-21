@@ -116,32 +116,39 @@ class XlsxWordWriter:
         except (ValueError, IndexError) as e:
             logging.error("日期解析失败: %s", e)
             # 尝试从文件名中提取日期
-            if len(listTestInfo) > 0 and hasattr(listTestInfo[0], 'split'):
-                filename = str(listTestInfo[0])
-                # 匹配文件名中所有连续的数字组
-                digit_groups = re.findall(r'(\d+)', filename)
-                if digit_groups:
-                    # 取最后一组连续数字
-                    last_digit_group = digit_groups[-1]
-                    # 提取前8位作为日期（如果长度足够）
-                    if len(last_digit_group) >= 8:
-                        td = last_digit_group[:8]
-                        logging.info("从文件名最后一组连续数字提取前8位作为日期: %s", td)
-                    else:
-                        # 如果最后一组数字不足8位，尝试匹配任意8位数字
-                        match = re.search(r'(\d{8})', filename)
-                        if match:
-                            td = match.group(1)
-                            logging.info("从文件名提取任意8位日期: %s", td)
+            # 注意：listTestInfo[0] 是电池类型，不是文件名
+            # 从第一个Excel文件路径提取日期
+            if len(listBatteryInfo) > 1 and listBatteryInfo[1]:
+                # listBatteryInfo[1] 是电池名称列表，使用第一个电池名称
+                first_battery_name = listBatteryInfo[1][0] if listBatteryInfo[1] else ""
+                if first_battery_name:
+                    # 匹配文件名中所有连续的数字组
+                    digit_groups = re.findall(r'(\d+)', first_battery_name)
+                    if digit_groups:
+                        # 取最后一组连续数字
+                        last_digit_group = digit_groups[-1]
+                        # 提取前8位作为日期（如果长度足够）
+                        if len(last_digit_group) >= 8:
+                            td = last_digit_group[:8]
+                            logging.info("从电池名称最后一组连续数字提取前8位作为日期: %s", td)
                         else:
-                            td = "00000000"
-                            logging.warning("无法从文件名提取日期，使用默认值: %s", td)
+                            # 如果最后一组数字不足8位，尝试匹配任意8位数字
+                            match = re.search(r'(\d{8})', first_battery_name)
+                            if match:
+                                td = match.group(1)
+                                logging.info("从电池名称提取任意8位日期: %s", td)
+                            else:
+                                td = "00000000"
+                                logging.warning("无法从电池名称提取日期，使用默认值: %s", td)
+                    else:
+                        td = "00000000"
+                        logging.warning("电池名称中没有数字，无法提取日期，使用默认值: %s", td)
                 else:
                     td = "00000000"
-                    logging.warning("文件名中没有数字，无法提取日期，使用默认值: %s", td)
+                    logging.warning("无法从电池名称提取日期，使用默认值: %s", td)
             else:
                 td = "00000000"
-                logging.warning("无法从文件名提取日期，使用默认值: %s", td)
+                logging.warning("无法从电池信息提取日期，使用默认值: %s", td)
         # 使用os.path.join确保路径分隔符一致性
         self.strResultPath = os.path.join(
             strResultPath, f"{td}_v{listTestInfo[16]}")
