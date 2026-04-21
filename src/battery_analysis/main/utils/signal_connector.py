@@ -193,9 +193,8 @@ class SignalConnector:
                     # 调用主窗口的_open_report_path方法
                     if hasattr(self.main_window, '_open_report_path'):
                         self.main_window._open_report_path()
-
-            # 日期不一致错误处理 (stateindex == 3)
             elif stateindex == 3:
+                # 日期不一致错误处理
                 # 关闭进度条
                 self._close_progress_dialog()
 
@@ -227,9 +226,8 @@ class SignalConnector:
 
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
                     f"[错误]: {error_title}")
-
-            # 电池分析错误处理 (stateindex == 1)
             elif stateindex == 1:
+                # 电池分析错误处理
                 # 关闭进度条
                 self._close_progress_dialog()
 
@@ -243,9 +241,8 @@ class SignalConnector:
                     threadinfo,
                     True  # 需要关闭进度条
                 )
-
-            # 文件写入错误处理 (stateindex == 2)
             elif stateindex == 2:
+                # 文件写入错误处理
                 # 关闭进度条
                 self._close_progress_dialog()
 
@@ -258,11 +255,21 @@ class SignalConnector:
                     threadinfo,
                     False  # 进度条已关闭
                 )
-
-            # 其他错误情况
             else:
+                # 其他错误情况
+                # 关闭进度条
+                self._close_progress_dialog()
+                
                 self.main_window.pushButton_Run.setText("Rerun")
                 self.main_window.pushButton_Run.setEnabled(True)
+                
+                # 显示错误提示
+                msg_box = QW.QMessageBox()
+                msg_box.setWindowTitle("分析错误")
+                msg_box.setText(f"分析过程中发生错误：\n\n{threadinfo}")
+                msg_box.setIcon(QW.QMessageBox.Icon.Critical)
+                msg_box.exec()
+                
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
                     f"[错误]: {threadinfo}")
     
