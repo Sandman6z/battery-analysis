@@ -10,5 +10,6 @@
         "--cov-report=html"
     ],
     "python.testing.cwd": "${workspaceFolder}",
-    "python.testing.autoTestDiscoverOnSaveEnabled": true
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "C_Cpp.intelliSenseEngine": "disabled"
 }
