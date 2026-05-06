@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, Optional, List, Any
 
 # Setup logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Module constants

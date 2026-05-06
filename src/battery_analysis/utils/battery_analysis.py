@@ -17,7 +17,7 @@ if __name__ == '__main__':
     pass
 
 # 配置日志
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 

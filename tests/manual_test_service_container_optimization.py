@@ -18,7 +18,7 @@ from src.battery_analysis.main.services.service_container import (
 
 # 配置日志
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.WARNING,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)

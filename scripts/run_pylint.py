@@ -21,7 +21,7 @@ import logging
 from datetime import datetime
 
 # 配置日志记录
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 

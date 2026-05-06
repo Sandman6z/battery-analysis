@@ -13,7 +13,7 @@ import logging
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Import the main i18n module instead of duplicating code

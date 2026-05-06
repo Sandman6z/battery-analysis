@@ -2,7 +2,7 @@ import os
 import logging
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 模拟BatteryChartViewerWrapper中的XML路径处理逻辑
 def test_xml_path_processing(xml_path):

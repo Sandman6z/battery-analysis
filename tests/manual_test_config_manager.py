@@ -10,7 +10,7 @@ import PyQt6.QtCore as QC
 import PyQt6.QtWidgets as QW
 
 # 配置日志
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 class MockMainWindow:

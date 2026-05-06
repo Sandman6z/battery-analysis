@@ -207,7 +207,7 @@ class UIControllerFactory:
 # 使用示例
 def example_usage():
     """使用示例"""
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING)
     
     try:
         # 创建UI控制器 - 使用PyQt6框架

@@ -22,7 +22,7 @@ sys.path.insert(0, str(project_root))
 from battery_analysis.i18n import _
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 

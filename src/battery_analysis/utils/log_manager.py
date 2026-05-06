@@ -73,7 +73,7 @@ class LogManager:
         
         # 控制台处理器
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)  # 控制台只显示INFO及以上级别
+        console_handler.setLevel(logging.WARNING)  # 控制台只显示WARNING及以上级别
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
         
