@@ -59,18 +59,17 @@ class XlsxWordWriter:
             # 创建默认的TestInformation部分
             self.config.add_section("TestInformation")
 
-        # 安全获取PltConfig/Title，添加默认值处理
+        # 使用测试信息生成动态标题（使用listTestInfo[4]作为实际制造商）
         try:
-            if (self.config.has_section("PltConfig") and \
-                self.config.has_option("PltConfig", "Title")):
-                strImageTitle = self.config.get("PltConfig", "Title")[1:-1]
-            else:
-                # 使用测试信息生成默认标题
-                strImageTitle = (
-                    f"{listTestInfo[4]} {listTestInfo[2]} {listTestInfo[3]}"
-                    f"({listTestInfo[5]}), 默认标题"
-                )
-        except (configparser.Error, IndexError, TypeError, ValueError) as e:
+            strImageTitle = (
+                f"{listTestInfo[4]} {listTestInfo[2]} {listTestInfo[3]}"
+                f"({listTestInfo[5]})"
+            )
+            if len(listTestInfo) > 8 and listTestInfo[8]:
+                strImageTitle += f", {listTestInfo[8]}mAh"
+            if len(listTestInfo) > 7 and listTestInfo[7]:
+                strImageTitle += f", {listTestInfo[7]}"
+        except (IndexError, TypeError, ValueError) as e:
             logging.error("获取标题时发生错误: %s", e)
             strImageTitle = "默认电池分析图标题"
 
