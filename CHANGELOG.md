@@ -1,27 +1,22 @@
-### v2.8.2 (Unreleased)
+### v2.9.0 (Unreleased)
 
 #### 功能增强
-- feat: 添加Nuitka打包指南和打包脚本，优化打包流程
-- feat(配置): 添加配置管理功能并优化UI组件初始化
-- feat(battery_chart_viewer): 添加动态调整纵轴范围功能
+- feat: 新增图表写入模块(plot writer)，支持电池数据可视化输出
+- feat(日志管理器): 添加日志文件删除重试机制以处理文件锁问题
 
 #### 修复和改进
-- fix(battery_chart_viewer): 优化动态调整Y轴范围和刻度间隔逻辑
-- fix(ci): 修复 GitHub Actions 中 secrets.GH_PAT 的条件判断语法
-- fix(ci): 修复GH_PAT条件判断语法错误
+- fix(Excel写入): 优化常规数据列和超链接处理逻辑
+- fix(图表标题): 重构标题生成逻辑，使用统一的build_plot_title函数构建图表标题
+- fix(图表标题): 添加动态标题支持，通过元数据文件更新图表标题
+- fix(图表标题): 简化标题获取过程并添加默认值处理
+- fix(环境信息): 确保清空并更新主窗口的环境信息
+- fix(服务依赖图): 优化拓扑排序逻辑，增强对循环依赖的检测
+- fix(matplotlib): 更新字体配置以支持emoji显示
+- fix: 将日志级别从INFO更改为WARNING，减少日志输出
+- fix: 改进异常处理和错误提示
+- fix: 增强Excel文件解析的健壮性和错误处理
 
-#### 重构优化
-- refactor: 清理临时测试脚本，添加Nuitka构建脚本
-
-#### 构建和CI/CD
-- ci(workflow): 改进wiki同步工作流的可靠性和健壮性
-
-#### 文档
-- docs: 添加NUITKA_BUILD.md打包指南文档
-- docs: 添加CHANGELOG维护指南
-- docs: 精简和整合文档目录
-
-### v2.8.2 (Unreleased)
+### v2.8.2
 
 #### 功能增强
 - feat: 添加Nuitka打包指南和打包脚本，优化打包流程

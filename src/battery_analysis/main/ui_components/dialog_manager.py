@@ -63,14 +63,14 @@ class DialogManager:
         import time
         about_text = f"""
         <h3>Battery Analyzer</h3>
-        <p>版本: v{self.main_window.version}</p>
-        <p>电池分析工具，用于电池性能测试和数据分析。</p>
-        <p>© {time.localtime().tm_year} Battery Testing System</p>
+        <p>version: v{self.main_window.version}</p>
+        <p>Battery Analysis Tool, used for battery performance testing and data analysis.</p>
+        <p>© {time.localtime().tm_year} Sandman Zhang, Shane Zhao</p>
         """
 
         QW.QMessageBox.about(
             self.main_window,
-            '关于 Battery Analyzer',
+            'About Battery Analyzer',
             about_text
         )
     
