@@ -350,7 +350,7 @@ class VisualizerController:
         matplotlib.rcParams.update(matplotlib.rcParamsDefault)
         
         # 重新配置中文字体支持，避免重置后丢失
-        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'DejaVu Sans', 'Arial', 'Times New Roman']
         matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
         
         # 根据环境选择合适的后端

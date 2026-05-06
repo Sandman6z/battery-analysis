@@ -34,7 +34,7 @@ matplotlib.use('QtAgg')
 
 # 配置matplotlib支持中文显示
 matplotlib.rcParams['font.sans-serif'] = ['SimHei',
-                                          'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+                                          'Microsoft YaHei', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'DejaVu Sans', 'Arial', 'Times New Roman']
 matplotlib.rcParams['axes.unicode_minus'] = False
 
 # 开启交互模式

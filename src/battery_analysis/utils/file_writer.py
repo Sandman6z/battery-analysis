@@ -17,7 +17,7 @@ import re
 from pathlib import Path
 
 # 配置matplotlib支持中文显示
-plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'DejaVu Sans', 'Arial', 'Times New Roman']
 plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
 import xlsxwriter as xwt

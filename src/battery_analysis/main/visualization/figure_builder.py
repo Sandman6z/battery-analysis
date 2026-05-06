@@ -182,7 +182,7 @@ class FigureBuilderMixin:
         logger.info("开始清理Matplotlib状态")
         matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
-        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans', 'Arial', 'Times New Roman']
+        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'DejaVu Sans', 'Arial', 'Times New Roman']
         matplotlib.rcParams['axes.unicode_minus'] = False
 
         if matplotlib.get_backend() != 'QtAgg':
