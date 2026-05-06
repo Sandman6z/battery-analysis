@@ -46,7 +46,19 @@
       "Bash(python -m py_compile src/battery_analysis/utils/log_manager.py)",
       "Bash(python -m py_compile src/battery_analysis/utils/log_manager.py src/battery_analysis/utils/error_report_generator.py src/battery_analysis/main/battery_chart_viewer.py src/battery_analysis/utils/environment_utils.py)",
       "Bash(python -c ':*)",
-      "Bash(python -c \"import sys; sys.path.insert\\(0, 'src'\\); from battery_analysis.main.business_logic.data_processor import DataProcessor, LRUCache, BackgroundWorker; print\\('Import successful'\\)\")"
+      "Bash(python -c \"import sys; sys.path.insert\\(0, 'src'\\); from battery_analysis.main.business_logic.data_processor import DataProcessor, LRUCache, BackgroundWorker; print\\('Import successful'\\)\")",
+      "Bash(python -m pytest tests/ --collect-only --quiet)",
+      "Bash(.venv/Scripts/python.exe -m pytest tests/ -q --tb=line --no-header -p no:xdist -o \"addopts=-p no:xdist\")",
+      "Bash(.venv/Scripts/python.exe -m pytest tests/test_version_fix.py tests/test_log_system.py tests/test_cache_mechanism.py tests/test_service_container_optimization.py tests/test_file_validator.py tests/test_config_manager.py -q --tb=short --no-header)",
+      "Bash(cd \"/c/Users/boe/Documents/EwinDT/battery-analysis\" && grep -rn \"from battery_analysis.main.business_logic\\\\|import battery_analysis.main.business_logic\" src/ --include=\"*.py\" | grep -v __pycache__)",
+      "Read(//c/c/Users/boe/Documents/EwinDT/battery-analysis/**)",
+      "Bash(cd \"/c/Users/boe/Documents/EwinDT/battery-analysis\" && grep -rn \"battery_calculator\\\\|report_generator\\\\|visualization_manager\\\\|user_settings_manager\\\\|environment_manager\" src/battery_analysis/main/ --include=\"*.py\" | grep -v __pycache__ | grep -i \"from\\\\|import\" | sort -u)",
+      "Read(//c/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/**)",
+      "Bash(xargs wc -l)",
+      "Bash(rm \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/environment_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/user_settings_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/visualization_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/battery_calculator.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/report_generator.py\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\boe\\Documents\\EwinDT\\battery-analysis\\src\\battery_analysis\\main\\business_logic"
     ]
   }
 }

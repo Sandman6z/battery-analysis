@@ -117,50 +117,57 @@ class TestDataProcessor:
     
     def test__set_specification_type(self):
         """测试设置规格类型的方法"""
+        from battery_analysis.main.business_logic.filename_parser import set_specification_type
+
         # 设置模拟的comboBox_Specification_Type
         mock_combo = Mock()
         mock_combo.count.return_value = 3
         mock_combo.itemText.side_effect = lambda i: ['Capacity', 'Voltage', 'Resistance'][i]
-        self.mock_main_window.comboBox_Specification_Type = mock_combo
-        
+
         # 调用方法
         filename = 'Test_Capacity_1C.xlsx'
         all_spec_types = ['Capacity', 'Voltage', 'Resistance']
-        self.processor._set_specification_type(filename, all_spec_types)
-        
+        set_specification_type(filename, all_spec_types, mock_combo)
+
         # 验证结果
         mock_combo.setCurrentIndex.assert_called_once_with(0)
-    
+
     def test__extract_batch_date_code(self):
         """测试提取批次日期代码的方法"""
+        from battery_analysis.main.business_logic.filename_parser import extract_batch_date_code
+
         # 调用方法（注意：正则表达式期望DC后面有逗号）
         filename = 'Test_Battery_DC20240101,.xlsx'
-        self.processor._extract_batch_date_code(filename)
-        
+        extract_batch_date_code(filename, self.mock_main_window.lineEdit_BatchDateCode)
+
         # 验证结果
         self.mock_main_window.lineEdit_BatchDateCode.setText.assert_called_once_with('20240101')
-    
+
     def test__extract_pulse_current(self):
         """测试提取脉冲电流的方法"""
+        from battery_analysis.main.business_logic.filename_parser import extract_pulse_current
+
         # 设置模拟的config
         mock_config = Mock()
         self.mock_main_window.config = mock_config
-        
-        # 调用方法
+
+        # 调用方法（正则预期匹配格式为 "(100-200mA)" 无闭括号在mA前）
         filename = 'Test_Battery_(100-200)mA.xlsx'
-        self.processor._extract_pulse_current(filename)
-        
-        # 验证结果（只测试方法执行，不测试具体实现细节）
-        assert True
-    
+        result = extract_pulse_current(filename, mock_config)
+
+        # 验证结果
+        assert result == []
+
     def test__extract_cc_current(self):
         """测试提取恒流电流的方法"""
-        # 调用方法
+        from battery_analysis.main.business_logic.filename_parser import extract_cc_current
+
+        # 调用方法（正则预期匹配格式含闭括号）
         filename = 'Test_Battery_(100-200)mA,50mA.xlsx'
-        self.processor._extract_cc_current(filename)
-        
-        # 验证结果（只测试方法执行，不测试具体实现细节）
-        assert True
+        result = extract_cc_current(filename)
+
+        # 验证结果
+        assert result == ''
     
     def test_get_xlsxinfo_invalid_directory(self):
         """测试获取Excel文件信息时目录无效的情况"""
@@ -179,19 +186,23 @@ class TestDataProcessor:
             # 验证结果
             self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
     
-    @patch('battery_analysis.main.business_logic.data_processor.QW.QFileDialog')
+    @patch('battery_analysis.main.business_logic.error_recovery.QW.QFileDialog')
     def test__open_data_directory_dialog(self, mock_file_dialog):
         """测试打开数据目录对话框的方法"""
+        from battery_analysis.main.business_logic.error_recovery import DataErrorRecoveryHandler
+
         # 设置模拟返回值
         mock_file_dialog.getExistingDirectory.return_value = 'C:\\test\\data'
         self.mock_main_window.lineEdit_InputPath.text.return_value = 'C:\\current\\path'
-        
-        # 模拟analyze_data方法
-        self.processor.analyze_data = Mock()
-        
-        # 调用方法
-        self.processor._open_data_directory_dialog()
-        
+
+        # 模拟data_processor.analyze_data方法
+        self.mock_main_window.data_processor = Mock()
+        self.mock_main_window.data_processor.analyze_data = Mock()
+
+        # 创建 recovery handler 并调用
+        handler = DataErrorRecoveryHandler(self.mock_main_window)
+        handler._open_data_directory_dialog()
+
         # 验证结果
         self.mock_main_window.lineEdit_InputPath.setText.assert_called_once_with('C:\\test\\data')
-        self.processor.analyze_data.assert_called_once()
+        self.mock_main_window.data_processor.analyze_data.assert_called_once()

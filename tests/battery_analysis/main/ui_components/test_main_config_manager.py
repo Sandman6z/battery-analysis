@@ -5,7 +5,8 @@ from battery_analysis.main.ui_components.config_manager import ConfigManager
 
 class TestConfigManager:
     def setup_method(self):
-        self.manager = ConfigManager()
+        mock_main_window = Mock()
+        self.manager = ConfigManager(mock_main_window)
 
     def test_load_config(self):
         result = self.manager.load_config()

@@ -5,6 +5,7 @@ from battery_analysis.utils.data_utils import generate_current_type_string
 from battery_analysis.utils import word_utils
 from battery_analysis.utils import excel_utils
 from battery_analysis.utils import numeric_utils
+from battery_analysis.utils import plot_writer
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_LINE_SPACING
@@ -763,7 +764,7 @@ class XlsxWordWriter:
                     i += 1
 
         # draw boxplots
-        self.UXWW_Draw(listCpt, int(self.listTestInfo[8]))
+        plot_writer.draw_boxplot_and_curves(self, listCpt, int(self.listTestInfo[8]))
 
         # init list for calculate
         listMean = []
@@ -1453,96 +1454,7 @@ class XlsxWordWriter:
             csv_buffer.clear()
         f.close()
 
-    def UXWW_Draw(self, _listCpt: list, maxXaxis: int) -> None:
-        fontdictLabel = {
-            'fontsize': 9,
-            'fontweight': 'bold'
-        }
-        medianprofile = dict(linewidth=1, color='red')
-
-        plt.figure()
-
-        for c in range(self.intCurrentLevelNum):
-            listBoxPlot = []
-            listLabel = []
-            for v in range(self.intVoltageLevelNum):
-                listBoxPlot.append(_listCpt[c][v])
-                listLabel.append(f"{self.listVoltageLevel[v]}V")
-            plt.cla()
-            plt.boxplot(listBoxPlot, labels=listLabel,
-                        medianprops=medianprofile)
-            plt.title(self.listBoxplotTitle[c], fontdict=fontdictLabel)
-            plt.xlabel("Cutoff Voltage [V]")
-            plt.ylabel("Useable Capacity [mAh]")
-            plt.grid(linestyle="--", alpha=0.3)
-            plt.savefig(self.listPngPath[c])
-            plt.savefig(self.listSvgPath[c], dpi=1200)
-
-        # analysis Info_Image.csv
-        listPlt = []
-        for c in range(self.intCurrentLevelNum):
-            listPlt.append([])
-            for _ in range(4):
-                listPlt[c].append([])
-
-        f = open(self.strInfoImageCsvPath, mode='r', encoding='utf-8')
-        csvreaderInfoImageCsvFile = csv.reader(f)
-        intPerBatteryRows = 1 + self.intCurrentLevelNum * 3
-        index = 0
-        for row in csvreaderInfoImageCsvFile:
-            loop = index % intPerBatteryRows
-            if loop != 0 and (loop % 3) != 1:
-                listPlt[int((loop - 1) / 3)][((loop - 1) % 3) -
-                                             1].append([float(row[i]) for i in range(len(row))])
-            index += 1
-        f.close()
-
-        for c in range(self.intCurrentLevelNum):
-            listPlt[c][2], listPlt[c][3] = data_utils.filter_data(
-                listPlt[c][0], listPlt[c][1])
-
-        title_fontdict = {
-            'fontsize': 15,
-            'fontweight': 'bold'
-        }
-        axis_fontdict = {
-            'fontsize': 15
-        }
-
-        plt.figure(figsize=(15, 6))
-
-        plt.clf()
-        plot_utils.set_plt_axis(self.listTestInfo[0], maxXaxis)
-        y_major_locator = MultipleLocator(0.2)
-        ax = plt.gca()
-        ax.yaxis.set_major_locator(y_major_locator)
-        plt.title(f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
-        plt.xlabel("Charge [mAh]", fontdict=axis_fontdict)
-        plt.ylabel(
-            "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
-        for b in range(self.intBatteryNum):
-            for c in range(self.intCurrentLevelNum):
-                plt.plot(listPlt[c][0][b], listPlt[c][1][b],
-                         color=f"{self.listPltColorType[c]}", linewidth=0.5)
-        plt.grid(linestyle="--", alpha=0.3)
-        plt.savefig(self.strUnfilteredPngPath)
-        plt.savefig(self.strUnfilteredSvgPath, dpi=1200)
-
-        plt.clf()
-        plot_utils.set_plt_axis(self.listTestInfo[0], maxXaxis)
-        y_major_locator = MultipleLocator(0.2)
-        ax = plt.gca()
-        ax.yaxis.set_major_locator(y_major_locator)
-        plt.title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
-        plt.xlabel("Charge [mAh]", fontdict=axis_fontdict)
-        plt.ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
-        for b in range(self.intBatteryNum):
-            for c in range(self.intCurrentLevelNum):
-                plt.plot(listPlt[c][0][b], listPlt[c][1][b],
-                         color=f"{self.listPltColorType[c]}", linewidth=0.5)
-        plt.grid(linestyle="--", alpha=0.3)
-        plt.savefig(self.strFilteredPngPath)
-        plt.savefig(self.strFilteredSvgPath, dpi=1200)
+    # UXWW_Draw 方法已提取至 plot_writer.draw_boxplot_and_curves
 
 
 class JsonWriter:

@@ -119,10 +119,13 @@ class ValidationManager:
             self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
             self.main_window.lineEdit_CalculationNominalCapacity.setText("")
             self.main_window.lineEdit_RequiredUseableCapacity.setText("")
-            self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
-            self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
+            try:
+                self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
+                    self.main_window.check_specification)
+                self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
+                    self.main_window.check_specification)
+            except (TypeError, AttributeError):
+                pass
             self.main_window.comboBox_Specification_Type.clear()
             self.main_window.comboBox_Specification_Type.addItems(
                 self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
@@ -147,10 +150,13 @@ class ValidationManager:
             self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
             self.main_window.lineEdit_CalculationNominalCapacity.setText("")
             self.main_window.lineEdit_RequiredUseableCapacity.setText("")
-            self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
-            self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
+            try:
+                self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
+                    self.main_window.check_specification)
+                self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
+                    self.main_window.check_specification)
+            except (TypeError, AttributeError):
+                pass
             self.main_window.comboBox_Specification_Type.clear()
             self.main_window.comboBox_Specification_Type.addItems(
                 self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
@@ -171,10 +177,13 @@ class ValidationManager:
             self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
             self.main_window.lineEdit_CalculationNominalCapacity.setText("")
             self.main_window.lineEdit_RequiredUseableCapacity.setText("")
-            self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
-            self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
+            try:
+                self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
+                    self.main_window.check_specification)
+                self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
+                    self.main_window.check_specification)
+            except (TypeError, AttributeError):
+                pass
             self.main_window.comboBox_Specification_Type.clear()
             self.main_window.comboBox_Specification_Type.setEnabled(False)
             self.main_window.comboBox_Specification_Method.setEnabled(False)

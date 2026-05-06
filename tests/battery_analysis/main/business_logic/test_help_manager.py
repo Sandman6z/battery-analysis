@@ -23,7 +23,7 @@ class TestHelpManager:
     def test_show_user_manual_with_valid_manual(self):
         """测试显示用户手册（找到有效手册）"""
         # 模拟FileUtils.get_manual_paths返回有效的手册路径
-        mock_manual_path = Mock()
+        mock_manual_path = MagicMock()
         mock_manual_path.exists.return_value = True
         mock_manual_path.is_file.return_value = True
         mock_manual_path.__str__.return_value = "test_manual.pdf"
@@ -66,7 +66,7 @@ class TestHelpManager:
     def test_show_online_help(self):
         """测试显示在线帮助"""
         # 模拟QDesktopServices.openUrl
-        with patch('battery_analysis.main.business_logic.help_manager.QDesktopServices.openUrl') as mock_open_url:
+        with patch('PyQt6.QtGui.QDesktopServices.openUrl') as mock_open_url:
             # 调用方法
             self.help_manager.show_online_help()
             
@@ -76,7 +76,7 @@ class TestHelpManager:
     def test_show_online_help_with_exception(self):
         """测试显示在线帮助（发生异常）"""
         # 模拟QDesktopServices.openUrl抛出异常
-        with patch('battery_analysis.main.business_logic.help_manager.QDesktopServices.openUrl', side_effect=ImportError("Test error")):
+        with patch('PyQt6.QtGui.QDesktopServices.openUrl', side_effect=ImportError("Test error")):
             with patch('battery_analysis.main.business_logic.help_manager.QW.QMessageBox.warning') as mock_warning:
                 # 调用方法
                 self.help_manager.show_online_help()
