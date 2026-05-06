@@ -14,6 +14,7 @@ from pathlib import Path
 
 from battery_analysis.utils.config_parser import parse_pulse_current_config
 from battery_analysis.utils.config_utils import find_config_file
+from battery_analysis.utils.data_utils import build_plot_title
 
 logger = logging.getLogger(__name__)
 
@@ -115,15 +116,14 @@ class DataLoaderMixin:
             capacity = meta.get("capacity", "")
             temperature = meta.get("temperature", "")
 
-            parts = [manufacturer, spec_type, spec_method]
-            title_parts = [p for p in parts if p]
-            title_base = " ".join(title_parts)
-            if batch_code:
-                title_base += f"({batch_code})"
-            if capacity:
-                title_base += f", {capacity}mAh"
-            if temperature:
-                title_base += f", {temperature}"
+            title_base = build_plot_title(
+                manufacturer=manufacturer,
+                spec_type=spec_type,
+                spec_method=spec_method,
+                batch_code=batch_code,
+                capacity=capacity,
+                temperature=temperature,
+            )
 
             if title_base.strip():
                 self.strPltTitle = title_base

@@ -141,6 +141,40 @@ def generate_current_type_string(list_current_level: list) -> str:
     return "-".join(str(level) for level in list_current_level)
 
 
+def build_plot_title(
+    manufacturer: str,
+    spec_type: str = "",
+    spec_method: str = "",
+    batch_code: str = "",
+    capacity: str = "",
+    temperature: str = "",
+) -> str:
+    """
+    构建统一的图表标题，格式："{manufacturer} {spec_type} {spec_method}({batch_code}), {capacity}mAh, {temperature}"
+
+    Args:
+        manufacturer: 制造商名称
+        spec_type: 规格型号
+        spec_method: 规格方法
+        batch_code: 批次编号
+        capacity: 额定容量
+        temperature: 温度条件
+
+    Returns:
+        格式化后的标题字符串
+    """
+    parts = [manufacturer, spec_type, spec_method]
+    title_parts = [p for p in parts if p]
+    title = " ".join(title_parts)
+    if batch_code:
+        title += f"({batch_code})"
+    if capacity:
+        title += f", {capacity}mAh"
+    if temperature:
+        title += f", {temperature}"
+    return title
+
+
 def detect_outliers(data: list, data_name: str, result_index: int, test_results: list, precomputed_stats=None) -> list:
     """
     检测数据中的异常值，使用3σ原则

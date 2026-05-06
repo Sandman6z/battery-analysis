@@ -1,7 +1,7 @@
 from battery_analysis.utils import csv_utils
 from battery_analysis.utils import plot_utils
 from battery_analysis.utils import data_utils
-from battery_analysis.utils.data_utils import generate_current_type_string
+from battery_analysis.utils.data_utils import generate_current_type_string, build_plot_title
 from battery_analysis.utils import word_utils
 from battery_analysis.utils import excel_utils
 from battery_analysis.utils import numeric_utils
@@ -61,14 +61,14 @@ class XlsxWordWriter:
 
         # 使用测试信息生成动态标题（使用listTestInfo[4]作为实际制造商）
         try:
-            strImageTitle = (
-                f"{listTestInfo[4]} {listTestInfo[2]} {listTestInfo[3]}"
-                f"({listTestInfo[5]})"
+            strImageTitle = build_plot_title(
+                manufacturer=listTestInfo[4],
+                spec_type=listTestInfo[2],
+                spec_method=listTestInfo[3],
+                batch_code=listTestInfo[5],
+                capacity=listTestInfo[8] if len(listTestInfo) > 8 else "",
+                temperature=listTestInfo[7] if len(listTestInfo) > 7 else "",
             )
-            if len(listTestInfo) > 8 and listTestInfo[8]:
-                strImageTitle += f", {listTestInfo[8]}mAh"
-            if len(listTestInfo) > 7 and listTestInfo[7]:
-                strImageTitle += f", {listTestInfo[7]}"
         except (IndexError, TypeError, ValueError) as e:
             logging.error("获取标题时发生错误: %s", e)
             strImageTitle = "默认电池分析图标题"
