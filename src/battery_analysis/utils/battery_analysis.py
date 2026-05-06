@@ -6,6 +6,7 @@ import csv
 import datetime
 import traceback
 import logging
+import json
 import re
 import multiprocessing
 import sys
@@ -59,6 +60,8 @@ class BatteryAnalysis:
         self.listBatteryName = []
         # list for time stamp
         self.listTimeStamp = []
+        # 保存完整测试信息，供后续写入元数据文件使用
+        self.listTestInfo = listTestInfo
         # 存储从Excel提取的测试日期
         self.test_date = "00000000"
         # 存储从cycleBegin提取的原始日期
@@ -703,6 +706,24 @@ class BatteryAnalysis:
         with open(strCsvFilePath, 'w', newline='', encoding='utf-8') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerows(csv_data)
+
+        # 写入元数据JSON文件，供BatteryChartViewer读取以获取动态标题
+        try:
+            strMetaFilePath = f"{_strResultPath}/Info_Plot.json"
+            meta_data = {
+                "manufacturer": self.listTestInfo[4] if len(self.listTestInfo) > 4 else "",
+                "spec_type": self.listTestInfo[2] if len(self.listTestInfo) > 2 else "",
+                "spec_method": self.listTestInfo[3] if len(self.listTestInfo) > 3 else "",
+                "batch_code": self.listTestInfo[5] if len(self.listTestInfo) > 5 else "",
+                "capacity": self.listTestInfo[8] if len(self.listTestInfo) > 8 else "",
+                "temperature": self.listTestInfo[7] if len(self.listTestInfo) > 7 else "",
+                "current_levels": self.listTestInfo[14] if len(self.listTestInfo) > 14 else [],
+            }
+            with open(strMetaFilePath, 'w', encoding='utf-8') as metaFile:
+                json.dump(meta_data, metaFile, ensure_ascii=False, indent=2)
+            logging.info("写入元数据文件: %s", strMetaFilePath)
+        except (IndexError, TypeError, OSError, ValueError) as e:
+            logging.warning("写入元数据文件失败: %s", e)
 
     def UBA_Log(self, _data: str) -> None:
         """优化的日志写入方法，使用缓冲区减少I/O操作"""

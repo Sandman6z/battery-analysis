@@ -7,6 +7,7 @@
 import logging
 import os
 import csv
+import json
 import configparser
 import traceback
 from pathlib import Path
@@ -27,6 +28,9 @@ class DataLoaderMixin:
         self.strInfoImageCsvPath = os.path.join(
             self.strPltPath, "Info_Image.csv")
         logger.info("更新后的CSV文件路径: %s", self.strInfoImageCsvPath)
+        # 当数据路径改变时，尝试加载元数据以更新动态标题
+        self._try_load_metadata_title()
+        self.strPltName = self._set_plot_title()
 
     def load_data(self):
         """加载数据并处理，为绘制图表做准备"""
@@ -81,6 +85,9 @@ class DataLoaderMixin:
         self.strInfoImageCsvPath = os.path.join(
             self.strPltPath, "Info_Image.csv")
 
+        # 尝试从元数据文件读取动态标题（优先于配置中的静态标题）
+        self._try_load_metadata_title()
+
         self.listPulseCurrentLevel = self._get_pulse_current_level()
         self.intCurrentLevelNum = len(self.listPulseCurrentLevel)
 
@@ -90,6 +97,39 @@ class DataLoaderMixin:
             "BatteryConfig", "SpecificationTypePouchCell")
 
         self.strPltName = self._set_plot_title()
+
+    def _try_load_metadata_title(self):
+        """尝试从 Info_Plot.json 读取测试元数据以构建动态标题"""
+        try:
+            meta_path = os.path.join(self.strPltPath, "Info_Plot.json")
+            if not os.path.exists(meta_path):
+                return
+
+            with open(meta_path, 'r', encoding='utf-8') as f:
+                meta = json.load(f)
+
+            manufacturer = meta.get("manufacturer", "")
+            spec_type = meta.get("spec_type", "")
+            spec_method = meta.get("spec_method", "")
+            batch_code = meta.get("batch_code", "")
+            capacity = meta.get("capacity", "")
+            temperature = meta.get("temperature", "")
+
+            parts = [manufacturer, spec_type, spec_method]
+            title_parts = [p for p in parts if p]
+            title_base = " ".join(title_parts)
+            if batch_code:
+                title_base += f"({batch_code})"
+            if capacity:
+                title_base += f", {capacity}mAh"
+            if temperature:
+                title_base += f", {temperature}"
+
+            if title_base.strip():
+                self.strPltTitle = title_base
+                logger.info("从元数据文件加载动态标题: %s", self.strPltTitle)
+        except (IOError, json.JSONDecodeError, TypeError, ValueError) as e:
+            logger.warning("读取元数据文件失败，使用默认标题: %s", e)
 
     def _get_config_value(self, section, option, default_value):
         """安全获取配置值，如果不存在则返回默认值"""
