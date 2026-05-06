@@ -37,10 +37,14 @@ class EnvironmentInitializationStep(InitializationStep):
             
             # 从环境检测器获取环境信息
             if hasattr(main_window, 'env_detector') and main_window.env_detector:
-                main_window.env_info = main_window.env_detector.get_environment_info()
+                env_info = main_window.env_detector.get_environment_info()
+                main_window.env_info.clear()
+                main_window.env_info.update(env_info)
             elif main_window.environment_adapter.env_service:
                 # 从环境服务获取环境信息
-                main_window.env_info = main_window.environment_adapter.env_service.get_environment_info()
+                env_info = main_window.environment_adapter.env_service.get_environment_info()
+                main_window.env_info.clear()
+                main_window.env_info.update(env_info)
 
             # 环境适配处理 - 使用环境适配器
             main_window.environment_adapter.handle_environment_adaptation()

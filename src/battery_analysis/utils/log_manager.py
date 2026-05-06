@@ -25,6 +25,7 @@ class LogManager:
         """初始化日志管理器"""
         self.log_dir = None
         self.logger = None
+        self._current_log_file = None
         self._configure_logging()
     
     def _get_log_directory(self):
@@ -54,6 +55,7 @@ class LogManager:
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         # 所有日志文件都带时间戳，不再使用无时间戳的主日志文件
         log_file = self.log_dir / f'battery_analysis_{timestamp}.log'
+        self._current_log_file = log_file
         
         # 创建主日志记录器
         self.logger = logging.getLogger('battery_analysis')
@@ -257,6 +259,8 @@ class LogManager:
             all_logs = []
             # 匹配所有日志文件：主日志文件和归档日志文件
             for log_file in self.log_dir.glob('battery_analysis*.log*'):
+                if self._current_log_file and log_file.samefile(self._current_log_file):
+                    continue
                 all_logs.append(log_file)
 
             # 按修改时间排序（最新的在前）
@@ -266,13 +270,28 @@ class LogManager:
             if len(all_logs) > keep_count:
                 logs_to_delete = all_logs[keep_count:]
                 for log_file in logs_to_delete:
-                    try:
-                        log_file.unlink()
-                        self.logger.info(f"已清理旧日志文件: {log_file}")
-                    except (OSError, PermissionError) as e:
-                        self.logger.warning(f"清理日志文件 {log_file} 失败: {e}")
+                    self._delete_log_file_with_retry(log_file, max_retries=3)
         except (OSError, PermissionError) as e:
             self.logger.error(f"清理旧日志文件失败: {e}")
+
+    def _delete_log_file_with_retry(self, log_file, max_retries=3):
+        """尝试删除日志文件，失败时重试（处理Windows文件锁）
+
+        Args:
+            log_file: 要删除的日志文件路径
+            max_retries: 最大重试次数
+        """
+        import time
+        for attempt in range(max_retries):
+            try:
+                log_file.unlink()
+                self.logger.info(f"已清理旧日志文件: {log_file}")
+                return
+            except (OSError, PermissionError) as e:
+                if attempt < max_retries - 1:
+                    time.sleep(0.1 * (attempt + 1))  # 递增等待: 0.1s, 0.2s, 0.3s
+                else:
+                    self.logger.debug(f"清理日志文件 {log_file} 失败（已重试{max_retries}次）: {e}")
 
     def clear_old_logs(self, keep_count=10):
         """清理旧日志文件，只保留指定数量的最新日志

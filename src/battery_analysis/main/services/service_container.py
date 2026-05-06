@@ -470,6 +470,7 @@ class ServiceContainer(IServiceContainer):
             # 如果服务已实例化，直接使用
             if current_name in self._instances:
                 resolved[current_name] = self._instances[current_name]
+                dependency_graph[current_name] = []  # 已实例化，无需再解析依赖
                 continue
             
             # 如果服务已解析，跳过
@@ -534,41 +535,36 @@ class ServiceContainer(IServiceContainer):
         对服务依赖图进行拓扑排序
 
         Args:
-            graph: 服务依赖关系图
+            graph: 服务依赖关系图，键为服务名，值为该服务依赖的其他服务列表
 
         Returns:
-            list: 拓扑排序后的服务列表，空列表表示存在循环依赖
+            list: 拓扑排序后的服务列表（依赖在前，被依赖在后），空列表表示存在循环依赖
         """
-        # 计算每个节点的入度
+        # 入度 = 每个节点依赖的服务数量
         in_degree = {}
         for node in graph:
-            in_degree[node] = 0
-        
-        for node in graph:
-            for neighbor in graph[node]:
-                if neighbor not in in_degree:
-                    in_degree[neighbor] = 0
-                in_degree[neighbor] += 1
-        
-        # 将入度为0的节点加入队列
+            in_degree[node] = len(graph[node])
+
+        # 将入度为0（无依赖）的节点加入队列
         queue = [node for node in in_degree if in_degree[node] == 0]
         result = []
-        
+
         while queue:
             current = queue.pop(0)
             result.append(current)
-            
-            # 更新邻接节点的入度
-            for neighbor in graph.get(current, []):
-                in_degree[neighbor] -= 1
-                if in_degree[neighbor] == 0:
-                    queue.append(neighbor)
-        
+
+            # 找到所有依赖 current 的节点，减少其入度
+            for node in graph:
+                if current in graph[node]:
+                    in_degree[node] -= 1
+                    if in_degree[node] == 0:
+                        queue.append(node)
+
         # 检查是否存在循环依赖
         if len(result) != len(in_degree):
             self.logger.warning("Circular dependency detected in services: %s", set(in_degree.keys()) - set(result))
             return []
-        
+
         return result
     
     def has(self, name: str) -> bool:
