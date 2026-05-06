@@ -1143,23 +1143,19 @@ class XlsxWordWriter:
                                       f"=TRUNC({excel_utils.num2letter(intTestProfileStartLine + 9 + v * 2)}3/{excel_utils.num2letter(intTestProfileStartLine + 6)}3, 2)",
                                       wsExcelData_percentage)
 
-        # 使用循环处理常规write调用
-        for i, col_offset in enumerate([0, 1, 2, 3, 5]):
-            # 跳过索引4，因为它是特殊的hyperlink情况
-            content_index = 14 + i
-            if col_offset == 3:
-                # listStrContent[17]使用特殊格式
-                wsExcel.write(2, intTestDateStartCol + col_offset,
-                              listStrContent[content_index], wsExcelData_bgyellow)
-            else:
-                wsExcel.write(2, intTestDateStartCol + col_offset,
-                              listStrContent[content_index], wsExcelData)
+        # 写入常规数据列（Test Date, Samples Qty, Temperature, Result）
+        for i in range(4):
+            wsExcel.write(2, intTestDateStartCol + i,
+                          listStrContent[14 + i],
+                          wsExcelData_bgyellow if i == 3 else wsExcelData)
 
-        # 特殊处理hyperlink情况(listStrContent[18])
+        # Remarks (col offset 5)
+        wsExcel.write(2, intTestDateStartCol + 5,
+                      listStrContent[19], wsExcelData)
+
+        # Test Results File 作为超链接 (col offset 4)
         url_path = listStrContent[18]
-        # 确保路径使用正斜杠
         url_path = url_path.replace('\\', '/')
-        # 添加file://前缀
         file_url = f'file:///{url_path}'
         wsExcel.write_url(2, intTestDateStartCol + 4, file_url,
                           wbSampleHyperlink, string=listStrContent[18].split("\\")[-1])
