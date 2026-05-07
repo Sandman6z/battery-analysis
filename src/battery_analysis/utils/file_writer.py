@@ -1440,6 +1440,19 @@ class XlsxWordWriter:
         wbResult.close()
         wbSample.close()
         # close word writer
+        # 移除add_table() + addnext()模式残留在文档末尾的空段落，防止产生空白页
+        body = wdReport.element.body
+        while len(body) > 0:
+            last_child = body[-1]
+            if last_child.tag.endswith('}p'):
+                from docx.text.paragraph import Paragraph
+                p = Paragraph(last_child, wdReport.element.body)
+                if not p.text.strip():
+                    body.remove(last_child)
+                else:
+                    break
+            else:
+                break
         wdReport.save(self.strReportWordPath)
         # 输出docx文件的完整路径到日志
         logging.info("数据分析完成，生成的docx报告路径: %s", self.strReportWordPath)

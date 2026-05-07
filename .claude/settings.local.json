@@ -78,7 +78,16 @@
       "Bash(timeout 15 \".venv/Scripts/python.exe\" -m pytest tests/battery_analysis/main/services/test_progress_service.py --no-header -q --tb=short)",
       "Bash(\".venv/Scripts/python.exe\" -m pytest tests/ --ignore=tests/manual --ignore=tests/battery_analysis/e2e -k \"not MainWindow\" --no-header -q --tb=line --timeout=30)",
       "Bash(timeout 300 \".venv/Scripts/python.exe\" -m pytest tests/ --ignore=tests/manual --ignore=tests/battery_analysis/e2e -k \"not MainWindow\" --no-header -q --tb=no -p no:logging)",
-      "Bash(\".venv/Scripts/python.exe\" -m pytest tests/ --ignore=tests/manual --ignore=tests/battery_analysis/e2e -k \"not MainWindow\" --no-header -q --tb=no --durations=5)"
+      "Bash(\".venv/Scripts/python.exe\" -m pytest tests/ --ignore=tests/manual --ignore=tests/battery_analysis/e2e -k \"not MainWindow\" --no-header -q --tb=no --durations=5)",
+      "Bash(git tag *)",
+      "Bash(git push *)",
+      "Bash(python -m pytest tests/ -x -q)",
+      "Bash(pip install *)",
+      "Bash(python -m pytest tests/ -x -q --tb=short)",
+      "Bash(python -m pytest tests/ -x -q --tb=short --ignore=tests/manual)",
+      "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/manual)",
+      "Bash(python -m pytest tests/battery_analysis/utils/test_file_writer.py -q --tb=short)",
+      "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/manual --ignore=tests/battery_analysis/utils/test_file_writer.py --ignore=tests/battery_analysis/e2e)"
     ],
     "additionalDirectories": [
       "C:\\Users\\boe\\Documents\\EwinDT\\battery-analysis\\src\\battery_analysis\\main\\business_logic"
