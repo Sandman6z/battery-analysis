@@ -26,7 +26,6 @@ import PyQt6.QtWidgets as QW
 from battery_analysis.main.managers.initialization_manager import InitializationManager
 from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
-from battery_analysis.utils.config_parser import safe_int_convert, safe_float_convert
 from battery_analysis.utils.log_manager import get_logger
 
 # 导入并使用新的日志管理器
@@ -46,25 +45,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化窗口和部件
         self.init_window()
         self.init_widget()
-
-    # ------------------------------
-    # 初始化相关方法
-    # ------------------------------
-    def _initialize_current_and_voltage_levels(self):
-        """
-        初始化电流和电压级别配置
-        """
-        listPulseCurrent = self.get_config("BatteryConfig/PulseCurrent")
-        listCutoffVoltage = self.get_config("BatteryConfig/CutOffVoltage")
-
-        # 处理可能包含浮点数的电流值
-        try:
-            self.listCurrentLevel = [safe_int_convert(item.strip()) for item in listPulseCurrent]
-        except (ValueError, TypeError):
-            # 如果转换失败，使用默认值
-            self.listCurrentLevel = [0] * len(listPulseCurrent)
-
-        self.listVoltageLevel = [safe_float_convert(item.strip()) for item in listCutoffVoltage]
 
     # ------------------------------
     # 服务和控制器获取方法
