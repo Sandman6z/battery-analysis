@@ -55,7 +55,9 @@
       "Bash(cd \"/c/Users/boe/Documents/EwinDT/battery-analysis\" && grep -rn \"battery_calculator\\\\|report_generator\\\\|visualization_manager\\\\|user_settings_manager\\\\|environment_manager\" src/battery_analysis/main/ --include=\"*.py\" | grep -v __pycache__ | grep -i \"from\\\\|import\" | sort -u)",
       "Read(//c/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/**)",
       "Bash(xargs wc -l)",
-      "Bash(rm \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/environment_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/user_settings_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/visualization_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/battery_calculator.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/report_generator.py\")"
+      "Bash(rm \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/environment_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/user_settings_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/visualization_manager.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/battery_calculator.py\" \"/c/Users/boe/Documents/EwinDT/battery-analysis/src/battery_analysis/main/business_logic/report_generator.py\")",
+      "Bash(uv run *)",
+      "Bash(git checkout *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\boe\\Documents\\EwinDT\\battery-analysis\\src\\battery_analysis\\main\\business_logic"

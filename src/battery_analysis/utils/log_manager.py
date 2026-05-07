@@ -48,6 +48,15 @@ class LogManager:
     
     def _configure_logging(self):
         """配置日志系统"""
+        # Windows 下確保 stdout/stderr 使用 UTF-8 編碼，避免中文亂碼
+        if os.name == 'nt':
+            for stream in (sys.stdout, sys.stderr):
+                if hasattr(stream, 'reconfigure') and getattr(stream, 'encoding', '').upper() != 'UTF-8':
+                    try:
+                        stream.reconfigure(encoding='utf-8')
+                    except Exception:
+                        pass
+
         # 获取日志目录
         self.log_dir = self._get_log_directory()
         
@@ -259,11 +268,20 @@ class LogManager:
             all_logs = []
             # 匹配所有日志文件：主日志文件和归档日志文件
             for log_file in self.log_dir.glob('battery_analysis*.log*'):
-                if self._current_log_file and log_file.samefile(self._current_log_file):
+                try:
+                    if self._current_log_file and log_file.samefile(self._current_log_file):
+                        continue
+                    all_logs.append(log_file)
+                except (OSError, PermissionError):
                     continue
-                all_logs.append(log_file)
 
-            # 按修改时间排序（最新的在前）
+            # 按修改时间排序（最新的在前），跳过已被刪除的文件
+            def _safe_mtime(p):
+                try:
+                    return p.stat().st_mtime
+                except OSError:
+                    return None
+            all_logs = [p for p in all_logs if _safe_mtime(p) is not None]
             all_logs.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
             # 如果日志文件数量超过要保留的数量，删除旧的

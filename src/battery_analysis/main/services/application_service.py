@@ -13,7 +13,6 @@ from pathlib import Path
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
 from battery_analysis.main.services.service_container import get_service_container
-from battery_analysis.utils.config_utils import find_config_file
 from battery_analysis.utils.environment_utils import get_environment_detector
 
 
@@ -95,9 +94,8 @@ class ApplicationService:
             # 初始化环境服务
             self.environment_service.initialize()
             
-            # 初始化配置服务
-            config_path = find_config_file()
-            self.config_service.load_config(config_path)
+            # 初始化配置服务（内部自动查找配置文件）
+            self.config_service.load_config(use_cache=False)
             
             # 初始化国际化服务
             self.i18n_service.initialize()

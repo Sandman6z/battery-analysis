@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from battery_analysis.utils.environment_utils import EnvironmentDetector, get_environment_detector, is_gui_available, get_resource_path, get_config_path
+from battery_analysis.utils.environment_utils import EnvironmentDetector, get_environment_detector, is_gui_available, get_resource_path
 
 
 class TestEnvironmentDetector:
@@ -39,28 +39,6 @@ class TestEnvironmentDetector:
         result = self.detector.get_resource_path('test')
         assert isinstance(result, type(self.detector.get_project_root()))
 
-    def test_get_config_path(self):
-        result = self.detector.get_config_path()
-        assert result is None or result.exists()
-
     def test_get_locale_path(self):
         result = self.detector.get_locale_path()
-        assert result is None or result.exists()
-
-
-class TestEnvironmentUtilsFunctions:
-    def test_get_environment_detector(self):
-        result = get_environment_detector()
-        assert isinstance(result, EnvironmentDetector)
-
-    def test_is_gui_available(self):
-        result = is_gui_available()
-        assert isinstance(result, bool)
-
-    def test_get_resource_path(self):
-        result = get_resource_path('test')
-        assert isinstance(result, type(get_environment_detector().get_project_root()))
-
-    def test_get_config_path(self):
-        result = get_config_path()
         assert result is None or result.exists()

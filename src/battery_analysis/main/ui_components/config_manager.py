@@ -6,140 +6,130 @@
 - 配置值的读取和解析
 - 用户设置的加载和保存
 - 配置变更的处理
+
+对 setting.ini 的读写统一委托给 ConfigService（单一路径，无降级无兼容）。
+用户设置（user_settings.ini）通过 UserSettingsManager 管理。
 """
 
 # 标准库导入
 import logging
-import os
 from pathlib import Path
 from typing import Any, List, Optional
 
-# 第三方库导入
-import PyQt6.QtCore as QC
-
 # 本地应用/库导入
-from battery_analysis.utils.config_parser import safe_float_convert, safe_int_convert
 from battery_analysis.main.user_settings_manager import UserSettingsManager
 
 
 class ConfigManager:
     """
     配置管理器类，负责配置文件的读取和写入
+    对 setting.ini 的读写统一通过 ConfigService（单一路径）。
     """
-    
+
     def __init__(self, main_window):
         """
         初始化配置管理器
-        
+
         Args:
             main_window: 主窗口实例
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        self.config = None
+        self._config_service = None
         self.config_path = None
         self.b_has_config = True
         self.user_settings_manager = None
-        
+
+        # 缓存 ConfigService 引用
+        self._init_config_service()
+
         # 初始化配置
         self._initialize_config()
-        
+
         # 初始化用户设置管理器
         self.user_settings_manager = UserSettingsManager(self.config_path)
-    
+
+    def _init_config_service(self):
+        """获取并缓存 ConfigService 引用"""
+        try:
+            self._config_service = self.main_window._get_service("config")
+        except (AttributeError, TypeError) as e:
+            self.logger.warning("无法获取 ConfigService: %s", e)
+            self._config_service = None
+
     def _initialize_config(self):
         """
-        初始化配置文件
+        初始化配置文件路径
         """
         self.logger.info("[_initialize_config] 开始初始化配置文件...")
 
-        # 改进的配置文件路径查找逻辑（使用配置服务）
-        try:
-            config_service = self.main_window._get_service("config")
-            if config_service:
-                # 不使用缓存，确保获取最新的配置文件路径
-                config_path_result = config_service.find_config_file(use_cache=False)
+        if self._config_service:
+            self._config_service.clear_cache()
+            try:
+                config_path_result = self._config_service.find_config_file(use_cache=False)
                 self.config_path = str(config_path_result) if config_path_result else None
-                self.logger.info(f"[_initialize_config] 从config_service获取路径: {self.config_path}")
-            else:
-                # 降级到直接导入
-                from battery_analysis.utils.config_utils import find_config_file
-                # 不使用缓存，确保获取最新的配置文件路径
-                self.config_path = find_config_file(use_cache=False)
-                self.logger.info(f"[_initialize_config] 从find_config_file获取路径: {self.config_path}")
-        except (AttributeError, TypeError, ImportError, OSError) as e:
-            self.logger.warning("Failed to get config service: %s", e)
-            # 降级到直接导入
-            from battery_analysis.utils.config_utils import find_config_file
-            # 不使用缓存，确保获取最新的配置文件路径
-            self.config_path = find_config_file(use_cache=False)
-            self.logger.info(f"[_initialize_config] 异常后从find_config_file获取路径: {self.config_path}")
-        
-        # 添加对None值的检查，避免TypeError
+            except (OSError, TypeError, ValueError) as e:
+                self.logger.warning("从 ConfigService 查找配置失败: %s", e)
+                self.config_path = None
+
+        self.logger.info(f"[_initialize_config] config_path: {self.config_path}")
         config_path_obj = Path(self.config_path) if self.config_path else None
         path_exists = config_path_obj.exists() if config_path_obj else False
-        self.logger.info(f"[_initialize_config] config_path: {self.config_path}, exists: {path_exists}")
+        self.b_has_config = bool(self.config_path and path_exists)
 
-        if self.config_path is None or not path_exists:
-            self.b_has_config = False
-            self.logger.info(f"[_initialize_config] 配置文件不存在，设置b_has_config=False")
-        else:
-            self.b_has_config = True
-            # 每次都创建新的QSettings实例，确保读取最新文件内容
-            self.config = QC.QSettings(
-                self.config_path,
-                QC.QSettings.Format.IniFormat
-            )
-            self.logger.info(f"[_initialize_config] QSettings已创建，文件: {self.config_path}")
-    
+        if not self.b_has_config:
+            self.logger.info("[_initialize_config] 配置文件不存在")
+
     def get_config(self, config_key: str) -> List[str]:
         """
-        获取配置值并处理为列表格式，每次都重新加载配置文件以获取最新值
-        
+        获取配置值并处理为列表格式，通过 ConfigService 读取
+
         Args:
-            config_key: 配置键
-            
+            config_key: 配置键，格式为 "Section/Key"
+
         Returns:
             配置值列表
         """
-        # 每次获取配置值前重新加载配置文件，确保获取到最新的配置
-        self._initialize_config()
-        
-        try:
-            # 如果没有配置文件，直接返回空列表
-            if not self.b_has_config or self.config is None:
-                return []
+        if not self.b_has_config or not self._config_service:
+            return []
 
-            # 强制QSettings从文件重新同步，确保读取最新数据
-            self.config.sync()
-            value = self.config.value(config_key)
-            if isinstance(value, list):
-                list_value = []
-                for item in value:
-                    if item != "":
-                        list_value.append(item)
-            elif isinstance(value, str):
-                # 处理逗号分隔的字符串，例如："item1", "item2", "item3"
-                if "," in value:
-                    # 先去除首尾空格
-                    value = value.strip()
-                    # 分割字符串
-                    items = value.split(",")
-                    list_value = []
-                    for item in items:
-                        # 去除每个项的首尾空格和引号
-                        cleaned_item = item.strip().strip('"')
-                        if cleaned_item:
-                            list_value.append(cleaned_item)
-                else:
-                    # 单个值，直接添加
-                    list_value = [value.strip().strip('"')]
-            else:
-                list_value = []
-            return list_value
+        try:
+            raw_value = self._config_service.get_config_value_raw(config_key)
+            if raw_value is None:
+                return []
+            return self._parse_list_value(raw_value)
         except (AttributeError, TypeError, ValueError, KeyError, OSError) as e:
             logging.error("读取配置 %s 失败: %s", config_key, e)
             return []
+
+    @staticmethod
+    def _parse_list_value(value: str) -> List[str]:
+        """
+        将逗号分隔的字符串解析为列表，去除空值和引号
+
+        使用 csv.reader 正确处理带引号的值（如内部含逗号的 "Qual., BOE DT"）。
+
+        Args:
+            value: 原始字符串值
+
+        Returns:
+            清理后的字符串列表
+        """
+        if not value or not isinstance(value, str):
+            return []
+        import csv
+        import io
+        reader = csv.reader(io.StringIO(value), skipinitialspace=True)
+        try:
+            items = next(reader)
+        except StopIteration:
+            return []
+        result = []
+        for item in items:
+            cleaned = item.strip().strip('"')
+            if cleaned:
+                result.append(cleaned)
+        return result
     
     def load_user_settings(self):
         """
@@ -260,9 +250,6 @@ class ConfigManager:
             
             # 使用用户设置管理器保存配置
             self.user_settings_manager.save_user_settings(user_settings)
-            
-            # 更新内存中的配置实例
-            self.main_window.config = self.user_settings_manager.user_settings
 
             self.main_window.statusBar_BatteryAnalysis.showMessage(
                 _("settings_saved", "设置已保存"))
@@ -288,25 +275,28 @@ class ConfigManager:
     def get_current_config_path(self) -> Optional[str]:
         """
         获取当前配置文件路径
-        
+
         Returns:
             配置文件路径
         """
         return self.config_path
-    
+
     def has_config(self) -> bool:
         """
         检查是否有配置文件
-        
+
         Returns:
             是否有配置文件
         """
         return self.b_has_config
-    
+
     def reload_config(self):
         """
-        重新加载配置文件
+        重新加载配置文件（委托 ConfigService 清除缓存后强制重读）
         """
+        if self._config_service:
+            self._config_service.reload_config()
+            self.logger.info("ConfigService 配置已重新加载")
         self._initialize_config()
         self.logger.info("配置文件已重新加载")
     

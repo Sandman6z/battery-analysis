@@ -318,7 +318,10 @@ class DataProcessor:
         pulse_values = filename_parser.extract_pulse_current(filename)
         if pulse_values:
             mw.listCurrentLevel = pulse_values
-            mw.config.setValue("BatteryConfig/PulseCurrent", pulse_values)
+            cs = mw._get_service("config")
+            if cs:
+                cs.set_config_value("BatteryConfig/PulseCurrent", ", ".join(map(str, pulse_values)))
+                cs.save_config()
 
         mw.cc_current = filename_parser.extract_cc_current(filename)
 
@@ -338,8 +341,11 @@ class DataProcessor:
 
         def set_item(config_key, row, col):
             item = self.main_window.tableWidget_TestInformation.item(row, col)
-            if item and hasattr(self.main_window, 'config'):
-                self.main_window.config.setValue(config_key, item.text())
+            if item:
+                cs = self.main_window._get_service("config")
+                if cs:
+                    cs.set_config_value(config_key, item.text())
+                    cs.save_config()
 
         mappings = [
             ("TestInformation/TestEquipment", 0, 2),
@@ -380,9 +386,11 @@ class DataProcessor:
             self.main_window.checker_update_config = Checker()
         self.main_window.checker_update_config.clear()
 
-        if hasattr(self.main_window, 'config'):
+        # 通过 UserSettingsManager 保存用户配置
+        usm = getattr(self.main_window, 'config_manager', None)
+        if usm and usm.user_settings_manager:
             for key in ("TestDate", "TestTime", "BatteryModel", "TestEquipment", "Software_Version"):
-                self.main_window.config.setValue(f"UserConfig/{key}", test_info[key])
+                usm.user_settings_manager.set_setting(key, test_info[key])
 
     def analyze_data(self) -> None:
         self.logger.info("开始数据分析")

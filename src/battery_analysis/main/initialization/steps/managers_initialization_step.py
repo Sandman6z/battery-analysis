@@ -35,10 +35,9 @@ class ManagersInitializationStep(InitializationStep):
             # 初始化可视化器工厂
             main_window.visualizer_factory = VisualizerFactory()
             
-            # 初始化配置管理器
+            # 初始化配置管理器（setting.ini 读写统一通过 ConfigService）
             main_window.config_manager = ConfigManager(main_window)
             main_window.b_has_config = main_window.config_manager.b_has_config
-            main_window.config = main_window.config_manager.config
             main_window.config_path = main_window.config_manager.config_path
             
             # 初始化UI管理器

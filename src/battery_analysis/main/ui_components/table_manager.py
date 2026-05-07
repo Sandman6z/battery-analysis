@@ -2,6 +2,8 @@
 """
 表格管理器模块
 负责处理测试信息表格的设置和保存功能
+
+注意：对 setting.ini 的读写通过 ConfigService 统一管理。
 """
 
 import re
@@ -14,34 +16,54 @@ class TableManager:
     表格管理器
     负责测试信息表格的设置和保存功能
     """
-    
+
     def __init__(self, main_window: Any) -> None:
         """
         初始化表格管理器
-        
+
         Args:
             main_window: 主窗口实例
         """
         self.main_window = main_window
         self.logger = main_window.logger
-        
+
+    def _get_config_service(self):
+        """获取 ConfigService 实例"""
+        return self.main_window._get_service("config")
+
+    def _get_config_sections(self):
+        """获取所有配置节名称"""
+        cs = self._get_config_service()
+        if cs:
+            return cs.get_config_sections()
+        return []
+
+    def _config_set_value(self, key: str, value: str) -> None:
+        """
+        写入配置值（通过 ConfigService）
+        Args:
+            key: 配置键，格式 "Section/Key"
+            value: 值字符串
+        """
+        cs = self._get_config_service()
+        if cs:
+            cs.set_config_value(key, value)
+            cs.save_config()
+
     def set_table(self) -> None:
         """
         根据配置文件设置测试信息表格
         """
         self.main_window.checker_table.clear()
-        # 不再重新创建QSettings实例，而是重新读取配置
-        # 这样可以确保使用与初始化when相同的配置文件路径和设置
-        self.main_window.config.sync()  # 确保配置文件被正确加载
 
-        # 使用正则表达式匹配TestInformation组
+        # 使用正则表达式匹配 TestInformation 组
         test_info_pattern = re.compile(r"^TestInformation\.(\w+)\.(\w+)$")
-        
+
         # 创建字典映射：(location, laboratory) -> group_name
         test_info_map = {}
-        
-        # 遍历所有子组，提取有效的TestInformation组
-        for group in self.main_window.config.childGroups():
+
+        # 遍历所有配置节，提取有效的 TestInformation 节
+        for group in self._get_config_sections():
             match = test_info_pattern.match(group)
             if match:
                 location, laboratory = match.groups()
@@ -56,8 +78,8 @@ class TableManager:
         self.main_window.test_information = ""
         # 获取当前选择的测试位置
         tester_location = self.main_window.comboBox_TesterLocation.currentText().replace(" ", "")
-        
-        # 查找匹配的TestInformation组
+
+        # 查找匹配的 TestInformation 组
         for (location, laboratory), group_name in test_info_map.items():
             if (laboratory in tester_location) and (location in tester_location):
                 self.main_window.test_information = group_name
@@ -90,14 +112,14 @@ class TableManager:
             f"{self.main_window.test_information}/TestUnits.HardwareVersion": 10,
             f"{self.main_window.test_information}/TestUnits.FirmwareVersion": 11
         }
-        
+
         # 遍历字典，设置表格项
         for config_key, row in config_row_map.items():
             set_item(self.main_window.get_config(config_key), row, 2)
 
     def save_table(self) -> None:
         """
-        保存表格数据到配置文件
+        保存表格数据到配置文件（通过 ConfigService）
         """
         # set focus on pushButton_Run for saving the input text
         self.main_window.pushButton_Run.setFocus()
@@ -105,15 +127,10 @@ class TableManager:
         def set_item(config_key: str, row: int, col: int):
             item = self.main_window.tableWidget_TestInformation.item(row, col)
             if item is None:
-                self.main_window.config.setValue(f"{config_key}", "")
+                self._config_set_value(config_key, "")
                 return
-            list_item_text = item.text().split(",")
-            for i in range(len(list_item_text)):
-                list_item_text[i] = list_item_text[i].strip()
-            if len(list_item_text) == 1:
-                self.main_window.config.setValue(f"{config_key}", list_item_text[0])
-            else:
-                self.main_window.config.setValue(f"{config_key}", list_item_text)
+            list_item_text = [x.strip() for x in item.text().split(",")]
+            self._config_set_value(config_key, ", ".join(list_item_text))
 
         if self.main_window.test_information != "":
             set_item(f"{self.main_window.test_information}/TestEquipment", 0, 2)
@@ -141,11 +158,11 @@ class TableManager:
         set_item("TestInformation/SoftwareVersions.BTSServerVersion", 1, 2)
         set_item("TestInformation/SoftwareVersions.BTSClientVersion", 2, 2)
         set_item("TestInformation/SoftwareVersions.BTSDAVersion", 3, 2)
-        set_item("TestInformation/middleMachines.Model", 4, 2)
-        set_item("TestInformation/middleMachines.HardwareVersion", 5, 2)
-        set_item("TestInformation/middleMachines.SerialNumber", 6, 2)
-        set_item("TestInformation/middleMachines.FirmwareVersion", 7, 2)
-        set_item("TestInformation/middleMachines.DeviceType", 8, 2)
+        set_item("TestInformation/MiddleMachines.Model", 4, 2)
+        set_item("TestInformation/MiddleMachines.HardwareVersion", 5, 2)
+        set_item("TestInformation/MiddleMachines.SerialNumber", 6, 2)
+        set_item("TestInformation/MiddleMachines.FirmwareVersion", 7, 2)
+        set_item("TestInformation/MiddleMachines.DeviceType", 8, 2)
         set_item("TestInformation/TestUnits.Model", 9, 2)
         set_item("TestInformation/TestUnits.HardwareVersion", 10, 2)
         set_item("TestInformation/TestUnits.FirmwareVersion", 11, 2)

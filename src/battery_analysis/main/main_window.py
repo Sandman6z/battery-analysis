@@ -55,7 +55,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         初始化电流和电压级别配置
         """
         listPulseCurrent = self.get_config("BatteryConfig/PulseCurrent")
-        listCutoffVoltage = self.get_config("BatteryConfig/CutoffVoltage")
+        listCutoffVoltage = self.get_config("BatteryConfig/CutOffVoltage")
 
         # 处理可能包含浮点数的电流值
         try:

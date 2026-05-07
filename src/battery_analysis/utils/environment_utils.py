@@ -272,22 +272,6 @@ class EnvironmentDetector:
             # 开发环境
             return info['project_root'] / relative_path
     
-    def get_config_path(self, config_file: str = "setting.ini") -> Optional[Path]:
-        """获取配置文件的路径"""
-        possible_paths = [
-            self.get_resource_path(f"config/{config_file}"),
-            Path.cwd() / "config" / config_file,
-            Path.cwd() / config_file,
-        ]
-        
-        for path in possible_paths:
-            if path.exists():
-                logger.debug("Config file found: %s", path)
-                return path
-        
-        logger.warning("Config file not found: %s", config_file)
-        return None
-    
     def get_locale_path(self, locale_file: str = "messages.po") -> Optional[Path]:
         """获取国际化文件的路径"""
         info = self.get_environment_info()
@@ -334,7 +318,3 @@ def get_resource_path(relative_path: str) -> Path:
     """获取资源文件路径（便捷函数）"""
     return get_environment_detector().get_resource_path(relative_path)
 
-
-def get_config_path(config_file: str = "setting.ini") -> Optional[Path]:
-    """获取配置文件路径（便捷函数）"""
-    return get_environment_detector().get_config_path(config_file)

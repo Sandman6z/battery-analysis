@@ -13,7 +13,6 @@ import traceback
 from pathlib import Path
 
 from battery_analysis.utils.config_parser import parse_pulse_current_config
-from battery_analysis.utils.config_utils import find_config_file
 from battery_analysis.utils.data_utils import build_plot_title
 
 logger = logging.getLogger(__name__)
@@ -56,23 +55,27 @@ class DataLoaderMixin:
             return False
 
     def _load_config_file(self):
-        """加载配置文件，优先使用setting.ini，其次是Config_BatteryAnalysis.ini"""
+        """通过 ConfigService 加载配置，填充 self.config 供后续使用"""
         try:
-            setting_ini_path = find_config_file()
-            if setting_ini_path and os.path.exists(setting_ini_path):
-                self.config.read(setting_ini_path, encoding='utf-8')
-                logger.info("成功读取setting.ini配置")
-                return
+            from battery_analysis.main.services.service_container import get_service_container
+            container = get_service_container()
+            config_service = container.get("config")
 
-            config_battery_path = find_config_file(
-                "Config_BatteryAnalysis.ini")
-            if config_battery_path and os.path.exists(config_battery_path):
-                self.config.read(config_battery_path, encoding='utf-8')
-                logger.info("成功读取Config_BatteryAnalysis.ini配置")
-                return
+            if config_service is not None:
+                config_service.load_config(use_cache=True)
+                all_values = config_service.get_all_values()
 
-            logger.warning("未找到配置文件，使用默认配置")
-        except (IOError, UnicodeDecodeError, configparser.Error) as e:
+                # 填充 self.config 供 mixin 中其他方法使用
+                self.config = configparser.ConfigParser()
+                for section, options in all_values.items():
+                    self.config.add_section(section)
+                    for key, value in options.items():
+                        self.config.set(section, key, value)
+
+                logger.info("通过 ConfigService 成功读取配置（%d 个配置节）", len(all_values))
+            else:
+                logger.warning("ConfigService 不可用，使用空配置")
+        except (IOError, UnicodeDecodeError, configparser.Error, ImportError, AttributeError, TypeError) as e:
             logger.error("配置读取失败: %s，使用默认配置", e)
 
     def _read_configurations(self):

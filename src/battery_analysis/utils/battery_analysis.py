@@ -738,7 +738,7 @@ class BatteryAnalysis:
 
     def _flush_log_buffer(self):
         """将日志缓冲区写入文件"""
-        if not self._log_buffer:
+        if not getattr(self, '_log_buffer', None):
             return
 
         try:
