@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from battery_analysis.main.initialization.initialization_orchestrator import InitializationOrchestrator
 
 
@@ -7,14 +6,12 @@ class TestInitializationOrchestrator:
     def setup_method(self):
         self.orchestrator = InitializationOrchestrator()
 
-    def test_initialize(self):
-        result = self.orchestrator.initialize()
-        assert result is True
+    def test_get_total_steps_empty(self):
+        assert self.orchestrator.get_total_steps() == 0
 
-    def test_get_initialization_status(self):
-        result = self.orchestrator.get_initialization_status()
-        assert isinstance(result, dict)
+    def test_get_pending_steps_empty(self):
+        assert self.orchestrator.get_pending_steps() == []
 
-    def test_cleanup(self):
-        result = self.orchestrator.cleanup()
-        assert result is True
+    def test_clear(self):
+        self.orchestrator.clear()
+        assert self.orchestrator.get_total_steps() == 0

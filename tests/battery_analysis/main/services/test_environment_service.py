@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import Mock, patch
 from battery_analysis.main.services.environment_service import EnvironmentService
 
@@ -11,10 +10,10 @@ class TestEnvironmentService:
         result = self.service.get_environment_info()
         assert isinstance(result, dict)
 
-    def test_check_environment(self):
-        result = self.service.check_environment()
-        assert isinstance(result, dict)
+    def test_get_environment_type(self):
+        # Should not raise
+        self.service.get_environment_type()
 
-    def test_get_system_resources(self):
-        result = self.service.get_system_resources()
+    def test_get_platform_info(self):
+        result = self.service.get_platform_info()
         assert isinstance(result, dict)

@@ -96,11 +96,71 @@ class BatteryAnalysisService(ABC):
     @abstractmethod
     def compare_test_results(self, test_result1: TestResult, test_result2: TestResult) -> Dict[str, Any]:
         """比较两个测试结果
-        
+
         Args:
             test_result1: 第一个测试结果
             test_result2: 第二个测试结果
-            
+
+        Returns:
+            比较结果
+        """
+        pass
+
+    @abstractmethod
+    def validate_battery_data(self, battery: Battery) -> Dict[str, bool]:
+        """验证电池数据
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            验证结果字典
+        """
+        pass
+
+    @abstractmethod
+    def calculate_battery_health(self, battery: Battery) -> Battery:
+        """计算电池健康状态
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            更新后的电池实体
+        """
+        pass
+
+    @abstractmethod
+    def analyze_battery_performance(self, battery: Battery) -> Dict[str, Any]:
+        """分析电池性能
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            性能分析结果
+        """
+        pass
+
+    @abstractmethod
+    def predict_battery_lifetime(self, battery: Battery) -> Dict[str, Any]:
+        """预测电池寿命
+
+        Args:
+            battery: 电池实体
+
+        Returns:
+            寿命预测结果
+        """
+        pass
+
+    @abstractmethod
+    def compare_batteries(self, batteries: List[Battery]) -> Dict[str, Any]:
+        """比较多个电池
+
+        Args:
+            batteries: 电池实体列表
+
         Returns:
             比较结果
         """

@@ -414,7 +414,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
             "nominal_voltage": True
         }
         
-        if not battery.model:
+        if not battery.model_number:
             validation_result["model"] = False
             validation_result["valid"] = False
         if not battery.serial_number:

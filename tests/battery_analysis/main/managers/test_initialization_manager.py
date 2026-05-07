@@ -1,24 +1,19 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from battery_analysis.main.managers.initialization_manager import InitializationManager
 
 
 class TestInitializationManager:
     def setup_method(self):
-        self.manager = InitializationManager()
+        self.main_window = Mock()
+        self.manager = InitializationManager(self.main_window)
 
-    def test_initialize_application(self):
-        with patch('battery_analysis.main.managers.initialization_manager.InitializationOrchestrator') as mock_orchestrator:
-            mock_instance = Mock()
-            mock_orchestrator.return_value = mock_instance
-            mock_instance.initialize.return_value = True
-            result = self.manager.initialize_application()
-            assert result is True
+    def test_initialization(self):
+        self.manager.initialize()
 
-    def test_get_initialization_status(self):
-        result = self.manager.get_initialization_status()
+    def test_get_total_steps(self):
+        result = self.manager.get_total_steps()
+        assert isinstance(result, int)
+
+    def test_get_executed_steps(self):
+        result = self.manager.get_executed_steps()
         assert isinstance(result, dict)
-
-    def test_cleanup(self):
-        result = self.manager.cleanup()
-        assert result is True

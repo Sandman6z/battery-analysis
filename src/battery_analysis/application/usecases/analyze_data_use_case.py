@@ -9,6 +9,7 @@ import logging
 import os
 import re
 from pathlib import Path
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 import pandas as pd
 from battery_analysis.domain.entities.battery import Battery
@@ -145,7 +146,7 @@ class AnalyzeDataUseCase:
 
                     # 从字典数据创建Battery实体对象
                     battery = self._create_battery_entity(battery_data_dict, excel_file)
-                    self.logger.debug("创建电池实体: %s, 序列号: %s", battery.model, battery.serial_number)
+                    self.logger.debug("创建电池实体: %s, 序列号: %s", battery.model_number, battery.serial_number)
 
                     # 验证电池数据
                     validation_result = self.battery_analysis_service.validate_battery_data(battery)
@@ -443,7 +444,7 @@ class AnalyzeDataUseCase:
 
         # 创建Battery实体对象
         return Battery(
-            model=model,
+            model_number=model,
             manufacturer=manufacturer,
             serial_number=serial_number,
             chemistry=chemistry,

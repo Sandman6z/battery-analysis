@@ -5,33 +5,51 @@ from battery_analysis.main.controllers.file_controller import FileController
 
 class TestFileController:
     def setup_method(self):
+        mock_config_service = Mock()
+        mock_config_service.load_config.return_value = True
+        mock_config_service.get_all_sections.return_value = ["Section1"]
+        mock_config_service.get_section_options.return_value = ["option1"]
+        mock_config_service.get_config_value.return_value = "value1"
+
+        mock_file_service = Mock()
+
+        mock_container = Mock()
+        mock_container.get.side_effect = lambda name: {
+            "file": mock_file_service,
+            "config": mock_config_service
+        }.get(name)
+
+        patcher = patch(
+            'battery_analysis.main.services.service_container.get_service_container',
+            return_value=mock_container
+        )
+        patcher.start()
         self.controller = FileController()
+        patcher.stop()
 
-    def test_open_file(self):
-        file_path = "test_file.xlsx"
-        with patch('battery_analysis.main.controllers.file_controller.FileService') as mock_file_service:
-            mock_instance = Mock()
-            mock_file_service.return_value = mock_instance
-            mock_instance.read_file.return_value = {"data": []}
-            result = self.controller.open_file(file_path)
-            assert result is not None
+    def test_get_project_path(self):
+        result = self.controller.get_project_path()
+        assert isinstance(result, str)
+        assert len(result) > 0
 
-    def test_save_file(self):
-        file_path = "test_file.xlsx"
-        data = {"data": []}
-        with patch('battery_analysis.main.controllers.file_controller.FileService') as mock_file_service:
-            mock_instance = Mock()
-            mock_file_service.return_value = mock_instance
-            mock_instance.write_file.return_value = True
-            result = self.controller.save_file(file_path, data)
-            assert result is True
+    def test_load_config(self):
+        result = self.controller.load_config()
+        assert isinstance(result, dict)
 
-    def test_export_data(self):
-        file_path = "export_file.xlsx"
-        data = {"data": []}
-        with patch('battery_analysis.main.controllers.file_controller.FileService') as mock_file_service:
-            mock_instance = Mock()
-            mock_file_service.return_value = mock_instance
-            mock_instance.export_data.return_value = True
-            result = self.controller.export_data(file_path, data)
-            assert result is True
+    def test_validate_directory_valid(self):
+        import os
+        result = self.controller.validate_directory(os.getcwd())
+        assert result[0] is True
+
+    def test_validate_directory_invalid(self):
+        result = self.controller.validate_directory("")
+        assert result[0] is False
+
+    def test_ensure_directory_exists(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            import os
+            test_path = os.path.join(tmpdir, "new_dir")
+            result = self.controller.ensure_directory_exists(test_path)
+            assert result[0] is True
+            assert os.path.exists(test_path)

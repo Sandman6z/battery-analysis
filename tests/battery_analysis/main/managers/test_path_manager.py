@@ -1,24 +1,13 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+import os
 from battery_analysis.main.managers.path_manager import PathManager
 
 
 class TestPathManager:
     def setup_method(self):
-        self.manager = PathManager()
+        self.main_window = Mock()
+        self.manager = PathManager(self.main_window)
 
-    def test_get_data_path(self):
-        result = self.manager.get_data_path()
-        assert isinstance(result, str)
-
-    def test_get_report_path(self):
-        result = self.manager.get_report_path()
-        assert isinstance(result, str)
-
-    def test_get_config_path(self):
-        result = self.manager.get_config_path()
-        assert isinstance(result, str)
-
-    def test_ensure_paths_exist(self):
-        result = self.manager.ensure_paths_exist()
-        assert result is True
+    def test_get_parent_directory(self):
+        result = self.manager.get_parent_directory(os.getcwd())
+        assert result is not None

@@ -1,29 +1,34 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from battery_analysis.main.managers.command_manager import CommandManager
 
 
 class TestCommandManager:
     def setup_method(self):
-        self.manager = CommandManager()
+        main_window = Mock()
+        main_window.analysis_runner = Mock()
+        main_window.main_controller = Mock()
+        main_window.config_manager = Mock()
+        main_window.dialog_manager = Mock()
+        main_window.validation_manager = Mock()
+        main_window.path_manager = Mock()
+        main_window.data_processor = Mock()
+        main_window.report_manager = Mock()
+        main_window.ui_manager = Mock()
+        self.manager = CommandManager(main_window)
 
-    def test_register_command(self):
-        command_name = "test_command"
-        command = Mock()
-        result = self.manager.register_command(command_name, command)
-        assert result is True
+    def test_get_command_exists(self):
+        cmd = self.manager.get_command("run_analysis")
+        assert cmd is not None
 
-    def test_execute_command(self):
-        command_name = "test_command"
-        command = Mock()
-        command.execute.return_value = {"status": "success"}
-        self.manager.register_command(command_name, command)
-        result = self.manager.execute_command(command_name)
-        assert result is not None
+    def test_get_command_nonexistent(self):
+        cmd = self.manager.get_command("nonexistent")
+        assert cmd is None
 
-    def test_unregister_command(self):
-        command_name = "test_command"
-        command = Mock()
-        self.manager.register_command(command_name, command)
-        result = self.manager.unregister_command(command_name)
-        assert result is True
+    def test_get_all_commands(self):
+        cmds = self.manager.get_all_commands()
+        assert isinstance(cmds, dict)
+        assert len(cmds) > 0
+
+    def test_execute_command_nonexistent(self):
+        result = self.manager.execute_command("nonexistent")
+        assert result is False

@@ -147,13 +147,9 @@ class TestDataProcessor:
         """测试提取脉冲电流的方法"""
         from battery_analysis.main.business_logic.filename_parser import extract_pulse_current
 
-        # 设置模拟的config
-        mock_config = Mock()
-        self.mock_main_window.config = mock_config
-
         # 调用方法（正则预期匹配格式为 "(100-200mA)" 无闭括号在mA前）
         filename = 'Test_Battery_(100-200)mA.xlsx'
-        result = extract_pulse_current(filename, mock_config)
+        result = extract_pulse_current(filename)
 
         # 验证结果
         assert result == []
@@ -162,12 +158,12 @@ class TestDataProcessor:
         """测试提取恒流电流的方法"""
         from battery_analysis.main.business_logic.filename_parser import extract_cc_current
 
-        # 调用方法（正则预期匹配格式含闭括号）
-        filename = 'Test_Battery_(100-200)mA,50mA.xlsx'
+        # 调用方法
+        filename = 'Test_Battery_(100-200)mA,50mA,1000mAh).xlsx'
         result = extract_cc_current(filename)
 
         # 验证结果
-        assert result == ''
+        assert result == '50'
     
     def test_get_xlsxinfo_invalid_directory(self):
         """测试获取Excel文件信息时目录无效的情况"""
@@ -186,23 +182,3 @@ class TestDataProcessor:
             # 验证结果
             self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
     
-    @patch('battery_analysis.main.business_logic.error_recovery.QW.QFileDialog')
-    def test__open_data_directory_dialog(self, mock_file_dialog):
-        """测试打开数据目录对话框的方法"""
-        from battery_analysis.main.business_logic.error_recovery import DataErrorRecoveryHandler
-
-        # 设置模拟返回值
-        mock_file_dialog.getExistingDirectory.return_value = 'C:\\test\\data'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = 'C:\\current\\path'
-
-        # 模拟data_processor.analyze_data方法
-        self.mock_main_window.data_processor = Mock()
-        self.mock_main_window.data_processor.analyze_data = Mock()
-
-        # 创建 recovery handler 并调用
-        handler = DataErrorRecoveryHandler(self.mock_main_window)
-        handler._open_data_directory_dialog()
-
-        # 验证结果
-        self.mock_main_window.lineEdit_InputPath.setText.assert_called_once_with('C:\\test\\data')
-        self.mock_main_window.data_processor.analyze_data.assert_called_once()

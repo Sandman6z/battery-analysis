@@ -125,7 +125,7 @@ class TestApplicationService:
     def test_initialize_with_exception(self):
         """测试初始化应用服务（发生异常）"""
         # 模拟初始化过程中发生异常
-        self.mock_environment_service.initialize.side_effect = Exception("Test error")
+        self.mock_environment_service.initialize.side_effect = ValueError("Test error")
         
         # 调用初始化方法
         result = self.application_service.initialize()
