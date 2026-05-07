@@ -1,4 +1,15 @@
-### v2.9.0 (Unreleased)
+### v2.9.1 (Unreleased)
+
+#### 功能增强
+- feat(配置): 新增电池型号 CR2450HE1、CR2450HE4
+- feat(配置): 新增测试设备信息 Liba M1（QA）
+- feat(配置): 更新制造商 GP&LB 替代 LBA
+- feat(配置): 更新 VGFernitz 设备序列号和硬件/固件版本
+
+#### 重构优化
+- refactor: 移除 `_initialize_current_and_voltage_levels` 和 `load_user_settings` 死代码
+
+### v2.9.0
 
 #### 功能增强
 - feat: 新增图表写入模块(plot writer)，支持电池数据可视化输出
