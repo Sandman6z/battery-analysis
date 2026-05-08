@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from battery_analysis.main.services.config_service_interface import IConfigService
 from battery_analysis.utils.base_service import BaseService
-from battery_analysis.utils.config_manager import ConfigManager
+from battery_analysis.utils.config_manager import IniFileManager
 
 
 class ConfigService(BaseService, IConfigService):
@@ -25,7 +25,7 @@ class ConfigService(BaseService, IConfigService):
         初始化配置服务
         """
         BaseService.__init__(self)
-        self._config_manager = ConfigManager()
+        self._config_manager = IniFileManager()
         self._config_path = None
         self._loaded = False
 

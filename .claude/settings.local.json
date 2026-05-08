@@ -88,7 +88,19 @@
       "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/manual)",
       "Bash(python -m pytest tests/battery_analysis/utils/test_file_writer.py -q --tb=short)",
       "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/manual --ignore=tests/battery_analysis/utils/test_file_writer.py --ignore=tests/battery_analysis/e2e)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(python -m pytest tests/battery_analysis/utils/test_config_manager.py -v --no-header)",
+      "Bash(python -c \"from battery_analysis.main.commands import RunAnalysisCommand, SaveSettingsCommand; print\\('commands package OK'\\)\")",
+      "Bash(python -c \"from battery_analysis.main.services.service_container import ServiceContainer, get_service_container; print\\('service_container package OK'\\)\")",
+      "Bash(python -c \"from battery_analysis.utils.file_writer import XlsxWordWriter, JsonWriter, FileWriter; print\\('file_writer backward compat OK'\\)\")",
+      "Bash(python -m pytest tests/battery_analysis/main/services/test_service_container.py -x -q)",
+      "Bash(python -m pytest tests/battery_analysis/utils/test_file_writer.py -x -q)",
+      "Bash(timeout 30 python -m pytest tests/battery_analysis/main/services/test_service_container.py -x -q --no-header -p no:cacheprovider)",
+      "Bash(timeout 10 python -m pytest tests/battery_analysis/main/services/test_service_container.py::TestServiceContainer::test_circular_dependency_detection -x -q --no-header)",
+      "Bash(timeout 30 python -m pytest tests/battery_analysis/main/services/test_service_container.py -x -q --no-header -k \"not test_circular_dependency_detection\")",
+      "Bash(timeout 20 python -c \"from battery_analysis.main.managers.command_manager import CommandManager; print\\('CommandManager import OK'\\)\")",
+      "Bash(timeout 20 python -c ' *)",
+      "Bash(timeout 10 python -c \"from battery_analysis.utils.file_writer import XlsxWordWriter\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\boe\\Documents\\EwinDT\\battery-analysis\\src\\battery_analysis\\main\\business_logic"

@@ -8,7 +8,7 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import Mock, patch
-from battery_analysis.utils.file_writer import XlsxWordWriter
+from battery_analysis.utils.xlsx_word_writer import XlsxWordWriter
 
 
 class TestXlsxWordWriter:

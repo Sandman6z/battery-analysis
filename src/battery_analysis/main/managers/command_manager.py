@@ -6,7 +6,7 @@
 """
 
 import logging
-from battery_analysis.main.commands.command import (
+from battery_analysis.main.commands import (
     RunAnalysisCommand, SaveSettingsCommand, ExportReportCommand,
     BatchProcessingCommand, GenerateReportCommand, AnalyzeDataCommand,
     CalculateBatteryCommand

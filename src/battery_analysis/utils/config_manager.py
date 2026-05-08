@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional, List
 import logging
 
 
-class ConfigManager:
+class IniFileManager:
     """
     配置管理工具类
     提供统一的配置文件读取、解析、管理功能
