@@ -607,8 +607,8 @@ exe = EXE(
         # 添加应用特定的数据文件
         if app_config["name"] == "BatteryAnalysis":
             cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis")};battery_analysis')
-            # 显式添加Word模板文件
-            cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis", "templates", "*.docx")};battery_analysis/templates/')
+            # 显式添加Word模板目录（通配符在PyInstaller中不可靠，使用目录路径）
+            cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis", "templates")};battery_analysis/templates')
 
         # 添加所有隐藏导入
         for hidden_import in app_config["spec_hidden_imports"] + app_config["additional_hidden_imports"]:
