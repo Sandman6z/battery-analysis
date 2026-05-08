@@ -118,10 +118,16 @@ log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 [project.scripts]
 battery-analysis = "battery_analysis.main.main_window:main"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["battery_analysis*"]
+
 [tool.setuptools]
-packages = ["battery_analysis"]
 package-dir = {"" = "src"}
 include-package-data = true
+
+[tool.setuptools.package-data]
+battery_analysis = ["templates/*.docx"]
 
 [dependency-groups]
 dev = [

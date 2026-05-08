@@ -11,6 +11,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx import Document
 import matplotlib.pyplot as plt
 import re
+import importlib.resources
 from pathlib import Path
 
 # 配置matplotlib支持中文显示
@@ -224,16 +225,29 @@ class XlsxWordWriter:
         )
 
         # init variables for word
+        # 确定使用哪个模板文件（根据电流等级数量）
         if self.intCurrentLevelNum <= 4:
-            self.strSampleReportWordPath = (
-                f"{self.strResultPath}/../../0_doc/Battery Measurement Report of TypeC"
-                f" TypeA_TypeD.docx"
-            )
+            template_filename = "Battery Measurement Report of TypeC TypeA_TypeD.docx"
         else:
-            self.strSampleReportWordPath = (
-                f"{self.strResultPath}/../../0_doc/Battery Measurement Report of TypeC"
-                f" TypeA_TypeD_MP.docx"
+            template_filename = "Battery Measurement Report of TypeC TypeA_TypeD_MP.docx"
+
+        # 优先从包内 templates/ 目录加载，找不到则回退到外部 0_doc 目录
+        try:
+            pkg_template = (
+                importlib.resources.files('battery_analysis')
+                / 'templates'
+                / template_filename
             )
+            if pkg_template.is_file():
+                self.strSampleReportWordPath = str(pkg_template)
+                logging.info("从包内模板目录加载Word模板: %s", self.strSampleReportWordPath)
+            else:
+                raise FileNotFoundError
+        except (TypeError, ModuleNotFoundError, FileNotFoundError):
+            self.strSampleReportWordPath = str(
+                Path(self.strResultPath) / f"../../0_doc/{template_filename}"
+            )
+            logging.info("从外部0_doc目录加载Word模板: %s", self.strSampleReportWordPath)
 
         # strTimeStamp = datetime.datetime.now().strftime("%Y%m%d")
 
