@@ -119,7 +119,6 @@ class BuildManager(BuildConfig):
                 "main_file": '["main_window.py"]',
                 "base_exe_name": "battery-analyzer",
                 "icon_name": "Icon_BatteryAnalysis.ico",
-                "datas_mapping": {"src": ".", "battery_analysis": "battery_analysis"},
                 "spec_hidden_imports": common_spec_hidden_imports + [
                     "battery_analysis", "battery_analysis.main",
                     "battery_analysis.ui", "battery_analysis.utils",
@@ -228,14 +227,6 @@ class BuildManager(BuildConfig):
         if build_path.exists():
             shutil.rmtree(build_path)
             logger.info("已清理临时构建目录: %s", build_path)
-
-    def _write_file(self, content, file_path):
-        """写入文件的辅助方法"""
-        # 确保目录存在
-        file_path_obj = Path(file_path)
-        file_path_obj.parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path_obj, "w", encoding='utf-8') as f:
-            f.write(content)
 
     def _copy_svg_icons(self, target_dir, app_name):
         """复制SVG图标文件到目标目录"""
@@ -370,183 +361,6 @@ class BuildManager(BuildConfig):
             logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
             logger.debug("尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
             return None
-
-    def _generate_spec_content(self, app_name, exe_name, icon_name, main_file, datas_mapping, spec_hidden_imports):
-        """生成PyInstaller spec文件内容"""
-        debug_mode = self.build_type == "Debug"
-
-        # 获取应用程序的显示名
-        app_display_name = None
-        for config in self.apps_config:
-            if config["name"] == app_name:
-                app_display_name = config.get("display_name", config["name"])
-                break
-        if app_display_name is None:
-            app_display_name = app_name
-
-        # 使用pathlib的as_posix()方法自动处理路径分隔符
-        project_root_posix = self.project_root.as_posix()
-        src_path = self.project_root / 'src'
-        src_path_posix = src_path.as_posix()
-        config_path_posix = (self.project_root / 'config').as_posix()
-        pyproject_path_posix = (
-            self.project_root / 'pyproject.toml').as_posix()
-
-        # 构建datas
-        datas = []
-        datas.append(
-            f'("{src_path_posix}", "{datas_mapping.get("src", ".")}")')
-
-        if app_name == "BatteryAnalysis":
-            battery_analysis_path_posix = (
-                src_path / "battery_analysis").as_posix()
-            datas.append(
-                f'("{battery_analysis_path_posix}", "battery_analysis")')
-            # 显式添加Word模板文件（即使整个包已添加，显式声明更健壮）
-            templates_path_posix = (
-                src_path / "battery_analysis" / "templates").as_posix()
-            datas.append(
-                f'("{templates_path_posix}", "battery_analysis/templates")')
-
-        datas.append(f'("{config_path_posix}", "config")')
-        datas.append(f'("{pyproject_path_posix}", ".")')
-        
-        # 添加locale目录，确保翻译文件被正确包含
-        locale_path_posix = (self.project_root / 'locale').as_posix()
-        datas.append(f'("{locale_path_posix}", "locale")')
-        
-        datas_str = ',\n        '.join(datas)
-
-        # 构建hiddenimports字符串
-        hiddenimports_str = ', '.join(
-            f'"{imp}"' for imp in spec_hidden_imports)
-
-        # 构建控制台模式字符串
-        console_mode = str(self.console_mode or debug_mode).lower()
-        debug_mode_str = str(debug_mode).lower()
-        strip_mode = str(not debug_mode).lower()
-        upx_mode = "false"  # 禁用UPX压缩，避免可能的问题
-
-        # 先处理版本号分割，以便在spec模板中使用
-        # 确保版本号严格按照pyproject.toml中的3位语义化格式处理
-        version_split = self.version.split(".")
-        # 只保留前3位（MAJOR.MINOR.PATCH），移除任何额外的后缀（如.debug）
-        if len(version_split) > 3:
-            version_split = version_split[:3]
-        while len(version_split) < 3:
-            version_split.append("0")
-        # Windows VERSIONINFO需要4位版本号，但我们固定build number为0
-        # 确保不影响用户看到的3位语义化版本格式
-        build_number = "0"
-            
-        # 使用字符串拼接构建spec_content，确保变量正确解析
-        # 先定义VSVersionInfo模板
-        vs_version_info_template = '''VSVersionInfo(
-    ffi=FixedFileInfo(
-        filevers=({0}, {1}, {2}, {3}),
-        prodvers=({0}, {1}, {2}, {3}),
-        mask=0x3f,
-        flags=0x0,
-        OS=0x4,
-        fileType=0x1,
-        subtype=0x0,
-        date=(0, 0)
-    ),
-    kids=[
-        StringFileInfo([
-            StringTable(
-                u'040904B0',
-                [
-                    StringStruct(u'CompanyName',
-                                 u'BOE Digital Technology Co., Ltd.'),
-                    StringStruct(u'FileDescription', u'{4}'),
-                    StringStruct(
-                        u'LegalCopyright', u'Copyright (C) 2023 BOE Digital Technology Co., Ltd.'),
-                    StringStruct(u'ProductName', u'{4}'),
-                    StringStruct(u'ProductVersion', version)
-                ]
-            )
-        ]),
-        VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
-    ]
-)'''
-        
-        # 格式化VSVersionInfo模板
-        vs_version_info = vs_version_info_template.format(
-            version_split[0], version_split[1], version_split[2], build_number, app_name
-        )
-        
-        # 构建完整的spec_content
-        spec_content = '''# -*- mode: python ; coding: utf-8 -*-
-
-# 这段代码用于创建Windows文件属性中显示的版本信息
-def generate_version_info(app_name):
-    version = "{version_str}"
-    return '''"""
-{vs_version_info}
-"""'''
-
-block_cipher = None
-a = Analysis(
-    [{main_file}],
-    pathex=["{project_root_posix}", "{src_path_posix}"],
-    binaries=[],
-    datas=[
-        {datas_str}
-    ],
-    hiddenimports=[
-        {hiddenimports_str}
-    ],
-    hookspath=[],
-    hooksconfig={{
-    }},
-    runtime_hooks=[],
-    excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
-    noarchive=False,
-)
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    [],
-    name="{exe_name}",
-    debug={debug_mode_str},
-    bootloader_ignore_signals=False,
-    strip={strip_mode},
-    upx={upx_mode},
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console={console_mode},
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    icon="./{icon_name}",
-    version=generate_version_info("{app_display_name}"),
-)'''.format(
-            version_str=self.version,
-            vs_version_info=vs_version_info,
-            app_display_name=app_display_name,
-            main_file=main_file,
-            project_root_posix=project_root_posix,
-            src_path_posix=src_path_posix,
-            datas_str=datas_str,
-            hiddenimports_str=hiddenimports_str,
-            exe_name=exe_name,
-            debug_mode_str=debug_mode_str,
-            strip_mode=strip_mode,
-            upx_mode=upx_mode,
-            console_mode=console_mode,
-            icon_name=icon_name
-        )
-        return spec_content
 
     def _execute_pyinstaller_command(self, app_dir, cmd_args):
         """执行PyInstaller命令"""
@@ -705,22 +519,7 @@ exe = EXE(
         for app_config in self.apps_config:
             # 生成可执行文件名
             app_config["exe_name"] = self._generate_exe_name(app_config["base_exe_name"], architecture)
-            
-            # 生成spec文件内容
-            spec_content = self._generate_spec_content(
-                app_config["name"],
-                app_config["exe_name"],
-                app_config["icon_name"],
-                app_config["main_file"],
-                app_config["datas_mapping"],
-                app_config["spec_hidden_imports"]
-            )
-            
-            # 写入spec文件
-            spec_file_path = app_config["build_dir"] / 'build.spec'
-            self._write_file(spec_content, spec_file_path)
-            logger.info("已生成spec文件: %s", spec_file_path)
-            
+
             # 构建PyInstaller命令参数
             cmd_args = self._build_pyinstaller_args(app_config, temp_path, src_path, final_build_dir)
             
