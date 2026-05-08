@@ -64,8 +64,8 @@ class BuildConfig:
             self.version = Version().version
             logger.info("从Version类获取的版本号: %s", self.version)
         except (FileNotFoundError, ImportError, IOError, PermissionError, KeyError, TOMLDecodeError) as e:
-            logger.warning("无法从Version类获取版本号: %s，使用默认版本", e)
-            self.version = "0.0.0"
+            logger.error("无法从Version类获取版本号: %s", e)
+            sys.exit(1)
 
         # 根据构建类型决定是否显示控制台窗口
         # Debug构建默认显示控制台窗口，Release构建默认不显示控制台窗口
@@ -179,13 +179,10 @@ class BuildManager(BuildConfig):
         build_dir = self.project_root / 'build' / self.build_type
         build_dir.mkdir(parents=True, exist_ok=True)
 
-        # 确定系统架构
-        architecture = "x64"
-
-        # 使用_generate_exe_name方法生成文件名，避免重复逻辑
+        # 使用build()中已生成的可执行文件名
         exe_names = []
         for app_config in self.apps_config:
-            exe_name = f"{self._generate_exe_name(app_config['base_exe_name'], architecture)}.exe"
+            exe_name = f'{app_config["exe_name"]}.exe'
             exe_names.append(exe_name)
 
         # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
@@ -228,58 +225,17 @@ class BuildManager(BuildConfig):
             shutil.rmtree(build_path)
             logger.info("已清理临时构建目录: %s", build_path)
 
-    def _copy_svg_icons(self, target_dir, app_name):
-        """复制SVG图标文件到目标目录"""
-        svg_dir = self.project_root / "config" / "resources" / "icons"
-        if svg_dir.exists():
-            # 创建目标目录
-            dest_svg_dir = target_dir / "config" / "resources" / "icons"
-            dest_svg_dir.mkdir(parents=True, exist_ok=True)
-            # 复制所有SVG文件
-            for svg_file in svg_dir.glob("*.svg"):
-                shutil.copy(svg_file, dest_svg_dir)
-                logger.info("已复制SVG图标到%s: %s", app_name, svg_file.name)
-
     def _copy_app_resources(self, build_dir, app_name, main_file_path):
-        """复制单个应用的资源文件到构建目录
+        """复制主程序文件到构建目录（PyInstaller 入口脚本所需）
 
         Args:
             build_dir: 构建目录路径
             app_name: 应用名称
             main_file_path: 主程序文件路径
         """
-        # 定义源文件路径
-        resources_rc_path = self.project_root / "src" / \
-            "battery_analysis" / "resources" / "resources_rc.py"
-        ui_path = self.project_root / "src" / "battery_analysis" / \
-            "ui" / "resources" / "ui_battery_analysis.ui"
-        battery_analysis_src = self.project_root / "src" / "battery_analysis"
-
-        # 复制主程序文件
+        # 复制主程序文件（PyInstaller 以它为入口分析依赖）
         shutil.copy(main_file_path, build_dir)
         logger.info("已复制主程序文件到%s: %s", app_name, main_file_path.name)
-
-        # 复制资源文件
-        resources_dest = build_dir / "resources"
-        resources_dest.mkdir(exist_ok=True)
-        shutil.copy(resources_rc_path, resources_dest)
-        logger.info("已复制资源文件到%s: %s", app_name, resources_rc_path.name)
-
-        # 复制SVG图标文件
-        self._copy_svg_icons(build_dir, app_name)
-
-        # 确保UI目录存在并复制UI文件
-        if app_name == "BatteryAnalysis":
-            ui_dest_dir = build_dir / "battery_analysis" / "ui" / "resources"
-            ui_dest_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copy(ui_path, ui_dest_dir)
-            logger.info("已复制UI文件到%s: %s", app_name, ui_path.name)
-
-        # 创建完整的battery_analysis包结构
-        battery_analysis_dest = build_dir / "battery_analysis"
-        shutil.copytree(battery_analysis_src,
-                        battery_analysis_dest, dirs_exist_ok=True)
-        logger.info("已复制battery_analysis包结构到%s", app_name)
 
     def copy2dir(self):
         """复制源文件到构建目录"""
@@ -315,52 +271,25 @@ class BuildManager(BuildConfig):
         if ci_dll_path and os.path.exists(ci_dll_path):
             logger.info("使用CI环境变量中的Python DLL路径: %s", ci_dll_path)
             return ci_dll_path
-        else:
-            logger.debug("未找到CI环境变量中的Python DLL路径，尝试本地路径")
-            
-            # 获取当前Python版本号（如311, 313）
-            import sys
-            python_version = f"python{sys.version_info.major}{sys.version_info.minor}.dll"
-            logger.debug(f"当前Python版本DLL: {python_version}")
-            
-            # 2. 本地环境的基本路径查找，包括更全面的可能路径
-            python_exec_dir = Path(sys.executable).parent
-            basic_paths = [
-                # 当前Python版本的DLL
-                os.path.join(os.path.dirname(sys.executable), python_version),
-                python_exec_dir / python_version,
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), python_version),
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', python_version),
-                os.path.join(os.environ.get('PYTHONHOME', ''), python_version),
-                Path(sys.prefix) / python_version,
-                # 常见的Python 3.13版本DLL
-                os.path.join(os.path.dirname(sys.executable), 'python313.dll'),
-                python_exec_dir / 'python313.dll',
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'python313.dll'),
-                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'DLLs', 'python313.dll'),
-                os.path.join(os.environ.get('PYTHONHOME', ''), 'python313.dll'),
-                Path(sys.prefix) / 'python313.dll',
-                # CI环境中常见的Python安装路径
-                r'C:\Program Files\python313\python313.dll',
-                r'C:\Program Files (x86)\python313\python313.dll',
-                # 让PyInstaller尝试在PATH中查找
-                python_version,
-                'python313.dll'
-            ]
 
-            # 去重路径列表
-            basic_paths = list(set(basic_paths))
+        # 2. 本地环境查找，使用当前Python版本动态构造DLL名称
+        python_dll = f"python{sys.version_info.major}{sys.version_info.minor}.dll"
+        python_exec_dir = Path(sys.executable).parent
+        candidates = [
+            python_exec_dir / python_dll,
+            Path(sys.prefix) / python_dll,
+            Path(sys.prefix) / "DLLs" / python_dll,
+            Path(python_dll),  # 让PyInstaller尝试在PATH中查找
+        ]
 
-            for path in basic_paths:
-                logger.debug("检查DLL路径: %s", path)
-                if os.path.exists(path):
-                    logger.info("找到Python DLL: %s", path)
-                    return str(path)
+        for path in candidates:
+            if path.exists():
+                logger.info("找到Python DLL: %s", path)
+                return str(path)
 
-            # 如果未找到DLL，记录警告
-            logger.warning("未找到Python DLL，这可能会导致构建的可执行文件在某些环境中无法正常运行")
-            logger.debug("尝试过的路径: %s", ', '.join(str(p) for p in basic_paths))
-            return None
+        logger.warning("未找到Python DLL %s，PyInstaller可能无法在某些环境中正常运行", python_dll)
+        logger.debug("尝试过的路径: %s", [str(p) for p in candidates])
+        return None
 
     def _execute_pyinstaller_command(self, app_dir, cmd_args):
         """执行PyInstaller命令"""
@@ -418,11 +347,7 @@ class BuildManager(BuildConfig):
             f'--add-data={src_path};.'
         ]
         
-        # 添加应用特定的数据文件
-        if app_config["name"] == "BatteryAnalysis":
-            cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis")};battery_analysis')
-            # 显式添加Word模板目录（通配符在PyInstaller中不可靠，使用目录路径）
-            cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis", "templates")};battery_analysis/templates')
+        # 应用特定参数（battery_analysis 整体已通过 src;. 包含，无需重复添加）
 
         # 添加所有隐藏导入
         for hidden_import in app_config["spec_hidden_imports"] + app_config["additional_hidden_imports"]:
@@ -439,7 +364,6 @@ class BuildManager(BuildConfig):
         # 添加通用参数
         cmd_args.extend([
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config"))};config',
-            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "resources", "icons"))};config/resources/icons',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "pyproject.toml"))};.',
             '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "locale"))};locale',
@@ -461,12 +385,9 @@ class BuildManager(BuildConfig):
             'numpy.testing', 'numpy.distutils',  # numpy测试和构建模块
             'openpyxl.tests',  # openpyxl测试模块
             'pandas.tests',  # pandas测试模块
-            'scipy', 'sympy',  # 如果没有使用这些科学计算库
-            'tkinter',  # 如果只使用PyQt6
-            'IPython', 'jupyter',  # 交互式环境
+            'tkinter',  # 只使用PyQt6
+            'IPython', 'jupyter',  # 交互式环境（非依赖，但体量大，防误打包）
             'setuptools', 'pip',  # 构建工具
-            'unittest', 'doctest',  # 测试框架
-            'urllib3', 'requests',  # 如果没有网络请求
         ]
         for module in excluded_modules:
             cmd_args.append(f'--exclude-module={module}')

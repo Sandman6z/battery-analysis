@@ -43,10 +43,11 @@ python -m nuitka \
     --output-filename=BatteryAnalysis.exe \
     --company-name="Ewin Hardware Group" \
     --product-name="Battery Analysis" \
-    --file-version=2.8.2 \
-    --product-version=2.8.2 \
+    --file-version=2.9.2 \
+    --product-version=2.9.2 \
     --file-description="Battery test data analysis application" \
     --copyright="Copyright (c) 2024 Ewin Hardware Group" \
+    --include-data-dir=src/battery_analysis/templates=battery_analysis/templates \
     src/battery_analysis/main/main_window.py
 ```
 
@@ -64,13 +65,14 @@ python -m nuitka \
     --output-filename=BatteryAnalysis.exe \
     --company-name="Ewin Hardware Group" \
     --product-name="Battery Analysis" \
-    --file-version=2.8.2 \
-    --product-version=2.8.2 \
+    --file-version=2.9.2 \
+    --product-version=2.9.2 \
     --file-description="Battery test data analysis application" \
     --copyright="Copyright (c) 2024 Ewin Hardware Group" \
     --include-package=battery_analysis \
     --include-package-data=battery_analysis \
     --include-data-dir=config=config \
+    --include-data-dir=src/battery_analysis/templates=battery_analysis/templates \
     --nofollow-import-to=pytest \
     --nofollow-import-to=black \
     --nofollow-import-to=flake8 \
@@ -142,7 +144,7 @@ ICON_PATH = ROOT_DIR / "config/resources/icons/Icon_BatteryTestGUI.ico"
 ENTRY_POINT = SRC_DIR / "battery_analysis/main/main_window.py"
 
 # 版本信息
-VERSION = "2.8.2"
+VERSION = "2.9.2"
 COMPANY = "Ewin Hardware Group"
 PRODUCT = "Battery Analysis"
 
@@ -184,8 +186,7 @@ def build():
         "--include-package=battery_analysis",
         "--include-package-data=battery_analysis",
         "--include-data-dir=config=config",
-        
-        # 排除开发依赖
+        "--include-data-dir=src/battery_analysis/templates=battery_analysis/templates",
         "--nofollow-import-to=pytest",
         "--nofollow-import-to=black",
         "--nofollow-import-to=flake8",
@@ -291,6 +292,7 @@ python -m nuitka --pgo-use --output-dir=dist src/battery_analysis/main/main_wind
 ```bash
 --include-data-dir=config=config
 --include-data-dir=src/battery_analysis/resources=battery_analysis/resources
+--include-data-dir=src/battery_analysis/templates=battery_analysis/templates
 ```
 
 ### 4. PyQt6 插件问题
@@ -367,6 +369,7 @@ python -m nuitka ^
     --include-package=battery_analysis ^
     --include-package-data=battery_analysis ^
     --include-data-dir=config=config ^
+    --include-data-dir=src/battery_analysis/templates=battery_analysis/templates ^
     --nofollow-import-to=pytest ^
     --nofollow-import-to=black ^
     --nofollow-import-to=flake8 ^
