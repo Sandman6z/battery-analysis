@@ -3,6 +3,9 @@
 /__build__/
 /__temp__/
 
+# Claude Code 本地配置（不同机器不同，不进版本控制）
+.claude/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

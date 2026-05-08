@@ -402,6 +402,11 @@ class BuildManager(BuildConfig):
                 src_path / "battery_analysis").as_posix()
             datas.append(
                 f'("{battery_analysis_path_posix}", "battery_analysis")')
+            # 显式添加Word模板文件（即使整个包已添加，显式声明更健壮）
+            templates_path_posix = (
+                src_path / "battery_analysis" / "templates").as_posix()
+            datas.append(
+                f'("{templates_path_posix}", "battery_analysis/templates")')
 
         datas.append(f'("{config_path_posix}", "config")')
         datas.append(f'("{pyproject_path_posix}", ".")')
@@ -602,7 +607,9 @@ exe = EXE(
         # 添加应用特定的数据文件
         if app_config["name"] == "BatteryAnalysis":
             cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis")};battery_analysis')
-        
+            # 显式添加Word模板文件
+            cmd_args.append(f'--add-data={os.path.join(src_path, "battery_analysis", "templates", "*.docx")};battery_analysis/templates/')
+
         # 添加所有隐藏导入
         for hidden_import in app_config["spec_hidden_imports"] + app_config["additional_hidden_imports"]:
             cmd_args.append(f'--hidden-import={hidden_import}')
