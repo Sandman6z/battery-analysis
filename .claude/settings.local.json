@@ -87,7 +87,8 @@
       "Bash(python -m pytest tests/ -x -q --tb=short --ignore=tests/manual)",
       "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/manual)",
       "Bash(python -m pytest tests/battery_analysis/utils/test_file_writer.py -q --tb=short)",
-      "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/manual --ignore=tests/battery_analysis/utils/test_file_writer.py --ignore=tests/battery_analysis/e2e)"
+      "Bash(python -m pytest tests/ -q --tb=short --ignore=tests/manual --ignore=tests/battery_analysis/utils/test_file_writer.py --ignore=tests/battery_analysis/e2e)",
+      "Bash(git *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\boe\\Documents\\EwinDT\\battery-analysis\\src\\battery_analysis\\main\\business_logic"

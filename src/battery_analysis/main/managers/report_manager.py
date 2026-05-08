@@ -35,17 +35,17 @@ class ReportManager:
                 QW.QMessageBox.warning(self.main_window, "警告", f"无效的输出路径: {output_path}")
                 return
             
-            # 搜索docx文件
-            docx_files = list(output_path.rglob("*.docx"))
+            # 搜索docx文件（word报告保存在输出目录的上一级）
+            docx_files = list(output_path.parent.rglob("*.docx"))
             
             if not docx_files:
-                QW.QMessageBox.information(self.main_window, "信息", f"未找到docx报告文件\n搜索路径: {output_path}")
+                QW.QMessageBox.information(self.main_window, "信息", f"未找到docx报告文件\n搜索路径: {output_path.parent}")
                 return
             
             # 找到与当前版本匹配的报告
             target_docx = None
             for docx_file in docx_files:
-                if f"_V{version}" in docx_file.name:
+                if f"_v{version}" in docx_file.name:
                     target_docx = docx_file
                     break
             
