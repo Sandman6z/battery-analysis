@@ -454,9 +454,18 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """批量处理，使用命令模式"""
         self.batch_processing_command.execute()
 
+    def show_config_dialog(self):
+        """打开配置管理对话框"""
+        from battery_analysis.main.ui_components.config_dialog import ConfigDialog
+        dialog = ConfigDialog(self)
+        if dialog.exec() == QW.QDialog.DialogCode.Accepted:
+            self.statusBar_BatteryAnalysis.showMessage("配置已保存")
+            self.config_manager.reload_config()
+            self.ui_manager.init_combobox()
+
     def save_settings(self) -> None:
-        """保存当前设置到用户配置文件，委托给config_manager"""
-        self.config_manager.save_user_settings()
+        """保存设置 — UI选择状态不再持久化"""
+        self.statusBar_BatteryAnalysis.showMessage("设置已保存")
 
     # ------------------------------
     # 报告相关方法
