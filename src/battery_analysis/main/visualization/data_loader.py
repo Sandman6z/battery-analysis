@@ -8,11 +8,9 @@ import logging
 import os
 import csv
 import json
-import configparser
 import traceback
 from pathlib import Path
 
-from battery_analysis.utils.config_parser import parse_pulse_current_config
 from battery_analysis.utils.data_utils import build_plot_title
 
 logger = logging.getLogger(__name__)
@@ -55,7 +53,7 @@ class DataLoaderMixin:
             return False
 
     def _load_config_file(self):
-        """通过 ConfigService 加载配置，填充 self.config 供后续使用"""
+        """通过 ConfigService 加载配置，存储服务引用供后续使用"""
         try:
             from battery_analysis.main.services.service_container import get_service_container
             container = get_service_container()
@@ -63,28 +61,21 @@ class DataLoaderMixin:
 
             if config_service is not None:
                 config_service.load_config(use_cache=True)
-                all_values = config_service.get_all_values()
-
-                # 填充 self.config 供 mixin 中其他方法使用
-                self.config = configparser.ConfigParser()
-                for section, options in all_values.items():
-                    self.config.add_section(section)
-                    for key, value in options.items():
-                        self.config.set(section, key, value)
-
-                logger.info("通过 ConfigService 成功读取配置（%d 个配置节）", len(all_values))
+                self._config_service = config_service
+                logger.info("通过 ConfigService 成功读取配置")
             else:
                 logger.warning("ConfigService 不可用，使用空配置")
-        except (IOError, UnicodeDecodeError, configparser.Error, ImportError, AttributeError, TypeError) as e:
+                self._config_service = None
+        except (ImportError, AttributeError, TypeError) as e:
             logger.error("配置读取失败: %s，使用默认配置", e)
+            self._config_service = None
 
     def _read_configurations(self):
         """读取所有配置项并设置默认值"""
-        self.strPltPath = self._get_config_value(
-            "PltConfig", "Path", os.getcwd())
+        # PltConfig 已不再持久化，使用当前工作目录
+        self.strPltPath = os.getcwd()
 
-        self.strPltTitle = self._get_config_value(
-            "PltConfig", "Title", "Battery Test Results")
+        self.strPltTitle = "Battery Test Results"
 
         self.strInfoImageCsvPath = os.path.join(
             self.strPltPath, "Info_Image.csv")
@@ -95,10 +86,14 @@ class DataLoaderMixin:
         self.listPulseCurrentLevel = self._get_pulse_current_level()
         self.intCurrentLevelNum = len(self.listPulseCurrentLevel)
 
-        self.listCoinCell = self._get_config_list(
-            "BatteryConfig", "SpecificationTypeCoinCell")
-        self.listPouchCell = self._get_config_list(
-            "BatteryConfig", "SpecificationTypePouchCell")
+        svc = getattr(self, '_config_service', None)
+        if svc is not None:
+            specs = svc.get_config_value("battery.specifications", {})
+            self.listCoinCell = specs.get("Coin Cell", [])
+            self.listPouchCell = specs.get("Pouch Cell", [])
+        else:
+            self.listCoinCell = []
+            self.listPouchCell = []
 
         self.strPltName = self._set_plot_title()
 
@@ -134,55 +129,20 @@ class DataLoaderMixin:
         except (IOError, json.JSONDecodeError, TypeError, ValueError) as e:
             logger.warning("读取元数据文件失败，使用默认标题: %s", e)
 
-    def _get_config_value(self, section, option, default_value):
-        """安全获取配置值，如果不存在则返回默认值"""
-        try:
-            if self.config.has_section(section) and self.config.has_option(section, option):
-                value = self.config.get(section, option)
-                logger.debug("获取配置 %s/%s: %s", section, option, value)
-                return value
-            else:
-                logger.warning(
-                    "未找到配置 %s/%s，使用默认值: %s", section, option, default_value)
-                return default_value
-        except (configparser.Error, TypeError, ValueError) as e:
-            logger.error(
-                "读取配置 %s/%s 出错: %s，使用默认值: %s", section, option, e, default_value)
-            return default_value
-
-    def _get_config_list(self, section, option):
-        """安全获取配置列表，如果不存在则返回空列表"""
-        try:
-            if self.config.has_section(section) and self.config.has_option(section, option):
-                list_value = self.config.get(section, option).split(",")
-                cleaned_list = [item.strip() for item in list_value]
-                logger.debug("获取配置列表 %s/%s: %s", section,
-                              option, cleaned_list)
-                return cleaned_list
-            else:
-                logger.warning("未找到配置列表 %s/%s，使用空列表", section, option)
-                return []
-        except (configparser.Error, TypeError, ValueError) as e:
-            logger.error("读取配置列表 %s/%s 出错: %s，使用空列表", section, option, e)
-            return []
-
     def _get_pulse_current_level(self):
         """获取脉冲电流级别配置"""
-        try:
-            if (self.config.has_section("BatteryConfig")
-                    and self.config.has_option("BatteryConfig", "PulseCurrent")):
-                result = parse_pulse_current_config(self.config)
-                logger.info("使用配置的脉冲电流级别: %s", result)
-                return result
-            else:
-                default_value = [10, 20, 50]
-                logger.warning(
-                    "未找到BatteryConfig/PulseCurrent，使用默认值: %s", default_value)
-                return default_value
-        except (ValueError, TypeError, AttributeError, KeyError) as e:
-            default_value = [10, 20, 50]
-            logger.error("脉冲电流配置格式错误: %s，使用默认值: %s", e, default_value)
-            return default_value
+        svc = getattr(self, '_config_service', None)
+        if svc is not None:
+            try:
+                levels = svc.get_config_value("battery.pulseCurrents", [10, 20, 50])
+                if levels:
+                    logger.info("使用配置的脉冲电流级别: %s", levels)
+                    return levels
+            except (ValueError, TypeError, AttributeError) as e:
+                logger.error("脉冲电流配置格式错误: %s，使用默认值", e)
+        default_value = [10, 20, 50]
+        logger.warning("使用默认脉冲电流级别: %s", default_value)
+        return default_value
 
     def _set_plot_title(self):
         """设置图表标题，处理引号情况"""
@@ -201,16 +161,16 @@ class DataLoaderMixin:
 
     def _read_rules_configuration(self):
         """读取并处理规则配置"""
-        try:
-            if (self.config.has_section("BatteryConfig")
-                    and self.config.has_option("BatteryConfig", "Rules")):
-                listRules = self.config.get(
-                    "BatteryConfig", "Rules").split(",")
-                self._process_rules(listRules)
-            else:
-                logger.warning("未找到BatteryConfig/Rules，使用默认maxXaxis")
-        except (configparser.Error, AttributeError, TypeError, ValueError) as e:
-            logger.error("读取Rules配置出错: %s，使用默认maxXaxis", e)
+        svc = getattr(self, '_config_service', None)
+        if svc is not None:
+            try:
+                rules = svc.get_config_value("battery.rules", [])
+                if rules:
+                    self._process_rules(rules)
+                    return
+            except (ValueError, TypeError, AttributeError) as e:
+                logger.error("读取Rules配置出错: %s，使用默认maxXaxis", e)
+        logger.warning("未找到battery.rules，使用默认maxXaxis")
 
     def _process_rules(self, listRules):
         """根据规则配置处理maxXaxis"""
