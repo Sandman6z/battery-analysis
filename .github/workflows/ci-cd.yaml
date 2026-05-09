@@ -55,45 +55,8 @@ jobs:
         .\.venv\Scripts\Activate.ps1
         uv run pytest
     
-    - name: 设置Python DLL环境变量
-      run: |
-        # 获取Python安装路径和版本
-        $pythonPath = (Get-Command python).Source
-        $pythonDir = Split-Path -Parent $pythonPath
-        $pythonHome = Split-Path -Parent $pythonDir
-        $pyMajor = [int](python -c "import sys; print(sys.version_info.major)")
-        $pyMinor = [int](python -c "import sys; print(sys.version_info.minor)")
-        $dllName = "python${pyMajor}${pyMinor}.dll"
-
-        Write-Host "Python可执行文件路径: $pythonPath"
-        Write-Host "Python主目录: $pythonHome"
-        Write-Host "DLL名称: $dllName"
-
-        $possibleDllPaths = @(
-            (Join-Path $pythonDir $dllName),
-            (Join-Path $pythonHome $dllName),
-            (Join-Path (Join-Path $pythonHome 'DLLs') $dllName)
-        )
-
-        $dllFound = $false
-        foreach ($path in $possibleDllPaths) {
-            Write-Host "检查DLL路径: $path"
-            if (Test-Path $path) {
-                Write-Host "找到Python DLL: $path"
-                echo "PYTHON_DLL_PATH=$path" >> $env:GITHUB_ENV
-                $dllFound = $true
-                break
-            }
-        }
-
-        if (-not $dllFound) {
-            Write-Error "错误：未找到${dllName}文件。尝试的路径："
-            foreach ($path in $possibleDllPaths) {
-                Write-Error "  - $path"
-            }
-            exit 1
-        }
-    
+    - name: Install UPX (optional, for smaller exe)
+      run: choco install upx --version 5.0.0 -y
     - name: Run build script
       run: |
         uv run python scripts/build.py Release

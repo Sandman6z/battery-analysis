@@ -106,10 +106,6 @@ class BuildManager(BuildConfig):
         """
         build_path = Path(self.build_path)
 
-        # 定义共同的隐藏导入
-        common_spec_hidden_imports = [
-            "matplotlib.backends.backend_svg", "docx"]
-
         return [
             {
                 "name": "BatteryAnalysis",
@@ -119,18 +115,23 @@ class BuildManager(BuildConfig):
                 "main_file": '["main_window.py"]',
                 "base_exe_name": "battery-analyzer",
                 "icon_name": "Icon_BatteryAnalysis.ico",
-                "spec_hidden_imports": common_spec_hidden_imports + [
+                "hidden_imports": [
+                    # 核心 PyQt6 模块
+                    "PyQt6.QtCore", "PyQt6.QtGui", "PyQt6.QtWidgets",
+                    # 应用模块
                     "battery_analysis", "battery_analysis.main",
                     "battery_analysis.ui", "battery_analysis.utils",
-                    "battery_analysis.main.battery_chart_viewer"
-                ],
-                "additional_hidden_imports": [
-                    "openpyxl", "battery_analysis.utils.version",
+                    "battery_analysis.main.battery_chart_viewer",
+                    "battery_analysis.utils.version",
                     "battery_analysis.utils.file_writer",
                     "battery_analysis.utils.battery_analysis",
-                    "battery_analysis.ui.ui_main_window"
+                    "battery_analysis.ui.ui_main_window",
+                    # 第三方库
+                    "openpyxl", "xlsxwriter", "xlrd",
+                    "docx", "matplotlib.backends.backend_svg",
+                    # pandas 内部模块（Cython 隐式导入，需显式声明以防遗漏）
+                    "pandas._config.localization",
                 ],
-                "pyinstaller_args": []
             }
         ]
 
@@ -264,31 +265,17 @@ class BuildManager(BuildConfig):
                 app_config["main_file_path"]
             )
 
-    def _find_python_dll(self):
-        """查找Python DLL路径"""
-        # 1. 优先检查CI环境变量中设置的DLL路径（用于GitHub Actions）
-        ci_dll_path = os.environ.get('PYTHON_DLL_PATH')
-        if ci_dll_path and os.path.exists(ci_dll_path):
-            logger.info("使用CI环境变量中的Python DLL路径: %s", ci_dll_path)
-            return ci_dll_path
+    def _find_upx(self):
+        """检测系统中是否有 UPX
 
-        # 2. 本地环境查找，使用当前Python版本动态构造DLL名称
-        python_dll = f"python{sys.version_info.major}{sys.version_info.minor}.dll"
-        python_exec_dir = Path(sys.executable).parent
-        candidates = [
-            python_exec_dir / python_dll,
-            Path(sys.prefix) / python_dll,
-            Path(sys.prefix) / "DLLs" / python_dll,
-            Path(python_dll),  # 让PyInstaller尝试在PATH中查找
-        ]
-
-        for path in candidates:
-            if path.exists():
-                logger.info("找到Python DLL: %s", path)
-                return str(path)
-
-        logger.warning("未找到Python DLL %s，PyInstaller可能无法在某些环境中正常运行", python_dll)
-        logger.debug("尝试过的路径: %s", [str(p) for p in candidates])
+        Returns:
+            str: UPX 可执行文件路径，未找到则返回 None
+        """
+        upx_candidates = ["upx.exe", "upx"]
+        for candidate in upx_candidates:
+            upx_path = shutil.which(candidate)
+            if upx_path:
+                return upx_path
         return None
 
     def _execute_pyinstaller_command(self, app_dir, cmd_args):
@@ -324,17 +311,75 @@ class BuildManager(BuildConfig):
 
     def _build_pyinstaller_args(self, app_config, temp_path, src_path, final_build_dir):
         """构建PyInstaller命令参数
-        
+
         Args:
             app_config: 应用程序配置
             temp_path: 临时目录路径
             src_path: 源代码目录路径
             final_build_dir: 最终构建目录路径
-            
+
         Returns:
             list: PyInstaller命令参数列表
         """
-        # 构建通用PyInstaller参数
+        # ----- 排除不必要模块（体积优化关键） -----
+        excluded_modules = [
+            # 开发/测试/构建工具
+            'pytest', 'pylint', 'black', 'astroid', 'pylint_json2html',
+            'setuptools', 'pip', 'pkg_resources',
+            'IPython', 'jupyter', 'jupyter_client', 'jupyter_core',
+
+            # pywin32 附带的无用包（pythonwin 是独立 IDE，9MB+）
+            'pythonwin', 'adodbapi', 'win32com', 'win32com.shell',
+
+            # matplotlib 测试/字体/不用的后端
+            'matplotlib.tests', 'matplotlib.testing',
+            'matplotlib.sphinxext',
+            'matplotlib.backends.backend_qt4',
+            'matplotlib.backends.backend_qt5',
+            'matplotlib.backends.backend_wx',
+            'matplotlib.backends.backend_gtk', 'matplotlib.backends.backend_gtk3',
+            'matplotlib.backends.backend_gtk4',
+            'matplotlib.backends.backend_webagg',
+            'matplotlib.backends.backend_nbagg',
+            'matplotlib.backends.backend_pgf',
+
+            # numpy 无用模块
+            'numpy.testing', 'numpy.distutils', 'numpy.f2py',
+            'numpy.random._examples',
+
+            # pandas 不需要的模块（注意：pandas.testing 和 pandas._testing 被核心代码导入）
+            'pandas.tests',
+
+            # 其他库测试
+            'openpyxl.tests',
+            'xlrd.tests',
+
+            # GUI 框架排除（只用 PyQt6）
+            'tkinter',
+            'PySide6', 'PySide2', 'PyQt5',
+
+            # 不使用的 PyQt6 子模块（每个对应约 1-3MB .pyd）
+            'PyQt6.QtMultimedia', 'PyQt6.QtMultimediaWidgets',
+            'PyQt6.QtPositioning',
+            'PyQt6.QtSensors',
+            'PyQt6.QtTextToSpeech',
+            'PyQt6.QtWebChannel', 'PyQt6.QtWebSockets',
+            'PyQt6.QtWebEngineWidgets', 'PyQt6.QtWebEngineCore', 'PyQt6.QtWebEngineQuick',
+            'PyQt6.QtHelp',
+            'PyQt6.QtSql',
+            'PyQt6.QtQml', 'PyQt6.QtQuick', 'PyQt6.QtQuick3D', 'PyQt6.QtQuickWidgets',
+            'PyQt6.QtDBus',
+            'PyQt6.QtBluetooth', 'PyQt6.QtNfc',
+            'PyQt6.QtXml',
+            'PyQt6.QtDesigner',
+            'PyQt6.QtSerialPort',
+            'PyQt6.QtStateMachine',
+            'PyQt6.QtPdf', 'PyQt6.QtPdfWidgets',
+            'PyQt6.QtRemoteObjects',
+            'PyQt6.QtSpatialAudio',
+        ]
+
+        # ----- 构建基础命令 -----
         cmd_args = [
             sys.executable, '-m', 'PyInstaller',
             '--log-level=INFO',
@@ -343,72 +388,60 @@ class BuildManager(BuildConfig):
             f'--icon={app_config["icon_name"]}',
             f'--distpath={final_build_dir}',
             f'--workpath={temp_path}/{app_config["name"]}',
-            '--onefile',  # 使用统一的单文件模式
-            f'--add-data={src_path};.'
+            '--onefile',
         ]
-        
-        # 应用特定参数（battery_analysis 整体已通过 src;. 包含，无需重复添加）
 
-        # 添加所有隐藏导入
-        for hidden_import in app_config["spec_hidden_imports"] + app_config["additional_hidden_imports"]:
+        # ----- 隐藏导入 -----
+        for hidden_import in app_config["hidden_imports"]:
             cmd_args.append(f'--hidden-import={hidden_import}')
-        
-        # 添加main文件
+
+        # ----- 入口文件 -----
         import ast
         main_files = ast.literal_eval(app_config["main_file"])
         cmd_args.append(main_files[0])
-        
-        # 添加应用程序特定参数
-        cmd_args.extend(app_config["pyinstaller_args"])
-        
-        # 添加通用参数
+
+        # ----- 数据文件（精确指定，避免打包整个 src/） -----
         cmd_args.extend([
-            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config"))};config',
-            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "config", "setting.ini"))};.',
-            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "pyproject.toml"))};.',
-            '--add-data', f'{os.path.abspath(os.path.join(self.project_root, "locale"))};locale',
+            # Word 模板（通过 importlib.resources 加载）
+            '--add-data', f'{src_path / "battery_analysis" / "templates"};battery_analysis/templates',
+            # QSS 样式文件（通过 Path(__file__).parent 相对路径加载）
+            '--add-data', f'{src_path / "battery_analysis" / "ui" / "styles"};battery_analysis/ui/styles',
+            # 配置文件
+            '--add-data', f'{self.project_root / "config"};config',
+            # 版本信息（运行时读取 pyproject.toml）
+            '--add-data', f'{self.project_root / "pyproject.toml"};.',
+            # 国际化翻译文件（.po 文件在运行时解析）
+            '--add-data', f'{self.project_root / "locale"};locale',
+        ])
+
+        # ----- Python 搜索路径 -----
+        cmd_args.extend([
             '--path', f'{src_path}',
-            '--path', f'{self.project_root}'
+            '--path', f'{self.project_root}',
         ])
-        
-        # 添加必要的隐藏导入
-        cmd_args.extend([
-            '--hidden-import', 'xlsxwriter',
-            '--hidden-import', 'openpyxl',
-            '--hidden-import', 'xlrd'
-        ])
-        
-        # 添加排除不必要模块的配置
-        excluded_modules = [
-            'pytest', 'pylint', 'black', 'astroid', 'pylint_json2html',  # 开发测试工具
-            'matplotlib.tests', 'matplotlib.backends.backend_qt4', 'matplotlib.backends.backend_qt5',  # 不使用的matplotlib模块
-            'numpy.testing', 'numpy.distutils',  # numpy测试和构建模块
-            'openpyxl.tests',  # openpyxl测试模块
-            'pandas.tests',  # pandas测试模块
-            'tkinter',  # 只使用PyQt6
-            'IPython', 'jupyter',  # 交互式环境（非依赖，但体量大，防误打包）
-            'setuptools', 'pip',  # 构建工具
-        ]
+
+        # ----- 排除模块 -----
         for module in excluded_modules:
             cmd_args.append(f'--exclude-module={module}')
-        
-        # 添加调试/控制台参数
+
+        # ----- 控制台 / DEBUG -----
         debug_mode = self.build_type == "Debug"
         if self.console_mode or debug_mode:
             cmd_args.append('--console')
         else:
             cmd_args.append('--noconsole')
-        
+
+        # Release 模式启用 strip 和 UPX 压缩
         if not debug_mode:
             cmd_args.append('--strip')
-        
-        # 查找Python DLL并添加到命令参数
-        python_dll = self._find_python_dll()
-        if python_dll:
-            cmd_args.append(f'--add-binary={python_dll};.')
-        else:
-            logger.warning("Could not find python313.dll")
-        
+
+            upx_path = self._find_upx()
+            if upx_path:
+                logger.info("检测到 UPX: %s，启用 UPX 压缩", upx_path)
+                cmd_args.append(f'--upx-dir={Path(upx_path).parent}')
+            else:
+                logger.info("未检测到 UPX，跳过 UPX 压缩（可手动安装 UPX 以进一步减小体积）")
+
         return cmd_args
     
     def build(self):
