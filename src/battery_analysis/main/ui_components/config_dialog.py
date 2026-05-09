@@ -35,31 +35,18 @@ class ConfigDialog(QW.QDialog):
 
     def _setup_ui(self):
         """设置对话框布局"""
-        layout = QW.QHBoxLayout(self)
+        layout = QW.QVBoxLayout(self)
 
-        # 左侧分类列表
-        self._category_list = QW.QListWidget()
-        self._category_list.setMaximumWidth(180)
-        self._category_list.addItems([
-            _("cat_battery", "Battery Config"),
-            _("cat_test", "Test Config"),
-            _("cat_equipment", "Equipment"),
-        ])
-        self._category_list.currentRowChanged.connect(self._on_category_changed)
-
-        # 右侧堆叠面板
-        self._stack = QW.QStackedWidget()
-
-        # 三个面板
+        # 顶部横向选项卡
+        self._tabs = QW.QTabWidget()
         self._page_battery = _BatteryConfigPage(self)
         self._page_test = _TestConfigPage(self)
         self._page_equipment = _EquipmentPage(self)
+        self._tabs.addTab(self._page_battery, _("cat_battery", "Battery Config"))
+        self._tabs.addTab(self._page_test, _("cat_test", "Test Config"))
+        self._tabs.addTab(self._page_equipment, _("cat_equipment", "Equipment"))
 
-        self._stack.addWidget(self._page_battery)   # index 0
-        self._stack.addWidget(self._page_test)       # index 1
-        self._stack.addWidget(self._page_equipment)  # index 2
-
-        # 按钮栏
+        # 底部按钮栏
         btn_layout = QW.QHBoxLayout()
         btn_reset = QW.QPushButton(_("reset_defaults", "Reset Defaults"))
         btn_reset.clicked.connect(self._on_reset_defaults)
@@ -73,23 +60,8 @@ class ConfigDialog(QW.QDialog):
         btn_layout.addWidget(btn_save)
         btn_layout.addWidget(btn_cancel)
 
-        # 主布局
-        left_widget = QW.QWidget()
-        left_layout = QW.QVBoxLayout(left_widget)
-        left_layout.addWidget(self._category_list)
-        left_layout.addStretch()
-
-        right_widget = QW.QWidget()
-        right_layout = QW.QVBoxLayout(right_widget)
-        right_layout.addWidget(self._stack)
-        right_layout.addLayout(btn_layout)
-
-        layout.addWidget(left_widget)
-        layout.addWidget(right_widget, 1)
-
-    def _on_category_changed(self, index: int):
-        """切换左侧分类"""
-        self._stack.setCurrentIndex(index)
+        layout.addWidget(self._tabs)
+        layout.addLayout(btn_layout)
 
     def _on_reset_defaults(self):
         """重置为默认值"""
