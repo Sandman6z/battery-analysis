@@ -48,7 +48,7 @@
       "CT-4008Q (QA), Jabil VN",
       "CT-4008Q (HWE), VG Fernitz"
     ],
-    "testers": [
+    "testedBy": [
       "Hall", "Guoying Qi", "Zhaoxuan Zheng", "Xiaoe Wang",
       "Rachel Zhao", "Sandman Zhang", "Maiyue Zhang",
       "Howard Lin", "Kate Zhu", "Sy Tran", "Stefan"
@@ -124,7 +124,7 @@
 左侧三个分类，右侧当前分类的编辑器：
 
 1. **Battery Config** — 电池类型、构造方式、规格型号(按类型分组)、规格方式、制造商、Rules(文本框)、脉冲电流、截止电压
-2. **Test Config** — 测试地点、测试人员列表
+2. **Test Config** — 测试地点、测试人员(testedBy)列表
 3. **Equipment** — 6 个地点设备参数的表格 + 编辑对话框，可增删
 
 底部按钮：**Reset Defaults** / **Save** / **Cancel**
