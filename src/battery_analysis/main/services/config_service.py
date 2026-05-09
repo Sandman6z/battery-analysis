@@ -88,6 +88,24 @@ class ConfigService(BaseService, IConfigService):
             self.logger.error("设置配置值失败: %s", e)
             return False
 
+    def replace_all_config(self, data: Dict[str, Any]) -> bool:
+        """
+        用默认数据替换整个配置（不写文件，需调用 save_config）
+
+        Args:
+            data: 完整配置数据字典
+
+        Returns:
+            bool: 设置是否成功
+        """
+        try:
+            self._config_manager.replace_all(data)
+            self._loaded = True
+            return True
+        except Exception as e:
+            self.logger.error("设置默认配置失败: %s", e)
+            return False
+
     def save_config(self) -> bool:
         """
         保存配置到文件
@@ -149,7 +167,7 @@ class ConfigService(BaseService, IConfigService):
             return False
 
     def _migrate_if_needed(self):
-        """补全首次迁移时空白的 equipment 预设数据"""
+        """补全首次迁移时空白的 equipment 预设数据，清理旧版 dot-path 损坏"""
         try:
             equipment = self._config_manager.get("test.equipment", {})
             if not equipment:
@@ -159,6 +177,16 @@ class ConfigService(BaseService, IConfigService):
                     self._config_manager.set("test.equipment", defaults)
                     self._config_manager.write_config(str(self._config_path))
                     self.logger.info("迁移：已补全 equipment 预设数据（7 个地点）")
+                return
+
+            # 清理旧版 dot-path set 损坏的嵌套键（如 "BOEDT" 是 "BOEDT.Qual" 的误分割产物）
+            cleaned = [k for k in equipment if isinstance(equipment[k], dict) and "." not in k]
+            if cleaned:
+                for key in cleaned:
+                    del equipment[key]
+                self._config_manager.set("test.equipment", equipment)
+                self._config_manager.write_config(str(self._config_path))
+                self.logger.info("迁移：已清理 equipment 中 %d 个旧版损坏键: %s", len(cleaned), cleaned)
         except Exception as e:
             self.logger.warning("equipment 迁移检查失败: %s", e)
 

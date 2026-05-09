@@ -99,6 +99,11 @@ class JsonConfigManager:
         """获取完整配置数据"""
         return self._data
 
+    def replace_all(self, data: Dict[str, Any]):
+        """替换整个配置数据"""
+        self._data = data
+        self._loaded = True
+
     def set_defaults(self, defaults: Dict[str, Any]):
         """用默认数据填充（仅当文件初次创建时调用）"""
         self._data = defaults

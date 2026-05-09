@@ -82,11 +82,8 @@ class ConfigDialog(QW.QDialog):
             self._page_test.collect_data()
             self._page_equipment.collect_data()
 
-            # 写回 ConfigService
-            self._config_service.load_config()
-            # 逐项写入工作数据
-            for section_key, value in self._flatten_dict(self._working_data):
-                self._config_service.set_config_value(section_key, value)
+            # 直接替换整个配置数据，避免 dot-path 展开损坏包含点号的键
+            self._config_service.replace_all_config(self._working_data)
             self._config_service.save_config()
             self.accept()
         except Exception as e:
@@ -101,19 +98,6 @@ class ConfigDialog(QW.QDialog):
         self._page_battery.load_data(self._working_data.get("battery", {}))
         self._page_test.load_data(self._working_data.get("test", {}))
         self._page_equipment.load_data(self._working_data.get("test", {}).get("equipment", {}))
-
-    @staticmethod
-    def _flatten_dict(d: dict, parent_key: str = "") -> list:
-        """将嵌套字典展开为 [(key_path, value), ...]"""
-        items = []
-        for k, v in d.items():
-            new_key = f"{parent_key}.{k}" if parent_key else k
-            if isinstance(v, dict):
-                items.extend(ConfigDialog._flatten_dict(v, new_key))
-            else:
-                items.append((new_key, v))
-        return items
-
 
 class _BatteryConfigPage(QW.QWidget):
     """电池配置编辑页面"""
