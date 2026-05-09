@@ -259,9 +259,7 @@ class _TestConfigPage(QW.QWidget):
         self._dialog = parent_dialog
 
         layout = QW.QFormLayout(self)
-        self._list_locations = self._make_list_widget("Tester Locations")
         self._list_tested_by = self._make_list_widget("Tested By")
-        layout.addRow(self._list_locations)
         layout.addRow(self._list_tested_by)
 
     def _make_list_widget(self, title: str) -> QW.QGroupBox:
@@ -312,13 +310,42 @@ class _TestConfigPage(QW.QWidget):
                 return [lw.item(i).text().strip() for i in range(lw.count()) if lw.item(i).text().strip()]
         return []
 
+    @staticmethod
+    def _location_from_equipment(loc_key: str, test_equipment: str) -> str:
+        """从 equipment 键和 testEquipment 值生成 tester location 字符串
+
+        Format: 提取型号 + ({lab}) + site，保证 site 和 lab 作为子串出现在结果中，
+        满足 table_manager 的 substring 匹配。
+        """
+        parts = loc_key.split(".")
+        if len(parts) != 2:
+            return loc_key
+        site, lab = parts
+        model = test_equipment.replace("NEWARE Battery Testing System ", "").strip()
+        lab_display = lab + "." if lab == "Qual" else lab
+        return f"{model} ({lab_display}), {site}"
+
     def load_data(self, data: dict):
-        self._fill_list(self._list_locations.findChild(QW.QListWidget), data.get("locations", []))
+        # Tester locations 从 equipment 数据自动生成，不再编辑
+        equipment = self._dialog._working_data.get("test", {}).get("equipment", {})
+        locations = []
+        for loc_key, info in equipment.items():
+            eq = info.get("testEquipment", "")
+            locations.append(self._location_from_equipment(loc_key, eq))
+        # 写回 working_data 供后续 collect_data 使用
+        self._dialog._working_data.setdefault("test", {})["locations"] = locations
+
         self._fill_list(self._list_tested_by.findChild(QW.QListWidget), data.get("testedBy", []))
 
     def collect_data(self):
         test = self._dialog._working_data.setdefault("test", {})
-        test["locations"] = self._read_list(self._list_locations)
+        # 从当前 equipment 重新生成 locations
+        equipment = test.get("equipment", {})
+        locations = []
+        for loc_key, info in equipment.items():
+            eq = info.get("testEquipment", "")
+            locations.append(self._location_from_equipment(loc_key, eq))
+        test["locations"] = locations
         test["testedBy"] = self._read_list(self._list_tested_by)
 
 
