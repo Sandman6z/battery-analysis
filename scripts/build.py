@@ -196,30 +196,6 @@ class BuildManager(BuildConfig):
 
         # 不再复制pyproject.toml到构建目录，版本号已直接在构建脚本中处理
 
-        # 创建setting.ini - 保留原始注释
-        config_path = self.project_root / "config" / "setting.ini"
-        if config_path.exists():
-            # 直接读取原始文件内容
-            with open(config_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # 手动修改需要更改的部分
-            import re
-            # 先找到PltConfig section的位置
-            plt_config_pattern = re.compile(r'(\[PltConfig\])(.*?)(?:\[|$)', re.DOTALL)
-            match = plt_config_pattern.search(content)
-            if match:
-                # 替换整个PltConfig section
-                updated_plt_config = '[PltConfig]\nPath=\nTitle=\n'
-                content = plt_config_pattern.sub(updated_plt_config, content)
-            
-            # 写入修改后的内容
-            with open(build_dir / "setting.ini", 'w', encoding='utf-8') as f:
-                f.write(content)
-            logger.info("已创建: %s", build_dir / 'setting.ini')
-        else:
-            logger.warning("%s 不存在，无法创建setting.ini", config_path)
-
         # 清理临时构建目录
         build_path = Path(self.build_path)
         if build_path.exists():
@@ -406,8 +382,6 @@ class BuildManager(BuildConfig):
             '--add-data', f'{src_path / "battery_analysis" / "templates"};battery_analysis/templates',
             # QSS 样式文件（通过 Path(__file__).parent 相对路径加载）
             '--add-data', f'{src_path / "battery_analysis" / "ui" / "styles"};battery_analysis/ui/styles',
-            # 配置文件
-            '--add-data', f'{self.project_root / "config"};config',
             # 版本信息（运行时读取 pyproject.toml）
             '--add-data', f'{self.project_root / "pyproject.toml"};.',
             # 国际化翻译文件（.po 文件在运行时解析）
