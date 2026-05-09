@@ -146,7 +146,17 @@ class ConfigManager:
         """
         if self._config_service:
             self._config_service.reload_config()
-        self._initialize_config()
+        # 更新路径信息但不 clear_cache（避免强制下游重新读取文件）
+        if self._config_service:
+            try:
+                config_path_result = self._config_service.find_config_file(use_cache=False)
+                self.config_path = str(config_path_result) if config_path_result else None
+            except (OSError, TypeError, ValueError) as e:
+                self.logger.warning("从 ConfigService 查找配置失败: %s", e)
+                self.config_path = None
+        config_path_obj = Path(self.config_path) if self.config_path else None
+        path_exists = config_path_obj.exists() if config_path_obj else False
+        self.b_has_config = bool(self.config_path and path_exists)
     
     def update_config(self, test_info) -> None:
         """
