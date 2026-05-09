@@ -320,13 +320,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             else:
                 self.logger.warning("ui_manager 不存在")
             
-            # 重新加载用户设置
-            if hasattr(self, 'user_settings_manager'):
-                self.user_settings_manager.load_user_settings()
-                self.logger.info("用户设置已重新加载")
-            else:
-                self.logger.warning("user_settings_manager 不存在")
-            
             # 刷新界面
             self.refresh_ui()
             

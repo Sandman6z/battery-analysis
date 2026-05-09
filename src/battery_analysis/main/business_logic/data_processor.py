@@ -386,12 +386,6 @@ class DataProcessor:
             self.main_window.checker_update_config = Checker()
         self.main_window.checker_update_config.clear()
 
-        # 通过 UserSettingsManager 保存用户配置
-        usm = getattr(self.main_window, 'config_manager', None)
-        if usm and usm.user_settings_manager:
-            for key in ("TestDate", "TestTime", "BatteryModel", "TestEquipment", "Software_Version"):
-                usm.user_settings_manager.set_setting(key, test_info[key])
-
     def analyze_data(self) -> None:
         self.logger.info("开始数据分析")
         input_path = self.main_window.lineEdit_InputPath.text()

@@ -20,7 +20,6 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
-from battery_analysis.main.user_settings_manager import UserSettingsManager
 
 
 class UIManager:
@@ -37,8 +36,6 @@ class UIManager:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        # 初始化用户设置管理器
-        self.user_settings_manager = UserSettingsManager(self.main_window.config_path)
     
     def init_window(self):
         """
@@ -476,92 +473,8 @@ class UIManager:
             self.main_window.statusBar_BatteryAnalysis.showMessage(status_ready)
 
     def load_user_settings(self):
-        """
-        加载用户配置文件中的设置
-        """
-        try:
-            # 使用用户设置管理器加载配置
-            user_config = self.user_settings_manager.load_user_settings()
-            
-            # 更新UI控件
-            # 电池类型相关设置
-            if user_config.get("BatteryType"):
-                index = self.main_window.comboBox_BatteryType.findText(user_config["BatteryType"])
-                if index >= 0:
-                    self.main_window.comboBox_BatteryType.setCurrentIndex(index)
-
-            if user_config.get("ConstructionMethod"):
-                index = self.main_window.comboBox_ConstructionMethod.findText(
-                    user_config["ConstructionMethod"])
-                if index >= 0:
-                    self.main_window.comboBox_ConstructionMethod.setCurrentIndex(index)
-
-            if user_config.get("SpecificationType"):
-                index = self.main_window.comboBox_Specification_Type.findText(
-                    user_config["SpecificationType"])
-                if index >= 0:
-                    self.main_window.comboBox_Specification_Type.setCurrentIndex(index)
-
-            if user_config.get("SpecificationMethod"):
-                index = self.main_window.comboBox_Specification_Method.findText(
-                    user_config["SpecificationMethod"])
-                if index >= 0:
-                    self.main_window.comboBox_Specification_Method.setCurrentIndex(
-                        index)
-
-            if user_config.get("Manufacturer"):
-                index = self.main_window.comboBox_Manufacturer.findText(user_config["Manufacturer"])
-                if index >= 0:
-                    self.main_window.comboBox_Manufacturer.setCurrentIndex(index)
-
-            if user_config.get("TesterLocation"):
-                index = self.main_window.comboBox_TesterLocation.findText(
-                    user_config["TesterLocation"])
-                if index >= 0:
-                    self.main_window.comboBox_TesterLocation.setCurrentIndex(index)
-
-            if user_config.get("TestedBy"):
-                index = self.main_window.comboBox_TestedBy.findText(user_config["TestedBy"])
-                if index >= 0:
-                    self.main_window.comboBox_TestedBy.setCurrentIndex(index)
-                else:
-                    # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
-                    self.main_window.comboBox_TestedBy.setCurrentText(user_config["TestedBy"])
-
-            if user_config.get("ReportedBy"):
-                index = self.main_window.comboBox_ReportedBy.findText(user_config["ReportedBy"])
-                if index >= 0:
-                    self.main_window.comboBox_ReportedBy.setCurrentIndex(index)
-                else:
-                    # 如果找不到匹配项，直接设置文本（用于自定义输入的情况）
-                    self.main_window.comboBox_ReportedBy.setCurrentText(user_config["ReportedBy"])
-
-            # 加载温度设置
-            if user_config.get("TemperatureType"):
-                self.main_window.comboBox_Temperature.setCurrentText(user_config["TemperatureType"])
-                # 同时更新spinBox的启用状态
-                if user_config["TemperatureType"] == "Freezer Temperature":
-                    self.main_window.spinBox_Temperature.setEnabled(True)
-                else:
-                    self.main_window.spinBox_Temperature.setEnabled(False)
-            
-            # 加载冷冻温度数值设置
-            if user_config.get("FreezerTemperature"):
-                try:
-                    self.main_window.spinBox_Temperature.setValue(int(user_config["FreezerTemperature"]))
-                except (ValueError, TypeError):
-                    pass
-
-            # 加载输出路径设置
-            if user_config.get("OutputPath"):
-                self.main_window.lineEdit_OutputPath.setText(user_config["OutputPath"])
-                # 更新控制器的输出路径
-                main_controller = self.main_window._get_controller("main_controller")
-                if main_controller:
-                    main_controller.set_project_context(
-                        output_path=user_config["OutputPath"])
-        except (AttributeError, TypeError, KeyError, OSError) as e:
-            self.logger.error("加载用户设置失败: %s", e)
+        """已废弃 —— 用户偏好不再以外部 INI 形式持久化"""
+        pass
     
     def init_widgetcolor(self) -> None:
         """
