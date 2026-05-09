@@ -137,6 +137,8 @@ class ConfigService(BaseService, IConfigService):
             success = self._config_manager.read_config(str(self._config_path))
             self._loaded = success
             if success:
+                # 升级迁移：如果已有配置中 equipment 为空，从默认值补全
+                self._migrate_if_needed()
                 self.logger.info("配置已加载: %s", self._config_path)
             else:
                 self.logger.warning("配置文件加载失败: %s", self._config_path)
@@ -145,6 +147,20 @@ class ConfigService(BaseService, IConfigService):
             self.logger.error("加载配置失败: %s", e)
             self._loaded = False
             return False
+
+    def _migrate_if_needed(self):
+        """补全首次迁移时空白的 equipment 预设数据"""
+        try:
+            equipment = self._config_manager.get("test.equipment", {})
+            if not equipment:
+                from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
+                defaults = DEFAULT_CONFIG.get("test", {}).get("equipment", {})
+                if defaults:
+                    self._config_manager.set("test.equipment", defaults)
+                    self._config_manager.write_config(str(self._config_path))
+                    self.logger.info("迁移：已补全 equipment 预设数据（7 个地点）")
+        except Exception as e:
+            self.logger.warning("equipment 迁移检查失败: %s", e)
 
     def reload_config(self) -> bool:
         """

@@ -41,7 +41,148 @@ DEFAULT_CONFIG = {
             "Rachel Zhao", "Sandman Zhang", "Maiyue Zhang",
             "Howard Lin", "Kate Zhu", "Sy Tran", "Stefan"
         ],
-        "equipment": {}
+        "equipment": {
+            "BOEDT.Qual": {
+                "testEquipment": "NEWARE Battery Testing System CT-4008Q",
+                "softwareVersions": {
+                    "btsServer": "BTS Server(R3)-8.0.0.323 (2023.05.31)",
+                    "btsClient": "BTS Client 8.0.0.516(2023.05.31)",
+                    "btsda": "BTSDA 8.0.0.502(2023.05.31)"
+                },
+                "middleMachines": {
+                    "model": "CT-ZWJ-4'S-T-1U",
+                    "hardwareVersion": "B01-BTS-ZWJ-4.36T",
+                    "serialNumber": "T2302-370530",
+                    "firmwareVersion": "4S_2.15.6.0_20220517_095718",
+                    "deviceType": "BTS82"
+                },
+                "testUnits": {
+                    "model": "CT-4008Q-5V100mA-HWX, CT-4008Q-5V6A-S1",
+                    "hardwareVersion": "B01-BTS-XWJ-M-7.B.19QSn",
+                    "firmwareVersion": "M04310100_220818_094651_FD4F1"
+                }
+            },
+            "BOEDT.QA": {
+                "testEquipment": "NEWARE Battery Testing System CT-4008Q",
+                "softwareVersions": {
+                    "btsServer": "BTS Server(R3)-8.0.0.323 (2023.05.31)",
+                    "btsClient": "BTS Client 8.0.0.516(2023.05.31)",
+                    "btsda": "BTSDA 8.0.0.502(2023.05.31)"
+                },
+                "middleMachines": {
+                    "model": "CT-ZWJ-4'S-T-1U",
+                    "hardwareVersion": "B01-BTS-ZWJ-4.38T",
+                    "serialNumber": "T2308-409388, T2308-409389",
+                    "firmwareVersion": "4S_4.2.5.0_20230308_185745",
+                    "deviceType": "BTS83"
+                },
+                "testUnits": {
+                    "model": "CT-4008Q-5V100mA-HWX, CT-4008Q-5V6A-S1",
+                    "hardwareVersion": "B01-BTS-XWJ-7.B.19QSn, B01-BTS-XWJ-M-7.B.18QMn",
+                    "firmwareVersion": "M04310100_220818_094651_FD4F1"
+                }
+            },
+            "PDI.Qual": {
+                "testEquipment": "NEWARE Battery Testing System CT-4008Q",
+                "softwareVersions": {
+                    "btsServer": "BTS Server(R3)-8.0.0.323 (2023.05.31)",
+                    "btsClient": "BTS Client 8.0.0.516(2023.05.31)",
+                    "btsda": "BTSDA 8.0.0.502(2023.05.31)"
+                },
+                "middleMachines": {
+                    "model": "CT-ZWJ-4'S-T-1U",
+                    "hardwareVersion": "B01-BTS-ZWJ-4.38T",
+                    "serialNumber": "T2308-409382, T2308-409383",
+                    "firmwareVersion": "4S_4.2.5.0_20230308_185745",
+                    "deviceType": "BTS83"
+                },
+                "testUnits": {
+                    "model": "CT-4008Q-5V100mA-HWX, CT-4008Q-5V6A-S1",
+                    "hardwareVersion": "B01-BTS-XWJ-7.B.19QSn, B01-BTS-XWJ-7.B.18QMn",
+                    "firmwareVersion": "M04310100_220818_094651_FD4F1, M043106_221114_111541_FD4F1"
+                }
+            },
+            "BOECQ.QA": {
+                "testEquipment": "NEWARE Battery Testing System CT-4008Q",
+                "softwareVersions": {
+                    "btsServer": "BTS Server(R3)-8.0.0.323 (2023.05.31)",
+                    "btsClient": "BTS Client 8.0.0.516(2023.05.31)",
+                    "btsda": "BTSDA 8.0.0.502(2023.05.31)"
+                },
+                "middleMachines": {
+                    "model": "CT-ZWJ-4'S-T-1U",
+                    "hardwareVersion": "B01-BTS-ZWJ-4.38T",
+                    "serialNumber": "T2308-409384, T2308-409385",
+                    "firmwareVersion": "4S_4.2.5.0_20230308_185745",
+                    "deviceType": "BTS83"
+                },
+                "testUnits": {
+                    "model": "CT-4008Q-5V100mA-HWX, CT-4008Q-5V6A-S1",
+                    "hardwareVersion": "B01-BTS-XWJ-7.B.19QMn, B01-BTS-XWJ-7.B.19QMn",
+                    "firmwareVersion": "M04310100_220818_094651_FD4F1, M043106_221114_111541_FD4F1"
+                }
+            },
+            "LibaM1.QA": {
+                "testEquipment": "NEWARE Battery Testing System CT-4008Q",
+                "softwareVersions": {
+                    "btsServer": "BTS Server(R3)-0.0.0.000 (2023.05.31)",
+                    "btsClient": "BTS Client 0.0.0.000(2023.05.31)",
+                    "btsda": "BTSDA 0.0.0.000(2023.05.31)"
+                },
+                "middleMachines": {
+                    "model": "CT-ZWJ-4'S-T-1U",
+                    "hardwareVersion": "B01-BTS-ZWJ-4.36T",
+                    "serialNumber": "T2302-000000",
+                    "firmwareVersion": "4S_2.15.6.0_20220517_095718",
+                    "deviceType": "BTS00"
+                },
+                "testUnits": {
+                    "model": "CT-4008Q-5V100mA-HWX, CT-4008Q-5V6A-S1",
+                    "hardwareVersion": "B01-BTS-XWJ-M-7.B.19QSn",
+                    "firmwareVersion": "M04310100_220818_094651_FD4F1"
+                }
+            },
+            "JabilVN.QA": {
+                "testEquipment": "NEWARE Battery Testing System CT-4008Q",
+                "softwareVersions": {
+                    "btsServer": "BTS Server(R3)-8.0.0.323 (2023.05.31)",
+                    "btsClient": "BTS Client 8.0.0.516(2023.05.31)",
+                    "btsda": "BTSDA 8.0.0.502(2023.05.31)"
+                },
+                "middleMachines": {
+                    "model": "CT-ZWJ-4'S-T-1U",
+                    "hardwareVersion": "B01-BTS-ZWJ-4.38T",
+                    "serialNumber": "T2308-409386, T2308-409387",
+                    "firmwareVersion": "4S_4.2.5.0_20230308_185745",
+                    "deviceType": "BTS83"
+                },
+                "testUnits": {
+                    "model": "CT-4008Q-5V100mA-HWX, CT-4008Q-5V6A-S1",
+                    "hardwareVersion": "B01-BTS-XWJ-7.B.19QMn, B01-BTS-XWJ-7.B.19QMn",
+                    "firmwareVersion": "M04310100_220818_094651_FD4F1, M043106_221114_111541_FD4F1"
+                }
+            },
+            "VGFernitz.HWE": {
+                "testEquipment": "NEWARE Battery Testing System CT-4008Q",
+                "softwareVersions": {
+                    "btsServer": "BTS Server(R3)-8.0.0.323 (2023.05.31)",
+                    "btsClient": "BTS Client 8.0.0.516(2023.05.31)",
+                    "btsda": "BTSDA 8.0.0.502(2023.05.31)"
+                },
+                "middleMachines": {
+                    "model": "CT-ZWJ-4'S-T-1U",
+                    "hardwareVersion": "B01-BTS-ZWJ-4.36T, B01-BTS-ZWJ-4.38T",
+                    "serialNumber": "T2208-339343, T2305-397958, T2305-397957",
+                    "firmwareVersion": "4S_2.15.6.0_20220517_095718, 4S_4.2.5.0_20230308_185745",
+                    "deviceType": "BTS82, BTS83"
+                },
+                "testUnits": {
+                    "model": "CT-4008Q-5V100mA-HWX, CT-4008Q-5V6V-S1",
+                    "hardwareVersion": "B01-BTS-XWJ-7.B.07QS, B01-BTS-XWJ-7.B.13QMn",
+                    "firmwareVersion": "M04070700_211028_091905_EC4F1, M04070701_211112_105243_FD4F1"
+                }
+            }
+        }
     },
     "window": {
         "width": 1200,
