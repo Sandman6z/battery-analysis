@@ -22,6 +22,8 @@ class ConfigDialog(QW.QDialog):
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
         self._config_service = main_window._get_service("config")
+        if self._config_service is None:
+            raise RuntimeError("ConfigService not available — cannot open Configuration dialog")
 
         # 从 ConfigService 加载当前数据（深拷贝，取消保存才写回）
         self._working_data = copy.deepcopy(self._config_service.get_config_value(""))
@@ -274,8 +276,19 @@ class _BatteryConfigPage(QW.QWidget):
         battery["specificationMethods"] = self._read_list(self._list_spec_method)
         battery["manufacturers"] = self._read_list(self._list_mfrs)
         battery["rules"] = [r.strip() for r in self._text_rules.toPlainText().split("\n") if r.strip()]
-        battery["pulseCurrents"] = [float(v) for v in self._read_list(self._list_pulse)]
-        battery["cutOffVoltages"] = [float(v) for v in self._read_list(self._list_voltage)]
+        battery["pulseCurrents"] = self._parse_float_list(self._read_list(self._list_pulse))
+        battery["cutOffVoltages"] = self._parse_float_list(self._read_list(self._list_voltage))
+
+    @staticmethod
+    def _parse_float_list(raw: list) -> list:
+        """安全转换字符串列表为浮点数，跳过无效值"""
+        result = []
+        for v in raw:
+            try:
+                result.append(float(v))
+            except ValueError:
+                logging.getLogger(__name__).warning("Ignoring non-float value: %s", v)
+        return result
 
 
 class _TestConfigPage(QW.QWidget):
