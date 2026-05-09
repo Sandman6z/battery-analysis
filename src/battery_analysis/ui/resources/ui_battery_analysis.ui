@@ -2950,6 +2950,7 @@ QComboBox::down-arrow:on {
     <addaction name="actionGenerate_Report"/>
     <addaction name="actionBatch_Processing"/>
     <addaction name="separator"/>
+    <addaction name="actionConfiguration"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -3089,6 +3090,11 @@ QComboBox::down-arrow:on {
   <action name="actionBatteryChartViewer">
    <property name="text">
     <string>BatteryChartViewer</string>
+   </property>
+  </action>
+  <action name="actionConfiguration">
+   <property name="text">
+    <string>Configuration</string>
    </property>
   </action>
  </widget>
