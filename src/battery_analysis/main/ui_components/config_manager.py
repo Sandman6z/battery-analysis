@@ -8,7 +8,6 @@
 - 配置变更的处理
 
 对 setting.ini 的读写统一委托给 ConfigService（单一路径，无降级无兼容）。
-用户设置（user_settings.ini）通过 UserSettingsManager 管理。
 """
 
 # 标准库导入
@@ -17,7 +16,6 @@ from pathlib import Path
 from typing import Any, List, Optional
 
 # 本地应用/库导入
-from battery_analysis.main.user_settings_manager import UserSettingsManager
 
 
 class ConfigManager:
@@ -25,6 +23,21 @@ class ConfigManager:
     配置管理器类，负责配置文件的读取和写入
     对 setting.ini 的读写统一通过 ConfigService（单一路径）。
     """
+
+    # INI 键到 JSON 点路径的映射
+    _INI_TO_JSON_KEY = {
+        "BatteryConfig/BatteryType": "battery.types",
+        "BatteryConfig/ConstructionMethod": "battery.constructionMethods",
+        "BatteryConfig/SpecificationTypeCoinCell": "battery.specifications.Coin Cell",
+        "BatteryConfig/SpecificationTypePouchCell": "battery.specifications.Pouch Cell",
+        "BatteryConfig/SpecificationMethod": "battery.specificationMethods",
+        "BatteryConfig/Manufacturer": "battery.manufacturers",
+        "BatteryConfig/Rules": "battery.rules",
+        "BatteryConfig/PulseCurrent": "battery.pulseCurrents",
+        "BatteryConfig/CutOffVoltage": "battery.cutOffVoltages",
+        "TestConfig/TesterLocation": "test.locations",
+        "TestConfig/TestedBy": "test.testedBy",
+    }
 
     def __init__(self, main_window):
         """
@@ -38,16 +51,12 @@ class ConfigManager:
         self._config_service = None
         self.config_path = None
         self.b_has_config = True
-        self.user_settings_manager = None
 
         # 缓存 ConfigService 引用
         self._init_config_service()
 
         # 初始化配置
         self._initialize_config()
-
-        # 初始化用户设置管理器
-        self.user_settings_manager = UserSettingsManager(self.config_path)
 
     def _init_config_service(self):
         """获取并缓存 ConfigService 引用"""
@@ -94,93 +103,24 @@ class ConfigManager:
             return []
 
         try:
-            raw_value = self._config_service.get_config_value_raw(config_key)
-            if raw_value is None:
+            json_key = self._INI_TO_JSON_KEY.get(config_key, config_key)
+            value = self._config_service.get_config_value(json_key)
+            if value is None:
                 return []
-            return self._parse_list_value(raw_value)
-        except (AttributeError, TypeError, ValueError, KeyError, OSError) as e:
+            if isinstance(value, list):
+                return [str(v) for v in value]
+            if isinstance(value, str):
+                return [v.strip().strip('"') for v in value.split(",") if v.strip()]
+            return [str(value)]
+        except Exception as e:
             logging.error("读取配置 %s 失败: %s", config_key, e)
             return []
 
-    @staticmethod
-    def _parse_list_value(value: str) -> List[str]:
-        """
-        将逗号分隔的字符串解析为列表，去除空值和引号
-
-        使用 csv.reader 正确处理带引号的值（如内部含逗号的 "Qual., BOE DT"）。
-
-        Args:
-            value: 原始字符串值
-
-        Returns:
-            清理后的字符串列表
-        """
-        if not value or not isinstance(value, str):
-            return []
-        import csv
-        import io
-        reader = csv.reader(io.StringIO(value), skipinitialspace=True)
-        try:
-            items = next(reader)
-        except StopIteration:
-            return []
-        result = []
-        for item in items:
-            cleaned = item.strip().strip('"')
-            if cleaned:
-                result.append(cleaned)
-        return result
-    
     def save_user_settings(self):
         """
-        保存用户配置
+        保存用户配置（已弃用，保留空方法避免调用方报错）
         """
-        from battery_analysis.i18n.language_manager import _
-        import PyQt6.QtWidgets as QW
-        
-        try:
-            # 显示保存状态
-            self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("saving_settings", "正在保存设置..."))
-
-            # 收集当前UI控件的值
-            user_settings = {
-                "BatteryType": self.main_window.comboBox_BatteryType.currentText(),
-                "ConstructionMethod": self.main_window.comboBox_ConstructionMethod.currentText(),
-                "SpecificationType": self.main_window.comboBox_Specification_Type.currentText(),
-                "SpecificationMethod": self.main_window.comboBox_Specification_Method.currentText(),
-                "Manufacturer": self.main_window.comboBox_Manufacturer.currentText(),
-                "TesterLocation": self.main_window.comboBox_TesterLocation.currentText(),
-                "TestedBy": self.main_window.comboBox_TestedBy.currentText(),
-                "ReportedBy": self.main_window.comboBox_ReportedBy.currentText(),
-                "TemperatureType": self.main_window.comboBox_Temperature.currentText(),
-                "FreezerTemperature": self.main_window.spinBox_Temperature.value(),
-                "OutputPath": self.main_window.lineEdit_OutputPath.text()
-            }
-            
-            # 使用用户设置管理器保存配置
-            self.user_settings_manager.save_user_settings(user_settings)
-
-            self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("settings_saved", "设置已保存"))
-            QW.QMessageBox.information(
-                self.main_window,
-                _("save_settings_title", "保存设置"),
-                _("settings_saved_success", "当前配置已成功保存到用户配置文件。"),
-                QW.QMessageBox.StandardButton.Ok
-            )
-            
-            self.logger.info("用户设置已保存")
-        except (AttributeError, TypeError, KeyError, OSError) as e:
-            self.logger.error("保存用户设置失败: %s", e)
-            self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("save_settings_failed", "保存设置失败"))
-            QW.QMessageBox.warning(
-                self.main_window,
-                _("error_title", "错误"),
-                f"{_('cannot_save_settings', '无法保存设置')}: {str(e)}",
-                QW.QMessageBox.StandardButton.Ok
-            )
+        pass
     
     def get_current_config_path(self) -> Optional[str]:
         """
@@ -206,9 +146,7 @@ class ConfigManager:
         """
         if self._config_service:
             self._config_service.reload_config()
-            self.logger.info("ConfigService 配置已重新加载")
         self._initialize_config()
-        self.logger.info("配置文件已重新加载")
     
     def update_config(self, test_info) -> None:
         """
