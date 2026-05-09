@@ -115,6 +115,9 @@ class MenuManager:
                 self.main_window.actionBatteryChartViewer.setToolTip(_("tooltip_chart_viewer", "打开电池图表查看器"))
             if hasattr(self.main_window, 'actionBatch_Processing'):
                 self.main_window.actionBatch_Processing.setToolTip(_("tooltip_batch_processing", "批量处理数据"))
+            if hasattr(self.main_window, 'actionConfiguration'):
+                self.main_window.actionConfiguration.setToolTip(
+                    _("tooltip_configuration", "配置管理系统数据字典"))
             if hasattr(self.main_window, 'actionPreferences'):
                 self.main_window.actionPreferences.setToolTip(_("tooltip_preferences", "首选项设置"))
 
@@ -165,6 +168,11 @@ class MenuManager:
         self.main_window.actionBatteryChartViewer.triggered.connect(self.main_window.run_visualizer)
         self.main_window.actionGenerate_Report.triggered.connect(self.main_window.generate_report)
         self.main_window.actionBatch_Processing.triggered.connect(self.main_window.batch_processing)
+
+        # 配置管理连接
+        if hasattr(self.main_window, 'actionConfiguration'):
+            self.main_window.actionConfiguration.triggered.connect(
+                self.main_window.show_config_dialog)
 
         # 缩放功能连接
         self.main_window.actionZoom_In.triggered.connect(self.zoom_in)
