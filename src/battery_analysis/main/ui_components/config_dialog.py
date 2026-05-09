@@ -357,16 +357,19 @@ class _EquipmentPage(QW.QWidget):
 
         btn_row = QW.QHBoxLayout()
         btn_add = QW.QPushButton("+ Add Location")
-        btn_remove = QW.QPushButton("× Remove")
+        btn_copy = QW.QPushButton("Copy")
         btn_edit = QW.QPushButton("Edit")
+        btn_remove = QW.QPushButton("× Remove")
         btn_row.addWidget(btn_add)
-        btn_row.addWidget(btn_remove)
+        btn_row.addWidget(btn_copy)
         btn_row.addWidget(btn_edit)
+        btn_row.addWidget(btn_remove)
         btn_row.addStretch()
 
         btn_add.clicked.connect(self._on_add_location)
-        btn_remove.clicked.connect(self._on_remove_location)
+        btn_copy.clicked.connect(self._on_copy_location)
         btn_edit.clicked.connect(self._on_edit_selected)
+        btn_remove.clicked.connect(self._on_remove_location)
 
         layout.addWidget(self._table)
         layout.addLayout(btn_row)
@@ -412,6 +415,26 @@ class _EquipmentPage(QW.QWidget):
             if key and key not in self._data:
                 self._data[key] = info
                 self._refresh_table()
+
+    def _on_copy_location(self):
+        """复制选中行，生成新的 location key"""
+        rows = self._table.selectionModel().selectedRows()
+        if not rows:
+            return
+        row = rows[0].row()
+        loc_key = self._table.item(row, 0).text()
+        info = self._data.get(loc_key)
+        if info is None:
+            return
+
+        new_key = loc_key + " (Copy)"
+        suffix = 1
+        while new_key in self._data:
+            suffix += 1
+            new_key = f"{loc_key} (Copy {suffix})"
+
+        self._data[new_key] = copy.deepcopy(info)
+        self._refresh_table()
 
     def _on_remove_location(self):
         rows = self._table.selectionModel().selectedRows()
