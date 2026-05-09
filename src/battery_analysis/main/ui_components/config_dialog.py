@@ -249,6 +249,10 @@ class _BatteryConfigPage(QW.QWidget):
         self._fill_list(self._list_voltage, [str(v) for v in data.get("cutOffVoltages", [])])
 
     def _fill_list(self, lw, items: list):
+        if isinstance(lw, QW.QGroupBox):
+            lw = lw.findChild(QW.QListWidget)
+        if lw is None:
+            return
         lw.clear()
         for item in items:
             li = QW.QListWidgetItem(str(item))
@@ -335,6 +339,10 @@ class _TestConfigPage(QW.QWidget):
             lw.takeItem(lw.row(item))
 
     def _fill_list(self, lw, items: list):
+        if isinstance(lw, QW.QGroupBox):
+            lw = lw.findChild(QW.QListWidget)
+        if lw is None:
+            return
         lw.clear()
         for item in items:
             li = QW.QListWidgetItem(str(item))
