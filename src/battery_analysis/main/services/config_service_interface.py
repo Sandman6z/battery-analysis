@@ -14,6 +14,8 @@ class IConfigService(ABC):
     """
     配置服务接口
     提供配置文件读取、写入和管理功能
+
+    底层使用 JSON 格式的配置文件 (config.json)，键访问支持点号路径格式（如 "battery.types"）。
     """
 
     @abstractmethod

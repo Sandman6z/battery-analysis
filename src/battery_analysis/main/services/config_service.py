@@ -9,15 +9,16 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from battery_analysis.main.services.config_service_interface import IConfigService
 from battery_analysis.utils.base_service import BaseService
-from battery_analysis.utils.config_manager import IniFileManager
+from battery_analysis.utils.json_config_manager import JsonConfigManager
+import os
 
 
 class ConfigService(BaseService, IConfigService):
     """
     配置服务实现类
-    提供配置文件读取、写入和管理功能
 
-    作为系统内配置文件(setting.ini)的唯一入口，所有模块均应通过此服务读取配置。
+    作为系统内配置文件(config.json)的唯一入口，所有模块均应通过此服务读取配置。
+    底层使用 JsonConfigManager，支持点号路径键访问（如 "battery.types"）。
     """
 
     def __init__(self):
@@ -25,7 +26,7 @@ class ConfigService(BaseService, IConfigService):
         初始化配置服务
         """
         BaseService.__init__(self)
-        self._config_manager = IniFileManager()
+        self._config_manager = JsonConfigManager()
         self._config_path = None
         self._loaded = False
 
@@ -34,37 +35,38 @@ class ConfigService(BaseService, IConfigService):
         获取配置值
 
         Args:
-            key: 配置键，格式为"section/key"或"key"
+            key: 配置键，支持点号路径格式（如 "battery.types"）
             default: 默认值
 
         Returns:
             Any: 配置值
         """
         try:
-            if not self._loaded:
+            if not self._config_manager.is_loaded():
                 self.load_config()
-
-            return self._config_manager.get_value(key, default)
-
+            return self._config_manager.get(key, default)
         except Exception as e:
             self.logger.error("获取配置值失败: %s", e)
             return default
 
     def get_config_value_raw(self, key: str, default: Optional[str] = None) -> Optional[str]:
         """
-        获取配置值的原始字符串（不做类型转换）
+        获取配置值的原始字符串表示（不做类型推断）
 
         Args:
-            key: 配置键，格式为"section/key"或"key"
+            key: 配置键，支持点号路径格式（如 "battery.types"）
             default: 默认值
 
         Returns:
             Optional[str]: 原始字符串值
         """
         try:
-            if not self._loaded:
-                self.load_config()
-            return self._config_manager.get_value_raw(key, default)
+            value = self.get_config_value(key, default)
+            if isinstance(value, list):
+                return ", ".join(str(v) for v in value)
+            if value is None:
+                return None
+            return str(value)
         except Exception as e:
             self.logger.error("获取原始配置值失败: %s", e)
             return default
@@ -74,15 +76,14 @@ class ConfigService(BaseService, IConfigService):
         设置配置值
 
         Args:
-            key: 配置键
+            key: 配置键，支持点号路径格式（如 "battery.types"）
             value: 配置值
 
         Returns:
             bool: 设置是否成功
         """
         try:
-            return self._config_manager.set_value(key, value)
-
+            return self._config_manager.set(key, value)
         except Exception as e:
             self.logger.error("设置配置值失败: %s", e)
             return False
@@ -95,7 +96,7 @@ class ConfigService(BaseService, IConfigService):
             bool: 保存是否成功
         """
         try:
-            if self._config_path and self._loaded:
+            if self._config_path and self._config_manager.is_loaded():
                 success = self._config_manager.write_config(str(self._config_path))
                 if success:
                     self.logger.info("配置已保存到: %s", self._config_path)
@@ -103,7 +104,6 @@ class ConfigService(BaseService, IConfigService):
             else:
                 self.logger.warning("无法保存配置：未指定配置路径或配置未加载")
                 return False
-
         except Exception as e:
             self.logger.error("保存配置失败: %s", e)
             return False
@@ -123,22 +123,24 @@ class ConfigService(BaseService, IConfigService):
             if config_path:
                 self._config_path = Path(config_path)
             else:
-                self._config_path = self.find_config_file()
+                self._config_path = self._resolve_config_path()
 
             if not self._config_path or not self._config_path.exists():
-                self.logger.warning("配置文件不存在: %s", self._config_path)
-                self._loaded = False
-                return False
-
-            success = self._config_manager.read_config(str(self._config_path), use_cache=use_cache)
-            if success:
+                # 首次运行：用默认数据创建
+                from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
+                self._config_manager.set_defaults(DEFAULT_CONFIG)
+                self._config_manager.write_config(str(self._config_path))
                 self._loaded = True
+                self.logger.info("首次运行，已创建默认配置文件: %s", self._config_path)
+                return True
+
+            success = self._config_manager.read_config(str(self._config_path))
+            self._loaded = success
+            if success:
                 self.logger.info("配置已加载: %s", self._config_path)
             else:
-                self._loaded = False
-
+                self.logger.warning("配置文件加载失败: %s", self._config_path)
             return success
-
         except Exception as e:
             self.logger.error("加载配置失败: %s", e)
             self._loaded = False
@@ -160,7 +162,7 @@ class ConfigService(BaseService, IConfigService):
         清除内部配置缓存
         当配置文件可能已变更时调用
         """
-        self._config_manager.clear_cache()
+        self._config_manager.clear()
 
     def get_config_sections(self) -> List[str]:
         """
@@ -170,9 +172,10 @@ class ConfigService(BaseService, IConfigService):
             List[str]: 配置节名称列表
         """
         try:
-            if not self._loaded:
+            if not self._config_manager.is_loaded():
                 self.load_config()
-            return self._config_manager.get_sections()
+            data = self._config_manager.get_all()
+            return [k for k in data.keys() if isinstance(data[k], dict)]
         except Exception as e:
             self.logger.error("获取配置节失败: %s", e)
             return []
@@ -186,17 +189,17 @@ class ConfigService(BaseService, IConfigService):
         """
         return self.get_config_sections()
 
-    def get_all_values(self) -> Dict[str, Dict[str, str]]:
+    def get_all_values(self) -> Dict[str, Any]:
         """
         获取所有配置节及其键值对
 
         Returns:
-            Dict[str, Dict[str, str]]: {section: {key: value}}
+            Dict[str, Any]: 完整配置数据字典
         """
         try:
-            if not self._loaded:
+            if not self._config_manager.is_loaded():
                 self.load_config()
-            return self._config_manager.get_all_values()
+            return self._config_manager.get_all()
         except Exception as e:
             self.logger.error("获取全部配置值失败: %s", e)
             return {}
@@ -212,11 +215,12 @@ class ConfigService(BaseService, IConfigService):
             List[str]: 选项名称列表
         """
         try:
-            if not self._loaded:
+            if not self._config_manager.is_loaded():
                 self.load_config()
-
-            section_config = self._config_manager.get_section(section)
-            return list(section_config.keys())
+            section_data = self._config_manager.get(section, {})
+            if isinstance(section_data, dict):
+                return list(section_data.keys())
+            return []
         except Exception as e:
             self.logger.error("获取配置节选项失败: %s", e)
             return []
@@ -232,10 +236,10 @@ class ConfigService(BaseService, IConfigService):
             Dict[str, Any]: 配置节内容
         """
         try:
-            if not self._loaded:
+            if not self._config_manager.is_loaded():
                 self.load_config()
-
-            return self._config_manager.get_section(section)
+            result = self._config_manager.get(section, {})
+            return result if isinstance(result, dict) else {}
         except Exception as e:
             self.logger.error("获取配置节失败: %s", e)
             return {}
@@ -245,35 +249,33 @@ class ConfigService(BaseService, IConfigService):
         检查配置键是否存在
 
         Args:
-            key: 配置键
+            key: 配置键，支持点号路径格式（如 "battery.types"）
 
         Returns:
             bool: 键是否存在
         """
         try:
-            if not self._loaded:
+            if not self._config_manager.is_loaded():
                 self.load_config()
-
-            return self._config_manager.has_key(key)
+            return self._config_manager.get(key) is not None
         except Exception as e:
             self.logger.error("检查配置键失败: %s", e)
             return False
 
-    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
+    def _resolve_config_path(self) -> Path:
+        """解析配置文件的 %APPDATA% 路径"""
+        appdata = os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming"))
+        return Path(appdata) / "battery-analysis" / "config.json"
+
+    def find_config_file(self, file_name: str = "config.json", use_cache: bool = False) -> Optional[Path]:
         """
         查找配置文件路径
 
         Args:
-            file_name: 配置文件名称
+            file_name: 配置文件名称（兼容旧接口，默认改为 config.json）
             use_cache: 是否使用缓存的配置文件路径，默认为False
 
         Returns:
-            Optional[Path]: 配置文件路径，如果未找到则返回None
+            Optional[Path]: 配置文件路径
         """
-        try:
-            from battery_analysis.utils.config_utils import find_config_file
-            result = find_config_file(file_name, use_cache=use_cache)
-            return Path(result) if result else None
-        except (ImportError, ValueError, TypeError, OSError) as e:
-            self.logger.error("查找配置文件失败: %s", e)
-            return None
+        return self._resolve_config_path()
