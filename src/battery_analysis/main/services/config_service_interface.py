@@ -147,7 +147,7 @@ class IConfigService(ABC):
         pass
 
     @abstractmethod
-    def find_config_file(self, file_name: str = "setting.ini", use_cache: bool = False) -> Optional[Path]:
+    def find_config_file(self, file_name: str = "config.json", use_cache: bool = False) -> Optional[Path]:
         """
         查找配置文件路径
 
