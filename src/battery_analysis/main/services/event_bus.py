@@ -7,6 +7,8 @@
 
 import logging
 import asyncio
+import threading
+import time
 from enum import Enum, auto
 from typing import Callable, Dict, List, Any, Optional, Tuple, Set
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
@@ -56,7 +58,7 @@ class Event:
         self.event_type = event_type
         self.data = data
         self.priority = priority
-        self.timestamp = asyncio.get_event_loop().time()
+        self.timestamp = time.time()
         self.event_id = id(self)
     
     def __str__(self):
@@ -93,7 +95,7 @@ class EventBus(QObject):
     
     # 单例实例
     _instance: Optional['EventBus'] = None
-    _lock = asyncio.Lock()
+    _lock = threading.Lock()
     
     @classmethod
     def get_instance(cls) -> 'EventBus':
@@ -233,7 +235,11 @@ class EventBus(QObject):
             data: 事件数据，可选
             priority: 事件优先级，可选
         """
-        asyncio.create_task(self._emit_async(event_type, data, priority))
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self._emit_async(event_type, data, priority))
+        except RuntimeError:
+            self.emit(event_type, data, priority)
     
     async def _emit_async(self, event_type: EventType, data: Any = None, priority: EventPriority = EventPriority.NORMAL):
         """
