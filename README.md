@@ -55,15 +55,9 @@
 
 ## 配置文件说明
 
-项目使用`config/setting.ini`作为主配置文件，应用会按以下顺序查找配置文件：
+项目使用 JSON 配置文件进行管理，文件存储在 `%APPDATA%/battery-analysis/config.json`（Windows）或 `~/.config/battery-analysis/config.json`（Linux/Mac）。
 
-1. 当前工作目录下的`config/setting.ini`
-2. 应用基础目录下的`config/setting.ini`
-3. 当前工作目录下的`setting.ini`
-4. 应用基础目录下的`setting.ini`
-5. 项目根目录下的`config/setting.ini`（基于当前文件位置的绝对路径，确保在任何位置都能找到）
-
-这种设计确保了应用在开发环境和打包后的可执行文件环境中都能正确找到配置文件。
+首次运行时自动创建默认配置，也可通过 **Tools → Configuration** 菜单在 UI 中管理所有配置项。
 
 ## 运行方式
 
