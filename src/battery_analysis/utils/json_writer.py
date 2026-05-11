@@ -1,32 +1,13 @@
-import configparser
 import datetime
 import json
 import logging
 import os
 
 from battery_analysis.utils.data_utils import generate_current_type_string
-from battery_analysis.utils.config_utils import find_config_file
 
 
 class JsonWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
-        self.config = configparser.ConfigParser()
-
-        try:
-            # 使用通用配置文件查找函数
-            config_path = find_config_file()
-            if config_path and os.path.exists(config_path):
-                self.config.read(config_path, encoding='utf-8')
-                logging.info("找到并读取配置文件: %s", config_path)
-            else:
-                raise Exception("找不到配置文件")
-        except (IOError, UnicodeDecodeError, configparser.Error, OSError) as e:
-            # 发生错误时创建基本配置
-            logging.error("配置读取失败: %s，使用默认配置", e)
-            if not self.config.has_section("BatteryConfig"):
-                self.config.add_section("BatteryConfig")
-            if not self.config.has_section("PltConfig"):
-                self.config.add_section("PltConfig")
         self.listTestInfo = listTestInfo
         self.listBatteryInfo = listBatteryInfo
         try:
@@ -89,26 +70,15 @@ class JsonWriter:
             self.listTestRun.append(dictTestRun)
 
         strBatteryModel = self.listTestInfo[2]
-        # 安全读取电池类型基础规格
+        # 电池类型基础规格（固定值，用于匹配电池类型分类）
+        listBatteryTypeBase = [
+            "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
         try:
-            if (self.config.has_section("BatteryConfig") and
-                self.config.has_option("BatteryConfig", "SpecificationTypeBase")):
-                listBatteryTypeBase = self.config.get(
-                    "BatteryConfig", "SpecificationTypeBase").split(",")
-                logging.info("使用配置文件中的电池类型基础规格: %s", listBatteryTypeBase)
-            else:
-                # 使用默认值
-                listBatteryTypeBase = [
-                    "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
-                logging.info("使用默认电池类型基础规格")
-
             strBatteryType = ""
             for battery_type in listBatteryTypeBase:
                 if battery_type.strip() in self.listTestInfo[2]:
                     strBatteryType = battery_type
                     break
-
-            # 如果没有找到匹配项，使用默认值
             if not strBatteryType:
                 strBatteryType = "CoinCell"
                 logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
