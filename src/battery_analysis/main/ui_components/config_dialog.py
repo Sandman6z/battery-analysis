@@ -119,10 +119,12 @@ class _BatteryConfigPage(QW.QWidget):
 
         # 电池类型（不可编辑 — 系统预设）
         self._list_types = self._make_list_group("Battery Types", editable=False)
+        self._list_types.findChild(QW.QListWidget).setMinimumHeight(65)
         layout.addRow(self._list_types)
 
         # 构造方式（不可编辑 — 系统预设）
         self._list_construction = self._make_list_group("Construction Methods", editable=False)
+        self._list_construction.findChild(QW.QListWidget).setMinimumHeight(65)
         layout.addRow(self._list_construction)
 
         # 规格型号（按类型分组：Coin Cell / Pouch Cell）
@@ -152,8 +154,9 @@ class _BatteryConfigPage(QW.QWidget):
             self._spec_page.currentWidget()))
         layout.addRow(spec_group)
 
-        # 规格方式
-        self._list_spec_method = self._make_list_group("Specification Methods")
+        # 规格方式（不可编辑 — 系统预设）
+        self._list_spec_method = self._make_list_group("Specification Methods", editable=False)
+        self._list_spec_method.findChild(QW.QListWidget).setMinimumHeight(65)
         layout.addRow(self._list_spec_method)
 
         # 制造商
@@ -167,12 +170,12 @@ class _BatteryConfigPage(QW.QWidget):
             "One rule per line, format: Type/Method/Capacity/MinCapacity/Required%/Voltage")
         layout.addRow("Rules:", self._text_rules)
 
-        # 脉冲电流
-        self._list_pulse = self._make_list_group("Pulse Currents")
+        # 脉冲电流（不可编辑 — 系统预设）
+        self._list_pulse = self._make_list_group("Pulse Currents", editable=False)
         layout.addRow(self._list_pulse)
 
-        # 截止电压
-        self._list_voltage = self._make_list_group("Cut-off Voltages")
+        # 截止电压（不可编辑 — 系统预设）
+        self._list_voltage = self._make_list_group("Cut-off Voltages", editable=False)
         layout.addRow(self._list_voltage)
 
         scroll.setWidget(content)
@@ -381,8 +384,10 @@ class _EquipmentPage(QW.QWidget):
         layout = QW.QVBoxLayout(self)
 
         # 表格
-        self._table = QW.QTableWidget(0, 3)
-        self._table.setHorizontalHeaderLabels(["Location", "Test Equipment", "Model"])
+        self._table = QW.QTableWidget(0, 4)
+        self._table.setHorizontalHeaderLabels(["No.", "Location", "Test Equipment", "Model"])
+        self._table.verticalHeader().hide()
+        self._table.setColumnWidth(0, 120)
         self._table.horizontalHeader().setStretchLastSection(True)
         self._table.setSelectionBehavior(QW.QAbstractItemView.SelectionBehavior.SelectRows)
         self._table.doubleClicked.connect(self._on_edit_row)
@@ -412,13 +417,14 @@ class _EquipmentPage(QW.QWidget):
 
     def _refresh_table(self):
         self._table.setRowCount(0)
-        for loc_key, info in self._data.items():
+        for i, (loc_key, info) in enumerate(self._data.items()):
             row = self._table.rowCount()
             self._table.insertRow(row)
-            self._table.setItem(row, 0, QW.QTableWidgetItem(loc_key))
-            self._table.setItem(row, 1, QW.QTableWidgetItem(
-                info.get("testEquipment", "")))
+            self._table.setItem(row, 0, QW.QTableWidgetItem(str(i + 1)))
+            self._table.setItem(row, 1, QW.QTableWidgetItem(loc_key))
             self._table.setItem(row, 2, QW.QTableWidgetItem(
+                info.get("testEquipment", "")))
+            self._table.setItem(row, 3, QW.QTableWidgetItem(
                 info.get("testUnits", {}).get("model", "")))
 
     def _on_edit_row(self, index):
@@ -430,7 +436,7 @@ class _EquipmentPage(QW.QWidget):
             self._edit_location(rows[0].row())
 
     def _edit_location(self, row: int):
-        loc_key = self._table.item(row, 0).text()
+        loc_key = self._table.item(row, 1).text()
         info = self._data.get(loc_key, {})
         dialog = _EquipmentEditDialog(loc_key, info, self)
         if dialog.exec():
@@ -454,7 +460,7 @@ class _EquipmentPage(QW.QWidget):
         if not rows:
             return
         row = rows[0].row()
-        loc_key = self._table.item(row, 0).text()
+        loc_key = self._table.item(row, 1).text()
         info = self._data.get(loc_key)
         if info is None:
             return
@@ -471,7 +477,7 @@ class _EquipmentPage(QW.QWidget):
     def _on_remove_location(self):
         rows = self._table.selectionModel().selectedRows()
         for index in sorted(rows, reverse=True):
-            loc_key = self._table.item(index.row(), 0).text()
+            loc_key = self._table.item(index.row(), 1).text()
             self._data.pop(loc_key, None)
         self._refresh_table()
 
