@@ -6,7 +6,6 @@
 import os
 import sys
 import logging
-import configparser
 from PyQt6 import QtCore as QC
 
 
@@ -62,7 +61,7 @@ class FileController(QC.QObject):
         """
         return self.project_path
 
-    def load_config(self, config_file_name="setting.ini"):
+    def load_config(self, config_file_name="config.json"):
         """
         加载配置文件
 
@@ -103,7 +102,7 @@ class FileController(QC.QObject):
 
             self.config_loaded.emit(config_dict)
             return config_dict
-        except (IOError, OSError, configparser.Error, UnicodeDecodeError, TypeError, AttributeError) as e:
+        except (IOError, OSError, UnicodeDecodeError, TypeError, AttributeError) as e:
             error_msg = f"加载配置文件失败: {e}"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
