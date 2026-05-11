@@ -3,10 +3,9 @@
 表格管理器模块
 负责处理测试信息表格的设置和保存功能
 
-注意：对 setting.ini 的读写通过 ConfigService 统一管理。
+从 test.equipment（JSON config）读取测试信息，与 ConfigDialog 共用数据源。
 """
 
-import re
 from typing import Any
 from PyQt6.QtWidgets import QTableWidgetItem
 
@@ -31,65 +30,57 @@ class TableManager:
         """获取 ConfigService 实例"""
         return self.main_window._get_service("config")
 
-    def _get_config_sections(self):
-        """获取所有配置节名称"""
-        cs = self._get_config_service()
-        if cs:
-            return cs.get_config_sections()
-        return []
-
-    def _config_set_value(self, key: str, value: str) -> None:
-        """
-        写入配置值（通过 ConfigService）
-        Args:
-            key: 配置键，格式 "Section/Key"
-            value: 值字符串
-        """
-        cs = self._get_config_service()
-        if cs:
-            cs.set_config_value(key, value)
-            cs.save_config()
-
     def set_table(self) -> None:
         """
-        根据配置文件设置测试信息表格
+        根据 equipment 配置设置测试信息表格
         """
         self.main_window.checker_table.clear()
 
-        # 使用正则表达式匹配 TestInformation 组
-        test_info_pattern = re.compile(r"^TestInformation\.(\w+)\.(\w+)$")
-
-        # 创建字典映射：(location, laboratory) -> group_name
-        test_info_map = {}
-
-        # 遍历所有配置节，提取有效的 TestInformation 节
-        for group in self._get_config_sections():
-            match = test_info_pattern.match(group)
-            if match:
-                location, laboratory = match.groups()
-                test_info_map[(location, laboratory)] = group
-
-        if not test_info_map:
-            self.main_window.checker_table.set_error("No TestInformation in setting.ini")
-            self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "[Error]: No TestInformation in setting.ini")
+        # 获取当前选择的测试位置
+        tester_location = self.main_window.comboBox_TesterLocation.currentText()
+        if not tester_location:
+            self.main_window.test_information = ""
             return
 
-        self.main_window.test_information = ""
-        # 获取当前选择的测试位置
-        tester_location = self.main_window.comboBox_TesterLocation.currentText().replace(" ", "")
+        # 直接从 test.equipment 读取
+        cs = self._get_config_service()
+        equipment = cs.get_config_value("test.equipment", {}) if cs else {}
+        if not isinstance(equipment, dict):
+            equipment = {}
 
-        # 查找匹配的 TestInformation 组
-        for (location, laboratory), group_name in test_info_map.items():
-            if (laboratory in tester_location) and (location in tester_location):
-                self.main_window.test_information = group_name
+        # 匹配 equipment key → 显示字符串 → combo box 选中项
+        matched_info = None
+        for loc_key, info in equipment.items():
+            parts = loc_key.split(".")
+            if len(parts) != 2:
+                continue
+            site, lab = parts
+            eq = info.get("testEquipment", "")
+            model = eq.replace("NEWARE Battery Testing System ", "").strip()
+            lab_display = lab + "." if lab == "Qual" else lab
+            display = f"{model} ({lab_display}), {site}"
+            if display == tester_location:
+                matched_info = info
+                self.main_window.test_information = loc_key
                 break
 
-        if not self.main_window.test_information:
+        # fallback: 旧版 substring 匹配
+        if matched_info is None:
+            stripped = tester_location.replace(" ", "")
+            for loc_key, info in equipment.items():
+                parts = loc_key.split(".")
+                if len(parts) == 2:
+                    site, lab = parts
+                    if site in stripped and lab in stripped:
+                        matched_info = info
+                        self.main_window.test_information = loc_key
+                        break
+
+        if matched_info is None:
             self.main_window.checker_table.set_error(
-                "Can't find matched TestInformation section in setting.ini")
+                "未找到匹配的 equipment 配置")
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "[Error]: Can't find matched TestInformation section in setting.ini")
+                "[Error]: 未找到匹配的 equipment 配置")
             return
 
         def set_item(item_data, row: int, col: int) -> None:
@@ -97,72 +88,64 @@ class TableManager:
             qt_item = QTableWidgetItem(item_text)
             self.main_window.tableWidget_TestInformation.setItem(row, col, qt_item)
 
-        # 使用字典映射配置键到行号，简化代码
-        config_row_map = {
-            f"{self.main_window.test_information}/TestEquipment": 0,
-            f"{self.main_window.test_information}/SoftwareVersions.BTSServerVersion": 1,
-            f"{self.main_window.test_information}/SoftwareVersions.BTSClientVersion": 2,
-            f"{self.main_window.test_information}/SoftwareVersions.BTSDAVersion": 3,
-            f"{self.main_window.test_information}/MiddleMachines.Model": 4,
-            f"{self.main_window.test_information}/MiddleMachines.HardwareVersion": 5,
-            f"{self.main_window.test_information}/MiddleMachines.SerialNumber": 6,
-            f"{self.main_window.test_information}/MiddleMachines.FirmwareVersion": 7,
-            f"{self.main_window.test_information}/MiddleMachines.DeviceType": 8,
-            f"{self.main_window.test_information}/TestUnits.Model": 9,
-            f"{self.main_window.test_information}/TestUnits.HardwareVersion": 10,
-            f"{self.main_window.test_information}/TestUnits.FirmwareVersion": 11
-        }
+        sv = matched_info.get("softwareVersions", {})
+        mm = matched_info.get("middleMachines", {})
+        tu = matched_info.get("testUnits", {})
 
-        # 遍历字典，设置表格项
-        for config_key, row in config_row_map.items():
-            set_item(self.main_window.get_config(config_key), row, 2)
+        set_item([matched_info.get("testEquipment", "")], 0, 2)
+        set_item([sv.get("btsServer", "")], 1, 2)
+        set_item([sv.get("btsClient", "")], 2, 2)
+        set_item([sv.get("btsda", "")], 3, 2)
+        set_item([mm.get("model", "")], 4, 2)
+        set_item([mm.get("hardwareVersion", "")], 5, 2)
+        set_item([mm.get("serialNumber", "")], 6, 2)
+        set_item([mm.get("firmwareVersion", "")], 7, 2)
+        set_item([mm.get("deviceType", "")], 8, 2)
+        set_item([tu.get("model", "")], 9, 2)
+        set_item([tu.get("hardwareVersion", "")], 10, 2)
+        set_item([tu.get("firmwareVersion", "")], 11, 2)
 
     def save_table(self) -> None:
         """
-        保存表格数据到配置文件（通过 ConfigService）
+        保存表格数据到 equipment 配置（与 ConfigDialog 共用同一数据源）
         """
         # set focus on pushButton_Run for saving the input text
         self.main_window.pushButton_Run.setFocus()
 
-        def set_item(config_key: str, row: int, col: int):
+        if not self.main_window.test_information:
+            return
+
+        cs = self._get_config_service()
+        if not cs:
+            return
+
+        equipment = cs.get_config_value("test.equipment", {})
+        if not isinstance(equipment, dict):
+            equipment = {}
+
+        loc_key = self.main_window.test_information
+        info = equipment.get(loc_key)
+        if info is None:
+            return
+
+        def read_cell(row, col):
             item = self.main_window.tableWidget_TestInformation.item(row, col)
             if item is None:
-                self._config_set_value(config_key, "")
-                return
-            list_item_text = [x.strip() for x in item.text().split(",")]
-            self._config_set_value(config_key, ", ".join(list_item_text))
+                return ""
+            return ", ".join(x.strip() for x in item.text().split(","))
 
-        if self.main_window.test_information != "":
-            set_item(f"{self.main_window.test_information}/TestEquipment", 0, 2)
-            set_item(
-                f"{self.main_window.test_information}/SoftwareVersions.BTSServerVersion", 1, 2)
-            set_item(
-                f"{self.main_window.test_information}/SoftwareVersions.BTSClientVersion", 2, 2)
-            set_item(
-                f"{self.main_window.test_information}/SoftwareVersions.BTSDAVersion", 3, 2)
-            set_item(f"{self.main_window.test_information}/MiddleMachines.Model", 4, 2)
-            set_item(
-                f"{self.main_window.test_information}/MiddleMachines.HardwareVersion", 5, 2)
-            set_item(
-                f"{self.main_window.test_information}/MiddleMachines.SerialNumber", 6, 2)
-            set_item(
-                f"{self.main_window.test_information}/MiddleMachines.FirmwareVersion", 7, 2)
-            set_item(f"{self.main_window.test_information}/MiddleMachines.DeviceType", 8, 2)
-            set_item(f"{self.main_window.test_information}/TestUnits.Model", 9, 2)
-            set_item(
-                f"{self.main_window.test_information}/TestUnits.HardwareVersion", 10, 2)
-            set_item(
-                f"{self.main_window.test_information}/TestUnits.FirmwareVersion", 11, 2)
+        info["testEquipment"] = read_cell(0, 2)
+        info.setdefault("softwareVersions", {})["btsServer"] = read_cell(1, 2)
+        info.setdefault("softwareVersions", {})["btsClient"] = read_cell(2, 2)
+        info.setdefault("softwareVersions", {})["btsda"] = read_cell(3, 2)
+        info.setdefault("middleMachines", {})["model"] = read_cell(4, 2)
+        info.setdefault("middleMachines", {})["hardwareVersion"] = read_cell(5, 2)
+        info.setdefault("middleMachines", {})["serialNumber"] = read_cell(6, 2)
+        info.setdefault("middleMachines", {})["firmwareVersion"] = read_cell(7, 2)
+        info.setdefault("middleMachines", {})["deviceType"] = read_cell(8, 2)
+        info.setdefault("testUnits", {})["model"] = read_cell(9, 2)
+        info.setdefault("testUnits", {})["hardwareVersion"] = read_cell(10, 2)
+        info.setdefault("testUnits", {})["firmwareVersion"] = read_cell(11, 2)
 
-        set_item("TestInformation/TestEquipment", 0, 2)
-        set_item("TestInformation/SoftwareVersions.BTSServerVersion", 1, 2)
-        set_item("TestInformation/SoftwareVersions.BTSClientVersion", 2, 2)
-        set_item("TestInformation/SoftwareVersions.BTSDAVersion", 3, 2)
-        set_item("TestInformation/MiddleMachines.Model", 4, 2)
-        set_item("TestInformation/MiddleMachines.HardwareVersion", 5, 2)
-        set_item("TestInformation/MiddleMachines.SerialNumber", 6, 2)
-        set_item("TestInformation/MiddleMachines.FirmwareVersion", 7, 2)
-        set_item("TestInformation/MiddleMachines.DeviceType", 8, 2)
-        set_item("TestInformation/TestUnits.Model", 9, 2)
-        set_item("TestInformation/TestUnits.HardwareVersion", 10, 2)
-        set_item("TestInformation/TestUnits.FirmwareVersion", 11, 2)
+        cs.set_config_value("test.equipment", equipment)
+        cs.save_config()

@@ -449,12 +449,25 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def show_config_dialog(self):
         """打开配置管理对话框"""
+        # 保存当前下拉框选中项，以便在 init_combobox 后恢复
+        saved = {
+            "BatteryType": self.comboBox_BatteryType.currentText(),
+            "Manufacturer": self.comboBox_Manufacturer.currentText(),
+            "TesterLocation": self.comboBox_TesterLocation.currentText(),
+            "TestedBy": self.comboBox_TestedBy.currentText(),
+            "ReportedBy": self.comboBox_ReportedBy.currentText(),
+        }
         from battery_analysis.main.ui_components.config_dialog import ConfigDialog
         dialog = ConfigDialog(self)
         if dialog.exec() == QW.QDialog.DialogCode.Accepted:
             self.statusBar_BatteryAnalysis.showMessage("配置已保存")
             self.config_manager.reload_config()
             self.ui_manager.init_combobox()
+            # 恢复下拉框选中项
+            for name, text in saved.items():
+                combo = getattr(self, f"comboBox_{name}")
+                if text:
+                    combo.setCurrentText(text)
 
     def save_settings(self) -> None:
         """保存设置 — UI选择状态不再持久化"""

@@ -30,6 +30,7 @@ class ConfigDialog(QW.QDialog):
 
         self.setWindowTitle(_("config_dialog_title", "Configuration"))
         self.setMinimumSize(800, 600)
+        self.resize(960, 720)
         self._setup_ui()
         self._populate_data()
 
@@ -106,28 +107,41 @@ class _BatteryConfigPage(QW.QWidget):
         super().__init__()
         self._dialog = parent_dialog
 
-        layout = QW.QFormLayout(self)
+        main_layout = QW.QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
 
-        # 电池类型
-        self._list_types = self._make_list_group("Battery Types")
+        scroll = QW.QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QW.QFrame.Shape.NoFrame)
+
+        content = QW.QWidget()
+        layout = QW.QFormLayout(content)
+
+        # 电池类型（不可编辑 — 系统预设）
+        self._list_types = self._make_list_group("Battery Types", editable=False)
         layout.addRow(self._list_types)
 
-        # 构造方式
-        self._list_construction = self._make_list_group("Construction Methods")
+        # 构造方式（不可编辑 — 系统预设）
+        self._list_construction = self._make_list_group("Construction Methods", editable=False)
         layout.addRow(self._list_construction)
 
         # 规格型号（按类型分组：Coin Cell / Pouch Cell）
         self._spec_page = QW.QTabWidget()
         self._spec_coin = QW.QListWidget()
+        self._spec_coin.setMinimumHeight(130)
         self._spec_pouch = QW.QListWidget()
+        self._spec_pouch.setMinimumHeight(130)
         self._spec_page.addTab(self._spec_coin, "Coin Cell")
         self._spec_page.addTab(self._spec_pouch, "Pouch Cell")
+        self._spec_page.setMinimumHeight(180)
         spec_group = QW.QGroupBox("Specifications")
         spec_vbox = QW.QVBoxLayout(spec_group)
         spec_vbox.addWidget(self._spec_page)
         spec_btn_row = QW.QHBoxLayout()
         btn_add_spec = QW.QPushButton("+")
+        btn_add_spec.setFixedSize(22, 22)
         btn_remove_spec = QW.QPushButton("×")
+        btn_remove_spec.setFixedSize(22, 22)
         spec_btn_row.addWidget(btn_add_spec)
         spec_btn_row.addWidget(btn_remove_spec)
         spec_btn_row.addStretch()
@@ -148,6 +162,7 @@ class _BatteryConfigPage(QW.QWidget):
 
         # Rules（文本框）
         self._text_rules = QW.QPlainTextEdit()
+        self._text_rules.setMinimumHeight(130)
         self._text_rules.setPlaceholderText(
             "One rule per line, format: Type/Method/Capacity/MinCapacity/Required%/Voltage")
         layout.addRow("Rules:", self._text_rules)
@@ -160,24 +175,30 @@ class _BatteryConfigPage(QW.QWidget):
         self._list_voltage = self._make_list_group("Cut-off Voltages")
         layout.addRow(self._list_voltage)
 
-    def _make_list_group(self, title: str) -> QW.QGroupBox:
+        scroll.setWidget(content)
+        main_layout.addWidget(scroll)
+
+    def _make_list_group(self, title: str, editable: bool = True) -> QW.QGroupBox:
         group = QW.QGroupBox(title)
         vbox = QW.QVBoxLayout(group)
         lw = QW.QListWidget()
         lw.setAlternatingRowColors(True)
-        lw.itemDoubleClicked.connect(lambda item: lw.editItem(item))
-        btn_row = QW.QHBoxLayout()
-        btn_add = QW.QPushButton("+")
-        btn_add.setFixedWidth(30)
-        btn_remove = QW.QPushButton("×")
-        btn_remove.setFixedWidth(30)
-        btn_row.addWidget(btn_add)
-        btn_row.addWidget(btn_remove)
-        btn_row.addStretch()
+        lw.setMinimumHeight(130)
+        if editable:
+            lw.itemDoubleClicked.connect(lambda item: lw.editItem(item))
         vbox.addWidget(lw)
-        vbox.addLayout(btn_row)
-        btn_add.clicked.connect(lambda: self._add_list_item(lw))
-        btn_remove.clicked.connect(lambda: self._remove_list_item(lw))
+        if editable:
+            btn_row = QW.QHBoxLayout()
+            btn_add = QW.QPushButton("+")
+            btn_add.setFixedSize(22, 22)
+            btn_remove = QW.QPushButton("×")
+            btn_remove.setFixedSize(22, 22)
+            btn_row.addWidget(btn_add)
+            btn_row.addWidget(btn_remove)
+            btn_row.addStretch()
+            vbox.addLayout(btn_row)
+            btn_add.clicked.connect(lambda: self._add_list_item(lw))
+            btn_remove.clicked.connect(lambda: self._remove_list_item(lw))
         return group
 
     def _add_list_item(self, lw):
