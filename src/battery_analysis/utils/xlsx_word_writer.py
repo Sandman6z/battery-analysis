@@ -23,12 +23,10 @@ import os
 import csv
 import math
 import datetime
-import configparser
 import logging
 
 # 导入软件版本信息
 from battery_analysis import __version__
-from battery_analysis.utils.config_utils import find_config_file
 
 # 设置Matplotlib使用非交互式后端，避免线程安全问题
 import matplotlib
@@ -37,23 +35,8 @@ matplotlib.use('Agg')  # 使用Agg后端，不会启动GUI
 
 class XlsxWordWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
-        # get config
-        self.config = configparser.ConfigParser()
-
-        # 使用通用配置文件查找函数
-        config_path = find_config_file()
-
-        # 尝试读取配置文件
-        if config_path and os.path.exists(config_path):
-            self.config.read(config_path, encoding='utf-8')
-            logging.info("找到并读取配置文件: %s", config_path)
-        else:
-            logging.warning("找不到配置文件，使用默认配置")
-            # 创建默认的PltConfig部分
-            self.config.add_section("PltConfig")
-            self.config.set("PltConfig", "Title", "\"默认标题\"")
-            # 创建默认的TestInformation部分
-            self.config.add_section("TestInformation")
+        # 从 ConfigService 加载设备信息用于报告
+        self._equipment_info = self._load_equipment_info()
 
         # 使用测试信息生成动态标题（使用listTestInfo[4]作为实际制造商）
         try:
@@ -269,19 +252,12 @@ class XlsxWordWriter:
                 f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
             self.listImageToReplace.append(
                 f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
-        # 安全获取电池类型基础规格，添加默认值
-        try:
-            if (self.config.has_section("BatteryConfig") and
-                self.config.has_option("BatteryConfig", "SpecificationTypeBase")):
-                listBatteryTypeBase = self.config.get(
-                    "BatteryConfig", "SpecificationTypeBase").split(",")
-            else:
-                # 设置默认值
-                listBatteryTypeBase = [
-                    "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
-                logging.warning("使用默认电池类型基础规格")
+        # 电池类型基础规格（固定值）
+        listBatteryTypeBase = [
+            "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
 
-            # 简化电池类型匹配逻辑
+        # 简化电池类型匹配逻辑
+        try:
             test_info_type = self.listTestInfo[2]
             # 移除空格以便更好地匹配
             stripped_types = [battery_type.strip() for battery_type in listBatteryTypeBase]
@@ -315,6 +291,39 @@ class XlsxWordWriter:
 
         # execute
         self.UXWW_XlsxWordCsvWrite()
+
+    @staticmethod
+    def _load_equipment_info() -> dict:
+        """从 ConfigService 获取设备信息，用于 Word 报告"""
+        try:
+            from battery_analysis.main.services.service_container import get_service_container
+            container = get_service_container()
+            svc = container.get("config")
+            if svc:
+                equipment = svc.get_config_value("test.equipment", {})
+                if equipment:
+                    first_key = next(iter(equipment))
+                    info = equipment[first_key]
+                    logging.info("从 ConfigService 加载设备信息 (key=%s)", first_key)
+                    return info
+        except Exception as e:
+            logging.warning("从 ConfigService 加载设备信息失败: %s", e)
+        return {}
+
+    def _get_equip_value(self, dotted_key: str, fallback: str = "") -> str:
+        """从 _equipment_info 字典读取带点号的键（如 softwareVersions.btsServer）"""
+        parts = dotted_key.split(".")
+        value = self._equipment_info
+        try:
+            for p in parts:
+                value = value[p]
+            if isinstance(value, str):
+                return value
+            if isinstance(value, (list, tuple)):
+                return ", ".join(str(v) for v in value)
+        except (KeyError, TypeError, IndexError):
+            pass
+        return fallback
 
     def UXWW_XlsxWordCsvWrite(self) -> None:
         # init excel writer
@@ -705,28 +714,27 @@ class XlsxWordWriter:
                 header).font.size = Pt(10)
 
         # Set tableTestInformation data using functions to reduce repetition
-        test_info_data = []
-        test_info_data.append((0, lambda: word_utils.get_item(
-            self.config, "TestInformation", "TestEquipment")))
-        test_info_data.append((1, lambda: (
-            f"BTS Server Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSServerVersion')}\n"
-            f"BTS Client Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSClientVersion')}\n"
-            f"BTSDA (Data Analysis) Version: {word_utils.get_item(self.config, 'TestInformation', 'SoftwareVersions.BTSDAVersion')}"
-        )))
-        test_info_data.append((2, lambda: (
-            f"Model: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.Model', 6)}\n"
-            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.HardwareVersion', 14)}\n"
-            f"Serial Number: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.SerialNumber', 12)}\n"
-            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.FirmwareVersion', 14)}\n"
-            f"Device Type: {word_utils.get_item(self.config, 'TestInformation', 'middleMachines.DeviceType', 10)}"
-        )))
-        test_info_data.append((3, lambda: (
-            f"Model: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.Model', 6)}\n"
-            f"Hardware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.HardwareVersion', 14)}\n"
-            f"Firmware Version: {word_utils.get_item(self.config, 'TestInformation', 'TestUnits.FirmwareVersion', 14)}"
-        )))
-        # Data Processing Platforms
-        test_info_data.append((4, lambda: f"Battery Analyzer-v{__version__}"))
+        test_info_data = [
+            (0, lambda: self._equipment_info.get("testEquipment", "")),
+            (1, lambda: (
+                f"BTS Server Version: {self._get_equip_value('softwareVersions.btsServer')}\n"
+                f"BTS Client Version: {self._get_equip_value('softwareVersions.btsClient')}\n"
+                f"BTSDA (Data Analysis) Version: {self._get_equip_value('softwareVersions.btsda')}"
+            )),
+            (2, lambda: (
+                f"Model: {self._get_equip_value('middleMachines.model')}\n"
+                f"Hardware Version: {self._get_equip_value('middleMachines.hardwareVersion')}\n"
+                f"Serial Number: {self._get_equip_value('middleMachines.serialNumber')}\n"
+                f"Firmware Version: {self._get_equip_value('middleMachines.firmwareVersion')}\n"
+                f"Device Type: {self._get_equip_value('middleMachines.deviceType')}"
+            )),
+            (3, lambda: (
+                f"Model: {self._get_equip_value('testUnits.model')}\n"
+                f"Hardware Version: {self._get_equip_value('testUnits.hardwareVersion')}\n"
+                f"Firmware Version: {self._get_equip_value('testUnits.firmwareVersion')}"
+            )),
+            (4, lambda: f"Battery Analyzer-v{__version__}"),
+        ]
 
         # Process all test info data using a loop
         for row, content_func in test_info_data:
