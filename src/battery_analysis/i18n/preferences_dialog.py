@@ -15,7 +15,6 @@ import PyQt6.QtWidgets as QW
 
 from . import _, get_available_locales, set_locale, get_current_locale
 from .language_manager import get_language_manager
-from ..utils.config_utils import find_config_file
 
 
 class PreferencesDialog(QW.QDialog):
@@ -235,9 +234,8 @@ class PreferencesDialog(QW.QDialog):
         info_layout = QW.QVBoxLayout(info_group)
 
         required_sections = [
-            "[BatteryConfig] - Battery type, specification types, rules",
-            "[TestConfig] - Tester location, tested by",
-            "[PltConfig] - Plot path and title",
+            "battery — Battery type, specification types, rules",
+            "test — Tester locations, tested by, equipment",
         ]
         for section in required_sections:
             info_layout.addWidget(QW.QLabel(f"• {section}"))
@@ -265,7 +263,7 @@ class PreferencesDialog(QW.QDialog):
             self,
             _("select_config_file", "Select Configuration File"),
             "",
-            "INI Files (*.ini);;All Files (*)"
+            "JSON Files (*.json);;INI Files (*.ini);;All Files (*)"
         )
         if file_path:
             self.config_path_lineedit.setText(file_path)
@@ -285,27 +283,43 @@ class PreferencesDialog(QW.QDialog):
             self.config_status_label.setStyleSheet("color: red;")
             return
 
-        if not file_path.lower().endswith('.ini'):
-            self.config_status_label.setText(_("not_ini_file", "File is not an INI file"))
-            self.config_status_label.setStyleSheet("color: red;")
-            return
-
+        ext = os.path.splitext(file_path)[1].lower()
         try:
-            import configparser
-            parser = configparser.ConfigParser()
-            parser.read(file_path, encoding='utf-8')
-
-            required_sections = ['BatteryConfig', 'TestConfig', 'PltConfig']
-            missing_sections = [s for s in required_sections if not parser.has_section(s)]
-
-            if missing_sections:
-                self.config_status_label.setText(
-                    _("missing_sections", f"Missing required sections: {', '.join(missing_sections)}")
-                )
-                self.config_status_label.setStyleSheet("color: orange;")
+            if ext == ".json":
+                import json
+                with open(file_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if not isinstance(data, dict):
+                    self.config_status_label.setText(_("invalid_json", "JSON root must be an object"))
+                    self.config_status_label.setStyleSheet("color: red;")
+                    return
+                required_keys = ["battery", "test"]
+                missing = [k for k in required_keys if k not in data]
+                if missing:
+                    self.config_status_label.setText(
+                        f"Missing required keys: {', '.join(missing)}"
+                    )
+                    self.config_status_label.setStyleSheet("color: orange;")
+                else:
+                    self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
+                    self.config_status_label.setStyleSheet("color: green;")
             else:
-                self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
-                self.config_status_label.setStyleSheet("color: green;")
+                # INI 文件兼容验证
+                import configparser
+                parser = configparser.ConfigParser()
+                parser.read(file_path, encoding='utf-8')
+
+                required_sections = ['BatteryConfig', 'TestConfig', 'PltConfig']
+                missing_sections = [s for s in required_sections if not parser.has_section(s)]
+
+                if missing_sections:
+                    self.config_status_label.setText(
+                        _("missing_sections", f"Missing required sections: {', '.join(missing_sections)}")
+                    )
+                    self.config_status_label.setStyleSheet("color: orange;")
+                else:
+                    self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
+                    self.config_status_label.setStyleSheet("color: green;")
 
         except Exception as e:
             self.config_status_label.setText(_("config_parse_error", f"Error parsing config: {str(e)}"))
@@ -396,12 +410,22 @@ class PreferencesDialog(QW.QDialog):
             self.config_path_lineedit.setText(custom_config_path)
 
             # Display current active config path
-            current_config = find_config_file()
-            if current_config:
-                self.config_path_label.setText(current_config)
-                self.config_path_label.setStyleSheet("color: green;")
-            else:
-                self.config_path_label.setText(_("using_default", "Using default paths"))
+            try:
+                from battery_analysis.main.services.service_container import get_service_container
+                container = get_service_container()
+                svc = container.get("config")
+                if svc:
+                    cfg_path = svc.find_config_file()
+                    if cfg_path:
+                        self.config_path_label.setText(str(cfg_path))
+                        self.config_path_label.setStyleSheet("color: green;")
+                    else:
+                        self.config_path_label.setText(_("using_default", "Using default paths"))
+                        self.config_path_label.setStyleSheet("color: gray;")
+                else:
+                    raise ValueError("ConfigService not available")
+            except Exception:
+                self.config_path_label.setText(_("not_loaded", "Not loaded"))
                 self.config_path_label.setStyleSheet("color: gray;")
 
             self.logger.debug("Settings loaded successfully")
