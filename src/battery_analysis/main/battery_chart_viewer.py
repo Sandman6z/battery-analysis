@@ -20,7 +20,6 @@
 # 标准库导入
 import logging
 from pathlib import Path
-import configparser
 import os
 
 # 第三方库导入
@@ -99,10 +98,6 @@ class BatteryChartViewer(
             auto_search: 是否自动搜索数据文件，默认为True
         """
         self.auto_search = auto_search
-
-        self.config = configparser.ConfigParser()
-        if not self.config.has_section("PltConfig"):
-            self.config.add_section("PltConfig")
 
         current_dir = Path(os.path.dirname(os.path.abspath(__file__)))
         self.project_root = current_dir.parent.parent
