@@ -5,7 +5,6 @@
 import sys
 import os
 import shutil
-import configparser
 import subprocess
 import logging
 from pathlib import Path
@@ -42,13 +41,6 @@ except ImportError:
 script_dir = Path(__file__).absolute().parent
 project_root = script_dir.parent
 sys.path.insert(0, str(project_root))
-
-
-class CaseSensitiveConfigParser(configparser.ConfigParser):
-    """大小写敏感的配置解析器"""
-
-    def optionxform(self, option_str):
-        return option_str
 
 
 class BuildConfig:
