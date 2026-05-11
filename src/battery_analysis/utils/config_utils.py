@@ -102,7 +102,7 @@ def _get_custom_config_path() -> Optional[str]:
 
 
 def find_config_file(
-    file_name: str = "setting.ini",
+    file_name: str = "config.json",
     config_dir: str = "config",
     use_cache: bool = True
 ) -> str:
@@ -116,7 +116,7 @@ def find_config_file(
     - 生产环境
 
     Args:
-        file_name: 配置文件名，默认为"setting.ini"
+        file_name: 配置文件名，默认为"config.json"
         config_dir: 配置文件所在的目录名，默认为"config"
         use_cache: 是否使用缓存的配置文件路径，默认为True
 
