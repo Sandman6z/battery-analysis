@@ -1,5 +1,5 @@
 """
-构建脚本模块，用于构建BatteryAnalysis和ImageMaker应用程序。
+构建脚本模块，用于构建BatteryAnalysis应用程序。
 支持Debug和Release两种构建类型，负责处理版本号管理、文件复制和PyInstaller构建流程。
 """
 import sys
@@ -78,10 +78,6 @@ class BuildManager(BuildConfig):
         self.build_type = specified_build_type
         self.build_path = self.temp_build_dir
         
-        # 统一Debug环境处理：设置DEBUG环境变量，使version.py能检测到Debug环境
-        if self.build_type == "Debug":
-            os.environ["DEBUG"] = "true"
-            logger.info("设置DEBUG环境变量为'true'，表示Debug构建环境")
         self.console = self.console_mode
 
         # 定义共享的应用程序配置列表：统一管理BatteryAnalysis和BatteryChartViewer参数
@@ -101,7 +97,6 @@ class BuildManager(BuildConfig):
         return [
             {
                 "name": "BatteryAnalysis",
-                "display_name": "BatteryTest-DataConverter",
                 "build_dir": build_path / "Build_BatteryAnalysis",
                 "main_file_path": self.project_root / "src" / "battery_analysis" / "main" / "main_window.py",
                 "main_file": '["main_window.py"]',
@@ -459,7 +454,7 @@ def main():
     import argparse
     
     # 创建命令行参数解析器
-    parser = argparse.ArgumentParser(description='构建BatteryAnalysis和ImageMaker应用程序')
+    parser = argparse.ArgumentParser(description='构建BatteryAnalysis应用程序')
     parser.add_argument('build_type', choices=['Debug', 'Release'], 
                        help='构建类型: Debug 或 Release')
     parser.add_argument('--verbose', '-v', action='store_true', 

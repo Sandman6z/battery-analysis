@@ -1,8 +1,6 @@
 import logging
 import traceback
 
-import traceback
-
 from battery_analysis.utils.xlsx_word_writer import XlsxWordWriter
 from battery_analysis.utils.json_writer import JsonWriter
 
