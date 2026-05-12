@@ -76,6 +76,27 @@ class TemperatureHandler:
             temperature_type == TemperatureType.FREEZER
         )
     
+    def set_temperature_by_capacity(self, capacity_value: int):
+        """
+        根据电池容量值自动设置温度类型
+
+        规则:
+        - 280 → Freezer Temperature, 默认温度 -20°C (低温电池)
+        - 380 → Room Temperature (常温电池)
+        - 其他值 → 不改变当前设置
+
+        Args:
+            capacity_value: 从规则中解析出的 required useable capacity 值
+        """
+        if capacity_value == 280:
+            self.main_window.comboBox_Temperature.setCurrentText(TemperatureType.FREEZER.value)
+            self.main_window.spinBox_Temperature.setValue(-20)
+            self.main_window.spinBox_Temperature.setEnabled(True)
+        elif capacity_value == 380:
+            self.main_window.comboBox_Temperature.setCurrentText(TemperatureType.ROOM.value)
+            self.main_window.spinBox_Temperature.setValue(0)
+            self.main_window.spinBox_Temperature.setEnabled(False)
+
     def on_temperature_type_changed(self):
         """
         处理温度类型变化事件

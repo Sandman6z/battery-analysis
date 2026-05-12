@@ -1,21 +1,27 @@
-### v2.9.2 (Unreleased)
-
-#### 修复和改进
-- fix: 修复报告管理器中的docx文件搜索路径，确保正确查找上一级目录中的报告文件
-
-#### 重构优化
-- refactor: 调整代码结构，提升可读性和可维护性
-
-### v2.9.1 (2026-05-08)
+### v2.10.0 (Unreleased)
 
 #### 功能增强
+- feat: 根据电池规格自动判定温度类型（280→Freezer/-20°C，380→Room Temperature）
 - feat(配置): 新增电池型号 CR2450HE1、CR2450HE4
 - feat(配置): 新增测试设备信息 Liba M1（QA）
 - feat(配置): 更新制造商 GP&LB 替代 LBA
 - feat(配置): 更新 VGFernitz 设备序列号和硬件/固件版本
 
-#### 重构优化
+#### 配置迁移
+- fix: 将 setting.ini 配置系统替换为 JSON，移除对旧 INI 文件的运行时依赖
+- fix: 更新 preferences_dialog 配置标签页支持 JSON 配置文件
+- fix: 更新 config_utils.find_config_file 默认文件名从 setting.ini 改为 config.json
+- fix: 在 Event.__init__ 中用 time.time() 替换废弃的 asyncio.get_event_loop()
+
+#### 清理
+- chore: 移除已废弃的 setting.ini、构建残留和迁移计划文档
+- chore: 移除死代码 get_item()（零调用者）
+- chore: 移除 build.py 中已死亡的 CaseSensitiveConfigParser 类
 - refactor: 移除 `_initialize_current_and_voltage_levels` 和 `load_user_settings` 死代码
+
+#### 文档
+- docs: 更新 README 配置说明为 JSON 配置系统
+- docs: 更新 NUITKA_BUILD.md 版本号至 2.10.0
 
 ### v2.9.0
 

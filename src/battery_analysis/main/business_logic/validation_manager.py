@@ -275,6 +275,15 @@ class ValidationManager:
                     self.main_window.lineEdit_RequiredUseableCapacity.setText("")
             else:
                 pass
+
+        # 根据 required useable capacity 自动判定温度类型
+        capacity_text = self.main_window.lineEdit_RequiredUseableCapacity.text()
+        if capacity_text:
+            try:
+                capacity_value = int(capacity_text)
+                self.main_window.temperature_handler.set_temperature_by_capacity(capacity_value)
+            except ValueError:
+                pass
     
     def checkinput(self) -> bool:
         """

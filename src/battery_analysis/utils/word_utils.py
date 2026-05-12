@@ -1,9 +1,8 @@
 """电池分析报告生成的Word工具类。
 
 该模块提供了使用python-docx操作Word文档的工具函数，
-包括表格背景色设置、配置项检索和超链接创建等功能。
+包括表格背景色设置和超链接创建等功能。
 """
-import logging
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.opc.constants import RELATIONSHIP_TYPE
@@ -19,34 +18,6 @@ def table_set_bg_color(_cell, _RGBColor: str) -> None:
     shd.set(qn('w:val'), 'pct100')
     shd.set(qn('w:fill'), f'{_RGBColor}')
     tcPr.append(shd)
-
-def get_item(config, _strSection: str, _strItem: str, _intBlankspaceNum: int = 0) -> str:
-    try:
-        # 检查section是否存在
-        if not config.has_section(_strSection):
-            logging.warning("配置中找不到section '%s'，返回空字符串", _strSection)
-            return ""
-
-        # 检查item是否存在
-        if not config.has_option(_strSection, _strItem):
-            logging.warning(
-                "配置中找不到section '%s'中的选项 '%s'，返回空字符串", _strSection, _strItem)
-            return ""
-
-        # 获取值并处理
-        _listItem = config.get(_strSection, _strItem).split(",")
-        _strBlankSpace = " " * _intBlankspaceNum
-        _listItem = [item.strip() for item in _listItem]
-        if not _listItem:
-            return ""
-        _strValue = _listItem[0]
-        if len(_listItem) > 1:
-            _strValue += "".join([f"\n{_strBlankSpace}{item}" for item in _listItem[1:]])
-        return _strValue
-    except (AttributeError, ValueError, IndexError) as e:
-        logging.error(
-            "获取section '%s'中的配置项 '%s'whenerror occurred: %s", _strSection, _strItem, e)
-        return ""
 
 
 def add_hyperlink(_pParagraph, _strUrl: str, _strText: str):
