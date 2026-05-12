@@ -184,6 +184,11 @@ class ApplicationInitializer:
     
     def create_application(self):
         """创建QApplication实例"""
+        # 如果QApplication已存在，直接返回现有实例
+        app = QApplication.instance()
+        if app is not None:
+            return app
+
         # 创建QApplication实例
         app = QApplication(sys.argv)
         # 设置应用程序样式为Fusion，确保在不同Windows版本上表现一致

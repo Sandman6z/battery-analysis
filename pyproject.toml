@@ -116,7 +116,7 @@ log_cli_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 
 [project.scripts]
-battery-analysis = "battery_analysis.main.main_window:main"
+battery-analysis = "battery_analysis.main.launcher:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

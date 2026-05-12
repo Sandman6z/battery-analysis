@@ -13,6 +13,7 @@ import logging
 import multiprocessing
 import os
 import sys
+import time
 import warnings
 from pathlib import Path
 from typing import Any
@@ -35,7 +36,7 @@ logger = get_logger('main_window')
 class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     sigSetVersion = QC.pyqtSignal()
 
-    def __init__(self) -> None:
+    def __init__(self, splash=None) -> None:
         super().__init__()
 
         # 使用初始化管理器处理所有初始化逻辑
@@ -45,6 +46,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # 初始化窗口和部件
         self.init_window()
         self.init_widget()
+
+        # 延迟初始化标记
+        self._lazy_init_done = False
+
+        # 更新闪屏消息
+        if splash:
+            splash.showMessage(
+                self.tr("Initializing UI..."),
+                QC.Qt.AlignmentFlag.AlignBottom | QC.Qt.AlignmentFlag.AlignCenter,
+                QG.QColor("white"))
+            QW.QApplication.processEvents()
 
     # ------------------------------
     # 服务和控制器获取方法
@@ -621,31 +633,96 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         if hasattr(self, 'tableWidget_TestInformation'):
             self.tableWidget_TestInformation.resizeColumnsToContents()
 
+    def _lazy_init(self):
+        """延迟初始化非关键UI组件（窗口显示后执行）"""
+        if self._lazy_init_done:
+            return
+        self._lazy_init_done = True
+        try:
+            t0 = time.time()
+            # 可访问性设置和工具提示 — 不影响功能
+            if hasattr(self, 'ui_manager'):
+                self.ui_manager.setup_accessibility()
+                self.ui_manager.setup_tooltips()
+            self.logger.debug("延迟初始化完成，耗时: %dms", (time.time() - t0) * 1000)
+        except Exception as e:
+            self.logger.warning("延迟初始化失败: %s", e)
 
-def main() -> None:
+
+def _create_splash_screen(app):
+    """创建启动闪屏"""
+    try:
+        splash_pixmap = QG.QPixmap(480, 300)
+        splash_pixmap.fill(QG.QColor("#2c3e50"))
+        splash = QW.QSplashScreen(splash_pixmap)
+        splash.setWindowFlags(QC.Qt.WindowType.WindowStaysOnTopHint)
+        splash.show()
+
+        # 绘制标题文字
+        from battery_analysis import __version__
+        splash.showMessage(
+            f"Battery Analyzer v{__version__}",
+            QC.Qt.AlignmentFlag.AlignTop | QC.Qt.AlignmentFlag.AlignCenter,
+            QG.QColor("#ecf0f1"))
+        app.processEvents()
+
+        return splash
+    except Exception as e:
+        logging.getLogger(__name__).warning("创建闪屏失败: %s", e)
+        return None
+
+
+def main(app=None, splash=None) -> None:
     # 解决PyInstaller打包后multiprocessing导致的递归启动问题
     multiprocessing.freeze_support()
     # 优化PyQt6的警告处理
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
-    
-    # 导入应用程序初始化器
+
+    # 如果未传入 app（从 launcher 调用时已有），创建 QApplication
+    if app is None:
+        app = QW.QApplication(sys.argv)
+        app.setStyle(QW.QStyleFactory.create("Fusion"))
+        font = QG.QFont()
+        font.setFamilies(["Segoe UI", "Segoe UI Emoji", "SimHei", "Microsoft YaHei"])
+        app.setFont(font)
+
+    # 如果未传入闪屏，创建闪屏
+    if splash is None:
+        splash = _create_splash_screen(app)
+
+    # 导入并初始化（此时闪屏已显示，掩盖import和初始化耗时）
     from battery_analysis.main.application_initializer import ApplicationInitializer
-    
-    # 创建应用程序初始化器实例
+
     initializer = ApplicationInitializer()
-    
-    # 执行应用程序初始化
+
+    if splash:
+        splash.showMessage(
+            "Initializing...",
+            QC.Qt.AlignmentFlag.AlignBottom | QC.Qt.AlignmentFlag.AlignCenter,
+            QG.QColor("white"))
+        app.processEvents()
+
     if not initializer.initialize():
         sys.exit(1)
-    
-    # 创建QApplication实例
-    app = initializer.create_application()
-    
+
+    if splash:
+        splash.showMessage(
+            "Creating main window...",
+            QC.Qt.AlignmentFlag.AlignBottom | QC.Qt.AlignmentFlag.AlignCenter,
+            QG.QColor("white"))
+        app.processEvents()
+
     # 创建主窗口
-    window = Main()
-    # 设置窗口最小尺寸为更小的值，确保在小分辨率屏幕上也能显示标题栏
-    window.setMinimumSize(800, 600)  # 设置一个合理的最小尺寸
+    window = Main(splash=splash)
+    window.setMinimumSize(800, 600)
     window.show()
+
+    # 关闭闪屏
+    if splash:
+        splash.finish(window)
+
+    # 延迟初始化非关键UI（窗口显示后异步执行）
+    QC.QTimer.singleShot(0, window._lazy_init)
 
     # 获取屏幕可用区域
     screen_rect = app.primaryScreen().availableGeometry()
@@ -661,7 +738,7 @@ def main() -> None:
 
     # 运行应用程序事件循环
     result = initializer.run_application(app, window)
-    
+
     sys.exit(result)
 
 

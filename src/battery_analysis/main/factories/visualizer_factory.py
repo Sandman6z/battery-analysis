@@ -9,7 +9,6 @@ import logging
 import os
 from typing import Optional, Type, Dict, Any
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
-from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
 
 
 class VisualizerFactory:
@@ -93,7 +92,8 @@ class BatteryChartViewerWrapper(IVisualizer):
         """
         self.logger = logging.getLogger(__name__)
         
-        # 创建viewer实例时传递data_path=None和auto_search=False以避免自动搜索
+        # 延迟导入，避免 import visualizer_factory 时触发 matplotlib 等 heavy 导入
+        from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
         self._viewer = BatteryChartViewer(data_path=None, auto_search=False)
         self._config = {}
         
@@ -325,7 +325,7 @@ class BatteryChartViewerWrapper(IVisualizer):
         return self._config.copy()
 
     @property
-    def viewer(self) -> BatteryChartViewer:
+    def viewer(self) -> "BatteryChartViewer":
         """
         获取原始的viewer实例
         

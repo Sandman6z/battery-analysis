@@ -225,9 +225,9 @@ class LogManager:
         self.logger.info(f"可用内存: {mem.available / (1024**3):.2f} GB")
         self.logger.info(f"内存使用率: {mem.percent}%")
         
-        # 记录CPU信息
+        # 记录CPU信息（interval=0 避免模块导入时的阻塞）
         self.logger.info(f"CPU核心数: {psutil.cpu_count(logical=True)}")
-        self.logger.info(f"CPU使用率: {psutil.cpu_percent(interval=1)}%")
+        self.logger.info(f"CPU使用率: {psutil.cpu_percent(interval=0)}%")
         
         # 记录应用程序路径
         self.logger.info(f"应用程序路径: {sys.argv[0]}")
@@ -330,18 +330,21 @@ class LogManager:
 
 
 # 创建全局日志管理器实例
-_log_manager = LogManager()
+_log_manager = None
 
 
 def get_logger(name=None):
     """获取日志记录器的便捷函数
-    
+
     Args:
         name: 日志记录器名称
-        
+
     Returns:
         logging.Logger: 日志记录器实例
     """
+    global _log_manager
+    if _log_manager is None:
+        _log_manager = LogManager()
     return _log_manager.get_logger(name)
 
 
@@ -351,13 +354,19 @@ def get_log_directory():
     Returns:
         Path: 日志目录路径
     """
+    global _log_manager
+    if _log_manager is None:
+        _log_manager = LogManager()
     return _log_manager.get_log_directory()
 
 
 def clear_old_logs(days=30):
     """清理旧日志文件的便捷函数
-    
+
     Args:
         days: 保留日志的天数
     """
+    global _log_manager
+    if _log_manager is None:
+        _log_manager = LogManager()
     _log_manager.clear_old_logs(days)

@@ -8,7 +8,6 @@ import logging
 import os
 import re
 from concurrent.futures import ProcessPoolExecutor, as_completed
-import pandas as pd
 from PyQt6 import QtWidgets as QW
 from PyQt6 import QtCore as QC
 
@@ -89,7 +88,8 @@ class DataProcessor:
         }
 
     @staticmethod
-    def optimize_dataframe_memory(df: pd.DataFrame) -> pd.DataFrame:
+    def optimize_dataframe_memory(df) -> "pd.DataFrame":
+        import pandas as pd
         for col in df.select_dtypes(include=['int64']).columns:
             df[col] = pd.to_numeric(df[col], downcast='integer')
         for col in df.select_dtypes(include=['float64']).columns:
@@ -100,6 +100,7 @@ class DataProcessor:
         return df
 
     def process_excel_with_pandas(self, file_path: str) -> dict:
+        import pandas as pd
         try:
             cached = self._cache['excel_files'].get(file_path)
             if cached is not None:
@@ -410,6 +411,7 @@ class DataProcessor:
                 return
 
             def analyze_single_file(file_info):
+                import pandas as pd
                 filename, path = file_info
                 try:
                     df = pd.read_excel(os.path.join(path, filename), sheet_name=0, engine='openpyxl', header=0)
