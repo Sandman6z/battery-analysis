@@ -380,7 +380,7 @@ class ExcelReportWriter:
             f"#PULSE DISCHARGE",
             f"#BATTERY CHARACTERISTICS",
             f"#Start Time: {self.listBatteryInfo[2][0]}",
-            f"#Start Time: {self.listBatteryInfo[2][1]}",
+            f"#End Time: {self.listBatteryInfo[2][1]}",
             f"#Battery Type: {self.listTestInfo[2]} {self.listTestInfo[3]}",
             f"#Battery Manufacturer: {self.listTestInfo[4]}",
             f"#Battery Date Code: {self.listTestInfo[5]}",
@@ -574,12 +574,9 @@ class ExcelReportWriter:
         # ── 计算intPosiMaxmA、intPosi2V25、intTestProfileStartLine ──
         intPosiMaxmA = 0
         intPosi2V25 = 0
-        intPresentmA = 0
-        for c in range(self.intCurrentLevelNum):
-            intPresentmA = self.listCurrentLevel[c]
-            if self.listCurrentLevel[c] > intPresentmA:
+        for c in range(1, self.intCurrentLevelNum):
+            if self.listCurrentLevel[c] > self.listCurrentLevel[intPosiMaxmA]:
                 intPosiMaxmA = c
-                break
         for v in range(self.intVoltageLevelNum):
             if self.listVoltageLevel[v] == 2.25:
                 intPosi2V25 = v

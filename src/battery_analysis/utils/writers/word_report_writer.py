@@ -218,12 +218,9 @@ class WordReportWriter:
         # 计算intPosiMaxmA、intPosi2V25
         intPosiMaxmA = 0
         intPosi2V25 = 0
-        intPresentmA = 0
-        for c in range(self.intCurrentLevelNum):
-            intPresentmA = self.listCurrentLevel[c]
-            if self.listCurrentLevel[c] > intPresentmA:
+        for c in range(1, self.intCurrentLevelNum):
+            if self.listCurrentLevel[c] > self.listCurrentLevel[intPosiMaxmA]:
                 intPosiMaxmA = c
-                break
         for v in range(self.intVoltageLevelNum):
             if self.listVoltageLevel[v] == 2.25:
                 intPosi2V25 = v

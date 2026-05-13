@@ -72,7 +72,7 @@ class CsvWriter:
             f"#Battery Date Code: {self.listTestInfo[5]}",
             f"#Temperature: {self.listTestInfo[6]}",
             f"#Test Profile: {self.listTestInfo[13]}",
-            f"#Version: v{__version__}"
+            f"#Version: v{__version__}",
             f"#END HEADER"
         ]
         for info in csv_header_info:
