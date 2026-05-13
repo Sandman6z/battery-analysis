@@ -1,6 +1,7 @@
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 from battery_analysis.utils.data_utils import generate_current_type_string
 import xlrd as rd
+import pandas as pd
 import os
 import csv
 import datetime
@@ -350,7 +351,209 @@ class BatteryAnalysis:
 
     @staticmethod
     def _parallel_process_file(args):
-        """并行处理单个Excel文件的静态方法"""
+        """并行处理单个Excel文件的静态方法（pandas 优化版本）"""
+        strPath, listCurrentLevel, listVoltageLevel = args
+
+        listLevelToVoltage = []
+        listLevelToRow = []
+        listLevelToCharge = []
+        listPosiForInfoImageCsv = []
+        listVoltageForInfoImageCsv = []
+        listChargeForInfoImageCsv = []
+
+        for c, _ in enumerate(listCurrentLevel):
+            listLevelToVoltage.append([])
+            listLevelToRow.append([])
+            listLevelToCharge.append([])
+            listPosiForInfoImageCsv.append([])
+            listVoltageForInfoImageCsv.append([])
+            listChargeForInfoImageCsv.append([])
+            for v, _ in enumerate(listVoltageLevel):
+                listLevelToVoltage[c].append(listVoltageLevel[v])
+                listLevelToRow[c].append(0)
+                listLevelToCharge[c].append(0)
+
+        try:
+            cycle_df = pd.read_excel(strPath, sheet_name=0, header=None, engine='openpyxl')
+            step_df = pd.read_excel(strPath, sheet_name=1, header=None, engine='openpyxl')
+            record_df = pd.read_excel(strPath, sheet_name=2, header=None, engine='openpyxl')
+        except Exception as e:
+            logging.error("pandas 读取失败 %s, 回退到 xlrd. 原始错误: %s", strPath, e)
+            return BatteryAnalysis._parallel_process_file_xlrd_fallback(args)
+
+        if len(cycle_df) < 3 or len(step_df) < 3 or len(record_df) < 3:
+            raise BatteryAnalysisException(f"Excel文件格式错误: {strPath} 数据行不足")
+
+        # 列提取（xlrd 兼容：索引与 xlrd col_values 完全一致）
+        cycle_cycle = cycle_df.iloc[:, 0]
+        cycle_begin = cycle_df.iloc[:, 1]
+        cycle_end = cycle_df.iloc[:, 2]
+        cycle_charge = cycle_df.iloc[:, 3]
+
+        step_cycle = step_df.iloc[:, 0]
+        step_step = step_df.iloc[:, 1]
+        step_charge = step_df.iloc[:, 2]
+
+        record_cycle = record_df.iloc[:, 0]
+        record_step = record_df.iloc[:, 1]
+        record_current = record_df.iloc[:, 2]
+        record_voltage = record_df.iloc[:, 3]
+        record_charge = record_df.iloc[:, 4]
+
+        # 兼容原始 xlrd 的索引：row 0 = 表头/电池名，row 1 = 元数据，row 2+ = 数据行
+        try:
+            listTimeStamp = [
+                str(cycle_begin.iloc[2]) if pd.notna(cycle_begin.iloc[2]) else "",
+                str(cycle_end.iloc[len(cycle_df)-1]) if pd.notna(cycle_end.iloc[len(cycle_df)-1]) else ""
+            ]
+        except IndexError:
+            listTimeStamp = ["", ""]
+
+        battery_name = str(cycle_cycle.iloc[0]) if len(cycle_df) > 0 and pd.notna(cycle_cycle.iloc[0]) else strPath
+
+        neg_current_levels = [-float(level) for level in listCurrentLevel]
+
+        def b_is_in_range(current, standard):
+            """检查电流是否在标准值的 +/-5% 范围内（兼容正负数）"""
+            return abs(current - standard) <= abs(standard * 0.05)
+
+        # 脉冲检测
+        pulse_mask = record_step.astype(str).str.strip().isin(["脉冲", "Pulse"])
+        if pulse_mask.sum() == 0:
+            raise BatteryAnalysisException(f"未找到脉冲数据: {strPath}")
+
+        # 遍历每个脉冲行，从索引 2 开始（跳过 header + metadata，与 xlrd 原代码一致）
+        for row in range(2, len(record_df)):
+            if not pulse_mask.iloc[row]:
+                continue
+
+            try:
+                current_ma = float(record_current.iloc[row]) * 1000
+                voltage = float(record_voltage.iloc[row])
+            except (ValueError, TypeError):
+                continue
+
+            for c_idx, neg_level in enumerate(neg_current_levels):
+                if b_is_in_range(current_ma, neg_level):
+                    # 检查是否是脉冲结束点
+                    is_endpoint = True
+                    if row < len(record_df) - 1:
+                        try:
+                            next_current = float(record_current.iloc[row + 1]) * 1000
+                            if b_is_in_range(next_current, neg_level):
+                                is_endpoint = False
+                        except (ValueError, TypeError):
+                            pass
+
+                    if is_endpoint:
+                        listPosiForInfoImageCsv[c_idx].append(row)
+                        listVoltageForInfoImageCsv[c_idx].append(voltage)
+
+                    # 检查电压等级
+                    for v_idx, v_level in enumerate(listVoltageLevel):
+                        if voltage <= v_level and listLevelToRow[c_idx][v_idx] == 0:
+                            listLevelToVoltage[c_idx][v_idx] = voltage
+                            listLevelToRow[c_idx][v_idx] = row
+
+        # 累积电荷计算（xlrd 兼容索引）
+        cycle_charge_values = pd.to_numeric(cycle_charge, errors='coerce').fillna(0).abs()
+        cycle_cumsum = cycle_charge_values.cumsum().tolist()
+
+        # Step 数据（从索引 2 开始，跳过 header + metadata；与 xlrd 一致，取非脉冲步的 charge）
+        step_df_data = step_df.iloc[2:].copy() if len(step_df) > 2 else step_df.iloc[0:0].copy()
+        if len(step_df_data) > 0:
+            step_df_data['_abs_charge'] = pd.to_numeric(step_df_data.iloc[:, 2], errors='coerce').fillna(0).abs()
+            non_pulse_mask = ~step_df_data.iloc[:, 1].astype(str).str.strip().isin(["脉冲", "Pulse"])
+            step_charge_by_cycle = step_df_data[non_pulse_mask].groupby(step_df_data.iloc[:, 0])['_abs_charge'].sum()
+        else:
+            step_charge_by_cycle = pd.Series(dtype=float)
+
+        record_charge_values = pd.to_numeric(record_charge, errors='coerce').fillna(0).abs()
+
+        def calculate_charge(position_idx, is_single=True):
+            """计算指定行位置的累积充电量（xlrd 兼容索引）"""
+            if is_single:
+                positions = [position_idx]
+                single_result = True
+            else:
+                positions = position_idx
+                single_result = False
+
+            results = [0] * len(positions) if not single_result else [0]
+
+            for i, pos in enumerate(positions):
+                if not pos or pos < 2:
+                    if single_result:
+                        return 0
+                    continue
+                if pos >= len(record_df):
+                    if single_result:
+                        return 0
+                    continue
+
+                try:
+                    row_cycle = record_cycle.iloc[pos]
+                except IndexError:
+                    if single_result:
+                        return 0
+                    continue
+
+                if pd.isna(row_cycle):
+                    if single_result:
+                        return 0
+                    continue
+
+                # 找 cycle 索引，与 xlrd 原代码一致（用 < 而非 !=，容错 cycle 跳号）
+                cycle_idx = 2
+                while cycle_idx < len(cycle_df) and cycle_cycle.iloc[cycle_idx] < row_cycle:
+                    cycle_idx += 1
+
+                charge = cycle_cumsum[cycle_idx - 1] if cycle_idx > 2 else 0
+
+                try:
+                    charge += step_charge_by_cycle.get(row_cycle, 0)
+                except (TypeError, KeyError):
+                    pass
+
+                try:
+                    charge += abs(record_charge_values.iloc[pos])
+                except (ValueError, TypeError):
+                    pass
+
+                if single_result:
+                    results[0] = round(charge)
+                else:
+                    results[i] = charge
+
+            return results[0] if single_result else results
+
+        # 计算各电流/电压档位的充电量
+        listOneBatteryCharge = []
+        for c in range(len(listCurrentLevel)):
+            for v in range(len(listVoltageLevel)):
+                charge = calculate_charge(listLevelToRow[c][v])
+                listOneBatteryCharge.append(charge)
+
+        # 计算绘图用数据
+        for c, posi_list in enumerate(listPosiForInfoImageCsv):
+            listChargeForInfoImageCsv[c] = calculate_charge(posi_list, is_single=False)
+            if len(listChargeForInfoImageCsv[c]) != len(listVoltageForInfoImageCsv[c]):
+                raise BatteryAnalysisException(
+                    f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, "
+                    f"charge is not equal to voltage")
+
+        return (
+            battery_name,
+            listOneBatteryCharge,
+            listPosiForInfoImageCsv,
+            listVoltageForInfoImageCsv,
+            listChargeForInfoImageCsv,
+            listTimeStamp
+        )
+
+    @staticmethod
+    def _parallel_process_file_xlrd_fallback(args):
+        """xlrd 回退：原始 xlrd 行扫描实现"""
         strPath, listCurrentLevel, listVoltageLevel = args
 
         # temp list to store voltage and row refer to different current level and voltage level
