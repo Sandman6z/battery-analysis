@@ -24,13 +24,7 @@ import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
-from battery_analysis.main.managers.initialization_manager import InitializationManager
-from battery_analysis.resources import resources_rc
 from battery_analysis.ui import ui_main_window
-from battery_analysis.utils.log_manager import get_logger
-
-# 导入并使用新的日志管理器
-logger = get_logger('main_window')
 
 
 class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
@@ -39,24 +33,145 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def __init__(self, splash=None) -> None:
         super().__init__()
 
-        # 使用初始化管理器处理所有初始化逻辑
-        init_manager = InitializationManager(self)
-        init_manager.initialize()
+        # 注册 Qt 资源（图标等），setupUi 依赖
+        from battery_analysis.resources import resources_rc  # noqa: F401
 
-        # 初始化窗口和部件
-        self.init_window()
-        self.init_widget()
-
-        # 延迟初始化标记
+        # 初始化属性
+        self._services = {}
+        self._controllers = {}
         self._lazy_init_done = False
 
-        # 更新闪屏消息
+        # 仅构建 UI 骨架（Qt 控件树 + 布局），不填充数据
+        self.setupUi(self)
+
+        # 将绝对定位转换为响应式布局（适配不同屏幕尺寸）
+        self._apply_responsive_layout()
+
+        # 小屏幕最大化以充分利用空间，大屏幕居中显示
+        screen = QW.QApplication.primaryScreen()
+        if screen and screen.availableGeometry().height() < 750:
+            self.showMaximized()
+        else:
+            self.show()
+
+        # 关闭闪屏
         if splash:
-            splash.showMessage(
-                self.tr("Initializing UI..."),
-                QC.Qt.AlignmentFlag.AlignBottom | QC.Qt.AlignmentFlag.AlignCenter,
-                QG.QColor("white"))
-            QW.QApplication.processEvents()
+            splash.finish(self)
+
+        # 所有业务初始化延后到窗口显示后执行
+        QC.QTimer.singleShot(0, self._deferred_init)
+
+    def _apply_responsive_layout(self) -> None:
+        """
+        将 setupUi 设置的绝对定位替换为响应式布局。
+        窗口大小改变时，各面板按比例自适应，支持不同屏幕尺寸和 DPI。
+        """
+        # 1) 左侧内容（4 个 group box）放到可滚动区域
+        left_content = QW.QWidget()
+        left_layout = QW.QVBoxLayout(left_content)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(5)
+
+        for w in (self.groupBox_TestConfig, self.groupBox_Path,
+                  self.groupBox_BatteryConfig, self.groupBox_TestInformation):
+            w.setParent(left_content)
+            left_layout.addWidget(w)
+
+        # 2) 最小高度（压缩到刚好能看清的程度）
+        self.groupBox_TestConfig.setMinimumHeight(95)
+        self.groupBox_Path.setMinimumHeight(95)
+        self.groupBox_BatteryConfig.setMinimumHeight(341)
+        self.groupBox_TestInformation.setMinimumHeight(120)
+
+        # 3) 大小策略
+        self.groupBox_TestConfig.setSizePolicy(
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
+        self.groupBox_Path.setSizePolicy(
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
+        self.groupBox_BatteryConfig.setSizePolicy(
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding)
+        self.groupBox_TestInformation.setSizePolicy(
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding)
+
+        # 4) 可滚动区域（只包左边内容，右侧 Run 按钮固定不滚动）
+        # widgetResizable=False → 不主动压缩内容，内容多高就多大，
+        # 视口不够时自动出现滚动条
+        left_scroll = QW.QScrollArea()
+        left_scroll.setWidgetResizable(False)
+        left_scroll.setFrameShape(QW.QFrame.Shape.NoFrame)
+        left_scroll.setWidget(left_content)
+
+        # 5) 主布局：左右分栏
+        main_layout = QW.QHBoxLayout(self.centralwidget)
+        main_layout.setContentsMargins(5, 5, 5, 5)
+        main_layout.setSpacing(5)
+        main_layout.addWidget(left_scroll)
+        main_layout.addWidget(self.frame_RunButton)
+        main_layout.setStretch(0, 661)
+        main_layout.setStretch(1, 231)
+
+        # 6) 右侧面板不垂直拉伸，固定最小尺寸（原始 setGeometry 的尺寸）
+        self.frame_RunButton.setSizePolicy(
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Preferred)
+        self.frame_RunButton.setMinimumSize(231, 301)
+
+        # 7) 窗口显示后居中
+        QC.QTimer.singleShot(0, self._center_on_screen)
+
+    def _center_on_screen(self) -> None:
+        """将窗口移动到屏幕中央"""
+        screen = QW.QApplication.primaryScreen().availableGeometry()
+        win = self.frameGeometry()
+        self.move(
+            screen.center().x() - win.width() // 2,
+            screen.center().y() - win.height() // 2,
+        )
+
+    def _deferred_init(self):
+        """窗口显示后执行的全部初始化 — 不再阻塞启动"""
+        t0 = time.time()
+        try:
+            # 1) 日志系统（首次调用 get_logger 即创建 LogManager 单例）
+            from battery_analysis.utils.log_manager import get_logger
+            self.logger = get_logger('main_window')
+
+            # 2) 应用级初始化（异常钩子、matplotlib 后端等）
+            from battery_analysis.main.application_initializer import ApplicationInitializer
+            initializer = ApplicationInitializer()
+            if not initializer.initialize():
+                self.logger.error("应用初始化失败，部分功能可能不可用")
+                return
+
+            # 3) 完整初始化管线（服务容器 → 配置 → UI 填充 → 处理器 → …）
+            from battery_analysis.main.managers.initialization_manager import InitializationManager
+            init_manager = InitializationManager(self)
+            init_manager.initialize()
+
+            # 4) UI 后处理（窗口属性、控件填充）
+            self.init_window()
+            self.init_widget()
+
+            # 5) 版本号
+            self.get_version()
+
+            # 6) 非关键 UI 辅助功能／工具提示
+            self._lazy_init()
+
+            # 7) 记录环境信息（包含 psutil/platform 调用，但 UI 已可见）
+            try:
+                from battery_analysis.utils.log_manager import get_log_manager
+                lm = get_log_manager()
+                if lm:
+                    lm.log_environment_info()
+            except Exception:
+                pass
+
+            elapsed = (time.time() - t0) * 1000
+            self.logger.info("后台初始化完成，耗时 %dms", elapsed)
+        except Exception as e:
+            print(f"后台初始化异常: {e}")
+            import traceback
+            traceback.print_exc()
 
     # ------------------------------
     # 服务和控制器获取方法
@@ -690,54 +805,16 @@ def main(app=None, splash=None) -> None:
     if splash is None:
         splash = _create_splash_screen(app)
 
-    # 导入并初始化（此时闪屏已显示，掩盖import和初始化耗时）
-    from battery_analysis.main.application_initializer import ApplicationInitializer
-
-    initializer = ApplicationInitializer()
-
-    if splash:
-        splash.showMessage(
-            "Initializing...",
-            QC.Qt.AlignmentFlag.AlignBottom | QC.Qt.AlignmentFlag.AlignCenter,
-            QG.QColor("white"))
-        app.processEvents()
-
-    if not initializer.initialize():
-        sys.exit(1)
-
-    if splash:
-        splash.showMessage(
-            "Creating main window...",
-            QC.Qt.AlignmentFlag.AlignBottom | QC.Qt.AlignmentFlag.AlignCenter,
-            QG.QColor("white"))
-        app.processEvents()
-
-    # 创建主窗口
+    # 创建主窗口（内部根据屏幕尺寸自动居中或最大化）
     window = Main(splash=splash)
     window.setMinimumSize(800, 600)
-    window.show()
-
-    # 关闭闪屏
-    if splash:
-        splash.finish(window)
-
-    # 延迟初始化非关键UI（窗口显示后异步执行）
-    QC.QTimer.singleShot(0, window._lazy_init)
-
-    # 获取屏幕可用区域
-    screen_rect = app.primaryScreen().availableGeometry()
-
-    # 确保窗口不会超出屏幕边界
-    window_handle = window.windowHandle()
-    if window_handle:
-        # 如果窗口太大，调整为适合屏幕
-        if window.width() > screen_rect.width() or window.height() > screen_rect.height():
-            new_width = min(window.width(), int(screen_rect.width() * 0.9))
-            new_height = min(window.height(), int(screen_rect.height() * 0.9))
-            window.resize(new_width, new_height)
 
     # 运行应用程序事件循环
-    result = initializer.run_application(app, window)
+    try:
+        result = app.exec()
+    except Exception as e:
+        logging.getLogger(__name__).critical("事件循环异常: %s", e)
+        result = 1
 
     sys.exit(result)
 

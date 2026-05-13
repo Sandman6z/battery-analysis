@@ -101,134 +101,31 @@ class LogManager:
         # 清理旧日志文件，只保留10个
         self._cleanup_old_logs(10)
         
-        # 记录环境信息
+        # 环境信息延后记录，不阻塞启动
+        # self._log_environment_info() 改由外部在适当时机调用
+
+    def log_environment_info(self):
+        """对外暴露：记录环境信息，可在启动完成后调用"""
         self._log_environment_info()
-    
-    def _get_windows_activation_status(self):
-        """获取Windows系统激活状态
-        
-        Returns:
-            str: 激活状态信息
-        """
-        if platform.system() != 'Windows':
-            return "非Windows系统"
-        
-        try:
-            import subprocess
-            import winreg
-            
-            # 方法1: 尝试从注册表获取激活状态
-            try:
-                # 尝试从注册表获取激活状态，但不记录过多调试日志
-                # 只在成功获取时记录，失败时直接尝试其他方法
-                try:
-                    key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"
-                    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, access=winreg.KEY_READ) as key:
-                        license_status = winreg.QueryValueEx(key, "LicenseStatus")[0]
-                        
-                        status_map = {
-                            0: "未激活",
-                            1: "已激活",
-                            2: "OOBGrace",
-                            3: "OOTGrace",
-                            4: "NonGenuineGrace",
-                            5: "Notification",
-                            6: "ExtendedGrace"
-                        }
 
-                        return f"Windows 激活状态: {status_map.get(license_status, f'未知状态 ({license_status})')}"
-                except (OSError, PermissionError, FileNotFoundError) as e:
-                    # 注册表访问失败，不记录详细日志，直接尝试下一种方法
-                    logging.debug(f"注册表访问失败: {e}")
-                    pass
-
-                # 不尝试Wow6432Node路径，减少不必要的日志
-            except (OSError, PermissionError, ImportError) as e:
-                # 捕获所有注册表相关异常，不记录详细日志
-                logging.debug(f"Windows激活状态检测失败: {e}")
-                pass
-                
-            # 方法2: 尝试使用cscript执行slmgr.vbs
-            try:
-                slmgr_path = "C:\\Windows\\System32\\slmgr.vbs"
-                result = subprocess.run(
-                    ['cscript', slmgr_path, '/xpr'],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                    creationflags=subprocess.CREATE_NO_WINDOW
-                )
-                return result.stdout.strip() if result.stdout.strip() else "无法获取激活状态"
-            except Exception as slmgr_error:
-                self.logger.debug(f"使用slmgr获取激活状态失败: {slmgr_error}")
-                
-            # 方法3: 尝试使用wmic命令
-            try:
-                result = subprocess.run(
-                    ['wmic', 'path', 'SoftwareLicensingProduct', 'where', 'ApplicationID="55c92734-d682-4d71-983e-d6ec3f16059f"', 'get', 'LicenseStatus', '/value'],
-                    capture_output=True,
-                    text=True,
-                    timeout=10
-                )
-                if "LicenseStatus=1" in result.stdout:
-                    return "Windows 已激活"
-                elif "LicenseStatus=0" in result.stdout:
-                    return "Windows 未激活"
-                else:
-                    return "无法获取激活状态"
-            except Exception as wmic_error:
-                self.logger.debug(f"使用wmic获取激活状态失败: {wmic_error}")
-                
-            return "无法获取激活状态"
-        except Exception as e:
-            self.logger.debug(f"获取Windows激活状态失败: {e}")
-            return "获取激活状态失败"
-    
-    def _get_windows_edition(self):
-        """获取Windows系统版本类型
-        
-        Returns:
-            str: 系统版本类型
-        """
-        if platform.system() != 'Windows':
-            return "非Windows系统"
-        
-        try:
-            import winreg
-            # 从注册表获取系统版本
-            key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path) as key:
-                product_name = winreg.QueryValueEx(key, "ProductName")[0]
-                return product_name
-        except Exception as e:
-            self.logger.debug(f"获取Windows版本类型失败: {e}")
-            return "获取版本类型失败"
-    
     def _log_environment_info(self):
         """记录应用程序运行环境信息"""
         self.logger.info("=" * 50)
         self.logger.info("应用程序启动")
         self.logger.info(f"Python版本: {sys.version}")
         self.logger.info(f"操作系统: {platform.system()} {platform.release()} {platform.version()}")
-        
-        # 记录Windows系统详细信息
-        if platform.system() == 'Windows':
-            self.logger.info(f"Windows版本: {self._get_windows_edition()}")
-            self.logger.info(f"激活状态: {self._get_windows_activation_status()}")
-        
-        self.logger.info(f"计算机名称: {platform.node()}")
         self.logger.info(f"处理器: {platform.processor()}")
-        
+
         # 记录内存信息
         mem = psutil.virtual_memory()
         self.logger.info(f"总内存: {mem.total / (1024**3):.2f} GB")
         self.logger.info(f"可用内存: {mem.available / (1024**3):.2f} GB")
         self.logger.info(f"内存使用率: {mem.percent}%")
-        
+
         # 记录CPU信息（interval=0 避免模块导入时的阻塞）
         self.logger.info(f"CPU核心数: {psutil.cpu_count(logical=True)}")
         self.logger.info(f"CPU使用率: {psutil.cpu_percent(interval=0)}%")
-        
+
         # 记录应用程序路径
         self.logger.info(f"应用程序路径: {sys.argv[0]}")
         self.logger.info(f"当前工作目录: {os.getcwd()}")
@@ -346,6 +243,18 @@ def get_logger(name=None):
     if _log_manager is None:
         _log_manager = LogManager()
     return _log_manager.get_logger(name)
+
+
+def get_log_manager():
+    """获取 LogManager 单例
+
+    Returns:
+        LogManager: 日志管理器实例
+    """
+    global _log_manager
+    if _log_manager is None:
+        _log_manager = LogManager()
+    return _log_manager
 
 
 def get_log_directory():

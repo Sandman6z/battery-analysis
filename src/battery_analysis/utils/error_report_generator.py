@@ -26,106 +26,6 @@ class ErrorReportGenerator:
         self.logger = get_logger('error_report_generator')
         self.log_dir = get_log_directory()
     
-    def _get_windows_activation_status(self):
-        """获取Windows系统激活状态
-        
-        Returns:
-            str: 激活状态信息
-        """
-        if platform.system() != 'Windows':
-            return "非Windows系统"
-        
-        try:
-            import subprocess
-            import winreg
-            
-            # 方法1: 尝试从注册表获取激活状态
-            try:
-                # 尝试从注册表获取激活状态，但不记录过多调试日志
-                # 只在成功获取时记录，失败时直接尝试其他方法
-                try:
-                    key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"
-                    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, access=winreg.KEY_READ) as key:
-                        license_status = winreg.QueryValueEx(key, "LicenseStatus")[0]
-                        
-                        status_map = {
-                            0: "未激活",
-                            1: "已激活",
-                            2: "OOBGrace",
-                            3: "OOTGrace",
-                            4: "NonGenuineGrace",
-                            5: "Notification",
-                            6: "ExtendedGrace"
-                        }
-
-                        return f"Windows 激活状态: {status_map.get(license_status, f'未知状态 ({license_status})')}"
-                except (OSError, PermissionError, FileNotFoundError) as e:
-                    # 注册表访问失败，不记录详细日志，直接尝试下一种方法
-                    logging.debug(f"注册表访问失败: {e}")
-                    pass
-
-                # 不尝试Wow6432Node路径，减少不必要的日志
-            except (OSError, PermissionError, ImportError) as e:
-                # 捕获所有注册表相关异常，不记录详细日志
-                logging.debug(f"Windows激活状态检测失败: {e}")
-                pass
-                
-            # 方法2: 尝试使用cscript执行slmgr.vbs
-            try:
-                slmgr_path = "C:\\Windows\\System32\\slmgr.vbs"
-                result = subprocess.run(
-                    ['cscript', slmgr_path, '/xpr'],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                    creationflags=subprocess.CREATE_NO_WINDOW
-                )
-                return result.stdout.strip() if result.stdout.strip() else "无法获取激活状态"
-            except Exception as slmgr_error:
-                self.logger.debug(f"使用slmgr获取激活状态失败: {slmgr_error}")
-                
-            # 方法3: 尝试使用wmic命令
-            try:
-                result = subprocess.run(
-                    ['wmic', 'path', 'SoftwareLicensingProduct', 'where', 'ApplicationID="55c92734-d682-4d71-983e-d6ec3f16059f"', 'get', 'LicenseStatus', '/value'],
-                    capture_output=True,
-                    text=True,
-                    timeout=10
-                )
-                if "LicenseStatus=1" in result.stdout:
-                    return "Windows 已激活"
-                elif "LicenseStatus=0" in result.stdout:
-                    return "Windows 未激活"
-                else:
-                    return "无法获取激活状态"
-            except Exception as wmic_error:
-                self.logger.debug(f"使用wmic获取激活状态失败: {wmic_error}")
-                
-            return "无法获取激活状态"
-        except Exception as e:
-            self.logger.debug(f"获取Windows激活状态失败: {e}")
-            return "获取激活状态失败"
-    
-    def _get_windows_edition(self):
-        """获取Windows系统版本类型
-        
-        Returns:
-            str: 系统版本类型
-        """
-        if platform.system() != 'Windows':
-            return "非Windows系统"
-        
-        try:
-            import winreg
-            # 从注册表获取系统版本
-            key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path) as key:
-                product_name = winreg.QueryValueEx(key, "ProductName")[0]
-                return product_name
-        except Exception as e:
-            self.logger.debug(f"获取Windows版本类型失败: {e}")
-            return "获取版本类型失败"
-    
     def _collect_system_info(self):
         """收集系统信息
         
@@ -141,8 +41,7 @@ class ErrorReportGenerator:
                     'release': platform.release(),
                     'version': platform.version(),
                     'architecture': platform.architecture()[0],
-                    'machine': platform.machine(),
-                    'node': platform.node()
+                    'machine': platform.machine()
                 },
                 'hardware': {
                     'processor': platform.processor(),
@@ -166,11 +65,6 @@ class ErrorReportGenerator:
                     'pid': os.getpid()
                 }
             }
-            
-            # 添加Windows系统详细信息
-            if platform.system() == 'Windows':
-                system_info['os']['windows_edition'] = self._get_windows_edition()
-                system_info['os']['activation_status'] = self._get_windows_activation_status()
             
             return system_info
         except Exception as e:
@@ -255,15 +149,6 @@ class ErrorReportGenerator:
                 else:
                     f.write(f"Python版本: {system_info['python_version']}\n")
                     f.write(f"操作系统: {system_info['os']['name']} {system_info['os']['release']} {system_info['os']['version']}\n")
-                    
-                    # 写入Windows系统详细信息
-                    if system_info['os']['name'] == 'Windows':
-                        if 'windows_edition' in system_info['os']:
-                            f.write(f"Windows版本: {system_info['os']['windows_edition']}\n")
-                        if 'activation_status' in system_info['os']:
-                            f.write(f"激活状态: {system_info['os']['activation_status']}\n")
-                    
-                    f.write(f"计算机名称: {system_info['os']['node']}\n")
                     f.write(f"处理器: {system_info['hardware']['processor']}\n")
                     f.write(f"CPU核心数: {system_info['hardware']['cpu_count']}\n")
                     f.write(f"CPU使用率: {system_info['hardware']['cpu_percent']}%\n")
