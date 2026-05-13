@@ -48,10 +48,6 @@ dev = [
     { name = "pylint" },
     { name = "pylint-json2html" },
     { name = "pytest" },
-]
-
-[package.dev-dependencies]
-dev = [
     { name = "pytest-cov" },
 ]
 
@@ -70,15 +66,13 @@ requires-dist = [
     { name = "pylint-json2html", marker = "extra == 'dev'", specifier = ">=0.3.0,<1.0.0" },
     { name = "pyqt6", specifier = ">=6.6.0,<7.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0,<8.0.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "python-docx", specifier = ">=1.2.0,<2.0.0" },
     { name = "pywin32", specifier = ">=311,<400" },
     { name = "xlrd", specifier = "==1.2.0" },
     { name = "xlsxwriter", specifier = "~=3.0.8" },
 ]
 provides-extras = ["dev", "build"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest-cov", specifier = ">=7.0.0" }]
 
 [[package]]
 name = "black"
