@@ -49,7 +49,7 @@ class CsvWriter:
             f"_{self.strFileCurrentType}_{safe_temperature}.csv"
         )
 
-    def write(self) -> None:
+    def write(self, list_cpt=None, stats=None) -> None:
         """写入CSV文件"""
         # init csv writer
         f = open(self.strResultCsvPath, mode='w', newline='', encoding='utf-8')
@@ -114,15 +114,16 @@ class CsvWriter:
             csv_buffer_size = csv_utils.csv_write(
                 listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
 
-        # Compute statistics
-        listCpt = _compute_list_cpt(
+        # Compute statistics (if not pre-computed)
+        if list_cpt is None:
+            list_cpt = _compute_list_cpt(
             self.listBatteryCharge,
             self.intBatteryNum,
             self.intCurrentLevelNum,
             self.intVoltageLevelNum,
         )
         stats = _compute_statistics(
-            listCpt,
+            list_cpt,
             self.intCurrentLevelNum,
             self.intVoltageLevelNum,
         )

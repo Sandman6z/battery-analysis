@@ -188,23 +188,25 @@ class WordReportWriter:
             pass
         return fallback
 
-    def write(self) -> None:
+    def write(self, list_cpt=None, stats=None) -> None:
         """执行Word报告写入"""
         # ── 初始化Word文档 ──
         wdReport = Document(self.strSampleReportWordPath)
 
-        # ── 计算统计值和相关数据 ──
-        listCpt = _compute_list_cpt(
-            self.listBatteryCharge,
-            self.intBatteryNum,
-            self.intCurrentLevelNum,
-            self.intVoltageLevelNum,
-        )
-        stats = _compute_statistics(
-            listCpt,
-            self.intCurrentLevelNum,
-            self.intVoltageLevelNum,
-        )
+        # ── 计算统计值和相关数据（若未传入预计算结果则重新计算） ──
+        if list_cpt is None:
+            list_cpt = _compute_list_cpt(
+                self.listBatteryCharge,
+                self.intBatteryNum,
+                self.intCurrentLevelNum,
+                self.intVoltageLevelNum,
+            )
+        if stats is None:
+            stats = _compute_statistics(
+                list_cpt,
+                self.intCurrentLevelNum,
+                self.intVoltageLevelNum,
+            )
         listMean = stats['mean']
         listMed = stats['med']
         listStd = stats['std']

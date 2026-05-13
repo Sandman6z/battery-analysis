@@ -148,7 +148,7 @@ class ExcelReportWriter:
         self.listColorName = ["red = ", "blue = ", "yellow = ",
                               "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
 
-    def write(self) -> None:
+    def write(self, list_cpt=None, stats=None) -> None:
         """执行Excel报告写入"""
         # ── 创建工作簿和工作表 ──
         wbResult = xwt.Workbook(self.strResultXlsxPath)
@@ -441,18 +441,21 @@ class ExcelReportWriter:
                         wsResult)
                     i += 1
 
-        # ── 计算统计值 ──
-        listCpt = _compute_list_cpt(
-            self.listBatteryCharge,
-            self.intBatteryNum,
-            self.intCurrentLevelNum,
-            self.intVoltageLevelNum,
-        )
-        stats = _compute_statistics(
-            listCpt,
-            self.intCurrentLevelNum,
-            self.intVoltageLevelNum,
-        )
+        # ── 计算统计值（若未传入预计算结果则重新计算） ──
+        if list_cpt is None:
+            list_cpt = _compute_list_cpt(
+                self.listBatteryCharge,
+                self.intBatteryNum,
+                self.intCurrentLevelNum,
+                self.intVoltageLevelNum,
+            )
+        if stats is None:
+            stats = _compute_statistics(
+                list_cpt,
+                self.intCurrentLevelNum,
+                self.intVoltageLevelNum,
+            )
+        listCpt = list_cpt
         listMean = stats['mean']
         listMed = stats['med']
         listStd = stats['std']

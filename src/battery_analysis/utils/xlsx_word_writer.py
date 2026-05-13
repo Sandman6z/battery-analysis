@@ -5,6 +5,7 @@ from battery_analysis.utils import excel_utils
 from battery_analysis.utils import numeric_utils
 from battery_analysis.utils import plot_writer
 from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.writers.excel_report_writer import _compute_list_cpt, _compute_statistics
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_LINE_SPACING
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
@@ -326,19 +327,18 @@ class XlsxWordWriter:
         return fallback
 
     def UXWW_XlsxWordCsvWrite(self) -> None:
-        # init and fill listCpt for calculate
-        listCpt = []
-        for c in range(self.intCurrentLevelNum):
-            listCpt.append([])
-            for _ in range(self.intVoltageLevelNum):
-                listCpt[c].append([])
-        for b in range(self.intBatteryNum):
-            i = 0
-            for c in range(self.intCurrentLevelNum):
-                for v in range(self.intVoltageLevelNum):
-                    if self.listBatteryCharge[b][i] != 0:
-                        listCpt[c][v].append(self.listBatteryCharge[b][i])
-                    i += 1
+        # 统一计算 listCpt 和统计数据，供绘图和三个 writer 共享
+        listCpt = _compute_list_cpt(
+            self.listBatteryCharge,
+            self.intBatteryNum,
+            self.intCurrentLevelNum,
+            self.intVoltageLevelNum,
+        )
+        stats = _compute_statistics(
+            listCpt,
+            self.intCurrentLevelNum,
+            self.intVoltageLevelNum,
+        )
 
         # draw boxplots
         plot_writer.draw_boxplot_and_curves(
@@ -361,14 +361,14 @@ class XlsxWordWriter:
             int(self.listTestInfo[8]),
         )
 
-        # Delegate to specialized writers
+        # Delegate to specialized writers (传入预计算的 listCpt 和 stats)
         from battery_analysis.utils.writers.excel_report_writer import ExcelReportWriter
         from battery_analysis.utils.writers.word_report_writer import WordReportWriter
         from battery_analysis.utils.writers.csv_writer import CsvWriter
 
-        ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write()
-        WordReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write()
-        CsvWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write()
+        ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
+        WordReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
+        CsvWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
 
     def handle_data_error(self, error_msg):
         """处理数据错误"""
