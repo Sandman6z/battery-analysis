@@ -9,6 +9,9 @@ import traceback
 import logging
 import json
 import re
+from battery_analysis.utils.readers.xlsx_reader import read_xlsx_sheets, extract_test_date_from_xls
+from battery_analysis.utils.processors.pulse_detector import b_is_in_range, is_pulse_step, detect_pulse_rows
+from battery_analysis.utils.processors.charge_calculator import ChargeCalculator
 import multiprocessing
 import sys
 import concurrent.futures
@@ -111,7 +114,7 @@ class BatteryAnalysis:
             # 首先获取测试日期（如果有需要统一处理的）
             if self.listAllInXlsx:
                 # 从第一个文件获取测试日期
-                first_date = self.UBA_GetTestDateFromExcel(
+                first_date = extract_test_date_from_xls(
                     self.listAllInXlsx[0])
                 if first_date != "00000000":
                     self.test_date = first_date
@@ -206,148 +209,8 @@ class BatteryAnalysis:
             traceback.print_exc()
 
     def UBA_GetTestDateFromExcel(self, strPath: str) -> str:
-        """
-        从Excel文件中提取Test Date字段
-
-        Args:
-            strPath: Excel文件路径
-
-        Returns:
-            str: 格式化的日期字符串 (YYYYMMDD)，如果无法提取则返回默认值
-        """
-        try:
-            rb = rd.open_workbook(strPath)
-
-            # 搜索所有工作表中的"Test Date"字段
-            for sheet_idx in range(len(rb.sheets())):
-                sheet = rb.sheets()[sheet_idx]
-                for row in range(min(20, sheet.nrows)):  # 只搜索前20行以提高效率
-                    for col in range(sheet.ncols):
-                        cell_value = sheet.cell_value(row, col)
-                        if isinstance(cell_value, str):
-                            # 搜索包含Test Date的单元格
-                            if "Test Date" in cell_value or "测试日期" in cell_value:
-                                # 尝试从相邻单元格获取日期值
-                                if col + 1 < sheet.ncols:
-                                    date_value = sheet.cell_value(row, col + 1)
-                                    if isinstance(date_value, str) and date_value.strip():
-                                        # 处理多种日期格式
-                                        date_str = date_value.strip()
-                                        # 格式1: 10.06.2025 - 08.07.2025
-                                        if "-" in date_str and "." in date_str:
-                                            start_date_part = date_str.split(
-                                                "-")[0].strip()
-                                            if "." in start_date_part:
-                                                parts = start_date_part.split(
-                                                    ".")
-                                                if len(parts) == 3:
-                                                    try:
-                                                        day, month, year = parts
-                                                        # 确保值可以转换为整数并直接使用
-                                                        return f"{year.zfill(4)}" \
-                                                                f"{month.zfill(2)}" \
-                                                                f"{day.zfill(2)}"
-                                                    except ValueError:
-                                                        logging.warning(
-                                                            "日期部分无法转换为整数: %s", parts)
-                                        # 格式2: 2025-06-10
-                                        elif "-" in date_str:
-                                            parts = date_str.split("-")
-                                            if len(parts) >= 3:
-                                                try:
-                                                    year, month, day = parts[:3]
-                                                    # 确保值可以转换为整数并直接使用
-                                                    return f"{year.zfill(4)}" \
-                                                            f"{month.zfill(2)}" \
-                                                            f"{day.zfill(2)}"
-                                                except ValueError:
-                                                    logging.warning(
-                                                        "日期部分无法转换为整数: %s", parts[:3])
-
-                                # 尝试从下方单元格获取日期值
-                                if row + 1 < sheet.nrows:
-                                    date_value = sheet.cell_value(row + 1, col)
-                                    if isinstance(date_value, str) and date_value.strip():
-                                        # 处理多种日期格式
-                                        date_str = date_value.strip()
-                                        if "-" in date_str and "." in date_str:
-                                            start_date_part = date_str.split(
-                                                "-")[0].strip()
-                                            if "." in start_date_part:
-                                                parts = start_date_part.split(
-                                                    ".")
-                                                if len(parts) == 3:
-                                                    try:
-                                                        day, month, year = parts
-                                                        # 确保值可以转换为整数并直接使用
-                                                        return f"{year.zfill(4)}" \
-                                                                f"{month.zfill(2)}" \
-                                                                f"{day.zfill(2)}"
-                                                    except ValueError:
-                                                        logging.warning(
-                                                            "日期部分无法转换为整数: %s", parts)
-                                        elif "-" in date_str:
-                                            parts = date_str.split("-")
-                                            if len(parts) >= 3:
-                                                try:
-                                                    year, month, day = parts[:3]
-                                                    # 确保值可以转换为整数并直接使用
-                                                    return f"{year.zfill(4)}" \
-                                                            f"{month.zfill(2)}" \
-                                                            f"{day.zfill(2)}"
-                                                except ValueError:
-                                                    logging.warning(
-                                                        "日期部分无法转换为整数: %s", parts[:3])
-
-            # 如果找不到Test Date字段，尝试从文件名提取
-            file_name = os.path.basename(strPath)
-            logging.debug("从文件名解析日期: %s", file_name)
-
-            # 尝试从文件名中提取日期
-            # 匹配文件名中所有连续的数字组
-            digit_groups = re.findall(r'(\d+)', file_name)
-            if digit_groups:
-                # 取最后一组连续数字
-                last_digit_group = digit_groups[-1]
-                # 提取前8位作为日期（如果长度足够）
-                if len(last_digit_group) >= 8:
-                    date_str = last_digit_group[:8]
-                    logging.debug("提取日期: %s", date_str)
-                    # 验证提取的日期是否有效（简单验证：年份在合理范围）
-                    try:
-                        year = int(date_str[:4])
-                        if 2000 <= year <= 2100:
-                            return date_str
-                        logging.warning("提取的年份 %s 不在有效范围内", year)
-                    except ValueError:
-                        logging.error("无法解析年份")
-            # 然后尝试其他常见的日期格式
-            date_patterns = [
-                r'(\d{4})-(\d{2})-(\d{2})',  # 2025-06-10
-                r'(\d{2})\.(\d{2})\.(\d{4})'  # 10.06.2025
-            ]
-
-            for pattern in date_patterns:
-                match = re.search(pattern, file_name)
-                if match:
-                    try:
-                        if pattern == r'(\d{2})\.(\d{2})\.(\d{4})':
-                            day, month, year = match.groups()
-                            result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                            logging.debug("从文件名提取到日期: %s", result)
-                            return result
-                        year, month, day = match.groups()
-                        result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                        logging.debug("从文件名提取到日期: %s", result)
-                        return result
-                    except (ValueError, AttributeError) as e:
-                        logging.warning("从文件名解析日期失败: %s", e)
-
-        except (rd.XLRDError, FileNotFoundError, PermissionError, ValueError) as e:
-            logging.error("从Excel提取Test Date失败: %s, 错误: %s", strPath, e)
-
-        # 确保总是有返回值
-        return "00000000"
+        """委托给 readers.xlsx_reader.extract_test_date_from_xls"""
+        return extract_test_date_from_xls(strPath)
 
     @staticmethod
     def _parallel_process_file(args):
@@ -374,9 +237,7 @@ class BatteryAnalysis:
                 listLevelToCharge[c].append(0)
 
         try:
-            cycle_df = pd.read_excel(strPath, sheet_name=0, header=None, engine='openpyxl')
-            step_df = pd.read_excel(strPath, sheet_name=1, header=None, engine='openpyxl')
-            record_df = pd.read_excel(strPath, sheet_name=2, header=None, engine='openpyxl')
+            cycle_df, step_df, record_df = read_xlsx_sheets(strPath)
         except Exception as e:
             logging.error("pandas 读取失败 %s, 回退到 xlrd. 原始错误: %s", strPath, e)
             return BatteryAnalysis._parallel_process_file_xlrd_fallback(args)
@@ -413,12 +274,8 @@ class BatteryAnalysis:
 
         neg_current_levels = [-float(level) for level in listCurrentLevel]
 
-        def b_is_in_range(current, standard):
-            """检查电流是否在标准值的 +/-5% 范围内（兼容正负数）"""
-            return abs(current - standard) <= abs(standard * 0.05)
-
         # 脉冲检测
-        pulse_mask = record_step.astype(str).str.strip().isin(["脉冲", "Pulse"])
+        pulse_mask = detect_pulse_rows(record_df)
         if pulse_mask.sum() == 0:
             raise BatteryAnalysisException(f"未找到脉冲数据: {strPath}")
 
@@ -456,87 +313,18 @@ class BatteryAnalysis:
                             listLevelToRow[c_idx][v_idx] = row
 
         # 累积电荷计算（xlrd 兼容索引）
-        cycle_charge_values = pd.to_numeric(cycle_charge, errors='coerce').fillna(0).abs()
-        cycle_cumsum = cycle_charge_values.cumsum().tolist()
-
-        # Step 数据（从索引 2 开始，跳过 header + metadata；与 xlrd 一致，取非脉冲步的 charge）
-        step_df_data = step_df.iloc[2:].copy() if len(step_df) > 2 else step_df.iloc[0:0].copy()
-        if len(step_df_data) > 0:
-            step_df_data['_abs_charge'] = pd.to_numeric(step_df_data.iloc[:, 2], errors='coerce').fillna(0).abs()
-            non_pulse_mask = ~step_df_data.iloc[:, 1].astype(str).str.strip().isin(["脉冲", "Pulse"])
-            step_charge_by_cycle = step_df_data[non_pulse_mask].groupby(step_df_data.iloc[:, 0])['_abs_charge'].sum()
-        else:
-            step_charge_by_cycle = pd.Series(dtype=float)
-
-        record_charge_values = pd.to_numeric(record_charge, errors='coerce').fillna(0).abs()
-
-        def calculate_charge(position_idx, is_single=True):
-            """计算指定行位置的累积充电量（xlrd 兼容索引）"""
-            if is_single:
-                positions = [position_idx]
-                single_result = True
-            else:
-                positions = position_idx
-                single_result = False
-
-            results = [0] * len(positions) if not single_result else [0]
-
-            for i, pos in enumerate(positions):
-                if not pos or pos < 2:
-                    if single_result:
-                        return 0
-                    continue
-                if pos >= len(record_df):
-                    if single_result:
-                        return 0
-                    continue
-
-                try:
-                    row_cycle = record_cycle.iloc[pos]
-                except IndexError:
-                    if single_result:
-                        return 0
-                    continue
-
-                if pd.isna(row_cycle):
-                    if single_result:
-                        return 0
-                    continue
-
-                # 找 cycle 索引，与 xlrd 原代码一致（用 < 而非 !=，容错 cycle 跳号）
-                cycle_idx = 2
-                while cycle_idx < len(cycle_df) and cycle_cycle.iloc[cycle_idx] < row_cycle:
-                    cycle_idx += 1
-
-                charge = cycle_cumsum[cycle_idx - 1] if cycle_idx > 2 else 0
-
-                try:
-                    charge += step_charge_by_cycle.get(row_cycle, 0)
-                except (TypeError, KeyError):
-                    pass
-
-                try:
-                    charge += abs(record_charge_values.iloc[pos])
-                except (ValueError, TypeError):
-                    pass
-
-                if single_result:
-                    results[0] = round(charge)
-                else:
-                    results[i] = charge
-
-            return results[0] if single_result else results
+        calculator = ChargeCalculator(cycle_df, step_df, record_df)
 
         # 计算各电流/电压档位的充电量
         listOneBatteryCharge = []
         for c in range(len(listCurrentLevel)):
             for v in range(len(listVoltageLevel)):
-                charge = calculate_charge(listLevelToRow[c][v])
+                charge = calculator.calculate(listLevelToRow[c][v])
                 listOneBatteryCharge.append(charge)
 
         # 计算绘图用数据
         for c, posi_list in enumerate(listPosiForInfoImageCsv):
-            listChargeForInfoImageCsv[c] = calculate_charge(posi_list, is_single=False)
+            listChargeForInfoImageCsv[c] = calculator.calculate(posi_list, is_single=False)
             if len(listChargeForInfoImageCsv[c]) != len(listVoltageForInfoImageCsv[c]):
                 raise BatteryAnalysisException(
                     f"[Plt Data Error]: battery {battery_name} {listCurrentLevel[c]}mA pulse, "
