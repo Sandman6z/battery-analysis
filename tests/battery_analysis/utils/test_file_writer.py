@@ -45,7 +45,11 @@ class TestXlsxWordWriter:
         ]
         
         self.list_battery_info = [
-            [2000, 1900, 1800],  # 0: 电池容量数据
+            [
+                [2000, 1900, 1800, 1700],  # 0: Battery1 data (2 currents * 2 voltages)
+                [2100, 2000, 1900, 1800],  # Battery2 data
+                [2200, 2100, 2000, 1900],  # Battery3 data
+            ],
             ["Battery1", "Battery2", "Battery3"],  # 1: 电池名称
             ["2023-01-01 10:00:00", "2023-01-01 11:00:00"],  # 2: 测试时间
             "20230101"  # 3: 测试日期
