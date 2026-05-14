@@ -19,7 +19,7 @@ class TestMainWindow:
     def setup_method(self):
         """设置测试环境"""
         # 模拟初始化管理器，避免实际初始化过程
-        with patch('battery_analysis.main.main_window.InitializationManager') as mock_init_manager:
+        with patch('battery_analysis.main.managers.initialization_manager.InitializationManager') as mock_init_manager:
             # 创建模拟的初始化管理器实例
             mock_init_instance = Mock()
             mock_init_manager.return_value = mock_init_instance
@@ -96,6 +96,7 @@ class TestMainWindow:
             
             self.main_window.version_manager = Mock()
             self.main_window.version_manager.get_version = Mock()
+            self.main_window.version_manager.set_version = Mock()
             
             self.main_window.table_manager = Mock()
             self.main_window.table_manager.set_table = Mock()
@@ -382,6 +383,15 @@ class TestMainWindow:
         
         # 验证version_manager的get_version方法被调用
         self.main_window.version_manager.get_version.assert_called_once()
+
+    def test_set_version(self):
+        """测试设置版本（分析完成后更新次要版本号）"""
+        # 调用方法
+        self.main_window.set_version()
+
+        # 验证version_manager的set_version方法被调用
+        self.main_window.version_manager.set_version.assert_called_once()
+
     
     def test_on_temperature_type_changed(self):
         """测试温度类型变化处理"""

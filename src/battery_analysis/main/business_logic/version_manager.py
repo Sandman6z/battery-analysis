@@ -12,36 +12,29 @@ import os
 import csv
 import logging
 from pathlib import Path
-from typing import List, Any
-
-# 第三方库导入
-import PyQt6.QtWidgets as QW
-
-# 本地应用/库导入
-from battery_analysis.i18n.language_manager import _
 
 
 class VersionManager:
     """
     版本管理器，负责处理版本号的计算和更新
     """
-    
+
     def __init__(self, main_window):
         """
         初始化版本管理器
-        
+
         Args:
             main_window: 主窗口实例
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-    
+
     def get_version(self) -> None:
         """
         计算并设置电池分析的版本号
-        
+
         此方法通过分析输入目录中的XLSX文件，计算其SHA-256校验和，
-        然后根据MD5.csv文件中的历史记录确定当前版本号。如果输入文件内容变更，
+        然后根据SHA256.csv文件中的历史记录确定当前版本号。如果输入文件内容变更，
         版本号会自动增加。
         """
         strInPutDir = self.main_window.lineEdit_InputPath.text()
@@ -52,19 +45,14 @@ class VersionManager:
             if not listAllInXlsx:
                 self.main_window.lineEdit_Version.setText("")
                 return
-            strCsvSha256Path = strOutoutDir + "/SHA256.csv"
-            strCsvMd5Path = strOutoutDir + "/MD5.csv"
-            
-            if os.path.exists(strCsvMd5Path) and not os.path.exists(strCsvSha256Path):
-                self.logger.info(f"SHA256版本从1.0开始计数")
-            
-            strCsvMd5Path = strCsvSha256Path
+            strCsvPath = strOutoutDir + "/SHA256.csv"
+
             # 使用FileUtils.calc_checksum计算SHA-256校验和
             from battery_analysis.main.utils.file_utils import FileUtils
             self.main_window.sha256_checksum = FileUtils.calc_checksum(listAllInXlsx)
-            if os.path.exists(strCsvMd5Path) and os.path.getsize(strCsvMd5Path) != 0:
+            if os.path.exists(strCsvPath) and os.path.getsize(strCsvPath) != 0:
                 listSHA256Reader = []
-                f = open(strCsvMd5Path, mode='r', encoding='utf-8')
+                f = open(strCsvPath, mode='r', encoding='utf-8')
                 csvSHA256Reader = csv.reader(f)
                 for row in csvSHA256Reader:
                     listSHA256Reader.append(row)
@@ -85,8 +73,8 @@ class VersionManager:
                         existing_index = i
                         break
 
-                os.remove(strCsvMd5Path)
-                f = open(strCsvMd5Path, mode='w', newline='', encoding='utf-8')
+                os.remove(strCsvPath)
+                f = open(strCsvPath, mode='w', newline='', encoding='utf-8')
                 csvSHA256Writer = csv.writer(f)
 
                 if not listChecksum:
@@ -97,10 +85,13 @@ class VersionManager:
                     csvSHA256Writer.writerow(["0"])
                     self.main_window.lineEdit_Version.setText("1.0")
                 elif existing_index >= 0:
-                    # 校验和已存在，使用现有的版本号
+                    # 校验和已存在，使用现有的版本号和运行次数
                     intVersionMajor = existing_index + 1
-                    intVersionMinor = 0
-                    
+                    try:
+                        intVersionMinor = int(listTimes[existing_index]) if existing_index < len(listTimes) and listTimes[existing_index] else 0
+                    except (ValueError, IndexError):
+                        intVersionMinor = 0
+
                     csvSHA256Writer.writerow(["Checksums:"])
                     csvSHA256Writer.writerow(listChecksum)
                     csvSHA256Writer.writerow(["Times:"])
@@ -109,13 +100,13 @@ class VersionManager:
                         f"{intVersionMajor}.{intVersionMinor}")
                 else:
                     # 校验和不存在，增加主版本号
-                    intVersionMajor = len(listChecksum) + 1  # 主版本号 = 现有版本数量 + 1
-                    intVersionMinor = 0  # 次版本号始终为0
-                    
+                    intVersionMajor = len(listChecksum) + 1
+                    intVersionMinor = 0
+
                     # 将当前校验和添加到列表，作为新的主版本
                     listChecksum.append(current_checksum)
                     listTimes.append("0")
-                    
+
                     csvSHA256Writer.writerow(["Checksums:"])
                     csvSHA256Writer.writerow(listChecksum)
                     csvSHA256Writer.writerow(["Times:"])
@@ -124,7 +115,7 @@ class VersionManager:
                         f"{intVersionMajor}.{intVersionMinor}")
                 f.close()
             else:
-                f = open(strCsvMd5Path, mode='w', newline='', encoding='utf-8')
+                f = open(strCsvPath, mode='w', newline='', encoding='utf-8')
                 csvSHA256Writer = csv.writer(f)
                 csvSHA256Writer.writerow(["Checksums:"])
                 csvSHA256Writer.writerow([self.main_window.sha256_checksum])
@@ -135,13 +126,13 @@ class VersionManager:
             # 使用文件服务设置文件隐藏属性
             file_service = self.main_window._get_service("file")
             if file_service:
-                file_service.hide_file(strCsvMd5Path)
+                file_service.hide_file(strCsvPath)
             else:
                 # 降级到直接调用
                 try:
                     import win32api
                     import win32con
-                    win32api.SetFileAttributes(strCsvMd5Path, win32con.FILE_ATTRIBUTE_HIDDEN)
+                    win32api.SetFileAttributes(strCsvPath, win32con.FILE_ATTRIBUTE_HIDDEN)
                 except ImportError:
                     self.logger.warning("文件服务不可用，无法设置文件隐藏属性")
         else:
@@ -193,17 +184,32 @@ class VersionManager:
                     list_checksum = list_sha256_reader[1] if len(list_sha256_reader) > 1 else []
                     list_times = list_sha256_reader[3] if len(list_sha256_reader) > 3 else []
 
+                    # 查找匹配的校验和，递增次要版本号
+                    checksum_found = False
+                    for c, checksum in enumerate(list_checksum):
+                        if self.main_window.sha256_checksum_run == checksum:
+                            checksum_found = True
+                            version_major = c + 1
+                            try:
+                                current_times = int(list_times[c]) if c < len(list_times) and list_times[c] else 0
+                            except (ValueError, IndexError):
+                                current_times = 0
+                            new_times = current_times + 1
+                            list_times[c] = str(new_times)
+                            self.main_window.lineEdit_Version.setText(
+                                f"{version_major}.{new_times}")
+                            break
+
+                    if not checksum_found:
+                        self.logger.warning(
+                            "校验和 %s 未在SHA256.csv中找到，无法更新版本号",
+                            self.main_window.sha256_checksum_run)
+                        return
+
                     # 创建临时文件避免权限问题
                     temp_file = output_path / "SHA256_temp.csv"
                     with temp_file.open(mode='w', newline='', encoding='utf-8') as f:
                         csv_sha256_writer = csv.writer(f)
-                        for c, checksum in enumerate(list_checksum):
-                            if self.main_window.sha256_checksum_run == checksum:
-                                version_major = c + 1
-                                version_minor = 0  # 次版本号保持为0，主版本号由get_version方法递增
-                                # 不更新版本号，因为get_version方法已经设置了正确的主版本号
-                                break
-
                         csv_sha256_writer.writerow(["Checksums:"])
                         csv_sha256_writer.writerow(list_checksum)
                         csv_sha256_writer.writerow(["Times:"])
@@ -255,9 +261,11 @@ class VersionManager:
                         csv_sha256_writer.writerow(["1"])
 
                     try:
+                        import win32api
+                        import win32con
                         win32api.SetFileAttributes(
                             str(sha256_file), win32con.FILE_ATTRIBUTE_HIDDEN)
-                    except (AttributeError, OSError, ImportError) as e:
+                    except (ImportError, AttributeError, OSError) as e:
                         self.logger.debug("无法设置SHA256文件隐藏属性: %s", e)
                 except PermissionError:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(

@@ -695,6 +695,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """计算并设置电池分析的版本号，委托给已初始化的version_manager"""
         self.version_manager.get_version()
 
+    def set_version(self) -> None:
+        """分析完成后更新版本号、增加次要版本号，委托给version_manager"""
+        self.version_manager.set_version()
+
     # ------------------------------
     # 路径选择方法
     # ------------------------------
