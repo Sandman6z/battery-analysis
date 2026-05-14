@@ -6,7 +6,6 @@
 
 import logging
 import os
-import re
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from PyQt6 import QtWidgets as QW
 from PyQt6 import QtCore as QC
@@ -16,6 +15,7 @@ from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.business_logic.background_worker import BackgroundWorker
 from battery_analysis.main.business_logic import excel_validator
 from battery_analysis.main.business_logic import filename_parser
+from battery_analysis.utils.excel_processor import optimize_dataframe_memory, read_excel_file, analyze_single_excel
 
 
 class DataProcessor:
@@ -87,43 +87,15 @@ class DataProcessor:
             'max_validation': self.MAX_VALIDATION_CACHE_SIZE,
         }
 
-    @staticmethod
-    def optimize_dataframe_memory(df) -> "pd.DataFrame":
-        import pandas as pd
-        for col in df.select_dtypes(include=['int64']).columns:
-            df[col] = pd.to_numeric(df[col], downcast='integer')
-        for col in df.select_dtypes(include=['float64']).columns:
-            df[col] = pd.to_numeric(df[col], downcast='float')
-        for col in df.select_dtypes(include=['object']).columns:
-            if len(df[col].unique()) / len(df[col]) < 0.5:
-                df[col] = df[col].astype('category')
-        return df
-
     def process_excel_with_pandas(self, file_path: str) -> dict:
-        import pandas as pd
-        try:
-            cached = self._cache['excel_files'].get(file_path)
-            if cached is not None:
-                return cached
+        cached = self._cache['excel_files'].get(file_path)
+        if cached is not None:
+            return cached
 
-            df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
-            df = self.optimize_dataframe_memory(df)
-
-            file_info = {
-                'filename': os.path.basename(file_path),
-                'sheet_name': df.columns.tolist(),
-                'row_count': len(df),
-                'column_count': len(df.columns),
-                'numeric_columns': df.select_dtypes(include=['number']).columns.tolist(),
-                'non_numeric_columns': df.select_dtypes(exclude=['number']).columns.tolist(),
-                'missing_values': df.isnull().sum().to_dict(),
-                'basic_stats': df.describe().to_dict(),
-            }
+        file_info = read_excel_file(file_path)
+        if file_info:
             self._cache['excel_files'].put(file_path, file_info)
-            return file_info
-        except Exception as e:
-            self.logger.error("处理Excel文件失败 %s: %s", file_path, str(e))
-            return {}
+        return file_info
 
     def process_all_excel_files(self, directory: str) -> list:
         try:
@@ -257,7 +229,7 @@ class DataProcessor:
         for filename in excel_files:
             file_path = os.path.join(input_dir, filename)
             is_valid, error_msg, df = excel_validator.validate_excel_file(
-                file_path, filename, self._cache['file_validation'], self.optimize_dataframe_memory)
+                file_path, filename, self._cache['file_validation'], optimize_dataframe_memory)
             if not is_valid:
                 self.logger.error(error_msg)
                 error_files.append((filename, error_msg))
@@ -410,42 +382,16 @@ class DataProcessor:
                                            _("no_excel_files_found", "没有找到Excel文件。"))
                 return
 
-            def analyze_single_file(file_info):
-                import pandas as pd
-                filename, path = file_info
-                try:
-                    df = pd.read_excel(os.path.join(path, filename), sheet_name=0, engine='openpyxl', header=0)
-
-                    def optimize_df_memory(df):
-                        for col in df.select_dtypes(include=['int64']).columns:
-                            df[col] = pd.to_numeric(df[col], downcast='integer')
-                        for col in df.select_dtypes(include=['float64']).columns:
-                            df[col] = pd.to_numeric(df[col], downcast='float')
-                        for col in df.select_dtypes(include=['object']).columns:
-                            if len(df[col].unique()) / len(df[col]) < 0.5:
-                                df[col] = df[col].astype('category')
-                        return df
-
-                    df = optimize_df_memory(df)
-                    return {
-                        'filename': filename,
-                        'total_records': len(df),
-                        'columns': df.columns.tolist(),
-                        'numeric_columns': df.select_dtypes(include=['number']).columns.tolist(),
-                        'non_numeric_columns': df.select_dtypes(exclude=['number']).columns.tolist(),
-                        'missing_values': df.isnull().sum().to_dict(),
-                        'basic_stats': df.describe().to_dict(),
-                    }
-                except Exception as e:
-                    return {'filename': filename, 'error': str(e)}
-
             from battery_analysis.utils.resource_manager import ResourceManager
             all_data = []
             optimal_count = ResourceManager.get_optimal_process_count()
             actual_count = min(optimal_count, len(excel_files))
 
             with ProcessPoolExecutor(max_workers=actual_count) as executor:
-                futures = {executor.submit(analyze_single_file, (f, input_path)): f for f in excel_files}
+                futures = {
+                    executor.submit(analyze_single_excel, os.path.join(input_path, f), f): f
+                    for f in excel_files
+                }
                 for future in as_completed(futures):
                     result = future.result()
                     if 'error' in result:

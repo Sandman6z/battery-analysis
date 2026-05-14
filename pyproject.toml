@@ -5,9 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "battery-analysis"
 version = "2.11.0"
-description = "Battery test data variables analysis App, support serveral data type import, and chart viewer"
+description = "Battery test data analysis App, support serveral data type import, and chart viewer"
 authors = [
-  { name = "Ewin Hardware Group", email = "battery-analysis@example.com" }
+  { name = "Ewin Hardware Group", email = "zhangbaoning@ewin-tech.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.13"

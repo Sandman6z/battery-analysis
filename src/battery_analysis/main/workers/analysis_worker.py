@@ -162,75 +162,17 @@ class AnalysisWorker(QC.QRunnable):
                 logging.info(
                     "获取到的Test Date: %s, 原始周期日期: %s", test_date, original_cycle_date)
 
-                try:
-                    # 优先使用从Excelor文件名提取的Test Date（已经是YYYYMMDD格式）
-                    if test_date and len(test_date) == 8 and test_date.isdigit():
-                        self.str_test_date = test_date
-                        logging.info(
-                            "使用YYYYMMDD格式的Test Date: %s", self.str_test_date)
-                    elif test_date:
-                        # 如果test_date是其他格式，尝试解析
-                        try:
-                            # 尝试处理标准日期格式 YYYY-MM-DD
-                            if '-' in test_date:
-                                date_part = test_date.split(
-                                    ' ')[0] if ' ' in test_date else test_date
-                                [sy, sm, sd] = date_part.split("-")
-                                self.str_test_date = f"{sy}{sm}{sd}"
-                            elif '/' in test_date:
-                                # 尝试处理 YYYY/MM/DD 格式
-                                date_part = test_date.split(
-                                    ' ')[0] if ' ' in test_date else test_date
-                                [sy, sm, sd] = date_part.split("/")
-                                self.str_test_date = f"{sy}{sm}{sd}"
-                            else:
-                                # 尝试作为YYYYMMDD直接使用
-                                self.str_test_date = test_date
-                            logging.info(
-                                "从Test Date解析得到: %s", self.str_test_date)
-                        except (ValueError, TypeError, IndexError):
-                            # 解析失败时，尝试使用原始周期日期
-                            if original_cycle_date:
-                                try:
-                                    # 尝试处理标准日期格式 YYYY-MM-DD
-                                    if '-' in original_cycle_date:
-                                        date_part = original_cycle_date.split(' ', maxsplit=1)[0] \
-                                            if ' ' in original_cycle_date else \
-                                            original_cycle_date
-                                        [sy, sm, sd] = date_part.split("-")
-                                        self.str_test_date = f"{sy}{sm}{sd}"
-                                    elif '/' in original_cycle_date:
-                                        # 尝试处理 YYYY/MM/DD 格式
-                                        date_part = original_cycle_date.split(' ', maxsplit=1)[0] \
-                                            if ' ' in original_cycle_date else \
-                                            original_cycle_date
-                                        [sy, sm, sd] = date_part.split("/")
-                                        self.str_test_date = f"{sy}{sm}{sd}"
-                                    else:
-                                        # 尝试作为YYYYMMDD直接使用
-                                        self.str_test_date = original_cycle_date
-                                    logging.info(
-                                        "从原始周期日期解析得到: %s", self.str_test_date)
-                                except (ValueError, TypeError, IndexError):
-                                    # 最后尝试回退到原有的日期提取方式
-                                    try:
-                                        [sy, sm, sd] = list_battery_info[2][0].split(" ")[
-                                            0].split("-")
-                                        self.str_test_date = f"{sy}{sm}{sd}"
-                                        logging.info(
-                                            "从list_battery_info解析得到: %s", self.str_test_date)
-                                    except (ValueError, TypeError, IndexError):
-                                        self.str_test_date = "00000000"
-                                        logging.error("所有日期解析方式都失败了")
-                except (ValueError, TypeError, IndexError) as e:
-                    logging.error("解析测试日期失败: %s", e)
-                    self.str_test_date = "00000000"
+                from battery_analysis.utils.date_parser import parse_test_date
 
-                # 日志记录最终使用的日期
+                fallback = (
+                    list_battery_info[2][0]
+                    if len(list_battery_info) > 2 and list_battery_info[2]
+                    else ""
+                )
+                self.str_test_date = parse_test_date(
+                    test_date, original_cycle_date, fallback
+                )
                 logging.info("最终确定的测试日期: %s", self.str_test_date)
-
-                # 取消严格的日期比较，避免因为日期格式不一致导致程序退出
-                # 现在优先使用从文件名提取的correct日期
 
                 self._emit_progress(self.progress_value, "正在处理输出目录...")
 
