@@ -1,7 +1,6 @@
 """测试 battery_analysis 核心解析功能（pandas 版本）"""
 import pytest
 import pandas as pd
-from tests.fixtures.sample_data import sample_xlsx  # noqa: F401
 
 
 PULSE_STEPS = {"脉冲", "Pulse", "pulse"}
