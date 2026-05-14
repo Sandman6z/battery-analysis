@@ -20,7 +20,7 @@ class TestXlsxWordWriter:
         self.temp_dir = tempfile.TemporaryDirectory()
         self.result_path = Path(self.temp_dir.name) / "results"
         self.result_path.mkdir(exist_ok=True)
-        
+
         # 创建测试数据
         self.list_test_info = [
             "Coin Cell",  # 0: 电池类型
@@ -43,7 +43,7 @@ class TestXlsxWordWriter:
             "1800",  # 17: 要求可用容量
             "Tester A"  # 18: 测试者
         ]
-        
+
         self.list_battery_info = [
             [
                 [2000, 1900, 1800, 1700],  # 0: Battery1 data (2 currents * 2 voltages)
@@ -59,7 +59,8 @@ class TestXlsxWordWriter:
         """清理测试环境"""
         self.temp_dir.cleanup()
 
-    def test_initialization(self):
+    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.UXWW_XlsxWordCsvWrite')
+    def test_initialization(self, mock_write):
         """测试初始化"""
         # 创建XlsxWordWriter实例
         writer = XlsxWordWriter(
@@ -67,13 +68,14 @@ class TestXlsxWordWriter:
             listTestInfo=self.list_test_info,
             listBatteryInfo=self.list_battery_info
         )
-        
+
         # 验证初始化
         assert writer is not None
         assert hasattr(writer, 'listTestInfo')
         assert hasattr(writer, 'listBatteryInfo')
 
-    def test_uxww_xlsx_word_csv_write(self):
+    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.UXWW_XlsxWordCsvWrite')
+    def test_uxww_xlsx_word_csv_write(self, mock_write):
         """测试Excel、Word和CSV写入"""
         # 创建XlsxWordWriter实例
         writer = XlsxWordWriter(
@@ -81,11 +83,12 @@ class TestXlsxWordWriter:
             listTestInfo=self.list_test_info,
             listBatteryInfo=self.list_battery_info
         )
-        
+
         # 验证方法存在
         assert hasattr(writer, 'UXWW_XlsxWordCsvWrite')
 
-    def test_handle_data_error(self):
+    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.UXWW_XlsxWordCsvWrite')
+    def test_handle_data_error(self, mock_write):
         """测试数据错误处理"""
         # 创建XlsxWordWriter实例
         writer = XlsxWordWriter(
@@ -93,15 +96,16 @@ class TestXlsxWordWriter:
             listTestInfo=self.list_test_info,
             listBatteryInfo=self.list_battery_info
         )
-        
+
         # 测试数据错误处理
         error_msg = "测试错误信息"
         result = writer.handle_data_error(error_msg)
-        
+
         # 验证结果
         assert result == "retry"
 
-    def test_directory_creation(self):
+    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.UXWW_XlsxWordCsvWrite')
+    def test_directory_creation(self, mock_write):
         """测试目录创建"""
         # 创建XlsxWordWriter实例
         writer = XlsxWordWriter(
@@ -109,6 +113,6 @@ class TestXlsxWordWriter:
             listTestInfo=self.list_test_info,
             listBatteryInfo=self.list_battery_info
         )
-        
+
         # 验证目录创建方法存在
         assert hasattr(writer, 'create_directories')

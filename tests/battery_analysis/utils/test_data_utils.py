@@ -33,17 +33,17 @@ class TestDataUtils:
 
     def test_detect_outliers(self):
         """测试异常值检测函数"""
-        # 测试数据
-        data = [1, 2, 3, 4, 100]  # 100是异常值
+        # 测试数据：需要足够的数据量使3σ规则能检测出明显异常值
+        data = [5, 6, 5, 7, 6, 5, 6, 7, 5, 6, 100]  # 100是明显异常值
         data_name = "test_data"
-        result_index = 4
-        
+        result_index = 10
+
         # 创建模拟测试结果对象
         mock_test_result = Mock()
         mock_test_result.test_id = "test-001"
         mock_test_result.cycle_count = 1
-        test_results = [mock_test_result] * 5
-        
+        test_results = [mock_test_result] * 11
+
         # 调用函数
         result = detect_outliers(data, data_name, result_index, test_results)
         

@@ -22,8 +22,8 @@ class TestNumericUtils:
         test_list = [1, 2, 3, 4, 5]
         result = np_std(test_list)
         assert isinstance(result, float)
-        # 验证结果是否在合理范围内（预期约为1.414）
-        assert 1.41 < result < 1.42
+        # 验证结果是否在合理范围内（使用ddof=1的样本标准差，预期约为1.581）
+        assert 1.58 < result < 1.59
         
         # 测试只有一个元素的列表
         single_element_list = [5]

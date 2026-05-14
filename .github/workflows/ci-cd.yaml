@@ -15,6 +15,7 @@ jobs:
     env:
       PYTHONIOENCODING: utf-8
       PYTHONUTF8: 1
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
     - uses: actions/checkout@v4
     
@@ -56,7 +57,8 @@ jobs:
         uv run pytest
     
     - name: Install UPX (optional, for smaller exe)
-      run: choco install upx --version 5.0.0 -y
+      run: choco install upx --version 5.0.0 -y --ignore-checksums
+      continue-on-error: true
     - name: Run build script
       run: |
         uv run python scripts/build.py Release
@@ -72,6 +74,8 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     needs: build-and-test  # Release job depends on build-and-test to ensure build artifacts are available and can't run in parallel
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     steps:

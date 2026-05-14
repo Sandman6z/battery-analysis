@@ -10,17 +10,15 @@ class TestLogManager:
     def test_init(self):
         assert hasattr(self.manager, 'logger')
 
-    def test_log_info(self):
-        message = "Test info"
-        result = self.manager.log_info(message)
-        assert result is None
+    def test_log_environment_info(self):
+        # Should not throw
+        self.manager.log_environment_info()
 
-    def test_log_error(self):
-        message = "Test error"
-        result = self.manager.log_error(message)
-        assert result is None
+    def test_get_logger(self):
+        logger = self.manager.get_logger("test")
+        assert logger is not None
 
-    def test_log_debug(self):
-        message = "Test debug"
-        result = self.manager.log_debug(message)
-        assert result is None
+    def test_get_log_directory(self):
+        log_dir = self.manager.get_log_directory()
+        from pathlib import Path
+        assert isinstance(log_dir, Path)

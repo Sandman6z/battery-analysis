@@ -34,7 +34,7 @@ class TestEndToEnd:
         self._create_test_excel_file()
         
         # 模拟初始化管理器，避免实际初始化过程
-        with patch('battery_analysis.main.main_window.InitializationManager') as mock_init_manager:
+        with patch('battery_analysis.main.managers.initialization_manager.InitializationManager') as mock_init_manager:
             # 创建模拟的初始化管理器实例
             mock_init_instance = Mock()
             mock_init_manager.return_value = mock_init_instance

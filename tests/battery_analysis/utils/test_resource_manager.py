@@ -7,16 +7,12 @@ class TestResourceManager:
     def setup_method(self):
         self.manager = ResourceManager()
 
-    def test_get_resource_path(self):
-        resource_name = "test_resource"
-        result = self.manager.get_resource_path(resource_name)
-        assert isinstance(result, str)
+    def test_get_optimal_process_count(self):
+        result = self.manager.get_optimal_process_count()
+        assert isinstance(result, int)
+        assert result >= 1
 
-    def test_load_resource(self):
-        resource_name = "test_resource"
-        result = self.manager.load_resource(resource_name)
-        assert result is not None
-
-    def test_list_resources(self):
-        result = self.manager.list_resources()
-        assert isinstance(result, list)
+    def test_get_processing_context(self):
+        result = self.manager.get_processing_context()
+        ctx_name = result.get_start_method()
+        assert ctx_name == 'spawn'
