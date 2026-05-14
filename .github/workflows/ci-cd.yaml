@@ -51,6 +51,8 @@ jobs:
         uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=.venv,__pycache__,build,dist
     
     - name: Run tests with pytest
+      env:
+        QT_QPA_PLATFORM: offscreen
       run: |
         # 确保激活虚拟环境
         .\.venv\Scripts\Activate.ps1
