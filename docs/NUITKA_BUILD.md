@@ -144,7 +144,7 @@ ICON_PATH = ROOT_DIR / "config/resources/icons/Icon_BatteryTestGUI.ico"
 ENTRY_POINT = SRC_DIR / "battery_analysis/main/main_window.py"
 
 # 版本信息
-VERSION = "2.10.0"
+VERSION = "2.11.0"
 COMPANY = "Ewin Hardware Group"
 PRODUCT = "Battery Analysis"
 

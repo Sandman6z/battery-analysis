@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.WARNING,
 
 # 硬编码版本号，避免模块导入时触发 Version() 的 heavy import 链
 # 更新版本号时请同步修改 pyproject.toml 中的 version 字段
-__version__ = "2.10.0"
+__version__ = "2.11.0"
 
 # 导出版本号和子模块供外部使用
 __all__ = ["__version__", "utils"]
