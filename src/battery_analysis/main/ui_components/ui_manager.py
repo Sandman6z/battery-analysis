@@ -413,15 +413,6 @@ class UIManager:
         set_span_item("", 10, 2, editable=True)
         set_span_item("", 11, 2, editable=True)
 
-        # Data Processing Platforms 不写入setting.ini，默认跟随软件版本
-        from battery_analysis import __version__
-        set_span_item("Data Processing Platforms", 12, 0, 1, 2)
-        set_span_item(
-            f"Battery Analyzer-v{__version__}",
-            12, 2,
-            editable=False
-        )
-    
     def connect_widget(self):
         """
         连接部件信号

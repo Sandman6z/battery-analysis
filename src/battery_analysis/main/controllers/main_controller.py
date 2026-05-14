@@ -154,15 +154,10 @@ class MainController(QC.QObject):
         启动可视化工具回调
         转发信号给主窗口
         """
-        logging.info("[调试] 进入main_controller._on_start_visualizer方法")
         try:
-            # 检查信号是否存在
             if hasattr(self, 'start_visualizer'):
-                logging.info("[调试] main_controller.start_visualizer信号存在，准备转发")
                 self.start_visualizer.emit()
-                logging.info("[调试] 启动可视化工具信号转发成功")
             else:
-                logging.error("[调试] main_controller.start_visualizer信号不存在，无法转发")
+                logging.error("main_controller.start_visualizer信号不存在，无法转发")
         except (AttributeError, TypeError, RuntimeError) as e:
-            logging.error("[调试] 转发启动可视化工具信号whenerror occurred: %s", e)
-        logging.info("[调试] main_controller._on_start_visualizer方法执行完毕")
+            logging.error("转发启动可视化工具信号失败: %s", e)

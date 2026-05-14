@@ -227,7 +227,6 @@ class EnvironmentDetector:
                     return f"windows_monitor_{screens}"
             except (ImportError, OSError, AttributeError) as e:
                 # ctypes导入失败或Windows API调用失败
-                logging.debug(f"无法检测显示器数量: {e}")
                 pass
         
         return None

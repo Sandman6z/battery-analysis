@@ -11,6 +11,11 @@ import logging
 from PyQt6 import QtCore as QC
 
 
+class _TaskCancelled(Exception):
+    """检测到取消请求时抛出，优雅退出 run()，避免逐行 if-return"""
+    pass
+
+
 class AnalysisWorker(QC.QRunnable):
     """
     电池分析工作线程类，继承自QRunnable
@@ -66,6 +71,29 @@ class AnalysisWorker(QC.QRunnable):
         self.str_output_path = str_output_path
         self.list_test_info = list_test_info
 
+    def _emit_progress(self, value, status):
+        """
+        更新进度值并检查取消请求
+
+        将「设置进度→发射信号→检查取消」三步合并为一行，
+        检测到取消时抛出 _TaskCancelled，由 run() 顶层的 except 统一捕获退出。
+        每个进度点只需一行 self._emit_progress(...)，无需逐行 if-return。
+        """
+        self.progress_value = value
+        try:
+            self.signals.progress_update.emit(value, status)
+        except RuntimeError:
+            raise _TaskCancelled from None
+        if self.b_cancel_requested:
+            raise _TaskCancelled
+
+    def _emit_info_safe(self, is_running, state_index, message):
+        """安全发射 info 信号，忽略信号对象已删除的异常"""
+        try:
+            self.signals.info.emit(is_running, state_index, message)
+        except RuntimeError:
+            pass
+
     def run(self):
         """
         执行分析任务的主方法
@@ -81,15 +109,11 @@ class AnalysisWorker(QC.QRunnable):
             self.signals.info.emit(True, 1, status_text)
             self.signals.info.emit(True, 2, status_text)
             self.signals.info.emit(True, 3, status_text)
-        except RuntimeError:
-            # 处理信号对象已被删除的情况
-            pass
         except RuntimeError as e:
-            logging.error("发送初始运行状态失败: %s", str(e))
+            logging.warning("发送初始运行状态失败: %s", str(e))
 
         try:
-            # 发送初始进度
-            self.signals.progress_update.emit(0, "准备分析...")
+            self._emit_progress(0, "准备分析...")
 
             # 确保输出根目录存在（3_analysis results）
             os.makedirs(self.str_output_path, exist_ok=True)
@@ -102,51 +126,28 @@ class AnalysisWorker(QC.QRunnable):
                 return
 
             os.mkdir(version_dir)
-            self.progress_value = 5
-            self.signals.progress_update.emit(self.progress_value, "初始化分析环境...")
+            self._emit_progress(3, "正在初始化分析环境...")
 
             # 电池分析
             # 延迟导入以避免循环引用
             from battery_analysis.utils import battery_analysis
 
-            self.progress_value = 10
-            self.signals.progress_update.emit(self.progress_value, "正在加载电池分析模块...")
-            if self.b_cancel_requested:
-                return
+            self._emit_progress(5, "正在加载电池分析模块...")
+
+            self._emit_progress(8, "正在初始化电池分析引擎...")
 
             info_battery = battery_analysis.BatteryAnalysis(
                 strInDataXlsxDir=self.str_input_path,
                 strResultPath=self.str_output_path,
-                listTestInfo=self.list_test_info
+                listTestInfo=self.list_test_info,
+                progress_callback=lambda v, s: self._emit_progress(v, s)
             )
 
-            self.progress_value = 15
-            self.signals.progress_update.emit(self.progress_value, "正在读取输入数据...")
-            if self.b_cancel_requested:
-                return
-
-            self.progress_value = 20
-            self.signals.progress_update.emit(self.progress_value, "正在进行电池分析...")
-            if self.b_cancel_requested:
-                return
+            # BatteryAnalysis.__init__ 内部已报告进度至约55%，继续后续步骤
+            self._emit_progress(self.progress_value, "正在处理电池信息...")
 
             self.str_error_battery = info_battery.UBA_GetErrorLog()
             if self.str_error_battery == "":
-                self.progress_value = 30
-                self.signals.progress_update.emit(
-                    self.progress_value, "正在解析电池数据...")
-                if self.b_cancel_requested:
-                    return
-
-                self.progress_value = 35
-                self.signals.progress_update.emit(
-                    self.progress_value, "正在提取电池信息...")
-                if self.b_cancel_requested:
-                    return
-
-                self.progress_value = 40
-                self.signals.progress_update.emit(
-                    self.progress_value, "正在处理电池信息...")
                 list_battery_info = info_battery.UBA_GetBatteryInfo()
 
                 if self.b_cancel_requested:
@@ -231,15 +232,7 @@ class AnalysisWorker(QC.QRunnable):
                 # 取消严格的日期比较，避免因为日期格式不一致导致程序退出
                 # 现在优先使用从文件名提取的correct日期
 
-                self.progress_value = 45
-                self.signals.progress_update.emit(self.progress_value, "正在验证日期信息...")
-                if self.b_cancel_requested:
-                    return
-
-                self.progress_value = 50
-                self.signals.progress_update.emit(self.progress_value, "正在处理输出目录...")
-                if self.b_cancel_requested:
-                    return
+                self._emit_progress(self.progress_value, "正在处理输出目录...")
 
                 # 重命名目录
                 try:
@@ -253,24 +246,16 @@ class AnalysisWorker(QC.QRunnable):
                         self.signals.rename_path.emit(self.str_test_date)
                     except RuntimeError:
                         logging.warning("信号对象已被删除，无法发送重命名路径信号")
-                    
+
                     os.rename(version_dir, final_dir)
                 except (OSError, PermissionError, FileNotFoundError) as e:
                     logging.error("目录重命名失败: %s", e)
                     # 重命名失败时，使用默认目录名继续执行
                     final_dir = version_dir
 
-                self.progress_value = 55
-                self.signals.progress_update.emit(
-                    self.progress_value, "正在准备生成报告...")
-                if self.b_cancel_requested:
-                    return
+                self._emit_progress(self.progress_value, "正在准备生成报告...")
 
-                self.progress_value = 60
-                self.signals.progress_update.emit(
-                    self.progress_value, "正在初始化报告生成模块...")
-                if self.b_cancel_requested:
-                    return
+                self._emit_progress(60, "正在初始化报告生成模块...")
 
                 # 文件写入
                 try:
@@ -282,52 +267,29 @@ class AnalysisWorker(QC.QRunnable):
                         listBatteryInfo=list_battery_info
                     )
 
-                    self.progress_value = 65
-                    self.signals.progress_update.emit(
-                        self.progress_value, "正在写入分析结果...")
-                    if self.b_cancel_requested:
-                        return
+                    self._emit_progress(63, "正在整理分析数据...")
 
-                    self.progress_value = 70
-                    self.signals.progress_update.emit(
-                        self.progress_value, "正在生成图表...")
-                    if self.b_cancel_requested:
-                        return
+                    self._emit_progress(65, "正在写入分析结果...")
 
-                    self.progress_value = 75
-                    self.signals.progress_update.emit(
-                        self.progress_value, "正在保存报告文件...")
-                    if self.b_cancel_requested:
-                        return
+                    self._emit_progress(70, "正在生成图表...")
+
+                    self._emit_progress(74, "正在优化图表布局...")
+
+                    self._emit_progress(78, "正在验证分析结果数据...")
+
+                    self._emit_progress(82, "正在封装最终数据包...")
 
                     self.str_error_xlsx = info_file.UFW_GetErrorLog()
                     if self.str_error_xlsx != "":
                         logging.error(self.str_error_xlsx)
                     else:
-                        self.progress_value = 85
-                        self.signals.progress_update.emit(
-                            self.progress_value, "正在完成最终处理...")
-                        if self.b_cancel_requested:
-                            return
+                        self._emit_progress(85, "正在完成最终处理...")
 
-                        self.progress_value = 90
-                        self.signals.progress_update.emit(
-                            self.progress_value, "正在验证输出结果...")
-                        if self.b_cancel_requested:
-                            return
+                        self._emit_progress(90, "正在验证输出结果...")
 
-                        self.progress_value = 95
-                        self.signals.progress_update.emit(
-                            self.progress_value, "正在清理临时文件...")
-                        if self.b_cancel_requested:
-                            return
+                        self._emit_progress(95, "正在清理临时文件...")
 
-                        self.progress_value = 100
-                        try:
-                            self.signals.progress_update.emit(
-                                self.progress_value, "分析完成！")
-                        except RuntimeError:
-                            logging.warning("信号对象已被删除，无法发送进度更新信号")
+                        self._emit_progress(100, "分析完成！")
 
                     # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                     try:
@@ -338,6 +300,8 @@ class AnalysisWorker(QC.QRunnable):
                     logging.error("文件写入过程中发生错误: %s", e)
                     self.str_error_xlsx = f"文件写入错误: {str(e)}"
 
+        except _TaskCancelled:
+            return
         except Exception as e:
             # 捕获所有异常，包括自定义的 BatteryAnalysisException
             logging.error("线程运行过程中发生错误: %s", e)
@@ -345,39 +309,29 @@ class AnalysisWorker(QC.QRunnable):
             self.str_error_xlsx = f"线程运行错误: {str(e)}"
         finally:
             self.b_thread_run = False
-            # 发送完成状态
+            # 发送完成状态（取消的任务发 cancelled 信号，其他正常上报）
             try:
-                if self.str_error_battery != "":
+                if self.b_cancel_requested:
+                    self.signals.info.emit(False, 0, "status:cancelled")
+                elif self.str_error_battery != "":
                     self.signals.info.emit(False, 1, self.str_error_battery)
+                elif self.str_error_xlsx != "":
+                    self.signals.info.emit(False, 2, self.str_error_xlsx)
                 else:
-                    if self.str_error_xlsx != "":
-                        self.signals.info.emit(False, 2, self.str_error_xlsx)
-                    else:
-                        self.signals.info.emit(False, 0, "status:success")
-                        self.signals.thread_end.emit()
-            except RuntimeError:
-                # 处理信号对象已被删除的情况
-                logging.warning("信号对象已被删除，无法发送完成状态")
+                    self.signals.info.emit(False, 0, "status:success")
+                    self.signals.thread_end.emit()
             except RuntimeError as e:
-                # 捕获所有可能的异常，避免闪退
-                logging.error("发送完成状态时发生错误: %s", e)
+                logging.warning("信号对象已被删除，无法发送完成状态: %s", e)
 
     def _start_visualizer(self):
         """
         启动可视化工具的内部方法
         发送信号通知主线程启动可视化工具，确保环境一致
         """
-        logging.info("[调试] 进入_start_visualizer方法，准备发送启动可视化工具信号")
         try:
-            # 检查信号对象是否存在
             if hasattr(self, 'signals'):
-                logging.info("[调试] 信号对象存在，准备发射start_visualizer信号")
                 self.signals.start_visualizer.emit()
-                logging.info("[调试] 可视化工具启动信号发送成功")
-            else:
-                logging.error("[调试] 信号对象不存在，无法发送信号")
         except RuntimeError as e:
-            logging.warning("[调试] 信号对象已被删除，无法发送启动可视化工具信号: %s", e)
+            logging.warning("信号对象已被删除，无法发送启动可视化工具信号: %s", e)
         except RuntimeError as e:
             logging.error("发送启动可视化工具信号时发生错误: %s", e)
-        logging.info("[调试] _start_visualizer方法执行完毕")

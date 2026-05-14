@@ -127,23 +127,8 @@ class StyleManager(QObject):
         if theme is None:
             theme = self._current_theme
         
-        # 特殊处理battery_analyzer主题 - 优先使用新的统一样式文件
-        # if theme == "battery_analyzer":
-        #     unified_style_path = self._style_dir / "battery_analyzer.qss"
-        #     if unified_style_path.exists():
-        #         try:
-        #             with open(unified_style_path, 'r', encoding='utf-8') as f:
-        #                 unified_style = f.read()
-        #                 app.setStyleSheet(unified_style)
-        #                 self._current_theme = theme
-        #                 self.theme_changed.emit(theme)
-        #                 logging.info("已应用统一电池分析器样式 (通过StyleManager)")
-        #                 return
-        #         except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
-        #             logging.error("加载统一样式文件失败: %s", e)
-        #     else:
-        #         logging.warning("未找到统一样式文件: %s", unified_style_path)
-        
+        # 跳过已废弃的 battery_analyzer 分支，直接走主题缓存逻辑
+
         if theme in self._style_cache:
             app.setStyleSheet(self._style_cache[theme])
             self._current_theme = theme

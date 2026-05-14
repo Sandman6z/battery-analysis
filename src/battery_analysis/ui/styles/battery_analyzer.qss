@@ -165,18 +165,23 @@ QTableWidget::item:selected {
 
 /* ============================================   进度条样式   ============================================ */
 QProgressBar {
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
+    border: none;
+    border-radius: 8px;
     text-align: center;
-    background-color: #f8f9fa;
-    height: 16px;
+    background-color: #e9ecef;
+    height: 18px;
+    font-weight: 600;
+    font-size: 11px;
+    color: #495057;
 }
 
 QProgressBar::chunk {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
         stop:0 #3498db,
-        stop:1 #5dade2);
-    border-radius: 6px;
+        stop:0.4 #2ecc71,
+        stop:0.7 #27ae60,
+        stop:1 #1abc9c);
+    border-radius: 8px;
 }
 
 /* ============================================   状态栏样式   ============================================ */
@@ -193,40 +198,47 @@ QStatusBar {
 
 #progress_dialog {
     background-color: #ffffff;
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 16px;
     font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
 }
 
 #progress_status_label {
-    font-size: 12px;
-    color: #495057;
+    font-size: 13px;
+    color: #2c3e50;
     font-weight: 500;
+    padding: 4px 0px;
 }
 
 #progress_bar {
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border: none;
+    border-radius: 14px;
     text-align: center;
-    background-color: #ffffff;
-    height: 24px;
+    background-color: #f0f2f5;
+    height: 28px;
+    font-weight: bold;
+    font-size: 12px;
+    color: #ffffff;
+    padding: 0px;
 }
 
 #progress_bar::chunk {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
         stop:0 #3498db,
-        stop:1 #5dade2);
-    border-radius: 8px;
+        stop:0.3 #2ecc71,
+        stop:0.6 #27ae60,
+        stop:1 #1abc9c);
+    border-radius: 14px;
 }
 
 #cancel_button {
     background-color: #ffffff;
-    border: 2px solid #e74c3c;
+    border: 1.5px solid #e74c3c;
     border-radius: 8px;
-    padding: 8px 16px;
+    padding: 6px 20px;
     color: #e74c3c;
-    font-weight: 500;
-    font-size: 11px;
+    font-weight: 600;
+    font-size: 12px;
     min-height: 32px;
     min-width: 100px;
 }
@@ -234,12 +246,13 @@ QStatusBar {
 #cancel_button:hover {
     background-color: #e74c3c;
     border-color: #c0392b;
-    color: white;
+    color: #ffffff;
 }
 
 #cancel_button:pressed {
     background-color: #c0392b;
     border-color: #a93226;
+    color: #ffffff;
 }
 
 /* ============================================   框架样式   ============================================ */

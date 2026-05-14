@@ -587,7 +587,6 @@ class InteractionControlsMixin:
                 fallback_version = f"v{version_obj.version}"
             except (ImportError, AttributeError, TypeError):
                 fallback_version = "v2.1.2"
-            print(f"Battery Analysis Tool {fallback_version}\n开发者: Ewin电池分析团队")
 
     def _close_viewer(self):
         """关闭viewer窗口"""

@@ -12,6 +12,7 @@ import logging
 import time
 from typing import Any
 
+import PyQt6.QtCore as QC
 import PyQt6.QtWidgets as QW
 
 from battery_analysis.i18n.language_manager import _
@@ -110,9 +111,9 @@ class SignalConnector:
             event_bus.subscribe(EventType.CONFIG_CHANGED, self._on_config_changed)
 
     def _on_progress_updated(self, progress, status_text):
-        """进度更新处理"""
+        """进度更新处理（带平滑动画，消除百分比跳变）"""
         if hasattr(self.main_window, 'progressBar'):
-            self.main_window.progressBar.setValue(progress)
+            self._animate_progress_bar(self.main_window.progressBar, progress)
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
             self.main_window.statusBar_BatteryAnalysis.showMessage(f"状态: {status_text}")
 
@@ -126,6 +127,21 @@ class SignalConnector:
 
         if progress >= 100:
             self._close_progress_dialog()
+
+    def _animate_progress_bar(self, bar, target_value):
+        """使用 QPropertyAnimation 让进度条数值平滑过渡"""
+        current = bar.value()
+        if current == target_value:
+            return
+        if hasattr(bar, '_anim') and bar._anim is not None:
+            bar._anim.stop()
+        else:
+            bar._anim = QC.QPropertyAnimation(bar, b"value")
+            bar._anim.setEasingCurve(QC.QEasingCurve.Type.OutCubic)
+            bar._anim.setDuration(200)
+        bar._anim.setStartValue(current)
+        bar._anim.setEndValue(target_value)
+        bar._anim.start()
 
     def _on_event_progress_updated(self, event):
         """事件总线进度更新处理"""

@@ -27,7 +27,8 @@ logging.basicConfig(level=logging.WARNING,
 
 
 class BatteryAnalysis:
-    def __init__(self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list) -> None:
+    def __init__(self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list,
+                 progress_callback=None) -> None:
         # Check if listTestInfo has enough elements
         if len(listTestInfo) < 19:
             logging.error("测试信息列表格式错误: 缺少必要的信息。需要至少19个元素，但只找到%d个", len(listTestInfo))
@@ -130,9 +131,11 @@ class BatteryAnalysis:
                 # 检查是否在PyInstaller环境中运行
                 is_frozen = getattr(sys, 'frozen', False)
 
+                if progress_callback:
+                    progress_callback(12, "正在读取Excel文件...")
+
                 if is_frozen or sys.platform.startswith('win'):
                     # 在WindowsorPyInstaller环境下，使用进程池但避免递归启动问题
-                    logging.debug("使用进程池并行处理")
 
                     # 使用资源管理器获取最优进程数
                     from battery_analysis.utils.resource_manager import ResourceManager
@@ -145,37 +148,56 @@ class BatteryAnalysis:
                         max_workers=max_processes,
                         mp_context=ctx
                     ) as executor:
-                        # 提交所有任务，保持顺序映射
-                        futures = [
-                            executor.submit(self._parallel_process_file, args)
-                            for args in process_args
-                        ]
+                        # 提交所有任务，保持索引映射
+                        future_to_idx = {
+                            executor.submit(self._parallel_process_file, args): idx
+                            for idx, args in enumerate(process_args)
+                        }
 
-                        # 按提交顺序获取结果，保持文件顺序
-                        for future in futures:
+                        if progress_callback:
+                            progress_callback(15, "正在并行分析电池数据...")
+
+                        # 使用as_completed按完成顺序收集，实现每文件进度反馈
+                        results_map = {}
+                        completed = 0
+                        total = len(future_to_idx)
+                        for future in concurrent.futures.as_completed(future_to_idx):
+                            idx = future_to_idx[future]
                             try:
                                 result = future.result()
-                                results.append(result)
+                                results_map[idx] = result
                             except (
                                 FileNotFoundError, PermissionError, ValueError,
                                 KeyError, IndexError
                             ) as e:
-                                logging.error("处理文件whenerror occurred: %s", e)
+                                logging.error("处理文件时出错: %s", e)
                                 raise BatteryAnalysisException(
                                     f"处理失败: {str(e)}")
+
+                            completed += 1
+                            if progress_callback and total > 1:
+                                pct = 15 + int((completed / total) * 35)
+                                progress_callback(
+                                    pct,
+                                    f"正在分析电池数据... ({completed}/{total})"
+                                )
+
+                        # 按提交顺序还原结果
+                        results = [results_map[i] for i in range(len(process_args))]
                 else:
                     # 在非Windows环境下，使用进程池并行处理以获得更好的CPU利用率
-                    logging.debug("在非Windows环境中，使用进程池并行处理以获得最佳性能")
                     cpu_count = min(multiprocessing.cpu_count(), 4)
+                    if progress_callback:
+                        progress_callback(15, "正在并行分析电池数据...")
                     with multiprocessing.Pool(processes=cpu_count) as pool:
                         try:
                             results = pool.map(
                                 self._parallel_process_file, process_args)
                         except (
-                            FileNotFoundError, PermissionError, ValueError, 
+                            FileNotFoundError, PermissionError, ValueError,
                             KeyError, IndexError
                         ) as e:
-                            logging.error("并行处理文件whenerror occurred: %s", e)
+                            logging.error("并行处理文件时出错: %s", e)
                             pool.terminate()
                             raise BatteryAnalysisException(f"并行处理失败: {str(e)}")
                         finally:
@@ -201,8 +223,14 @@ class BatteryAnalysis:
                         self.listTimeStamp[1] = self._str_compare_date(
                             timestamp_info[1], self.listTimeStamp[1], False)
 
+            if progress_callback:
+                progress_callback(52, "正在写入CSV文件...")
+
             # write .csv for draw line chart
             self.UBA_WriteCsv(f"{strResultPath}/V{listTestInfo[16]}")
+
+            if progress_callback:
+                progress_callback(55, "数据处理完成")
 
         except (IOError, OSError, ValueError, rd.XLRDError) as e:
             self.strErrorLog = str(e)
@@ -718,7 +746,6 @@ class BatteryAnalysis:
 
     def UBA_Log(self, _data: str) -> None:
         """优化的日志写入方法，使用缓冲区减少I/O操作"""
-        logging.debug(_data, end='')
         # 添加到缓冲区
         self._log_buffer.append(_data)
         self._log_buffer_size += len(_data)

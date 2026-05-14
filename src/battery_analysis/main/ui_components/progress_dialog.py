@@ -20,13 +20,36 @@ import PyQt6.QtWidgets as QW
 from battery_analysis.i18n.language_manager import _
 
 
+class SmoothProgressBar(QW.QProgressBar):
+    """
+    带平滑动画的进度条
+
+    数值变化时以动画方式过渡，消除百分比数字的跳变感（撕裂感）
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._anim = QC.QPropertyAnimation(self, b"value")
+        self._anim.setEasingCurve(QC.QEasingCurve.Type.OutCubic)
+        self._anim.setDuration(200)
+
+    def setValue(self, value):
+        current = self.value()
+        if current == value:
+            return
+        self._anim.stop()
+        self._anim.setStartValue(current)
+        self._anim.setEndValue(value)
+        self._anim.start()
+
+
 class ProgressDialog(QW.QDialog):
     """
     弹出式进度条对话框类
 
     用于显示详细的进度信息，适合长时间运行的任务
     """
-    
+
     # 信号定义
     canceled = QC.pyqtSignal()  # 取消信号
 
@@ -45,7 +68,7 @@ class ProgressDialog(QW.QDialog):
                             QC.Qt.WindowType.WindowCloseButtonHint |
                             QC.Qt.WindowType.WindowStaysOnTopHint |
                             QC.Qt.WindowType.WindowMinimizeButtonHint)
-        
+
         # 设置窗口样式
         self.setObjectName("progress_dialog")
 
@@ -61,8 +84,8 @@ class ProgressDialog(QW.QDialog):
         self.status_label.setObjectName("progress_status_label")
         layout.addWidget(self.status_label)
 
-        # 添加进度条
-        self.progress_bar = QW.QProgressBar()
+        # 添加进度条（带平滑动画）
+        self.progress_bar = SmoothProgressBar()
         self.progress_bar.setValue(0)
         self.progress_bar.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
         self.progress_bar.setObjectName("progress_bar")
