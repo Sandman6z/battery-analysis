@@ -36,14 +36,10 @@ class TestBatteryAnalysis:
         # 测试日期比较方法
         date1 = "2025-01-01 12:00:00"
         date2 = "2025-01-02 12:00:00"
-        
-        analysis = Mock(spec=BatteryAnalysis)
-        analysis._str_compare_date = BatteryAnalysis._str_compare_date.__get__(analysis)
-        
-        # 测试获取较早日期
-        result = analysis._str_compare_date(date1, date2, True)
+
+        # 直接调用静态方法，不经过 Mock
+        result = BatteryAnalysis._str_compare_date(date1, date2, True)
         assert result == date1
-        
-        # 测试获取较晚日期
-        result = analysis._str_compare_date(date1, date2, False)
+
+        result = BatteryAnalysis._str_compare_date(date1, date2, False)
         assert result == date2
