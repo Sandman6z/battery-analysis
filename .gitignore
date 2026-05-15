@@ -227,3 +227,4 @@ refactoring_plan.md
 
 # 临时构建目录
 temp_build/
+.superpowers/

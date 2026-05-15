@@ -18,6 +18,26 @@ from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.utils.excel_processor import optimize_dataframe_memory, read_excel_file, analyze_single_excel
 
 
+class _MainThreadCallback(QC.QObject):
+    """确保回调在 Qt 主线程执行的信号中继器
+
+    用法: 包装回调后连接到后台线程的信号，自动通过 QueuedConnection
+    将执行切换到主线程。
+    """
+    _signal = QC.pyqtSignal(object)
+
+    def __init__(self, callback):
+        super().__init__()
+        self._callback = callback
+        self._signal.connect(self._invoke, QC.Qt.ConnectionType.QueuedConnection)
+
+    def __call__(self, result):
+        self._signal.emit(result)
+
+    def _invoke(self, result):
+        self._callback(result)
+
+
 class DataProcessor:
     """
     数据处理器类，负责处理数据相关的业务逻辑
@@ -72,9 +92,9 @@ class DataProcessor:
         self._background_worker.finished.connect(self._background_worker.deleteLater)
         self._background_thread.finished.connect(self._background_thread.deleteLater)
         if on_finished:
-            self._background_worker.finished.connect(on_finished)
+            self._background_worker.finished.connect(_MainThreadCallback(on_finished))
         if on_error:
-            self._background_worker.error.connect(on_error)
+            self._background_worker.error.connect(_MainThreadCallback(on_error))
         self._background_thread.start()
 
     def get_cache_stats(self):

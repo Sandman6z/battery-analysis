@@ -105,43 +105,5 @@ class WindowSetup:
         self.logger.warning("setup_menu_shortcuts 已迁移到 MenuManager")
     
     def init_widgetcolor(self) -> None:
-        """
-        初始化部件颜色
-        """
-        # 初始化UI部件颜色
-        try:
-            self.main_window.lineEdit_InputPath.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_OutputPath.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_version.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_testDate.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_testTime.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_Barcode.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_SerialNumber.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_BatchNumber.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_LotNumber.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_ManufactureDate.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_BatteryDate.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_BatteryModel.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_ChemicalSystem.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_Capacity.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_DesignVoltage.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_RatedVoltage.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_DischargeCurrent.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_DischargeVoltage.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_ChargeCurrent.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_CellType.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_CellNumber.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_ConnectionType.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_Manufacturer.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_Assembler.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_Tester.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_InspectionType.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_InspectionCriteria.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_TestEquipment.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_TestSoftware.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_TestOperator.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_TestLocation.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_AmbientTemperature.setStyleSheet("background-color: #ffffff;")
-            self.main_window.lineEdit_Humidity.setStyleSheet("background-color: #ffffff;")
-        except (AttributeError, TypeError, RuntimeError) as e:
-            self.logger.error("初始化部件颜色失败: %s", e)
+        """初始化部件颜色 — handled by QSS now"""
+        pass

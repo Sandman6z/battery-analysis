@@ -289,40 +289,73 @@ class UIManager:
 
         self.main_window.lineEdit_TestProfile.setText("Not provided")
     
+    def _add_items_with_fallback(self, combobox, items, fallback=None):
+        """添加项到下拉框，配置为空时使用内置兜底值"""
+        if items:
+            combobox.addItems(items)
+        elif fallback:
+            combobox.addItems(fallback)
+
     def init_combobox(self):
         """
         初始化组合框设置
         """
+        # 屏蔽信号，防止 clear/addItems/setCurrentIndex 触发已连接的
+        # currentIndexChanged 导致级联回调（见 check_batterytype / check_specification）
+        all_combos = [
+            self.main_window.comboBox_BatteryType,
+            self.main_window.comboBox_ConstructionMethod,
+            self.main_window.comboBox_Specification_Type,
+            self.main_window.comboBox_Specification_Method,
+            self.main_window.comboBox_Manufacturer,
+            self.main_window.comboBox_TesterLocation,
+            self.main_window.comboBox_TestedBy,
+            self.main_window.comboBox_ReportedBy,
+        ]
+        for combo in all_combos:
+            combo.blockSignals(True)
+
         # 清除现有项目
-        self.main_window.comboBox_BatteryType.clear()
-        self.main_window.comboBox_ConstructionMethod.clear()
-        self.main_window.comboBox_Specification_Type.clear()
-        self.main_window.comboBox_Specification_Method.clear()
-        self.main_window.comboBox_Manufacturer.clear()
-        self.main_window.comboBox_TesterLocation.clear()
-        self.main_window.comboBox_TestedBy.clear()
-        self.main_window.comboBox_ReportedBy.clear()
-        
-        # 添加新项目
-        self.main_window.comboBox_BatteryType.addItems(
-            self.main_window.get_config("BatteryConfig/BatteryType"))
-        self.main_window.comboBox_ConstructionMethod.addItems(
-            self.main_window.get_config("BatteryConfig/ConstructionMethod"))
+        for combo in all_combos:
+            combo.clear()
+
+        # 添加新项目（配置缺失时使用内置兜底值）
+        self._add_items_with_fallback(
+            self.main_window.comboBox_BatteryType,
+            self.main_window.get_config("BatteryConfig/BatteryType"),
+            ["Coin Cell", "Pouch Cell"])
+        self._add_items_with_fallback(
+            self.main_window.comboBox_ConstructionMethod,
+            self.main_window.get_config("BatteryConfig/ConstructionMethod"),
+            ["Stacked", "Wound"])
         self.main_window.comboBox_Specification_Type.addItems(
             self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
         self.main_window.comboBox_Specification_Type.addItems(
             self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
-        self.main_window.comboBox_Specification_Method.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationMethod"))
-        self.main_window.comboBox_Manufacturer.addItems(
-            self.main_window.get_config("BatteryConfig/Manufacturer"))
-        self.main_window.comboBox_TesterLocation.addItems(
-            self.main_window.get_config("TestConfig/TesterLocation"))
-        
+        if self.main_window.comboBox_Specification_Type.count() == 0:
+            self.main_window.comboBox_Specification_Type.addItems(
+                ["CR2032", "CR2450", "LP503048", "LP603040"])
+        self._add_items_with_fallback(
+            self.main_window.comboBox_Specification_Method,
+            self.main_window.get_config("BatteryConfig/SpecificationMethod"),
+            ["Standard", "High Rate"])
+        self._add_items_with_fallback(
+            self.main_window.comboBox_Manufacturer,
+            self.main_window.get_config("BatteryConfig/Manufacturer"),
+            ["Unknown"])
+        self._add_items_with_fallback(
+            self.main_window.comboBox_TesterLocation,
+            self.main_window.get_config("TestConfig/TesterLocation"),
+            ["Lab 1", "Lab 2"])
+
         # 获取TestedBy列表并同时用于comboBox_TestedBy和comboBox_ReportedBy
         tested_by_list = self.main_window.get_config("TestConfig/TestedBy")
-        self.main_window.comboBox_TestedBy.addItems(tested_by_list)
-        self.main_window.comboBox_ReportedBy.addItems(tested_by_list)
+        if tested_by_list:
+            self.main_window.comboBox_TestedBy.addItems(tested_by_list)
+            self.main_window.comboBox_ReportedBy.addItems(tested_by_list)
+        else:
+            self.main_window.comboBox_TestedBy.addItems(["Tester"])
+            self.main_window.comboBox_ReportedBy.addItems(["Tester"])
         
         # 为comboBox_Temperature添加选项（只添加一次，不需要清除）
         if self.main_window.comboBox_Temperature.count() == 0:
@@ -344,6 +377,10 @@ class UIManager:
         self.main_window.comboBox_ConstructionMethod.setEnabled(False)
         self.main_window.comboBox_Specification_Type.setEnabled(False)
         self.main_window.comboBox_Specification_Method.setEnabled(False)
+
+        # 恢复信号
+        for combo in all_combos:
+            combo.blockSignals(False)
 
         # 加载用户配置的设置
         self.load_user_settings()

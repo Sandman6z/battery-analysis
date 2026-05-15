@@ -779,7 +779,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         """窗口大小改变时的事件处理函数"""
         super().resizeEvent(event)
         if hasattr(self, 'tableWidget_TestInformation'):
-            self.tableWidget_TestInformation.resizeColumnsToContents()
+            if self.tableWidget_TestInformation.rowCount() > 0:
+                self.tableWidget_TestInformation.resizeColumnsToContents()
 
     def _lazy_init(self):
         """延迟初始化非关键UI组件（窗口显示后执行）"""

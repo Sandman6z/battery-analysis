@@ -61,11 +61,13 @@ class StyleManager(QObject):
                         # 如果深色主题文件不存在，基于主样式创建
                         dark_style = main_style
                         # 替换颜色变量为深色主题颜色
-                        dark_style = dark_style.replace("#f8f9fa", "#2c3e50")  # 背景色
-                        dark_style = dark_style.replace("#ffffff", "#34495e")  # 表面色
-                        dark_style = dark_style.replace("#212529", "#ecf0f1")  # 文字色
-                        dark_style = dark_style.replace("#495057", "#bdc3c7")  # 次要文字色
-                        dark_style = dark_style.replace("#e9ecef", "#4a5f7a")  # 边框色
+                        dark_style = dark_style.replace("#f5f0e8", "#2c3e50")  # main background
+                        dark_style = dark_style.replace("#faf7f2", "#34495e")  # card surface
+                        dark_style = dark_style.replace("#ede9e3", "#3a4a5e")  # input background
+                        dark_style = dark_style.replace("#e5e0d8", "#405060")  # input hover
+                        dark_style = dark_style.replace("#3d3229", "#ecf0f1")  # primary text
+                        dark_style = dark_style.replace("#8a7a6a", "#bdc3c7")  # secondary text
+                        dark_style = dark_style.replace("#e0d8cc", "#4a5f7a")  # border/divider
                         self._style_cache["dark"] = dark_style
                         logging.info("已基于主样式创建深色主题")
                     
@@ -80,28 +82,34 @@ class StyleManager(QObject):
                         # 如果高对比度主题文件不存在，基于主样式创建
                         high_contrast_style = main_style
                         # 替换颜色变量为高对比度颜色
-                        high_contrast_style = high_contrast_style.replace("#f8f9fa", "#ffffff")  # 背景色
-                        high_contrast_style = high_contrast_style.replace("#212529", "#000000")  # 文字色
-                        high_contrast_style = high_contrast_style.replace("#e9ecef", "#000000")  # 边框色
-                        high_contrast_style = high_contrast_style.replace("#3498db", "#0000ff")  # 主色调
+                        high_contrast_style = high_contrast_style.replace("#f5f0e8", "#ffffff")
+                        high_contrast_style = high_contrast_style.replace("#faf7f2", "#ffffff")
+                        high_contrast_style = high_contrast_style.replace("#ede9e3", "#ffffff")
+                        high_contrast_style = high_contrast_style.replace("#3d3229", "#000000")
+                        high_contrast_style = high_contrast_style.replace("#e0d8cc", "#000000")
+                        high_contrast_style = high_contrast_style.replace("#27ae60", "#0000ff")
                         self._style_cache["high_contrast"] = high_contrast_style
                         logging.info("已基于主样式创建高对比度主题")
                     
                     # 添加蓝色主题（基于主样式创建）
                     blue_style = main_style
-                    blue_style = blue_style.replace("#f8f9fa", "#e3f2fd")  # 背景色
-                    blue_style = blue_style.replace("#212529", "#1565c0")  # 文字色
-                    blue_style = blue_style.replace("#495057", "#2196f3")  # 次要文字色
-                    blue_style = blue_style.replace("#e9ecef", "#bbdefb")  # 边框色
+                    blue_style = blue_style.replace("#f5f0e8", "#e3f2fd")
+                    blue_style = blue_style.replace("#faf7f2", "#ffffff")
+                    blue_style = blue_style.replace("#ede9e3", "#e8eaf6")
+                    blue_style = blue_style.replace("#3d3229", "#1565c0")
+                    blue_style = blue_style.replace("#8a7a6a", "#2196f3")
+                    blue_style = blue_style.replace("#e0d8cc", "#bbdefb")
                     self._style_cache["blue"] = blue_style
                     logging.info("已基于主样式创建蓝色主题")
                     
                     # 添加绿色主题（基于主样式创建）
                     green_style = main_style
-                    green_style = green_style.replace("#f8f9fa", "#e8f5e8")  # 背景色
-                    green_style = green_style.replace("#212529", "#2e7d32")  # 文字色
-                    green_style = green_style.replace("#495057", "#43a047")  # 次要文字色
-                    green_style = green_style.replace("#e9ecef", "#c8e6c9")  # 边框色
+                    green_style = green_style.replace("#f5f0e8", "#e8f5e8")
+                    green_style = green_style.replace("#faf7f2", "#ffffff")
+                    green_style = green_style.replace("#ede9e3", "#e0f0e0")
+                    green_style = green_style.replace("#3d3229", "#2e7d32")
+                    green_style = green_style.replace("#8a7a6a", "#43a047")
+                    green_style = green_style.replace("#e0d8cc", "#c8e6c9")
                     self._style_cache["green"] = green_style
                     logging.info("已基于主样式创建绿色主题")
             except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
@@ -159,14 +167,14 @@ class StyleManager(QObject):
         # 定义常用颜色变量
         variables = {
             "modern": {
-                "primary_color": "#3498db",
+                "primary_color": "#27ae60",
                 "secondary_color": "#27ae60",
                 "warning_color": "#f39c12",
                 "error_color": "#e74c3c",
-                "background_color": "#f8f9fa",
-                "surface_color": "#ffffff",
-                "text_color": "#212529",
-                "border_color": "#e9ecef"
+                "background_color": "#f5f0e8",
+                "surface_color": "#faf7f2",
+                "text_color": "#3d3229",
+                "border_color": "#e0d8cc"
             },
             "dark": {
                 "primary_color": "#5dade2",
@@ -179,14 +187,14 @@ class StyleManager(QObject):
                 "border_color": "#4a5f7a"
             },
             "light": {
-                "primary_color": "#3498db",
+                "primary_color": "#27ae60",
                 "secondary_color": "#27ae60",
                 "warning_color": "#f39c12",
                 "error_color": "#e74c3c",
-                "background_color": "#ffffff",
-                "surface_color": "#f8f9fa",
-                "text_color": "#212529",
-                "border_color": "#dee2e6"
+                "background_color": "#f5f0e8",
+                "surface_color": "#faf7f2",
+                "text_color": "#3d3229",
+                "border_color": "#e0d8cc"
             },
             "blue": {
                 "primary_color": "#1e88e5",

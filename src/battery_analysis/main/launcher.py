@@ -3,6 +3,7 @@
 
 仅在启动时才导入的轻量模块，负责在加载任何业务模块前尽早显示闪屏。
 """
+import os
 import sys
 import multiprocessing
 import warnings
@@ -10,7 +11,7 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import QApplication, QStyleFactory, QSplashScreen
 from PyQt6.QtGui import QPixmap, QFont, QColor, QPainter
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
 
 
 def _create_splash(app):
@@ -40,9 +41,20 @@ def main():
     multiprocessing.freeze_support()
     warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
 
+    # 禁用 Qt 可访问性桥（解决特定 Windows 机器上下拉框无响应的问题）
+    os.environ["QT_ACCESSIBILITY"] = "0"
+
     # 1) 创建 QApplication 和闪屏（只依赖 PyQt6 基础库）
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create("Fusion"))
+
+    # 过滤 Qt 内部无害警告（QTableWidget auto-expand 时的 dataChanged 防护检查）
+    _QT_FILTER_MSG = "dataChanged() called with an invalid index range"
+    def _qt_msg_handler(mode, ctx, msg):
+        if _QT_FILTER_MSG not in msg:
+            sys.stderr.write(msg + "\n")
+    qInstallMessageHandler(_qt_msg_handler)
+
     font = QFont()
     font.setFamilies(["Segoe UI", "Segoe UI Emoji", "SimHei", "Microsoft YaHei"])
     app.setFont(font)

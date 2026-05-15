@@ -129,43 +129,61 @@ class ThemeManager:
                 except (ImportError, AttributeError, TypeError, RuntimeError) as e:
                     # 如果主题系统加载失败，使用简单的深色主题样式表
                     dark_stylesheet = """QWidget {
-                        background-color: #2b2b2b;
-                        color: #cccccc;
-                    }
-                    QMenuBar {
-                        background-color: #2b2b2b;
-                        color: #cccccc;
-                    }
-                    QMenu {
-                        background-color: #3a3a3a;
-                        color: #cccccc;
-                    }
-                    QMenu::item:selected {
-                        background-color: #555555;
-                    }
-                    QPushButton {
-                        background-color: #4a4a4a;
-                        border: 1px solid #6a6a6a;
-                        color: #cccccc;
-                    }
-                    QPushButton:hover {
-                        background-color: #555555;
-                    }
-                    QLineEdit, QComboBox, QTextEdit, QSpinBox {
-                        background-color: #3a3a3a;
-                        border: 1px solid #6a6a6a;
-                        color: #cccccc;
-                    }
-                    QTableWidget {
-                        background-color: #3a3a3a;
-                        color: #cccccc;
-                        alternate-background-color: #4a4a4a;
-                    }
-                    QHeaderView::section {
-                        background-color: #4a4a4a;
-                        color: #cccccc;
-                    }
-                    """
+    background-color: #2b2b2b;
+    color: #cccccc;
+}
+QMenuBar {
+    background-color: #2b2b2b;
+    color: #cccccc;
+}
+QMenu {
+    background-color: #3a3a3a;
+    color: #cccccc;
+}
+QMenu::item:selected {
+    background-color: #555555;
+}
+QPushButton {
+    background-color: #4a4a4a;
+    border: none;
+    border-radius: 8px;
+    color: #cccccc;
+    padding: 8px 16px;
+}
+QPushButton:hover {
+    background-color: #555555;
+}
+QLineEdit, QComboBox, QTextEdit, QSpinBox {
+    background-color: #3a3a3a;
+    border: none;
+    border-radius: 8px;
+    color: #cccccc;
+    padding: 8px 12px;
+}
+QTableWidget {
+    background-color: #3a3a3a;
+    color: #cccccc;
+    alternate-background-color: #4a4a4a;
+    border: none;
+}
+QHeaderView::section {
+    background-color: #4a4a4a;
+    color: #cccccc;
+}
+QGroupBox {
+    border: none;
+    color: #cccccc;
+}
+QGroupBox::title {
+    color: #cccccc;
+    border-bottom: 2px solid #27ae60;
+    padding-bottom: 8px;
+}
+QFrame {
+    border: none;
+    background: transparent;
+}
+"""
                     app.setStyleSheet(dark_stylesheet)
                     self.main_window.statusBar_BatteryAnalysis.showMessage(_("theme_switched_simple_dark", f"已切换到简单深色主题"))
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:

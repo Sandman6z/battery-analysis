@@ -209,6 +209,13 @@ class ValidationManager:
         pouch_cell_types = self.main_window.get_config(
             "BatteryConfig/SpecificationTypePouchCell")
 
+        # 临时断开 BatteryType 信号，避免递归触发 check_batterytype
+        try:
+            self.main_window.comboBox_BatteryType.currentIndexChanged.disconnect(
+                self.main_window.check_batterytype)
+        except (TypeError, AttributeError):
+            pass
+
         for coin_type in coin_cell_types:
             if self.main_window.specification_type == coin_type:
                 self.main_window.comboBox_BatteryType.setCurrentIndex(0)
@@ -216,6 +223,9 @@ class ValidationManager:
         for pouch_type in pouch_cell_types:
             if self.main_window.specification_type == pouch_type:
                 self.main_window.comboBox_BatteryType.setCurrentIndex(1)
+
+        self.main_window.comboBox_BatteryType.currentIndexChanged.connect(
+            self.main_window.check_batterytype)
 
         specification_method = self.main_window.comboBox_Specification_Method.currentText()
         if not self.main_window.specification_type or not specification_method:

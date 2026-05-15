@@ -82,38 +82,6 @@ class Ui_MainWindow(object):
         self.comboBox_Temperature.setFont(font)
         self.comboBox_Temperature.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_Temperature.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_Temperature.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_Temperature.setEditable(False)
         self.comboBox_Temperature.setObjectName("comboBox_Temperature")
         self.horizontalLayout_Temperature.addWidget(self.comboBox_Temperature)
@@ -226,38 +194,6 @@ class Ui_MainWindow(object):
         self.comboBox_Manufacturer.setFont(font)
         self.comboBox_Manufacturer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_Manufacturer.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_Manufacturer.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_Manufacturer.setEditable(False)
         self.comboBox_Manufacturer.setObjectName("comboBox_Manufacturer")
         self.horizontalLayout_Manufacturer.addWidget(self.comboBox_Manufacturer)
@@ -286,13 +222,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.lineEdit_BatchDateCode.setFont(font)
         self.lineEdit_BatchDateCode.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_BatchDateCode.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_BatchDateCode.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_BatchDateCode.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_BatchDateCode.setObjectName("lineEdit_BatchDateCode")
@@ -322,13 +251,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.lineEdit_SamplesQty.setFont(font)
         self.lineEdit_SamplesQty.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_SamplesQty.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_SamplesQty.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_SamplesQty.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_SamplesQty.setObjectName("lineEdit_SamplesQty")
@@ -382,38 +304,6 @@ class Ui_MainWindow(object):
         self.comboBox_BatteryType.setFont(font)
         self.comboBox_BatteryType.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_BatteryType.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_BatteryType.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_BatteryType.setEditable(False)
         self.comboBox_BatteryType.setObjectName("comboBox_BatteryType")
         self.horizontalLayout_BatteryType.addWidget(self.comboBox_BatteryType)
@@ -448,38 +338,6 @@ class Ui_MainWindow(object):
         self.comboBox_ConstructionMethod.setFont(font)
         self.comboBox_ConstructionMethod.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_ConstructionMethod.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_ConstructionMethod.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_ConstructionMethod.setEditable(False)
         self.comboBox_ConstructionMethod.setObjectName("comboBox_ConstructionMethod")
         self.horizontalLayout_ConstructionMethod.addWidget(self.comboBox_ConstructionMethod)
@@ -521,38 +379,6 @@ class Ui_MainWindow(object):
         self.comboBox_Specification_Method.setFont(font)
         self.comboBox_Specification_Method.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_Specification_Method.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_Specification_Method.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_Specification_Method.setEditable(False)
         self.comboBox_Specification_Method.setObjectName("comboBox_Specification_Method")
         self.verticalLayout_4.addWidget(self.comboBox_Specification_Method)
@@ -570,38 +396,6 @@ class Ui_MainWindow(object):
         self.comboBox_Specification_Type.setFont(font)
         self.comboBox_Specification_Type.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_Specification_Type.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_Specification_Type.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_Specification_Type.setEditable(False)
         self.comboBox_Specification_Type.setInsertPolicy(QtWidgets.QComboBox.InsertPolicy.InsertAtBottom)
         self.comboBox_Specification_Type.setObjectName("comboBox_Specification_Type")
@@ -644,13 +438,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.lineEdit_RequiredUseableCapacity.setFont(font)
         self.lineEdit_RequiredUseableCapacity.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_RequiredUseableCapacity.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_RequiredUseableCapacity.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_RequiredUseableCapacity.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_RequiredUseableCapacity.setObjectName("lineEdit_RequiredUseableCapacity")
@@ -680,13 +467,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.lineEdit_CalculationNominalCapacity.setFont(font)
         self.lineEdit_CalculationNominalCapacity.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_CalculationNominalCapacity.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_CalculationNominalCapacity.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_CalculationNominalCapacity.setObjectName("lineEdit_CalculationNominalCapacity")
         self.horizontalLayout_CalculationNominalCapacity.addWidget(self.lineEdit_CalculationNominalCapacity)
@@ -715,13 +495,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.lineEdit_DatasheetNominalCapacity.setFont(font)
         self.lineEdit_DatasheetNominalCapacity.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_DatasheetNominalCapacity.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_DatasheetNominalCapacity.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_DatasheetNominalCapacity.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_DatasheetNominalCapacity.setObjectName("lineEdit_DatasheetNominalCapacity")
@@ -742,11 +515,6 @@ class Ui_MainWindow(object):
         font.setFamily("Microsoft YaHei UI")
         font.setPointSize(9)
         self.groupBox_TestConfig.setFont(font)
-        self.groupBox_TestConfig.setStyleSheet("QGroupBox::groupBox_TestConfig {\n"
-"    font: bold 14pt \"Arial\";\n"
-"    color: #FF17365D;\n"
-"    background-color: transparent;\n"
-"}")
         self.groupBox_TestConfig.setObjectName("groupBox_TestConfig")
         self.horizontalLayoutWidget_8 = QtWidgets.QWidget(parent=self.groupBox_TestConfig)
         self.horizontalLayoutWidget_8.setGeometry(QtCore.QRect(10, 70, 641, 38))
@@ -785,13 +553,6 @@ class Ui_MainWindow(object):
         self.lineEdit_TestProfile.setFont(font)
         self.lineEdit_TestProfile.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.lineEdit_TestProfile.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
-        self.lineEdit_TestProfile.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_TestProfile.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_TestProfile.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_TestProfile.setReadOnly(True)
@@ -849,38 +610,6 @@ class Ui_MainWindow(object):
         self.comboBox_TesterLocation.setFont(font)
         self.comboBox_TesterLocation.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_TesterLocation.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_TesterLocation.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_TesterLocation.setEditable(False)
         self.comboBox_TesterLocation.setObjectName("comboBox_TesterLocation")
         self.horizontalLayout_TesterLocation.addWidget(self.comboBox_TesterLocation)
@@ -920,38 +649,6 @@ class Ui_MainWindow(object):
         self.comboBox_TestedBy.setFont(font)
         self.comboBox_TestedBy.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_TestedBy.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_TestedBy.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_TestedBy.setEditable(True)
         self.comboBox_TestedBy.setObjectName("comboBox_TestedBy")
         self.horizontalLayout_TestedBy.addWidget(self.comboBox_TestedBy)
@@ -999,13 +696,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.lineEdit_InputPath.setFont(font)
         self.lineEdit_InputPath.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_InputPath.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_InputPath.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_InputPath.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_InputPath.setReadOnly(True)
@@ -1055,13 +745,6 @@ class Ui_MainWindow(object):
         font.setBold(False)
         self.lineEdit_OutputPath.setFont(font)
         self.lineEdit_OutputPath.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_OutputPath.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_OutputPath.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_OutputPath.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_OutputPath.setReadOnly(True)
@@ -1083,9 +766,6 @@ class Ui_MainWindow(object):
         font.setFamily("Microsoft YaHei UI")
         font.setPointSize(9)
         self.groupBox_TestInformation.setFont(font)
-        self.groupBox_TestInformation.setStyleSheet("QWidget#groupBox_TestInformation {\n"
-"    border: 2px solid #00A050;\n"
-"}")
         self.groupBox_TestInformation.setObjectName("groupBox_TestInformation")
         self.scrollArea = QtWidgets.QScrollArea(parent=self.groupBox_TestInformation)
         self.scrollArea.setGeometry(QtCore.QRect(5, 15, 651, 111))
@@ -1303,13 +983,6 @@ class Ui_MainWindow(object):
         font.setFamily("Microsoft JhengHei")
         self.lineEdit_Version.setFont(font)
         self.lineEdit_Version.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_Version.setStyleSheet("QLineEdit {\n"
-"    border: 1px solid #4CAF50;   /* 绿色边框 */\n"
-"    border-radius: 6px;          /* 圆角半径 */\n"
-"    padding: 2px 6px;            /* 内边距，让文字不贴边 */\n"
-"    background-color: #F0F0F0;   /* 背景颜色 */\n"
-"}\n"
-"")
         self.lineEdit_Version.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
         self.lineEdit_Version.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lineEdit_Version.setObjectName("lineEdit_Version")
@@ -1344,38 +1017,6 @@ class Ui_MainWindow(object):
         self.comboBox_ReportedBy.setFont(font)
         self.comboBox_ReportedBy.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.comboBox_ReportedBy.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.comboBox_ReportedBy.setStyleSheet("/* 1) 外框圆角 */\n"
-"QComboBox {\n"
-"    border: 1px solid #4CAF50;\n"
-"    border-radius: 6px;\n"
-"    padding: 2px 28px 2px 8px;   /* 右侧预留给箭头 */\n"
-"    background: #F6F6F6;\n"
-"}\n"
-"\n"
-"/* 2) 右侧按钮区去掉方框，只保留圆角过渡 */\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 22px;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"    border-top-right-radius: 6px;\n"
-"    border-bottom-right-radius: 6px;\n"
-"}\n"
-"\n"
-"/* 3) 指定自定义小三角 */\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/chevron-down.svg);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
-"    margin-right: 4px; /* 让它别贴边，可按需调 */\n"
-"}\n"
-"\n"
-"/* （可选）下拉展开时用向上三角 */\n"
-"QComboBox::down-arrow:on {\n"
-"    image: url(:/icons/chevron-up.svg);\n"
-"}\n"
-"")
         self.comboBox_ReportedBy.setEditable(True)
         self.comboBox_ReportedBy.setObjectName("comboBox_ReportedBy")
         self.horizontalLayout_ReportedBy.addWidget(self.comboBox_ReportedBy)
