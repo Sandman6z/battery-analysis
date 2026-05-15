@@ -9,7 +9,8 @@ class FileWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
         self.strErrorLog = ""
         try:
-            XlsxWordWriter(strResultPath, listTestInfo, listBatteryInfo)
+            writer = XlsxWordWriter(strResultPath, listTestInfo, listBatteryInfo)
+            writer.write()
             JsonWriter(strResultPath, listTestInfo, listBatteryInfo)
         except (IOError, OSError, ImportError, ValueError, TypeError, UnicodeError) as e:
             self.strErrorLog = str(e)
