@@ -176,8 +176,6 @@ QGroupBox {
 }
 QGroupBox::title {
     color: #cccccc;
-    border-bottom: 2px solid #27ae60;
-    padding-bottom: 8px;
 }
 QFrame {
     border: none;

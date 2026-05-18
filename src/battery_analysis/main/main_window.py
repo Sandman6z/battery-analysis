@@ -33,9 +33,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def __init__(self, splash=None) -> None:
         super().__init__()
 
-        # 注册 Qt 资源（图标等），setupUi 依赖
-        from battery_analysis.resources import resources_rc  # noqa: F401
-
         # 初始化属性
         self._services = {}
         self._controllers = {}

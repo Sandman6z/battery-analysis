@@ -6,6 +6,7 @@
 """
 
 import os
+import re
 import logging
 from pathlib import Path
 from typing import Dict, Optional, Any
@@ -44,6 +45,16 @@ class StyleManager(QObject):
             try:
                 with open(main_style_path, 'r', encoding='utf-8') as f:
                     main_style = f.read()
+                    # 解析 url() 中的相对路径为绝对路径（相对 QSS 文件所在目录）
+                    def _resolve_url(match):
+                        url_path = match.group(1)
+                        if url_path.startswith((':/', '/', 'http')):
+                            return match.group(0)  # 保持资源路径、绝对路径、http 不变
+                        abs_path = (self._style_dir / url_path).resolve()
+                        if abs_path.exists():
+                            return f'url({abs_path.as_posix()})'
+                        return match.group(0)
+                    main_style = re.sub(r'url\(([^)]+)\)', _resolve_url, main_style)
                     # 所有主题默认使用主样式文件
                     self._style_cache["battery_analyzer"] = main_style
                     self._style_cache["modern"] = main_style
