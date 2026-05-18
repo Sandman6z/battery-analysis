@@ -14,7 +14,6 @@ import multiprocessing
 import os
 import sys
 import time
-import warnings
 from pathlib import Path
 from typing import Any
 
@@ -821,9 +820,6 @@ def _create_splash_screen(app):
 def main(app=None, splash=None) -> None:
     # 解决PyInstaller打包后multiprocessing导致的递归启动问题
     multiprocessing.freeze_support()
-    # 优化PyQt6的警告处理
-    warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
-
     # 如果未传入 app（从 launcher 调用时已有），创建 QApplication
     if app is None:
         app = QW.QApplication(sys.argv)

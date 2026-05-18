@@ -678,8 +678,11 @@ class ExcelReportWriter:
         wsWord.merge_range(intTestDateStartRow + 3, 1, intTestDateStartRow + 3,
                            intActualMeasuredCapacityLength, listStrContent[17], fmts['word_data_yellow'])
         url_path = listStrContent[18].replace('\\', '/')
+        display_text = listStrContent[18].split("\\")[-1]
+        wsWord.merge_range(intTestDateStartRow + 4, 1, intTestDateStartRow + 4,
+                           intActualMeasuredCapacityLength, display_text, fmts['word_data'])
         wsWord.write_url(intTestDateStartRow + 4, 1, f'file:///{url_path}',
-                         fmts['hyperlink'], string=listStrContent[18].split("\\")[-1])
+                         fmts['hyperlink'], string=display_text)
         wsWord.merge_range(intTestDateStartRow + 5, 1, intTestDateStartRow + 5,
                            intActualMeasuredCapacityLength, listStrContent[19], fmts['word_data'])
 

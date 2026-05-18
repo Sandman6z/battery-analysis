@@ -30,10 +30,11 @@ logger = logging.getLogger(__name__)
 class XlsxWordWriter:
     """Xlsx/Word/Csv 写入器（旧版适配器）"""
 
-    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
+    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list,
+                 equipment_info: dict | None = None) -> None:
         self.listTestInfo = listTestInfo
         self.listBatteryInfo = listBatteryInfo
-        self._equipment_info = self._load_equipment_info()
+        self._equipment_info = equipment_info or {}
 
         # 提取测试日期（YYYYMMDD）
         td = self._extract_test_date()
