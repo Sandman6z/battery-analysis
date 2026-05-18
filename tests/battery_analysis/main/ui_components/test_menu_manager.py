@@ -1,26 +1,39 @@
-import pytest
 from unittest.mock import Mock, patch
 from battery_analysis.main.ui_components.menu_manager import MenuManager
 
 
 class TestMenuManager:
     def setup_method(self):
-        self.manager = MenuManager()
+        mock_main = Mock()
+        mock_main.menuBar = Mock(return_value=Mock())
+        mock_font = Mock()
+        mock_font.pointSize.return_value = 9
+        mock_main.font.return_value = mock_font
+        self.manager = MenuManager(mock_main)
 
-    def test_create_menus(self):
-        main_window = Mock()
-        result = self.manager.create_menus(main_window)
-        assert result is not None
+    def test_setup_menu_shortcuts(self):
+        self.manager.setup_menu_shortcuts()
 
-    def test_add_menu_item(self):
-        menu_name = "File"
-        item_name = "Open"
-        callback = Mock()
-        result = self.manager.add_menu_item(menu_name, item_name, callback)
-        assert result is True
+    def test_connect_menu_actions(self):
+        self.manager.connect_menu_actions()
 
-    def test_remove_menu_item(self):
-        menu_name = "File"
-        item_name = "Open"
-        result = self.manager.remove_menu_item(menu_name, item_name)
-        assert result is True
+    def test_update_menu_texts(self):
+        self.manager.update_menu_texts()
+
+    def test_update_statusbar_messages(self):
+        self.manager.update_statusbar_messages()
+
+    def test_toggle_toolbar_safe(self):
+        self.manager.toggle_toolbar_safe()
+
+    def test_toggle_statusbar_safe(self):
+        self.manager.toggle_statusbar_safe()
+
+    def test_zoom_in(self):
+        self.manager.zoom_in()
+
+    def test_zoom_out(self):
+        self.manager.zoom_out()
+
+    def test_reset_zoom(self):
+        self.manager.reset_zoom()

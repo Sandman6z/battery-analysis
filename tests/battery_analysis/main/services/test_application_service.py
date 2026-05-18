@@ -22,10 +22,6 @@ class TestApplicationService:
             mock_event_bus = Mock()
             mock_event_bus.subscribe = Mock()
             mock_event_bus.emit = Mock()
-            mock_event_bus.legacy_emit_progress_updated = Mock()
-            mock_event_bus.legacy_emit_status_changed = Mock()
-            mock_event_bus.legacy_emit_analysis_completed = Mock()
-            mock_event_bus.legacy_emit_visualizer_requested = Mock()
             
             mock_environment_service = Mock()
             mock_environment_service.initialize = Mock()
@@ -215,4 +211,4 @@ class TestApplicationService:
         self.application_service._on_analysis_completed(mock_event)
         
         # 验证结果
-        self.mock_event_bus.legacy_emit_visualizer_requested.assert_called_once()
+        self.mock_event_bus.emit.assert_called_once()

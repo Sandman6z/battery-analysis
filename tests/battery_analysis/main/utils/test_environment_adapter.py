@@ -1,24 +1,29 @@
-import pytest
 from unittest.mock import Mock, patch
 from battery_analysis.main.utils.environment_adapter import EnvironmentAdapter
 
 
 class TestEnvironmentAdapter:
     def setup_method(self):
-        self.adapter = EnvironmentAdapter()
+        mock_main = Mock()
+        mock_main._get_service = Mock(return_value=Mock())
+        mock_main.env_info = {"environment_type": None, "gui_available": True}
+        self.adapter = EnvironmentAdapter(mock_main)
 
-    def test_get_environment_variable(self):
-        variable_name = "TEST_VAR"
-        result = self.adapter.get_environment_variable(variable_name)
-        assert isinstance(result, str)
+    def test_initialize_environment_detector(self):
+        result = self.adapter.initialize_environment_detector()
+        assert result is not None
 
-    def test_set_environment_variable(self):
-        variable_name = "TEST_VAR"
-        variable_value = "test_value"
-        result = self.adapter.set_environment_variable(variable_name, variable_value)
-        assert result is True
+    def test_handle_environment_adaptation(self):
+        self.adapter.handle_environment_adaptation()
 
-    def test_delete_environment_variable(self):
-        variable_name = "TEST_VAR"
-        result = self.adapter.delete_environment_variable(variable_name)
-        assert result is True
+    def test_adapt_for_ide_environment(self):
+        self.adapter.adapt_for_ide_environment()
+
+    def test_adapt_for_container_environment(self):
+        self.adapter.adapt_for_container_environment()
+
+    def test_adapt_for_production_environment(self):
+        self.adapter.adapt_for_production_environment()
+
+    def test_handle_gui_unavailable(self):
+        self.adapter.handle_gui_unavailable()

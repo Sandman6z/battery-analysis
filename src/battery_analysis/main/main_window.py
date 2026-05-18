@@ -248,17 +248,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # 窗口和UI管理方法
     # ------------------------------
     def _load_application_icon(self) -> QG.QIcon:
+        logger = getattr(self, 'logger', logging.getLogger(__name__))
         try:
             from battery_analysis.main.utils import FileUtils
             from battery_analysis.i18n.language_manager import _
-            icon_paths = FileUtils.get_icon_paths(self.env_detector, self.current_directory)
+            env_detector = getattr(self, 'env_detector', None)
+            icon_paths = FileUtils.get_icon_paths(env_detector, getattr(self, 'current_directory', None))
             for icon_path in icon_paths:
                 if icon_path.exists():
                     return QG.QIcon(str(icon_path))
-            self.logger.warning(_("app_icon_not_found", "未找到应用图标文件，使用默认图标"))
+            logger.warning(_("app_icon_not_found", "未找到应用图标文件，使用默认图标"))
             return QG.QIcon()
         except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
-            self.logger.error("加载应用图标失败: %s", e)
+            logger.error("加载应用图标失败: %s", e)
             return QG.QIcon()
 
     # ------------------------------

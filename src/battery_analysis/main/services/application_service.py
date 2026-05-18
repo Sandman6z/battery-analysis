@@ -12,6 +12,7 @@ from pathlib import Path
 
 from battery_analysis.main.factories.visualizer_factory import VisualizerFactory
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
+from battery_analysis.main.services.event_bus import EventType
 from battery_analysis.main.services.service_container import get_service_container
 from battery_analysis.utils.environment_utils import get_environment_detector
 
@@ -138,17 +139,15 @@ class ApplicationService:
         """
         连接控制器事件到事件总线
         """
-        from battery_analysis.main.services.event_bus import EventType
-        
         # 连接主控制器信号到事件总线
         self.main_controller.progress_updated.connect(
-            lambda progress, status: self.event_bus.legacy_emit_progress_updated(progress, status)
+            lambda progress, status: self.event_bus.emit(EventType.PROGRESS_UPDATED, {"progress": progress, "status": status})
         )
         self.main_controller.status_changed.connect(
-            lambda status, code, message: self.event_bus.legacy_emit_status_changed(status, code, message)
+            lambda status, code, message: self.event_bus.emit(EventType.STATUS_CHANGED, {"status": status, "code": code, "message": message})
         )
         self.main_controller.analysis_completed.connect(
-            lambda: self.event_bus.legacy_emit_analysis_completed()
+            lambda: self.event_bus.emit(EventType.ANALYSIS_COMPLETED)
         )
         # 订阅事件
         self.event_bus.subscribe(EventType.PROGRESS_UPDATED, self._on_progress_updated)
@@ -187,7 +186,7 @@ class ApplicationService:
             event: 事件对象
         """
         self.logger.info("Analysis completed")
-        self.event_bus.legacy_emit_visualizer_requested()
+        self.event_bus.emit(EventType.VISUALIZER_REQUESTED)
 
     def create_visualizer(self, name: str = "battery_chart", **kwargs) -> Optional[IVisualizer]:
         """

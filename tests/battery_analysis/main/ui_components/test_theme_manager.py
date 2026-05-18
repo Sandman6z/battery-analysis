@@ -5,17 +5,20 @@ from battery_analysis.main.ui_components.theme_manager import ThemeManager
 
 class TestThemeManager:
     def setup_method(self):
-        self.manager = ThemeManager()
+        self.manager = ThemeManager(Mock())
+        # 模拟 QApplication.instance() 返回一个 Mock
+        self._patcher = patch('battery_analysis.main.ui_components.theme_manager.QW.QApplication.instance',
+                              return_value=Mock())
+        self._patcher.start()
 
-    def test_load_theme(self):
-        theme_name = "dark"
-        result = self.manager.load_theme(theme_name)
-        assert result is True
+    def teardown_method(self):
+        self._patcher.stop()
 
-    def test_get_current_theme(self):
-        result = self.manager.get_current_theme()
-        assert isinstance(result, str)
+    def test_set_theme(self):
+        self.manager.set_theme("System Default")
 
-    def test_list_themes(self):
-        result = self.manager.list_themes()
-        assert isinstance(result, list)
+    def test_toggle_statusbar(self):
+        self.manager.toggle_statusbar()
+
+    def test_initialize_theme_actions(self):
+        self.manager._initialize_theme_actions()

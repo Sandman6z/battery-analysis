@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import logging
-import time
 from typing import Optional, Dict, Any, Type, Callable, TypeVar, Generic, List
 
 from battery_analysis.main.services.service_container.interfaces import IServiceContainer
@@ -31,22 +30,11 @@ class ServiceContainer(IServiceContainer):
         self._instances: Dict[str, Any] = {}
         self._singletons: Dict[str, bool] = {}
 
-        # 工厂方法
-        self._factories: Dict[str, Callable] = {}
-
         # 服务依赖映射
         self._dependencies: Dict[str, Dict[str, str]] = {}
 
-        # 延迟注册函数列表
-        self._service_registrations: Dict[str, Callable[[], bool]] = {}
-
         # 是否已初始化服务注册
         self._services_initialized = False
-
-        # 资源使用跟踪
-        self._resource_usage: Dict[str, Dict[str, Any]] = {}
-        self._last_access_time: Dict[str, float] = {}
-        self._start_time = time.time()
 
     def _initialize_services(self):
         """
@@ -275,37 +263,9 @@ class ServiceContainer(IServiceContainer):
             self.logger.error("Failed to register service %s: %s", name, e)
             return False
 
-    def register_instance(self, name: str, instance: T) -> bool:
-        """
-        注册实例
-
-        Args:
-            name: 服务名称
-            instance: 服务实例
-
-        Returns:
-            bool: 注册是否成功
-        """
-        try:
-            if not isinstance(name, str) or not name:
-                raise ValueError("Service name must be a non-empty string")
-
-            if instance is None:
-                raise ValueError("Instance cannot be None")
-
-            self._instances[name] = instance
-            self._singletons[name] = True
-
-            self.logger.debug("Service instance registered: %s", name)
-            return True
-
-        except (ValueError, TypeError, MemoryError) as e:
-            self.logger.error("Failed to register service instance %s: %s", name, e)
-            return False
-
     def get(self, name: str) -> Optional[T]:
         """
-        获取服务，支持依赖注入和延迟注册
+        获取服务，支持依赖注入
 
         Args:
             name: 服务名称
@@ -316,17 +276,6 @@ class ServiceContainer(IServiceContainer):
         try:
             # 如果实例已存在，直接返回
             if name in self._instances:
-                # 更新最后访问时间
-                self._last_access_time[name] = time.time()
-                # 更新资源使用统计
-                if name not in self._resource_usage:
-                    self._resource_usage[name] = {
-                        'access_count': 0,
-                        'total_time': 0,
-                        'last_access': time.time()
-                    }
-                self._resource_usage[name]['access_count'] += 1
-                self._resource_usage[name]['last_access'] = time.time()
                 return self._instances[name]
 
             # 如果服务未注册，尝试初始化服务注册
@@ -341,15 +290,6 @@ class ServiceContainer(IServiceContainer):
 
             # 使用迭代方式解析依赖，避免递归调用
             instance = self._resolve_service_with_dependencies(name)
-
-            # 如果成功获取实例，记录访问时间
-            if instance and name in self._instances:
-                self._last_access_time[name] = time.time()
-                self._resource_usage[name] = {
-                    'access_count': 1,
-                    'total_time': 0,
-                    'last_access': time.time()
-                }
 
             return instance
 
@@ -371,6 +311,8 @@ class ServiceContainer(IServiceContainer):
         resolved = {}
         # 待解析的服务队列
         queue = [name]
+        # 已处理过的服务（防止循环依赖导致无限循环）
+        visited = set()
         # 服务依赖关系图
         dependency_graph = {}
 
@@ -378,14 +320,15 @@ class ServiceContainer(IServiceContainer):
         while queue:
             current_name = queue.pop(0)
 
+            # 已处理过，跳过（防止循环依赖）
+            if current_name in visited:
+                continue
+            visited.add(current_name)
+
             # 如果服务已实例化，直接使用
             if current_name in self._instances:
                 resolved[current_name] = self._instances[current_name]
                 dependency_graph[current_name] = []  # 已实例化，无需再解析依赖
-                continue
-
-            # 如果服务已解析，跳过
-            if current_name in resolved:
                 continue
 
             # 如果服务未注册，返回None
@@ -399,7 +342,7 @@ class ServiceContainer(IServiceContainer):
 
             # 将依赖添加到队列
             for dep_name in dependencies.values():
-                if dep_name not in resolved and dep_name not in queue:
+                if dep_name not in visited:
                     queue.append(dep_name)
 
         # 拓扑排序，解决依赖顺序
@@ -489,228 +432,6 @@ class ServiceContainer(IServiceContainer):
             bool: 服务是否存在
         """
         return name in self._services or name in self._instances
-
-    def unregister(self, name: str) -> bool:
-        """
-        注销服务
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            bool: 注销是否成功
-        """
-        try:
-            removed = False
-
-            # 移除服务注册
-            if name in self._services:
-                del self._services[name]
-                removed = True
-
-            # 移除服务实例
-            if name in self._instances:
-                del self._instances[name]
-                removed = True
-
-            # 移除单例标记
-            if name in self._singletons:
-                del self._singletons[name]
-
-            # 移除依赖映射
-            if name in self._dependencies:
-                del self._dependencies[name]
-
-            if removed:
-                self.logger.debug("Service unregistered: %s", name)
-
-            return removed
-
-        except (TypeError, KeyError, ValueError) as e:
-            self.logger.error("Failed to unregister service %s: %s", name, e)
-            return False
-
-    def get_all_services(self) -> Dict[str, Any]:
-        """
-        获取所有服务
-
-        Returns:
-            Dict[str, Any]: 所有服务实例
-        """
-        result = {}
-
-        # 添加已实例化的服务
-        for name, instance in self._instances.items():
-            result[name] = instance
-
-        # 添加未实例化的服务（但需要实例化）
-        for name, service_class in self._services.items():
-            if name not in self._instances:
-                try:
-                    instance = self.get(name)
-                    if instance:
-                        result[name] = instance
-                except (TypeError, ImportError, OSError) as e:
-                    self.logger.error("Failed to instantiate service %s: %s", name, e)
-
-        return result
-
-    def shutdown(self) -> bool:
-        """
-        关闭容器
-
-        Returns:
-            bool: 关闭是否成功
-        """
-        try:
-            self.logger.info("Shutting down ServiceContainer...")
-
-            # 调用服务的shutdown方法
-            for name, instance in self._instances.items():
-                try:
-                    if hasattr(instance, 'shutdown'):
-                        instance.shutdown()
-                        self.logger.debug("Service %s shutdown", name)
-                except (TypeError, AttributeError) as e:
-                    self.logger.error("Failed to shutdown service %s: %s", name, e)
-
-            # 清空所有注册
-            self._services.clear()
-            self._instances.clear()
-            self._singletons.clear()
-            self._dependencies.clear()
-            self._factories.clear()
-
-            self.logger.info("ServiceContainer shutdown complete")
-            return True
-
-        except (TypeError, AttributeError, OSError) as e:
-            self.logger.error("Failed to shutdown ServiceContainer: %s", e)
-            return False
-
-    def clear_instances(self):
-        """
-        清除所有服务实例（但保留注册）
-        """
-        try:
-            # 调用shutdown方法
-            for name, instance in self._instances.items():
-                try:
-                    if hasattr(instance, 'shutdown'):
-                        instance.shutdown()
-                except (TypeError, AttributeError) as e:
-                    self.logger.error("Failed to shutdown service %s: %s", name, e)
-
-            self._instances.clear()
-            self.logger.debug("All service instances cleared")
-
-        except (TypeError, AttributeError, OSError) as e:
-            self.logger.error("Failed to clear service instances: %s", e)
-
-    def get_service_info(self) -> Dict[str, Dict[str, Any]]:
-        """
-        获取服务信息
-
-        Returns:
-            Dict[str, Dict[str, Any]]: 服务信息
-        """
-        info = {}
-
-        for name in set(list(self._services.keys()) + list(self._instances.keys())):
-            service_info = {
-                'registered': name in self._services,
-                'instantiated': name in self._instances,
-                'singleton': self._singletons.get(name, True)
-            }
-
-            if name in self._services:
-                service_info['class'] = self._services[name].__name__
-
-            if name in self._instances:
-                service_info['instance'] = type(self._instances[name]).__name__
-
-            # 添加资源使用信息
-            if name in self._resource_usage:
-                service_info['resource_usage'] = self._resource_usage[name]
-
-            # 添加最后访问时间
-            if name in self._last_access_time:
-                service_info['last_access'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._last_access_time[name]))
-
-            info[name] = service_info
-
-        return info
-
-    def release_unused_resources(self, idle_time: int = 300):
-        """
-        释放长时间未使用的资源
-
-        Args:
-            idle_time: 空闲时间阈值（秒），默认300秒（5分钟）
-        """
-        current_time = time.time()
-        unused_services = []
-
-        # 识别长时间未使用的服务
-        for name, last_access in self._last_access_time.items():
-            if current_time - last_access > idle_time:
-                unused_services.append(name)
-
-        # 释放未使用的服务
-        released_count = 0
-        for service_name in unused_services:
-            if service_name in self._instances:
-                try:
-                    instance = self._instances[service_name]
-                    # 调用服务的shutdown方法（如果存在）
-                    if hasattr(instance, 'shutdown'):
-                        try:
-                            instance.shutdown()
-                            self.logger.debug("Service %s shutdown", service_name)
-                        except Exception as e:
-                            self.logger.error("Failed to shutdown service %s: %s", service_name, e)
-
-                    # 从实例字典中删除
-                    del self._instances[service_name]
-                    # 从最后访问时间字典中删除
-                    if service_name in self._last_access_time:
-                        del self._last_access_time[service_name]
-                    # 从资源使用字典中删除
-                    if service_name in self._resource_usage:
-                        del self._resource_usage[service_name]
-
-                    released_count += 1
-                    self.logger.debug("Released unused service: %s", service_name)
-
-                except Exception as e:
-                    self.logger.error("Failed to release service %s: %s", service_name, e)
-
-        if released_count > 0:
-            self.logger.debug("Released %d unused services", released_count)
-
-        return released_count
-
-    def get_resource_usage(self) -> Dict[str, Dict[str, Any]]:
-        """
-        获取资源使用统计信息
-
-        Returns:
-            Dict[str, Dict[str, Any]]: 资源使用统计
-        """
-        usage_stats = {}
-        total_services = len(self._services)
-        active_instances = len(self._instances)
-
-        usage_stats['summary'] = {
-            'total_services': total_services,
-            'active_instances': active_instances,
-            'uptime_seconds': time.time() - self._start_time,
-            'services_in_use': len(self._last_access_time)
-        }
-
-        usage_stats['details'] = self._resource_usage
-
-        return usage_stats
 
 
 # 全局服务容器实例

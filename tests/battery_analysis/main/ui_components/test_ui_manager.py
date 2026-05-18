@@ -5,20 +5,15 @@ from battery_analysis.main.ui_components.ui_manager import UIManager
 
 class TestUIManager:
     def setup_method(self):
-        self.manager = UIManager()
+        mock_main = Mock()
+        mock_main.tableWidget_TestInformation = Mock()
+        mock_main.scrollArea = Mock()
+        self.manager = UIManager(mock_main)
 
-    def test_init_ui(self):
-        main_window = Mock()
-        result = self.manager.init_ui(main_window)
-        assert result is True
+    def test_init_window(self):
+        with patch.object(self.manager, '_load_application_icon', return_value=Mock()):
+            self.manager.init_window()
 
-    def test_update_ui(self):
-        ui_elements = {"label": Mock()}
-        data = {"label": "Test"}
-        result = self.manager.update_ui(ui_elements, data)
-        assert result is True
-
-    def test_reset_ui(self):
-        ui_elements = {"label": Mock()}
-        result = self.manager.reset_ui(ui_elements)
-        assert result is True
+    @pytest.mark.skip(reason="需要 Qt 运行环境")
+    def test_init_widget(self):
+        self.manager.init_widget()

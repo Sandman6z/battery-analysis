@@ -31,20 +31,6 @@ class IServiceContainer(Generic[T], ABC):
         pass
 
     @abstractmethod
-    def register_instance(self, name: str, instance: T) -> bool:
-        """
-        注册实例
-
-        Args:
-            name: 服务名称
-            instance: 服务实例
-
-        Returns:
-            bool: 注册是否成功
-        """
-        pass
-
-    @abstractmethod
     def get(self, name: str) -> Optional[T]:
         """
         获取服务
@@ -67,28 +53,5 @@ class IServiceContainer(Generic[T], ABC):
 
         Returns:
             bool: 服务是否存在
-        """
-        pass
-
-    @abstractmethod
-    def unregister(self, name: str) -> bool:
-        """
-        注销服务
-
-        Args:
-            name: 服务名称
-
-        Returns:
-            bool: 注销是否成功
-        """
-        pass
-
-    @abstractmethod
-    def shutdown(self) -> bool:
-        """
-        关闭容器
-
-        Returns:
-            bool: 关闭是否成功
         """
         pass

@@ -166,10 +166,15 @@ class TestMainWindow:
         with patch('battery_analysis.i18n.language_manager._') as mock_gettext:
             # 设置模拟返回值
             mock_gettext.side_effect = lambda x, y=None: y if y else x
-            
+
+            # 模拟需要被调用的方法
+            self.main_window._update_ui_texts = Mock()
+            self.main_window._update_statusbar_messages = Mock()
+            self.main_window._refresh_dialogs = Mock()
+
             # 调用方法
             self.main_window._on_language_changed('en')
-            
+
             # 验证方法被调用
             self.main_window._update_ui_texts.assert_called_once()
             self.main_window._update_statusbar_messages.assert_called_once()
