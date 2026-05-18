@@ -152,39 +152,55 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.move(frame.topLeft())
 
     def _deferred_init(self):
-        """窗口显示后执行的全部初始化 — 不再阻塞启动"""
+        """窗口显示后执行的全部初始化 — 不再阻塞启动
+
+        4 阶段流程：
+          环境准备 → 核心服务 → UI 构建 → 启动完成
+        """
         t0 = time.time()
         try:
-            # 1) 日志系统（首次调用 get_logger 即创建 LogManager 单例）
+            # ── 前置准备（日志、异常钩子）────────────────────
             from battery_analysis.utils.log_manager import get_logger
             self.logger = get_logger('main_window')
 
-            # 2) 应用级初始化（异常钩子、matplotlib 后端等）
             from battery_analysis.main.application_initializer import ApplicationInitializer
             initializer = ApplicationInitializer()
             if not initializer.initialize():
                 self.logger.error("应用初始化失败，部分功能可能不可用")
                 return
 
-            # 3) 完整初始化管线（服务容器 → 配置 → UI 填充 → 处理器 → …）
-            from battery_analysis.main.managers.initialization_manager import InitializationManager
+            # ── 阶段 1-3: 初始化管线 ───────────────────────
+            # 环境准备 → 核心服务 → UI 构建
+            from battery_analysis.main.managers.initialization_manager import (
+                InitializationManager,
+                PHASE_ENV_PREP,
+                PHASE_CORE_SVC,
+                PHASE_UI_BUILD,
+                PHASE_LAUNCH,
+            )
+            self.logger.info("─" * 40)
+            self.logger.info("初始化管线: %s → %s → %s",
+                           PHASE_ENV_PREP, PHASE_CORE_SVC, PHASE_UI_BUILD)
             init_manager = InitializationManager(self)
             init_manager.initialize()
 
-            # 4) UI 后处理（窗口属性、控件填充）
+            # ── 阶段 4: 启动完成 ────────────────────────────
+            self.logger.info("")
+            self.logger.info("▶ 阶段 [%s]", PHASE_LAUNCH)
+
+            # 4a) UI 后处理（窗口属性、控件填充）
             self.init_window()
             self.init_widget()
-            # 表已在 init_widget → init_table 中填充，重新计算列宽以显示表头文字
             if hasattr(self, 'tableWidget_TestInformation'):
                 self.tableWidget_TestInformation.resizeColumnsToContents()
 
-            # 5) 版本号
+            # 4b) 版本号
             self.get_version()
 
-            # 6) 非关键 UI 辅助功能／工具提示
+            # 4c) 非关键 UI 辅助功能／工具提示
             self._lazy_init()
 
-            # 7) 记录环境信息（包含 psutil/platform 调用，但 UI 已可见）
+            # 4d) 环境日志（包含 psutil/platform 调用，UI 已可见）
             try:
                 from battery_analysis.utils.log_manager import get_log_manager
                 lm = get_log_manager()
@@ -192,6 +208,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     lm.log_environment_info()
             except Exception:
                 pass
+
+            self.logger.info("  阶段 [%s] 全部完成 ✓", PHASE_LAUNCH)
 
             elapsed = (time.time() - t0) * 1000
             self.logger.info("后台初始化完成，耗时 %dms", elapsed)
