@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
 import matplotlib.pyplot as plt
-from battery_analysis.utils.plot_utils import set_plt_axis
+from battery_analysis.utils.writers.plot_utils import set_plt_axis
 from battery_analysis.utils.exception_type import BatteryAnalysisException
 
 

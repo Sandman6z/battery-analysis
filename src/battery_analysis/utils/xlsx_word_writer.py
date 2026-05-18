@@ -10,9 +10,9 @@ import logging
 import importlib.resources
 from pathlib import Path
 
-from battery_analysis.utils.data_utils import build_plot_title
-from battery_analysis.utils import plot_writer
-from battery_analysis.utils.date_parser import parse_test_date
+from battery_analysis.utils.processors.data_utils import build_plot_title
+from battery_analysis.utils.writers import plot_writer
+from battery_analysis.utils.readers.date_parser import parse_test_date
 from battery_analysis import __version__
 
 import matplotlib
@@ -240,13 +240,14 @@ class XlsxWordWriter:
 
     def write(self) -> None:
         """执行完整的写入流程：绘图 → Excel → Word → CSV"""
-        from battery_analysis.utils.writers.excel_report_writer import (
-            _compute_list_cpt, _compute_statistics)
+        from battery_analysis.utils.writers.statistics_utils import (
+            compute_list_cpt, compute_statistics,
+        )
 
-        listCpt = _compute_list_cpt(
+        listCpt = compute_list_cpt(
             self.listBatteryCharge, self.intBatteryNum,
             self.intCurrentLevelNum, self.intVoltageLevelNum)
-        stats = _compute_statistics(
+        stats = compute_statistics(
             listCpt, self.intCurrentLevelNum, self.intVoltageLevelNum)
 
         # 绘制箱线图
@@ -268,7 +269,8 @@ class XlsxWordWriter:
         from battery_analysis.utils.writers.csv_writer import CsvWriter
 
         ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
-        WordReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
+        WordReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo,
+                         equipment_info=self._equipment_info).write(listCpt, stats)
         CsvWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
 
     def handle_data_error(self, error_msg):
@@ -278,24 +280,6 @@ class XlsxWordWriter:
         os.makedirs(self.strResultPath, exist_ok=True)
 
     # ── 静态工具 ──
-
-    @staticmethod
-    def _load_equipment_info() -> dict:
-        """从 ConfigService 获取设备信息"""
-        try:
-            from battery_analysis.main.services.service_container import get_service_container
-            container = get_service_container()
-            svc = container.get("config")
-            if svc:
-                equipment = svc.get_config_value("test.equipment", {})
-                if equipment:
-                    first_key = next(iter(equipment))
-                    info = equipment[first_key]
-                    logger.info("从 ConfigService 加载设备信息 (key=%s)", first_key)
-                    return info
-        except Exception as e:
-            logger.warning("从 ConfigService 加载设备信息失败: %s", e)
-        return {}
 
     def _get_equip_value(self, dotted_key: str, fallback: str = "") -> str:
         """从 _equipment_info 读取带点号的键"""

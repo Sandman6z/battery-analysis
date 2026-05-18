@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from battery_analysis.utils.csv_utils import csv_write
+from battery_analysis.utils.writers.csv_utils import csv_write
 
 
 class TestCsvUtils:

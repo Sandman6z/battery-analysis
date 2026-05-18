@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from battery_analysis.utils.data_utils import filter_data, generate_current_type_string, detect_outliers
+from battery_analysis.utils.processors.data_utils import filter_data, generate_current_type_string, detect_outliers
 
 
 class TestDataUtils:

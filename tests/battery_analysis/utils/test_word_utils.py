@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from battery_analysis.utils.word_utils import table_set_bg_color, add_hyperlink
+from battery_analysis.utils.writers.word_utils import table_set_bg_color, add_hyperlink
 
 
 class TestWordUtils:

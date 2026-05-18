@@ -1,13 +1,13 @@
 import pytest
 from unittest.mock import Mock, patch
-from battery_analysis.utils.battery_analysis import BatteryAnalysis
+from battery_analysis.utils.processors.battery_analysis import BatteryAnalysis
 
 
 class TestBatteryAnalysis:
     def test_uba_get_test_date_from_excel(self):
         # 测试日期提取方法
         test_file = "test_file.xlsx"
-        with patch('battery_analysis.utils.battery_analysis.rd.open_workbook') as mock_open_workbook:
+        with patch('battery_analysis.utils.processors.battery_analysis.rd.open_workbook') as mock_open_workbook:
             # 设置mock对象
             mock_workbook = Mock()
             mock_open_workbook.return_value = mock_workbook

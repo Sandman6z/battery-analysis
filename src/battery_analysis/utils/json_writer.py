@@ -3,7 +3,7 @@ import json
 import logging
 import os
 
-from battery_analysis.utils.data_utils import generate_current_type_string
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
 
 
 class JsonWriter:

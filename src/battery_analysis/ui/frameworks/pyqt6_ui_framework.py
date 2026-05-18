@@ -6,11 +6,19 @@ PyQt6 UI框架实现
 """
 
 import logging
+from enum import Enum, auto
 from typing import Any, Optional, Dict, List
-from battery_analysis.ui.interfaces.iuiframework import IUIFramework, MessageBoxType
 
 
-class PyQt6UIFramework(IUIFramework):
+class MessageBoxType(Enum):
+    """消息框类型"""
+    INFORMATION = auto()
+    WARNING = auto()
+    CRITICAL = auto()
+    QUESTION = auto()
+
+
+class PyQt6UIFramework:
     """PyQt6 UI框架实现"""
     
     def __init__(self):

@@ -62,7 +62,8 @@ Battery Analyzer v{__version__}
         """
         try:
             from battery_analysis.i18n.preferences_dialog import PreferencesDialog
-            dialog = PreferencesDialog(self.main_window)
+            from battery_analysis.main.ui_components.config_path_provider import ConfigPathProvider
+            dialog = PreferencesDialog(self.main_window, config_provider=ConfigPathProvider())
             # 使用独立的事件循环，确保对话框能正常显示
             result = dialog.exec()
             if result == QW.QDialog.DialogCode.Accepted:

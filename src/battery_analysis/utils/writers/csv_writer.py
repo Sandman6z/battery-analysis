@@ -8,9 +8,11 @@ import csv
 import os
 import logging
 
-from battery_analysis.utils import csv_utils
+from battery_analysis.utils.writers import csv_utils
 from battery_analysis.utils import numeric_utils
-from battery_analysis.utils.writers.excel_report_writer import _compute_list_cpt, _compute_statistics
+from battery_analysis.utils.writers.statistics_utils import (
+    compute_list_cpt, compute_statistics,
+)
 from battery_analysis import __version__
 
 
@@ -116,13 +118,13 @@ class CsvWriter:
 
         # Compute statistics (if not pre-computed)
         if list_cpt is None:
-            list_cpt = _compute_list_cpt(
+            list_cpt = compute_list_cpt(
             self.listBatteryCharge,
             self.intBatteryNum,
             self.intCurrentLevelNum,
             self.intVoltageLevelNum,
         )
-        stats = _compute_statistics(
+        stats = compute_statistics(
             list_cpt,
             self.intCurrentLevelNum,
             self.intVoltageLevelNum,

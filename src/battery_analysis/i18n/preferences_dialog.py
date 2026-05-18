@@ -14,6 +14,7 @@ import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 from . import _, get_available_locales, set_locale, get_current_locale
+from .config_dialog_interface import IConfigPathProvider
 from .language_manager import get_language_manager
 
 
@@ -23,13 +24,14 @@ class PreferencesDialog(QW.QDialog):
     # Signal emitted when preferences are applied
     preferences_applied = QC.pyqtSignal()
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_provider: Optional[IConfigPathProvider] = None):
         """Initialize the preferences dialog"""
         super().__init__(parent)
         self.logger = logging.getLogger(__name__)
-        
+
         # Get language manager
         self.language_manager = get_language_manager()
+        self._config_provider = config_provider
         
         # Set dialog properties
         self.setWindowTitle(_("preferences_title", "Preferences"))
@@ -410,21 +412,19 @@ class PreferencesDialog(QW.QDialog):
             self.config_path_lineedit.setText(custom_config_path)
 
             # Display current active config path
-            try:
-                from battery_analysis.main.services.service_container import get_service_container
-                container = get_service_container()
-                svc = container.get("config")
-                if svc:
-                    cfg_path = svc.find_config_file()
+            if self._config_provider is not None:
+                try:
+                    cfg_path = self._config_provider.get_config_path()
                     if cfg_path:
-                        self.config_path_label.setText(str(cfg_path))
+                        self.config_path_label.setText(cfg_path)
                         self.config_path_label.setStyleSheet("color: green;")
                     else:
                         self.config_path_label.setText(_("using_default", "Using default paths"))
                         self.config_path_label.setStyleSheet("color: gray;")
-                else:
-                    raise ValueError("ConfigService not available")
-            except Exception:
+                except Exception:
+                    self.config_path_label.setText(_("not_loaded", "Not loaded"))
+                    self.config_path_label.setStyleSheet("color: gray;")
+            else:
                 self.config_path_label.setText(_("not_loaded", "Not loaded"))
                 self.config_path_label.setStyleSheet("color: gray;")
 

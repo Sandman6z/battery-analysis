@@ -25,7 +25,7 @@ import traceback
 import xlrd as rd
 
 from battery_analysis.utils.exception_type import BatteryAnalysisException
-from battery_analysis.utils.data_utils import generate_current_type_string
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.file_finder import scan_sorted_xlsx
 from battery_analysis.utils.readers.xlsx_reader import (
     read_xlsx_sheets,

@@ -16,10 +16,12 @@ from docx.enum.text import WD_LINE_SPACING
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx import Document
 
-from battery_analysis.utils import word_utils
+from battery_analysis.utils.writers import word_utils
 from battery_analysis.utils import numeric_utils
 from battery_analysis.utils.exception_type import BatteryAnalysisException
-from battery_analysis.utils.writers.excel_report_writer import _compute_list_cpt, _compute_statistics
+from battery_analysis.utils.writers.statistics_utils import (
+    compute_list_cpt, compute_statistics,
+)
 from battery_analysis import __version__
 
 
@@ -29,8 +31,9 @@ logger = logging.getLogger(__name__)
 class WordReportWriter:
     """Word报告写入器"""
 
-    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
-        self._equipment_info = self._load_equipment_info()
+    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list,
+                 equipment_info: dict | None = None) -> None:
+        self._equipment_info = equipment_info or {}
         self.strResultPath = strResultPath
         self.listTestInfo = listTestInfo
         self.listBatteryInfo = listBatteryInfo
@@ -154,24 +157,6 @@ class WordReportWriter:
             self.listTestInfo[5], self.listTestInfo[7], self.listTestInfo[11],
             strBatteryType, None, None, None, None, strStrF
         ]
-
-    @staticmethod
-    def _load_equipment_info() -> dict:
-        """从 ConfigService 获取设备信息，用于 Word 报告"""
-        try:
-            from battery_analysis.main.services.service_container import get_service_container
-            container = get_service_container()
-            svc = container.get("config")
-            if svc:
-                equipment = svc.get_config_value("test.equipment", {})
-                if equipment:
-                    first_key = next(iter(equipment))
-                    info = equipment[first_key]
-                    logging.info("从 ConfigService 加载设备信息 (key=%s)", first_key)
-                    return info
-        except Exception as e:
-            logging.warning("从 ConfigService 加载设备信息失败: %s", e)
-        return {}
 
     def _get_equip_value(self, dotted_key: str, fallback: str = "") -> str:
         """从 _equipment_info 字典读取带点号的键"""
@@ -660,11 +645,11 @@ class WordReportWriter:
 
         # 计算统计值
         if list_cpt is None:
-            list_cpt = _compute_list_cpt(
+            list_cpt = compute_list_cpt(
                 self.listBatteryCharge, self.intBatteryNum,
                 self.intCurrentLevelNum, self.intVoltageLevelNum)
         if stats is None:
-            stats = _compute_statistics(
+            stats = compute_statistics(
                 list_cpt, self.intCurrentLevelNum, self.intVoltageLevelNum)
 
         # 逐个写入各章节的表格

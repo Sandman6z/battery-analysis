@@ -352,7 +352,7 @@ class BatteryAnalysisServiceImpl(BatteryAnalysisService):
         temperatures = [result.temperature for result in test_results]
         internal_resistances = [result.internal_resistance for result in test_results]
         
-        from battery_analysis.utils.data_utils import detect_outliers as common_detect_outliers
+        from battery_analysis.utils.processors.data_utils import detect_outliers as common_detect_outliers
         
         for i in range(len(test_results)):
             anomalies.extend(common_detect_outliers(capacities, "capacity", i, test_results))

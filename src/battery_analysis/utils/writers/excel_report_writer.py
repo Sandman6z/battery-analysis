@@ -11,78 +11,20 @@ from pathlib import Path
 
 import xlsxwriter as xwt
 
-from battery_analysis.utils import excel_utils
+from battery_analysis.utils.writers import excel_utils
 from battery_analysis.utils import numeric_utils
 from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.writers.statistics_utils import (
+    compute_list_cpt, compute_statistics,
+)
 from battery_analysis import __version__
 
 
 logger = logging.getLogger(__name__)
 
-
-def _compute_list_cpt(listBatteryCharge, intBatteryNum, intCurrentLevelNum, intVoltageLevelNum):
-    """从电池充电数据计算容量列表，用于后续统计计算"""
-    listCpt = []
-    for c in range(intCurrentLevelNum):
-        listCpt.append([])
-        for _ in range(intVoltageLevelNum):
-            listCpt[c].append([])
-    for b in range(intBatteryNum):
-        i = 0
-        for c in range(intCurrentLevelNum):
-            for v in range(intVoltageLevelNum):
-                if listBatteryCharge[b][i] != 0:
-                    listCpt[c][v].append(listBatteryCharge[b][i])
-                i += 1
-    return listCpt
-
-
-def _compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
-    """从容量数据计算统计值（均值、中位数、标准差等）"""
-    listMean = []
-    listStd = []
-    listMax = []
-    listMin = []
-    listMed = []
-    listMM3S = []
-    listMM2S = []
-    listMP2S = []
-    listMP3S = []
-
-    for c in range(intCurrentLevelNum):
-        listMean.append([])
-        listMed.append([])
-        listStd.append([])
-        listMM3S.append([])
-        listMM2S.append([])
-        listMP2S.append([])
-        listMP3S.append([])
-        listMin.append([])
-        listMax.append([])
-
-    for c in range(intCurrentLevelNum):
-        for v in range(intVoltageLevelNum):
-            listMean[c].append(numeric_utils.np_mean(listCpt[c][v]))
-            listMed[c].append(numeric_utils.np_med(listCpt[c][v]))
-            listStd[c].append(numeric_utils.np_std(listCpt[c][v]))
-            listMM3S[c].append(listMean[c][v] - 3 * listStd[c][v])
-            listMM2S[c].append(listMean[c][v] - 2 * listStd[c][v])
-            listMP2S[c].append(listMean[c][v] + 2 * listStd[c][v])
-            listMP3S[c].append(listMean[c][v] + 3 * listStd[c][v])
-            listMin[c].append(numeric_utils.np_min(listCpt[c][v]))
-            listMax[c].append(numeric_utils.np_max(listCpt[c][v]))
-
-    return {
-        'mean': listMean,
-        'med': listMed,
-        'std': listStd,
-        'mm3s': listMM3S,
-        'mm2s': listMM2S,
-        'mp2s': listMP2S,
-        'mp3s': listMP3S,
-        'min': listMin,
-        'max': listMax,
-    }
+# 向后兼容别名
+_compute_list_cpt = compute_list_cpt
+_compute_statistics = compute_statistics
 
 
 class ExcelReportWriter:

@@ -6,10 +6,11 @@ from battery_analysis.utils.json_writer import JsonWriter
 
 
 class FileWriter:
-    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
+    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list,
+                 equipment_info: dict | None = None) -> None:
         self.strErrorLog = ""
         try:
-            writer = XlsxWordWriter(strResultPath, listTestInfo, listBatteryInfo)
+            writer = XlsxWordWriter(strResultPath, listTestInfo, listBatteryInfo, equipment_info)
             writer.write()
             JsonWriter(strResultPath, listTestInfo, listBatteryInfo)
         except (IOError, OSError, ImportError, ValueError, TypeError, UnicodeError) as e:

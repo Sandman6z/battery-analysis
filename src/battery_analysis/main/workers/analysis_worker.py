@@ -130,7 +130,7 @@ class AnalysisWorker(QC.QRunnable):
 
             # 电池分析
             # 延迟导入以避免循环引用
-            from battery_analysis.utils import battery_analysis
+            from battery_analysis.utils.processors import battery_analysis
 
             self._emit_progress(5, "正在加载电池分析模块...")
 
@@ -162,7 +162,7 @@ class AnalysisWorker(QC.QRunnable):
                 logging.info(
                     "获取到的Test Date: %s, 原始周期日期: %s", test_date, original_cycle_date)
 
-                from battery_analysis.utils.date_parser import parse_test_date
+                from battery_analysis.utils.readers.date_parser import parse_test_date
 
                 fallback = (
                     list_battery_info[2][0]
@@ -202,11 +202,24 @@ class AnalysisWorker(QC.QRunnable):
                 # 文件写入
                 try:
                     from battery_analysis.utils import file_writer
+                    from battery_analysis.main.services.service_container import get_service_container
+
+                    _equipment = {}
+                    try:
+                        _container = get_service_container()
+                        _config = _container.get("config")
+                        if _config:
+                            _eq = _config.get_config_value("test.equipment", {})
+                            if _eq:
+                                _equipment = next(iter(_eq.values()))
+                    except Exception:
+                        pass
 
                     info_file = file_writer.FileWriter(
                         strResultPath=self.str_output_path,
                         listTestInfo=self.list_test_info,
-                        listBatteryInfo=list_battery_info
+                        listBatteryInfo=list_battery_info,
+                        equipment_info=_equipment,
                     )
 
                     self._emit_progress(63, "正在整理分析数据...")

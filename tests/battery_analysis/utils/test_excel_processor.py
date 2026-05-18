@@ -3,7 +3,7 @@
 import os
 import tempfile
 import pandas as pd
-from battery_analysis.utils.excel_processor import (
+from battery_analysis.utils.processors.excel_processor import (
     optimize_dataframe_memory,
     read_excel_file,
     analyze_single_excel,

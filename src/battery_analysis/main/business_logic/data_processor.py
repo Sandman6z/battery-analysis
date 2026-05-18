@@ -15,7 +15,7 @@ from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.business_logic.background_worker import BackgroundWorker
 from battery_analysis.main.business_logic import excel_validator
 from battery_analysis.main.business_logic import filename_parser
-from battery_analysis.utils.excel_processor import optimize_dataframe_memory, read_excel_file, analyze_single_excel
+from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory, read_excel_file, analyze_single_excel
 
 
 class _MainThreadCallback(QC.QObject):

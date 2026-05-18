@@ -10,8 +10,8 @@ import csv
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
-from battery_analysis.utils import data_utils
-from battery_analysis.utils import plot_utils
+from battery_analysis.utils.processors import data_utils
+from battery_analysis.utils.writers import plot_utils
 
 logger = logging.getLogger(__name__)
 

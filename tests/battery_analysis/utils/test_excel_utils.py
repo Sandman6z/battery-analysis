@@ -5,7 +5,7 @@ excel_utils测试
 
 import pytest
 from unittest.mock import Mock
-from battery_analysis.utils.excel_utils import ws_set_col, ws_result_write_data, num2letter
+from battery_analysis.utils.writers.excel_utils import ws_set_col, ws_result_write_data, num2letter
 
 
 class TestExcelUtils:
