@@ -1,4 +1,9 @@
-### v2.12.0 (Unreleased)
+### v2.12.1 (Released)
+
+#### Bug Fixes
+- fix: Minor bug fixes and stability improvements
+
+### v2.12.0
 
 #### 功能增强
 - feat: 实现无边框UI设计，采用暖色调米色配色方案
