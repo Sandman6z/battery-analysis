@@ -26,12 +26,171 @@ plt.rcParams['axes.unicode_minus'] = False
 
 logger = logging.getLogger(__name__)
 
+# ── 共享常量 ──────────────────────────────────────────────────
 
-class XlsxWordWriter:
-    """Xlsx/Word/Csv 写入器（旧版适配器）"""
+BATTERY_TYPE_BASE = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
+INFO_IMAGE_CSV = "Info_Image.csv"
+
+
+def match_battery_type(test_info_type: str) -> str:
+    """从测试信息中匹配电池类型，返回标准类型名称"""
+    try:
+        stripped_types = [bt.strip() for bt in BATTERY_TYPE_BASE]
+        result = next((bt for bt in stripped_types if bt in test_info_type), None)
+        return result or stripped_types[0]
+    except (IndexError, TypeError, ValueError):
+        return test_info_type
+
+
+# ── 共享报告内容计算 ──────────────────────────────────────────
+# ExcelReportWriter._prepare_sample_content 与
+# WordReportWriter._prepare_overview_content 约 90% 相同，
+# 本函数提取公共部分，差异由各调用方自行处理。
+
+
+def compute_report_content_base(
+    listCurrentLevel, intCurrentLevelNum,
+    listVoltageLevel, intVoltageLevelNum,
+    listTestInfo, listBatteryInfo,
+    strSampleXlsxPath, strResultXlsxPath, strReportWordPath,
+    stats
+):
+    """计算报告内容的位置参数和列表项（Excel/Word 共享部分）
+
+    Returns:
+        dict: 包含 intPosiMaxmA, intPosi2V25, intTestProfileStartLine,
+              intActualMeasuredCapacityLength, listStrItems, listStrContent,
+              strResult, strRemarks, strRequiredUseableCapacityPercentage
+    """
+    # 最大电流位置
+    intPosiMaxmA = 0
+    for c in range(1, intCurrentLevelNum):
+        if listCurrentLevel[c] > listCurrentLevel[intPosiMaxmA]:
+            intPosiMaxmA = c
+
+    # 2.25V 电压位置
+    intPosi2V25 = 0
+    for v in range(intVoltageLevelNum):
+        if listVoltageLevel[v] == 2.25:
+            intPosi2V25 = v
+            break
+
+    # 测试配置起始行
+    if listTestInfo[0] == "Coin Cell":
+        intTestProfileStartLine = 3
+    elif listTestInfo[0] == "Pouch Cell":
+        intTestProfileStartLine = 4
+    else:
+        from battery_analysis.utils.exceptions import BatteryAnalysisException
+        raise BatteryAnalysisException(
+            "[Test Info Error]: listTestInfo[0] is a unknown battery type")
+
+    intActualMeasuredCapacityLength = intVoltageLevelNum * 2
+
+    # 构建列表项
+    listStrItems = [
+        "Battery Type",                          # 0
+        "Specification",                         # 1
+        "Manufacturer",                          # 2
+        "Construction Method",                   # 3
+        "Test Profile",                          # 4
+        "Tester location",                       # 5
+        "Tested By",                             # 6
+        "Batch/Date Code",                       # 7
+        "Accelerated Aging[Years]",              # 8
+        "Datasheet Nominal Capacity[mAh]",       # 9
+        "Calculation Nominal Capacity[mAh]",     # 10
+        "Required Useable Capacity[mAh]",        # 11
+        None,                                    # 12
+        f"Actual Measured Capacity[mAh]\n(at {listCurrentLevel[intPosiMaxmA]}mA/2.25V)",  # 13
+        "Test Date",                             # 14
+        "Samples Qty",                           # 15
+        "Temperature[℃]",                        # 16
+        "Result",                                # 17
+        "Test Results File",                     # 18
+        "Remarks"                                # 19
+    ]
+
+    try:
+        strRelProfilePath = os.path.relpath(
+            listTestInfo[13], os.path.dirname(strSampleXlsxPath))
+    except ValueError:
+        strRelProfilePath = listTestInfo[13]
+
+    strBatchDateCode = listTestInfo[5] if listTestInfo[5] else "n.a."
+    intPassRate = float(int(listTestInfo[17]) / int(listTestInfo[9]))
+    strRequiredUseableCapacityPercentage = f"{int(100 * intPassRate)}%"
+
+    [sy, sm, sd] = listBatteryInfo[2][0].split(" ")[0].split("-")
+    [ey, em, ed] = listBatteryInfo[2][1].split(" ")[0].split("-")
+
+    strRelResultPath = os.path.relpath(
+        strResultXlsxPath, os.path.dirname(strReportWordPath))
+
+    listMM2S = stats['mm2s']
+    if listMM2S[intPosiMaxmA][intPosi2V25] / int(listTestInfo[9]) >= intPassRate:
+        strResult = "Pass"
+        strRemarks = "OK"
+    else:
+        strResult = "Fail"
+        strRemarks = (
+            f"The expected usable Q(stat) should be more than "
+            f"{strRequiredUseableCapacityPercentage}, "
+            f"while the actual measured minimum capacity to 2.25V is "
+            f"{math.floor(100 * listMM2S[intPosiMaxmA][intPosi2V25] / int(listTestInfo[9]))}%."
+        )
+
+    listStrContent = [
+        listTestInfo[0],                                                       # 0
+        f"{listTestInfo[2]}-{listTestInfo[3]}",                                # 1
+        listTestInfo[4],                                                       # 2
+        listTestInfo[1],                                                       # 3
+        strRelProfilePath,                                                     # 4
+        listTestInfo[11],                                                      # 5
+        listTestInfo[12],                                                      # 6
+        strBatchDateCode,                                                      # 7
+        listTestInfo[10],                                                      # 8
+        listTestInfo[8],                                                       # 9
+        listTestInfo[9],                                                       # 10
+        listTestInfo[17],                                                      # 11
+        strRequiredUseableCapacityPercentage,                                  # 12
+        None,                                                                  # 13
+        f"{sd}.{sm}.{sy} - {ed}.{em}.{ey}",                                   # 14
+        listTestInfo[6],                                                       # 15
+        listTestInfo[7],                                                       # 16
+        strResult,                                                             # 17
+        strRelResultPath,                                                      # 18
+        strRemarks                                                             # 19
+    ]
+
+    return {
+        'intPosiMaxmA': intPosiMaxmA,
+        'intPosi2V25': intPosi2V25,
+        'intTestProfileStartLine': intTestProfileStartLine,
+        'intActualMeasuredCapacityLength': intActualMeasuredCapacityLength,
+        'listStrItems': listStrItems,
+        'listStrContent': listStrContent,
+        'strResult': strResult,
+        'strRemarks': strRemarks,
+        'strRequiredUseableCapacityPercentage': strRequiredUseableCapacityPercentage,
+        'strBatchDateCode': strBatchDateCode,
+        'strRelResultPath': strRelResultPath,
+    }
+
+
+class ReportCoordinator:
+    """报告协调器 — 协调 Excel / Word / CSV / 图表的全流程写入。
+
+    旧名 XlsxWordWriter（保留为别名以保持向后兼容）。
+    """
 
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list,
                  equipment_info: dict | None = None) -> None:
+        # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
+        from battery_analysis.domain.entities.test_info import TestInfo
+        if isinstance(listTestInfo, TestInfo):
+            listTestInfo = listTestInfo.to_list()
+
         self.listTestInfo = listTestInfo
         self.listBatteryInfo = listBatteryInfo
         self._equipment_info = equipment_info or {}
@@ -212,17 +371,7 @@ class XlsxWordWriter:
             self.listImageToReplace.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
 
         # 电池类型匹配
-        listBatteryTypeBase = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
-        try:
-            test_info_type = self.listTestInfo[2]
-            stripped_types = [bt.strip() for bt in listBatteryTypeBase]
-            strBatteryType = next((bt for bt in stripped_types if bt in test_info_type), None)
-            if not strBatteryType:
-                strBatteryType = stripped_types[0] if stripped_types else test_info_type
-                logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
-        except (IndexError, TypeError, ValueError) as e:
-            logging.error("获取电池类型时发生错误: %s", e)
-            strBatteryType = self.listTestInfo[2]
+        strBatteryType = match_battery_type(self.listTestInfo[2])
 
         # 颜色/电流等级字符串
         strStrF = ""
@@ -273,12 +422,6 @@ class XlsxWordWriter:
                          equipment_info=self._equipment_info).write(listCpt, stats)
         CsvWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
 
-    def handle_data_error(self, error_msg):
-        return "retry"
-
-    def create_directories(self):
-        os.makedirs(self.strResultPath, exist_ok=True)
-
     # ── 静态工具 ──
 
     def _get_equip_value(self, dotted_key: str, fallback: str = "") -> str:
@@ -295,3 +438,8 @@ class XlsxWordWriter:
         except (KeyError, TypeError, IndexError):
             pass
         return fallback
+
+
+# ── 向后兼容别名 ──────────────────────────────────────────────
+
+XlsxWordWriter = ReportCoordinator

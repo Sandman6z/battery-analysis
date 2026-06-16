@@ -18,6 +18,7 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.domain.entities.test_info import TestInfo
 
 
 class AnalysisRunner:
@@ -26,14 +27,16 @@ class AnalysisRunner:
     负责处理电池分析的运行逻辑
     """
     
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化分析运行管理器
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def run_analysis(self):
@@ -108,38 +111,35 @@ class AnalysisRunner:
     
     def _prepare_test_info(self):
         """
-        准备测试信息列表
-        
+        准备测试信息
+
         Returns:
-            list: 测试信息列表
+            TestInfo: 具名的测试信息数据类
         """
         # 使用温度处理器构建温度值字符串
         temperature_value = self.main_window.temperature_handler.get_temperature_value()
-        
-        test_info = [
-            self.main_window.comboBox_BatteryType.currentText(),
-            self.main_window.comboBox_ConstructionMethod.currentText(),
-            self.main_window.comboBox_Specification_Type.currentText(),
-            self.main_window.comboBox_Specification_Method.currentText(),
-            self.main_window.comboBox_Manufacturer.currentText(),
-            self.main_window.lineEdit_BatchDateCode.text(),
-            self.main_window.lineEdit_SamplesQty.text(),
-            temperature_value,  # 使用构建的温度值
-            self.main_window.lineEdit_DatasheetNominalCapacity.text(),
-            self.main_window.lineEdit_CalculationNominalCapacity.text(),
-            str(self.main_window.spinBox_AcceleratedAging.value()),
-            self.main_window.comboBox_TesterLocation.currentText(),
-            self.main_window.comboBox_TestedBy.currentText(),
-            self.main_window.lineEdit_TestProfile.text(),
-            self.main_window.listCurrentLevel,
-            self.main_window.listVoltageLevel,
-            self.main_window.lineEdit_Version.text(),
-            self.main_window.lineEdit_RequiredUseableCapacity.text(),
-            # 直接使用comboBox_ReportedBy的值，不再从表格获取
-            self.main_window.comboBox_ReportedBy.currentText()
-        ]
-        
-        return test_info
+
+        return TestInfo(
+            battery_type=self.main_window.comboBox_BatteryType.currentText(),
+            construction_method=self.main_window.comboBox_ConstructionMethod.currentText(),
+            specification_type=self.main_window.comboBox_Specification_Type.currentText(),
+            specification_method=self.main_window.comboBox_Specification_Method.currentText(),
+            manufacturer=self.main_window.comboBox_Manufacturer.currentText(),
+            batch_date_code=self.main_window.lineEdit_BatchDateCode.text(),
+            samples_qty=self.main_window.lineEdit_SamplesQty.text(),
+            temperature_value=temperature_value,
+            datasheet_nominal_capacity=self.main_window.lineEdit_DatasheetNominalCapacity.text(),
+            calculation_nominal_capacity=self.main_window.lineEdit_CalculationNominalCapacity.text(),
+            accelerated_aging=str(self.main_window.spinBox_AcceleratedAging.value()),
+            tester_location=self.main_window.comboBox_TesterLocation.currentText(),
+            tested_by=self.main_window.comboBox_TestedBy.currentText(),
+            test_profile=self.main_window.lineEdit_TestProfile.text(),
+            current_levels=self.main_window.listCurrentLevel,
+            voltage_levels=self.main_window.listVoltageLevel,
+            version=self.main_window.lineEdit_Version.text(),
+            required_usable_capacity=self.main_window.lineEdit_RequiredUseableCapacity.text(),
+            reported_by=self.main_window.comboBox_ReportedBy.currentText(),
+        )
     
     def _update_controller_context(self, test_info):
         """

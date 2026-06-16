@@ -19,14 +19,16 @@ class VersionManager:
     版本管理器，负责处理版本号的计算和更新
     """
 
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化版本管理器
 
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
 
     def get_version(self) -> None:

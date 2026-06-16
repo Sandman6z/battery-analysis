@@ -1,12 +1,9 @@
 """脉冲检测逻辑"""
 import logging
 
+from battery_analysis.utils.processors.pulse_matcher import b_is_in_range
+
 logger = logging.getLogger(__name__)
-
-
-def b_is_in_range(current, standard):
-    """检查电流是否在标准值的 +/-5% 范围内（兼容正负数）"""
-    return abs(current - standard) <= abs(standard * 0.05)
 
 
 def is_pulse_step(step_value) -> bool:

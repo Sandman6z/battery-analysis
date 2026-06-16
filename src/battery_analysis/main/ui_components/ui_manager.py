@@ -27,14 +27,16 @@ class UIManager:
     UI管理器类，负责UI初始化和设置
     """
     
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化UI管理器
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def init_window(self):

@@ -32,14 +32,16 @@ class DialogManager:
     对话框管理器类，负责各种对话框的处理
     """
     
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化对话框管理器
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def handle_exit(self):
@@ -102,17 +104,21 @@ class DialogManager:
         """
         try:
             # 首先尝试从当前目录查找手册
-            manual_paths = [
-                # 相对路径
-                Path(self.main_window.current_directory) / "docs" / "user_manual.pdf",
-                Path(self.main_window.current_directory) / "user_manual.pdf",
+            manual_paths = []
+            # 仅当 current_directory 已设置时添加相对路径
+            if hasattr(self.main_window, 'current_directory') and self.main_window.current_directory:
+                manual_paths.extend([
+                    Path(self.main_window.current_directory) / "docs" / "user_manual.pdf",
+                    Path(self.main_window.current_directory) / "user_manual.pdf",
+                ])
+            manual_paths.extend([
                 # 绝对路径 - 项目目录
                 Path(__file__).parent.parent.parent / "docs" / "user_manual.pdf",
                 Path(__file__).parent.parent.parent / "user_manual.pdf",
                 # 常见的文档位置
                 Path(os.getcwd()) / "docs" / "user_manual.pdf",
                 Path(os.getcwd()) / "user_manual.pdf",
-            ]
+            ])
             
             manual_found = False
             for manual_path in manual_paths:

@@ -4,6 +4,7 @@ Excel文件验证模块
 
 import logging
 import pandas as pd
+from battery_analysis.utils.file_validator import FileValidator
 
 
 logger = logging.getLogger(__name__)
@@ -11,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 def validate_excel_filename(filename):
     """验证Excel文件名的有效性"""
-    from battery_analysis.utils.file_validator import FileValidator
     validator = FileValidator()
     return validator.validate_excel_filename(filename)
 
@@ -71,7 +71,6 @@ def validate_excel_file(file_path, filename, cache, optimize_dataframe_memory):
         logger.debug("从缓存读取文件验证结果: %s", cache_key)
         return cached_result
 
-    from battery_analysis.utils.file_validator import FileValidator
     validator = FileValidator()
 
     is_valid, error_msg = validate_excel_filename(filename)

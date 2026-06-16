@@ -26,14 +26,16 @@ class SignalConnector:
     管理进度更新和配置变更等。
     """
 
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化信号连接器
 
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
 
         self.progress_dialog = None
@@ -66,7 +68,6 @@ class SignalConnector:
         self._connect_main_controller_signals()
         self._connect_file_controller_signals()
         self._connect_validation_controller_signals()
-        self._connect_event_bus_events()
 
     def _connect_main_controller_signals(self):
         """连接主控制器信号"""
@@ -98,17 +99,6 @@ class SignalConnector:
         if validation_controller:
             if hasattr(validation_controller, 'validation_error'):
                 validation_controller.validation_error.connect(self._on_controller_error)
-
-    def _connect_event_bus_events(self):
-        """连接事件总线事件"""
-        from battery_analysis.main.services.event_bus import EventType
-        
-        event_bus = self._get_service("event_bus")
-        if event_bus:
-            event_bus.subscribe(EventType.PROGRESS_UPDATED, self._on_event_progress_updated)
-            event_bus.subscribe(EventType.STATUS_CHANGED, self._on_event_status_changed)
-            event_bus.subscribe(EventType.FILE_SELECTED, self._on_file_selected)
-            event_bus.subscribe(EventType.CONFIG_CHANGED, self._on_config_changed)
 
     def _on_progress_updated(self, progress, status_text):
         """进度更新处理（带平滑动画，消除百分比跳变）"""
@@ -143,22 +133,6 @@ class SignalConnector:
         bar._anim.setEndValue(target_value)
         bar._anim.start()
 
-    def _on_event_progress_updated(self, event):
-        """事件总线进度更新处理"""
-        progress = event.data["progress"]
-        status = event.data["status"]
-        progress_service = self._get_service("progress")
-        if progress_service:
-            progress_service.update_progress(progress, status)
-        self._on_progress_updated(progress, status)
-
-    def _on_event_status_changed(self, event):
-        """事件总线状态变化处理"""
-        status = event.data["status"]
-        code = event.data["code"]
-        message = event.data["message"]
-        self.logger.info("Status changed: %s, Code: %s, Message: %s", status, code, message)
-        
     def _on_status_changed(self, is_running, stateindex, threadinfo):
         """处理主控制器的状态变化信号，更新UI元素"""
         # 正常运行状态处理
@@ -346,20 +320,6 @@ class SignalConnector:
 
         self.main_window.statusBar_BatteryAnalysis.showMessage(
             f"[错误]: {error_title}")
-
-    def _on_file_selected(self, event):
-        """事件总线文件选择处理"""
-        file_path = event.data["file_path"]
-        self.logger.info("File selected via event bus: %s", file_path)
-
-    def _on_config_changed(self, event):
-        """事件总线配置变更处理"""
-        key = event.data["key"]
-        value = event.data["value"]
-        self.logger.debug("Config changed: %s = %s", key, value)
-        config_service = self._get_service("config")
-        if config_service:
-            config_service.set(key, value)
 
     def _on_config_loaded(self, config_dict):
         """配置加载完成处理"""

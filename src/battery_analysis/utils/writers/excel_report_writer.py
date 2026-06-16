@@ -13,7 +13,8 @@ import xlsxwriter as xwt
 
 from battery_analysis.utils.writers import excel_utils
 from battery_analysis.utils import numeric_utils
-from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.exceptions import BatteryAnalysisException
+from battery_analysis.utils.report_coordinator import compute_report_content_base
 from battery_analysis.utils.writers.statistics_utils import (
     compute_list_cpt, compute_statistics,
 )
@@ -339,113 +340,19 @@ class ExcelReportWriter:
 
     def _prepare_sample_content(self, stats):
         """计算样本表所需的位置参数和内容列表"""
-        # 最大电流位置
-        intPosiMaxmA = 0
-        for c in range(1, self.intCurrentLevelNum):
-            if self.listCurrentLevel[c] > self.listCurrentLevel[intPosiMaxmA]:
-                intPosiMaxmA = c
+        base = compute_report_content_base(
+            self.listCurrentLevel, self.intCurrentLevelNum,
+            self.listVoltageLevel, self.intVoltageLevelNum,
+            self.listTestInfo, self.listBatteryInfo,
+            self.strSampleXlsxPath, self.strResultXlsxPath, self.strReportWordPath,
+            stats)
 
-        # 2.25V 电压位置
-        intPosi2V25 = 0
-        for v in range(self.intVoltageLevelNum):
-            if self.listVoltageLevel[v] == 2.25:
-                intPosi2V25 = v
-                break
-
-        # 测试配置起始行
-        if self.listTestInfo[0] == "Coin Cell":
-            intTestProfileStartLine = 3
-        elif self.listTestInfo[0] == "Pouch Cell":
-            intTestProfileStartLine = 4
-        else:
-            raise BatteryAnalysisException(
-                "[Test Info Error]: listTestInfo[0] is a unknown battery type")
-
-        intActualMeasuredCapacityLength = self.intVoltageLevelNum * 2
-        intTestDateStartCol = intTestProfileStartLine + 9 + intActualMeasuredCapacityLength
-
-        # 构建列表项
-        listStrItems = [
-            "Battery Type",  # 0
-            "Specification",  # 1
-            "Manufacturer",  # 2
-            "Construction Method",  # 3
-            "Test Profile",  # 4
-            "Tester location",  # 5
-            "Tested By",  # 6
-            "Batch/Date Code",  # 7
-            "Accelerated Aging[Years]",  # 8
-            "Datasheet Nominal Capacity[mAh]",  # 9
-            "Calculation Nominal Capacity[mAh]",  # 10
-            "Required Useable Capacity[mAh]",  # 11
-            None,  # 12
-            f"Actual Measured Capacity[mAh]\n(at {self.listCurrentLevel[intPosiMaxmA]}mA/2.25V)",  # 13
-            "Test Date",  # 14
-            "Samples Qty",  # 15
-            "Temperature[℃]",  # 16
-            "Result",  # 17
-            "Test Results File",  # 18
-            "Remarks"  # 19
-        ]
-
-        try:
-            strRelProfilePath = os.path.relpath(
-                self.listTestInfo[13], os.path.dirname(self.strSampleXlsxPath))
-        except ValueError:
-            strRelProfilePath = self.listTestInfo[13]
-
-        strBatchDateCode = self.listTestInfo[5] if self.listTestInfo[5] else "n.a."
-        intPassRate = float(int(self.listTestInfo[17]) / int(self.listTestInfo[9]))
-        strRequiredUseableCapacityPercentage = f"{int(100 * intPassRate)}%"
-
-        [sy, sm, sd] = self.listBatteryInfo[2][0].split(" ")[0].split("-")
-        [ey, em, ed] = self.listBatteryInfo[2][1].split(" ")[0].split("-")
-
-        strRelResultPath = os.path.relpath(
-            self.strResultXlsxPath, os.path.dirname(self.strReportWordPath))
-
-        listMM2S = stats['mm2s']
-        if listMM2S[intPosiMaxmA][intPosi2V25] / int(self.listTestInfo[9]) >= intPassRate:
-            strResult = "Pass"
-            strRemarks = "OK"
-        else:
-            strResult = "Fail"
-            strRemarks = (f"The expected usable Q(stat) should be more than "
-                          f"{strRequiredUseableCapacityPercentage}, "
-                          f"while the actual measured minimum capacity to 2.25V is "
-                          f"{math.floor(100 * listMM2S[intPosiMaxmA][intPosi2V25] / int(self.listTestInfo[9]))}%.")
-
-        listStrContent = [
-            self.listTestInfo[0],  # 0
-            f"{self.listTestInfo[2]}-{self.listTestInfo[3]}",  # 1
-            self.listTestInfo[4],  # 2
-            self.listTestInfo[1],  # 3
-            strRelProfilePath,  # 4
-            self.listTestInfo[11],  # 5
-            self.listTestInfo[12],  # 6
-            strBatchDateCode,  # 7
-            self.listTestInfo[10],  # 8
-            self.listTestInfo[8],  # 9
-            self.listTestInfo[9],  # 10
-            self.listTestInfo[17],  # 11
-            strRequiredUseableCapacityPercentage,  # 12
-            None,  # 13
-            f"{sd}.{sm}.{sy} - {ed}.{em}.{ey}",  # 14
-            self.listTestInfo[6],  # 15
-            self.listTestInfo[7],  # 16
-            strResult,  # 17
-            strRelResultPath,  # 18
-            strRemarks  # 19
-        ]
+        intTestDateStartCol = (
+            base['intTestProfileStartLine'] + 9 + base['intActualMeasuredCapacityLength'])
 
         return {
-            'intPosiMaxmA': intPosiMaxmA,
-            'intPosi2V25': intPosi2V25,
-            'intTestProfileStartLine': intTestProfileStartLine,
-            'intActualMeasuredCapacityLength': intActualMeasuredCapacityLength,
+            **base,
             'intTestDateStartCol': intTestDateStartCol,
-            'listStrItems': listStrItems,
-            'listStrContent': listStrContent,
         }
 
     # ── 写入样本表（wsExcel） ──

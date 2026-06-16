@@ -213,23 +213,9 @@ class LanguageManager(QObject):
         """Handle language change signal"""
         self.logger.info("Language changed to: %s", locale_code)
         
-        # Update UI language if needed
-        self._update_ui_language(locale_code)
-    
-    def _update_ui_language(self, locale_code: str):
-        """Update UI language elements"""
-        try:
-            # Trigger UI updates by emitting signals that widgets can connect to
-            # This allows UI elements to refresh their translations
-            
-            # For Qt Designer UI files, they need to be recompiled with translations
-            # or use dynamic translation updates
-            
-            pass  # Placeholder for UI-specific language updates
-            
-        except (AttributeError, TypeError) as e:
-            self.logger.error("Failed to update UI language: %s", e)
-    
+        # UI 语言更新（待实现）
+        pass
+
     def reload_translations(self) -> bool:
         """
         Reload translations for current locale.
@@ -277,23 +263,6 @@ class LanguageManager(QObject):
             "installed": self._has_translation_file(locale_code),
             "current": self.get_current_locale() == locale_code
         }
-    
-    # Alias methods for backward compatibility and ease of use
-    def get_available_languages(self) -> Dict[str, str]:
-        """Alias for get_available_locales()"""
-        return self.get_available_locales()
-    
-    def get_installed_languages(self) -> Dict[str, str]:
-        """Alias for get_installed_locales()"""
-        return self.get_installed_locales()
-    
-    def get_current_language(self) -> str:
-        """Alias for get_current_locale()"""
-        return self.get_current_locale()
-    
-    def set_language(self, language_code: str) -> bool:
-        """Alias for set_locale()"""
-        return self.set_locale(language_code)
     
     def export_translations(self, locale_code: str, output_path: str) -> bool:
         """

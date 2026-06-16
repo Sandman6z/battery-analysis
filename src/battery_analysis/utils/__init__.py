@@ -28,4 +28,19 @@ def __getattr__(name):
         if name == 'generate_error_report':
             return generate_error_report
         return get_report_info
+    # ── 新模块：允许 from battery_analysis.utils import <name> ──
+    lazy_map = {
+        'InputValidator': ('battery_analysis.utils.input_validator', 'InputValidator'),
+        'ValidationResult': ('battery_analysis.utils.input_validator', 'ValidationResult'),
+        'FieldValues': ('battery_analysis.utils.input_validator', 'FieldValues'),
+        'DomainEventBus': ('battery_analysis.utils.domain_events', 'DomainEventBus'),
+        'DomainEvent': ('battery_analysis.utils.domain_events', 'DomainEvent'),
+        'AppConfigSchema': ('battery_analysis.utils.config_schema', 'AppConfigSchema'),
+        'run_migrations': ('battery_analysis.utils.config_migration', 'run_migrations'),
+    }
+    if name in lazy_map:
+        mod_path, attr = lazy_map[name]
+        import importlib
+        mod = importlib.import_module(mod_path)
+        return getattr(mod, attr)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

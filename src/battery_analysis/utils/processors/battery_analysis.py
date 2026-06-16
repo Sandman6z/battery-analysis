@@ -24,7 +24,7 @@ import traceback
 
 import xlrd as rd
 
-from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.exceptions import BatteryAnalysisException
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.file_finder import scan_sorted_xlsx
 from battery_analysis.utils.readers.xlsx_reader import (
@@ -55,6 +55,11 @@ class BatteryAnalysis:
 
     def __init__(self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list,
                  progress_callback=None) -> None:
+        # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
+        from battery_analysis.domain.entities.test_info import TestInfo
+        if isinstance(listTestInfo, TestInfo):
+            listTestInfo = listTestInfo.to_list()
+
         # ── 输入验证 ──────────────────────────────────────────────
         if len(listTestInfo) < 19:
             logging.error("测试信息列表格式错误: 缺少必要的信息。"
@@ -78,6 +83,7 @@ class BatteryAnalysis:
 
         # ── 路径设置 ──────────────────────────────────────────────
         self.strInDataXlsxDir = f"{strInDataXlsxDir}/"
+        self.strResultPath = strResultPath
         safe_temperature = listTestInfo[7].replace(':', '_')
         self.strResultLogTxt = (
             f"{strResultPath}/V{listTestInfo[16]}/"
@@ -104,6 +110,21 @@ class BatteryAnalysis:
         self._log_buffer_size = 0
         self._max_buffer_size = 1024 * 10
 
+        # 保存进度回调供 run() 使用
+        self._progress_callback = progress_callback
+
+        # 初始化后自动执行（保持向后兼容）
+        self.run(strResultPath)
+
+    def run(self, strResultPath: str = "") -> None:
+        """执行分析流程：扫描文件 → 并行处理 → 合并 → 写入CSV。
+
+        从 __init__ 中提取，支持独立调用和重入。
+        """
+        if not strResultPath:
+            return
+
+        progress_callback = self._progress_callback
         try:
             # ── 扫描文件 ──────────────────────────────────────────
             self.listAllInXlsx = scan_sorted_xlsx(self.strInDataXlsxDir)
@@ -201,7 +222,7 @@ class BatteryAnalysis:
                 progress_callback(52, "正在写入CSV文件...")
 
             # ── 输出结果 ──────────────────────────────────────────
-            self.UBA_WriteCsv(f"{strResultPath}/V{listTestInfo[16]}")
+            self.UBA_WriteCsv(f"{strResultPath}/V{self.listTestInfo[16]}")
 
             if progress_callback:
                 progress_callback(55, "数据处理完成")

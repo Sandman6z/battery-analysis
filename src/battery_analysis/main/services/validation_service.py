@@ -10,10 +10,9 @@ import re
 import logging
 from typing import Any, Tuple, List, Dict
 
-from battery_analysis.main.services.validation_service_interface import IValidationService
 
 
-class ValidationService(IValidationService):
+class ValidationService:
     """
     验证服务实现类
     提供各种数据验证功能

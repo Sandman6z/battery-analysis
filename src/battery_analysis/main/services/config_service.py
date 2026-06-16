@@ -7,13 +7,12 @@
 
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-from battery_analysis.main.services.config_service_interface import IConfigService
 from battery_analysis.utils.base_service import BaseService
 from battery_analysis.utils.json_config_manager import JsonConfigManager
 import os
 
 
-class ConfigService(BaseService, IConfigService):
+class ConfigService(BaseService):
     """
     配置服务实现类
 
@@ -45,7 +44,7 @@ class ConfigService(BaseService, IConfigService):
             if not self._config_manager.is_loaded():
                 self.load_config()
             return self._config_manager.get(key, default)
-        except Exception as e:
+        except (KeyError, TypeError, ValueError) as e:
             self.logger.error("获取配置值失败: %s", e)
             return default
 
@@ -67,7 +66,7 @@ class ConfigService(BaseService, IConfigService):
             if value is None:
                 return None
             return str(value)
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("获取原始配置值失败: %s", e)
             return default
 
@@ -84,7 +83,7 @@ class ConfigService(BaseService, IConfigService):
         """
         try:
             return self._config_manager.set(key, value)
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("设置配置值失败: %s", e)
             return False
 
@@ -102,7 +101,7 @@ class ConfigService(BaseService, IConfigService):
             self._config_manager.replace_all(data)
             self._loaded = True
             return True
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("设置默认配置失败: %s", e)
             return False
 
@@ -122,7 +121,7 @@ class ConfigService(BaseService, IConfigService):
             else:
                 self.logger.warning("无法保存配置：未指定配置路径或配置未加载")
                 return False
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("保存配置失败: %s", e)
             return False
 
@@ -155,40 +154,37 @@ class ConfigService(BaseService, IConfigService):
             success = self._config_manager.read_config(str(self._config_path))
             self._loaded = success
             if success:
-                # 升级迁移：如果已有配置中 equipment 为空，从默认值补全
-                self._migrate_if_needed()
+                # Schema 验证
+                try:
+                    from battery_analysis.utils.config_schema import AppConfigSchema
+                    all_data = self._config_manager.get_all()
+                    schema = AppConfigSchema.from_dict(all_data)
+                    warnings = schema.validate()
+                    for w in warnings:
+                        self.logger.warning("配置警告: %s", w)
+                except Exception as schema_err:
+                    self.logger.warning("配置 schema 验证失败（不影响运行）: %s", schema_err)
+
+                # 版本化迁移
+                try:
+                    from battery_analysis.utils.config_migration import run_migrations
+                    all_data = self._config_manager.get_all()
+                    migrated = run_migrations(all_data)
+                    if migrated.get("version", 0) > all_data.get("version", 0):
+                        self._config_manager.replace_all(migrated)
+                        self._config_manager.write_config(str(self._config_path))
+                        self.logger.info("配置已迁移至 v%d", migrated["version"])
+                except Exception as migrate_err:
+                    self.logger.warning("配置迁移失败（使用旧版配置继续）: %s", migrate_err)
+
                 self.logger.info("配置已加载: %s", self._config_path)
             else:
                 self.logger.warning("配置文件加载失败: %s", self._config_path)
             return success
-        except Exception as e:
-            self.logger.error("加载配置失败: %s", e)
+        except (OSError, IOError, PermissionError) as e:
+            self.logger.error("加载配置 I/O 错误: %s", e)
             self._loaded = False
             return False
-
-    def _migrate_if_needed(self):
-        """补全首次迁移时空白的 equipment 预设数据，清理旧版 dot-path 损坏"""
-        try:
-            equipment = self._config_manager.get("test.equipment", {})
-            if not equipment:
-                from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
-                defaults = DEFAULT_CONFIG.get("test", {}).get("equipment", {})
-                if defaults:
-                    self._config_manager.set("test.equipment", defaults)
-                    self._config_manager.write_config(str(self._config_path))
-                    self.logger.info("迁移：已补全 equipment 预设数据（7 个地点）")
-                return
-
-            # 清理旧版 dot-path set 损坏的嵌套键（如 "BOEDT" 是 "BOEDT.Qual" 的误分割产物）
-            cleaned = [k for k in equipment if isinstance(equipment[k], dict) and "." not in k]
-            if cleaned:
-                for key in cleaned:
-                    del equipment[key]
-                self._config_manager.set("test.equipment", equipment)
-                self._config_manager.write_config(str(self._config_path))
-                self.logger.info("迁移：已清理 equipment 中 %d 个旧版损坏键: %s", len(cleaned), cleaned)
-        except Exception as e:
-            self.logger.warning("equipment 迁移检查失败: %s", e)
 
     def reload_config(self) -> bool:
         """
@@ -220,18 +216,9 @@ class ConfigService(BaseService, IConfigService):
                 self.load_config()
             data = self._config_manager.get_all()
             return [k for k in data.keys() if isinstance(data[k], dict)]
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("获取配置节失败: %s", e)
             return []
-
-    def get_all_sections(self) -> List[str]:
-        """
-        获取所有配置节名称（别名方法）
-
-        Returns:
-            List[str]: 配置节名称列表
-        """
-        return self.get_config_sections()
 
     def get_all_values(self) -> Dict[str, Any]:
         """
@@ -244,7 +231,7 @@ class ConfigService(BaseService, IConfigService):
             if not self._config_manager.is_loaded():
                 self.load_config()
             return self._config_manager.get_all()
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("获取全部配置值失败: %s", e)
             return {}
 
@@ -265,7 +252,7 @@ class ConfigService(BaseService, IConfigService):
             if isinstance(section_data, dict):
                 return list(section_data.keys())
             return []
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("获取配置节选项失败: %s", e)
             return []
 
@@ -284,7 +271,7 @@ class ConfigService(BaseService, IConfigService):
                 self.load_config()
             result = self._config_manager.get(section, {})
             return result if isinstance(result, dict) else {}
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("获取配置节失败: %s", e)
             return {}
 
@@ -302,7 +289,7 @@ class ConfigService(BaseService, IConfigService):
             if not self._config_manager.is_loaded():
                 self.load_config()
             return self._config_manager.get(key) is not None
-        except Exception as e:
+        except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("检查配置键失败: %s", e)
             return False
 

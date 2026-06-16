@@ -6,7 +6,7 @@
 
 import math
 import matplotlib.pyplot as plt
-from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.exceptions import BatteryAnalysisException
 
 # 配置matplotlib支持中文显示
 plt.rcParams['font.sans-serif'] = [

@@ -54,50 +54,10 @@ class EnvironmentService:
     
     def _handle_environment_adaptation(self):
         """
-        处理环境适配逻辑
+        处理环境适配逻辑（各环境特化方法待实现）
         """
         env_type = self.env_info.get('environment_type')
-        
-        if env_type == EnvironmentType.IDE:
-            self.logger.debug("IDE环境：调整行为以适应开发环境")
-            self._adapt_for_ide_environment()
-        elif env_type == EnvironmentType.CONTAINER:
-            self.logger.debug("容器环境：调整行为以适应容器环境")
-            self._adapt_for_container_environment()
-        elif env_type == EnvironmentType.PRODUCTION:
-            self.logger.debug("生产环境：调整行为以适应生产环境")
-            self._adapt_for_production_environment()
-        else:
-            self.logger.debug("开发环境：使用默认配置")
-            self._adapt_for_development_environment()
-    
-    def _adapt_for_ide_environment(self):
-        """
-        IDE环境适配
-        """
-        # IDE环境的特殊配置
-        pass
-    
-    def _adapt_for_container_environment(self):
-        """
-        容器环境适配
-        """
-        # 容器环境的特殊配置
-        pass
-    
-    def _adapt_for_production_environment(self):
-        """
-        生产环境适配
-        """
-        # 生产环境的特殊配置
-        pass
-    
-    def _adapt_for_development_environment(self):
-        """
-        开发环境适配
-        """
-        # 开发环境的特殊配置
-        pass
+        self.logger.debug("当前环境类型: %s", env_type)
     
     def get_environment_info(self) -> Dict[str, Any]:
         """

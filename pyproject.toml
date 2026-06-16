@@ -67,12 +67,18 @@ disable = [
     "missing-function-docstring",  # C0116
     "missing-class-docstring",     # C0115
     "too-few-public-methods",      # R0903
-    "too-many-arguments",          # R0913
-    "too-many-locals",             # R0914
     "fixme",                       # W0511
-    "invalid-name",                # C0103
-    "cyclic-import"                # R0401 - 忽略循环导入警告，因为已通过延迟导入解决运行时问题
 ]
+# 以下检查不再禁用（随重构逐步修复）：
+#   R0913 too-many-arguments — 阈值已改为 max-args=10
+#   R0914 too-many-locals   — 阈值已改为 max-locals=20
+#   C0103 invalid-name      — 命名规范有助于一致性
+#   R0401 cyclic-import     — 循环依赖已修复，不再需要
+
+[tool.pylint.design]
+max-args = 10
+max-locals = 20
+max-attributes = 12
 
 [tool.pylint.format]
 indent-string = "    "

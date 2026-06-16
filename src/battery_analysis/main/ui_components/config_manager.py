@@ -39,14 +39,16 @@ class ConfigManager:
         "TestConfig/TestedBy": "test.testedBy",
     }
 
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化配置管理器
 
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
         self._config_service = None
         self.config_path = None

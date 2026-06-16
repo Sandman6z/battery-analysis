@@ -24,14 +24,16 @@ class HelpManager:
     帮助管理器类，负责处理应用程序的帮助功能
     """
     
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化帮助管理器
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def show_user_manual(self) -> None:
@@ -40,7 +42,8 @@ class HelpManager:
         """
         try:
             # 使用FileUtils获取所有可能的手册路径
-            manual_paths = FileUtils.get_manual_paths(self.main_window.current_directory)
+            cur_dir = getattr(self.main_window, 'current_directory', '') or ''
+            manual_paths = FileUtils.get_manual_paths(cur_dir)
             
             manual_found = False
             for manual_path in manual_paths:

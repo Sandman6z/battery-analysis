@@ -14,14 +14,16 @@ class WindowSetup:
     窗口设置类，负责主窗口的初始化和设置
     """
     
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化窗口设置
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def init_window(self) -> None:
@@ -53,12 +55,13 @@ class WindowSetup:
                     self.main_window.env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
                 ]
             
-            # 始终尝试相对路径（工程中的图标）
+            # 已设置 current_directory 时尝试相对路径（工程中的图标）
             from pathlib import Path
-            icon_paths.extend([
-                Path(self.main_window.current_directory) / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-                Path(self.main_window.current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-            ])
+            if hasattr(self.main_window, 'current_directory') and self.main_window.current_directory:
+                icon_paths.extend([
+                    Path(self.main_window.current_directory) / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
+                    Path(self.main_window.current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
+                ])
             
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:

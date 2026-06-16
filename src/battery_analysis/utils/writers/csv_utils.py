@@ -1,4 +1,4 @@
-from battery_analysis.utils.exception_type import BatteryAnalysisException
+from battery_analysis.utils.exceptions import BatteryAnalysisException
 
 
 def csv_write(_strMessage, csv_writer, buffer, buffer_size, max_buffer_size):

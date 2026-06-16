@@ -15,21 +15,24 @@ import re
 import PyQt6.QtCore as QC
 import PyQt6.QtWidgets as QW
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.utils.input_validator import InputValidator, FieldValues, ValidationResult
 
 
 class ValidationManager:
     """
     验证管理器，负责处理所有输入验证逻辑
     """
-    
-    def __init__(self, main_window):
+
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化验证管理器
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def validate_version(self) -> None:
@@ -295,13 +298,49 @@ class ValidationManager:
             except ValueError:
                 pass
     
+    def validate_fields(self) -> ValidationResult:
+        """使用纯 InputValidator 验证当前 UI 字段。"""
+        values = FieldValues(
+            battery_type=self.main_window.comboBox_BatteryType.currentText(),
+            construction_method=self.main_window.comboBox_ConstructionMethod.currentText(),
+            specification_type=self.main_window.comboBox_Specification_Type.currentText(),
+            specification_method=self.main_window.comboBox_Specification_Method.currentText(),
+            manufacturer=self.main_window.comboBox_Manufacturer.currentText(),
+            batch_date_code=self.main_window.lineEdit_BatchDateCode.text(),
+            samples_qty=self.main_window.lineEdit_SamplesQty.text(),
+            temperature=self.main_window.comboBox_Temperature.currentText(),
+            datasheet_nominal_capacity=self.main_window.lineEdit_DatasheetNominalCapacity.text(),
+            calculation_nominal_capacity=self.main_window.lineEdit_CalculationNominalCapacity.text(),
+            accelerated_aging=self.main_window.spinBox_AcceleratedAging.value(),
+            tester_location=self.main_window.comboBox_TesterLocation.currentText(),
+            tested_by=self.main_window.comboBox_TestedBy.currentText(),
+            reported_by=self.main_window.comboBox_ReportedBy.currentText(),
+            test_profile=self.main_window.lineEdit_TestProfile.text(),
+            input_path=self.main_window.lineEdit_InputPath.text(),
+            output_path=self.main_window.lineEdit_OutputPath.text(),
+            version=self.main_window.lineEdit_Version.text(),
+            required_usable_capacity=self.main_window.lineEdit_RequiredUseableCapacity.text(),
+        )
+        return InputValidator.validate_all(values)
+
     def checkinput(self) -> bool:
         """
-        检查所有输入是否完整有效
-        
+        检查所有输入是否完整有效（委托给 InputValidator + UI 样式更新）。
+
         Returns:
             bool: 输入是否通过验证
         """
+        # 使用纯验证器
+        result = self.validate_fields()
+        if not result.is_valid:
+            self._apply_field_errors(result.field_errors)
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                "; ".join(result.errors) if result.errors else "验证失败")
+            self.main_window.pushButton_Run.setText("Rerun")
+            self.main_window.pushButton_Run.setFocus()
+            return False
+
+        # 向后兼容：继续执行原有 UI 级检查
         check_pass_flag = True
         warning_info = ["Unknown: "]
         
@@ -420,6 +459,25 @@ class ValidationManager:
         
         return check_pass_flag
     
+    def _apply_field_errors(self, field_errors: dict) -> None:
+        """根据字段错误字典高亮对应 UI 控件。"""
+        field_to_widget = {
+            "input_path": (self.main_window.lineEdit_InputPath, self.main_window.label_InputPath),
+            "output_path": (self.main_window.lineEdit_OutputPath, self.main_window.label_OutputPath),
+            "version": (self.main_window.lineEdit_Version, self.main_window.label_Version),
+            "test_profile": (self.main_window.lineEdit_TestProfile, self.main_window.label_TestProfile),
+            "samples_qty": (self.main_window.lineEdit_SamplesQty, self.main_window.label_SamplesQty),
+        }
+        for field_name, (line_edit, label) in field_to_widget.items():
+            if field_name in field_errors:
+                line_edit.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+                if label:
+                    label.setStyleSheet("background-color:red")
+            else:
+                line_edit.setStyleSheet("")
+                if label:
+                    label.setStyleSheet("")
+
     def _reset_all_label_styles(self):
         """重置所有标签的样式"""
         # 重置所有标签的背景颜色

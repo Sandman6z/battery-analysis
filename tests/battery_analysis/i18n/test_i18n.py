@@ -545,29 +545,29 @@ class TestLanguageManager:
 
     # --- Backwards-compatibility aliases ---
 
-    def test_alias_get_available_languages(self):
+    def test_get_available_locales(self):
         from battery_analysis.i18n.language_manager import LanguageManager
         lm = LanguageManager()
         with patch.object(lm, "get_available_locales", return_value={"en": "English"}):
-            assert lm.get_available_languages() == {"en": "English"}
+            assert lm.get_available_locales() == {"en": "English"}
 
-    def test_alias_get_installed_languages(self):
+    def test_get_installed_locales(self):
         from battery_analysis.i18n.language_manager import LanguageManager
         lm = LanguageManager()
         with patch.object(lm, "get_installed_locales", return_value={"en": "English"}):
-            assert lm.get_installed_languages() == {"en": "English"}
+            assert lm.get_installed_locales() == {"en": "English"}
 
-    def test_alias_get_current_language(self):
+    def test_get_current_locale(self):
         from battery_analysis.i18n.language_manager import LanguageManager
         lm = LanguageManager()
         with patch.object(lm, "get_current_locale", return_value="en"):
-            assert lm.get_current_language() == "en"
+            assert lm.get_current_locale() == "en"
 
-    def test_alias_set_language(self):
+    def test_set_locale(self):
         from battery_analysis.i18n.language_manager import LanguageManager
         lm = LanguageManager()
         with patch.object(lm, "set_locale", return_value=True):
-            assert lm.set_language("en") is True
+            assert lm.set_locale("en") is True
 
     # --- Error handling ---
 
@@ -586,7 +586,8 @@ class TestLanguageManager:
         lm = LanguageManager()
         lm._on_language_changed("zh_CN")  # should not raise
 
-    def test_update_ui_language_no_op(self):
+    def test_on_language_changed_logs(self, caplog):
         from battery_analysis.i18n.language_manager import LanguageManager
         lm = LanguageManager()
-        lm._update_ui_language("zh_CN")  # should not raise
+        lm._on_language_changed("zh_CN")
+        assert "Language changed to: zh_CN" in caplog.text

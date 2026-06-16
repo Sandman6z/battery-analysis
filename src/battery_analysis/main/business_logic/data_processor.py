@@ -47,8 +47,9 @@ class DataProcessor:
     MAX_DIRECTORY_CACHE_SIZE = 20
     MAX_VALIDATION_CACHE_SIZE = 100
 
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
         self._cache = {
             'excel_files': LRUCache(self.MAX_EXCEL_CACHE_SIZE),
@@ -151,7 +152,7 @@ class DataProcessor:
                         excel_data.append(info)
             return excel_data
 
-    def _scan_excel_files_task(self, input_dir):
+    def _scan_excel_files_task(self, input_dir, **kwargs):
         return [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
 
     def _on_scan_finished(self, excel_files):

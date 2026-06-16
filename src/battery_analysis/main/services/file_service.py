@@ -10,10 +10,9 @@ import os
 import shutil
 from typing import Optional, List, Dict, Any, Tuple, Union
 from pathlib import Path
-from .file_service_interface import IFileService
 
 
-class FileService(IFileService):
+class FileService:
     """
     文件服务实现
     """

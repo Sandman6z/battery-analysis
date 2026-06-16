@@ -56,7 +56,7 @@ class AnalysisWorker(QC.QRunnable):
         self.b_cancel_requested = True
         self.signals.progress_update.emit(self.progress_value, "正在取消任务...")
 
-    def set_info(self, str_path, str_input_path, str_output_path, list_test_info):
+    def set_info(self, str_path, str_input_path, str_output_path, test_info):
         """
         设置分析所需的信息
 
@@ -64,12 +64,12 @@ class AnalysisWorker(QC.QRunnable):
             str_path: 项目路径
             str_input_path: 输入数据路径
             str_output_path: 输出结果路径
-            list_test_info: 测试信息列表
+            test_info: TestInfo 实例（或向后兼容的 list）
         """
         self.str_path = str_path
         self.str_input_path = str_input_path
         self.str_output_path = str_output_path
-        self.list_test_info = list_test_info
+        self.list_test_info = test_info
 
     def _emit_progress(self, value, status):
         """
@@ -114,6 +114,11 @@ class AnalysisWorker(QC.QRunnable):
 
         try:
             self._emit_progress(0, "准备分析...")
+
+            # 后向兼容：若传入 TestInfo，转为 list 供旧版引擎使用
+            from battery_analysis.domain.entities.test_info import TestInfo
+            if isinstance(self.list_test_info, TestInfo):
+                self.list_test_info = self.list_test_info.to_list()
 
             # 确保输出根目录存在（3_analysis results）
             os.makedirs(self.str_output_path, exist_ok=True)
@@ -212,7 +217,7 @@ class AnalysisWorker(QC.QRunnable):
                             _eq = _config.get_config_value("test.equipment", {})
                             if _eq:
                                 _equipment = next(iter(_eq.values()))
-                    except Exception:
+                    except (KeyError, TypeError, AttributeError, StopIteration):
                         pass
 
                     info_file = file_writer.FileWriter(

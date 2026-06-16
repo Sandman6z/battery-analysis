@@ -6,9 +6,6 @@ MVP架构的Presenter层，负责处理MainWindow的业务逻辑
 
 import logging
 from typing import Any, Dict, List
-from battery_analysis.application.usecases.calculate_battery_use_case import CalculateBatteryInput, CalculateBatteryUseCase
-from battery_analysis.application.usecases.analyze_data_use_case import AnalyzeDataInput, AnalyzeDataUseCase
-from battery_analysis.application.usecases.generate_report_use_case import GenerateReportInput, GenerateReportUseCase
 
 
 class MainPresenter:
@@ -25,12 +22,7 @@ class MainPresenter:
         """
         self.view = view
         self.logger = logging.getLogger(__name__)
-        
-        # 从服务容器获取use cases
-        self.calculate_battery_use_case = self.view._service_container.get("calculate_battery")
-        self.analyze_data_use_case = self.view._service_container.get("analyze_data")
-        self.generate_report_use_case = self.view._service_container.get("generate_report")
-        
+
         # 初始化状态
         self.battery_type = ""
         self.construction_method = ""
@@ -82,144 +74,31 @@ class MainPresenter:
             if key not in self.env_info:
                 self.env_info[key] = "Unknown"
     
+    # ── 占位方法 ────────────────────────────────────────────────
+    # 以下方法对应 DeprecatedCommand，表示该功能已集成到主分析流程中
+    # （run_analysis）。如后续需要独立调用，请在此处实现具体逻辑。
+
+    def _notify_integrated(self, feature_name: str):
+        """功能已集成到主分析流程中的通用提示"""
+        self.logger.info("%s 由主分析流程处理", feature_name)
+        self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+
     def on_calculate_battery(self):
-        """
-        处理电池计算事件
-        """
-        self.logger.info("处理电池计算事件")
-        
-        # 更新状态栏
-        self.view.statusBar_BatteryAnalysis.showMessage("执行电池计算...")
-        
-        # 从View获取输入数据
-        input_data = CalculateBatteryInput(
-            battery_type=self.view.comboBox_BatteryType.currentText(),
-            construction_method=self.view.comboBox_ConstructionMethod.currentText(),
-            specification_type=self.view.comboBox_Specification_Type.currentText(),
-            specification_method=self.view.comboBox_Specification_Method.currentText(),
-            manufacturer=self.view.comboBox_Manufacturer.currentText(),
-            tester_location=self.view.comboBox_TesterLocation.currentText(),
-            tested_by=self.view.comboBox_TestedBy.currentText(),
-            reported_by=self.view.comboBox_ReportedBy.currentText(),
-            temperature=self.view.comboBox_Temperature.currentText(),
-            input_path=self.view.lineEdit_InputPath.text(),
-            output_path=self.view.lineEdit_OutputPath.text(),
-            barcode=self.view.lineEdit_Barcode.text()
-        )
-        
-        # 执行电池计算用例
-        result = self.calculate_battery_use_case.execute(input_data)
-        
-        # 更新View
-        if result.success:
-            self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-            self.view.show_message("计算结果", result.message)
-        else:
-            self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-            self.view.show_warning("警告", result.message)
-    
+        self._notify_integrated("电池计算")
+
     def on_analyze_data(self):
-        """
-        处理数据分析事件
-        """
-        self.logger.info("处理数据分析事件")
-        
-        # 检查输入路径是否设置
-        input_path = self.view.lineEdit_InputPath.text()
-        if not input_path:
-            self.view.show_warning("警告", "请先设置输入路径。")
-            return
-        
-        # 更新状态栏
-        self.view.statusBar_BatteryAnalysis.showMessage("分析数据...")
-        
-        # 从View获取输入数据
-        input_data = AnalyzeDataInput(
-            input_path=input_path,
-            output_path=self.view.lineEdit_OutputPath.text(),
-            battery_type=self.view.comboBox_BatteryType.currentText()
-        )
-        
-        # 执行数据分析用例
-        result = self.analyze_data_use_case.execute(input_data)
-        
-        # 更新View
-        if result.success:
-            self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-            self.view.show_message("分析结果", result.message)
-        else:
-            self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-            self.view.show_warning("警告", result.message)
-    
+        self._notify_integrated("数据分析")
+
     def on_generate_report(self):
-        """
-        处理报告生成事件
-        """
-        self.logger.info("处理报告生成事件")
-        
-        # 检查输出路径是否设置
-        output_path = self.view.lineEdit_OutputPath.text()
-        if not output_path:
-            self.view.show_warning("警告", "请先设置输出路径。")
-            return
-        
-        # 更新状态栏
-        self.view.statusBar_BatteryAnalysis.showMessage("生成报告中...")
-        
-        # 从View获取输入数据
-        input_data = GenerateReportInput(
-            battery_ids=[self.view.lineEdit_Barcode.text()],
-            output_path=output_path,
-            report_type="standard",
-            include_charts=True,
-            include_raw_data=False,
-            export_format="pdf"
-        )
-        
-        # 执行报告生成用例
-        result = self.generate_report_use_case.generate_report(input_data)
-        
-        # 更新View
-        if result.success:
-            self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-            self.view.show_message("报告生成结果", result.message)
-        else:
-            self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-            self.view.show_warning("警告", result.message)
-    
+        self._notify_integrated("报告生成")
+
     def on_export_report(self):
-        """
-        处理报告导出事件
-        """
-        self.logger.info("处理报告导出事件")
-        
-        # 检查输出路径是否设置
-        output_path = self.view.lineEdit_OutputPath.text()
-        if not output_path:
-            self.view.show_warning("警告", "请先设置输出路径。")
-            return
-        
-        # 更新状态栏
-        self.view.statusBar_BatteryAnalysis.showMessage("导出报告中...")
-        
-        # 这里可以实现报告导出逻辑
-        # 目前使用消息框提示
-        self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-        self.view.show_message("报告导出结果", "报告导出已完成。")
-    
+        self._notify_integrated("报告导出")
+
     def on_batch_processing(self):
-        """
-        处理批量处理事件
-        """
-        self.logger.info("处理批量处理事件")
-        
-        # 更新状态栏
-        self.view.statusBar_BatteryAnalysis.showMessage("准备批量处理...")
-        
-        # 这里可以实现批量处理逻辑
-        # 目前使用消息框提示
+        """批量处理（开发中）"""
+        self.logger.info("批量处理（开发中）")
         self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
-        self.view.show_message("批量处理", "批量处理功能处于开发阶段。")
     
     def on_input_path_changed(self, path: str):
         """

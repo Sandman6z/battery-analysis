@@ -61,12 +61,9 @@ class FileController(QC.QObject):
         """
         return self.project_path
 
-    def load_config(self, config_file_name="config.json"):
+    def load_config(self):
         """
-        加载配置文件
-
-        Args:
-            config_file_name: 配置文件名
+        加载配置文件（由 ConfigService 自动解析 %APPDATA%/battery-analysis/config.json）
 
         Returns:
             dict: 配置信息字典，如果加载失败返回None
@@ -80,9 +77,9 @@ class FileController(QC.QObject):
 
         try:
             # 使用配置服务加载配置
-            success = self.config_service.load_config(config_file_name)
+            success = self.config_service.load_config()
             if not success:
-                error_msg = f"未找到配置文件: {config_file_name}"
+                error_msg = "未找到配置文件"
                 logging.error(error_msg)
                 self.error_occurred.emit(error_msg)
                 return None
@@ -91,7 +88,7 @@ class FileController(QC.QObject):
             config_dict = {}
             
             # 获取所有配置节
-            config = self.config_service.get_all_sections()
+            config = self.config_service.get_config_sections()
             for section_name in config:
                 section_dict = {}
                 section_options = self.config_service.get_section_options(section_name)

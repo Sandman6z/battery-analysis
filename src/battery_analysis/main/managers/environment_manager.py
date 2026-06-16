@@ -1,61 +1,78 @@
 """环境管理器模块"""
 import logging
+from battery_analysis.main.app_context import AppContext
 
 
 class EnvironmentManager:
     """环境信息管理器"""
-    
-    def __init__(self, main_window):
+
+    def __init__(self, main_window=None, ctx: AppContext = None):
         """
         初始化环境管理器
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口，过渡用）
+            ctx: 应用上下文（新接口）
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-    
+        self._ctx = ctx
+        self._env_info = {}  # 当无 main_window 时使用本地存储
+
+    def _get_env_service(self):
+        if self._ctx:
+            return self._ctx.get_service("environment")
+        if self.main_window:
+            return self.main_window._get_service("environment")
+        return None
+
+    def _get_env_info_dict(self):
+        """获取 env_info 字典（main_window 优先）。"""
+        if self.main_window and hasattr(self.main_window, 'env_info'):
+            return self.main_window.env_info
+        return self._env_info
+
+    def _set_env_info_dict(self, value):
+        if self.main_window and hasattr(self.main_window, 'env_info'):
+            self.main_window.env_info = value
+        self._env_info = value
+
     def initialize_environment_info(self):
-        """
-        初始化环境信息
-        """
+        """初始化环境信息"""
         try:
-            environment_service = self.main_window._get_service("environment")
-            if environment_service:
-                if hasattr(environment_service, 'env_info'):
-                    self.main_window.env_info = environment_service.env_info
-                elif hasattr(environment_service, 'initialize'):
-                    if environment_service.initialize() and hasattr(environment_service, 'env_info'):
-                        self.main_window.env_info = environment_service.env_info
+            env_svc = self._get_env_service()
+            if env_svc:
+                if hasattr(env_svc, 'env_info'):
+                    self._set_env_info_dict(env_svc.env_info)
+                elif hasattr(env_svc, 'initialize'):
+                    if env_svc.initialize() and hasattr(env_svc, 'env_info'):
+                        self._set_env_info_dict(env_svc.env_info)
         except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to initialize environment service: %s", e)
-    
+
     def ensure_env_info_keys(self):
-        """
-        确保环境信息包含必要的键
-        """
-        # 确保environment_type键存在
-        if 'environment_type' not in self.main_window.env_info:
+        """确保环境信息包含必要的键"""
+        env_info = self._get_env_info_dict()
+
+        if 'environment_type' not in env_info:
             try:
-                environment_service = self.main_window._get_service("environment")
-                if environment_service and hasattr(environment_service, 'EnvironmentType'):
-                    self.main_window.env_info['environment_type'] = environment_service.EnvironmentType.DEVELOPMENT
+                env_svc = self._get_env_service()
+                if env_svc and hasattr(env_svc, 'EnvironmentType'):
+                    env_info['environment_type'] = env_svc.EnvironmentType.DEVELOPMENT
                 else:
-                    # 降级到直接导入
                     from battery_analysis.utils.environment_utils import EnvironmentType
-                    self.main_window.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+                    env_info['environment_type'] = EnvironmentType.DEVELOPMENT
             except (AttributeError, TypeError, ImportError) as e:
                 self.logger.warning("Failed to get EnvironmentType: %s", e)
                 from battery_analysis.utils.environment_utils import EnvironmentType
-                self.main_window.env_info['environment_type'] = EnvironmentType.DEVELOPMENT
-        
-        # 确保gui_available键存在
-        if 'gui_available' not in self.main_window.env_info:
-            self.main_window.env_info['gui_available'] = True
-    
+                env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+
+        if 'gui_available' not in env_info:
+            env_info['gui_available'] = True
+
+        self._set_env_info_dict(env_info)
+
     def initialize_all(self):
-        """
-        初始化所有环境信息
-        """
+        """初始化所有环境信息"""
         self.initialize_environment_info()
         self.ensure_env_info_keys()

@@ -4,10 +4,16 @@ import logging
 import os
 
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
+from battery_analysis.utils.report_coordinator import match_battery_type
 
 
 class JsonWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
+        # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
+        from battery_analysis.domain.entities.test_info import TestInfo
+        if isinstance(listTestInfo, TestInfo):
+            listTestInfo = listTestInfo.to_list()
+
         self.listTestInfo = listTestInfo
         self.listBatteryInfo = listBatteryInfo
         try:
@@ -70,21 +76,8 @@ class JsonWriter:
             self.listTestRun.append(dictTestRun)
 
         strBatteryModel = self.listTestInfo[2]
-        # 电池类型基础规格（固定值，用于匹配电池类型分类）
-        listBatteryTypeBase = [
-            "CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
-        try:
-            strBatteryType = ""
-            for battery_type in listBatteryTypeBase:
-                if battery_type.strip() in self.listTestInfo[2]:
-                    strBatteryType = battery_type
-                    break
-            if not strBatteryType:
-                strBatteryType = "CoinCell"
-                logging.warning("未找到精确匹配的电池类型，使用默认值: %s", strBatteryType)
-        except (IndexError, TypeError, ValueError) as e:
-            logging.error("处理电池类型时发生错误: %s，使用默认值", e)
-            strBatteryType = "CoinCell"
+        # 电池类型匹配
+        strBatteryType = match_battery_type(self.listTestInfo[2])
 
         self.dictJson.update({
             "batchId": self.listTestInfo[5],

@@ -15,15 +15,17 @@ class LanguageHandler(QObject):
     语言处理类，负责处理主窗口的语言相关功能
     """
     
-    def __init__(self, main_window):
+    def __init__(self, main_window=None, ctx=None):
         """
         初始化语言处理类
-        
+
         Args:
-            main_window: 主窗口实例
+            main_window: 主窗口实例（旧接口）
+            ctx: AppContext（新接口）
         """
         super().__init__()
         self.main_window = main_window
+        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
         self.language_manager = None
         
@@ -121,7 +123,7 @@ class LanguageHandler(QObject):
             当前语言代码
         """
         if self.language_manager:
-            return self.language_manager.get_current_language()
+            return self.language_manager.get_current_locale()
         return "en"
     
     def set_language(self, language_code):
@@ -135,7 +137,7 @@ class LanguageHandler(QObject):
             是否成功设置语言
         """
         if self.language_manager:
-            return self.language_manager.set_language(language_code)
+            return self.language_manager.set_locale(language_code)
         return False
     
     def get_available_languages(self):
@@ -146,7 +148,7 @@ class LanguageHandler(QObject):
             可用语言的字典，键为语言代码，值为显示名称
         """
         if self.language_manager:
-            return self.language_manager.get_available_languages()
+            return self.language_manager.get_available_locales()
         return {"en": "English"}
     
     def get_installed_languages(self):
@@ -157,5 +159,5 @@ class LanguageHandler(QObject):
             已安装语言的字典，键为语言代码，值为显示名称
         """
         if self.language_manager:
-            return self.language_manager.get_installed_languages()
+            return self.language_manager.get_installed_locales()
         return {"en": "English"}
