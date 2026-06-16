@@ -10,6 +10,7 @@ import logging
 
 from battery_analysis.utils.writers import csv_utils
 from battery_analysis.utils import numeric_utils
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.writers.statistics_utils import (
     compute_list_cpt, compute_statistics,
 )
@@ -34,10 +35,7 @@ class CsvWriter:
         self.intVoltageLevelNum = len(self.listVoltageLevel)
 
         # 计算文件电流类型字符串
-        self.strFileCurrentType = ""
-        for c in range(self.intCurrentLevelNum):
-            self.strFileCurrentType += f"{self.listCurrentLevel[c]}-"
-        self.strFileCurrentType = self.strFileCurrentType[:-1]
+        self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
 
         # 电池信息
         self.listBatteryCharge = self.listBatteryInfo[0]

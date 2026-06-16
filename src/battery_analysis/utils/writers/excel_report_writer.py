@@ -15,6 +15,7 @@ from battery_analysis.utils.writers import excel_utils
 from battery_analysis.utils import numeric_utils
 from battery_analysis.utils.exceptions import BatteryAnalysisException
 from battery_analysis.utils.report_coordinator import compute_report_content_base
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.writers.statistics_utils import (
     compute_list_cpt, compute_statistics,
 )
@@ -43,10 +44,7 @@ class ExcelReportWriter:
         self.intVoltageLevelNum = len(self.listVoltageLevel)
 
         # 计算文件电流类型字符串
-        self.strFileCurrentType = ""
-        for c in range(self.intCurrentLevelNum):
-            self.strFileCurrentType += f"{self.listCurrentLevel[c]}-"
-        self.strFileCurrentType = self.strFileCurrentType[:-1]
+        self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
 
         # 电池信息
         self.listBatteryCharge = self.listBatteryInfo[0]
@@ -83,12 +81,6 @@ class ExcelReportWriter:
         )
         result_dir = Path(self.strResultPath).parent
         self.strReportWordPath = str(result_dir / report_name)
-
-        # init variables for plt (部分，仅boxplot titles用于excel)
-        self.listPltColorType = ['#DF7040', '#0675BE', '#EDB120',
-                                 '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
-        self.listColorName = ["red = ", "blue = ", "yellow = ",
-                              "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
 
     # ── 格式定义 ──
 

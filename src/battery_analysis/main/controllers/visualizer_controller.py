@@ -12,6 +12,7 @@ import logging
 # 导入可视化器模块
 from battery_analysis.main import battery_chart_viewer
 from battery_analysis.utils.environment_utils import get_environment_detector, EnvironmentType
+from battery_analysis.utils.report_coordinator import CN_FONT_LIST
 
 
 class VisualizerController:
@@ -285,7 +286,7 @@ class VisualizerController:
         matplotlib.rcParams.update(matplotlib.rcParamsDefault)
         
         # 重新配置中文字体支持，避免重置后丢失
-        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'DejaVu Sans', 'Arial', 'Times New Roman']
+        matplotlib.rcParams['font.sans-serif'] = CN_FONT_LIST
         matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
         
         # 根据环境选择合适的后端

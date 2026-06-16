@@ -10,7 +10,9 @@ import logging
 import importlib.resources
 from pathlib import Path
 
-from battery_analysis.utils.processors.data_utils import build_plot_title
+from battery_analysis.utils.processors.data_utils import (
+    build_plot_title, generate_current_type_string,
+)
 from battery_analysis.utils.writers import plot_writer
 from battery_analysis.utils.readers.date_parser import parse_test_date
 from battery_analysis import __version__
@@ -18,9 +20,7 @@ from battery_analysis import __version__
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji',
-                                    'Apple Color Emoji', 'Noto Color Emoji',
-                                    'DejaVu Sans', 'Arial', 'Times New Roman']
+plt.rcParams['font.sans-serif'] = CN_FONT_LIST
 plt.rcParams['axes.unicode_minus'] = False
 
 
@@ -28,7 +28,16 @@ logger = logging.getLogger(__name__)
 
 # ── 共享常量 ──────────────────────────────────────────────────
 
+# Matplotlib 中文字体配置
+CN_FONT_LIST = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji',
+                'Apple Color Emoji', 'Noto Color Emoji',
+                'DejaVu Sans', 'Arial', 'Times New Roman']
+
 BATTERY_TYPE_BASE = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
+PLT_COLOR_TYPE = ['#DF7040', '#0675BE', '#EDB120',
+                  '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
+COLOR_NAME = ["red = ", "blue = ", "yellow = ",
+              "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
 INFO_IMAGE_CSV = "Info_Image.csv"
 
 
@@ -207,10 +216,7 @@ class ReportCoordinator:
         self.listVoltageLevel = listTestInfo[15]
         self.intCurrentLevelNum = len(self.listCurrentLevel)
         self.intVoltageLevelNum = len(self.listVoltageLevel)
-        self.strFileCurrentType = ""
-        for c in range(self.intCurrentLevelNum):
-            self.strFileCurrentType += f"{self.listCurrentLevel[c]}-"
-        self.strFileCurrentType = self.strFileCurrentType[:-1]
+        self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
 
         # 电池信息
         self.listBatteryCharge = self.listBatteryInfo[0]
@@ -307,10 +313,8 @@ class ReportCoordinator:
         self.strInfoImageCsvPath = f"{self.strResultPath}/Info_Image.csv"
 
         # 颜色
-        self.listPltColorType = ['#DF7040', '#0675BE', '#EDB120',
-                                 '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
-        self.listColorName = ["red = ", "blue = ", "yellow = ",
-                              "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
+        self.listPltColorType = PLT_COLOR_TYPE
+        self.listColorName = COLOR_NAME
 
     def _build_document_paths(self, td: str) -> None:
         """构建 Excel / Word / CSV 输出路径"""

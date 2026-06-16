@@ -20,6 +20,7 @@ from battery_analysis.utils.writers import word_utils
 from battery_analysis.utils import numeric_utils
 from battery_analysis.utils.exceptions import BatteryAnalysisException
 from battery_analysis.utils.report_coordinator import compute_report_content_base, match_battery_type
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.writers.statistics_utils import (
     compute_list_cpt, compute_statistics,
 )
@@ -46,10 +47,7 @@ class WordReportWriter:
         self.intVoltageLevelNum = len(self.listVoltageLevel)
 
         # 计算文件电流类型字符串
-        self.strFileCurrentType = ""
-        for c in range(self.intCurrentLevelNum):
-            self.strFileCurrentType += f"{self.listCurrentLevel[c]}-"
-        self.strFileCurrentType = self.strFileCurrentType[:-1]
+        self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
 
         # 电池信息
         self.listBatteryCharge = self.listBatteryInfo[0]
@@ -132,11 +130,10 @@ class WordReportWriter:
         strBatteryType = match_battery_type(self.listTestInfo[2])
 
         # strStrF（颜色/电流等级字符串）
-        self.listColorName = ["red = ", "blue = ", "yellow = ",
-                              "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
+        from battery_analysis.utils.report_coordinator import COLOR_NAME
         strStrF = ""
         for c in range(self.intCurrentLevelNum):
-            strStrF += f"{self.listColorName[c]}{self.listCurrentLevel[c]}mA, "
+            strStrF += f"{COLOR_NAME[c]}{self.listCurrentLevel[c]}mA, "
         strStrF = strStrF[:-2]
 
         self.listTestInfoForReplace = [
