@@ -13,6 +13,9 @@ from pathlib import Path
 from battery_analysis.utils.processors.data_utils import (
     build_plot_title, generate_current_type_string,
 )
+from battery_analysis.utils.constants import (
+    CN_FONT_LIST, PLT_COLOR_TYPE, COLOR_NAME, BATTERY_TYPE_BASE,
+)
 from battery_analysis.utils.writers import plot_writer
 from battery_analysis.utils.readers.date_parser import parse_test_date
 from battery_analysis import __version__
@@ -28,17 +31,6 @@ logger = logging.getLogger(__name__)
 
 # ── 共享常量 ──────────────────────────────────────────────────
 
-# Matplotlib 中文字体配置
-CN_FONT_LIST = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji',
-                'Apple Color Emoji', 'Noto Color Emoji',
-                'DejaVu Sans', 'Arial', 'Times New Roman']
-
-BATTERY_TYPE_BASE = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]
-PLT_COLOR_TYPE = ['#DF7040', '#0675BE', '#EDB120',
-                  '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
-COLOR_NAME = ["red = ", "blue = ", "yellow = ",
-              "violet = ", "green = ", "orange = ", "black1 = ", "black2 = "]
-INFO_IMAGE_CSV = "Info_Image.csv"
 
 
 def match_battery_type(test_info_type: str) -> str:

@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 # 使用QtAgg后端，自动检测可用的Qt绑定（包括PyQt6）
 matplotlib.use('QtAgg')
 
-from battery_analysis.utils.report_coordinator import CN_FONT_LIST
+from battery_analysis.utils.constants import CN_FONT_LIST
 # 配置matplotlib支持中文显示
 matplotlib.rcParams['font.sans-serif'] = CN_FONT_LIST
 matplotlib.rcParams['axes.unicode_minus'] = False

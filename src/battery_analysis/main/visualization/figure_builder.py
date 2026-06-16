@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
 from battery_analysis.main.visualization.styling import MODERN_BUTTON_STYLE
-from battery_analysis.utils.report_coordinator import CN_FONT_LIST
+from battery_analysis.utils.constants import CN_FONT_LIST
 
 logger = logging.getLogger(__name__)
 

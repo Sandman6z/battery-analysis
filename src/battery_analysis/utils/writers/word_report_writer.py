@@ -130,7 +130,7 @@ class WordReportWriter:
         strBatteryType = match_battery_type(self.listTestInfo[2])
 
         # strStrF（颜色/电流等级字符串）
-        from battery_analysis.utils.report_coordinator import COLOR_NAME
+        from battery_analysis.utils.constants import COLOR_NAME
         strStrF = ""
         for c in range(self.intCurrentLevelNum):
             strStrF += f"{COLOR_NAME[c]}{self.listCurrentLevel[c]}mA, "

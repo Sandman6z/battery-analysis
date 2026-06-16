@@ -12,7 +12,7 @@ import logging
 # 导入可视化器模块
 from battery_analysis.main import battery_chart_viewer
 from battery_analysis.utils.environment_utils import get_environment_detector, EnvironmentType
-from battery_analysis.utils.report_coordinator import CN_FONT_LIST
+from battery_analysis.utils.constants import CN_FONT_LIST
 
 
 class VisualizerController:
