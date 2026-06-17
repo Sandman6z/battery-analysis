@@ -1,3 +1,16 @@
+### v2.12.2 (Released)
+
+#### Bug Fixes
+- fix: 静默 openpyxl "Workbook contains no default style" 警告，消除日志噪音
+- fix: 解决循环导入——将共享常量拆分为独立 constants.py 模块
+
+#### 重构优化
+- refactor: 清理重复代码——strFileCurrentType循环、matplotlib字体、颜色数组
+- refactor: 清理冗余代码，总计 -1,911 行
+
+#### 清理
+- chore: 删除不再使用的测试文件以清理代码库
+
 ### v2.12.1 (Released)
 
 #### Bug Fixes
