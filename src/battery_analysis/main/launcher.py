@@ -9,6 +9,15 @@ import multiprocessing
 import warnings
 from pathlib import Path
 
+# 电池测试设备生成的 xlsx 文件通常不包含 openpyxl 默认样式，
+# 每次读取都会触发 "Workbook contains no default style" 警告，这里统一静默
+warnings.filterwarnings(
+    "ignore",
+    message="Workbook contains no default style",
+    module="openpyxl.styles.stylesheet",
+    category=UserWarning,
+)
+
 from PyQt6.QtWidgets import QApplication, QStyleFactory, QSplashScreen
 from PyQt6.QtGui import QPixmap, QFont, QColor, QPainter
 from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
