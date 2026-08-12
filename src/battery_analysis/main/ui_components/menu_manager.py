@@ -272,5 +272,5 @@ class MenuManager:
             status_ready = _("Ready")
             
             # 更新状态栏
-            if current_message in ("状态:就绪", "Ready"):
+            if current_message in ("Ready", "就绪"):
                 self.main_window.statusBar_BatteryAnalysis.showMessage(status_ready)
