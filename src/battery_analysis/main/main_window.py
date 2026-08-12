@@ -313,34 +313,37 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def on_preferences_applied(self) -> None:
         try:
-            from battery_analysis.utils.config_utils import (
-                clear_config_cache, set_custom_config_path, clear_custom_config_path,
-            )
-            from PyQt6.QtCore import QSettings
+            # 配置路径/重载统一经 ConfigService；仅需丢弃 config_utils 的路径缓存，
+            # 让 ConfigService 重新解析（含 QSettings 里的自定义路径）
+            from battery_analysis.utils.config_utils import clear_config_cache
             clear_config_cache()
-            custom_path = QSettings().value("config/custom_config_path", "", type=str)
-            if custom_path:
-                set_custom_config_path(custom_path)
-            else:
-                clear_custom_config_path()
-            self.reload_configuration()
-        except (OSError, ValueError, ImportError) as e:
-            self.logger.error("Error processing applied preferences: %s", e)
+            svc = self._get_service("config")
+            if svc is not None:
+                svc.reload_config()
+            if hasattr(self, 'config_manager'):
+                self.config_manager.reload_config()
+            if hasattr(self, 'ui_manager'):
+                self.ui_manager.init_combobox()
+            self.refresh_ui()
+        except Exception as e:
+            self.logger.error("Preferences apply post-processing failed: %s", e)
 
     def reload_configuration(self) -> None:
         try:
             from battery_analysis.utils.config_utils import clear_config_cache
             clear_config_cache()
+            svc = self._get_service("config")
+            if svc is not None:
+                svc.reload_config()
             if hasattr(self, 'config_manager'):
-                self.config_manager._initialize_config()
+                self.config_manager.reload_config()
             if hasattr(self, 'ui_manager'):
                 self.ui_manager.init_combobox()
             self.refresh_ui()
         except Exception as e:
-            self.logger.error("Error reloading configuration: %s", e)
+            self.logger.error("Failed to reload configuration: %s", e)
             if hasattr(self, 'statusBar_BatteryAnalysis'):
-                self.statusBar_BatteryAnalysis.showMessage(
-                    f"Configuration reload failed: {str(e)}")
+                self.statusBar_BatteryAnalysis.showMessage(f"Configuration reload failed: {str(e)}")
 
     def refresh_ui(self) -> None:
         try:
