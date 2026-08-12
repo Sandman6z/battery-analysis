@@ -78,24 +78,24 @@ class UIManager:
         try:
             # 设置控件的可访问名称和描述
             # 测试配置组
-            self.main_window.groupBox_TestConfig.setAccessibleName(_("access_test_config", "测试配置"))
-            self.main_window.groupBox_TestConfig.setAccessibleDescription(_("access_test_config_desc", "包含测试相关配置的设置"))
-            
+            self.main_window.groupBox_TestConfig.setAccessibleName(_("Test Config"))
+            self.main_window.groupBox_TestConfig.setAccessibleDescription(_("Settings related to the test configuration"))
+
             # 电池配置组
-            self.main_window.groupBox_BatteryConfig.setAccessibleName(_("access_battery_config", "电池配置"))
-            self.main_window.groupBox_BatteryConfig.setAccessibleDescription(_("access_battery_config_desc", "包含电池相关配置的设置"))
-            
+            self.main_window.groupBox_BatteryConfig.setAccessibleName(_("Battery Config"))
+            self.main_window.groupBox_BatteryConfig.setAccessibleDescription(_("Settings related to the battery configuration"))
+
             # 运行按钮
-            self.main_window.pushButton_Run.setAccessibleName(_("access_run_button", "运行分析"))
-            self.main_window.pushButton_Run.setAccessibleDescription(_("access_run_button_desc", "开始电池分析任务"))
-            
+            self.main_window.pushButton_Run.setAccessibleName(_("Run Analysis"))
+            self.main_window.pushButton_Run.setAccessibleDescription(_("Start battery analysis"))
+
             # 文件选择按钮
-            self.main_window.pushButton_TestProfile.setAccessibleName(_("access_test_profile_button", "选择测试文件"))
-            self.main_window.pushButton_TestProfile.setAccessibleDescription(_("access_test_profile_desc", "选择电池测试配置文件"))
-            self.main_window.pushButton_InputPath.setAccessibleName(_("access_input_path_button", "选择输入路径"))
-            self.main_window.pushButton_InputPath.setAccessibleDescription(_("access_input_path_desc", "选择输入数据文件路径"))
-            self.main_window.pushButton_OutputPath.setAccessibleName(_("access_output_path_button", "选择输出路径"))
-            self.main_window.pushButton_OutputPath.setAccessibleDescription(_("access_output_path_desc", "选择分析结果输出路径"))
+            self.main_window.pushButton_TestProfile.setAccessibleName(_("Select Test Profile"))
+            self.main_window.pushButton_TestProfile.setAccessibleDescription(_("Select battery test profile file"))
+            self.main_window.pushButton_InputPath.setAccessibleName(_("Select Input Path"))
+            self.main_window.pushButton_InputPath.setAccessibleDescription(_("Select input data file path"))
+            self.main_window.pushButton_OutputPath.setAccessibleName(_("Select Output Path"))
+            self.main_window.pushButton_OutputPath.setAccessibleDescription(_("Select analysis output path"))
             
             # 设置焦点策略
             # 确保所有交互控件都支持键盘焦点
@@ -160,8 +160,8 @@ class UIManager:
             
             # 确保表格支持键盘导航
             if hasattr(self.main_window, 'tableWidget_TestInformation'):
-                self.main_window.tableWidget_TestInformation.setAccessibleName(_("access_test_info_table", "测试信息表格"))
-                self.main_window.tableWidget_TestInformation.setAccessibleDescription(_("access_test_info_table_desc", "包含测试设备和软件版本信息的表格"))
+                self.main_window.tableWidget_TestInformation.setAccessibleName(_("Test Information Table"))
+                self.main_window.tableWidget_TestInformation.setAccessibleDescription(_("Table containing test equipment and software version information"))
                 self.main_window.tableWidget_TestInformation.setFocusPolicy(QC.Qt.FocusPolicy.ClickFocus | QC.Qt.FocusPolicy.TabFocus)
             
             self.logger.info("可访问性设置已完成")
@@ -174,80 +174,80 @@ class UIManager:
         """
         try:
             # 测试配置组
-            self.main_window.groupBox_TestConfig.setToolTip(_("This is test config", "测试配置组 - 包含测试相关配置的设置"))
-            
+            self.main_window.groupBox_TestConfig.setToolTip(_("Test config group - settings related to the test configuration"))
+
             # 电池配置组
-            self.main_window.groupBox_BatteryConfig.setToolTip(_("This is battery_config", "电池配置组 - 包含电池相关配置的设置"))
-            
+            self.main_window.groupBox_BatteryConfig.setToolTip(_("Battery config group - settings related to the battery configuration"))
+
             # 电池类型
-            self.main_window.comboBox_BatteryType.setToolTip(_("This is battery_type", "选择电池类型"))
-            
+            self.main_window.comboBox_BatteryType.setToolTip(_("Select battery type"))
+
             # 构造方法
-            self.main_window.comboBox_ConstructionMethod.setToolTip(_("This is construction_method", "选择电池构造方法"))
-            
+            self.main_window.comboBox_ConstructionMethod.setToolTip(_("Select battery construction method"))
+
             # 规格类型
-            self.main_window.comboBox_Specification_Type.setToolTip(_("This is specification_type", "选择电池规格类型"))
-            
+            self.main_window.comboBox_Specification_Type.setToolTip(_("Select battery specification type"))
+
             # 规格方法
-            self.main_window.comboBox_Specification_Method.setToolTip(_("This is specification_method", "选择电池规格方法"))
-            
+            self.main_window.comboBox_Specification_Method.setToolTip(_("Select battery specification method"))
+
             # 制造商
-            self.main_window.comboBox_Manufacturer.setToolTip(_("This is manufacturer", "选择电池制造商"))
-            
+            self.main_window.comboBox_Manufacturer.setToolTip(_("Select battery manufacturer"))
+
             # 批次日期代码
-            self.main_window.lineEdit_BatchDateCode.setToolTip(_("This is batch_date_code", "输入电池批次日期代码"))
-            
+            self.main_window.lineEdit_BatchDateCode.setToolTip(_("Enter battery batch date code"))
+
             # 样品数量
-            self.main_window.lineEdit_SamplesQty.setToolTip(_("This is samples_qty", "输入样品数量"))
-            
+            self.main_window.lineEdit_SamplesQty.setToolTip(_("Enter number of samples"))
+
             # 温度类型
-            self.main_window.comboBox_Temperature.setToolTip(_("This is temperature_type", "选择测试温度类型"))
-            
+            self.main_window.comboBox_Temperature.setToolTip(_("Select temperature type"))
+
             # 温度值
-            self.main_window.spinBox_Temperature.setToolTip(_("This is temperature_value", "输入冷冻温度值"))
-            
+            self.main_window.spinBox_Temperature.setToolTip(_("Enter freezing temperature value"))
+
             # 标称容量（数据手册）
-            self.main_window.lineEdit_DatasheetNominalCapacity.setToolTip(_("This is datasheet_capacity", "输入数据手册中的标称容量"))
-            
+            self.main_window.lineEdit_DatasheetNominalCapacity.setToolTip(_("Enter datasheet nominal capacity"))
+
             # 标称容量（计算值）
-            self.main_window.lineEdit_CalculationNominalCapacity.setToolTip(_("This is calculation_capacity", "输入计算得出的标称容量"))
-            
+            self.main_window.lineEdit_CalculationNominalCapacity.setToolTip(_("Enter calculated nominal capacity"))
+
             # 加速老化天数
-            self.main_window.spinBox_AcceleratedAging.setToolTip(_("This is accelerated_aging", "输入加速老化天数"))
-            
+            self.main_window.spinBox_AcceleratedAging.setToolTip(_("Enter accelerated aging days"))
+
             # 所需可用容量
-            self.main_window.lineEdit_RequiredUseableCapacity.setToolTip(_("This is required_capacity", "输入所需可用容量"))
-            
+            self.main_window.lineEdit_RequiredUseableCapacity.setToolTip(_("Enter required usable capacity"))
+
             # 测试地点
-            self.main_window.comboBox_TesterLocation.setToolTip(_("This is tester location", "选择测试地点"))
-            
+            self.main_window.comboBox_TesterLocation.setToolTip(_("Select tester location"))
+
             # 测试人员
-            self.main_window.comboBox_TestedBy.setToolTip(_("This is tested people", "选择测试人员"))
-            
+            self.main_window.comboBox_TestedBy.setToolTip(_("Select tested-by"))
+
             # 报告人员
-            self.main_window.comboBox_ReportedBy.setToolTip(_("This is reported people", "选择报告人员"))
-            
+            self.main_window.comboBox_ReportedBy.setToolTip(_("Select reported-by"))
+
             # 测试文件
-            self.main_window.lineEdit_TestProfile.setToolTip(_("This is test profile, it's a xml file", "测试配置文件路径"))
-            self.main_window.pushButton_TestProfile.setToolTip(_("Here need to select test profile", "选择测试配置文件"))
-            
+            self.main_window.lineEdit_TestProfile.setToolTip(_("Test profile file path"))
+            self.main_window.pushButton_TestProfile.setToolTip(_("Select test profile file"))
+
             # 输入路径
-            self.main_window.lineEdit_InputPath.setToolTip(_("Input data file path", "输入数据文件路径"))
-            self.main_window.pushButton_InputPath.setToolTip(_("Please select input path", "选择输入数据文件路径"))
-            
+            self.main_window.lineEdit_InputPath.setToolTip(_("Input data file path"))
+            self.main_window.pushButton_InputPath.setToolTip(_("Select input data file path"))
+
             # 输出路径
-            self.main_window.lineEdit_OutputPath.setToolTip(_("Output data file path", "输出结果文件路径"))
-            self.main_window.pushButton_OutputPath.setToolTip(_("Please select output path", "选择输出结果文件路径"))
-            
+            self.main_window.lineEdit_OutputPath.setToolTip(_("Output result file path"))
+            self.main_window.pushButton_OutputPath.setToolTip(_("Select output result file path"))
+
             # 运行按钮
-            self.main_window.pushButton_Run.setToolTip(_("Go!", "开始运行电池分析"))
-            
+            self.main_window.pushButton_Run.setToolTip(_("Start battery analysis"))
+
             # 版本号
-            self.main_window.lineEdit_Version.setToolTip(_("Here is the version", "输入版本号"))
-            
+            self.main_window.lineEdit_Version.setToolTip(_("Enter version number"))
+
             # 测试信息表格
             if hasattr(self.main_window, 'tableWidget_TestInformation'):
-                self.main_window.tableWidget_TestInformation.setToolTip(_("Here is test infomation table", "测试信息表格 - 包含测试设备和软件版本信息"))
+                self.main_window.tableWidget_TestInformation.setToolTip(_("Test information table - contains test equipment and software version information"))
             
             self.logger.info("控件工具提示设置已完成")
         except (AttributeError, TypeError, RuntimeError) as e:
@@ -485,8 +485,8 @@ class UIManager:
         
         # 更新进度对话框标题
         if hasattr(self.main_window, 'progress_dialog') and self.main_window.progress_dialog:
-            self.main_window.progress_dialog.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
-            self.main_window.progress_dialog.status_label.setText(_("progress_ready", "Ready to start analysis..."))
+            self.main_window.progress_dialog.setWindowTitle(_("Battery Analysis Progress"))
+            self.main_window.progress_dialog.status_label.setText(_("Ready to start analysis..."))
     
     def update_statusbar_messages(self):
         """
@@ -496,7 +496,7 @@ class UIManager:
         current_message = self.main_window.statusBar_BatteryAnalysis.currentMessage()
         
         # 获取翻译后的状态消息
-        status_ready = _("status_ready", "状态:就绪")
+        status_ready = _("Ready")
         
         # 更新状态栏
         if current_message in ("状态:就绪", "Ready"):

@@ -33,7 +33,7 @@ class ConfigDialog(QW.QDialog):
         else:
             self._working_data = copy.deepcopy(raw_data)
 
-        self.setWindowTitle(_("config_dialog_title", "Configuration"))
+        self.setWindowTitle(_("Configuration"))
         self.setMinimumSize(800, 600)
         self.resize(960, 720)
         self._setup_ui()
@@ -48,17 +48,17 @@ class ConfigDialog(QW.QDialog):
         self._page_battery = _BatteryConfigPage(self)
         self._page_test = _TestConfigPage(self)
         self._page_equipment = _EquipmentPage(self)
-        self._tabs.addTab(self._page_battery, _("cat_battery", "Battery Config"))
-        self._tabs.addTab(self._page_test, _("cat_test", "Test Config"))
-        self._tabs.addTab(self._page_equipment, _("cat_equipment", "Equipment"))
+        self._tabs.addTab(self._page_battery, _("Battery Config"))
+        self._tabs.addTab(self._page_test, _("Test Config"))
+        self._tabs.addTab(self._page_equipment, _("Equipment"))
 
         # 底部按钮栏
         btn_layout = QW.QHBoxLayout()
-        btn_reset = QW.QPushButton(_("reset_defaults", "Reset Defaults"))
+        btn_reset = QW.QPushButton(_("Reset Defaults"))
         btn_reset.clicked.connect(self._on_reset_defaults)
-        btn_save = QW.QPushButton(_("save", "Save"))
+        btn_save = QW.QPushButton(_("Save"))
         btn_save.clicked.connect(self._on_save)
-        btn_cancel = QW.QPushButton(_("cancel", "Cancel"))
+        btn_cancel = QW.QPushButton(_("Cancel"))
         btn_cancel.clicked.connect(self.reject)
 
         btn_layout.addWidget(btn_reset)
@@ -72,8 +72,8 @@ class ConfigDialog(QW.QDialog):
     def _on_reset_defaults(self):
         """重置为默认值"""
         reply = QW.QMessageBox.question(
-            self, _("confirm_reset", "Reset Defaults"),
-            _("confirm_reset_msg", "Reset all configuration to default values? This cannot be undone."),
+            self, _("Reset Defaults"),
+            _("Reset all configuration to default values? This cannot be undone."),
             QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No
         )
         if reply == QW.QMessageBox.StandardButton.Yes:
@@ -95,8 +95,8 @@ class ConfigDialog(QW.QDialog):
         except Exception as e:
             self.logger.error("保存配置失败: %s", e)
             QW.QMessageBox.critical(
-                self, _("error", "Error"),
-                f"{_('save_failed', 'Failed to save configuration')}: {e}"
+                self, _("Error"),
+                f"{_('Failed to save configuration')}: {e}"
             )
 
     def _populate_data(self):
