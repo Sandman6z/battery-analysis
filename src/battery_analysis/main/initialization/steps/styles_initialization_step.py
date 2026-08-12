@@ -29,7 +29,7 @@ class StylesInitializationStep(InitializationStep):
             app = QW.QApplication.instance()
             if app:
                 style_manager.apply_global_style(app, "modern")
-            self.logger.info("样式加载完成")
+            self.logger.info("Styles loaded")
             return True
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.warning("Failed to load QSS styles: %s", e)

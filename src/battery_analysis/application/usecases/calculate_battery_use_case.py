@@ -38,23 +38,23 @@ class CalculateBatteryInput:
         
         # 验证必需字段
         required_fields = [
-            ("battery_type", self.battery_type, "电池类型"),
-            ("construction_method", self.construction_method, "构造方法"),
-            ("specification_type", self.specification_type, "规格类型"),
-            ("specification_method", self.specification_method, "规格方法"),
-            ("manufacturer", self.manufacturer, "制造商"),
-            ("tester_location", self.tester_location, "测试者位置"),
-            ("tested_by", self.tested_by, "测试者"),
-            ("reported_by", self.reported_by, "报告者"),
-            ("temperature", self.temperature, "温度"),
-            ("input_path", self.input_path, "输入路径"),
-            ("output_path", self.output_path, "输出路径"),
-            ("barcode", self.barcode, "条形码")
+            ("battery_type", self.battery_type, "battery type"),
+            ("construction_method", self.construction_method, "construction method"),
+            ("specification_type", self.specification_type, "specification type"),
+            ("specification_method", self.specification_method, "specification method"),
+            ("manufacturer", self.manufacturer, "manufacturer"),
+            ("tester_location", self.tester_location, "tester location"),
+            ("tested_by", self.tested_by, "tester"),
+            ("reported_by", self.reported_by, "reporter"),
+            ("temperature", self.temperature, "temperature"),
+            ("input_path", self.input_path, "input path"),
+            ("output_path", self.output_path, "output path"),
+            ("barcode", self.barcode, "barcode")
         ]
         
         for field_name, field_value, field_desc in required_fields:
             if not field_value:
-                errors[field_name] = f"缺少必要字段: {field_desc}"
+                errors[field_name] = f"Missing required field: {field_desc}"
         
         return errors
 
@@ -96,16 +96,16 @@ class CalculateBatteryUseCase:
             CalculateBatteryOutput: 电池计算输出结果
         """
         try:
-            self.logger.info("开始执行电池计算用例")
+            self.logger.info("Starting battery calculation use case execution")
             
             # 验证输入数据
             validation_errors = input_data.validate()
             if validation_errors:
                 error_message = "\n".join(validation_errors.values())
-                self.logger.warning("输入数据验证失败: %s", error_message)
+                self.logger.warning("Input data validation failed: %s", error_message)
                 return CalculateBatteryOutput(
                     success=False,
-                    message=f"输入数据验证失败: {error_message}"
+                    message=f"Input data validation failed: {error_message}"
                 )
             
             # 创建电池实体
@@ -133,17 +133,17 @@ class CalculateBatteryUseCase:
             # 保存电池数据
             saved_battery = self.battery_repository.save(battery)
             
-            self.logger.info("电池计算用例执行成功")
+            self.logger.info("Battery calculation use case executed successfully")
             return CalculateBatteryOutput(
                 success=True,
-                message="电池计算已完成",
+                message="Battery calculation completed",
                 battery=saved_battery,
                 performance_data=performance_data
             )
             
         except Exception as e:
-            self.logger.error("电池计算用例执行失败: %s", str(e))
+            self.logger.error("Battery calculation use case execution failed: %s", str(e))
             return CalculateBatteryOutput(
                 success=False,
-                message=f"电池计算失败: {str(e)}"
+                message=f"Battery calculation failed: {str(e)}"
             )

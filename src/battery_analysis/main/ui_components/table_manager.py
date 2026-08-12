@@ -80,9 +80,9 @@ class TableManager:
 
         if matched_info is None:
             self.main_window.checker_table.set_error(
-                "未找到匹配的 equipment 配置")
+                "Equipment config not found")
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "[Error]: 未找到匹配的 equipment 配置")
+                "[Error]: Equipment config not found")
             return
 
         def set_item(item_data, row: int, col: int) -> None:

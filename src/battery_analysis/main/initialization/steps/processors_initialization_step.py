@@ -27,10 +27,10 @@ class ProcessorsInitializationStep(InitializationStep):
         try:
             # 初始化数据处理器（使用优化的pandas版本）
             main_window.data_processor = DataProcessor(main_window)
-            self.logger.info("数据处理器初始化完成")
+            self.logger.info("Data processor initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("数据处理器初始化失败")
+            self.logger.exception("Data processor initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

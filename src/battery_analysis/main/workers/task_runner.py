@@ -66,7 +66,7 @@ class TaskRunner(QC.QRunnable):
             if not self._cancelled:
                 self.signals.finished.emit(result)
         except Exception as e:
-            self.logger.error("任务执行失败: %s", e)
+            self.logger.error("Task execution failed: %s", e)
             self.signals.error.emit(str(e))
 
     def cancel(self):

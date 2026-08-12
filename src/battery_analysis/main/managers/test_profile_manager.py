@@ -66,17 +66,17 @@ class TestProfileManager:
             
             # 8. 更新当前目录
             self.main_window.current_directory = parent_dir
-            self.logger.info("设置当前目录为项目根目录: %s", parent_dir)
+            self.logger.info("Setting current directory to project root: %s", parent_dir)
             
             # 9. 根据XML文件名自动检测温度类型
             self._detect_temperature_type_from_xml(selected_file)
             
         except (OSError, ValueError, TypeError, RuntimeError, FileNotFoundError, PermissionError) as e:
-            self.logger.error("选择Test Profile时发生错误: %s", e)
+            self.logger.error("Error selecting Test Profile: %s", e)
             QW.QMessageBox.critical(
                 self.main_window,
-                "错误",
-                f"处理Test Profile时发生错误:\n{str(e)}",
+                "Error",
+                f"Error processing Test Profile:\n{str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
     
@@ -100,9 +100,9 @@ class TestProfileManager:
             
             # 记录日志
             if temperature_type.value == "Freezer Temperature":
-                self.logger.info("检测到冷冻温度测试配置文件: %s", file_name)
+                self.logger.info("Freezer temperature test profile detected: %s", file_name)
             else:
-                self.logger.info("检测到常温测试配置文件: %s", file_name)
+                self.logger.info("Room temperature test profile detected: %s", file_name)
                 
         except (AttributeError, ValueError) as e:
-            self.logger.warning("检测温度类型时发生错误: %s", e)
+            self.logger.warning("Error detecting temperature type: %s", e)

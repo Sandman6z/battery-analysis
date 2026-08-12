@@ -47,7 +47,7 @@ class TemperatureHandler:
             else:
                 return TemperatureType.ROOM
         except Exception as e:
-            self.main_window.logger.warning("检测温度类型时发生错误: %s", e)
+            self.main_window.logger.warning("Error detecting temperature type: %s", e)
             return TemperatureType.ROOM
     
     def get_temperature_value(self) -> str:

@@ -46,7 +46,7 @@ def filter_data(
                 plt_voltage_filtered.append(voltage_np[filtered_mask].tolist())
             except (ValueError, TypeError) as e:
                 # 处理numpy转换错误
-                logging.warning(f"使用numpy过滤数据时出错，切换到备用算法: {e}")
+                logging.warning(f"Error using numpy to filter data, switching to fallback algorithm: {e}")
                 # 切换到备用算法
                 filtered_charge = [float(charge_data[0])]
                 filtered_voltage = [float(voltage_data[0])]
@@ -73,7 +73,7 @@ def filter_data(
                             filtered_charge.append(curr_charge)
                             filtered_voltage.append(curr_voltage)
                     except (ValueError, TypeError) as inner_e:
-                        logging.warning(f"过滤数据时遇到非数字值，跳过此点: {inner_e}")
+                        logging.warning(f"Encountered non-numeric value while filtering data, skipping this point: {inner_e}")
                         continue
                 
                 plt_charge_filtered.append(filtered_charge)
@@ -91,7 +91,7 @@ def filter_data(
                     filtered_charge = [float(charge_data[0])]
                     filtered_voltage = [float(voltage_data[0])]
                 except (ValueError, TypeError) as e:
-                    logging.warning(f"过滤数据时遇到非数字值，跳过此电池数据: {e}")
+                    logging.warning(f"Encountered non-numeric value while filtering data, skipping this battery data: {e}")
                     continue
                 
                 # 使用zip和enumerate优化循环
@@ -117,7 +117,7 @@ def filter_data(
                             filtered_charge.append(curr_charge)
                             filtered_voltage.append(curr_voltage)
                     except (ValueError, TypeError) as e:
-                        logging.warning(f"过滤数据时遇到非数字值，跳过此点: {e}")
+                        logging.warning(f"Encountered non-numeric value while filtering data, skipping this point: {e}")
                         continue
             
             plt_charge_filtered.append(filtered_charge)

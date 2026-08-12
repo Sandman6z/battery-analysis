@@ -27,10 +27,10 @@ class ServicesInitializationStep(InitializationStep):
         try:
             # 获取服务容器
             main_window._service_container = get_service_container()
-            self.logger.info("服务容器初始化完成")
+            self.logger.info("Service container initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("服务容器初始化失败")
+            self.logger.exception("Service container initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

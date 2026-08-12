@@ -129,18 +129,18 @@ class BatteryChartViewer(
         self._read_configurations()
 
         if data_path is not None:
-            logger.info("初始化时接收到数据路径: %s", data_path)
+            logger.info("Received data path during initialization: %s", data_path)
             self.set_data_path(data_path)
             success = self.load_data()
             if success:
                 self.loaded_data = True
-                logger.info("初始化数据加载成功")
+                logger.info("Initial data loaded successfully")
             else:
-                logger.warning("初始化数据加载失败")
+                logger.warning("Failed to load initial data")
                 if auto_search:
                     self._search_for_data_files()
         else:
-            logger.info("初始化时未提供数据路径，不加载数据")
+            logger.info("No data path provided during initialization, skipping data load")
             if auto_search:
                 self._search_for_data_files()
 
@@ -171,11 +171,11 @@ class BatteryChartViewer(
     def plt_figure(self):
         """创建并显示电池数据图表，包含交互控件以切换数据显示"""
         try:
-            logger.info("开始绘制图表")
+            logger.info("Starting to draw chart")
 
             import matplotlib
             if matplotlib.get_backend() != 'QtAgg':
-                logger.info("当前Matplotlib后端: %s, 切换到QtAgg后端", matplotlib.get_backend())
+                logger.info("Current Matplotlib backend: %s, switching to QtAgg backend", matplotlib.get_backend())
                 matplotlib.use('QtAgg')
 
             import matplotlib.pyplot as plt
@@ -186,38 +186,38 @@ class BatteryChartViewer(
                     if os.path.exists(self.strInfoImageCsvPath):
                         current_timestamp = os.path.getmtime(self.strInfoImageCsvPath)
                         if self.last_data_timestamp and current_timestamp > self.last_data_timestamp:
-                            logger.info("检测到数据更新: 上次加载时间 %s, 当前文件时间 %s",
+                            logger.info("Data update detected: last load %s, current file %s",
                                         datetime.datetime.fromtimestamp(self.last_data_timestamp),
                                         datetime.datetime.fromtimestamp(current_timestamp))
 
                             try:
                                 reply = QMessageBox.question(
                                     None,
-                                    "数据更新",
-                                    "检测到分析结果已更新，是否重新加载最新版的图形？",
+                                    "Data Updated",
+                                    "The analysis results have been updated. Reload the latest charts?",
                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                                     QMessageBox.StandardButton.Yes
                                 )
                                 if reply == QMessageBox.StandardButton.Yes:
-                                    logger.info("用户选择重新加载最新数据")
+                                    logger.info("User chose to reload the latest data")
                                     if not self.load_data():
-                                        logger.error("重新加载数据失败")
+                                        logger.error("Failed to reload data")
                                     else:
-                                        logger.info("重新加载数据成功")
+                                        logger.info("Data reloaded successfully")
                                 else:
-                                    logger.info("用户选择保持原有数据显示")
+                                    logger.info("User chose to keep the current display")
                             except Exception as msg_error:
-                                logger.warning("显示更新提示框时出错: %s", msg_error)
+                                logger.warning("Error showing update prompt: %s", msg_error)
                 except Exception as check_error:
-                    logger.warning("检测数据更新时出错: %s", check_error)
+                    logger.warning("Error checking for data update: %s", check_error)
 
             if self.intBatteryNum <= 0:
-                logger.error("错误: 没有有效的电池数据可供显示")
+                logger.error("Error: no valid battery data available to display")
                 self._show_error_plot()
                 return True
 
             if not hasattr(self, 'listPlt') or not self.listPlt:
-                logger.error("错误: 电池数据结构未初始化或为空")
+                logger.error("Error: battery data structure not initialized or empty")
                 self._show_error_plot()
                 return True
 
@@ -225,9 +225,9 @@ class BatteryChartViewer(
                 try:
                     plt.close(self.current_fig)
                     self.current_fig = None
-                    logger.info("已关闭之前的图表实例")
+                    logger.info("Closed previous chart instance")
                 except Exception as e:
-                    logger.warning("关闭之前的图表实例时出错: %s", e)
+                    logger.warning("Error closing previous chart instance: %s", e)
 
             try:
                 fig, ax, title_fontdict, axis_fontdict = self._initialize_figure()
@@ -238,9 +238,9 @@ class BatteryChartViewer(
                 try:
                     self._add_menu_bar(fig)
                 except Exception as menu_error:
-                    logger.warning("添加菜单栏时出错: %s", menu_error)
+                    logger.warning("Error adding menu bar: %s", menu_error)
             except (OSError, ValueError, TypeError) as init_error:
-                logger.error("图表初始化失败: %s", str(init_error))
+                logger.error("Chart initialization failed: %s", str(init_error))
                 self._show_error_plot()
                 return True
 
@@ -249,16 +249,16 @@ class BatteryChartViewer(
                 valid_data_found = bool(lines_filtered) or bool(lines_unfiltered)
 
                 if valid_data_found:
-                    logger.info("成功绘制了 %d 条过滤曲线和 %d 条原始曲线",
+                    logger.info("Successfully plotted %d filtered curves and %d raw curves",
                                 len(lines_filtered), len(lines_unfiltered))
                     self._adjust_y_axis_range(ax)
             except (OSError, ValueError, TypeError, IndexError) as plot_error:
-                logger.error("绘制电池曲线时出错: %s", str(plot_error))
+                logger.error("Error plotting battery curves: %s", str(plot_error))
                 lines_unfiltered, lines_filtered = [], []
                 valid_data_found = False
 
             if not valid_data_found:
-                logger.error("严重错误: 无法绘制任何电池数据曲线")
+                logger.error("Fatal error: failed to plot any battery data curves")
                 self._show_error_plot()
                 return True
 
@@ -271,11 +271,11 @@ class BatteryChartViewer(
                 self._add_hover_functionality(
                     fig, ax, lines_filtered, lines_unfiltered, check_filter)
                 self._add_help_text(fig)
-                logger.info("成功添加图表交互控件")
+                logger.info("Chart interaction controls added successfully")
             except (AttributeError, TypeError, ValueError) as ui_error:
-                logger.warning("添加交互控件时出错: %s", str(ui_error))
+                logger.warning("Error adding interaction controls: %s", str(ui_error))
 
-            logger.info("图表创建完成，显示CSV文件中的真实电池测试数据")
+            logger.info("Chart created, showing real battery test data from CSV file")
 
             plt.ion()
             plt.show(block=False)
@@ -301,7 +301,7 @@ class BatteryChartViewer(
                     window.repaint()
                     window.update()
             except (AttributeError, TypeError, RuntimeError) as e:
-                logger.warning("无法将窗口置于最前面: %s", str(e))
+                logger.warning("Unable to bring window to front: %s", str(e))
 
             plt.pause(0.5)
             fig.canvas.draw()
@@ -309,12 +309,12 @@ class BatteryChartViewer(
             fig.canvas.draw()
             fig.canvas.flush_events()
 
-            logger.info("图表显示成功")
+            logger.info("Chart displayed successfully")
             return True
 
         except (OSError, ValueError, TypeError, AttributeError, RuntimeError) as e:
-            logger.error("严重错误: 绘制图表时发生未预期的异常: %s", str(e))
-            logger.error("错误类型: %s", type(e).__name__)
+            logger.error("Fatal error: unexpected exception while plotting chart: %s", str(e))
+            logger.error("Error type: %s", type(e).__name__)
             import traceback
             traceback.print_exc()
             self._show_error_plot()
@@ -341,7 +341,7 @@ if __name__ == '__main__':
 
         unified_style_path = Path(__file__).parent.parent / "ui" / "styles" / "battery_analyzer.qss"
 
-        logger.info("尝试加载统一样式文件: %s", unified_style_path)
+        logger.info("Attempting to load unified style file: %s", unified_style_path)
 
         if unified_style_path.exists():
             with open(unified_style_path, 'r', encoding='utf-8') as f:
@@ -351,32 +351,32 @@ if __name__ == '__main__':
                 app.style().unpolish(app)
                 app.style().polish(app)
                 app.update()
-                logger.info("已应用统一电池分析器样式")
+                logger.info("Applied unified battery analyzer style")
         else:
-            logger.warning("未找到统一样式文件: %s", unified_style_path)
+            logger.warning("Unified style file not found: %s", unified_style_path)
             try:
                 style_manager = StyleManager()
                 style_manager.apply_global_style(app, "modern")
-                logger.info("已应用备用全局主题样式")
+                logger.info("Applied fallback global theme style")
             except Exception as e2:
-                logger.error("备用样式应用失败: %s", e2)
+                logger.error("Failed to apply fallback style: %s", e2)
     except Exception as e:
-        logger.error("应用样式失败: %s", e)
+        logger.error("Failed to apply style: %s", e)
         try:
             style_manager = StyleManager()
             style_manager.apply_global_style(app, "modern")
-            logger.info("最终备用样式已应用")
+            logger.info("Final fallback style applied")
         except Exception as e3:
-            logger.error("最终备用样式应用也失败: %s", e3)
+            logger.error("Final fallback style also failed: %s", e3)
 
     data_path = None
     if len(sys.argv) > 1:
         data_path = sys.argv[1]
-        logger.info("从命令行接收数据路径: %s", data_path)
+        logger.info("Received data path from command line: %s", data_path)
 
     figure = BatteryChartViewer(data_path=data_path)
-    logger.info("尝试显示图表（无论是否有数据）")
+    logger.info("Attempting to display chart (regardless of data availability)")
     figure.plt_figure()
 
-    logger.info("启动Qt事件循环")
+    logger.info("Starting Qt event loop")
     sys.exit(app.exec())

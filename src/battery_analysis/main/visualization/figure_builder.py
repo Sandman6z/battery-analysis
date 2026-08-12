@@ -32,7 +32,7 @@ class FigureBuilderMixin:
                 fig.canvas.manager.window.setWindowTitle(
                     f"Filtered {self.strPltName}")
         except (AttributeError, TypeError, RuntimeError) as e:
-            logger.warning("无法设置图表窗口标题: %s", str(e))
+            logger.warning("Unable to set chart window title: %s", str(e))
 
         gs = fig.add_gridspec(1, 40)
         ax = fig.add_subplot(gs[:, 5:])
@@ -84,7 +84,7 @@ class FigureBuilderMixin:
                     )
                     lines_filtered.append(fl)
                 except (IndexError, ValueError, TypeError, AttributeError) as e:
-                    logger.error("绘制电池 %s, 电流级别 %s 的曲线时出错: %s", b, c, e)
+                    logger.error("Error plotting curve for battery %s, current level %s: %s", b, c, e)
 
         return lines_unfiltered, lines_filtered
 
@@ -92,14 +92,14 @@ class FigureBuilderMixin:
         """显示详细的错误信息图表"""
         try:
             if title is None:
-                title = "数据错误"
+                title = "Data Error"
             if main_message is None:
-                main_message = "无法加载或显示电池数据"
+                main_message = "Unable to load or display battery data"
             if details is None:
-                details = "1. csv文件是否存在且格式正确\n"
-                details += "2. 配置文件是否正确选择\n"
-                details += "3. 文件路径是否包含中文字符或特殊字符\n"
-                details += "4. csv文件是否包含有效的电池测试数据"
+                details = "1. Whether the CSV file exists and is formatted correctly\n"
+                details += "2. Whether the correct configuration file is selected\n"
+                details += "3. Whether the file path contains Chinese characters or special characters\n"
+                details += "4. Whether the CSV file contains valid battery test data"
 
             fig, ax = plt.subplots(figsize=(12, 8))
             self.current_fig = fig
@@ -113,17 +113,17 @@ class FigureBuilderMixin:
             ax.axis('off')
 
             full_text = f"{main_message}\n\n"
-            full_text += "检查步骤:\n"
+            full_text += "Check steps:\n"
             full_text += details
 
             if allow_file_selection:
-                full_text += "\n\n解决方案:\n"
-                full_text += "1. 点击菜单栏'File' -> 'Open Data'选择数据目录\n"
-                full_text += "2. 或按Ctrl+O键打开文件对话框\n"
-                full_text += "3. 选择包含Info_Image.csv文件的目录"
+                full_text += "\n\nSolution:\n"
+                full_text += "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
+                full_text += "2. Or press Ctrl+O to open the file dialog\n"
+                full_text += "3. Select a directory containing the Info_Image.csv file"
 
             if hasattr(self, 'errorlog') and self.errorlog:
-                full_text += f"\n\n错误详情: {str(self.errorlog)}"
+                full_text += f"\n\nError details: {str(self.errorlog)}"
 
             text_color = MODERN_BUTTON_STYLE['inactive_text_color']
             main_text_color = MODERN_BUTTON_STYLE['active_color']
@@ -132,18 +132,18 @@ class FigureBuilderMixin:
             ax.text(0.5, 0.75, main_text, fontsize=14, ha='center', va='center',
                     color=main_text_color, weight='bold', linespacing=1.4)
 
-            check_text = "检查步骤:\n" + details
+            check_text = "Check steps:\n" + details
             ax.text(0.5, 0.55, check_text, fontsize=11, ha='center', va='center',
                     color=text_color, linespacing=1.4)
 
             if allow_file_selection:
-                solution_text = "\n\n解决方案:\n" + "1. 点击菜单栏'File' -> 'Open Data'选择数据目录\n" + \
-                               "2. 或按Ctrl+O键打开文件对话框\n" + "3. 选择包含Info_Image.csv文件的目录"
+                solution_text = "\n\nSolution:\n" + "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n" + \
+                               "2. Or press Ctrl+O to open the file dialog\n" + "3. Select a directory containing the Info_Image.csv file"
                 ax.text(0.5, 0.35, solution_text, fontsize=11, ha='center', va='center',
                         color=MODERN_BUTTON_STYLE['hover_color'], weight='bold', linespacing=1.4)
 
             if hasattr(self, 'errorlog') and self.errorlog:
-                error_text = f"\n错误详情: {str(self.errorlog)}"
+                error_text = f"\nError details: {str(self.errorlog)}"
                 ax.text(0.5, 0.15, error_text, fontsize=10, ha='center', va='center',
                         color='#d32f2f', style='italic', linespacing=1.3)
 
@@ -158,9 +158,9 @@ class FigureBuilderMixin:
 
             menu_added = self._add_menu_bar(fig)
             if not menu_added:
-                logger.warning("无法添加菜单栏，将使用默认方式显示错误图表")
+                logger.warning("Unable to add menubar, will display error chart using default method")
 
-            logger.info("显示错误信息图表: %s - %s", title, main_message)
+            logger.info("Displaying error information chart: %s - %s", title, main_message)
             plt.tight_layout()
 
             if not plt.isinteractive():
@@ -173,24 +173,24 @@ class FigureBuilderMixin:
             fig.canvas.flush_events()
 
         except (OSError, ValueError) as e:
-            logger.critical("显示错误图表时发生异常: %s", str(e))
+            logger.critical("Exception while displaying error chart: %s", str(e))
             traceback.print_exc()
-            logger.error("\n严重错误: 无法显示图形界面的错误信息")
-            logger.error("错误详情: %s - %s", title or '未知错误', main_message or '无法加载数据')
+            logger.error("\nCritical error: unable to display error information in the graphical interface")
+            logger.error("Error details: %s - %s", title or 'Unknown error', main_message or 'Unable to load data')
 
     def _cleanup_matplotlib_state(self):
         """清理Matplotlib状态，确保新的图表能正常工作"""
-        logger.info("开始清理Matplotlib状态")
+        logger.info("Starting to clean up Matplotlib state")
         matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
         matplotlib.rcParams['font.sans-serif'] = CN_FONT_LIST
         matplotlib.rcParams['axes.unicode_minus'] = False
 
         if matplotlib.get_backend() != 'QtAgg':
-            logger.info("当前Matplotlib后端: %s, 切换到QtAgg后端", matplotlib.get_backend())
+            logger.info("Current Matplotlib backend: %s, switching to QtAgg backend", matplotlib.get_backend())
             matplotlib.use('QtAgg')
 
-        logger.info("Matplotlib状态清理完成")
+        logger.info("Matplotlib state cleanup complete")
 
     def _adjust_y_axis_range(self, ax):
         """动态调整纵轴范围，确保所有数据都能显示"""
@@ -226,7 +226,7 @@ class FigureBuilderMixin:
                 y_min = max(y_min, 0)
 
                 ax.set_ylim(y_min, y_max)
-                logger.info("动态调整纵轴范围: [%.4f, %.4f]", y_min, y_max)
+                logger.info("Dynamically adjusting y-axis range: [%.4f, %.4f]", y_min, y_max)
 
                 y_range_actual = y_max - y_min
                 target_ticks = 15
@@ -243,8 +243,8 @@ class FigureBuilderMixin:
 
                 y_major_locator = MultipleLocator(best_interval)
                 ax.yaxis.set_major_locator(y_major_locator)
-                logger.info("动态调整Y轴刻度间隔: %s", best_interval)
+                logger.info("Dynamically adjusting y-axis tick interval: %s", best_interval)
             else:
-                logger.warning("无法计算有效的纵轴范围，使用默认值")
+                logger.warning("Unable to calculate a valid y-axis range, using default value")
         except (AttributeError, ValueError, TypeError) as e:
-            logger.error("调整纵轴范围时出错: %s", e)
+            logger.error("Error adjusting y-axis range: %s", e)

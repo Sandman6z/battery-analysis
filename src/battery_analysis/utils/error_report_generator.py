@@ -68,7 +68,7 @@ class ErrorReportGenerator:
             
             return system_info
         except Exception as e:
-            self.logger.error(f"收集系统信息失败: {e}")
+            self.logger.error(f"Failed to collect system information: {e}")
             return {'error': str(e), 'timestamp': datetime.datetime.now().isoformat()}
     
     def _get_recent_log_files(self, max_count=10):
@@ -95,7 +95,7 @@ class ErrorReportGenerator:
             # 只返回最近的max_count个文件
             return all_logs[:max_count]
         except Exception as e:
-            self.logger.error(f"获取最近日志文件失败: {e}")
+            self.logger.error(f"Failed to get recent log files: {e}")
             return []
     
     def _cleanup_old_reports(self, keep_count=10):
@@ -117,11 +117,11 @@ class ErrorReportGenerator:
                 for report in reports_to_delete:
                     try:
                         report.unlink()
-                        self.logger.info(f"已清理旧压缩包: {report}")
+                        self.logger.info(f"Cleaned up old archive: {report}")
                     except Exception as e:
-                        self.logger.warning(f"清理压缩包 {report} 失败: {e}")
+                        self.logger.warning(f"Failed to clean up archive {report}: {e}")
         except Exception as e:
-            self.logger.error(f"清理旧压缩包失败: {e}")
+            self.logger.error(f"Failed to clean up old archives: {e}")
     
     def _create_system_info_file(self, temp_dir):
         """创建系统信息文件
@@ -138,38 +138,38 @@ class ErrorReportGenerator:
             
             with open(info_file, 'w', encoding='utf-8') as f:
                 f.write("=" * 50 + '\n')
-                f.write("电池分析应用 - 错误报告\n")
-                f.write(f"生成时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write("Battery Analysis Application - Error Report\n")
+                f.write(f"Generated at: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
                 f.write("=" * 50 + '\n\n')
                 
                 # 写入系统信息
-                f.write("【系统信息】\n")
+                f.write("[System Information]\n")
                 if 'error' in system_info:
-                    f.write(f"收集系统信息时出错: {system_info['error']}\n\n")
+                    f.write(f"Error collecting system information: {system_info['error']}\n\n")
                 else:
-                    f.write(f"Python版本: {system_info['python_version']}\n")
-                    f.write(f"操作系统: {system_info['os']['name']} {system_info['os']['release']} {system_info['os']['version']}\n")
-                    f.write(f"处理器: {system_info['hardware']['processor']}\n")
-                    f.write(f"CPU核心数: {system_info['hardware']['cpu_count']}\n")
-                    f.write(f"CPU使用率: {system_info['hardware']['cpu_percent']}%\n")
-                    
+                    f.write(f"Python version: {system_info['python_version']}\n")
+                    f.write(f"Operating system: {system_info['os']['name']} {system_info['os']['release']} {system_info['os']['version']}\n")
+                    f.write(f"Processor: {system_info['hardware']['processor']}\n")
+                    f.write(f"CPU cores: {system_info['hardware']['cpu_count']}\n")
+                    f.write(f"CPU usage: {system_info['hardware']['cpu_percent']}%\n")
+
                     mem = system_info['hardware']['memory']
-                    f.write(f"总内存: {mem['total'] / (1024**3):.2f} GB\n")
-                    f.write(f"可用内存: {mem['available'] / (1024**3):.2f} GB\n")
-                    f.write(f"内存使用率: {mem['percent']}%\n")
-                    
+                    f.write(f"Total memory: {mem['total'] / (1024**3):.2f} GB\n")
+                    f.write(f"Available memory: {mem['available'] / (1024**3):.2f} GB\n")
+                    f.write(f"Memory usage: {mem['percent']}%\n")
+
                     disk = system_info['hardware']['disk']
-                    f.write(f"磁盘总空间: {disk['total'] / (1024**3):.2f} GB\n")
-                    f.write(f"磁盘已用空间: {disk['used'] / (1024**3):.2f} GB\n")
-                    f.write(f"磁盘可用空间: {disk['free'] / (1024**3):.2f} GB\n")
-                    f.write(f"磁盘使用率: {disk['percent']}%\n")
-                    
-                    f.write(f"应用程序路径: {system_info['application']['path']}\n")
-                    f.write(f"当前工作目录: {system_info['application']['cwd']}\n\n")
+                    f.write(f"Total disk space: {disk['total'] / (1024**3):.2f} GB\n")
+                    f.write(f"Used disk space: {disk['used'] / (1024**3):.2f} GB\n")
+                    f.write(f"Available disk space: {disk['free'] / (1024**3):.2f} GB\n")
+                    f.write(f"Disk usage: {disk['percent']}%\n")
+
+                    f.write(f"Application path: {system_info['application']['path']}\n")
+                    f.write(f"Current working directory: {system_info['application']['cwd']}\n\n")
             
             return info_file
         except Exception as e:
-            self.logger.error(f"创建系统信息文件失败: {e}")
+            self.logger.error(f"Failed to create system info file: {e}")
             return None
     
     def generate_error_report(self, max_logs_per_report=10, max_reports=10):
@@ -183,7 +183,7 @@ class ErrorReportGenerator:
             str: 生成的报告文件路径，失败则返回None
         """
         try:
-            self.logger.info("开始生成错误报告...")
+            self.logger.info("Starting error report generation...")
             
             # 输出目录使用日志目录
             output_dir = self.log_dir
@@ -196,7 +196,7 @@ class ErrorReportGenerator:
                 # 创建系统信息文件
                 system_info_file = self._create_system_info_file(temp_dir_path)
                 if system_info_file is None:
-                    self.logger.error("生成系统信息文件失败")
+                    self.logger.error("Failed to generate system info file")
                     return None
                 
                 # 获取最近的日志文件，每个报告包含指定数量的日志
@@ -210,9 +210,9 @@ class ErrorReportGenerator:
                         # 复制日志文件到临时目录
                         dest_path = logs_dir / log_file.name
                         dest_path.write_bytes(log_file.read_bytes())
-                        self.logger.debug(f"已复制日志文件: {log_file.name}")
+                        self.logger.debug(f"Copied log file: {log_file.name}")
                     except Exception as e:
-                        self.logger.warning(f"复制日志文件 {log_file.name} 失败: {e}")
+                        self.logger.warning(f"Failed to copy log file {log_file.name}: {e}")
                 
                 # 创建报告文件名
                 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -228,7 +228,7 @@ class ErrorReportGenerator:
                     for log_file in logs_dir.glob('*'):
                         zipf.write(log_file, arcname=f'logs/{log_file.name}')
                 
-                self.logger.info(f"错误报告已生成: {report_path}")
+                self.logger.info(f"Error report generated: {report_path}")
                 
                 # 清理旧的压缩包，只保留指定数量
                 self._cleanup_old_reports(max_reports)
@@ -236,7 +236,7 @@ class ErrorReportGenerator:
                 return str(report_path)
                 
         except Exception as e:
-            self.logger.error(f"生成错误报告失败: {e}", exc_info=True)
+            self.logger.error(f"Failed to generate error report: {e}", exc_info=True)
             return None
     
     def get_report_info(self):

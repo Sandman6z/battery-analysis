@@ -50,7 +50,7 @@ class ValidationController(QC.QObject):
             return is_valid, error_msg
         
         # 降级到原来的逻辑
-        error_msg = "验证服务不可用"
+        error_msg = "Validation service unavailable"
         self.validation_error.emit(error_msg)
         return False, error_msg
 
@@ -65,7 +65,7 @@ class ValidationController(QC.QObject):
             tuple: (是否有效, 错误消息)
         """
         if not input_path:
-            error_msg = "输入数据路径不能为空"
+            error_msg = "Input data path cannot be empty"
             self.validation_error.emit(error_msg)
             return False, error_msg
 
@@ -78,12 +78,12 @@ class ValidationController(QC.QObject):
         else:
             # 降级逻辑
             if not os.path.exists(input_path):
-                error_msg = f"输入数据路径不存在: {input_path}"
+                error_msg = f"Input data path does not exist: {input_path}"
                 self.validation_error.emit(error_msg)
                 return False, error_msg
 
             if not os.path.isdir(input_path):
-                error_msg = f"输入数据路径必须是目录: {input_path}"
+                error_msg = f"Input data path must be a directory: {input_path}"
                 self.validation_error.emit(error_msg)
                 return False, error_msg
 
@@ -94,11 +94,11 @@ class ValidationController(QC.QObject):
             has_data_file = any(file.endswith('.xlsx')
                                 or file.endswith('.csv') for file in files)
             if not has_data_file:
-                error_msg = f"输入目录中未找到数据文件(.xlsx或.csv)"
+                error_msg = f"No data files (.xlsx or .csv) found in input directory"
                 self.validation_error.emit(error_msg)
                 return False, error_msg
         except (OSError, TypeError, ValueError) as e:
-            error_msg = f"读取输入目录失败: {e}"
+            error_msg = f"Failed to read input directory: {e}"
             self.validation_error.emit(error_msg)
             return False, error_msg
 
@@ -116,7 +116,7 @@ class ValidationController(QC.QObject):
             tuple: (是否有效, 错误消息)
         """
         if not output_path:
-            error_msg = "输出路径不能为空"
+            error_msg = "Output path cannot be empty"
             self.validation_error.emit(error_msg)
             return False, error_msg
 
@@ -132,7 +132,7 @@ class ValidationController(QC.QObject):
                 f.write("test")
             os.remove(test_file)
         except (OSError, TypeError, ValueError) as e:
-            error_msg = f"读取输入目录失败: {e}"
+            error_msg = f"Failed to read input directory: {e}"
             self.validation_error.emit(error_msg)
             return False, error_msg
 

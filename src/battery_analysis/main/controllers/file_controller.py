@@ -70,7 +70,7 @@ class FileController(QC.QObject):
         """
         # 使用配置服务加载配置文件
         if not self.config_service:
-            error_msg = "配置服务不可用"
+            error_msg = "Config service unavailable"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
             return None
@@ -79,7 +79,7 @@ class FileController(QC.QObject):
             # 使用配置服务加载配置
             success = self.config_service.load_config()
             if not success:
-                error_msg = "未找到配置文件"
+                error_msg = "Config file not found"
                 logging.error(error_msg)
                 self.error_occurred.emit(error_msg)
                 return None
@@ -100,7 +100,7 @@ class FileController(QC.QObject):
             self.config_loaded.emit(config_dict)
             return config_dict
         except (IOError, OSError, UnicodeDecodeError, TypeError, AttributeError) as e:
-            error_msg = f"加载配置文件失败: {e}"
+            error_msg = f"Failed to load config file: {e}"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)
             return None
@@ -123,7 +123,7 @@ class FileController(QC.QObject):
         try:
             return self.config_service.get_config_value(f"{section}/{option}", default)
         except (AttributeError, TypeError, ValueError, KeyError) as e:
-            logging.warning("获取配置值失败: %s", e)
+            logging.warning("Failed to get config value: %s", e)
             return default
 
     def validate_directory(self, directory_path):
@@ -137,20 +137,20 @@ class FileController(QC.QObject):
             tuple: (是否有效, 错误消息)
         """
         if not directory_path:
-            return False, "目录路径不能empty"
+            return False, "Directory path cannot be empty"
 
         if not os.path.exists(directory_path):
-            return False, f"目录不存在: {directory_path}"
+            return False, f"Directory does not exist: {directory_path}"
 
         if not os.path.isdir(directory_path):
-            return False, f"路径不是目录: {directory_path}"
+            return False, f"Path is not a directory: {directory_path}"
 
         try:
             # 检查目录是否可访问
             os.listdir(directory_path)
             return True, ""
         except OSError as e:
-            return False, f"目录访问失败: {e}"
+            return False, f"Directory access failed: {e}"
 
     def ensure_directory_exists(self, directory_path):
         """
@@ -167,7 +167,7 @@ class FileController(QC.QObject):
                 os.makedirs(directory_path)
             return True, ""
         except OSError as e:
-            error_msg = f"创建目录失败: {e}"
+            error_msg = f"Failed to create directory: {e}"
             logging.error(error_msg)
             return False, error_msg
 

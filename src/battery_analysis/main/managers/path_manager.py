@@ -51,7 +51,7 @@ class PathManager:
         if not is_valid:
             QW.QMessageBox.warning(
                 self.main_window,
-                "文件错误",
+                "File Error",
                 error_msg,
                 QW.QMessageBox.StandardButton.Ok
             )
@@ -65,7 +65,7 @@ class PathManager:
         if not is_valid:
             QW.QMessageBox.warning(
                 self.main_window,
-                "文件名错误",
+                "Filename Error",
                 error_msg,
                 QW.QMessageBox.StandardButton.Ok
             )
@@ -76,7 +76,7 @@ class PathManager:
         if not is_valid:
             QW.QMessageBox.warning(
                 self.main_window,
-                "文件错误",
+                "File Error",
                 error_msg,
                 QW.QMessageBox.StandardButton.Ok
             )
@@ -108,8 +108,8 @@ class PathManager:
             if root is None:
                 QW.QMessageBox.warning(
                     self.main_window,
-                    "文件格式错误",
-                    f"XML文件格式错误: {filename} 缺少根元素",
+                    "File Format Error",
+                    f"Invalid XML file format: {filename} is missing a root element",
                     QW.QMessageBox.StandardButton.Ok
                 )
                 return False
@@ -117,16 +117,16 @@ class PathManager:
         except ET.ParseError as e:
             QW.QMessageBox.warning(
                 self.main_window,
-                "文件格式错误",
-                f"XML文件解析失败: {filename} - {str(e)}",
+                "File Format Error",
+                f"Failed to parse XML file: {filename} - {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
             return False
         except Exception as e:
             QW.QMessageBox.warning(
                 self.main_window,
-                "文件错误",
-                f"验证XML文件时发生错误: {filename} - {str(e)}",
+                "File Error",
+                f"Error validating XML file: {filename} - {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
             return False
@@ -149,7 +149,7 @@ class PathManager:
             
             # 验证目录是否有效
             if not test_profile_dir or not os.path.exists(test_profile_dir):
-                self.logger.error("无效的Test Profile目录: %s", test_profile_dir)
+                self.logger.error("Invalid Test Profile directory: %s", test_profile_dir)
                 return None
             
             # 获取父目录（项目根目录）
@@ -157,12 +157,12 @@ class PathManager:
             
             # 验证父目录是否存在
             if not parent_dir or not os.path.exists(parent_dir):
-                self.logger.error("无效的父目录: %s", parent_dir)
+                self.logger.error("Invalid parent directory: %s", parent_dir)
                 return None
             
             return parent_dir
         except Exception as e:
-            self.logger.error("获取父目录时发生错误: %s", e)
+            self.logger.error("Error getting parent directory: %s", e)
             return None
     
     def set_input_path(self, parent_dir):
@@ -177,9 +177,9 @@ class PathManager:
         if os.path.exists(input_path) and os.path.isdir(input_path):
             self.main_window.lineEdit_InputPath.setText(input_path)
             self.main_window.sigSetVersion.emit()
-            self.logger.info("自动设置输入路径: %s", input_path)
+            self.logger.info("Input path set automatically: %s", input_path)
         else:
-            self.logger.info("未找到输入目录: %s", input_path)
+            self.logger.info("Input directory not found: %s", input_path)
     
     def set_output_path(self, parent_dir):
         """
@@ -197,7 +197,7 @@ class PathManager:
         # 验证输出目录
         is_valid, error_msg = validator.validate_output_directory(output_path)
         if not is_valid:
-            self.logger.warning("输出目录验证失败: %s", error_msg)
+            self.logger.warning("Output directory validation failed: %s", error_msg)
             # 仍然设置路径，但会在创建时失败
             self.main_window.lineEdit_OutputPath.setText(output_path)
             return True
@@ -208,8 +208,8 @@ class PathManager:
             # 如果输出目录不存在，询问用户是否创建
             reply = QW.QMessageBox.question(
                 self.main_window,
-                "创建输出目录",
-                f"输出目录不存在，是否创建？\n\n路径: {output_path}",
+                "Create Output Directory",
+                f"The output directory does not exist. Create it?\n\nPath: {output_path}",
                 QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
                 QW.QMessageBox.StandardButton.Yes
             )
@@ -218,20 +218,20 @@ class PathManager:
                 try:
                     os.makedirs(output_path, exist_ok=True)
                     self.main_window.lineEdit_OutputPath.setText(output_path)
-                    self.logger.info("创建并设置输出目录: %s", output_path)
+                    self.logger.info("Output directory created and set: %s", output_path)
                 except (OSError, PermissionError, FileNotFoundError) as e:
-                    self.logger.error("创建输出目录失败: %s", e)
+                    self.logger.error("Failed to create output directory: %s", e)
                     QW.QMessageBox.critical(
                         self.main_window,
-                        "创建失败",
-                        f"无法创建输出目录:\n{str(e)}",
+                        "Creation Failed",
+                        f"Unable to create output directory:\n{str(e)}",
                         QW.QMessageBox.StandardButton.Ok
                     )
                     return False
             else:
                 # 用户选择不创建，手动设置路径但不创建目录
                 self.main_window.lineEdit_OutputPath.setText(output_path)
-                self.logger.info("手动设置输出目录（未创建）: %s", output_path)
+                self.logger.info("Output directory set manually (not created): %s", output_path)
         
         return True
     
@@ -252,12 +252,12 @@ class PathManager:
                 self.main_window.lineEdit_InputPath.setText(selected_dir)
                 self.main_window.sigSetVersion.emit()
                 self.main_window.current_directory = os.path.join(selected_dir, "../../")
-                self.logger.info("手动设置输入路径: %s", selected_dir)
+                self.logger.info("Input path set manually: %s", selected_dir)
             else:
-                self.logger.warning("输入目录验证失败: %s", error_msg)
+                self.logger.warning("Input directory validation failed: %s", error_msg)
                 QW.QMessageBox.warning(
                     self.main_window,
-                    "目录错误",
+                    "Directory Error",
                     error_msg,
                     QW.QMessageBox.StandardButton.Ok
                 )
@@ -279,12 +279,12 @@ class PathManager:
                 self.main_window.lineEdit_OutputPath.setText(selected_dir)
                 self.main_window.sigSetVersion.emit()
                 self.main_window.current_directory = os.path.join(selected_dir, "../")
-                self.logger.info("手动设置输出路径: %s", selected_dir)
+                self.logger.info("Output path set manually: %s", selected_dir)
             else:
-                self.logger.warning("输出目录验证失败: %s", error_msg)
+                self.logger.warning("Output directory validation failed: %s", error_msg)
                 QW.QMessageBox.warning(
                     self.main_window,
-                    "目录错误",
+                    "Directory Error",
                     error_msg,
                     QW.QMessageBox.StandardButton.Ok
                 )

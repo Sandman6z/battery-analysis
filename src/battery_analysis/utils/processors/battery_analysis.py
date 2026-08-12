@@ -62,8 +62,8 @@ class BatteryAnalysis:
 
         # ── 输入验证 ──────────────────────────────────────────────
         if len(listTestInfo) < 19:
-            logging.error("测试信息列表格式错误: 缺少必要的信息。"
-                          "需要至少19个元素，但只找到%d个", len(listTestInfo))
+            logging.error("Test info list format error: missing required information. "
+                          "Need at least 19 elements, but only found %d", len(listTestInfo))
             raise BatteryAnalysisException(
                 f"测试信息列表格式错误: 缺少必要的信息。"
                 f"需要至少19个元素，但只找到{len(listTestInfo)}个")
@@ -72,11 +72,11 @@ class BatteryAnalysis:
         self.listVoltageLevel = listTestInfo[15]
 
         if not self.listCurrentLevel:
-            logging.error("当前等级列表为空")
+            logging.error("Current level list is empty")
             raise BatteryAnalysisException("当前等级列表为空")
 
         if not self.listVoltageLevel:
-            logging.error("电压等级列表为空")
+            logging.error("Voltage level list is empty")
             raise BatteryAnalysisException("电压等级列表为空")
 
         self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
@@ -147,7 +147,7 @@ class BatteryAnalysis:
             is_frozen = getattr(sys, 'frozen', False)
 
             if progress_callback:
-                progress_callback(12, "正在读取Excel文件...")
+                progress_callback(12, "Reading Excel file...")
 
             if is_frozen or sys.platform.startswith('win'):
                 from battery_analysis.utils.resource_manager import ResourceManager
@@ -163,7 +163,7 @@ class BatteryAnalysis:
                     }
 
                     if progress_callback:
-                        progress_callback(15, "正在并行分析电池数据...")
+                        progress_callback(15, "Analyzing battery data in parallel...")
 
                     results_map = {}
                     completed = 0
@@ -180,7 +180,7 @@ class BatteryAnalysis:
                             file_name = (process_args[idx][0]
                                          if idx < len(process_args)
                                          else "unknown")
-                            logging.error("处理文件时出错 (已跳过): %s - %s",
+                            logging.error("Error processing file (skipped): %s - %s",
                                           file_name, e)
                             # 跳过失败文件，继续处理其余文件
 
@@ -188,7 +188,7 @@ class BatteryAnalysis:
                         if progress_callback and total > 1:
                             pct = 15 + int((completed / total) * 35)
                             progress_callback(
-                                pct, f"正在分析电池数据... ({completed}/{total})")
+                                pct, f"Analyzing battery data... ({completed}/{total})")
 
                     results = [results_map.get(i) for i in range(len(process_args))]
                     results = [r for r in results if r is not None]
@@ -200,13 +200,13 @@ class BatteryAnalysis:
             else:
                 cpu_count = min(multiprocessing.cpu_count(), 4)
                 if progress_callback:
-                    progress_callback(15, "正在并行分析电池数据...")
+                    progress_callback(15, "Analyzing battery data in parallel...")
                 with multiprocessing.Pool(processes=cpu_count) as pool:
                     try:
                         results = pool.map(self._parallel_process_file, process_args)
                     except (FileNotFoundError, PermissionError,
                             ValueError, KeyError, IndexError) as e:
-                        logging.error("并行处理文件时出错: %s", e)
+                        logging.error("Error while processing files in parallel: %s", e)
                         pool.terminate()
                         raise BatteryAnalysisException(f"并行处理失败: {str(e)}")
                     finally:
@@ -231,13 +231,13 @@ class BatteryAnalysis:
                         timestamp_info[1], self.listTimeStamp[1], False)
 
             if progress_callback:
-                progress_callback(52, "正在写入CSV文件...")
+                progress_callback(52, "Writing CSV file...")
 
             # ── 输出结果 ──────────────────────────────────────────
             self.UBA_WriteCsv(f"{strResultPath}/V{self.listTestInfo[16]}")
 
             if progress_callback:
-                progress_callback(55, "数据处理完成")
+                progress_callback(55, "Data processing complete")
 
         except (IOError, OSError, ValueError, rd.XLRDError,
                 BatteryAnalysisException, KeyError) as e:
@@ -256,7 +256,7 @@ class BatteryAnalysis:
         try:
             cycle_df, step_df, record_df = read_xlsx_sheets(strPath)
         except Exception as e:
-            logging.error("pandas 读取失败 %s, 回退到 xlrd. 原始错误: %s", strPath, e)
+            logging.error("pandas read failed %s, falling back to xlrd. Original error: %s", strPath, e)
             return BatteryAnalysis._parallel_process_file_xlrd_fallback(args)
 
         if len(cycle_df) < 3 or len(step_df) < 3 or len(record_df) < 3:
@@ -348,7 +348,7 @@ class BatteryAnalysis:
         try:
             rb = rd.open_workbook(strPath)
         except (FileNotFoundError, PermissionError, rd.XLRDError) as e:
-            logging.error("读取Excel文件失败: %s, 错误: %s", strPath, e)
+            logging.error("Failed to read Excel file: %s, error: %s", strPath, e)
             raise BatteryAnalysisException(f"无法打开Excel文件: {strPath}") from e
 
         sheets = rb.sheets()
@@ -599,7 +599,7 @@ class BatteryAnalysis:
     def UBA_WriteCsv(self, _strResultPath: str) -> None:
         """写入 Info_Image.csv 和 Info_Plot.json"""
         if not self.listAllPosiForInfoImageCsv:
-            logging.error("没有有效数据可写入CSV文件")
+            logging.error("No valid data to write to CSV file")
             return
 
         write_info_csv(
@@ -635,7 +635,7 @@ class BatteryAnalysis:
             self._log_buffer = []
             self._log_buffer_size = 0
         except (IOError, OSError) as e:
-            logging.error("写入日志文件失败: %s", e)
+            logging.error("Failed to write log file: %s", e)
 
     def __del__(self):
         try:

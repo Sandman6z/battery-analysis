@@ -75,9 +75,9 @@ class Version:
             if get_environment_detector:
                 self.env_detector = get_environment_detector()
                 self.env_info = self.env_detector.get_environment_info()
-                logger.debug("环境检测成功: %s", self.env_info['environment_type'])
+                logger.debug("Environment detection succeeded: %s", self.env_info['environment_type'])
         except (AttributeError, ImportError, TypeError) as e:
-            logger.warning("环境检测失败: %s", e)
+            logger.warning("Environment detection failed: %s", e)
             self.env_detector = None
             self.env_info = {}
 
@@ -124,11 +124,11 @@ class Version:
                 for path in possible_paths:
                     if path.exists():
                         pyproject_path = path
-                        logger.info("使用环境检测器找到 pyproject.toml: %s", pyproject_path)
+                        logger.info("Found pyproject.toml using environment detector: %s", pyproject_path)
                         break
 
             except (AttributeError, ImportError, TypeError, FileNotFoundError) as e:
-                logger.warning("环境检测器查找配置文件失败: %s", e)
+                logger.warning("Environment detector failed to locate config file: %s", e)
 
         # 如果环境检测器不可用或没有找到文件，使用原有逻辑
         if not pyproject_path:

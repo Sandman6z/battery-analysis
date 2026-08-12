@@ -57,7 +57,7 @@ class EnvironmentService:
         处理环境适配逻辑（各环境特化方法待实现）
         """
         env_type = self.env_info.get('environment_type')
-        self.logger.debug("当前环境类型: %s", env_type)
+        self.logger.debug("Current environment type: %s", env_type)
     
     def get_environment_info(self) -> Dict[str, Any]:
         """

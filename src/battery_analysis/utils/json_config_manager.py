@@ -25,16 +25,16 @@ class JsonConfigManager:
         """读取 JSON 配置文件"""
         path = Path(config_path)
         if not path.exists():
-            logger.warning("配置文件不存在: %s", config_path)
+            logger.warning("Config file does not exist: %s", config_path)
             return False
         try:
             with open(path, "r", encoding="utf-8") as f:
                 self._data = json.load(f)
             self._loaded = True
-            logger.info("配置文件读取成功: %s", config_path)
+            logger.info("Config file read successfully: %s", config_path)
             return True
         except (json.JSONDecodeError, IOError, OSError) as e:
-            logger.error("配置文件读取失败: %s", e)
+            logger.error("Failed to read config file: %s", e)
             self._data = {}
             self._loaded = False
             return False
@@ -58,10 +58,10 @@ class JsonConfigManager:
                 except OSError:
                     pass
                 raise
-            logger.info("配置文件写入成功: %s", config_path)
+            logger.info("Config file written successfully: %s", config_path)
             return True
         except (IOError, OSError, PermissionError) as e:
-            logger.error("配置文件写入失败: %s", e)
+            logger.error("Failed to write config file: %s", e)
             return False
 
     def get(self, key_path: str, default: Any = None) -> Any:
@@ -92,7 +92,7 @@ class JsonConfigManager:
             target[keys[-1]] = value
             return True
         except (TypeError, KeyError) as e:
-            logger.error("设置配置值失败: %s", e)
+            logger.error("Failed to set config value: %s", e)
             return False
 
     def get_all(self) -> Dict[str, Any]:

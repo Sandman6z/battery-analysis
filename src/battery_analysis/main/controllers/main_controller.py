@@ -68,7 +68,7 @@ class MainController(QC.QObject):
 
         # 验证必要的参数
         if not all([self.project_path, self.input_path, self.output_path, self.test_info]):
-            self.status_changed.emit(False, 1, "错误：缺少必要的分析参数")
+            self.status_changed.emit(False, 1, "Error: missing required analysis parameters")
             return False
 
         # 创建工作线程
@@ -162,6 +162,6 @@ class MainController(QC.QObject):
             if hasattr(self, 'start_visualizer'):
                 self.start_visualizer.emit()
             else:
-                logging.error("main_controller.start_visualizer信号不存在，无法转发")
+                logging.error("main_controller.start_visualizer signal does not exist, cannot forward")
         except (AttributeError, TypeError, RuntimeError) as e:
-            logging.error("转发启动可视化工具信号失败: %s", e)
+            logging.error("Failed to forward start visualizer signal: %s", e)

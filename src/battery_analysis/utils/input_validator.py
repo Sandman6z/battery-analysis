@@ -57,22 +57,22 @@ class InputValidator:
     """纯输入验证器，无 UI 依赖。"""
 
     REQUIRED_TEXT_FIELDS = [
-        ("battery_type", "电池类型"),
-        ("specification_type", "规格类型"),
-        ("specification_method", "规格方法"),
-        ("manufacturer", "制造商"),
-        ("batch_date_code", "批次/日期代码"),
-        ("samples_qty", "样品数量"),
-        ("temperature", "温度"),
-        ("datasheet_nominal_capacity", "标称容量（规格书）"),
-        ("calculation_nominal_capacity", "标称容量（计算）"),
-        ("required_usable_capacity", "所需可用容量"),
-        ("tester_location", "测试地点"),
-        ("tested_by", "测试人"),
-        ("test_profile", "测试配置文件"),
-        ("input_path", "输入路径"),
-        ("output_path", "输出路径"),
-        ("version", "版本号"),
+        ("battery_type", "Battery Type"),
+        ("specification_type", "Specification Type"),
+        ("specification_method", "Specification Method"),
+        ("manufacturer", "Manufacturer"),
+        ("batch_date_code", "Batch/Date Code"),
+        ("samples_qty", "Samples Qty"),
+        ("temperature", "Temperature"),
+        ("datasheet_nominal_capacity", "Nominal Capacity (Datasheet)"),
+        ("calculation_nominal_capacity", "Nominal Capacity (Calculated)"),
+        ("required_usable_capacity", "Required Useable Capacity"),
+        ("tester_location", "Tester Location"),
+        ("tested_by", "Tested By"),
+        ("test_profile", "Test Profile"),
+        ("input_path", "Input Path"),
+        ("output_path", "Output Path"),
+        ("version", "Version"),
     ]
 
     @staticmethod
@@ -94,7 +94,7 @@ class InputValidator:
             types_requiring_construction = ["Pouch Cell"]
         if values.battery_type in types_requiring_construction:
             result.merge(InputValidator._validate_required_text(
-                values.construction_method, "construction_method", "构造方法"
+                values.construction_method, "construction_method", "Construction Method"
             ))
         return result
 
@@ -109,26 +109,26 @@ class InputValidator:
         """检查所有必填字段是否非空。"""
         result = ValidationResult()
         for field_name, label in [
-            ("battery_type", "电池类型"),
-            ("specification_type", "规格类型"),
-            ("specification_method", "规格方法"),
-            ("manufacturer", "制造商"),
-            ("batch_date_code", "批次/日期代码"),
-            ("samples_qty", "样品数量"),
-            ("temperature", "温度"),
-            ("datasheet_nominal_capacity", "标称容量"),
-            ("calculation_nominal_capacity", "计算容量"),
-            ("required_usable_capacity", "所需可用容量"),
-            ("tester_location", "测试地点"),
-            ("tested_by", "测试人"),
-            ("test_profile", "测试配置文件"),
-            ("input_path", "输入路径"),
-            ("output_path", "输出路径"),
+            ("battery_type", "Battery Type"),
+            ("specification_type", "Specification Type"),
+            ("specification_method", "Specification Method"),
+            ("manufacturer", "Manufacturer"),
+            ("batch_date_code", "Batch/Date Code"),
+            ("samples_qty", "Samples Qty"),
+            ("temperature", "Temperature"),
+            ("datasheet_nominal_capacity", "Nominal Capacity"),
+            ("calculation_nominal_capacity", "Calculated Capacity"),
+            ("required_usable_capacity", "Required Useable Capacity"),
+            ("tester_location", "Tester Location"),
+            ("tested_by", "Tested By"),
+            ("test_profile", "Test Profile"),
+            ("input_path", "Input Path"),
+            ("output_path", "Output Path"),
         ]:
             val = getattr(values, field_name, "")
             if not val:
                 result.is_valid = False
-                result.field_errors[field_name] = f"{label} 不能为空"
+                result.field_errors[field_name] = f"{label} cannot be empty"
         return result
 
     @staticmethod
@@ -138,12 +138,12 @@ class InputValidator:
         result = ValidationResult()
         if values.input_path and not os.path.exists(values.input_path):
             result.is_valid = False
-            result.field_errors["input_path"] = "输入路径不存在"
-            result.errors.append(f"输入路径不存在: {values.input_path}")
+            result.field_errors["input_path"] = "Input path does not exist"
+            result.errors.append(f"Input path does not exist: {values.input_path}")
         if values.output_path and not os.path.exists(values.output_path):
             result.is_valid = False
-            result.field_errors["output_path"] = "输出路径不存在"
-            result.errors.append(f"输出路径不存在: {values.output_path}")
+            result.field_errors["output_path"] = "Output path does not exist"
+            result.errors.append(f"Output path does not exist: {values.output_path}")
         return result
 
     @staticmethod
@@ -152,7 +152,7 @@ class InputValidator:
         result = ValidationResult()
         if values.version and not re.match(r"^\d+(\.\d+){0,2}$", values.version):
             result.is_valid = False
-            result.field_errors["version"] = "版本号格式不正确，应为 x.y.z 格式"
+            result.field_errors["version"] = "Version format is invalid. Expected x.y.z format"
         return result
 
     @staticmethod
@@ -161,7 +161,7 @@ class InputValidator:
         result = ValidationResult()
         if values.accelerated_aging < 0 or values.accelerated_aging > 10:
             result.is_valid = False
-            result.field_errors["accelerated_aging"] = "加速老化值应在 0-10 之间"
+            result.field_errors["accelerated_aging"] = "Accelerated aging value should be between 0 and 10"
         return result
 
     @staticmethod
@@ -170,5 +170,5 @@ class InputValidator:
         result = ValidationResult()
         if not value:
             result.is_valid = False
-            result.field_errors[field_name] = f"{label} 不能为空"
+            result.field_errors[field_name] = f"{label} cannot be empty"
         return result

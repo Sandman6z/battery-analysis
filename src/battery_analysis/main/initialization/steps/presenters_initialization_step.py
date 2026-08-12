@@ -28,10 +28,10 @@ class PresentersInitializationStep(InitializationStep):
             # 初始化Presenter
             main_window.presenter = MainPresenter(main_window)
             main_window.presenter.initialize()
-            self.logger.info("Presenter初始化完成")
+            self.logger.info("Presenter initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("Presenter初始化失败")
+            self.logger.exception("Presenter initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

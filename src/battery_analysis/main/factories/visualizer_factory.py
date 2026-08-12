@@ -40,7 +40,7 @@ class VisualizerFactory:
             raise ValueError(f"类 {visualizer_class.__name__} 必须实现 IVisualizer 接口")
         
         self._visualizers[name] = visualizer_class
-        self.logger.debug("注册可视化器: %s -> %s", name, visualizer_class.__name__)
+        self.logger.debug("Registered visualizer: %s -> %s", name, visualizer_class.__name__)
 
     def create_visualizer(self, name: str, **kwargs) -> Optional[IVisualizer]:
         """
@@ -54,16 +54,16 @@ class VisualizerFactory:
             可视化器实例或None（如果不存在）
         """
         if name not in self._visualizers:
-            self.logger.error("未找到可视化器: %s", name)
+            self.logger.error("Visualizer not found: %s", name)
             return None
 
         try:
             visualizer_class = self._visualizers[name]
             instance = visualizer_class(**kwargs)
-            self.logger.debug("创建可视化器实例: %s", name)
+            self.logger.debug("Creating visualizer instance: %s", name)
             return instance
         except (ImportError, TypeError, ValueError, OSError) as e:
-            self.logger.error("创建可视化器 %s 失败: %s", name, e)
+            self.logger.error("Failed to create visualizer %s: %s", name, e)
             return None
 
     def get_available_visualizers(self) -> list:
@@ -129,21 +129,21 @@ class BatteryChartViewerWrapper(IVisualizer):
 
                 # 检查XML路径是否存在
                 if not os.path.exists(xml_path):
-                    self.logger.warning("XML文件不存在: %s", xml_path)
+                    self.logger.warning("XML file does not exist: %s", xml_path)
 
                 # 获取XML所在目录
                 test_profile_dir = os.path.dirname(xml_path)
 
                 # 检查XML所在目录是否存在
                 if not os.path.exists(test_profile_dir):
-                    self.logger.warning("XML所在目录不存在: %s", test_profile_dir)
+                    self.logger.warning("XML directory does not exist: %s", test_profile_dir)
 
                 # 获取XML所在目录的上一级目录
                 parent_dir = os.path.dirname(test_profile_dir)
 
                 # 检查XML上一级目录是否存在
                 if not os.path.exists(parent_dir):
-                    self.logger.warning("XML上一级目录不存在: %s", parent_dir)
+                    self.logger.warning("XML parent directory does not exist: %s", parent_dir)
 
                 # 定义可能的分析结果目录名称
                 analysis_dir_names = ["3_analysis results", "analysis results", "Analysis Results", "3_Analysis Results"]
@@ -168,7 +168,7 @@ class BatteryChartViewerWrapper(IVisualizer):
                 if analysis_results_dir:
                     # 检查分析结果目录是否存在
                     if not os.path.exists(analysis_results_dir):
-                        self.logger.warning("分析结果目录不存在: %s", analysis_results_dir)
+                        self.logger.warning("Analysis results directory does not exist: %s", analysis_results_dir)
                     else:
                         # 获取子目录列表
                         try:
@@ -185,11 +185,11 @@ class BatteryChartViewerWrapper(IVisualizer):
                                     self._viewer.set_data_path(latest_dir_path)
                                     if self._viewer.load_data():
                                         self._viewer.loaded_data = True
-                                        self.logger.info("成功从XML路径加载数据")
+                                        self.logger.info("Successfully loaded data from XML path")
                                     else:
-                                        self.logger.warning("数据加载失败")
+                                        self.logger.warning("Data loading failed")
                                 else:
-                                    self.logger.warning("最新版本目录中没有找到Info_Image.csv文件")
+                                    self.logger.warning("Info_Image.csv file not found in the latest version directory")
                                     # 尝试在分析结果目录的其他子目录中寻找Info_Image.csv文件
                                     for subdir in subdirs:
                                         subdir_path = os.path.join(analysis_results_dir, subdir)
@@ -198,34 +198,34 @@ class BatteryChartViewerWrapper(IVisualizer):
                                             self._viewer.set_data_path(subdir_path)
                                             if self._viewer.load_data():
                                                 self._viewer.loaded_data = True
-                                                self.logger.info("成功从其他子目录加载数据")
+                                                self.logger.info("Successfully loaded data from another subdirectory")
                                             else:
-                                                self.logger.warning("数据加载失败")
+                                                self.logger.warning("Data loading failed")
                                             break
                             else:
-                                self.logger.warning("分析结果目录中没有子目录")
+                                self.logger.warning("No subdirectories in the analysis results directory")
                                 # 尝试直接在分析结果目录中寻找Info_Image.csv文件
                                 info_image_csv = os.path.join(analysis_results_dir, "Info_Image.csv")
                                 if os.path.exists(info_image_csv):
                                     self._viewer.set_data_path(analysis_results_dir)
                                     if self._viewer.load_data():
                                         self._viewer.loaded_data = True
-                                        self.logger.info("成功从分析结果目录加载数据")
+                                        self.logger.info("Successfully loaded data from analysis results directory")
                                     else:
-                                        self.logger.warning("数据加载失败")
+                                        self.logger.warning("Data loading failed")
                         except Exception as e:
-                            self.logger.error("处理分析结果目录时出错: %s", e)
+                            self.logger.error("Error processing analysis results directory: %s", e)
                 else:
-                    self.logger.warning("未找到分析结果目录")
+                    self.logger.warning("Analysis results directory not found")
 
             # 如果提供了数据路径，加载数据
             elif data_path is not None:
                 self._viewer.set_data_path(data_path)
                 if self._viewer.load_data():
                     self._viewer.loaded_data = True
-                    self.logger.info("成功从数据路径加载数据")
+                    self.logger.info("Successfully loaded data from data path")
                 else:
-                    self.logger.warning("数据加载失败")
+                    self.logger.warning("Data loading failed")
 
             # 其他情况（没有提供XML路径或数据路径），不加载任何数据，直接显示无数据
             # 不设置loaded_data，让_viewer在plt_figure时显示无数据
@@ -233,11 +233,11 @@ class BatteryChartViewerWrapper(IVisualizer):
             # 创建可视化
             success = self._viewer.plt_figure()
             if not success:
-                self.logger.warning("图表显示失败")
+                self.logger.warning("Chart display failed")
             
             return success
         except (ImportError, TypeError, ValueError, OSError) as e:
-            self.logger.error("显示图表时出错: %s", e)
+            self.logger.error("Error displaying chart: %s", e)
             return False
 
     def load_data(self, data_path: str) -> bool:
@@ -255,13 +255,13 @@ class BatteryChartViewerWrapper(IVisualizer):
             success = self._viewer.load_data()
             if not success:
                 self._viewer.loaded_data = False
-                self.logger.warning("数据加载失败: %s", data_path)
+                self.logger.warning("Data loading failed: %s", data_path)
             else:
                 self._viewer.loaded_data = True
             
             return success
         except (IOError, TypeError, ValueError, OSError) as e:
-            self.logger.error("加载数据时出错: %s", e)
+            self.logger.error("Error loading data: %s", e)
             self._viewer.loaded_data = False
             return False
 
@@ -280,7 +280,7 @@ class BatteryChartViewerWrapper(IVisualizer):
             self._viewer.strPltPath = None
             self._viewer.strInfoImageCsvPath = None
         except (TypeError, AttributeError, OSError) as e:
-            self.logger.error("清除数据时出错: %s", e)
+            self.logger.error("Error clearing data: %s", e)
 
     def is_data_loaded(self) -> bool:
         """
@@ -313,7 +313,7 @@ class BatteryChartViewerWrapper(IVisualizer):
             config: 配置字典
         """
         self._config.update(config)
-        self.logger.debug("配置已更新: %s", config)
+        self.logger.debug("Configuration updated: %s", config)
 
     def get_config(self) -> dict:
         """

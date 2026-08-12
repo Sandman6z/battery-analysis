@@ -86,7 +86,7 @@ class InteractionControlsMixin:
                     try:
                         callback()
                     except (TypeError, ValueError, AttributeError) as e:
-                        logger.error("按钮回调执行出错: %s", e)
+                        logger.error("Error executing button callback: %s", e)
 
                     ax.figure.canvas.draw_idle()
 
@@ -96,7 +96,7 @@ class InteractionControlsMixin:
             return state
 
         except (ValueError, TypeError, AttributeError) as e:
-            logger.error("创建现代化按钮时出错: %s", e)
+            logger.error("Error creating modern button: %s", e)
             return None
 
     def _create_modern_toggle_group(self, ax, x, y, width, height, buttons_config):
@@ -118,7 +118,7 @@ class InteractionControlsMixin:
             return button_states
 
         except (ValueError, TypeError, AttributeError) as e:
-            logger.error("创建现代化切换按钮组时出错: %s", e)
+            logger.error("Error creating modern toggle button group: %s", e)
             return []
 
     def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered,
@@ -174,7 +174,7 @@ class InteractionControlsMixin:
 
                     fig.canvas.draw_idle()
                 except (AttributeError, TypeError, ValueError, IndexError) as e:
-                    logger.error("执行过滤切换时出错: %s", e)
+                    logger.error("Error toggling filter mode: %s", e)
 
             button_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
             button_state = self._create_modern_button(
@@ -186,10 +186,10 @@ class InteractionControlsMixin:
             button_state_ref['button_state'] = button_state
             self.filter_button_state = button_state
 
-            logger.info("成功添加现代化过滤按钮")
+            logger.info("Modern filter button added successfully")
 
         except (ValueError, TypeError, AttributeError) as e:
-            logger.error("创建过滤按钮时出错: %s", e)
+            logger.error("Error creating filter button: %s", e)
 
         return button_state_ref['button_state']
 
@@ -226,7 +226,7 @@ class InteractionControlsMixin:
             'line2': button_states_line2
         }
 
-        logger.info("成功添加现代化电池选择按钮")
+        logger.info("Modern battery selection buttons added successfully")
         return button_states_line1, button_states_line2
 
     def _create_battery_check_buttons(self, fig, rect, start_idx, end_idx,
@@ -272,7 +272,7 @@ class InteractionControlsMixin:
 
         def toggle_battery_visibility(battery_idx, button_state):
             try:
-                logger.debug("切换电池 %s 的可见性", battery_idx)
+                logger.debug("Toggling visibility of battery %s", battery_idx)
 
                 if battery_info[battery_idx - start_idx].get('is_none', False):
                     return
@@ -307,7 +307,7 @@ class InteractionControlsMixin:
                 if updated:
                     fig.canvas.draw_idle()
             except (AttributeError, TypeError, ValueError, IndexError) as e:
-                logger.error("执行电池选择时出错: %s", e)
+                logger.error("Error selecting battery: %s", e)
 
         valid_batteries = [battery for battery in battery_info if not battery['is_none']]
         num_valid = len(valid_batteries)
@@ -326,17 +326,17 @@ class InteractionControlsMixin:
             if button_state:
                 button_states.append((battery['index'], button_state))
 
-        logger.info("成功创建现代化电池选择按钮组 (%s-%s)", start_idx, end_idx)
+        logger.info("Modern battery selection button group created successfully (%s-%s)", start_idx, end_idx)
         return button_states
 
     def _add_help_text(self, fig):
         """添加帮助文本到图表右上角"""
         try:
-            fig.text(0.98, 0.85, "提示: 将鼠标悬停在数据点上查看详细信息", fontsize=7, ha='right')
-            fig.text(0.98, 0.78, "快捷键: 滚轮缩放, 鼠标拖拽平移, 右键重置视图", fontsize=7, ha='right')
-            logger.info("成功添加帮助文本")
+            fig.text(0.98, 0.85, "Tip: Hover over a data point to view details", fontsize=7, ha='right')
+            fig.text(0.98, 0.78, "Shortcuts: Scroll to zoom, drag to pan, right-click to reset view", fontsize=7, ha='right')
+            logger.info("Help text added successfully")
         except (AttributeError, TypeError, ValueError) as e:
-            logger.warning("添加帮助文本时出错: %s", e)
+            logger.warning("Error adding help text: %s", e)
 
     def _add_hover_functionality(self, fig, ax, lines_filtered, lines_unfiltered, check_filter):
         """添加鼠标悬停功能，显示数据点信息"""
@@ -394,7 +394,7 @@ class InteractionControlsMixin:
                             label_text = str(closest_line_label)
 
                         annot.set_text(
-                            f"{label_text}\n点 {idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V")
+                            f"{label_text}\nPoint {idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V")
                         annot.set_visible(True)
                         fig.canvas.draw_idle()
                     else:
@@ -405,7 +405,7 @@ class InteractionControlsMixin:
             fig.canvas.mpl_connect('motion_notify_event', on_hover)
 
         except (AttributeError, TypeError, ValueError) as e:
-            logger.warning("添加悬停功能时出错: %s", e)
+            logger.warning("Error adding hover functionality: %s", e)
 
     def _add_file_operation_buttons(self, fig):
         """添加文件操作按钮区域（打开文件和退出按钮）"""
@@ -432,18 +432,18 @@ class InteractionControlsMixin:
                 ax_file, 0.02, 0.15, 0.96, 0.7, buttons_config
             )
 
-            logger.info("成功添加现代化文件操作按钮区域")
+            logger.info("Modern file operation button area added successfully")
         except (ValueError, TypeError, AttributeError) as e:
-            logger.error("创建文件操作按钮时出错: %s", e)
+            logger.error("Error creating file operation buttons: %s", e)
 
     def _add_menu_bar(self, fig):
         """为图表添加菜单栏（统一使用PyQt6）"""
         try:
-            logger.info("开始添加PyQt6菜单栏")
+            logger.info("Starting to add PyQt6 menubar")
 
             manager = fig.canvas.manager
             if not manager or not hasattr(manager, 'window'):
-                logger.warning("无法获取matplotlib窗口管理器，跳过菜单栏添加")
+                logger.warning("Unable to obtain matplotlib window manager, skipping menubar addition")
                 return False
 
             if hasattr(manager.window, 'menuBar'):
@@ -459,7 +459,7 @@ class InteractionControlsMixin:
                 open_action.setProperty('menu_action', 'open')
 
                 def on_open_clicked():
-                    logger.info("Open菜单项被点击")
+                    logger.info("Open menu item clicked")
                     self._open_file_dialog()
 
                 open_action.triggered.connect(on_open_clicked)
@@ -470,13 +470,13 @@ class InteractionControlsMixin:
                 exit_action.setProperty('menu_action', 'exit')
 
                 def on_exit_clicked():
-                    logger.info("Exit菜单项被点击，关闭visualizer窗口")
+                    logger.info("Exit menu item clicked, closing visualizer window")
                     if self.current_fig is not None:
                         plt.close(self.current_fig)
                         self.current_fig = None
-                        logger.info("已关闭visualizer窗口")
+                        logger.info("Visualizer window closed")
                     else:
-                        logger.warning("当前没有打开的visualizer窗口")
+                        logger.warning("No visualizer window is currently open")
 
                 exit_action.triggered.connect(on_exit_clicked)
 
@@ -487,55 +487,55 @@ class InteractionControlsMixin:
                 about_action.setProperty('menu_action', 'about')
 
                 def on_about_clicked():
-                    logger.info("About菜单项被点击")
+                    logger.info("About menu item clicked")
                     self._show_about_dialog()
 
                 about_action.triggered.connect(on_about_clicked)
-                logger.info("成功添加PyQt6菜单栏")
+                logger.info("PyQt6 menubar added successfully")
             else:
                 raise RuntimeError("窗口不支持菜单栏")
 
         except ImportError as e:
             raise ImportError(f"PyQt6依赖缺失: {e}. 请确保已正确安装PyQt6")
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
-            logger.error("添加菜单栏失败: %s", e)
+            logger.error("Failed to add menubar: %s", e)
             raise RuntimeError(f"菜单栏初始化失败: {e}") from e
 
     def _open_file_dialog(self):
         """打开文件对话框，允许用户选择数据文件"""
-        logger.info("=== _open_file_dialog方法开始执行 ===")
+        logger.info("=== _open_file_dialog method started ===")
         try:
-            logger.info("尝试打开文件对话框，选择数据目录")
+            logger.info("Attempting to open file dialog to select data directory")
 
             data_dir = None
 
-            logger.info("尝试使用Qt文件对话框")
+            logger.info("Attempting to use Qt file dialog")
             try:
                 data_dir = QFileDialog.getExistingDirectory(
                     None,
-                    "选择数据目录",
+                    "Select Data Directory",
                     self.strPltPath or ".",
                     QFileDialog.Option.ShowDirsOnly
                 )
-                logger.info("使用Qt文件对话框成功，返回值: %s", data_dir)
+                logger.info("Qt file dialog succeeded, return value: %s", data_dir)
             except (ImportError, AttributeError, TypeError, RuntimeError) as qt_error:
-                logger.error("Qt文件对话框失败: %s", qt_error)
+                logger.error("Qt file dialog failed: %s", qt_error)
 
             if data_dir:
-                logger.info("用户选择的数据目录: %s", data_dir)
+                logger.info("User selected data directory: %s", data_dir)
                 self.set_data_path(data_dir)
                 success = self.load_data()
                 if success:
-                    logger.info("数据加载成功，重新绘制图表")
+                    logger.info("Data loaded successfully, redrawing chart")
                     self._cleanup_matplotlib_state()
                     if self.current_fig is not None:
                         plt.close(self.current_fig)
                         self.current_fig = None
                     self.plt_figure()
                 else:
-                    logger.error("数据加载失败，无法显示图表")
+                    logger.error("Data loading failed, cannot display chart")
         except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
-            logger.error("打开文件对话框时出错: %s", str(e))
+            logger.error("Error opening file dialog: %s", str(e))
             traceback.print_exc()
 
     def _show_about_dialog(self):
@@ -544,33 +544,33 @@ class InteractionControlsMixin:
             try:
                 current_time = datetime.datetime.now().strftime("%Y")
             except (ImportError, OSError, ValueError) as e:
-                logger.warning("获取当前年份失败: %s", e)
+                logger.warning("Failed to get current year: %s", e)
                 current_time = "2024"
 
             try:
                 version_obj = Version()
                 version_info = f"v{version_obj.version}"
             except (ImportError, AttributeError, TypeError) as e:
-                logger.warning("无法获取版本信息，使用默认版本: %s", e)
+                logger.warning("Unable to get version info, using default version: %s", e)
                 version_info = "v2.0.0"
 
             about_text = f"""Battery Analysis Tool
-版本: {version_info}
+Version: {version_info}
 
-电池测试数据可视化分析应用
-支持多种数据格式导入与图表生成
+Battery test data visualization and analysis application
+Supports importing multiple data formats and generating charts
 
-功能特点:
-• 支持CSV文件数据导入
-• 交互式图表显示和操作
-• 数据过滤和未过滤切换
-• 电池选择和通道控制
-• 悬停显示详细信息
+Features:
+• Import data from CSV files
+• Interactive chart display and operation
+• Toggle between filtered and unfiltered data
+• Battery selection and channel control
+• Hover to show detailed information
 
-开发者: Ewin电池分析团队
-版权: © {current_time} MIT License
+Developer: Ewin Battery Analysis Team
+Copyright: © {current_time} MIT License
 
-感谢使用Battery Analysis Tool!"""
+Thank you for using Battery Analysis Tool!"""
 
             msg_box = QMessageBox()
             msg_box.setWindowTitle("About")
@@ -579,9 +579,9 @@ class InteractionControlsMixin:
             msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
             msg_box.exec()
 
-            logger.info("About对话框显示完成")
+            logger.info("About dialog displayed")
         except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
-            logger.error("显示About对话框失败: %s", e)
+            logger.error("Failed to display About dialog: %s", e)
             try:
                 version_obj = Version()
                 fallback_version = f"v{version_obj.version}"
@@ -591,15 +591,15 @@ class InteractionControlsMixin:
     def _close_viewer(self):
         """关闭viewer窗口"""
         try:
-            logger.info("文件操作按钮：Exit被点击，关闭visualizer窗口")
+            logger.info("File operation button: Exit clicked, closing visualizer window")
             if self.current_fig is not None:
                 plt.close(self.current_fig)
                 self.current_fig = None
-                logger.info("已关闭visualizer窗口")
+                logger.info("Visualizer window closed")
             else:
-                logger.warning("当前没有打开的visualizer窗口")
+                logger.warning("No visualizer window is currently open")
         except (AttributeError, TypeError, RuntimeError) as e:
-            logger.error("关闭viewer窗口时出错: %s", e)
+            logger.error("Error closing viewer window: %s", e)
 
     def __del__(self):
         """析构函数，确保在对象销毁时释放所有资源"""
@@ -607,11 +607,11 @@ class InteractionControlsMixin:
             if hasattr(self, 'current_fig') and self.current_fig is not None:
                 plt.close(self.current_fig)
                 self.current_fig = None
-                logger.info("析构函数：关闭图表窗口")
+                logger.info("Destructor: closing chart window")
 
             if hasattr(self, '_cleanup_matplotlib_state'):
                 self._cleanup_matplotlib_state()
-                logger.info("析构函数：清理Matplotlib状态")
+                logger.info("Destructor: cleaning up Matplotlib state")
 
             if hasattr(self, 'listPlt'):
                 try:
@@ -621,10 +621,10 @@ class InteractionControlsMixin:
                             self.listPlt[c][1].clear()
                             self.listPlt[c][2].clear()
                             self.listPlt[c][3].clear()
-                    logger.info("析构函数：释放数据资源")
+                    logger.info("Destructor: releasing data resources")
                 except Exception as e:
-                    logger.error("析构函数：释放数据资源时出错: %s", e)
+                    logger.error("Destructor: error releasing data resources: %s", e)
 
-            logger.info("BatteryChartViewer对象已销毁，资源已释放")
+            logger.info("BatteryChartViewer object destroyed, resources released")
         except Exception as e:
-            logger.error("析构函数执行异常: %s", e)
+            logger.error("Destructor execution exception: %s", e)

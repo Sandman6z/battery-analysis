@@ -110,7 +110,7 @@ class ServiceContainer:
 
     def register(self, name: str, implementation, singleton=True) -> bool:
         """不再支持动态注册（保留方法签名避免调用方报错）。"""
-        self.logger.warning("ServiceContainer.register('%s') 已弃用，服务通过 create_services() 静态创建", name)
+        self.logger.warning("ServiceContainer.register('%s') is deprecated; services are created statically via create_services()", name)
         return False
 
 

@@ -136,7 +136,7 @@ class VersionManager:
                     import win32con
                     win32api.SetFileAttributes(strCsvPath, win32con.FILE_ATTRIBUTE_HIDDEN)
                 except ImportError:
-                    self.logger.warning("文件服务不可用，无法设置文件隐藏属性")
+                    self.logger.warning("File service is unavailable; cannot set file hidden attribute")
         else:
             self.main_window.lineEdit_Version.setText("")
     
@@ -204,7 +204,7 @@ class VersionManager:
 
                     if not checksum_found:
                         self.logger.warning(
-                            "校验和 %s 未在SHA256.csv中找到，无法更新版本号",
+                            "Checksum %s was not found in SHA256.csv; unable to update version number",
                             self.main_window.sha256_checksum_run)
                         return
 
@@ -235,7 +235,7 @@ class VersionManager:
                     if file_service:
                         success, error_msg = file_service.hide_file(str(sha256_file))
                         if not success:
-                            self.logger.warning("无法设置SHA256文件隐藏属性: %s", error_msg)
+                            self.logger.warning("Unable to set SHA256 file hidden attribute: %s", error_msg)
                     else:
                         # 降级到直接调用
                         try:
@@ -244,7 +244,7 @@ class VersionManager:
                             win32api.SetFileAttributes(str(sha256_file), win32con.FILE_ATTRIBUTE_HIDDEN)
                         except (ImportError, AttributeError, OSError) as e:
                             # 忽略设置隐藏属性失败的错误
-                            self.logger.debug("无法设置SHA256文件隐藏属性（直接调用）: %s", e)
+                            self.logger.debug("Unable to set SHA256 file hidden attribute (direct call): %s", e)
                 except PermissionError:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Permission denied writing to {output_path}")
@@ -268,7 +268,7 @@ class VersionManager:
                         win32api.SetFileAttributes(
                             str(sha256_file), win32con.FILE_ATTRIBUTE_HIDDEN)
                     except (ImportError, AttributeError, OSError) as e:
-                        self.logger.debug("无法设置SHA256文件隐藏属性: %s", e)
+                        self.logger.debug("Unable to set SHA256 file hidden attribute: %s", e)
                 except PermissionError:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Cannot create SHA256 file in {output_path}")

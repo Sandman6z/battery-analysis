@@ -96,14 +96,14 @@ class WordReportWriter:
             )
             if pkg_template.is_file():
                 self.strSampleReportWordPath = str(pkg_template)
-                logging.info("从包内模板目录加载Word模板: %s", self.strSampleReportWordPath)
+                logging.info("Loading Word template from package template directory: %s", self.strSampleReportWordPath)
             else:
                 raise FileNotFoundError
         except (TypeError, ModuleNotFoundError, FileNotFoundError):
             self.strSampleReportWordPath = str(
                 Path(self.strResultPath) / f"../../0_doc/{template_filename}"
             )
-            logging.info("从外部0_doc目录加载Word模板: %s", self.strSampleReportWordPath)
+            logging.info("Loading Word template from external 0_doc directory: %s", self.strSampleReportWordPath)
 
         # Word输出路径
         report_name = (
@@ -576,4 +576,4 @@ class WordReportWriter:
             else:
                 break
         wdReport.save(self.strReportWordPath)
-        logging.info("数据分析完成，生成的docx报告路径: %s", self.strReportWordPath)
+        logging.info("Data analysis complete, generated docx report path: %s", self.strReportWordPath)

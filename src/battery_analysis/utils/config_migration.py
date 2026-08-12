@@ -25,7 +25,7 @@ def register_migration(version: int, description: str):
     def decorator(func):
         _MIGRATIONS[version] = description
         _MIGRATION_FUNCS[version] = func
-        logger.debug("注册迁移 v%s: %s", version, description)
+        logger.debug("Registering migration v%s: %s", version, description)
         return func
     return decorator
 
@@ -33,14 +33,14 @@ def register_migration(version: int, description: str):
 # ── 内置迁移 ──────────────────────────────────────────────────
 
 
-@register_migration(2, "补全 test.equipment 预设数据")
+@register_migration(2, "Populate test.equipment presets")
 def _migrate_v2(config: Dict[str, Any]) -> Dict[str, Any]:
     """从默认配置补充 equipment 字段。"""
     from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
     test = config.setdefault("test", {})
     if not test.get("equipment"):
         test["equipment"] = DEFAULT_CONFIG.get("test", {}).get("equipment", {})
-        logger.info("迁移 v2: 已补全 equipment 预设数据")
+        logger.info("Migration v2: equipment presets filled in")
     return config
 
 
@@ -57,18 +57,18 @@ def run_migrations(config: Dict[str, Any]) -> Dict[str, Any]:
     if current_version >= CURRENT_CONFIG_VERSION:
         return config
 
-    logger.info("配置版本 %d → %d，执行 %d 个迁移脚本",
+    logger.info("Config version %d → %d, running %d migration script(s)",
                 current_version, CURRENT_CONFIG_VERSION,
                 CURRENT_CONFIG_VERSION - current_version)
 
     for ver in range(current_version + 1, CURRENT_CONFIG_VERSION + 1):
         if ver in _MIGRATION_FUNCS:
-            logger.info("执行迁移 v%d: %s", ver, _MIGRATIONS.get(ver, ""))
+            logger.info("Running migration v%d: %s", ver, _MIGRATIONS.get(ver, ""))
             try:
                 config = _MIGRATION_FUNCS[ver](config)
                 config["version"] = ver
             except Exception as e:
-                logger.error("迁移 v%d 失败: %s", ver, e)
+                logger.error("Migration v%d failed: %s", ver, e)
                 raise
         else:
             config["version"] = ver

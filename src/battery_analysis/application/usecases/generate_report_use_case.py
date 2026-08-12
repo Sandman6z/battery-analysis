@@ -32,20 +32,20 @@ class GenerateReportInput:
         
         # 验证必需字段
         if not self.battery_ids:
-            errors["battery_ids"] = "缺少电池ID列表"
+            errors["battery_ids"] = "Missing battery ID list"
         
         if not self.output_path:
-            errors["output_path"] = "缺少输出路径"
+            errors["output_path"] = "Missing output path"
         elif not os.path.exists(self.output_path):
-            errors["output_path"] = f"输出路径不存在: {self.output_path}"
+            errors["output_path"] = f"Output path does not exist: {self.output_path}"
         
         # 验证报告类型
         if self.report_type not in ["standard", "detailed"]:
-            errors["report_type"] = "报告类型必须是'standard'或'detailed'"
+            errors["report_type"] = "Report type must be 'standard' or 'detailed'"
         
         # 验证导出格式
         if self.export_format not in ["pdf", "docx", "html"]:
-            errors["export_format"] = "导出格式必须是'pdf'、'docx'或'html'"
+            errors["export_format"] = "Export format must be 'pdf', 'docx' or 'html'"
         
         return errors
 
@@ -69,18 +69,18 @@ class BatchProcessingInput:
         
         # 验证必需字段
         if not self.data_directories:
-            errors["data_directories"] = "缺少数据目录列表"
+            errors["data_directories"] = "Missing data directory list"
         else:
             # 验证每个目录是否存在
             for directory in self.data_directories:
                 if not os.path.exists(directory):
-                    errors["data_directories"] = f"数据目录不存在: {directory}"
+                    errors["data_directories"] = f"Data directory does not exist: {directory}"
                     break
         
         if not self.output_path:
-            errors["output_path"] = "缺少输出路径"
+            errors["output_path"] = "Missing output path"
         elif not os.path.exists(self.output_path):
-            errors["output_path"] = f"输出路径不存在: {self.output_path}"
+            errors["output_path"] = f"Output path does not exist: {self.output_path}"
         
         return errors
 
@@ -119,16 +119,16 @@ class GenerateReportUseCase:
             GenerateReportOutput: 报告生成输出结果
         """
         try:
-            self.logger.info("开始生成报告")
+            self.logger.info("Starting report generation")
             
             # 验证输入数据
             validation_errors = input_data.validate()
             if validation_errors:
                 error_message = "\n".join(validation_errors.values())
-                self.logger.warning("输入数据验证失败: %s", error_message)
+                self.logger.warning("Input data validation failed: %s", error_message)
                 return GenerateReportOutput(
                     success=False,
-                    message=f"输入数据验证失败: {error_message}",
+                    message=f"Input data validation failed: {error_message}",
                     error_details=error_message
                 )
             
@@ -139,13 +139,13 @@ class GenerateReportUseCase:
                 if battery:
                     batteries.append(battery)
                 else:
-                    self.logger.warning("未找到电池: %s", battery_id)
+                    self.logger.warning("Battery not found: %s", battery_id)
             
             if not batteries:
-                self.logger.warning("没有找到任何电池数据")
+                self.logger.warning("No battery data found")
                 return GenerateReportOutput(
                     success=False,
-                    message="没有找到任何电池数据",
+                    message="No battery data found",
                     generated_reports=0
                 )
             
@@ -156,19 +156,19 @@ class GenerateReportUseCase:
                 if report_path:
                     report_files.append(report_path)
             
-            self.logger.info("报告生成完成，共生成 %d 份报告", len(report_files))
+            self.logger.info("Report generation completed, %d reports generated", len(report_files))
             return GenerateReportOutput(
                 success=True,
-                message=f"报告生成完成，共生成 {len(report_files)} 份报告",
+                message=f"Report generation completed, {len(report_files)} reports generated",
                 report_files=report_files,
                 generated_reports=len(report_files)
             )
             
         except Exception as e:
-            self.logger.error("报告生成失败: %s", str(e))
+            self.logger.error("Report generation failed: %s", str(e))
             return GenerateReportOutput(
                 success=False,
-                message=f"报告生成失败: {str(e)}",
+                message=f"Report generation failed: {str(e)}",
                 error_details=str(e),
                 generated_reports=0
             )
@@ -185,7 +185,7 @@ class GenerateReportUseCase:
             Optional[str]: 生成的报告文件路径，失败则返回None
         """
         try:
-            self.logger.info("为电池 %s 生成报告", battery.serial_number)
+            self.logger.info("Generating report for battery %s", battery.serial_number)
             
             # 构建报告文件名
             report_filename = f"Battery_Report_{battery.serial_number}_{battery.model}_{battery.manufacturer}.{input_data.export_format}"
@@ -196,25 +196,25 @@ class GenerateReportUseCase:
             
             # 示例：创建一个空文件表示报告已生成
             with open(report_path, 'w') as f:
-                f.write(f"# 电池报告\n\n")
-                f.write(f"## 电池信息\n")
-                f.write(f"- 型号: {battery.model}\n")
-                f.write(f"- 制造商: {battery.manufacturer}\n")
-                f.write(f"- 序列号: {battery.serial_number}\n")
-                f.write(f"- 化学类型: {battery.chemistry}\n")
-                f.write(f"- 标称容量: {battery.nominal_capacity} Ah\n")
-                f.write(f"- 标称电压: {battery.nominal_voltage} V\n")
-                
+                f.write(f"# Battery Report\n\n")
+                f.write(f"## Battery Information\n")
+                f.write(f"- Model: {battery.model}\n")
+                f.write(f"- Manufacturer: {battery.manufacturer}\n")
+                f.write(f"- Serial Number: {battery.serial_number}\n")
+                f.write(f"- Chemistry: {battery.chemistry}\n")
+                f.write(f"- Nominal Capacity: {battery.nominal_capacity} Ah\n")
+                f.write(f"- Nominal Voltage: {battery.nominal_voltage} V\n")
+
                 if battery.state_of_health is not None:
-                    f.write(f"- 健康状态: {battery.state_of_health:.1f}%\n")
-                
+                    f.write(f"- State of Health: {battery.state_of_health:.1f}%\n")
+
                 if battery.state_of_charge is not None:
-                    f.write(f"- 充电状态: {battery.state_of_charge:.1f}%\n")
+                    f.write(f"- State of Charge: {battery.state_of_charge:.1f}%\n")
             
             return report_path
             
         except Exception as e:
-            self.logger.error("为电池 %s 生成报告失败: %s", battery.serial_number, str(e))
+            self.logger.error("Failed to generate report for battery %s: %s", battery.serial_number, str(e))
             return None
     
     def export_report(self, report_path: str, export_format: str = "pdf") -> GenerateReportOutput:
@@ -229,13 +229,13 @@ class GenerateReportUseCase:
             GenerateReportOutput: 报告导出输出结果
         """
         try:
-            self.logger.info("导出报告: %s 到格式: %s", report_path, export_format)
+            self.logger.info("Exporting report: %s to format: %s", report_path, export_format)
             
             # 验证输入
             if not os.path.exists(report_path):
                 return GenerateReportOutput(
                     success=False,
-                    message=f"报告文件不存在: {report_path}",
+                    message=f"Report file does not exist: {report_path}",
                     generated_reports=0
                 )
             
@@ -243,26 +243,26 @@ class GenerateReportUseCase:
             if export_format not in ["pdf", "docx", "html"]:
                 return GenerateReportOutput(
                     success=False,
-                    message=f"不支持的导出格式: {export_format}",
+                    message=f"Unsupported export format: {export_format}",
                     generated_reports=0
                 )
             
             # 这里可以实现实际的报告导出逻辑
             # 例如：将报告转换为指定格式
             
-            self.logger.info("报告导出成功")
+            self.logger.info("Report exported successfully")
             return GenerateReportOutput(
                 success=True,
-                message="报告导出成功",
+                message="Report exported successfully",
                 report_files=[report_path],
                 generated_reports=1
             )
             
         except Exception as e:
-            self.logger.error("报告导出失败: %s", str(e))
+            self.logger.error("Report export failed: %s", str(e))
             return GenerateReportOutput(
                 success=False,
-                message=f"报告导出失败: {str(e)}",
+                message=f"Report export failed: {str(e)}",
                 error_details=str(e),
                 generated_reports=0
             )
@@ -278,16 +278,16 @@ class GenerateReportUseCase:
             GenerateReportOutput: 批量处理输出结果
         """
         try:
-            self.logger.info("开始批量处理报告生成")
+            self.logger.info("Starting batch report generation")
             
             # 验证输入数据
             validation_errors = input_data.validate()
             if validation_errors:
                 error_message = "\n".join(validation_errors.values())
-                self.logger.warning("批量处理输入数据验证失败: %s", error_message)
+                self.logger.warning("Batch processing input data validation failed: %s", error_message)
                 return GenerateReportOutput(
                     success=False,
-                    message=f"批量处理输入数据验证失败: {error_message}",
+                    message=f"Batch processing input data validation failed: {error_message}",
                     error_details=error_message,
                     generated_reports=0
                 )
@@ -305,27 +305,27 @@ class GenerateReportUseCase:
                 
                 # 创建一个空文件表示报告已生成
                 with open(report_path, 'w') as f:
-                    f.write(f"# 批量报告\n\n")
-                    f.write(f"## 数据目录: {directory}\n")
-                    f.write(f"## 报告类型: {input_data.report_type}\n")
-                    f.write(f"## 包含图表: {input_data.include_charts}\n")
-                    f.write(f"## 导出格式: {input_data.export_format}\n")
+                    f.write(f"# Batch Report\n\n")
+                    f.write(f"## Data Directory: {directory}\n")
+                    f.write(f"## Report Type: {input_data.report_type}\n")
+                    f.write(f"## Include Charts: {input_data.include_charts}\n")
+                    f.write(f"## Export Format: {input_data.export_format}\n")
                 
                 report_files.append(report_path)
             
-            self.logger.info("批量处理报告生成完成，共生成 %d 份报告", len(report_files))
+            self.logger.info("Batch report generation completed, %d reports generated", len(report_files))
             return GenerateReportOutput(
                 success=True,
-                message=f"批量处理报告生成完成，共生成 {len(report_files)} 份报告",
+                message=f"Batch report generation completed, {len(report_files)} reports generated",
                 report_files=report_files,
                 generated_reports=len(report_files)
             )
             
         except Exception as e:
-            self.logger.error("批量处理报告生成失败: %s", str(e))
+            self.logger.error("Batch report generation failed: %s", str(e))
             return GenerateReportOutput(
                 success=False,
-                message=f"批量处理报告生成失败: {str(e)}",
+                message=f"Batch report generation failed: {str(e)}",
                 error_details=str(e),
                 generated_reports=0
             )

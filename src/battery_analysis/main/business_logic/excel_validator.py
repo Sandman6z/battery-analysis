@@ -24,13 +24,13 @@ def validate_excel_file_content(df, filename):
         tuple: (是否有效, 错误消息)
     """
     if df.empty:
-        return False, f"Sheet页为空: {filename}"
+        return False, f"Sheet is empty: {filename}"
 
     if len(df.columns) == 0:
-        return False, f"Sheet页无列数据: {filename}"
+        return False, f"Sheet has no column data: {filename}"
 
     if len(df) == 0:
-        return False, f"Sheet页无行数据: {filename}"
+        return False, f"Sheet has no row data: {filename}"
 
     # ── 检查是否含有数值数据 ──────────────────────────────────
     numeric_columns = df.select_dtypes(include=['number']).columns
@@ -54,17 +54,17 @@ def validate_excel_file_content(df, filename):
     # ── 综合判断：列名不对 + 数据也无法识别 → 致命错误 ──────
     if not has_common_column and not has_numeric and not has_potential_numeric:
         return False, (
-            f"文件内容无法识别: {filename}\n"
-            f"未找到标准列名（如 Capacity/Voltage/Current），"
-            f"且数据列也无法识别为数值类型。"
+            f"File content cannot be recognized: {filename}\n"
+            f"No standard column names (e.g., Capacity/Voltage/Current) found, "
+            f"and the data columns cannot be recognized as numeric types."
         )
 
     # ── 非致命警告 ────────────────────────────────────────────
     if not has_numeric and has_potential_numeric:
-        logger.warning(f"Sheet页可能包含数值数据但未被识别: {filename}")
+        logger.warning(f"Sheet may contain numeric data but was not recognized: {filename}")
 
     if not has_common_column:
-        logger.warning(f"Sheet页可能缺少必要的列: {filename}, 找到列: {list(df.columns)}")
+        logger.warning(f"Sheet may be missing required columns: {filename}, found columns: {list(df.columns)}")
 
     return True, ""
 
@@ -79,7 +79,7 @@ def validate_excel_file(file_path, filename, cache, optimize_dataframe_memory):
     cache_key = f"{file_path}:{filename}"
     cached_result = cache.get(cache_key)
     if cached_result is not None:
-        logger.debug("从缓存读取文件验证结果: %s", cache_key)
+        logger.debug("Reading file validation result from cache: %s", cache_key)
         return cached_result
 
     validator = FileValidator()
@@ -111,6 +111,6 @@ def validate_excel_file(file_path, filename, cache, optimize_dataframe_memory):
         return result
 
     except Exception as e:
-        result = (False, f"Excel文件读取失败: {filename} - {str(e)}", None)
+        result = (False, f"Failed to read Excel file: {filename} - {str(e)}", None)
         cache.put(cache_key, result)
         return result

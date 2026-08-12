@@ -66,17 +66,17 @@ class WindowSetup:
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:
                 if icon_path.exists():
-                    self.logger.debug("找到应用图标: %s", icon_path)
+                    self.logger.debug("Application icon found: %s", icon_path)
                     app_icon = QG.QIcon(str(icon_path))
                     self.main_window.setWindowIcon(app_icon)
                     return app_icon
             
             # 如果都找不到，使用默认图标
-            self.logger.warning("未找到应用图标文件，使用默认图标")
+            self.logger.warning("Application icon file not found; using default icon")
             return QG.QIcon()
         except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
             # 捕获所有可能的异常，确保应用能正常启动
-            self.logger.error("加载应用图标失败: %s", e)
+            self.logger.error("Failed to load application icon: %s", e)
             return QG.QIcon()
     
     def toggle_toolbar_safe(self) -> None:
@@ -105,7 +105,7 @@ class WindowSetup:
         """
         设置菜单快捷键
         """
-        self.logger.warning("setup_menu_shortcuts 已迁移到 MenuManager")
+        self.logger.warning("setup_menu_shortcuts has been migrated to MenuManager")
     
     def init_widgetcolor(self) -> None:
         """初始化部件颜色 — handled by QSS now"""

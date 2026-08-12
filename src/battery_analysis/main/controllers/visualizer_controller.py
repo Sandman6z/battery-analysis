@@ -48,18 +48,18 @@ class VisualizerController:
         
         # 根据环境类型进行适配
         if env_type == EnvironmentType.IDE:
-            self.logger.debug("IDE环境：调整可视化行为以适应开发环境")
+            self.logger.debug("IDE environment: adjusting visualization behavior for development environment")
             self._adapt_for_ide_environment()
         elif env_type == EnvironmentType.CONTAINER:
-            self.logger.debug("容器环境：调整可视化行为以适应容器环境")
+            self.logger.debug("Container environment: adjusting visualization behavior for container environment")
             self._adapt_for_container_environment()
         elif env_type == EnvironmentType.PRODUCTION:
-            self.logger.debug("生产环境：优化可视化性能")
+            self.logger.debug("Production environment: optimizing visualization performance")
             self._adapt_for_production_environment()
         
         # GUI可用性检查
         if not self.env_info['gui_available']:
-            self.logger.warning("GUI环境不可用，可视化功能可能受限")
+            self.logger.warning("GUI environment is unavailable; visualization features may be limited")
             self._handle_gui_unavailable()
 
     def _adapt_for_ide_environment(self):
@@ -67,7 +67,7 @@ class VisualizerController:
         IDE环境适配
         """
         # 在IDE中通常没有显示，添加调试信息
-        self.logger.debug("在IDE环境中运行，某些可视化功能可能受限")
+        self.logger.debug("Running in IDE environment; some visualization features may be limited")
         
         # 在IDE环境中，可能需要更严格的错误处理
         self.ide_mode = True
@@ -76,7 +76,7 @@ class VisualizerController:
         """
         容器环境适配
         """
-        self.logger.debug("在容器环境中运行，调整路径和资源管理")
+        self.logger.debug("Running in container environment; adjusting path and resource management")
         
         # 容器环境中的资源路径可能不同
         self.container_mode = True
@@ -85,7 +85,7 @@ class VisualizerController:
         """
         生产环境适配
         """
-        self.logger.debug("在生产环境中运行，优化可视化性能")
+        self.logger.debug("Running in production environment; optimizing visualization performance")
         
         # 生产环境中启用更多优化
         self.production_mode = True
@@ -94,7 +94,7 @@ class VisualizerController:
         """
         处理GUI不可用的情况
         """
-        self.logger.error("GUI环境不可用，可视化功能将受限")
+        self.logger.error("GUI environment is unavailable; visualization features will be limited")
         # 在GUI不可用时，可以考虑生成静态图表或保存图片
         
     def create_visualizer(self, xml_path=None):
@@ -110,7 +110,7 @@ class VisualizerController:
         try:
             # 释放旧的可视化器实例
             if hasattr(self, 'visualizer') and self.visualizer is not None:
-                logging.info("释放旧的可视化器实例")
+                logging.info("Releasing the previous visualizer instance")
                 try:
                     # 关闭图表窗口
                     if hasattr(self.visualizer, 'current_fig') and self.visualizer.current_fig is not None:
@@ -132,18 +132,18 @@ class VisualizerController:
                                     self.visualizer.listPlt[c][2].clear()  # 过滤后充电数据
                                     self.visualizer.listPlt[c][3].clear()  # 过滤后电压数据
                         except Exception as e:
-                            logging.error("释放数据资源时出错: %s", e)
+                            logging.error("Error releasing data resources: %s", e)
                     
                     # 清理引用
                     self.visualizer = None
-                    logging.info("旧的可视化器实例已成功释放")
+                    logging.info("Previous visualizer instance released successfully")
                 except Exception as e:
-                    logging.error("释放旧的可视化器实例时出错: %s", e)
+                    logging.error("Error releasing the previous visualizer instance: %s", e)
             
             # 强制设置Matplotlib使用QtAgg后端
             import matplotlib
             if matplotlib.get_backend() != 'QtAgg':
-                logging.info("当前Matplotlib后端: %s, 切换到QtAgg后端", matplotlib.get_backend())
+                logging.info("Current Matplotlib backend: %s, switching to QtAgg backend", matplotlib.get_backend())
                 matplotlib.use('QtAgg')
             
             data_path = None
@@ -229,14 +229,14 @@ class VisualizerController:
 
             if data_path:
                 self.visualizer = battery_chart_viewer.BatteryChartViewer(data_path=data_path)
-                logging.info("可视化器实例已创建，数据路径: %s", data_path)
+                logging.info("Visualizer instance created, data path: %s", data_path)
             else:
-                logging.warning("未找到包含Info_Image.csv的目录，将创建空的可视化器实例")
+                logging.warning("No directory containing Info_Image.csv found; creating an empty visualizer instance")
                 self.visualizer = battery_chart_viewer.BatteryChartViewer()
 
             return self.visualizer
         except (ImportError, AttributeError, TypeError, OSError, ValueError, RuntimeError) as e:
-            logging.error("创建可视化器whenerror occurred: %s", str(e))
+            logging.error("Error creating visualizer: %s", str(e))
             raise
     
     def show_figure(self):
@@ -268,11 +268,11 @@ class VisualizerController:
             if self.env_info['gui_available']:
                 self.show_figure()
             else:
-                self.logger.info("GUI不可用，生成静态图表文件")
+                self.logger.info("GUI unavailable; generating static chart file")
                 self._generate_static_chart()
                 
         except (ImportError, AttributeError, TypeError, OSError, ValueError, RuntimeError) as e:
-            self.logger.error("运行可视化器失败: %s", e)
+            self.logger.error("Failed to run visualizer: %s", e)
             raise
 
     def _configure_matplotlib_for_environment(self):
@@ -295,20 +295,20 @@ class VisualizerController:
         if env_type == EnvironmentType.IDE:
             # IDE环境可能不支持GUI显示
             if not self.env_info['gui_available']:
-                self.logger.debug("IDE环境且无GUI，使用Agg后端生成静态图表")
+                self.logger.debug("IDE environment without GUI; using Agg backend to generate static charts")
                 matplotlib.use('Agg')
             else:
-                self.logger.debug("IDE环境且有GUI，尝试使用QtAgg后端")
+                self.logger.debug("IDE environment with GUI; attempting to use QtAgg backend")
                 if matplotlib.get_backend() != 'QtAgg':
                     matplotlib.use('QtAgg')
         elif env_type == EnvironmentType.CONTAINER:
             # 容器环境通常使用无头模式
-            self.logger.debug("容器环境，使用Agg后端")
+            self.logger.debug("Container environment; using Agg backend")
             matplotlib.use('Agg')
         else:
             # 生产环境和其他环境使用QtAgg后端
             if matplotlib.get_backend() != 'QtAgg':
-                self.logger.debug("切换Matplotlib后端到QtAgg (当前: %s)", matplotlib.get_backend())
+                self.logger.debug("Switching Matplotlib backend to QtAgg (current: %s)", matplotlib.get_backend())
                 matplotlib.use('QtAgg')
 
     def _generate_static_chart(self):
@@ -317,7 +317,7 @@ class VisualizerController:
         """
         try:
             if not self.visualizer:
-                self.logger.error("可视化器未初始化，无法生成静态图表")
+                self.logger.error("Visualizer not initialized; cannot generate static chart")
                 return
             
             # 生成静态图表文件
@@ -330,13 +330,13 @@ class VisualizerController:
             chart_file = output_path / "battery_analysis_chart.png"
             plt.savefig(chart_file, dpi=300, bbox_inches='tight')
             
-            self.logger.info("静态图表已保存到: %s", chart_file)
+            self.logger.info("Static chart saved to: %s", chart_file)
             
             # 同时保存为PDF文件（矢量格式）
             pdf_file = output_path / "battery_analysis_chart.pdf"
             plt.savefig(pdf_file, bbox_inches='tight')
             
-            self.logger.info("PDF图表已保存到: %s", pdf_file)
+            self.logger.info("PDF chart saved to: %s", pdf_file)
             
         except (ValueError, RuntimeError, OSError, IOError, TypeError) as e:
-            self.logger.error("生成静态图表失败: %s", e)
+            self.logger.error("Failed to generate static chart: %s", e)

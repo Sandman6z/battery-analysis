@@ -35,15 +35,15 @@ class AnalyzeDataInput:
 
         # 验证必需字段
         if not self.input_path:
-            errors["input_path"] = "缺少输入路径"
+            errors["input_path"] = "Missing input path"
         elif not os.path.exists(self.input_path):
-            errors["input_path"] = f"输入路径不存在: {self.input_path}"
+            errors["input_path"] = f"Input path does not exist: {self.input_path}"
 
         if not self.output_path:
-            errors["output_path"] = "缺少输出路径"
+            errors["output_path"] = "Missing output path"
 
         if not self.battery_type:
-            errors["battery_type"] = "缺少电池类型"
+            errors["battery_type"] = "Missing battery type"
 
         return errors
 
@@ -96,30 +96,30 @@ class AnalyzeDataUseCase:
             AnalyzeDataOutput: 数据分析输出结果
         """
         try:
-            self.logger.info("开始执行数据分析用例")
-            self.logger.debug("输入参数: input_path=%s, output_path=%s, battery_type=%s", 
+            self.logger.info("Starting data analysis use case execution")
+            self.logger.debug("Input parameters: input_path=%s, output_path=%s, battery_type=%s",
                            input_data.input_path, input_data.output_path, input_data.battery_type)
 
             # 验证输入数据
             validation_errors = input_data.validate()
             if validation_errors:
                 error_message = "\n".join(validation_errors.values())
-                self.logger.warning("输入数据验证失败: %s", error_message)
+                self.logger.warning("Input data validation failed: %s", error_message)
                 return AnalyzeDataOutput(
                     success=False,
-                    message=f"输入数据验证失败: {error_message}",
+                    message=f"Input data validation failed: {error_message}",
                     error_details=error_message
                 )
 
             # 查找所有Excel文件
             excel_files = self._find_excel_files(input_data.input_path)
-            self.logger.info("找到 %d 个Excel文件", len(excel_files))
+            self.logger.info("Found %d Excel files", len(excel_files))
             
             if not excel_files:
-                self.logger.warning("没有找到Excel文件")
+                self.logger.warning("No Excel files found")
                 return AnalyzeDataOutput(
                     success=False,
-                    message="没有找到Excel文件",
+                    message="No Excel files found",
                     excel_files=[],
                     processed_files=0,
                     analyzed_batteries=0
@@ -132,8 +132,8 @@ class AnalyzeDataUseCase:
 
             for excel_file in excel_files:
                 try:
-                    self.logger.info("开始处理Excel文件: %s", excel_file.filename)
-                    self.logger.debug("文件路径: %s, 大小: %d bytes, 修改时间: %s", 
+                    self.logger.info("Starting to process Excel file: %s", excel_file.filename)
+                    self.logger.debug("File path: %s, size: %d bytes, modified time: %s",
                                    str(excel_file.path), excel_file.size, 
                                    datetime.fromtimestamp(excel_file.modified_time).strftime('%Y-%m-%d %H:%M:%S'))
 
@@ -141,47 +141,47 @@ class AnalyzeDataUseCase:
                     battery_data_dict = self._process_excel_file(excel_file)
 
                     if not battery_data_dict:
-                        self.logger.warning("无法从Excel文件中提取电池数据: %s", excel_file.filename)
+                        self.logger.warning("Unable to extract battery data from Excel file: %s", excel_file.filename)
                         continue
 
                     # 从字典数据创建Battery实体对象
                     battery = self._create_battery_entity(battery_data_dict, excel_file)
-                    self.logger.debug("创建电池实体: %s, 序列号: %s", battery.model_number, battery.serial_number)
+                    self.logger.debug("Created battery entity: %s, serial number: %s", battery.model_number, battery.serial_number)
 
                     # 验证电池数据
                     validation_result = self.battery_analysis_service.validate_battery_data(battery)
                     if not all(validation_result.values()):
                         self.logger.warning(
-                            "电池数据验证失败: %s, 验证结果: %s",
+                            "Battery data validation failed: %s, validation result: %s",
                             excel_file.filename,
                             validation_result
                         )
                         continue
 
                     # 计算电池健康状态
-                    self.logger.info("开始计算电池健康状态: %s", battery.serial_number)
+                    self.logger.info("Starting battery health calculation: %s", battery.serial_number)
                     updated_battery = self.battery_analysis_service.calculate_battery_health(
                         battery
                     )
-                    self.logger.debug("电池健康状态计算完成: %s, 健康状态: %s", 
+                    self.logger.debug("Battery health calculation completed: %s, health status: %s",
                                    updated_battery.serial_number, updated_battery.health_status)
 
                     # 分析电池性能
-                    self.logger.info("开始分析电池性能: %s", updated_battery.serial_number)
+                    self.logger.info("Starting battery performance analysis: %s", updated_battery.serial_number)
                     performance_analysis = (
                         self.battery_analysis_service.analyze_battery_performance(
                             updated_battery
                         )
                     )
-                    self.logger.debug("电池性能分析完成: %s, 结果: %s", 
+                    self.logger.debug("Battery performance analysis completed: %s, result: %s",
                                    updated_battery.serial_number, performance_analysis)
 
                     # 预测电池寿命
-                    self.logger.info("开始预测电池寿命: %s", updated_battery.serial_number)
+                    self.logger.info("Starting battery lifetime prediction: %s", updated_battery.serial_number)
                     lifetime_prediction = self.battery_analysis_service.predict_battery_lifetime(
                         updated_battery
                     )
-                    self.logger.debug("电池寿命预测完成: %s, 预测结果: %s", 
+                    self.logger.debug("Battery lifetime prediction completed: %s, prediction result: %s",
                                    updated_battery.serial_number, lifetime_prediction)
 
                     # 整合分析结果
@@ -193,7 +193,7 @@ class AnalyzeDataUseCase:
                     }
 
                     # 保存Battery实体对象到仓库
-                    self.logger.info("保存电池实体到仓库: %s", updated_battery.serial_number)
+                    self.logger.info("Saving battery entity to repository: %s", updated_battery.serial_number)
                     self.battery_repository.save(updated_battery)
 
                     # 添加到分析结果列表
@@ -202,30 +202,30 @@ class AnalyzeDataUseCase:
                     processed_files += 1
                     analyzed_batteries += 1
 
-                    self.logger.info("成功处理电池数据: %s", battery.serial_number)
+                    self.logger.info("Successfully processed battery data: %s", battery.serial_number)
 
                 except Exception as e:
-                    self.logger.error("处理Excel文件失败 %s: %s", excel_file.filename, str(e), exc_info=True)
+                    self.logger.error("Failed to process Excel file %s: %s", excel_file.filename, str(e), exc_info=True)
                     continue
 
             # 如果有多个电池，进行比较分析
             comparison_result = None
             if len(analysis_results) > 1:
-                self.logger.info("开始电池比较分析，共 %d 个电池", len(analysis_results))
+                self.logger.info("Starting battery comparison analysis, %d batteries total", len(analysis_results))
                 # 提取Battery实体对象列表
                 batteries = [result['battery'] for result in analysis_results]
                 comparison_result = self.battery_analysis_service.compare_batteries(batteries)
-                self.logger.info("电池比较分析完成")
-                self.logger.debug("比较结果: %s", comparison_result)
+                self.logger.info("Battery comparison analysis completed")
+                self.logger.debug("Comparison result: %s", comparison_result)
 
             # 保存比较结果（如果有）
             if comparison_result:
                 # 这里可以添加保存比较结果的逻辑
-                self.logger.info("保存电池比较结果")
+                self.logger.info("Saving battery comparison results")
                 pass
 
-            self.logger.info("数据分析用例执行成功")
-            result_message = f"数据分析完成，共处理 {processed_files} 个文件，分析 {analyzed_batteries} 个电池"
+            self.logger.info("Data analysis use case executed successfully")
+            result_message = f"Data analysis completed, processed {processed_files} files, analyzed {analyzed_batteries} batteries"
             self.logger.info(result_message)
             
             return AnalyzeDataOutput(
@@ -237,10 +237,10 @@ class AnalyzeDataUseCase:
             )
 
         except Exception as e:
-            self.logger.critical("数据分析用例执行失败: %s", str(e), exc_info=True)
+            self.logger.critical("Data analysis use case execution failed: %s", str(e), exc_info=True)
             return AnalyzeDataOutput(
                 success=False,
-                message=f"数据分析失败: {str(e)}",
+                message=f"Data analysis failed: {str(e)}",
                 error_details=str(e),
                 processed_files=0,
                 analyzed_batteries=0
@@ -282,7 +282,7 @@ class AnalyzeDataUseCase:
                 excel_files.append(excel_file_info)
 
         except Exception as e:
-            self.logger.error("查找Excel文件失败: %s", str(e))
+            self.logger.error("Failed to find Excel files: %s", str(e))
 
         return excel_files
 
@@ -297,7 +297,7 @@ class AnalyzeDataUseCase:
             Dict[str, Any]: 提取的电池数据
         """
         try:
-            self.logger.info("使用pandas处理Excel文件: %s", file_info.filename)
+            self.logger.info("Processing Excel file with pandas: %s", file_info.filename)
 
             # 使用pandas读取Excel文件
             df = pd.read_excel(file_info.path, sheet_name=0, engine='openpyxl', header=0)
@@ -411,7 +411,7 @@ class AnalyzeDataUseCase:
             return battery_data
 
         except Exception as e:
-            self.logger.error("处理Excel文件失败 %s: %s", file_info.filename, str(e))
+            self.logger.error("Failed to process Excel file %s: %s", file_info.filename, str(e))
             return {}
 
     def _create_battery_entity(self,
@@ -462,7 +462,7 @@ class AnalyzeDataUseCase:
         Returns:
             str: 用户选择的恢复选项
         """
-        self.logger.error("处理数据错误: %s", error_msg)
+        self.logger.error("Handling data error: %s", error_msg)
 
         # 在实际应用中，这里应该返回一个决策，而不是直接处理UI
         # 决策可以通过Presenter层传递给UI

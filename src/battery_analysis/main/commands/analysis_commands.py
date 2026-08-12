@@ -25,7 +25,7 @@ class RunAnalysisCommand(Command):
             self.analysis_runner.run_analysis()
             return True
         except Exception as e:
-            logging.error(f"运行分析失败: {str(e)}")
+            logging.error(f"Failed to run analysis: {str(e)}")
             return False
 
 
@@ -51,5 +51,5 @@ class CalculateBatteryCommand(Command):
             self.presenter.on_calculate_battery()
             return True
         except Exception as e:
-            logging.error(f"计算电池失败: {str(e)}")
+            logging.error(f"Failed to calculate battery: {str(e)}")
             return False

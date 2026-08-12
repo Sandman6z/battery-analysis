@@ -73,10 +73,10 @@ class ManagersInitializationStep(InitializationStep):
             # 连接控制器信号（在manager初始化之后）
             main_window.signal_connector.connect_controllers()
             
-            self.logger.info("管理器初始化完成")
+            self.logger.info("Manager initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("管理器初始化失败")
+            self.logger.exception("Manager initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

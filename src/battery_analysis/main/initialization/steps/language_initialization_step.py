@@ -39,10 +39,10 @@ class LanguageInitializationStep(InitializationStep):
             if hasattr(main_window, '_ensure_env_info_keys'):
                 main_window._ensure_env_info_keys()
             
-            self.logger.info("语言初始化完成")
+            self.logger.info("Language initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("语言初始化失败")
+            self.logger.exception("Language initialization failed")
             return False
     
     def _connect_language_signals(self, main_window) -> None:

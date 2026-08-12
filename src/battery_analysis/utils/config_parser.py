@@ -38,7 +38,7 @@ def safe_int_convert(value: str, default: int = 0) -> int:
     try:
         return int(float(value.strip()))
     except (ValueError, TypeError) as e:
-        logging.warning("无法将值 '%s' 转换为整数: %s", value, e)
+        logging.warning("Unable to convert value '%s' to integer: %s", value, e)
         return default
 
 
@@ -64,5 +64,5 @@ def safe_float_convert(value: str, default: float = 0.0) -> float:
     try:
         return float(value.strip())
     except (ValueError, TypeError) as e:
-        logging.warning("无法将值 '%s' 转换为浮点数: %s", value, e)
+        logging.warning("Unable to convert value '%s' to float: %s", value, e)
         return default

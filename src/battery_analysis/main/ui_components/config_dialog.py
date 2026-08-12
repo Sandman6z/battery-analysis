@@ -28,7 +28,7 @@ class ConfigDialog(QW.QDialog):
         # 从 ConfigService 加载当前数据（深拷贝，取消保存才写回）
         raw_data = self._config_service.get_config_value("")
         if raw_data is None:
-            self.logger.warning("配置数据为空或加载失败，使用空配置启动编辑")
+            self.logger.warning("Config data is empty or failed to load, starting edit with empty config")
             self._working_data = {}
         else:
             self._working_data = copy.deepcopy(raw_data)
@@ -93,7 +93,7 @@ class ConfigDialog(QW.QDialog):
             self._config_service.save_config()
             self.accept()
         except Exception as e:
-            self.logger.error("保存配置失败: %s", e)
+            self.logger.error("Failed to save configuration: %s", e)
             QW.QMessageBox.critical(
                 self, _("Error"),
                 f"{_('Failed to save configuration')}: {e}"

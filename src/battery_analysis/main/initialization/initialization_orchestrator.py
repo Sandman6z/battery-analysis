@@ -56,7 +56,7 @@ class InitializationOrchestrator:
             是否所有步骤都执行成功
         """
         self.logger.info("=" * 50)
-        self.logger.info("开始执行初始化流程")
+        self.logger.info("Starting initialization process")
 
         all_success = True
         total_executed = 0
@@ -68,7 +68,7 @@ class InitializationOrchestrator:
                 continue
 
             self.logger.info("")
-            self.logger.info("▶ 阶段 [%s] — %d 个步骤", phase_name, len(steps))
+            self.logger.info("▶ Phase [%s] — %d steps", phase_name, len(steps))
 
             success, executed, failed = self._execute_phase(phase_name, steps, main_window)
             if not success:
@@ -78,7 +78,7 @@ class InitializationOrchestrator:
 
         self.logger.info("")
         self.logger.info("=" * 50)
-        self.logger.info("初始化完成 — 成功: %d, 失败: %d, 阶段: %d",
+        self.logger.info("Initialization complete — succeeded: %d, failed: %d, phases: %d",
                          total_executed, total_failed, len(self._phase_order))
         return all_success
 
@@ -125,8 +125,8 @@ class InitializationOrchestrator:
                     phase_failed += 1
                     phase_success = False
 
-        status = "全部成功 ✓" if phase_success else f"成功 {phase_executed}, 失败 {phase_failed} ⚠"
-        self.logger.info("  阶段 [%s] %s", phase_name, status)
+        status = "All succeeded ✓" if phase_success else f"succeeded {phase_executed}, failed {phase_failed} ⚠"
+        self.logger.info("  Phase [%s] %s", phase_name, status)
         return phase_success, phase_executed, phase_failed
 
     def _execute_step(self, step: InitializationStep, main_window) -> None:
@@ -139,13 +139,13 @@ class InitializationOrchestrator:
             else:
                 self.logger.error("  ✗ %s", step.get_name())
         except Exception as e:
-            self.logger.exception("步骤执行异常: %s", step.get_name())
+            self.logger.exception("Exception executing step: %s", step.get_name())
             self._executed_steps[step.get_name()] = False
 
     def _execute_parallel(self, steps: List[InitializationStep], main_window) -> None:
         """并行执行一组步骤"""
         step_names = [s.get_name() for s in steps]
-        self.logger.info("  并行执行: %s", ", ".join(step_names))
+        self.logger.info("  Executing in parallel: %s", ", ".join(step_names))
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future_to_step = {
@@ -157,7 +157,7 @@ class InitializationOrchestrator:
                     future.result()
                 except Exception as e:
                     step = future_to_step[future]
-                    self.logger.exception("获取步骤执行结果异常: %s", step.get_name())
+                    self.logger.exception("Exception getting step execution result: %s", step.get_name())
 
     # ── 查询与维护 ──────────────────────────────────────
 

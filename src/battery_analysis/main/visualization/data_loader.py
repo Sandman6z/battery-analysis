@@ -21,11 +21,11 @@ class DataLoaderMixin:
 
     def set_data_path(self, data_path):
         """设置数据路径并更新CSV文件路径"""
-        logger.info("设置数据路径: %s", data_path)
+        logger.info("Setting data path: %s", data_path)
         self.strPltPath = data_path
         self.strInfoImageCsvPath = os.path.join(
             self.strPltPath, "Info_Image.csv")
-        logger.info("更新后的CSV文件路径: %s", self.strInfoImageCsvPath)
+        logger.info("Updated CSV file path: %s", self.strInfoImageCsvPath)
         # 当数据路径改变时，尝试加载元数据以更新动态标题
         self._try_load_metadata_title()
         self.strPltName = self._set_plot_title()
@@ -41,14 +41,14 @@ class DataLoaderMixin:
             self.csv_read()
 
             if self.intBatteryNum <= 0:
-                logger.error("没有有效的电池数据，无法生成图表")
+                logger.error("No valid battery data, cannot generate chart")
                 return False
 
             self._read_rules_configuration()
             return True
         except (IOError, ValueError, TypeError, OSError) as e:
             self.errorlog = str(e)
-            logger.error("加载数据时出错: %s", e)
+            logger.error("Error loading data: %s", e)
             traceback.print_exc()
             return False
 
@@ -62,12 +62,12 @@ class DataLoaderMixin:
             if config_service is not None:
                 config_service.load_config(use_cache=True)
                 self._config_service = config_service
-                logger.info("通过 ConfigService 成功读取配置")
+                logger.info("Successfully read configuration via ConfigService")
             else:
-                logger.warning("ConfigService 不可用，使用空配置")
+                logger.warning("ConfigService unavailable, using empty configuration")
                 self._config_service = None
         except (ImportError, AttributeError, TypeError) as e:
-            logger.error("配置读取失败: %s，使用默认配置", e)
+            logger.error("Failed to read configuration: %s, using default configuration", e)
             self._config_service = None
 
     def _read_configurations(self):
@@ -125,9 +125,9 @@ class DataLoaderMixin:
 
             if title_base.strip():
                 self.strPltTitle = title_base
-                logger.info("从元数据文件加载动态标题: %s", self.strPltTitle)
+                logger.info("Loaded dynamic title from metadata file: %s", self.strPltTitle)
         except (IOError, json.JSONDecodeError, TypeError, ValueError) as e:
-            logger.warning("读取元数据文件失败，使用默认标题: %s", e)
+            logger.warning("Failed to read metadata file, using default title: %s", e)
 
     def _get_pulse_current_level(self):
         """获取脉冲电流级别配置"""
@@ -136,12 +136,12 @@ class DataLoaderMixin:
             try:
                 levels = svc.get_config_value("battery.pulseCurrents", [10, 20, 50])
                 if levels:
-                    logger.info("使用配置的脉冲电流级别: %s", levels)
+                    logger.info("Using configured pulse current levels: %s", levels)
                     return levels
             except (ValueError, TypeError, AttributeError) as e:
-                logger.error("脉冲电流配置格式错误: %s，使用默认值", e)
+                logger.error("Invalid pulse current configuration format: %s, using default value", e)
         default_value = [10, 20, 50]
-        logger.warning("使用默认脉冲电流级别: %s", default_value)
+        logger.warning("Using default pulse current levels: %s", default_value)
         return default_value
 
     def _set_plot_title(self):
@@ -156,7 +156,7 @@ class DataLoaderMixin:
             return f"Load Voltage over Charge\n{title_content}"
         except (TypeError, IndexError, AttributeError, ValueError) as e:
             default_title = "Load Voltage over Charge\nUnknown Battery"
-            logger.error("设置图表标题出错: %s，使用默认标题: %s", e, default_title)
+            logger.error("Error setting chart title: %s, using default title: %s", e, default_title)
             return default_title
 
     def _read_rules_configuration(self):
@@ -169,8 +169,8 @@ class DataLoaderMixin:
                     self._process_rules(rules)
                     return
             except (ValueError, TypeError, AttributeError) as e:
-                logger.error("读取Rules配置出错: %s，使用默认maxXaxis", e)
-        logger.warning("未找到battery.rules，使用默认maxXaxis")
+                logger.error("Error reading Rules configuration: %s, using default maxXaxis", e)
+        logger.warning("battery.rules not found, using default maxXaxis")
 
     def _process_rules(self, listRules):
         """根据规则配置处理maxXaxis"""
@@ -184,31 +184,31 @@ class DataLoaderMixin:
                             try:
                                 self.maxXaxis = int(rule_parts[2])
                                 logger.info(
-                                    "根据规则设置maxXaxis: %s", self.maxXaxis)
+                                    "Setting maxXaxis based on rule: %s", self.maxXaxis)
                                 self.listAxis = [self.plot_config.axis_special[0], self.maxXaxis, self.plot_config.axis_special[2], 5.0]
                                 self.listXTicks = list(
                                     range(0, self.maxXaxis + 1, 100))
                                 break
                             except ValueError:
                                 logger.warning(
-                                    "规则中的maxXaxis值无效: %s", rule_parts[2])
+                                    "Invalid maxXaxis value in rule: %s", rule_parts[2])
         except (ValueError, IndexError, TypeError) as e:
-            logger.error("处理规则时出错: %s，保持默认maxXaxis", e)
+            logger.error("Error processing rules: %s, keeping default maxXaxis", e)
 
     def csv_read(self):
         """从CSV文件读取数据"""
         try:
-            logger.info("开始读取CSV文件: %s", self.strInfoImageCsvPath)
+            logger.info("Starting to read CSV file: %s", self.strInfoImageCsvPath)
 
             csv_path = Path(self.strInfoImageCsvPath)
             if not csv_path.exists():
-                logger.error("错误: 找不到CSV文件 %s", self.strInfoImageCsvPath)
+                logger.error("Error: CSV file not found %s", self.strInfoImageCsvPath)
                 self.intBatteryNum = 0
                 return
 
             file_size = csv_path.stat().st_size
             if file_size == 0:
-                logger.error("错误: CSV文件 %s 为空", self.strInfoImageCsvPath)
+                logger.error("Error: CSV file %s is empty", self.strInfoImageCsvPath)
                 self.intBatteryNum = 0
                 return
 
@@ -219,7 +219,7 @@ class DataLoaderMixin:
                 all_rows = list(csvreader)
                 if len(all_rows) < 5:
                     logger.error(
-                        "错误: CSV文件 %s 数据行数不足", self.strInfoImageCsvPath)
+                        "Error: CSV file %s has insufficient data rows", self.strInfoImageCsvPath)
                     self.intBatteryNum = 0
                     return
 
@@ -230,7 +230,7 @@ class DataLoaderMixin:
             self.intBatteryNum = len(self.listBatteryName)
 
             if self.intBatteryNum == 0:
-                logger.error("错误: CSV文件中没有找到有效的电池信息")
+                logger.error("Error: no valid battery info found in CSV file")
                 return
 
             self._parse_battery_names()
@@ -243,7 +243,7 @@ class DataLoaderMixin:
                     break
 
             if not data_valid:
-                logger.error("错误: 过滤后没有有效的电池数据可供显示")
+                logger.error("Error: no valid battery data available for display after filtering")
                 self.intBatteryNum = 0
                 return
 
@@ -254,19 +254,19 @@ class DataLoaderMixin:
                     if os.path.exists(self.strInfoImageCsvPath):
                         timestamp = os.path.getmtime(self.strInfoImageCsvPath)
                         self.last_data_timestamp = timestamp
-                        logger.info("更新数据时间戳: %s", datetime.datetime.fromtimestamp(timestamp))
+                        logger.info("Updating data timestamp: %s", datetime.datetime.fromtimestamp(timestamp))
                 except Exception as e:
-                    logger.warning("更新数据时间戳时出错: %s", e)
+                    logger.warning("Error updating data timestamp: %s", e)
 
-            logger.info("成功读取并处理CSV数据，包含%d个电池的真实测试数据", self.intBatteryNum)
+            logger.info("Successfully read and processed CSV data with %d batteries of real test data", self.intBatteryNum)
         except FileNotFoundError:
-            logger.error("错误: 文件未找到: %s", self.strInfoImageCsvPath)
+            logger.error("Error: file not found: %s", self.strInfoImageCsvPath)
             self.intBatteryNum = 0
         except PermissionError:
-            logger.error("错误: 没有权限访问文件: %s", self.strInfoImageCsvPath)
+            logger.error("Error: no permission to access file: %s", self.strInfoImageCsvPath)
             self.intBatteryNum = 0
         except (IOError, ValueError, TypeError, UnicodeDecodeError) as e:
-            logger.error("错误: 读取CSV文件时发生异常: %s", str(e))
+            logger.error("Error: exception occurred while reading CSV file: %s", str(e))
             traceback.print_exc()
             self.intBatteryNum = 0
 
@@ -306,7 +306,7 @@ class DataLoaderMixin:
                             if float_data:
                                 self.listPlt[current_idx][data_idx].append(float_data)
                     except IndexError as e:
-                        logger.warning("解析CSV行数据时出错: %s，跳过此行", e)
+                        logger.warning("Error parsing CSV row data: %s, skipping this row", e)
             index += 1
 
     def _parse_battery_names(self):
@@ -327,7 +327,7 @@ class DataLoaderMixin:
                         name_parts[-2:]) if len(name_parts) >= 2 else f"Battery_{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
             except (IndexError, TypeError, AttributeError, ValueError) as e:
-                logger.warning("解析电池名称时出错: %s，使用默认名称", e)
+                logger.warning("Error parsing battery name: %s, using default name", e)
                 self.listBatteryNameSplit.append(f"Battery_{b}")
 
     def filter_data(self, list_plt_charge, list_plt_voltage,
@@ -384,45 +384,45 @@ class DataLoaderMixin:
                         self.listPlt[c][2], self.listPlt[c][3] = self.filter_data(
                             self.listPlt[c][0], self.listPlt[c][1])
             except (ValueError, TypeError, IndexError) as e:
-                logger.error("过滤数据时出错 (电流级别 %s): %s", c, e)
+                logger.error("Error filtering data (current level %s): %s", c, e)
 
     def _search_for_data_files(self):
         """搜索项目中可能存在的Info_Image.csv文件"""
         try:
-            logger.info("开始搜索项目中的Info_Image.csv文件...")
+            logger.info("Starting to search for Info_Image.csv files in the project...")
 
             for root, dirs, files in os.walk(self.project_root):
                 if ".venv" in root or ".git" in root or "__pycache__" in root:
                     continue
                 if "Info_Image.csv" in files:
                     info_image_csv = os.path.join(root, "Info_Image.csv")
-                    logger.info("在项目中找到Info_Image.csv文件: %s", info_image_csv)
+                    logger.info("Found Info_Image.csv file in project: %s", info_image_csv)
                     self.set_data_path(os.path.dirname(info_image_csv))
                     success = self.load_data()
                     if success:
                         self.loaded_data = True
-                        logger.info("成功加载找到的数据文件")
+                        logger.info("Successfully loaded found data file")
                         return
                     else:
-                        logger.warning("找到数据文件但加载失败")
+                        logger.warning("Found data file but failed to load it")
 
-            logger.info("在项目根目录下未找到，尝试在当前目录下搜索...")
+            logger.info("Not found in project root, trying to search in current directory...")
             for root, dirs, files in os.walk(os.getcwd()):
                 if ".venv" in root or ".git" in root or "__pycache__" in root:
                     continue
                 if "Info_Image.csv" in files:
                     info_image_csv = os.path.join(root, "Info_Image.csv")
-                    logger.info("在当前目录下找到Info_Image.csv文件: %s", info_image_csv)
+                    logger.info("Found Info_Image.csv file in current directory: %s", info_image_csv)
                     self.set_data_path(os.path.dirname(info_image_csv))
                     success = self.load_data()
                     if success:
                         self.loaded_data = True
-                        logger.info("成功加载找到的数据文件")
+                        logger.info("Successfully loaded found data file")
                         return
                     else:
-                        logger.warning("找到数据文件但加载失败")
+                        logger.warning("Found data file but failed to load it")
 
-            logger.warning("在项目中未找到任何有效的Info_Image.csv文件")
+            logger.warning("No valid Info_Image.csv file found in project")
         except (OSError, ValueError, TypeError) as e:
-            logger.error("搜索数据文件时出错: %s", str(e))
+            logger.error("Error searching for data files: %s", str(e))
             traceback.print_exc()

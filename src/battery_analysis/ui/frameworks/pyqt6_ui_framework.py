@@ -40,14 +40,14 @@ class PyQt6UIFramework:
             else:
                 self._app = QApplication.instance()
                 
-            self.logger.info("PyQt6应用程序实例创建成功")
+            self.logger.info("PyQt6 application instance created successfully")
             return self._app
-            
+
         except ImportError as e:
-            self.logger.error("PyQt6未安装或无法导入: %s", e)
+            self.logger.error("PyQt6 is not installed or cannot be imported: %s", e)
             raise
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6应用程序实例失败: %s", e)
+            self.logger.error("Failed to create PyQt6 application instance: %s", e)
             raise
     
     def create_main_window(self) -> Any:
@@ -56,14 +56,14 @@ class PyQt6UIFramework:
             from PyQt6.QtWidgets import QMainWindow
             
             main_window = QMainWindow()
-            self.logger.info("PyQt6主窗口创建成功")
+            self.logger.info("PyQt6 main window created successfully")
             return main_window
-            
+
         except ImportError as e:
-            self.logger.error("PyQt6组件无法导入: %s", e)
+            self.logger.error("PyQt6 components cannot be imported: %s", e)
             raise
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6主窗口失败: %s", e)
+            self.logger.error("Failed to create PyQt6 main window: %s", e)
             raise
     
     def create_progress_dialog(self, parent: Optional[Any] = None) -> Any:
@@ -74,15 +74,15 @@ class PyQt6UIFramework:
             if parent is None:
                 parent = self._app.activeWindow() if self._app else None
             
-            progress_dialog = QProgressDialog("处理中...", "取消", 0, 100, parent)
+            progress_dialog = QProgressDialog("Processing...", "Cancel", 0, 100, parent)
             progress_dialog.setWindowModality(True)
-            progress_dialog.setWindowTitle("进度")
-            
-            self.logger.info("PyQt6进度对话框创建成功")
+            progress_dialog.setWindowTitle("Progress")
+
+            self.logger.info("PyQt6 progress dialog created successfully")
             return progress_dialog
-            
+
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6进度对话框失败: %s", e)
+            self.logger.error("Failed to create PyQt6 progress dialog: %s", e)
             raise
     
     def show_message_box(self, 
@@ -113,11 +113,11 @@ class PyQt6UIFramework:
             
             message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
             
-            self.logger.info("PyQt6消息框显示: %s", title)
+            self.logger.info("PyQt6 message box displayed: %s", title)
             return message_box
-            
+
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6消息框失败: %s", e)
+            self.logger.error("Failed to create PyQt6 message box: %s", e)
             raise
     
     def create_file_dialog(self, 
@@ -134,11 +134,11 @@ class PyQt6UIFramework:
             
             file_dialog = QFileDialog(parent, caption, directory, filter_pattern)
             
-            self.logger.info("PyQt6文件对话框创建成功: %s", caption)
+            self.logger.info("PyQt6 file dialog created successfully: %s", caption)
             return file_dialog
-            
+
         except (AttributeError, TypeError, ValueError, OSError) as e:
-            self.logger.error("创建PyQt6文件对话框失败: %s", e)
+            self.logger.error("Failed to create PyQt6 file dialog: %s", e)
             raise
     
     def create_label(self, parent: Any, text: str) -> Any:
@@ -147,11 +147,11 @@ class PyQt6UIFramework:
             from PyQt6.QtWidgets import QLabel
             
             label = QLabel(text, parent)
-            self.logger.info("PyQt6标签创建成功: %s", text)
+            self.logger.info("PyQt6 label created successfully: %s", text)
             return label
-            
+
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6标签失败: %s", e)
+            self.logger.error("Failed to create PyQt6 label: %s", e)
             raise
     
     def create_button(self, parent: Any, text: str) -> Any:
@@ -160,11 +160,11 @@ class PyQt6UIFramework:
             from PyQt6.QtWidgets import QPushButton
             
             button = QPushButton(text, parent)
-            self.logger.info("PyQt6按钮创建成功: %s", text)
+            self.logger.info("PyQt6 button created successfully: %s", text)
             return button
-            
+
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6按钮失败: %s", e)
+            self.logger.error("Failed to create PyQt6 button: %s", e)
             raise
     
     def create_input_field(self, parent: Any, placeholder: str = "") -> Any:
@@ -176,11 +176,11 @@ class PyQt6UIFramework:
             if placeholder:
                 line_edit.setPlaceholderText(placeholder)
             
-            self.logger.info("PyQt6输入框创建成功: %s", placeholder)
+            self.logger.info("PyQt6 input field created successfully: %s", placeholder)
             return line_edit
-            
+
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6输入框失败: %s", e)
+            self.logger.error("Failed to create PyQt6 input field: %s", e)
             raise
     
     def create_table_widget(self, parent: Any, rows: int, columns: int) -> Any:
@@ -189,28 +189,28 @@ class PyQt6UIFramework:
             from PyQt6.QtWidgets import QTableWidget
             
             table = QTableWidget(rows, columns, parent)
-            self.logger.info("PyQt6表格创建成功: %sx%s", rows, columns)
+            self.logger.info("PyQt6 table created successfully: %sx%s", rows, columns)
             return table
-            
+
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("创建PyQt6表格失败: %s", e)
+            self.logger.error("Failed to create PyQt6 table: %s", e)
             raise
     
     def set_layout(self, parent: Any, layout: Any) -> None:
         """设置布局管理器"""
         try:
             parent.setLayout(layout)
-            self.logger.info("PyQt6布局设置成功")
+            self.logger.info("PyQt6 layout applied successfully")
         except (AttributeError, TypeError, ValueError) as e:
-            self.logger.error("设置PyQt6布局失败: %s", e)
+            self.logger.error("Failed to set PyQt6 layout: %s", e)
             raise
     
     def exec_application(self, app: Any) -> int:
         """运行应用程序"""
         try:
             result = app.exec()
-            self.logger.info("PyQt6应用程序运行结束")
+            self.logger.info("PyQt6 application finished running")
             return result
         except (AttributeError, TypeError, RuntimeError) as e:
-            self.logger.error("运行PyQt6应用程序失败: %s", e)
+            self.logger.error("Failed to run PyQt6 application: %s", e)
             raise

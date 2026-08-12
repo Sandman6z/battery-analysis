@@ -65,14 +65,14 @@ class ConfigManager:
         try:
             self._config_service = self.main_window._get_service("config")
         except (AttributeError, TypeError) as e:
-            self.logger.warning("无法获取 ConfigService: %s", e)
+            self.logger.warning("Unable to get ConfigService: %s", e)
             self._config_service = None
 
     def _initialize_config(self):
         """
         初始化配置文件路径
         """
-        self.logger.info("[_initialize_config] 开始初始化配置文件...")
+        self.logger.info("[_initialize_config] Starting to initialize configuration file...")
 
         if self._config_service:
             self._config_service.clear_cache()
@@ -80,7 +80,7 @@ class ConfigManager:
                 config_path_result = self._config_service.find_config_file(use_cache=False)
                 self.config_path = str(config_path_result) if config_path_result else None
             except (OSError, TypeError, ValueError) as e:
-                self.logger.warning("从 ConfigService 查找配置失败: %s", e)
+                self.logger.warning("Failed to look up configuration from ConfigService: %s", e)
                 self.config_path = None
 
         self.logger.info(f"[_initialize_config] config_path: {self.config_path}")
@@ -89,7 +89,7 @@ class ConfigManager:
         self.b_has_config = bool(self.config_path and path_exists)
 
         if not self.b_has_config:
-            self.logger.info("[_initialize_config] 配置文件不存在")
+            self.logger.info("[_initialize_config] Configuration file does not exist")
 
     def get_config(self, config_key: str) -> List[str]:
         """
@@ -115,7 +115,7 @@ class ConfigManager:
                 return [v.strip().strip('"') for v in value.split(",") if v.strip()]
             return [str(value)]
         except Exception as e:
-            logging.error("读取配置 %s 失败: %s", config_key, e)
+            logging.error("Failed to read configuration %s: %s", config_key, e)
             return []
 
     def save_user_settings(self):
@@ -154,7 +154,7 @@ class ConfigManager:
                 config_path_result = self._config_service.find_config_file(use_cache=False)
                 self.config_path = str(config_path_result) if config_path_result else None
             except (OSError, TypeError, ValueError) as e:
-                self.logger.warning("从 ConfigService 查找配置失败: %s", e)
+                self.logger.warning("Failed to look up configuration from ConfigService: %s", e)
                 self.config_path = None
         config_path_obj = Path(self.config_path) if self.config_path else None
         path_exists = config_path_obj.exists() if config_path_obj else False
@@ -198,7 +198,7 @@ class ConfigManager:
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
                     f"[Error]: No rules for {specification_type}")
         except (AttributeError, TypeError, ValueError, OSError) as e:
-            self.logger.error("更新配置失败: %s", e)
+            self.logger.error("Failed to update configuration: %s", e)
     
     def rename_pltPath(self, strTestDate):
         """
@@ -212,4 +212,4 @@ class ConfigManager:
             # 图表路径将在需要时动态计算
             pass
         except (AttributeError, TypeError, ValueError, OSError) as e:
-            self.logger.error("重命名图表路径失败: %s", e)
+            self.logger.error("Failed to rename chart path: %s", e)

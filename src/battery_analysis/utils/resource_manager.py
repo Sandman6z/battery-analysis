@@ -41,35 +41,35 @@ class ResourceManager:
             try:
                 # 检测系统CPU使用率（1秒平均值）
                 cpu_usage = psutil.cpu_percent(interval=1, percpu=False)
-                logging.info("当前系统CPU使用率: %.2f%%", cpu_usage)
+                logging.info("Current system CPU usage: %.2f%%", cpu_usage)
 
                 # 根据CPU使用率动态调整进程数
                 if cpu_usage > 80:
                     # 系统高负载：仅使用较少核心
                     max_processes = min(max_processes_default, 2)
-                    logging.info("系统高负载，调整进程数为: %d", max_processes)
+                    logging.info("System under high load, adjusted process count to: %d", max_processes)
                 elif cpu_usage > 50:
                     # 系统中负载：使用一半核心
                     max_processes = min(max_processes_default,
                                         max(2, cpu_count // 2))
-                    logging.info("系统中负载，调整进程数为: %d", max_processes)
+                    logging.info("System under medium load, adjusted process count to: %d", max_processes)
                 else:
                     # 系统低负载：使用默认进程数
                     max_processes = max_processes_default
-                    logging.info("系统低负载，使用进程数: %d", max_processes)
+                    logging.info("System under low load, using process count: %d", max_processes)
 
                 # 考虑内存限制（每个进程约100MB内存）
                 available_memory_gb = psutil.virtual_memory().available / (1024 ** 3)
                 memory_based_processes = int(
                     available_memory_gb * 10)  # 每100MB内存一个进程
                 max_processes = min(max_processes, memory_based_processes)
-                logging.info("考虑内存限制后，调整进程数为: %d", max_processes)
+                logging.info("After considering memory limits, adjusted process count to: %d", max_processes)
             except (psutil.Error, OSError) as e:
                 # 捕获psutil相关的具体异常
-                logging.error("获取系统资源信息whenerror occurred: %s", str(e))
+                logging.error("Error getting system resource info: %s", str(e))
         else:
             # 如果psutil不可用，使用默认值
-            logging.warning("psutil库不可用，使用默认进程数")
+            logging.warning("psutil library unavailable, using default process count")
 
         # 确保进程数在合理范围内
         max_processes = max(max_processes, min_processes)

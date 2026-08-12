@@ -164,9 +164,9 @@ class UIManager:
                 self.main_window.tableWidget_TestInformation.setAccessibleDescription(_("Table containing test equipment and software version information"))
                 self.main_window.tableWidget_TestInformation.setFocusPolicy(QC.Qt.FocusPolicy.ClickFocus | QC.Qt.FocusPolicy.TabFocus)
             
-            self.logger.info("可访问性设置已完成")
+            self.logger.info("Accessibility setup complete")
         except (AttributeError, TypeError, RuntimeError) as e:
-            self.logger.warning("设置可访问性属性失败: %s", e)
+            self.logger.warning("Failed to set accessibility attributes: %s", e)
     
     def setup_tooltips(self):
         """
@@ -249,9 +249,9 @@ class UIManager:
             if hasattr(self.main_window, 'tableWidget_TestInformation'):
                 self.main_window.tableWidget_TestInformation.setToolTip(_("Test information table - contains test equipment and software version information"))
             
-            self.logger.info("控件工具提示设置已完成")
+            self.logger.info("Widget tooltip setup complete")
         except (AttributeError, TypeError, RuntimeError) as e:
-            self.logger.warning("设置控件工具提示失败: %s", e)
+            self.logger.warning("Failed to set widget tooltips: %s", e)
     
     def init_lineedit(self):
         """
@@ -499,7 +499,7 @@ class UIManager:
         status_ready = _("Ready")
         
         # 更新状态栏
-        if current_message in ("状态:就绪", "Ready"):
+        if current_message in ("Ready", "就绪"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(status_ready)
 
     def load_user_settings(self):
@@ -537,4 +537,4 @@ class UIManager:
             for label in labels_to_clear:
                 label.setStyleSheet("")
         except (AttributeError, TypeError, RuntimeError) as e:
-            self.logger.warning("初始化部件颜色失败: %s", e)
+            self.logger.warning("Failed to initialize widget colors: %s", e)

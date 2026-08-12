@@ -43,7 +43,7 @@ class ValidationManager:
         regex = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
         if version_text and not regex.match(version_text).hasMatch():
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                f"{_('warning', '警告')}: {_('version_format_invalid', '版本号格式不正确，应为 x.y.z 格式')}")
+                f'{_("Warning")}: {_("Version format is invalid. Expected x.y.z format")}')
             # 设置错误样式
             self.main_window.lineEdit_Version.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
@@ -60,7 +60,7 @@ class ValidationManager:
         """
         path = self.main_window.lineEdit_InputPath.text()
         if path and not os.path.exists(path):
-            self.main_window.statusBar_BatteryAnalysis.showMessage(f"{_('warning', '警告')}: {_('input_path_not_exists', '输入路径不存在')}")
+            self.main_window.statusBar_BatteryAnalysis.showMessage(f'{_("Warning")}: {_("Input path does not exist")}')
             self.main_window.lineEdit_InputPath.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
         else:
@@ -76,28 +76,28 @@ class ValidationManager:
         empty_fields = []
 
         if not self.main_window.lineEdit_SamplesQty.text():
-            empty_fields.append("样品数量")
+            empty_fields.append("Samples Qty")
             self.main_window.lineEdit_SamplesQty.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
         else:
             self.main_window.lineEdit_SamplesQty.setStyleSheet("")
 
         if not self.main_window.lineEdit_DatasheetNominalCapacity.text():
-            empty_fields.append("标称容量")
+            empty_fields.append("Nominal Capacity")
             self.main_window.lineEdit_DatasheetNominalCapacity.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
         else:
             self.main_window.lineEdit_DatasheetNominalCapacity.setStyleSheet("")
 
         if not self.main_window.lineEdit_CalculationNominalCapacity.text():
-            empty_fields.append("计算容量")
+            empty_fields.append("Calculated Capacity")
             self.main_window.lineEdit_CalculationNominalCapacity.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
         else:
             self.main_window.lineEdit_CalculationNominalCapacity.setStyleSheet("")
 
         if not self.main_window.lineEdit_RequiredUseableCapacity.text():
-            empty_fields.append("可用容量")
+            empty_fields.append("Useable Capacity")
             self.main_window.lineEdit_RequiredUseableCapacity.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;")
         else:
@@ -105,7 +105,7 @@ class ValidationManager:
 
         if empty_fields:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                f"{_('warning', '警告')}: {_('required_fields_empty', '以下必填字段为空')}: {', '.join(empty_fields)}")
+                f'{_("Warning")}: {_("The following required fields are empty")}: {", ".join(empty_fields)}')
         else:
             # 如果所有验证都通过，显示正常状态
             if self.main_window.checker_battery_type.b_check_pass:
@@ -343,7 +343,7 @@ class ValidationManager:
         if not result.is_valid:
             self._apply_field_errors(result.field_errors)
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "; ".join(result.errors) if result.errors else "验证失败")
+                "; ".join(result.errors) if result.errors else "Validation failed")
             self.main_window.pushButton_Run.setText("Rerun")
             self.main_window.pushButton_Run.setFocus()
             return False

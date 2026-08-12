@@ -65,7 +65,7 @@ def extract_test_date_from_xls(filepath: str) -> str:
                                                             f"{day.zfill(2)}"
                                                 except ValueError:
                                                     logger.warning(
-                                                        "日期部分无法转换为整数: %s", parts)
+                                                        "Date parts could not be converted to integers: %s", parts)
                                     # 格式2: 2025-06-10
                                     elif "-" in date_str:
                                         parts = date_str.split("-")
@@ -78,7 +78,7 @@ def extract_test_date_from_xls(filepath: str) -> str:
                                                         f"{day.zfill(2)}"
                                             except ValueError:
                                                 logger.warning(
-                                                    "日期部分无法转换为整数: %s", parts[:3])
+                                                    "Date parts could not be converted to integers: %s", parts[:3])
 
                             # 尝试从下方单元格获取日期值
                             if row + 1 < sheet.nrows:
@@ -101,7 +101,7 @@ def extract_test_date_from_xls(filepath: str) -> str:
                                                             f"{day.zfill(2)}"
                                                 except ValueError:
                                                     logger.warning(
-                                                        "日期部分无法转换为整数: %s", parts)
+                                                        "Date parts could not be converted to integers: %s", parts)
                                     elif "-" in date_str:
                                         parts = date_str.split("-")
                                         if len(parts) >= 3:
@@ -113,11 +113,11 @@ def extract_test_date_from_xls(filepath: str) -> str:
                                                         f"{day.zfill(2)}"
                                             except ValueError:
                                                 logger.warning(
-                                                    "日期部分无法转换为整数: %s", parts[:3])
+                                                    "Date parts could not be converted to integers: %s", parts[:3])
 
         # 如果找不到Test Date字段，尝试从文件名提取
         file_name = os.path.basename(filepath)
-        logger.debug("从文件名解析日期: %s", file_name)
+        logger.debug("Parsing date from file name: %s", file_name)
 
         # 尝试从文件名中提取日期
         # 匹配文件名中所有连续的数字组
@@ -128,15 +128,15 @@ def extract_test_date_from_xls(filepath: str) -> str:
             # 提取前8位作为日期（如果长度足够）
             if len(last_digit_group) >= 8:
                 date_str = last_digit_group[:8]
-                logger.debug("提取日期: %s", date_str)
+                logger.debug("Extracted date: %s", date_str)
                 # 验证提取的日期是否有效（简单验证：年份在合理范围）
                 try:
                     year = int(date_str[:4])
                     if 2000 <= year <= 2100:
                         return date_str
-                    logger.warning("提取的年份 %s 不在有效范围内", year)
+                    logger.warning("Extracted year %s is not in valid range", year)
                 except ValueError:
-                    logger.error("无法解析年份")
+                    logger.error("Could not parse year")
         # 然后尝试其他常见的日期格式
         date_patterns = [
             r'(\d{4})-(\d{2})-(\d{2})',  # 2025-06-10
@@ -150,17 +150,17 @@ def extract_test_date_from_xls(filepath: str) -> str:
                     if pattern == r'(\d{2})\.(\d{2})\.(\d{4})':
                         day, month, year = match.groups()
                         result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                        logger.debug("从文件名提取到日期: %s", result)
+                        logger.debug("Extracted date from file name: %s", result)
                         return result
                     year, month, day = match.groups()
                     result = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                    logger.debug("从文件名提取到日期: %s", result)
+                    logger.debug("Extracted date from file name: %s", result)
                     return result
                 except (ValueError, AttributeError) as e:
-                    logger.warning("从文件名解析日期失败: %s", e)
+                    logger.warning("Failed to parse date from file name: %s", e)
 
     except (rd.XLRDError, FileNotFoundError, PermissionError, ValueError) as e:
-        logger.error("从Excel提取Test Date失败: %s, 错误: %s", filepath, e)
+        logger.error("Failed to extract Test Date from Excel: %s, error: %s", filepath, e)
 
     # 确保总是有返回值
     return "00000000"
