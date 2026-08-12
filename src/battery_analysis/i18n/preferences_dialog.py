@@ -306,7 +306,7 @@ class PreferencesDialog(QW.QDialog):
                     self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
                     self.config_status_label.setStyleSheet("color: green;")
             else:
-                # INI 文件兼容验证
+                # INI 文件兼容验证（已弃用，仅用于旧版兼容）
                 import configparser
                 parser = configparser.ConfigParser()
                 parser.read(file_path, encoding='utf-8')
@@ -320,8 +320,9 @@ class PreferencesDialog(QW.QDialog):
                     )
                     self.config_status_label.setStyleSheet("color: orange;")
                 else:
-                    self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
-                    self.config_status_label.setStyleSheet("color: green;")
+                    self.config_status_label.setText(
+                        _("ini_deprecated", "INI format is deprecated; consider migrating to config.json"))
+                    self.config_status_label.setStyleSheet("color: orange;")
 
         except Exception as e:
             self.config_status_label.setText(_("config_parse_error", f"Error parsing config: {str(e)}"))
@@ -333,6 +334,9 @@ class PreferencesDialog(QW.QDialog):
         self.config_status_label.setText("")
         settings = QC.QSettings()
         settings.remove("config/custom_config_path")
+        # 同步清除模块级缓存，确保 config_utils 不再返回旧路径
+        from battery_analysis.utils.config_utils import clear_custom_config_path
+        clear_custom_config_path()
 
     def _populate_language_combo(self):
         """Populate the language combo box with available languages"""
@@ -539,16 +543,14 @@ class PreferencesDialog(QW.QDialog):
             )
     
     def accept(self):
-        """Handle OK button clicked"""
+        """Handle OK button clicked — apply settings once then close"""
         self._apply_settings()
         super().accept()
-    
-    
-    
+
+    def reject(self):
+        """Handle Cancel / Escape — close without saving"""
+        super().reject()
+
     def closeEvent(self, event):
-        """Handle dialog close event"""
-        # Save any pending changes
-        if hasattr(self, 'auto_save_checkbox') and self.auto_save_checkbox.isChecked():
-            self._apply_settings()
-        
+        """Handle dialog close event (e.g. X button) — same as Cancel, no auto-save"""
         super().closeEvent(event)

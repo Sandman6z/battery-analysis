@@ -336,11 +336,11 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             if hasattr(self, 'ui_manager'):
                 self.ui_manager.init_combobox()
             self.refresh_ui()
-            QW.QMessageBox.information(self, "Configuration Reloaded",
-                                       "Configuration reloaded successfully.")
         except Exception as e:
             self.logger.error("重新加载配置时发生错误: %s", e)
-            QW.QMessageBox.warning(self, "Error", f"Failed to reload configuration: {str(e)}")
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage(
+                    f"配置重新加载失败: {str(e)}")
 
     def refresh_ui(self) -> None:
         try:

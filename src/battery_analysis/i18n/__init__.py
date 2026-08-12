@@ -1,18 +1,23 @@
 """
 Internationalization (i18n) module
+
+Uses Python's standard-library gettext under the hood.
+All public API symbols are exposed at module level so callers can just:
+
+    from battery_analysis.i18n import _, ngettext, pgettext
 """
 
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 from battery_analysis.i18n.translator import SimplePOTranslator
 
 logger = logging.getLogger(__name__)
 
 # Determine locale directory
-if hasattr(sys, '_MEIPASS'):
+if hasattr(sys, "_MEIPASS"):
     LOCALEDIR = Path(sys._MEIPASS) / "locale"
 else:
     LOCALEDIR = Path(__file__).parent.parent.parent.parent / "locale"
@@ -21,28 +26,63 @@ logger.info("Using locale directory: %s", LOCALEDIR)
 
 # Global state
 _current_locale: str = "en"
-_translations: Dict[str, Dict[str, str]] = {}
 _po_translator = SimplePOTranslator()
 
 
+# ── Internal ──────────────────────────────────────────────────────
+
+
 def _load_locale(locale_code: str) -> bool:
-    """Load translations for a locale into the global translator."""
-    global _translations, _current_locale
+    """Load translations for *locale_code* into the global translator."""
+    global _current_locale
     if _po_translator.load_locale(locale_code, LOCALEDIR):
-        _translations[locale_code] = dict(_po_translator.translations)
         _current_locale = locale_code
         logger.info("Locale set to: %s", locale_code)
         return True
     return False
 
 
+# ── Public API (stable contract for all callers) ──────────────────
+
+
+def _(text: str, context: Optional[str] = None) -> str:
+    """Translate *text*; return *text* itself if no translation exists."""
+    try:
+        if context:
+            return _po_translator.pgettext(context, text)
+        return _po_translator.gettext(text)
+    except (AttributeError, KeyError) as exc:
+        logger.warning("Translation error for '%s': %s", text, exc)
+        return text
+
+
+def pgettext(context: str, text: str) -> str:
+    """Context-aware translation."""
+    return _(text, context)
+
+
+def ngettext(singular: str, plural: str, n: int) -> str:
+    """Plural translation (singular if n == 1, else plural)."""
+    try:
+        return _po_translator.ngettext(singular, plural, n)
+    except (AttributeError, KeyError) as exc:
+        logger.warning("Translation error for '%s'/'%s': %s", singular, plural, exc)
+        return singular if n == 1 else plural
+
+
+# ── Locale management ─────────────────────────────────────────────
+
+
 def get_available_locales():
-    from battery_analysis.i18n.locale_utils import get_available_locales as _get_available
+    from battery_analysis.i18n.locale_utils import (
+        get_available_locales as _get_available,
+    )
+
     return _get_available(LOCALEDIR)
 
 
 def set_locale(locale_code: str) -> bool:
-    """Set the current locale."""
+    """Switch to *locale_code* (must have a .po file under LOCALEDIR)."""
     logger.info("Setting locale to: %s", locale_code)
 
     from battery_analysis.i18n.locale_utils import (
@@ -58,40 +98,17 @@ def set_locale(locale_code: str) -> bool:
 
     try:
         return _load_locale(valid_locale)
-    except (OSError, ValueError, ImportError) as e:
-        logger.error("Failed to set locale '%s': %s", valid_locale, e)
+    except (OSError, ValueError, ImportError) as exc:
+        logger.error("Failed to set locale '%s': %s", valid_locale, exc)
         import traceback
+
         traceback.print_exc()
         return False
 
 
-def _(text: str, context: Optional[str] = None) -> str:
-    """Translate text."""
-    try:
-        return _po_translator.get(text, context)
-    except (AttributeError, KeyError) as e:
-        logging.warning("Translation error for '%s': %s", text, e)
-        return text
-
-
-def pgettext(context: str, text: str) -> str:
-    """Context-aware translation."""
-    return _(text, context)
-
-
 def get_current_locale() -> str:
-    """Get the current locale code."""
+    """Return the currently active locale code."""
     return _current_locale
-
-
-def ngettext(singular: str, plural: str, n: int) -> str:
-    """Plural form translation (fallback to simple singular/plural)."""
-    if _current_locale in _translations:
-        try:
-            return _translations[_current_locale].get(singular, singular if n == 1 else plural)
-        except (AttributeError, KeyError) as e:
-            logging.warning("Translation error for '%s/%s': %s", singular, plural, e)
-    return singular if n == 1 else plural
 
 
 def detect_system_locale() -> str:
@@ -101,6 +118,7 @@ def detect_system_locale() -> str:
         system_locale_to_code,
         get_available_locales as _get_available,
     )
+
     sys_locale = _detect()
     if sys_locale:
         available = _get_available(LOCALEDIR)
@@ -108,7 +126,7 @@ def detect_system_locale() -> str:
         if result:
             return result
     logger.info("Falling back to English locale")
-    return 'en'
+    return "en"
 
 
 def initialize_default_locale() -> bool:
@@ -128,6 +146,6 @@ def initialize_default_locale() -> bool:
     return set_locale("en")
 
 
-# Auto-initialize
+# Auto-initialize on import
 initialize_default_locale()
 logger.info("i18n module initialized with locale: %s", _current_locale)

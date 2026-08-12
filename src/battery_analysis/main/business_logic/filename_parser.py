@@ -37,8 +37,9 @@ def set_manufacturer(filename, combo_box):
 
 
 def extract_batch_date_code(filename, line_edit):
-    """提取批次日期代码"""
-    batch_date_codes = re.findall(r"DC(.*?),", filename)
+    """提取批次日期代码，兼容 DC2604、DC(2604) 和 DC (2604) 三种格式"""
+    # 匹配 DC 后可选空格、可选括号包裹的字母数字批次码
+    batch_date_codes = re.findall(r"DC\s*\(?(\w+)\)?", filename)
     if len(batch_date_codes) == 1:
         line_edit.setText(batch_date_codes[0].strip())
 

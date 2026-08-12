@@ -26,7 +26,12 @@ class ConfigDialog(QW.QDialog):
             raise RuntimeError("ConfigService not available — cannot open Configuration dialog")
 
         # 从 ConfigService 加载当前数据（深拷贝，取消保存才写回）
-        self._working_data = copy.deepcopy(self._config_service.get_config_value(""))
+        raw_data = self._config_service.get_config_value("")
+        if raw_data is None:
+            self.logger.warning("配置数据为空或加载失败，使用空配置启动编辑")
+            self._working_data = {}
+        else:
+            self._working_data = copy.deepcopy(raw_data)
 
         self.setWindowTitle(_("config_dialog_title", "Configuration"))
         self.setMinimumSize(800, 600)
@@ -96,9 +101,10 @@ class ConfigDialog(QW.QDialog):
 
     def _populate_data(self):
         """用 _working_data 填充各页面"""
-        self._page_battery.load_data(self._working_data.get("battery", {}))
-        self._page_test.load_data(self._working_data.get("test", {}))
-        self._page_equipment.load_data(self._working_data.get("test", {}).get("equipment", {}))
+        wd = self._working_data if isinstance(self._working_data, dict) else {}
+        self._page_battery.load_data(wd.get("battery", {}))
+        self._page_test.load_data(wd.get("test", {}))
+        self._page_equipment.load_data(wd.get("test", {}).get("equipment", {}))
 
 class _BatteryConfigPage(QW.QWidget):
     """电池配置编辑页面"""
@@ -345,7 +351,9 @@ class _TestConfigPage(QW.QWidget):
         if len(parts) != 2:
             return loc_key
         site, lab = parts
-        model = test_equipment.replace("NEWARE Battery Testing System ", "").strip()
+        # 安全移除已知前缀，若前缀不匹配则保留原始设备名
+        prefix = "NEWARE Battery Testing System "
+        model = test_equipment[len(prefix):].strip() if test_equipment.startswith(prefix) else test_equipment.strip()
         lab_display = lab + "." if lab == "Qual" else lab
         return f"{model} ({lab_display}), {site}"
 

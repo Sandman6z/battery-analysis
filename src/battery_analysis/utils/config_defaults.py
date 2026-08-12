@@ -11,7 +11,7 @@ DEFAULT_CONFIG = {
         "constructionMethods": ["Spiral Type", "Laminate Type"],
         "specifications": {
             "Coin Cell": ["CR2450", "CR2450YP", "CR2450PH", "CR2450D", "CR2450HE1", "CR2450HE4"],
-            "Pouch Cell": ["CP224642A", "CF583083"]
+            "Pouch Cell": ["CP224642A", "CF583083", "CP305050"]
         },
         "specificationMethods": ["1S1P", "1S2P", "2S1P"],
         "manufacturers": ["ATMT", "EVE", "Omnergy", "Nanfu", "Huiderui", "GP&LB", "HCB"],
@@ -21,7 +21,8 @@ DEFAULT_CONFIG = {
             "CR2450HE1/1S1P/600/550/380/1.0",
             "CR2450HE4/1S1P/600/550/280/1.0",
             "CP224642A/1S1P/920/920/80%/5.0",
-            "CF583083/1S1P/4000/4000/80%/5.0"
+            "CF583083/1S1P/4000/4000/80%/5.0",
+            "CP305050/1S1P/20/20/80%/1.0"
         ],
         "pulseCurrents": [30.0, 26.0, 15.0, 6.0],
         "cutOffVoltages": [2.6, 2.5, 2.4, 2.3, 2.25, 2.2, 2.1, 2.0, 1.8]

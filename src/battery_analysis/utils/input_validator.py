@@ -76,23 +76,33 @@ class InputValidator:
     ]
 
     @staticmethod
-    def validate_all(values: FieldValues) -> ValidationResult:
-        """执行全部验证规则。"""
+    def validate_all(values: FieldValues,
+                     types_requiring_construction: list | None = None) -> ValidationResult:
+        """执行全部验证规则。
+
+        Args:
+            values: 待验证的字段值
+            types_requiring_construction: 需要填写构造方法的电池类型名称列表。
+                                         为 None 时默认为 ["Pouch Cell"]。
+        """
         result = ValidationResult()
         result.merge(InputValidator._validate_required_fields(values))
         result.merge(InputValidator._validate_paths(values))
         result.merge(InputValidator._validate_version(values))
         result.merge(InputValidator._validate_aging(values))
-        if values.battery_type == "Pouch Cell":
+        if types_requiring_construction is None:
+            types_requiring_construction = ["Pouch Cell"]
+        if values.battery_type in types_requiring_construction:
             result.merge(InputValidator._validate_required_text(
                 values.construction_method, "construction_method", "构造方法"
             ))
         return result
 
     @staticmethod
-    def validate_before_run(values: FieldValues) -> ValidationResult:
+    def validate_before_run(values: FieldValues,
+                            types_requiring_construction: list | None = None) -> ValidationResult:
         """运行前的快速检查（仅必填项 + 路径）。"""
-        return InputValidator.validate_all(values)
+        return InputValidator.validate_all(values, types_requiring_construction)
 
     @staticmethod
     def _validate_required_fields(values: FieldValues) -> ValidationResult:

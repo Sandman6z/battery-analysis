@@ -6,6 +6,7 @@
 
 import os
 import re
+import math
 import logging
 import importlib.resources
 from pathlib import Path
@@ -76,15 +77,11 @@ def compute_report_content_base(
             intPosi2V25 = v
             break
 
-    # 测试配置起始行
-    if listTestInfo[0] == "Coin Cell":
-        intTestProfileStartLine = 3
-    elif listTestInfo[0] == "Pouch Cell":
-        intTestProfileStartLine = 4
-    else:
-        from battery_analysis.utils.exceptions import BatteryAnalysisException
-        raise BatteryAnalysisException(
-            "[Test Info Error]: listTestInfo[0] is a unknown battery type")
+    # 测试配置起始行：基础 3 行（Battery Type / Specification / Manufacturer）
+    # 如果构造方法（listTestInfo[1]）有值，则增加一行
+    intTestProfileStartLine = 3
+    if listTestInfo[1]:
+        intTestProfileStartLine += 1
 
     intActualMeasuredCapacityLength = intVoltageLevelNum * 2
 

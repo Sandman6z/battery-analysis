@@ -329,7 +329,7 @@ class UIManager:
         self._add_items_with_fallback(
             self.main_window.comboBox_ConstructionMethod,
             self.main_window.get_config("BatteryConfig/ConstructionMethod"),
-            ["Stacked", "Wound"])
+            ["Spiral Type", "Laminate Type"])
         self.main_window.comboBox_Specification_Type.addItems(
             self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
         self.main_window.comboBox_Specification_Type.addItems(

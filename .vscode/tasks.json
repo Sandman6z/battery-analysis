@@ -50,6 +50,55 @@
                 "kind": "test",
                 "isDefault": true
             }
+        },
+        {
+            "label": "(uv)run app",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "battery-analysis"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "(uv)run app debug",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "--no-sync",
+                "python",
+                "-m",
+                "battery_analysis.main.launcher"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": false
+            }
         }
     ]
 }

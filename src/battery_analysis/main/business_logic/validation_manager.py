@@ -116,65 +116,10 @@ class ValidationManager:
         检查电池类型并更新相关UI组件
         """
         self.main_window.checker_battery_type.clear()
-        if self.main_window.comboBox_BatteryType.currentText() == "Coin Cell":
-            self.main_window.comboBox_ConstructionMethod.setEnabled(False)
-            self.main_window.comboBox_ConstructionMethod.setCurrentIndex(-1)
-            self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
-            self.main_window.lineEdit_CalculationNominalCapacity.setText("")
-            self.main_window.lineEdit_RequiredUseableCapacity.setText("")
-            try:
-                self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
-                    self.main_window.check_specification)
-                self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
-                    self.main_window.check_specification)
-            except (TypeError, AttributeError):
-                pass
-            self.main_window.comboBox_Specification_Type.clear()
-            self.main_window.comboBox_Specification_Type.addItems(
-                self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
-            self.main_window.comboBox_Specification_Type.setEnabled(True)
-            self.main_window.comboBox_Specification_Method.setEnabled(True)
-            self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
-            self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
-                self.main_window.check_specification)
-            self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
-                self.main_window.check_specification)
-            for t in range(self.main_window.comboBox_Specification_Type.count()):
-                if self.main_window.specification_type == self.main_window.comboBox_Specification_Type.itemText(t):
-                    self.main_window.comboBox_Specification_Type.setCurrentIndex(t)
-                    break
-        elif self.main_window.comboBox_BatteryType.currentText() == "Pouch Cell":
-            self.main_window.comboBox_ConstructionMethod.setEnabled(True)
-            for c in range(self.main_window.comboBox_ConstructionMethod.count()):
-                if self.main_window.construction_method == self.main_window.comboBox_ConstructionMethod.itemText(c):
-                    self.main_window.comboBox_ConstructionMethod.setCurrentIndex(c)
-                    self.main_window.construction_method = ""
-                    break
-            self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
-            self.main_window.lineEdit_CalculationNominalCapacity.setText("")
-            self.main_window.lineEdit_RequiredUseableCapacity.setText("")
-            try:
-                self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
-                    self.main_window.check_specification)
-                self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
-                    self.main_window.check_specification)
-            except (TypeError, AttributeError):
-                pass
-            self.main_window.comboBox_Specification_Type.clear()
-            self.main_window.comboBox_Specification_Type.addItems(
-                self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
-            self.main_window.comboBox_Specification_Type.setEnabled(True)
-            self.main_window.comboBox_Specification_Method.setEnabled(True)
-            self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
-            self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
-                self.main_window.check_specification)
-            self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
-                self.main_window.check_specification)
-            for t in range(self.main_window.comboBox_Specification_Type.count()):
-                if self.main_window.specification_type == self.main_window.comboBox_Specification_Type.itemText(t):
-                    self.main_window.comboBox_Specification_Type.setCurrentIndex(t)
-                    break
-        elif not self.main_window.comboBox_BatteryType.currentText():
+        current_type = self.main_window.comboBox_BatteryType.currentText()
+
+        if not current_type:
+            # 未选择电池类型 → 禁用相关控件
             self.main_window.comboBox_ConstructionMethod.setEnabled(False)
             self.main_window.comboBox_ConstructionMethod.setCurrentIndex(-1)
             self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
@@ -196,21 +141,61 @@ class ValidationManager:
                 self.main_window.check_specification)
             self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
                 self.main_window.check_specification)
-        else:
-            self.main_window.checker_battery_type.set_error(
-                _("unknown_battery_type", f"No battery type named {self.main_window.comboBox_BatteryType.currentText()}"))
-            self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("unknown_battery_type_error", "[Error]: No battery type named {}").format(self.main_window.comboBox_BatteryType.currentText()))
+            return
+
+        # 通用处理：清空容量、加载所有规格、启用控件
+        # （不按电池类型分支——差异由配置和数据驱动）
+        self.main_window.comboBox_ConstructionMethod.setEnabled(True)
+        # 将文件名解析到的构造方法设置到下拉框
+        if self.main_window.construction_method:
+            for c in range(self.main_window.comboBox_ConstructionMethod.count()):
+                if self.main_window.construction_method == self.main_window.comboBox_ConstructionMethod.itemText(c):
+                    self.main_window.comboBox_ConstructionMethod.setCurrentIndex(c)
+                    self.main_window.construction_method = ""
+                    break
+        self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
+        self.main_window.lineEdit_CalculationNominalCapacity.setText("")
+        self.main_window.lineEdit_RequiredUseableCapacity.setText("")
+        try:
+            self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
+                self.main_window.check_specification)
+            self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
+                self.main_window.check_specification)
+        except (TypeError, AttributeError):
+            pass
+        self.main_window.comboBox_Specification_Type.clear()
+        self.main_window.comboBox_Specification_Type.addItems(
+            self._get_all_specifications())
+        self.main_window.comboBox_Specification_Type.setEnabled(True)
+        self.main_window.comboBox_Specification_Method.setEnabled(True)
+        self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
+        # 先恢复选中项（信号仍断开，不会触发 check_specification）
+        for t in range(self.main_window.comboBox_Specification_Type.count()):
+            if self.main_window.specification_type == self.main_window.comboBox_Specification_Type.itemText(t):
+                self.main_window.comboBox_Specification_Type.setCurrentIndex(t)
+                break
+        # 再重连信号
+        self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
+            self.main_window.check_specification)
+        self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
+            self.main_window.check_specification)
     
+    def _get_all_specifications(self) -> list:
+        """从配置中获取所有规格型号（不分电池类型）"""
+        coin = self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") or []
+        pouch = self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell") or []
+        return coin + pouch
+
     def check_specification(self) -> None:
         """
         检查规格并更新相关UI组件
         """
         self.main_window.specification_type = self.main_window.comboBox_Specification_Type.currentText()
-        coin_cell_types = self.main_window.get_config(
-            "BatteryConfig/SpecificationTypeCoinCell")
-        pouch_cell_types = self.main_window.get_config(
-            "BatteryConfig/SpecificationTypePouchCell")
+        # 规格 → 电池类型映射表（配置驱动，不硬编码索引）
+        type_spec_pairs = [
+            ("Coin Cell", self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") or []),
+            ("Pouch Cell", self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell") or []),
+        ]
 
         # 临时断开 BatteryType 信号，避免递归触发 check_batterytype
         try:
@@ -219,16 +204,21 @@ class ValidationManager:
         except (TypeError, AttributeError):
             pass
 
-        for coin_type in coin_cell_types:
-            if self.main_window.specification_type == coin_type:
-                self.main_window.comboBox_BatteryType.setCurrentIndex(0)
-
-        for pouch_type in pouch_cell_types:
-            if self.main_window.specification_type == pouch_type:
-                self.main_window.comboBox_BatteryType.setCurrentIndex(1)
+        # 根据当前选中的规格自动匹配电池类型（按文本值，非索引）
+        for type_name, spec_list in type_spec_pairs:
+            if self.main_window.specification_type in spec_list:
+                for i in range(self.main_window.comboBox_BatteryType.count()):
+                    if self.main_window.comboBox_BatteryType.itemText(i) == type_name:
+                        self.main_window.comboBox_BatteryType.setCurrentIndex(i)
+                        break
+                break
 
         self.main_window.comboBox_BatteryType.currentIndexChanged.connect(
             self.main_window.check_batterytype)
+
+        # 显式执行 check_batterytype 以确保 UI 状态更新
+        # （setCurrentIndex 在信号断开期间执行，不会自动触发回调）
+        self.main_window.check_batterytype()
 
         specification_method = self.main_window.comboBox_Specification_Method.currentText()
         if not self.main_window.specification_type or not specification_method:
@@ -298,6 +288,21 @@ class ValidationManager:
             except ValueError:
                 pass
     
+    def _get_types_requiring_construction(self) -> list:
+        """从配置中推断哪些电池类型需要填写构造方法。
+
+        约定：凡是在 `battery.specifications` 中定义了规格的电池类型，
+        都需要填写构造方法。返回类型名称列表。
+        """
+        coin = self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") or []
+        pouch = self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell") or []
+        result = []
+        if coin:
+            result.append("Coin Cell")
+        if pouch:
+            result.append("Pouch Cell")
+        return result
+
     def validate_fields(self) -> ValidationResult:
         """使用纯 InputValidator 验证当前 UI 字段。"""
         values = FieldValues(
@@ -321,7 +326,10 @@ class ValidationManager:
             version=self.main_window.lineEdit_Version.text(),
             required_usable_capacity=self.main_window.lineEdit_RequiredUseableCapacity.text(),
         )
-        return InputValidator.validate_all(values)
+        return InputValidator.validate_all(
+            values,
+            types_requiring_construction=self._get_types_requiring_construction(),
+        )
 
     def checkinput(self) -> bool:
         """
@@ -348,18 +356,17 @@ class ValidationManager:
         self._reset_all_label_styles()
         
         # 检查必填字段
-        check_pass_flag &= self._check_combobox("Battery Type", 
+        check_pass_flag &= self._check_combobox("Battery Type",
                                                self.main_window.comboBox_BatteryType,
-                                               self.main_window.label_BatteryType, 
+                                               self.main_window.label_BatteryType,
                                                warning_info)
-        
-        # 如果是Pouch Cell，检查构造方法
-        if self.main_window.comboBox_BatteryType.currentText() == "Pouch Cell":
-            check_pass_flag &= self._check_combobox("Construction Method",
-                                                   self.main_window.comboBox_ConstructionMethod,
-                                                   self.main_window.label_ConstructionMethod,
-                                                   warning_info)
-        
+
+        # 检查构造方法（InputValidator 根据配置决定是否必填）
+        check_pass_flag &= self._check_combobox("Construction Method",
+                                               self.main_window.comboBox_ConstructionMethod,
+                                               self.main_window.label_ConstructionMethod,
+                                               warning_info)
+
         # 检查规格
         spec_valid = self.main_window.comboBox_Specification_Type.currentText() and \
                      self.main_window.comboBox_Specification_Method.currentText()

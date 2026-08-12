@@ -172,11 +172,17 @@ class BatteryAnalysis:
                         idx = future_to_idx[future]
                         try:
                             result = future.result()
-                            results_map[idx] = result
+                            if result is not None:
+                                results_map[idx] = result
                         except (FileNotFoundError, PermissionError,
-                                ValueError, KeyError, IndexError) as e:
-                            logging.error("处理文件时出错: %s", e)
-                            raise BatteryAnalysisException(f"处理失败: {str(e)}")
+                                ValueError, KeyError, IndexError,
+                                BatteryAnalysisException) as e:
+                            file_name = (process_args[idx][0]
+                                         if idx < len(process_args)
+                                         else "unknown")
+                            logging.error("处理文件时出错 (已跳过): %s - %s",
+                                          file_name, e)
+                            # 跳过失败文件，继续处理其余文件
 
                         completed += 1
                         if progress_callback and total > 1:
@@ -184,7 +190,13 @@ class BatteryAnalysis:
                             progress_callback(
                                 pct, f"正在分析电池数据... ({completed}/{total})")
 
-                    results = [results_map[i] for i in range(len(process_args))]
+                    results = [results_map.get(i) for i in range(len(process_args))]
+                    results = [r for r in results if r is not None]
+
+                    if not results:
+                        raise BatteryAnalysisException(
+                            "[Analysis Error]: 所有文件处理失败，请检查数据格式")
+
             else:
                 cpu_count = min(multiprocessing.cpu_count(), 4)
                 if progress_callback:
@@ -227,9 +239,11 @@ class BatteryAnalysis:
             if progress_callback:
                 progress_callback(55, "数据处理完成")
 
-        except (IOError, OSError, ValueError, rd.XLRDError) as e:
+        except (IOError, OSError, ValueError, rd.XLRDError,
+                BatteryAnalysisException, KeyError) as e:
             self.strErrorLog = str(e)
-            traceback.print_exc()
+            if not isinstance(e, (BatteryAnalysisException, KeyError)):
+                traceback.print_exc()
 
     # ────────────────────────────────────────────────────────────
     #  文件级处理（pandas 主路径）

@@ -32,10 +32,12 @@ def validate_excel_file_content(df, filename):
     if len(df) == 0:
         return False, f"Sheet页无行数据: {filename}"
 
+    # ── 检查是否含有数值数据 ──────────────────────────────────
     numeric_columns = df.select_dtypes(include=['number']).columns
+    has_numeric = len(numeric_columns) > 0
+    has_potential_numeric = False
 
-    if len(numeric_columns) == 0:
-        has_potential_numeric = False
+    if not has_numeric:
         for col in df.columns:
             try:
                 pd.to_numeric(df[col], errors='coerce')
@@ -44,14 +46,23 @@ def validate_excel_file_content(df, filename):
             except (ValueError, TypeError, KeyError):
                 continue
 
-        if has_potential_numeric:
-            logger.warning(f"Sheet页可能包含数值数据但未被识别: {filename}")
-        else:
-            logger.warning(f"Sheet页无数值列数据: {filename}")
-
+    # ── 检查是否含有标准列名 ──────────────────────────────────
     common_columns = ['Capacity', '容量', 'Voltage', '电压', 'Current', '电流',
                       'Cycle', '循环', 'Temperature', '温度', 'Time', '时间']
     has_common_column = any(col in df.columns for col in common_columns)
+
+    # ── 综合判断：列名不对 + 数据也无法识别 → 致命错误 ──────
+    if not has_common_column and not has_numeric and not has_potential_numeric:
+        return False, (
+            f"文件内容无法识别: {filename}\n"
+            f"未找到标准列名（如 Capacity/Voltage/Current），"
+            f"且数据列也无法识别为数值类型。"
+        )
+
+    # ── 非致命警告 ────────────────────────────────────────────
+    if not has_numeric and has_potential_numeric:
+        logger.warning(f"Sheet页可能包含数值数据但未被识别: {filename}")
+
     if not has_common_column:
         logger.warning(f"Sheet页可能缺少必要的列: {filename}, 找到列: {list(df.columns)}")
 

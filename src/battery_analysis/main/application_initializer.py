@@ -111,9 +111,9 @@ class ApplicationInitializer:
         # 优化matplotlib配置，避免font cache构建警告
         # 使用QtAgg后端，自动检测Qt绑定（兼容PyQt6）
         matplotlib.use('QtAgg')
+        from battery_analysis.utils.constants import CN_FONT_LIST
         matplotlib.rcParams['font.family'] = 'sans-serif'
-        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial',
-                                                'DejaVu Sans', 'Liberation Sans', 'Times New Roman']
+        matplotlib.rcParams['font.sans-serif'] = CN_FONT_LIST
         matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
     
 

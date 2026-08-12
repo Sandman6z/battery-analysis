@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from battery_analysis.utils.base_service import BaseService
 from battery_analysis.utils.json_config_manager import JsonConfigManager
+from battery_analysis.utils.config_utils import _get_custom_config_path
 import os
 
 
@@ -294,7 +295,13 @@ class ConfigService(BaseService):
             return False
 
     def _resolve_config_path(self) -> Path:
-        """解析配置文件的 %APPDATA% 路径"""
+        """解析配置文件路径，优先使用用户自定义路径"""
+        # 1. 检查用户自定义路径（从 QSettings + 模块级缓存）
+        custom = _get_custom_config_path()
+        if custom:
+            self.logger.debug("使用自定义配置路径: %s", custom)
+            return Path(custom)
+        # 2. 回退到 %APPDATA% 默认路径
         appdata = os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming"))
         return Path(appdata) / "battery-analysis" / "config.json"
 
@@ -303,10 +310,13 @@ class ConfigService(BaseService):
         查找配置文件路径
 
         Args:
-            file_name: 配置文件名称（兼容旧接口，默认改为 config.json）
+            file_name: 配置文件名（当前仅用于记录日志，实际路径由 _resolve_config_path 决定）
             use_cache: 是否使用缓存的配置文件路径，默认为False
 
         Returns:
             Optional[Path]: 配置文件路径
         """
-        return self._resolve_config_path()
+        resolved = self._resolve_config_path()
+        self.logger.debug("find_config_file(file_name=%s, use_cache=%s) → %s",
+                          file_name, use_cache, resolved)
+        return resolved

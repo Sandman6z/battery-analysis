@@ -50,30 +50,31 @@ class DialogManager:
         """
         reply = QW.QMessageBox.question(
             self.main_window,
-            '确认退出',
-            '确定要退出应用程序吗？',
+            _("confirm_exit_title", "确认退出"),
+            _("confirm_exit_message", "确定要退出应用程序吗？"),
             QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
             QW.QMessageBox.StandardButton.No
         )
 
         if reply == QW.QMessageBox.StandardButton.Yes:
             self.main_window.close()
-    
+
     def handle_about(self):
         """
         显示关于对话框
         """
         import time
-        about_text = f"""
-        <h3>Battery Analyzer</h3>
+        about_text = _(
+            "about_text",
+            f"""<h3>Battery Analyzer</h3>
         <p>version: v{self.main_window.version}</p>
         <p>Battery Analysis Tool, used for battery performance testing and data analysis.</p>
-        <p>© {time.localtime().tm_year} Sandman Zhang, Shane Zhao</p>
-        """
+        <p>© {time.localtime().tm_year} Sandman Zhang, Shane Zhao</p>"""
+        )
 
         QW.QMessageBox.about(
             self.main_window,
-            'About Battery Analyzer',
+            _("about_title", "About Battery Analyzer"),
             about_text
         )
     
@@ -181,26 +182,27 @@ class DialogManager:
         """
         # 创建自定义对话框
         dialog = QW.QDialog(self.main_window)
-        dialog.setWindowTitle("数据加载错误 - 恢复选项")
+        dialog.setWindowTitle(_("data_error_title", "数据加载错误 - 恢复选项"))
         dialog.setModal(True)
         dialog.resize(500, 300)
         
         layout = QW.QVBoxLayout(dialog)
         
         # 错误信息标签
-        error_label = QW.QLabel("无法加载电池数据，请选择如何继续:")
+        error_label = QW.QLabel(_("data_error_message", "无法加载电池数据，请选择如何继续:"))
         error_label.setWordWrap(True)
         error_label.setStyleSheet("font-weight: bold; color: red;")
         layout.addWidget(error_label)
         
         # 详细错误信息
-        details_label = QW.QLabel(f"错误详情: {error_msg}")
+        details_label = QW.QLabel(
+            _("data_error_detail", f"错误详情: {error_msg}"))
         details_label.setWordWrap(True)
         details_label.setStyleSheet("background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc;")
         layout.addWidget(details_label)
         
         # 恢复选项说明
-        help_label = QW.QLabel("请选择以下恢复选项之一:")
+        help_label = QW.QLabel(_("data_error_prompt", "请选择以下恢复选项之一:"))
         help_label.setStyleSheet("margin-top: 10px; font-weight: bold;")
         layout.addWidget(help_label)
         
@@ -208,29 +210,29 @@ class DialogManager:
         button_group = QW.QButtonGroup(dialog)
         
         # 选项1: 重新选择数据目录
-        retry_option = QW.QRadioButton("重新选择数据目录")
+        retry_option = QW.QRadioButton(_("data_error_retry", "重新选择数据目录"))
         retry_option.setChecked(True)
         button_group.addButton(retry_option, 1)
         layout.addWidget(retry_option)
         
         # 选项2: 使用默认配置
-        default_option = QW.QRadioButton("使用默认配置重新启动")
+        default_option = QW.QRadioButton(_("data_error_default", "使用默认配置重新启动"))
         button_group.addButton(default_option, 2)
         layout.addWidget(default_option)
         
         # 选项3: 取消操作
-        cancel_option = QW.QRadioButton("取消操作")
+        cancel_option = QW.QRadioButton(_("data_error_cancel", "取消操作"))
         button_group.addButton(cancel_option, 3)
         layout.addWidget(cancel_option)
         
         # 添加按钮
         button_layout = QW.QHBoxLayout()
         
-        ok_button = QW.QPushButton("确定")
+        ok_button = QW.QPushButton(_("ok", "确定"))
         ok_button.clicked.connect(dialog.accept)
         button_layout.addWidget(ok_button)
         
-        cancel_button = QW.QPushButton("取消")
+        cancel_button = QW.QPushButton(_("cancel", "取消"))
         cancel_button.clicked.connect(dialog.reject)
         button_layout.addWidget(cancel_button)
         
@@ -242,16 +244,18 @@ class DialogManager:
             
             if selected_id == 1:
                 # 重新选择数据目录
-                self.main_window.statusBar_BatteryAnalysis.showMessage("正在打开数据目录选择...")
+                self.main_window.statusBar_BatteryAnalysis.showMessage(
+                    _("data_error_opening_dir", "正在打开数据目录选择..."))
                 self.main_window._open_data_directory_dialog()
                 
             elif selected_id == 2:
                 # 使用默认配置重新启动
-                self.main_window.statusBar_BatteryAnalysis.showMessage("使用默认配置重新启动...")
+                self.main_window.statusBar_BatteryAnalysis.showMessage(
+                    _("data_error_restarting", "使用默认配置重新启动..."))
                 QW.QMessageBox.information(
                     self.main_window,
-                    "重新启动",
-                    "应用将使用默认配置重新启动。\n\n请确保您有有效的数据文件可用。",
+                    _("data_error_restart_title", "重新启动"),
+                    _("data_error_restart_msg", "应用将使用默认配置重新启动。\n\n请确保您有有效的数据文件可用。"),
                     QW.QMessageBox.StandardButton.Ok
                 )
                 # 清空配置字段并重新启动
@@ -262,15 +266,17 @@ class DialogManager:
                 
             else:
                 # 取消操作
-                self.main_window.statusBar_BatteryAnalysis.showMessage("操作已取消")
+                self.main_window.statusBar_BatteryAnalysis.showMessage(
+                    _("data_error_cancelled", "操作已取消"))
                 QW.QMessageBox.information(
                     self.main_window,
-                    "取消",
-                    "操作已取消。您可以通过菜单 'File -> Open Data' 重新尝试。",
+                    _("data_error_cancelled_title", "取消"),
+                    _("data_error_cancelled_msg", "操作已取消。您可以通过菜单 'File -> Open Data' 重新尝试。"),
                     QW.QMessageBox.StandardButton.Ok
                 )
         else:
-            self.main_window.statusBar_BatteryAnalysis.showMessage("操作已取消")
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                _("data_error_cancelled", "操作已取消"))
     
     def _open_data_directory_dialog(self):
         """

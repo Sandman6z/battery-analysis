@@ -331,3 +331,81 @@ msgstr "Help"
 
 msgid "About"
 msgstr "About"
+
+# Dialog Manager
+msgid "confirm_exit_title"
+msgstr "Confirm Exit"
+
+msgid "confirm_exit_message"
+msgstr "Are you sure you want to exit?"
+
+msgid "about_title"
+msgstr "About Battery Analyzer"
+
+msgid "about_text"
+msgstr "<h3>Battery Analyzer</h3>\n<p>version: v{version}</p>\n<p>Battery Analysis Tool, used for battery performance testing and data analysis.</p>\n<p>© {year} Sandman Zhang, Shane Zhao</p>"
+
+msgid "data_error_title"
+msgstr "Data Load Error - Recovery Options"
+
+msgid "data_error_message"
+msgstr "Failed to load battery data, please choose how to proceed:"
+
+msgid "data_error_detail"
+msgstr "Error details: {error}"
+
+msgid "data_error_prompt"
+msgstr "Please select one of the following recovery options:"
+
+msgid "data_error_retry"
+msgstr "Reselect data directory"
+
+msgid "data_error_default"
+msgstr "Restart with default configuration"
+
+msgid "data_error_cancel"
+msgstr "Cancel operation"
+
+msgid "ok"
+msgstr "OK"
+
+msgid "cancel"
+msgstr "Cancel"
+
+msgid "data_error_opening_dir"
+msgstr "Opening data directory selection..."
+
+msgid "data_error_restarting"
+msgstr "Restarting with default configuration..."
+
+msgid "data_error_restart_title"
+msgstr "Restart"
+
+msgid "data_error_restart_msg"
+msgstr "The application will restart with default configuration.\n\nPlease ensure you have valid data files available."
+
+msgid "data_error_cancelled"
+msgstr "Operation cancelled"
+
+msgid "data_error_cancelled_title"
+msgstr "Cancelled"
+
+msgid "data_error_cancelled_msg"
+msgstr "Operation cancelled. You can retry via the 'File -> Open Data' menu."
+
+# Configuration dialog
+msgid "config_dialog_title"
+msgstr "Configuration"
+
+msgid "save_failed"
+msgstr "Failed to save configuration"
+
+# Preferences dialog
+msgid "config_valid"
+msgstr "Configuration file is valid!"
+
+msgid "ini_deprecated"
+msgstr "INI format is deprecated; consider migrating to config.json"
+
+msgid "config_parse_error"
+msgstr "Error parsing config: {error}"
