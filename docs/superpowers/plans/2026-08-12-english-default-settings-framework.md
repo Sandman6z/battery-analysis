@@ -670,6 +670,12 @@ Run: `grep -rnP 'logger\.\w+\([^)]*[\x{4e00}-\x{9fff}]' src --include=*.py | gre
 
 > 注意：docstring 与注释保持中文不改（spec 明确排除）。
 
+**Task 1.6 质量审查跟进（非阻塞，记录）**：
+- `validation_service.py:238-243`：`valid_battery_types` 中文列表同时用于匹配与错误消息插值（`"Valid types include: 磷酸铁锂, …"`）——计划"matcher 保中文"规则的盲点。仅当输入非法类型时用户可见。**决定：暂不改**，保留中文匹配；后续如需，加平行英文显示表。
+- 措辞漂移（纯外观）：`config_service.py:126` "Failed to save config" vs `config_dialog.py:96` `_("Failed to save configuration")`（前者硬编码、后者可翻译 msgid，语境不同）；`report_coordinator.py:334` "in-package template directory" vs `word_report_writer.py:99` "package template directory"。**不改**。
+- `calculate_battery_use_case.py:41-52` 字段名小写（"battery type"）vs 活跃层大写（"Battery Type"）——死代码，Phase 3 删除，**不改**。
+- 阻塞项已修：`tests/battery_analysis/application/usecases/` 3 个测试文件的 17 个断言更新为新英文消息（这些模块死骨架，Phase 3 Task 3.1 连源码带测试一并删除）。
+
 - [ ] **Step 3.5: 全库扫描单引号双参 `_()` 调用并规范化**
 
 Task 1.3/1.4/1.5 的映射表只覆盖了双引号调用。单引号形态 `_('key', '中文fallback')` 同理会把 key 当 context 显示原始 key，必须一并清理。已知 4 处（`validation_manager.py:46,63,108`，其中 108 行附近有 2 处）：
