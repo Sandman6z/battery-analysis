@@ -82,7 +82,7 @@ description: 默认语言切换为英文（保留 i18n）、配置对话框改�
 
 - 分组：**Test Data Dictionary**（Battery Types 只读、Rules、Specifications 只读派生、Manufacturers、Construction Methods、Specification Methods）+ **Test Parameters**（Pulse Currents、Cut-off Voltages）。
 - 列表类（Manufacturers / Construction Methods / Specification Methods / Pulse Currents / Cut-off Voltages）沿用 row-based `QListWidget` + 增删按钮（现有 `_fill_list`/`_read_list` 模式）。
-- **Rules**：大文本框改为 `QTableWidget`，列：`Specification | Pack | Capacity | Voltage | Method | Note`，逐条可编辑，提供增删行。
+- **Rules**：大文本框改为 `QTableWidget`，每一行一条规则，列按 `/` 分段字段对齐：`Specification | Spec Method | Datasheet Capacity | Calculation Capacity | Required Useable Capacity | Coefficient`（与 `validation_manager.py:229-274` 解析的 `rule_parts[0..5]` 一一对应），逐条可编辑，提供增删行。
 - **Specifications**：从 Rules 派生（复用 `derive_specifications` 分类逻辑：CR → Coin Cell，CP/CF → Pouch Cell，容量兜底阈值 800），只读展示，移除编辑按钮。
 - **Battery Types**：只读（类型是固定枚举）。
 
@@ -146,9 +146,9 @@ description: 默认语言切换为英文（保留 i18n）、配置对话框改�
 - `docs/superpowers/specs/2026-08-12-english-default-settings-framework-design.md`（本文件）
 
 **修改**
-- `src/battery_analysis/i18n/__init__.py`、`language_manager.py`、`translator.py`（如需）
+- `src/battery_analysis/i18n/__init__.py`、`language_manager.py`
 - `src/battery_analysis/main/ui_components/config_dialog.py`（master-detail + 逐条化）
-- `src/battery_analysis/main/ui_components/dialog_manager.py`、`menu_manager.py`、`ui_manager.py`（如有）
+- `src/battery_analysis/main/ui_components/dialog_manager.py`、`menu_manager.py`
 - `src/battery_analysis/main/main_window.py`、`application_initializer.py`、`battery_chart_viewer.py`
 - `src/battery_analysis/main/initialization/steps/language_initialization_step.py`
 - `src/battery_analysis/main/services/config_service.py`
