@@ -50,13 +50,14 @@ def clear_custom_config_path() -> None:
 
 def clear_config_cache() -> None:
     """
-    清除配置文件路径缓存
+    清除全部配置文件路径缓存（含自定义配置路径缓存）
 
-    当用户更改配置文件路径设置后，需要调用此函数清除缓存
-    注意：不清除 _custom_config_path_cache，因为那是用户设置的自定义路径
+    当用户更改配置文件路径设置后，需要调用此函数清除缓存，
+    下次将从 QSettings 重新解析（含用户自定义的配置路径）
     """
-    global _config_path_cache
+    global _config_path_cache, _custom_config_path_cache
     _config_path_cache.clear()
+    _custom_config_path_cache = None
     logger.info("Config file path cache cleared")
 
 
