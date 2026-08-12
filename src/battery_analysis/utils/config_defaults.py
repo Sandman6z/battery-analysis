@@ -4,6 +4,8 @@
 首次运行时，如果 %APPDATA% 下没有 config.json，则从此模块创建初始数据。
 """
 
+from battery_analysis.utils.battery_classifier import derive_specifications
+
 DEFAULT_CONFIG = {
     "version": 1,
     "battery": {
@@ -188,3 +190,6 @@ DEFAULT_CONFIG = {
         "maximized": True
     }
 }
+
+# Specifications 从 rules 自动派生（单一来源：battery_classifier.derive_specifications）
+DEFAULT_CONFIG["battery"]["specifications"] = derive_specifications(DEFAULT_CONFIG["battery"]["rules"])
