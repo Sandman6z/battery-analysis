@@ -1038,6 +1038,7 @@ EOF
 
 ```bash
 git add scripts/rebuild_po.py locale/en/LC_MESSAGES/messages.po locale/zh_CN/LC_MESSAGES/messages.po
+git add src/battery_analysis/main/ui_components/dialog_manager.py src/battery_analysis/main/business_logic/help_manager.py  # Step 0 的单引号规范化
 git commit -m "i18n: rebuild en (identity) and zh_CN catalogs from English msgids"
 ```
 
