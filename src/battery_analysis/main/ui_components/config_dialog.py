@@ -95,8 +95,8 @@ class ConfigDialog(QW.QDialog):
     def _on_save(self):
         try:
             self._page_battery.collect_data()
-            self._page_test.collect_data()
             self._page_equipment.collect_data()
+            self._page_test.collect_data()
             self._config_service.replace_all_config(self._working_data)
             self._config_service.save_config()
             self.accept()
