@@ -49,7 +49,7 @@ class TestCalculateBatteryUseCase:
         
         # 验证结果
         assert not result.success
-        assert "缺少必要字段" in result.message
+        assert "Missing required field" in result.message
 
     def test_execute_with_valid_input(self):
         """测试执行电池计算用例（有效输入）"""
@@ -85,7 +85,7 @@ class TestCalculateBatteryUseCase:
         
         # 验证结果
         assert result.success
-        assert "电池计算已完成" in result.message
+        assert "Battery calculation completed" in result.message
         assert result.battery is not None
         assert result.performance_data is not None
         assert "capacity" in result.performance_data
@@ -118,7 +118,7 @@ class TestCalculateBatteryUseCase:
         
         # 验证结果
         assert not result.success
-        assert "电池计算失败" in result.message
+        assert "Battery calculation failed" in result.message
         assert "测试异常" in result.message
 
     def test_input_validation(self):

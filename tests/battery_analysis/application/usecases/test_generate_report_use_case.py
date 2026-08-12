@@ -55,7 +55,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "缺少电池ID列表" in result.message
+        assert "Missing battery ID list" in result.message
 
     def test_generate_report_with_nonexistent_output_path(self):
         """测试生成报告（不存在的输出路径）"""
@@ -74,7 +74,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "输出路径不存在" in result.message
+        assert "Output path does not exist" in result.message
 
     def test_generate_report_with_invalid_report_type(self):
         """测试生成报告（无效的报告类型）"""
@@ -93,7 +93,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "报告类型必须是'standard'或'detailed'" in result.message
+        assert "Report type must be 'standard' or 'detailed'" in result.message
 
     def test_generate_report_with_invalid_export_format(self):
         """测试生成报告（无效的导出格式）"""
@@ -112,7 +112,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "导出格式必须是'pdf'、'docx'或'html'" in result.message
+        assert "Export format must be 'pdf', 'docx' or 'html'" in result.message
 
     def test_generate_report_with_no_battery_data(self):
         """测试生成报告（没有电池数据）"""
@@ -134,7 +134,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "没有找到任何电池数据" in result.message
+        assert "No battery data found" in result.message
 
     def test_generate_report_with_valid_input(self):
         """测试生成报告（有效输入）"""
@@ -167,7 +167,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert result.success
-        assert "报告生成完成" in result.message
+        assert "Report generation completed" in result.message
         assert len(result.report_files) == 1
         assert result.generated_reports == 1
         
@@ -182,7 +182,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "报告文件不存在" in result.message
+        assert "Report file does not exist" in result.message
 
     def test_export_report_with_invalid_format(self):
         """测试导出报告（无效的格式）"""
@@ -195,7 +195,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "不支持的导出格式" in result.message
+        assert "Unsupported export format" in result.message
 
     def test_export_report_with_valid_input(self):
         """测试导出报告（有效输入）"""
@@ -208,7 +208,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert result.success
-        assert "报告导出成功" in result.message
+        assert "Report exported successfully" in result.message
         assert len(result.report_files) == 1
         assert result.generated_reports == 1
 
@@ -228,7 +228,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert not result.success
-        assert "缺少数据目录列表" in result.message
+        assert "Missing data directory list" in result.message
 
     def test_batch_processing_with_valid_input(self):
         """测试批量处理报告生成（有效输入）"""
@@ -246,7 +246,7 @@ class TestGenerateReportUseCase:
         
         # 验证结果
         assert result.success
-        assert "批量处理报告生成完成" in result.message
+        assert "Batch report generation completed" in result.message
         assert len(result.report_files) == 1
         assert result.generated_reports == 1
         

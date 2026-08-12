@@ -54,9 +54,9 @@ class TestAnalyzeDataUseCase:
         
         # 验证结果
         assert not result.success
-        assert "缺少输入路径" in result.message
-        assert "缺少输出路径" in result.message
-        assert "缺少电池类型" in result.message
+        assert "Missing input path" in result.message
+        assert "Missing output path" in result.message
+        assert "Missing battery type" in result.message
 
     def test_execute_with_nonexistent_input_path(self):
         """测试执行数据分析用例（不存在的输入路径）"""
@@ -72,7 +72,7 @@ class TestAnalyzeDataUseCase:
         
         # 验证结果
         assert not result.success
-        assert "输入路径不存在" in result.message
+        assert "Input path does not exist" in result.message
 
     def test_execute_with_no_excel_files(self):
         """测试执行数据分析用例（没有Excel文件）"""
@@ -88,7 +88,7 @@ class TestAnalyzeDataUseCase:
         
         # 验证结果
         assert not result.success
-        assert "没有找到Excel文件" in result.message
+        assert "No Excel files found" in result.message
         assert result.processed_files == 0
         assert result.analyzed_batteries == 0
 
