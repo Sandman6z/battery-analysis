@@ -1013,6 +1013,27 @@ Expected: N（与脚本输出一致），且 `.po` 中不得出现旧 key 形态
 Run: `python -m pytest tests/battery_analysis/i18n/test_i18n.py -v`
 Expected: 全部通过。
 
+- [ ] **Step 3.5: 校验 zh_CN 覆盖——无 msgid 回退英文**
+
+Task 1.3-1.6 规范化后引入了大量英文 msgid，本计划字典已尽力补全，但可能仍有遗漏（回退英文身份 → zh_CN 用户看到英文）。运行一个快速校验：对比脚本提取的 `msgids` 与 `CHINESE 字典 + 既有 zh_CN.po` 的并集，列出缺失项。
+
+```bash
+python - <<'EOF'
+import sys
+sys.path.insert(0, 'scripts')
+from rebuild_po import extract_msgids, CHINESE, parse_po
+from pathlib import Path
+msgids = extract_msgids(Path('src'))
+zh = parse_po(Path('locale/zh_CN/LC_MESSAGES/messages.po'))
+missing = [m for m in msgids if m not in CHINESE and m not in zh]
+print(f"{len(missing)} msgids would fall back to English:")
+for m in missing:
+    print(" -", repr(m))
+EOF
+```
+
+对每条缺失的**用户可见** msgid（菜单/对话框/状态栏/提示文案），补入 `CHINESE` 字典（脚本内）并重跑 Step 2。内部/日志类 msgid 可保留英文回退并在报告中说明理由。
+
 - [ ] **Step 4: 提交**
 
 ```bash
