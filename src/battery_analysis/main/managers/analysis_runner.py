@@ -74,22 +74,22 @@ class AnalysisRunner:
             
             # 构建警告信息
             if warning_info:
-                warning_str = "请完成以下必填项：" + ", ".join(warning_info)
-                QW.QMessageBox.warning(self.main_window, "输入验证失败", warning_str)
+                warning_str = "Please complete the following required fields: " + ", ".join(warning_info)
+                QW.QMessageBox.warning(self.main_window, "Input Validation Failed", warning_str)
             else:
-                QW.QMessageBox.warning(self.main_window, "输入验证失败", "请检查所有必填项")
-            
+                QW.QMessageBox.warning(self.main_window, "Input Validation Failed", "Please check all required fields")
+
             self.main_window.pushButton_Run.setEnabled(True)
             return False
-        
+
         # 简化验证，只验证必要的路径
         if not self.main_window.lineEdit_InputPath.text():
-            QW.QMessageBox.critical(self.main_window, _("validation_failed", "输入验证失败"), _("input_path_empty", "输入数据路径不能为空"))
+            QW.QMessageBox.critical(self.main_window, _("Input Validation Failed"), _("Input data path cannot be empty"))
             self.main_window.pushButton_Run.setEnabled(True)
             return False
 
         if not self.main_window.lineEdit_OutputPath.text():
-            QW.QMessageBox.critical(self.main_window, _("validation_failed", "输入验证失败"), _("output_path_empty", "输出路径不能为空"))
+            QW.QMessageBox.critical(self.main_window, _("Input Validation Failed"), _("Output path cannot be empty"))
             self.main_window.pushButton_Run.setEnabled(True)
             return False
 
@@ -98,8 +98,8 @@ class AnalysisRunner:
         if temperature_type == "Freezer Temperature" and self.main_window.spinBox_Temperature.value() == 0:
             reply = QW.QMessageBox.question(
                 self.main_window,
-                "温度确认",
-                "当前冷冻温度设置为0°C，是否继续运行？",
+                "Temperature Confirmation",
+                "The current freezer temperature is set to 0°C. Continue running?",
                 QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
                 QW.QMessageBox.StandardButton.No
             )
@@ -169,4 +169,4 @@ class AnalysisRunner:
         
         if not success:
             self.main_window.pushButton_Run.setEnabled(True)
-            QW.QMessageBox.warning(self.main_window, _("start_failed", "启动失败"), _("cannot_start_analysis", "无法启动分析任务"))
+            QW.QMessageBox.warning(self.main_window, _("Start Failed"), _("Cannot start the analysis task"))

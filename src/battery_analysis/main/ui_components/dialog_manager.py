@@ -50,8 +50,8 @@ class DialogManager:
         """
         reply = QW.QMessageBox.question(
             self.main_window,
-            _("confirm_exit_title", "确认退出"),
-            _("confirm_exit_message", "确定要退出应用程序吗？"),
+            _("Confirm Exit"),
+            _("Are you sure you want to exit the application?"),
             QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
             QW.QMessageBox.StandardButton.No
         )
@@ -65,7 +65,6 @@ class DialogManager:
         """
         import time
         about_text = _(
-            "about_text",
             f"""<h3>Battery Analyzer</h3>
         <p>version: v{self.main_window.version}</p>
         <p>Battery Analysis Tool, used for battery performance testing and data analysis.</p>
@@ -74,7 +73,7 @@ class DialogManager:
 
         QW.QMessageBox.about(
             self.main_window,
-            _("about_title", "About Battery Analyzer"),
+            _("About Battery Analyzer"),
             about_text
         )
     
@@ -92,11 +91,11 @@ class DialogManager:
             preferences_dialog.exec()
             
         except (OSError, ValueError, ImportError) as e:
-            self.logger.error("显示首选项对话框时发生错误: %s", e)
+            self.logger.error("Error showing preferences dialog: %s", e)
             QW.QMessageBox.critical(
                 self.main_window,
-                _("error", "错误"),
-                f"{_('show_preferences_failed', '显示首选项对话框失败')}: {str(e)}"
+                _("Error"),
+                f"{_('Failed to show preferences dialog')}: {str(e)}"
             )
     
     def show_user_manual(self):
@@ -128,31 +127,31 @@ class DialogManager:
                         # 使用安全的文件打开方式
                         os.startfile(str(manual_path))
                         manual_found = True
-                        self.logger.info("成功打开用户手册: %s", manual_path)
+                        self.logger.info("Opened user manual: %s", manual_path)
                         break
                     except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning("打开手册文件失败 %s: %s", manual_path, open_error)
+                        self.logger.warning("Failed to open manual file %s: %s", manual_path, open_error)
                         continue
-            
+
             if not manual_found:
                 # 如果找不到手册文件，显示提示并提供解决方案
                 QW.QMessageBox.information(
                     self.main_window,
-                    "用户手册",
-                    "未找到用户手册文件。\n\n"
-                    "请确保以下文件存在：\n"
+                    "User Manual",
+                    "User manual file not found.\n\n"
+                    "Please make sure one of the following files exists:\n"
                     "• docs/user_manual.pdf\n"
                     "• user_manual.pdf\n\n"
-                    "如需帮助，请联系技术支持。",
+                    "For help, please contact technical support.",
                     QW.QMessageBox.StandardButton.Ok
                 )
-                
+
         except (OSError, TypeError, ValueError, RuntimeError) as e:
-            self.logger.error("打开用户手册失败: %s", e)
+            self.logger.error("Failed to open user manual: %s", e)
             QW.QMessageBox.warning(
                 self.main_window,
-                _("error", "错误"),
-                f"{_('cannot_open_user_manual', '无法打开用户手册')}: {str(e)}",
+                _("Error"),
+                f"{_('Cannot open user manual')}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
     
@@ -165,11 +164,11 @@ class DialogManager:
             help_url = "https://example.com/battery-analyzer-help"
             QG.QDesktopServices.openUrl(QC.QUrl(help_url))
         except (OSError, ValueError, RuntimeError, TypeError) as e:
-            logging.error("打开在线帮助失败: %s", e)
+            logging.error("Failed to open online help: %s", e)
             QW.QMessageBox.information(
                 self.main_window,
-                "在线帮助",
-                "无法打开在线帮助。请检查网络连接or联系技术支持。\n\n帮助中心网址: https://example.com/battery-analyzer-help",
+                "Online Help",
+                "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: https://example.com/battery-analyzer-help",
                 QW.QMessageBox.StandardButton.Ok
             )
     
@@ -182,57 +181,57 @@ class DialogManager:
         """
         # 创建自定义对话框
         dialog = QW.QDialog(self.main_window)
-        dialog.setWindowTitle(_("data_error_title", "数据加载错误 - 恢复选项"))
+        dialog.setWindowTitle(_("Data Load Error - Recovery Options"))
         dialog.setModal(True)
         dialog.resize(500, 300)
-        
+
         layout = QW.QVBoxLayout(dialog)
-        
+
         # 错误信息标签
-        error_label = QW.QLabel(_("data_error_message", "无法加载电池数据，请选择如何继续:"))
+        error_label = QW.QLabel(_("Unable to load battery data. Choose how to continue:"))
         error_label.setWordWrap(True)
         error_label.setStyleSheet("font-weight: bold; color: red;")
         layout.addWidget(error_label)
-        
+
         # 详细错误信息
         details_label = QW.QLabel(
-            _("data_error_detail", f"错误详情: {error_msg}"))
+            f"Error details: {error_msg}")
         details_label.setWordWrap(True)
         details_label.setStyleSheet("background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc;")
         layout.addWidget(details_label)
-        
+
         # 恢复选项说明
-        help_label = QW.QLabel(_("data_error_prompt", "请选择以下恢复选项之一:"))
+        help_label = QW.QLabel(_("Choose one of the following recovery options:"))
         help_label.setStyleSheet("margin-top: 10px; font-weight: bold;")
         layout.addWidget(help_label)
-        
+
         # 按钮组
         button_group = QW.QButtonGroup(dialog)
-        
+
         # 选项1: 重新选择数据目录
-        retry_option = QW.QRadioButton(_("data_error_retry", "重新选择数据目录"))
+        retry_option = QW.QRadioButton(_("Reselect Data Directory"))
         retry_option.setChecked(True)
         button_group.addButton(retry_option, 1)
         layout.addWidget(retry_option)
-        
+
         # 选项2: 使用默认配置
-        default_option = QW.QRadioButton(_("data_error_default", "使用默认配置重新启动"))
+        default_option = QW.QRadioButton(_("Restart with Default Configuration"))
         button_group.addButton(default_option, 2)
         layout.addWidget(default_option)
-        
+
         # 选项3: 取消操作
-        cancel_option = QW.QRadioButton(_("data_error_cancel", "取消操作"))
+        cancel_option = QW.QRadioButton(_("Cancel Operation"))
         button_group.addButton(cancel_option, 3)
         layout.addWidget(cancel_option)
-        
+
         # 添加按钮
         button_layout = QW.QHBoxLayout()
-        
-        ok_button = QW.QPushButton(_("ok", "确定"))
+
+        ok_button = QW.QPushButton(_("OK"))
         ok_button.clicked.connect(dialog.accept)
         button_layout.addWidget(ok_button)
-        
-        cancel_button = QW.QPushButton(_("cancel", "取消"))
+
+        cancel_button = QW.QPushButton(_("Cancel"))
         cancel_button.clicked.connect(dialog.reject)
         button_layout.addWidget(cancel_button)
         
@@ -245,17 +244,17 @@ class DialogManager:
             if selected_id == 1:
                 # 重新选择数据目录
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    _("data_error_opening_dir", "正在打开数据目录选择..."))
+                    _("Opening data directory selector..."))
                 self.main_window._open_data_directory_dialog()
-                
+
             elif selected_id == 2:
                 # 使用默认配置重新启动
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    _("data_error_restarting", "使用默认配置重新启动..."))
+                    _("Restarting with default configuration..."))
                 QW.QMessageBox.information(
                     self.main_window,
-                    _("data_error_restart_title", "重新启动"),
-                    _("data_error_restart_msg", "应用将使用默认配置重新启动。\n\n请确保您有有效的数据文件可用。"),
+                    _("Restart"),
+                    _("The application will restart with the default configuration.\n\nPlease make sure you have valid data files available."),
                     QW.QMessageBox.StandardButton.Ok
                 )
                 # 清空配置字段并重新启动
@@ -263,20 +262,20 @@ class DialogManager:
                     self.main_window.lineEdit_TestProfile.clear()
                 # 递归调用，但使用默认配置
                 self.main_window.run_visualizer(xml_path=None)
-                
+
             else:
                 # 取消操作
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    _("data_error_cancelled", "操作已取消"))
+                    _("Operation canceled"))
                 QW.QMessageBox.information(
                     self.main_window,
-                    _("data_error_cancelled_title", "取消"),
-                    _("data_error_cancelled_msg", "操作已取消。您可以通过菜单 'File -> Open Data' 重新尝试。"),
+                    _("Canceled"),
+                    _("Operation canceled. You can retry via the 'File -> Open Data' menu."),
                     QW.QMessageBox.StandardButton.Ok
                 )
         else:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("data_error_cancelled", "操作已取消"))
+                _("Operation canceled"))
     
     def _open_data_directory_dialog(self):
         """

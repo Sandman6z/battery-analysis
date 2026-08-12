@@ -52,31 +52,31 @@ class HelpManager:
                         # 使用安全的文件打开方式
                         os.startfile(str(manual_path))
                         manual_found = True
-                        self.logger.info("成功打开用户手册: %s", manual_path)
+                        self.logger.info("Opened user manual: %s", manual_path)
                         break
                     except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning("打开手册文件失败 %s: %s", manual_path, open_error)
+                        self.logger.warning("Failed to open manual file %s: %s", manual_path, open_error)
                         continue
-            
+
             if not manual_found:
                 # 如果找不到手册文件，显示提示并提供解决方案
                 QW.QMessageBox.information(
                     self.main_window,
-                    "用户手册",
-                    "未找到用户手册文件。\n\n" +
-                    "请确保以下文件存在：\n" +
+                    "User Manual",
+                    "User manual file not found.\n\n" +
+                    "Please make sure one of the following files exists:\n" +
                     "• docs/user_manual.pdf\n" +
                     "• user_manual.pdf\n\n" +
-                    "如需帮助，请联系技术支持。",
+                    "For help, please contact technical support.",
                     QW.QMessageBox.StandardButton.Ok
                 )
-                
+
         except (OSError, TypeError, ValueError, RuntimeError) as e:
-            self.logger.error("打开用户手册失败: %s", e)
+            self.logger.error("Failed to open user manual: %s", e)
             QW.QMessageBox.warning(
                 self.main_window,
-                _("error", "错误"),
-                f"{_('cannot_open_user_manual', '无法打开用户手册')}: {str(e)}",
+                _("Error"),
+                f"{_('Cannot open user manual')}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
     
@@ -89,10 +89,10 @@ class HelpManager:
             from PyQt6.QtCore import QUrl
             QDesktopServices.openUrl(QUrl("https://example.com/battery-analyzer/help"))
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
-            self.logger.error("打开在线帮助失败: %s", e)
+            self.logger.error("Failed to open online help: %s", e)
             QW.QMessageBox.warning(
                 self.main_window,
-                _("warning_title", "警告"),
-                _("failed_to_open_help", "无法打开在线帮助。"),
+                _("Warning"),
+                _("Failed to open online help."),
                 QW.QMessageBox.StandardButton.Ok
             )
