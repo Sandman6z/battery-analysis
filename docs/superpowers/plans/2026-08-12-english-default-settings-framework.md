@@ -783,6 +783,10 @@ CHINESE = {
     "Use Windows Vista Style Theme": "使用Windows Vista风格主题",
     "Use Cross-platform Fusion Theme": "使用跨平台Fusion主题",
     "Use Dark Theme for Night Use": "使用深色主题，适合夜间使用",
+    "Switched to System Default theme": "已切换到系统默认主题",
+    "Switched to Fusion theme": "已切换到Fusion主题",
+    "Switched to Dark theme": "已切换到深色主题",
+    "Switched to Simple Dark theme": "已切换到简单深色主题",
     "Confirm Exit": "确认退出",
     "Are you sure you want to exit the application?": "确定要退出应用程序吗？",
     "About Battery Analyzer": "关于电池分析器",
@@ -889,6 +893,7 @@ CHINESE = {
     "Enter required usable capacity": "输入所需可用容量",
     "Enter version number": "输入版本号",
     "Select tester location": "选择测试地点",
+    "Select temperature type": "选择温度类型",
     "Select tested-by": "选择测试人员",
     "Select reported-by": "选择报告人员",
     "Test profile file path": "测试配置文件路径",
@@ -1042,6 +1047,12 @@ git add src/battery_analysis/main/ui_components/dialog_manager.py src/battery_an
 git commit -m "i18n: rebuild en (identity) and zh_CN catalogs from English msgids"
 ```
 
+**Task 1.7 质量审查跟进（非阻塞，记录）**：
+- **Important #1（已采纳，follow-up 提交）**：`MSGID_RE` 匹配 `__init__(` 与 `self._(` 注入 14 个垃圾 key（11 个 `super().__init__("step", ...)` 误报 + `progress_title`/`progress_ready`/`status_ready` 3 个 `self._()` legacy key）。收紧为 `(?<![\w._])_\s*\(\s*"` 后 178→164 条目、精确移除这 14 个。收紧后 `progress_title`/`progress_ready`/`status_ready` 的 zh_CN 翻译丢失，但 language_handler 回退英文默认且 Phase 3 删除——可接受。**决定：立即做**（避免 Phase 2 建立在含垃圾 key 的目录上），follow-up 提交 `i18n: tighten msgid extractor regex, add catalog round-trip test`。
+- **Important #2（已采纳）**：补一个加载真实 `locale/zh_CN/LC_MESSAGES/messages.po` 的 round-trip 测试（`SimplePOTranslator` 断言已知翻译 + 多行 `\n` msgid），防止重建目录与运行时 key 失配。
+- **Minor（已采纳）**：脚本 docstring 前置条件措辞修正（`self._("key", "default")` legacy 调用仍存在且会被提取）；unescape 顺序敏感——在脚本加注释约束（msgid 不得含字面反斜杠序列）。
+- 文档-代码漂移：脚本 `CHINESE` 字典含 5 个 implementer 补充条目（`Switched to System Default/Fusion/Dark/Simple Dark theme`、`Select temperature type`）不在计划文档——已同步补入上方字典。
+
 ---
 
 ### Phase 1 检查点
@@ -1049,8 +1060,21 @@ git commit -m "i18n: rebuild en (identity) and zh_CN catalogs from English msgid
 Run: `python -m pytest tests/ -q 2>&1 | tail -20`
 Expected: 全绿（或仅已知失败项，记录并继续）。
 
+**执行结果（2026-08-12）：** 150+ 测试通过（至首次失败为止 150 passed / 1 failed，随后 e2e 相关 Qt 测试 exit 127 崩溃）。**全部失败项均为 pre-existing，与本计划改动无关：**
+- `tests/battery_analysis/main/services/test_service_container.py` — **pre-existing 收集错误**：`6988921`（本计划开始前）把 `ServiceContext`/`MultiServiceContext` 从包 `__init__.py` re-export 移除（`context.py` 仍定义），测试仍在导入；活跃代码无消费者。隔离运行需 `--ignore`。**不在本计划 3 个工作流范围，不修**；Phase 3 不触及 service_container。
+- `tests/battery_analysis/utils/test_file_writer.py` — **pre-existing 收集错误**：导入已删除的 `battery_analysis.utils.xlsx_word_writer`（`6988921` 删除）。不在本计划范围，不修。
+- `tests/battery_analysis/i18n/test_i18n.py::test_on_language_changed_logs` — **pre-existing 顺序依赖失败**：`caplog.text` 为空，由 application/domain（死骨架）+ e2e 测试的交互触发；孤立运行该文件 70 passed。测试与 `language_manager.py:214` 日志行均未被分支改动。Phase 3 删除死骨架测试后此交互可能消失。
+- e2e / test_main_window 相关 Qt exit-127 崩溃 — 已知 pre-existing，不修（多次记录）。
+- 检查点命令 `pytest tests/` 因 pyproject `addopts` 含 `-x`（首失败即停）+ `-s`（禁用捕获），完整绿跑需：`python -m pytest tests/ -o addopts="-q --tb=short --import-mode=importlib --ignore=tests/manual" --ignore=…test_service_container.py --ignore=…test_file_writer.py`。
+
 Run: `grep -rnP '[\x{4e00}-\x{9fff}]' src --include=*.py | grep -vP '^\s*#|"""|#[ ]*$' | grep -vP '(# .*|:.*"""|:.*docstring)'`
 Expected: 剩余命中仅为 docstring/注释/中文注释行；运行时字符串已无中文。若仍有运行时中文，按 Task 1.6 Step 3 补齐。
+
+**执行结果（2026-08-12）—— Task 1.6 扫尾（Task #24/#25）：** 初轮 AST 扫描发现剩余运行时中文，按 Step 3 补齐：
+- **已提交 `ba10934`（Task #24）**：`exceptions.py` 6 条（`File not found`/`File format error`/`Configuration error`/`Validation failed`/`Service '…' unavailable`/`Component '…' initialization failed`）、`config_schema.py:80`（`Configuration validation failed`）、`battery_chart_viewer.py:235`（`Failed to initialize figure or axes`）、`interaction_controls.py:496/499/502`（`Window does not support a menu bar`/`PyQt6 dependency missing`/`Menu bar initialization failed`）、`visualization_manager.py:77/86`（`Failed to create visualizer instance`/`Failed to display visualization`）+ :101 移除死 `'数据'` 关键词、`visualizer_factory.py:40`（`Class … must implement the IVisualizer interface`）、`signal_connector.py:286-293` matcher 中文子串换英文（`not found`/`format`/`permission`/`write`）。
+- **Task #25（提交 `6f4b645`）**：`battery_analysis.py`（经 `analysis_worker.py` 活跃调用、不在 Phase 3 删除清单）残留 12 条运行时中文异常/日志（`测试信息列表格式错误`、`当前等级列表为空`、`电压等级列表为空`、`[Analysis Error]: 所有文件处理失败`、`并行处理失败`、`Excel文件格式错误 … 数据行不足/缺少必要的工作表/缺少必要的列数据`、`未找到脉冲数据`×3、`无法打开Excel文件`）→ 译为英文；docstring/注释与 `"脉冲"` 数据值匹配（:402/:433）保留。同时修 `tests/battery_analysis/main/services/test_validation_service.py:19/41` 陈旧中文断言（`不能为空`→`Test information cannot be empty`、`不存在`→`File does not exist`）——此为 Task 1.6 翻译 `validation_service.py` 后漏更新的回归，初轮检查点未记录。
+- **审查结论（#24+#25）**：spec 合规 ✅（9 文件边界精确、无越界、异常消息无 `_()`、docstring/注释/数据值无误译、matcher 无死分支、测试断言对齐）。质量 ✅ APPROVED_WITH_NITS，无 Critical/Important；Minor 记录：① signal_connector.py:289 `"format"` 子串最宽，建议后续加锚点（`format error`/`file format`）；② :293 `"write"` 子串会连带命中 writing/written，可考虑单词边界；③ 跨层措辞未统一（`File not found` vs `File does not exist`、`File format error` vs `Excel file format error`）；④ `"not found"` 不覆盖 `does not exist` 兄弟措辞；⑤ interaction_controls.py:498-500 不可达 ImportError（既有）；⑥ domain/entities 与 visualizer_controller 残留中文——均为 Phase 3.1 删除目标（计划 :2128），无需翻译。测试：test_validation_service 21 passed、test_battery_analysis 2 passed、test_battery_analysis_pandas 4 passed。
+- 其余中文均为合法保留项（locale 显示名、Excel 列匹配、电池类型名、sentinel、QSS 注释、`file_validator.py:35` 中文字符范围、`"脉冲"` 数据值、`visualizer_controller`/`language_handler` Phase 3 删除）。
 
 ---
 
@@ -1236,6 +1260,8 @@ git add src/battery_analysis/utils/battery_classifier.py tests/battery_analysis/
 git commit -m "feat: add battery classifier utility for spec-to-type deduction"
 ```
 
+**执行结果（2026-08-12，提交 `b5b80523`）：** 17 测试 TDD RED→GREEN。spec 合规 ✅（文件边界精确 2 文件、实现契约全项 PASS、测试覆盖 17 用例、YAGNI、风格）。质量 ✅ APPROVED_WITH_NITS，无 Critical/Important；Minor 记录：① `extract_spec_name:25` 的 `else ""` 死分支（`str.split("/")` 恒非空，可简化为 `return rule.split("/")[0].strip()`）；② `rules: list`/`specs: dict` 类型标注可改 `list[str]`/`dict[str, list[str]]`（项目 Python ≥3.13）；③ 高价值边界测试缺：`capacity == DEFAULT_CAPACITY_THRESHOLD`（`>=` 恰等边界，Task 2.3 只读 UI 依赖）、空名带容量、裸前缀、前导/尾随空格；④ `extract_capacity` 拒绝十进制串（`int("600.0")`→0），当前 Rules 数据为整数，低优先；⑤ 去重大小写敏感（`cr2450` 与 `CR2450` 并存），现实 Rules 数据不可能。**Task 2.3 集成提示**：分组名 `"Coin Cell"`/`"Pouch Cell"` 是 `config_defaults`/`config_manager` 既有数据键（`battery.specifications.*`），Task 2.3 的 UI 层必须用 `_("Coin Cell")`/`_("Pouch Cell")` 渲染并补 msgid，分类器键永远当作数据键、不直接传给 widget。
+
 ---
 
 ### Task 2.2: `PreferencesDialog` 迁出 i18n 包 + 合并 `IConfigPathProvider` + 删除 auto-save
@@ -1346,6 +1372,8 @@ Expected: 全部通过。
 git add -A src/battery_analysis/i18n src/battery_analysis/main/ui_components tests/battery_analysis/i18n/test_i18n.py
 git commit -m "refactor: move PreferencesDialog out of i18n, merge IConfigPathProvider, drop auto-save"
 ```
+
+**执行结果（2026-08-12，提交 `7b54c48`）：** 5 文件（R096 移动 + 合并 + 删除 + 2 处 import），i18n 包仅剩 4 个纯 i18n 模块，grep 无残留引用，77 passed。spec 合规 ✅（9 项全 PASS）。质量 ✅ APPROVED_WITH_NITS，无 Critical/Important；Minor 记录：① `preferences_dialog.py:16` 未使用 import `get_available_locales`/`set_locale`（历史遗留，本次重写 import 时未顺手清除）；② `closeEvent`/`reject` 删除 auto-save 后成空壳重写；③ `TestIConfigPathProvider` 留在 test_i18n.py 且只测 ABC 契约、未测具体 `ConfigPathProvider.get_config_path()` 回退逻辑（历史遗留）；④ `config_path_provider.py:9` import 私有 `_get_custom_config_path`（历史遗留）；⑤ `domain/entities/configuration.py:31` `auto_save` 字段成确定死字段（Phase 3 删除范围）。
 
 ---
 
@@ -1983,6 +2011,8 @@ git add src/battery_analysis/main/ui_components/config_dialog.py src/battery_ana
 git commit -m "refactor: master-detail config dialog, row-based rules editor, derived read-only specs"
 ```
 
+**执行结果（2026-08-12，提交 `4b40447` + `e05b524` + `443de46`）：** 重写完成。spec 审查首轮发现 **NOT_SPEC_COMPLIANT**（`_on_save` collect_data 顺序 battery→test→equipment，导致 `_TestConfigPage.collect_data()` 派生 `test["locations"]` 时读到过期 `_working_data["test"]["equipment"]`）→ 修复 `e05b524` 改为 battery→equipment→test，复验 SPEC_COMPLIANT。质量审查 **APPROVED_WITH_NITS** + 1 Important：`specifications` 改 `{}` 造成**首启回归**（新装 config.json 由 DEFAULT_CONFIG 逐字 seed → validation_manager 下拉框空、构造方法验证跳过、data_loader 列表空）→ 修复 `443de46` 在 config_defaults 模块加载时 `derive_specifications(DEFAULT_CONFIG["battery"]["rules"])` + 新增 `test_config_defaults.py` 回归测试，复验 APPROVED（25 passed）。Minor 记录：① `_location_from_equipment` 与 `table_manager.py:56-63` 重复，建议提取共享 helper；② Rules 表格信号在 `load_data` 期间触发刷新风暴（结果正确，仅冗余，可加 blockSignals 守卫）；③ `_TestConfigPage.load_data` 写副作用（load 阶段改工作副本）；④ `_parse_float_list` 接受 inf/nan；⑤ `_on_copy_location` 键编号跳过 "(Copy 1)"；⑥ `_edit_location` 无重复键守卫（数据丢失边角）；⑦ i18n 裸英文字符串（RULE_COLUMNS 表头、"Coin Cell"/"Pouch Cell" tab、Equipment 对话框标签、"+ Add Rule" 等）zh_CN 模式混合语言，且 `_("Battery")`/`_("Test")` 无 zh_CN 翻译；⑧ 4 个列表编辑器从旧 `editable=False` 变为默认 `editable=True`（可能是有意）；⑨ 重写对话框无单测（485 行变更零覆盖）；⑩ 572 行/7 类接近拆分阈值（_EquipmentEditDialog 是优先候选）。**另确认**：`test_progress_dialog.py` Qt exit-127 崩溃为 pre-existing（stash 验证未改动树同样崩溃）。
+
 ---
 
 ### Task 2.4: main_window 配置重载走 ConfigService + 状态栏英文
@@ -2075,6 +2105,8 @@ git add src/battery_analysis/main/main_window.py
 git commit -m "refactor: route config reload through ConfigService; English status messages"
 ```
 
+**执行结果（2026-08-12，提交 `1ff93b2` + `282acdc`）：** 完成。Step 3 无需改动（`"Configuration saved"`/`"Settings saved"` 在父提交已为英文，全 src grep 无残留中文状态栏）。实现者报告 `test_main_window.py` 在本环境因 pre-existing Qt 崩溃（exit 9，`Main()` 构造阶段）无法执行——stash 到 HEAD 复现确认与改动无关（`_get_service` 232 行 / `refresh_ui` 348 行均已核实存在；`ConfigService.reload_config` config_service.py:190 与 `MainConfigManager.reload_config` ui_components/config_manager.py:145 均存在）。spec 审查 **SPEC_COMPLIANT**（逐字一致，无 over-build）。质量审查 **CHANGES_REQUESTED** — **I-1（Important）**：`clear_config_cache()`（config_utils.py:51-60）不清 `_custom_config_path_cache`，而 `_get_custom_config_path`（config_utils.py:76-79）缓存命中即返回不读 QSettings → **自定义配置路径第二次修改/清空不生效**（首次生效因缓存为空读到 QSettings；此后旧值被缓存，QSettings 新值被忽略，用户无法切回默认配置）。已核实 `set_custom_config_path` 全 src 无调用方、`clear_config_cache` 仅 main_window 两处调用，修复安全。修复 `282acdc`：`clear_config_cache()` 追加 `_custom_config_path_cache = None`（含 `global` 声明）+ 更新 docstring + 新增 `test_clear_config_cache_resets_custom_path_cache`（mock QSettings path_A→path_B 精确复现故障路径，先证"清缓存前坏、清缓存后好"）。复验 **APPROVED**（2 passed，I-1 关闭）。Minor 记录：M-1 两方法核心链重复（建议提取 `_reload_config_chain()` helper）；M-2 `reload_configuration` 已无生产调用方（建议后续删除或标注）；M-3 链中 `svc.reload_config()` 与 `config_manager.reload_config()` 内部重复执行同一 ConfigService 单例（幂等无害）；M-4 已由修复测试解决。
+
 ---
 
 ### Phase 2 检查点
@@ -2140,6 +2172,8 @@ git add -A src tests
 git commit -m "refactor: remove unintegrated clean-architecture skeleton and its tests (keep test_info)"
 ```
 
+**执行结果（2026-08-12，提交 `2bd2633`）：** 完成，29 files / −4625 行，纯删除零插入。14 源码 + 15 测试全数删除，空目录（src 下 application/、infrastructure/、domain/services/、domain/repositories/；tests 下 application/、infrastructure/、domain/ 全部层级）已 `rmdir` 清理，无 `__pycache__` 残留进入提交。spec 审查 **SPEC_COMPLIANT**（删除清单 29/29 逐项命中；`test_info.py` blob hash 前后一致 `aac15f9e` 逐字节未变、仍被跟踪、6 个活跃导入方全部 import 成功；删除前后包目录均无 `__init__.py` 故无导出残留；`git grep` 被删符号零命中）。质量审查 **APPROVED**（无 Important；删除在逻辑上不可能引入新测试失败——全仓无存活 import 指向被删模块；独立核实 5 个 pre-existing 问题栈均在模块外：ServiceContext 未导出、xlsx_word_writer 已删、e2e mock 配置 bug、i18n flake、test_file_controller mock 断言；GUI 重型测试 Windows access violation 段错误为环境限制）。Minor 记录：M1 `domain/entities/__pycache__/` 残留 15 个已删模块 .pyc（gitignored、功能无害，可顺手清理）；M2 `htmlcov/status.json` 含被删模块路径（gitignored，下次覆盖自动更新）。
+
 ---
 
 ### Task 3.2: 删除 i18n / 应用层死代码
@@ -2199,6 +2233,8 @@ git add -A src/battery_analysis/main/services src/battery_analysis/main/controll
 git commit -m "refactor: remove dead i18n/application/visualizer services and update container"
 ```
 
+**执行结果（2026-08-12，提交 `c4620ca`）：** 完成，8 files / −1078 行纯删除。6 文件删除 + container.py 4 处（`Services.visualizer_controller` 字段、`_name_map` 条目、`_initialize_services` 的 import+实例化）+ `controllers/__init__.py` 1 行（其余 File/Main/Validation 导出保留）。spec 审查 **SPEC_COMPLIANT**（6 删 2 改精确命中，container.py 4 处删除、`application` 字段保留；非偏差备注：spec 所述 `_name_map` 中 `"application"` 行实际从未存在，parent 亦无，净效果符合意图）。质量审查 **APPROVED**（无 Important；`git grep` src/tests 零命中，非 py 文件亦零命中，CHANGELOG.md 历史记录与 docs 除外；`services/__init__.py` 从不导出已删服务无需改；controllers 三个剩余导出无调用方使用 `from ...controllers import X` 形式，零 ImportError 风险）。Minor 记录：M1 `Services.application` 字段仍是死字段（pre-existing，`_name_map` 无 `"application"` 条目，`get("application")` 恒 None，行为与改动前一致，建议后续清理时移除或加注释）；M2 `test_service_container.py` 死测试持续中断该目录 collection（pre-existing——`service_container/__init__.py` 未被触碰、只导出 `ServiceContainer/Services/get_/set_`，`ServiceContext` 在 context.py 未再导出），建议后续清理任务一并修复或删除；`test_file_controller.py::test_load_config` mock 失败证实无关。
+
 ---
 
 ### Task 3.3: 删除 `LanguageHandler` 并合并语言切换逻辑
@@ -2252,24 +2288,32 @@ git add -A src/battery_analysis/main
 git commit -m "refactor: remove redundant LanguageHandler; language switch handled by main window"
 ```
 
+**执行结果（2026-08-12，提交 `d49908b`）：** 完成，2 files / −167 行。删除 `language_handler.py`（−163）+ 空 `main/ui/` 目录 + `language_initialization_step.py`（−4：导入+实例化；logger 中文→英文为 no-op——该版本已是英文）。spec 审查 **SPEC_COMPLIANT**（6 项全过；`scripts/rebuild_po.py:5` 的 `language_handler` 命中为模块 docstring 纯文档说明，非代码引用；`main_window.py` 无 `language_handler` 属性残留）。质量审查 **APPROVED**（无 Important；`_on_language_changed` 职责清单与原 LanguageHandler 逐一对比完全一致——窗口标题/`_update_ui_texts`/`_update_statusbar_messages`/`_refresh_dialogs` 全覆盖，删除前 LanguageHandler 构造自连信号 + step 又连 main_window 造成**每次切语言双重执行**，本提交消除该重复触发；LanguageHandler 其余 API 零调用方属死 API。排除 4 个 pre-existing 文件后 `tests/battery_analysis/main` **221 passed, 2 skipped**，与实现者声称一致）。Minor 记录：M1 ui_manager.py:487,491 语言刷新逻辑仍有三处重复实现（`ui_manager.update_ui_texts`/`update_statusbar_messages` 无调用者且引用不存在的 `progress_dialog`，pre-existing，建议后续独立清理收敛到 main_window）；M2 step try 块现仅包裹信号连接（保留 pre-existing 容错语义，无害）；M3 陈旧 `__pycache__`（源自 `d0649ac` 已删测试，gitignored）。
+
 ---
 
 ### Phase 3 检查点（最终验证）
 
-- [ ] **Step 1: 全量测试**
+- [x] **Step 1: 全量测试**
 
 Run: `python -m pytest tests/ -q 2>&1 | tail -25`
 Expected: 全绿。
 
-- [ ] **Step 2: 无死代码引用**
+**执行结果（2026-08-12）：** 主运行（排除 5 个已知硬崩溃/collection-error 文件）**447 passed, 2 failed, 18 skipped, 0 errors**。2 个 failed 均为 pre-existing：`i18n/test_i18n.py::test_on_language_changed_logs`（caplog/`_pytest.stash` 插件 flake，单独跑 PASS）、`controllers/test_file_controller.py::test_load_config`（已知 mock 失败）。5 个排除文件逐一确认已知签名（3 collection error：ServiceContext 导出/xlsx_word_writer 缺失；2 Qt exit-127 崩溃：test_main_window/test_progress_dialog）。**无新增失败**。注意：`e2e/test_end_to_end.py` 全部 10 passed，包括此前标记 mock 失败的 `test_error_handling_workflow`——已不再失败（记录在案）。
+
+- [x] **Step 2: 无死代码引用**
 
 Run: `grep -rn "application_service\|i18n_service\|visualizer_controller\|LanguageHandler\|analyze_data_use_case\|battery_repository_impl\|domain.repositories\|domain.services" src tests --include=*.py`
 Expected: 无输出。
 
-- [ ] **Step 3: 应用可启动**
+**执行结果（2026-08-12）：** src/tests 零命中（PASS）；docs 仅命中本计划文档自身删除清单/执行记录（预期）；scripts/CHANGELOG.md 零命中。
+
+- [x] **Step 3: 应用可启动**
 
 Run: `python -c "from battery_analysis.main.launcher import main; import inspect; print('launcher ok')"`
 Expected: 打印 `launcher ok`（不真正启动 GUI）。
+
+**执行结果（2026-08-12）：** 打印 `launcher ok`，import 干净。
 
 - [ ] **Step 4: 手动冒烟**
 
@@ -2285,3 +2329,13 @@ Expected: 打印 `launcher ok`（不真正启动 GUI）。
 - **Spec 覆盖**：Phase 1 覆盖 spec §1 全部（默认 en、`_()` 规范化、.po 重建、硬编码中文/日志英文）；Phase 2 覆盖 spec §2 全部（master-detail、逐条化、Rules 表格、Specs 派生只读、解锁列表项、Preferences 清理与迁移、去重、config_service 路径统一、`config_defaults` 修正）；Phase 3 覆盖 spec §3 全部（死骨架、15+3 测试、死服务、LanguageHandler、container/controllers 同步）与 §4 验证。
 - **无占位符**：每个代码步骤均含完整代码或完整映射表。
 - **类型/签名一致性**：`_ListEditor.set_items/items`、`_RulesEditor.set_rules/rules`、`derive_specifications`、`IConfigPathProvider.get_config_path` 在各任务间保持一致；`preferences_dialog` 迁移后 import 路径与测试一致。
+
+## 最终整体审查记录（2026-08-12，`3824f28` 基线 → `d49908b` HEAD，30 提交，137 files / +2,923 / −8,047）
+
+**裁决：READY_TO_MERGE。** 三项工作流功能上全部达成，无阻塞项。
+
+- **Phase 1 英文化**：默认 en 锁定（`i18n/__init__.py:132-134` + `language_manager.py:66-69`）；全 src 无 `_("key","fallback")` 双参、无 `_("中文")` msgid、无 `self._(`；**AST 扫描非 docstring 中文字符串字面量为 0**（剩余中文均为合法保留：locale 显示名、Excel 列匹配数据值、语言切换 sentinel、QSS 注释等）；en.po 165 条全 identity、zh_CN.po 165 条全翻译 0 回退英文、round-trip 测试通过。
+- **Phase 2 设置/配置**：battery_classifier TDD 17 测试；config_defaults 模块加载派生 specs（Coin Cell 4 / Pouch Cell 3）；config_dialog master-detail + Rules 6 列 + Specs 派生只读 + collect 顺序 battery→equipment→test（`e05b524`）；PreferencesDialog 迁出 i18n、IConfigPathProvider 合并、auto-save 删除；main_window 配置重载走 ConfigService（`clear_config_cache` 修复 + 回归测试 20 passed）；ConfigService API 与容器注册核实存在。
+- **Phase 3 框架清理**：死骨架/死服务/LanguageHandler 全数删除，`rg` src/tests 零命中，launcher import 干净。
+- **跨任务一致性**：唯一发现为**已记录的非阻塞 Minor**（config_dialog 重写后 `.po` 目录未重建——12 个新增 `_()` msgid + `_("Battery")`/`_("Test")` 变量间接不可提取 + `RULE_COLUMNS`/Equipment 标签未走 `_()`，zh_CN 配置对话框混排；英文默认体验不受影响）。同根因、Task 2.3 Minor #7 已记录。抽查其余计划外被改文件全部为纯日志翻译，无行为改动。
+- **建议 follow-up（合并后，不阻塞）**：`_CATEGORIES` 改为可提取形式（`_("Battery")` 字面量）+ 纳入 RULE_COLUMNS/Equipment 标签 → 重跑 `scripts/rebuild_po.py` 重建目录，闭合 zh_CN 配置对话框本地化缺口。
