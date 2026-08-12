@@ -351,23 +351,19 @@ class TestModuleFunctionsDetectSystemLocale:
 
 
 class TestModuleFunctionsInitializeDefaultLocale:
-    """__init__.initialize_default_locale"""
+    """__init__.initialize_default_locale — 默认锁定英文"""
 
-    def test_uses_system_locale_when_available(self):
+    def test_initializes_to_english(self):
         from battery_analysis.i18n import initialize_default_locale
-        with patch("battery_analysis.i18n.locale_utils.detect_system_locale", return_value="zh_CN"):
-            with patch("battery_analysis.i18n.locale_utils.get_available_locales", return_value=["zh_CN", "en"]):
-                with patch("battery_analysis.i18n.locale_utils.system_locale_to_code", return_value="zh_CN"):
-                    with patch("battery_analysis.i18n.set_locale", return_value=True) as mock_set:
-                        assert initialize_default_locale() is True
-                        mock_set.assert_called_once_with("zh_CN")
+        with patch("battery_analysis.i18n.set_locale", return_value=True) as mock_set:
+            assert initialize_default_locale() is True
+            mock_set.assert_called_once_with("en")
 
-    def test_falls_back_to_en(self):
+    def test_returns_false_when_english_unavailable(self):
         from battery_analysis.i18n import initialize_default_locale
-        with patch("battery_analysis.i18n.locale_utils.detect_system_locale", return_value=None):
-            with patch("battery_analysis.i18n.set_locale", return_value=True) as mock_set:
-                assert initialize_default_locale() is True
-                mock_set.assert_called_once_with("en")
+        with patch("battery_analysis.i18n.set_locale", return_value=False) as mock_set:
+            assert initialize_default_locale() is False
+            mock_set.assert_called_once_with("en")
 
 
 # ---------------------------------------------------------------------------

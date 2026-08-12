@@ -130,19 +130,7 @@ def detect_system_locale() -> str:
 
 
 def initialize_default_locale() -> bool:
-    """Initialize with system locale or fallback to English."""
-    from battery_analysis.i18n.locale_utils import (
-        detect_system_locale as _detect,
-        get_available_locales as _get_available,
-        system_locale_to_code,
-    )
-
-    sys_locale = _detect()
-    if sys_locale:
-        available = _get_available(LOCALEDIR)
-        code = system_locale_to_code(sys_locale, available)
-        if code and set_locale(code):
-            return True
+    """Initialize with English (the application default)."""
     return set_locale("en")
 
 
