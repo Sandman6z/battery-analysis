@@ -182,39 +182,6 @@ msgstr "Input path does not exist"
 msgid "The following required fields are empty"
 msgstr "The following required fields are empty"
 
-msgid "basic_attributes"
-msgstr "basic_attributes"
-
-msgid "command_manager"
-msgstr "command_manager"
-
-msgid "environment"
-msgstr "environment"
-
-msgid "handlers"
-msgstr "handlers"
-
-msgid "language"
-msgstr "language"
-
-msgid "managers"
-msgstr "managers"
-
-msgid "presenters"
-msgstr "presenters"
-
-msgid "processors"
-msgstr "processors"
-
-msgid "services"
-msgstr "services"
-
-msgid "styles"
-msgstr "styles"
-
-msgid "ui_setup"
-msgstr "ui_setup"
-
 msgid "App icon not found; using default icon."
 msgstr "App icon not found; using default icon."
 
@@ -238,15 +205,6 @@ msgstr "Start Failed"
 
 msgid "Cannot start the analysis task"
 msgstr "Cannot start the analysis task"
-
-msgid "progress_title"
-msgstr "progress_title"
-
-msgid "progress_ready"
-msgstr "progress_ready"
-
-msgid "status_ready"
-msgstr "status_ready"
 
 msgid "Configuration"
 msgstr "Configuration"

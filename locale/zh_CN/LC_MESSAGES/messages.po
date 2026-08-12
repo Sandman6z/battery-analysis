@@ -182,39 +182,6 @@ msgstr "输入路径不存在"
 msgid "The following required fields are empty"
 msgstr "以下必填字段为空"
 
-msgid "basic_attributes"
-msgstr "basic_attributes"
-
-msgid "command_manager"
-msgstr "command_manager"
-
-msgid "environment"
-msgstr "environment"
-
-msgid "handlers"
-msgstr "handlers"
-
-msgid "language"
-msgstr "语言"
-
-msgid "managers"
-msgstr "managers"
-
-msgid "presenters"
-msgstr "presenters"
-
-msgid "processors"
-msgstr "processors"
-
-msgid "services"
-msgstr "services"
-
-msgid "styles"
-msgstr "styles"
-
-msgid "ui_setup"
-msgstr "ui_setup"
-
 msgid "App icon not found; using default icon."
 msgstr "未找到应用图标文件，使用默认图标"
 
@@ -238,15 +205,6 @@ msgstr "启动失败"
 
 msgid "Cannot start the analysis task"
 msgstr "无法启动分析任务"
-
-msgid "progress_title"
-msgstr "电池分析进度"
-
-msgid "progress_ready"
-msgstr "准备开始分析..."
-
-msgid "status_ready"
-msgstr "status_ready"
 
 msgid "Configuration"
 msgstr "配置"

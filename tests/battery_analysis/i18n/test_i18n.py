@@ -147,6 +147,42 @@ class TestSimplePOTranslator:
 
 
 # ---------------------------------------------------------------------------
+# TestRealCatalogRoundTrip — 真实 locale/zh_CN 目录往返集成测试
+# ---------------------------------------------------------------------------
+
+class TestRealCatalogRoundTrip:
+    """Loads the real repo-root locale/zh_CN catalog (integration)."""
+
+    @staticmethod
+    def _locale_dir() -> Path:
+        # tests/battery_analysis/i18n/ -> repo root (parents[3])
+        return Path(__file__).resolve().parents[3] / "locale"
+
+    def test_zh_cn_catalog_translates_known_msgids(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        locale_dir = self._locale_dir()
+        if not (locale_dir / "zh_CN" / "LC_MESSAGES" / "messages.po").exists():
+            pytest.skip("locale/zh_CN catalog not built")
+        t = SimplePOTranslator()
+        assert t.load_locale("zh_CN", locale_dir) is True
+        assert t.gettext("Preferences") == "首选项"
+        assert t.gettext("Exit") == "退出应用"
+
+    def test_zh_cn_multiline_msgid_round_trip(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        locale_dir = self._locale_dir()
+        if not (locale_dir / "zh_CN" / "LC_MESSAGES" / "messages.po").exists():
+            pytest.skip("locale/zh_CN catalog not built")
+        t = SimplePOTranslator()
+        assert t.load_locale("zh_CN", locale_dir) is True
+        key = ("The application will restart with the default configuration.\n\n"
+               "Please make sure you have valid data files available.")
+        expected = ("应用将使用默认配置重新启动。\n\n"
+                    "请确保您有有效的数据文件可用。")
+        assert t.gettext(key) == expected
+
+
+# ---------------------------------------------------------------------------
 # TestLocaleUtils
 # ---------------------------------------------------------------------------
 

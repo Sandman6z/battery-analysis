@@ -1,7 +1,9 @@
 """Rebuild en/zh_CN .po catalogs from source _() msgids + Chinese dict.
 
 Usage:  python scripts/rebuild_po.py
-Prereq: 源码中不得残留双参 _("key", "fallback") 调用（Task 1.3-1.5 已清理）。
+Prereq: 源码中不得残留模块级双参 _("key", "fallback") 调用
+（Task 1.3-1.5 已清理）。language_handler.py 中 self._("key", "default")
+遗留调用仍会被提取，属预期行为（Phase 3 会删除该模块）。
 """
 
 import re
@@ -196,7 +198,8 @@ CHINESE = {
     "Tested By": "测试人员",
 }
 
-MSGID_RE = re.compile(r'_\s*\(\s*"((?:[^"\\]|\\.)*)"')
+# 只匹配独立 _("...") 调用，排除 __init__(、self._( 等误报
+MSGID_RE = re.compile(r'(?<![\w._])_\s*\(\s*"((?:[^"\\]|\\.)*)"')
 
 
 def extract_msgids(src_dir: Path) -> "list[str]":
@@ -204,6 +207,8 @@ def extract_msgids(src_dir: Path) -> "list[str]":
     for path in sorted(src_dir.rglob("*.py")):
         text = path.read_text(encoding="utf-8")
         for m in MSGID_RE.finditer(text):
+            # msgid 约定：不得含字面反斜杠序列（仅允许 \n 换行转义）。
+            # 顺序敏感的 unescape 会把 _("Save to C:\\temp") 里的 \\ 破坏。
             msgid = m.group(1).replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\")
             if msgid and msgid not in msgids:
                 msgids.append(msgid)
@@ -220,6 +225,8 @@ def parse_po(path: Path) -> dict:
         m = re.search(r'^msgid\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE)
         s = re.search(r'^msgstr\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE)
         if m and s:
+            # 与 extract_msgids 相同的 unescape 约定：仅 \n 换行转义，
+            # msgid/msgstr 不得含字面反斜杠序列。
             msgid = m.group(1).replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\")
             msgstr = s.group(1).replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\")
             if msgid:
