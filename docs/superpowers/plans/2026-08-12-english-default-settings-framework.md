@@ -663,8 +663,26 @@ Run: `grep -rnP 'logger\.\w+\([^)]*[\x{4e00}-\x{9fff}]' src --include=*.py | gre
 - `src/battery_analysis/main/services/config_service.py` — 全文 logger 中文（如 `"配置已保存到: %s"`、`"无法保存配置：未指定配置路径或配置未加载"`、`"首次运行，已创建默认配置文件: %s"`、`"配置警告: %s"`、`"配置 schema 验证失败（不影响运行）: %s"`、`"配置已迁移至 v%d"`、`"配置已加载: %s"`、`"配置文件加载失败: %s"`、`"加载配置 I/O 错误: %s"`、`"获取配置值失败: %s"` 等）→ 对应英文。
 - `src/battery_analysis/main/ui_components/dialog_manager.py` 其余 logger 中文。
 - 其余 grep 命中的模块。
+- `src/battery_analysis/main/business_logic/validation_manager.py` 的 `validate_required_fields` 中拼接进状态消息的字段名中文（"样品数量"、"标称容量"、"计算容量"、"可用容量"）——属运行时字符串，同样转英文。
 
 > 注意：docstring 与注释保持中文不改（spec 明确排除）。
+
+- [ ] **Step 3.5: 全库扫描单引号双参 `_()` 调用并规范化**
+
+Task 1.3/1.4/1.5 的映射表只覆盖了双引号调用。单引号形态 `_('key', '中文fallback')` 同理会把 key 当 context 显示原始 key，必须一并清理。已知 4 处（`validation_manager.py:46,63,108`，其中 108 行附近有 2 处）：
+
+Run: `grep -rn "_\s*('[^']*'\s*,\s*'" src --include=*.py | grep -v '\.venv'`
+
+对每条命中按语义改英文 msgid。已知映射（validation_manager.py）：
+
+```python
+_('warning', '警告')                        → _('Warning')
+_('version_format_invalid', '版本号格式不正确，应为 x.y.z 格式') → _('Version format is invalid. Expected x.y.z format')
+_('input_path_not_exists', '输入路径不存在') → _('Input path does not exist')
+_('required_fields_empty', '以下必填字段为空') → _('The following required fields are empty')
+```
+
+扫描后重新运行 grep 确认无输出。
 
 - [ ] **Step 4: 运行测试**
 
@@ -765,6 +783,9 @@ CHINESE = {
     "Please set the input path first.": "请先设置输入路径。",
     "Analyzing data...": "分析数据...",
     "Analysis Result": "分析结果",
+    "Battery Analysis Progress": "电池分析进度",
+    "Ready to start analysis...": "准备开始分析...",
+    "Task canceled...": "任务已取消...",
     "No Excel files found.": "没有找到Excel文件。",
     "Data analysis failed: {}": "数据分析失败: {}",
     "Failed to open online help.": "无法打开在线帮助。",
