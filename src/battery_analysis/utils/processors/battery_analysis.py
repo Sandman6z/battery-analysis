@@ -65,19 +65,19 @@ class BatteryAnalysis:
             logging.error("Test info list format error: missing required information. "
                           "Need at least 19 elements, but only found %d", len(listTestInfo))
             raise BatteryAnalysisException(
-                f"测试信息列表格式错误: 缺少必要的信息。"
-                f"需要至少19个元素，但只找到{len(listTestInfo)}个")
+                f"Test information list format error: missing required information. "
+                f"Expected at least 19 elements, but found {len(listTestInfo)}")
 
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
 
         if not self.listCurrentLevel:
             logging.error("Current level list is empty")
-            raise BatteryAnalysisException("当前等级列表为空")
+            raise BatteryAnalysisException("Current level list is empty")
 
         if not self.listVoltageLevel:
             logging.error("Voltage level list is empty")
-            raise BatteryAnalysisException("电压等级列表为空")
+            raise BatteryAnalysisException("Voltage level list is empty")
 
         self.strFileCurrentType = generate_current_type_string(self.listCurrentLevel)
 
@@ -195,7 +195,7 @@ class BatteryAnalysis:
 
                     if not results:
                         raise BatteryAnalysisException(
-                            "[Analysis Error]: 所有文件处理失败，请检查数据格式")
+                            "[Analysis Error]: All files failed to process, please check the data format")
 
             else:
                 cpu_count = min(multiprocessing.cpu_count(), 4)
@@ -208,7 +208,7 @@ class BatteryAnalysis:
                             ValueError, KeyError, IndexError) as e:
                         logging.error("Error while processing files in parallel: %s", e)
                         pool.terminate()
-                        raise BatteryAnalysisException(f"并行处理失败: {str(e)}")
+                        raise BatteryAnalysisException(f"Parallel processing failed: {str(e)}")
                     finally:
                         pool.close()
                         pool.join()
@@ -261,7 +261,7 @@ class BatteryAnalysis:
 
         if len(cycle_df) < 3 or len(step_df) < 3 or len(record_df) < 3:
             raise BatteryAnalysisException(
-                f"Excel文件格式错误: {strPath} 数据行不足")
+                f"Excel file format error: {strPath} has insufficient data rows")
 
         # ── 列提取 ──────────────────────────────────────────────
         cycle_cycle = cycle_df.iloc[:, 0]
@@ -292,7 +292,7 @@ class BatteryAnalysis:
         # ── 脉冲检测 ────────────────────────────────────────────
         pulse_mask = detect_pulse_rows(record_df)
         if pulse_mask.sum() == 0:
-            raise BatteryAnalysisException(f"未找到脉冲数据: {strPath}")
+            raise BatteryAnalysisException(f"Pulse data not found: {strPath}")
 
         # ── 脉冲等级匹配 ────────────────────────────────────────
         matched = match_pulse_levels(
@@ -304,7 +304,7 @@ class BatteryAnalysis:
             start_row=2,
         )
         if matched is None:
-            raise BatteryAnalysisException(f"未找到脉冲数据: {strPath}")
+            raise BatteryAnalysisException(f"Pulse data not found: {strPath}")
 
         listLevelToVoltage, listLevelToRow, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = matched
 
@@ -349,13 +349,13 @@ class BatteryAnalysis:
             rb = rd.open_workbook(strPath)
         except (FileNotFoundError, PermissionError, rd.XLRDError) as e:
             logging.error("Failed to read Excel file: %s, error: %s", strPath, e)
-            raise BatteryAnalysisException(f"无法打开Excel文件: {strPath}") from e
+            raise BatteryAnalysisException(f"Unable to open Excel file: {strPath}") from e
 
         sheets = rb.sheets()
         if len(sheets) < 3:
             raise BatteryAnalysisException(
-                f"Excel文件格式错误: {strPath} 缺少必要的工作表。"
-                f"需要至少3个工作表，但只找到{len(sheets)}个")
+                f"Excel file format error: {strPath} is missing required worksheets. "
+                f"Expected at least 3 worksheets, but found {len(sheets)}")
 
         # ── 读取列数据 ──────────────────────────────────────────
         cycleTable = sheets[0]
@@ -367,7 +367,7 @@ class BatteryAnalysis:
 
         if len(cycleCycle) < 3 or len(cycleBegin) < 3 or len(cycleEnd) < 3 or len(cycleCharge) < 3:
             raise BatteryAnalysisException(
-                f"Excel文件格式错误: {strPath} 第一个工作表缺少必要的列数据")
+                f"Excel file format error: {strPath} first worksheet is missing required column data")
 
         stepTable = sheets[1]
         stepRows = stepTable.nrows
@@ -377,7 +377,7 @@ class BatteryAnalysis:
 
         if len(stepCycle) < 3 or len(stepStep) < 3 or len(stepCharge) < 3:
             raise BatteryAnalysisException(
-                f"Excel文件格式错误: {strPath} 第二个工作表缺少必要的列数据")
+                f"Excel file format error: {strPath} second worksheet is missing required column data")
 
         recordTable = sheets[2]
         recordRows = recordTable.nrows
@@ -390,7 +390,7 @@ class BatteryAnalysis:
         if len(recordCycle) < 3 or len(recordStep) < 3 or len(recordCurrent) < 3 \
                 or len(recordVoltage) < 3 or len(recordCharge) < 3:
             raise BatteryAnalysisException(
-                f"Excel文件格式错误: {strPath} 第三个工作表缺少必要的列数据")
+                f"Excel file format error: {strPath} third worksheet is missing required column data")
 
         # ── 时间戳 ──────────────────────────────────────────────
         listTimeStamp = [cycleBegin[2], cycleEnd[-1]]
@@ -411,7 +411,7 @@ class BatteryAnalysis:
             start_row=2,
         )
         if matched is None:
-            raise BatteryAnalysisException(f"未找到脉冲数据: {strPath}")
+            raise BatteryAnalysisException(f"Pulse data not found: {strPath}")
 
         listLevelToVoltage, listLevelToRow, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = matched
 
