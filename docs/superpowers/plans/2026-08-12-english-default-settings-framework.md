@@ -708,6 +708,21 @@ git commit -m "i18n: translate hardcoded Chinese UI text and log messages to Eng
 
 **目标**：en.po 为 identity（msgstr = msgid）；zh_CN.po 为英文 msgid → 中文译文，来源 = 既有 zh_CN.po 保留 + 下述 `CHINESE` 字典。
 
+- [ ] **Step 0: 规范化单引号 `_()` 调用（Task 1.4 遗留）**
+
+Task 1.4 将 `dialog_manager.py` 与 `help_manager.py` 的单引号双参调用改成了**单引号单参** `_('...')`，但 `MSGID_RE` 只匹配双引号，这些 msgid 无法被提取进目录。将 3 处改为双引号，并补入下方 `CHINESE` 字典：
+
+- `src/battery_analysis/main/ui_components/dialog_manager.py:98` `_('Failed to show preferences dialog')` → `_("Failed to show preferences dialog")`
+- `src/battery_analysis/main/ui_components/dialog_manager.py:154` `_('Cannot open user manual')` → `_("Cannot open user manual")`
+- `src/battery_analysis/main/business_logic/help_manager.py:79` `_('Cannot open user manual')` → `_("Cannot open user manual")`
+
+新增 CHINESE 条目（已列于下方字典）：
+- `"Failed to show preferences dialog": "显示首选项对话框失败"`
+- `"Cannot open user manual": "无法打开用户手册"`
+
+Run: `grep -rn "_\s*('[^']*')" src --include=*.py`
+Expected: 无输出（所有 `_()` 调用均为双引号单参）。
+
 - [ ] **Step 1: 创建 `scripts/rebuild_po.py`**
 
 ```python
@@ -844,6 +859,8 @@ CHINESE = {
     "Language change error": "切换语言错误",
     "Settings apply error": "设置应用错误",
     "Failed to save configuration": "保存配置失败",
+    "Failed to show preferences dialog": "显示首选项对话框失败",
+    "Cannot open user manual": "无法打开用户手册",
     # ——— Config 对话框分类（Phase 2 使用）———
     "Equipment": "设备",
     "Reset Defaults": "恢复默认",
