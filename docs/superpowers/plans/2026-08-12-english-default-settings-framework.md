@@ -664,6 +664,8 @@ Run: `grep -rnP 'logger\.\w+\([^)]*[\x{4e00}-\x{9fff}]' src --include=*.py | gre
 - `src/battery_analysis/main/ui_components/dialog_manager.py` 其余 logger 中文。
 - 其余 grep 命中的模块。
 - `src/battery_analysis/main/business_logic/validation_manager.py` 的 `validate_required_fields` 中拼接进状态消息的字段名中文（"样品数量"、"标称容量"、"计算容量"、"可用容量"）——属运行时字符串，同样转英文。
+- `src/battery_analysis/main/ui_components/ui_manager.py:502` 陈旧 sentinel `("状态:就绪", "Ready")` → 改为 `("Ready", "就绪")`（Task 1.7 重建后 `"状态:就绪"` 已无生产者，且 zh_CN 译文为 `"就绪"`；此处是语言切换重译的匹配用字面量）。
+- Task 1.5 质量审查确认：`ui_manager.py:292` 的 `"Not provided"` 与 `ui_manager.py:65` 的 `"status:ok"` 是**内部 sentinel**（与 visualizer_controller.py:151 / analysis_runner.py:165 比对），visualizer_controller 将在 Phase 3 删除——**决定：保持硬编码英文，不改**（避免破坏比对）。
 
 > 注意：docstring 与注释保持中文不改（spec 明确排除）。
 
@@ -861,6 +863,40 @@ CHINESE = {
     "Failed to save configuration": "保存配置失败",
     "Failed to show preferences dialog": "显示首选项对话框失败",
     "Cannot open user manual": "无法打开用户手册",
+    # ——— ui_manager 无障碍名称/描述与 tooltip（Task 1.5 引入）———
+    "Start battery analysis": "开始电池分析",
+    "Select battery type": "选择电池类型",
+    "Select battery construction method": "选择电池构造方法",
+    "Select battery specification type": "选择电池规格类型",
+    "Select battery specification method": "选择电池规格方法",
+    "Select battery manufacturer": "选择电池制造商",
+    "Enter battery batch date code": "输入电池批次日期代码",
+    "Enter number of samples": "输入样品数量",
+    "Enter freezing temperature value": "输入冷冻温度值",
+    "Enter datasheet nominal capacity": "输入数据手册中的标称容量",
+    "Enter calculated nominal capacity": "输入计算得出的标称容量",
+    "Enter accelerated aging days": "输入加速老化天数",
+    "Enter required usable capacity": "输入所需可用容量",
+    "Enter version number": "输入版本号",
+    "Select tester location": "选择测试地点",
+    "Select tested-by": "选择测试人员",
+    "Select reported-by": "选择报告人员",
+    "Test profile file path": "测试配置文件路径",
+    "Select test profile file": "选择测试配置文件",
+    "Input data file path": "输入数据文件路径",
+    "Select input data file path": "选择输入数据文件路径",
+    "Output result file path": "输出结果文件路径",
+    "Select output result file path": "选择输出结果文件路径",
+    "Settings related to the test configuration": "包含测试相关配置的设置",
+    "Settings related to the battery configuration": "包含电池相关配置的设置",
+    "Select battery test profile file": "选择电池测试配置文件",
+    "Select analysis output path": "选择分析结果输出路径",
+    "Table containing test equipment and software version information": "包含测试设备和软件版本信息的表格",
+    "Test config group - settings related to the test configuration": "测试配置组 - 包含测试相关配置的设置",
+    "Battery config group - settings related to the battery configuration": "电池配置组 - 包含电池相关配置的设置",
+    "Test information table - contains test equipment and software version information": "测试信息表格 - 包含测试设备和软件版本信息",
+    "✓ Translation is complete": "✓ 翻译完整",
+    "⚠ Some translations are missing": "⚠ 部分翻译缺失",
     # ——— Config 对话框分类（Phase 2 使用）———
     "Equipment": "设备",
     "Reset Defaults": "恢复默认",
