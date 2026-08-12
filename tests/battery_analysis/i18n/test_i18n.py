@@ -407,20 +407,20 @@ class TestModuleFunctionsInitializeDefaultLocale:
 # ---------------------------------------------------------------------------
 
 class TestIConfigPathProvider:
-    """config_dialog_interface.IConfigPathProvider — abstract interface"""
+    """config_path_provider.IConfigPathProvider — abstract interface"""
 
     def test_cannot_instantiate(self):
-        from battery_analysis.i18n.config_dialog_interface import IConfigPathProvider
+        from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
         with pytest.raises(TypeError):
             IConfigPathProvider()
 
     def test_concrete_subclass_must_implement_abstract_method(self):
-        from battery_analysis.i18n.config_dialog_interface import IConfigPathProvider
+        from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
         with pytest.raises(TypeError):
             type("BadImpl", (IConfigPathProvider,), {})()
 
     def test_valid_implementation(self):
-        from battery_analysis.i18n.config_dialog_interface import IConfigPathProvider
+        from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
         impl = type("GoodImpl", (IConfigPathProvider,), {"get_config_path": lambda self: "/path"})()
         assert impl.get_config_path() == "/path"
 

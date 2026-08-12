@@ -13,9 +13,9 @@ import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
-from . import _, get_available_locales, set_locale, get_current_locale
-from .config_dialog_interface import IConfigPathProvider
-from .language_manager import get_language_manager
+from battery_analysis.i18n import _, get_available_locales, set_locale, get_current_locale
+from battery_analysis.i18n.language_manager import get_language_manager
+from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
 
 
 class PreferencesDialog(QW.QDialog):
@@ -39,7 +39,6 @@ class PreferencesDialog(QW.QDialog):
         self.setMinimumSize(500, 400)
         
         # Initialize attributes
-        self.auto_save_checkbox = None
         self.confirm_exit_checkbox = None
         self.theme_combo = None
         self.font_size_spinbox = None
@@ -93,11 +92,6 @@ class PreferencesDialog(QW.QDialog):
         # General settings group
         general_group = QW.QGroupBox(_("General Settings"))
         general_group_layout = QW.QVBoxLayout(general_group)
-
-        # Auto-save option
-        self.auto_save_checkbox = QW.QCheckBox(_("Auto-save settings"))
-        self.auto_save_checkbox.setToolTip(_("Automatically save settings when changes are made"))
-        general_group_layout.addWidget(self.auto_save_checkbox)
 
         # Confirmation on exit
         self.confirm_exit_checkbox = QW.QCheckBox(_("Confirm before exiting"))
@@ -384,11 +378,6 @@ class PreferencesDialog(QW.QDialog):
             # Load general settings
             settings = QC.QSettings()
             
-            # Auto-save
-            self.auto_save_checkbox.setChecked(
-                settings.value("general/auto_save", True, type=bool)
-            )
-            
             # Confirm exit
             self.confirm_exit_checkbox.setChecked(
                 settings.value("general/confirm_exit", True, type=bool)
@@ -499,7 +488,6 @@ class PreferencesDialog(QW.QDialog):
             settings = QC.QSettings()
             
             # Save general settings
-            settings.setValue("general/auto_save", self.auto_save_checkbox.isChecked())
             settings.setValue("general/confirm_exit", self.confirm_exit_checkbox.isChecked())
             
             # Save display settings

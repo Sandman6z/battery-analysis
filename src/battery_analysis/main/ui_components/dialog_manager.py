@@ -23,7 +23,7 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
-from battery_analysis.i18n.preferences_dialog import PreferencesDialog
+from battery_analysis.main.ui_components.preferences_dialog import PreferencesDialog
 from battery_analysis.main.ui_components.config_path_provider import ConfigPathProvider
 
 
