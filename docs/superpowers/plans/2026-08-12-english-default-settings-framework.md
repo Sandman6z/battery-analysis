@@ -864,6 +864,9 @@ CHINESE = {
     "Failed to save configuration": "保存配置失败",
     "Failed to show preferences dialog": "显示首选项对话框失败",
     "Cannot open user manual": "无法打开用户手册",
+    "Version format is invalid. Expected x.y.z format": "版本号格式不正确，应为 x.y.z 格式",
+    "Input path does not exist": "输入路径不存在",
+    "The following required fields are empty": "以下必填字段为空",
     # ——— ui_manager 无障碍名称/描述与 tooltip（Task 1.5 引入）———
     "Start battery analysis": "开始电池分析",
     "Select battery type": "选择电池类型",
