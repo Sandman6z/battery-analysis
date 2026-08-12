@@ -96,7 +96,7 @@ class ConfigDialog(QW.QDialog):
             self.logger.error("Failed to save configuration: %s", e)
             QW.QMessageBox.critical(
                 self, _("Error"),
-                f"{_('Failed to save configuration')}: {e}"
+                f"{_("Failed to save configuration")}: {e}"
             )
 
     def _populate_data(self):

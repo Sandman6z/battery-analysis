@@ -1,39 +1,117 @@
-# English translations for Battery Analysis application
-# Copyright (C) 2025 Battery Analysis
-# This file is distributed under the same license as the Battery Analysis package.
-#
+# en translations for Battery Analysis application
+# Language: en
 msgid ""
 msgstr ""
-"Project-Id-Version: Battery Analysis 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-26 12:00+0000\n"
-"PO-Revision-Date: 2025-12-26 12:00+0000\n"
-"Last-Translator: \n"
-"Language-Team: English\n"
-"Language: en\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-# Main Window
-msgid "window_title"
-msgstr "Battery Analyzer v{version}"
-
-msgid "battery-analyzer"
-msgstr "Battery Analyzer"
 
 msgid "Preferences"
 msgstr "Preferences"
 
+msgid "General Settings"
+msgstr "General Settings"
+
+msgid "Auto-save settings"
+msgstr "Auto-save settings"
+
+msgid "Automatically save settings when changes are made"
+msgstr "Automatically save settings when changes are made"
+
+msgid "Confirm before exiting"
+msgstr "Confirm before exiting"
+
+msgid "Show confirmation dialog when exiting the application"
+msgstr "Show confirmation dialog when exiting the application"
+
+msgid "Display Settings"
+msgstr "Display Settings"
+
+msgid "Theme:"
+msgstr "Theme:"
+
+msgid "Light"
+msgstr "Light"
+
+msgid "Dark"
+msgstr "Dark"
+
+msgid "System"
+msgstr "System"
+
+msgid "Font Size:"
+msgstr "Font Size:"
+
+msgid "General"
+msgstr "General"
+
+msgid "Language Settings"
+msgstr "Language Settings"
+
+msgid "Current Language:"
+msgstr "Current Language:"
+
+msgid "Select Language:"
+msgstr "Select Language:"
+
+msgid "Apply Language"
+msgstr "Apply Language"
+
+msgid "Translation Status"
+msgstr "Translation Status"
+
+msgid "Translation information will be displayed here."
+msgstr "Translation information will be displayed here."
+
 msgid "Language"
 msgstr "Language"
 
-msgid "English"
-msgstr "English"
+msgid "Configuration File Settings"
+msgstr "Configuration File Settings"
 
-msgid "Chinese (Simplified)"
-msgstr "Chinese (Simplified)"
+msgid "Current Config Path:"
+msgstr "Current Config Path:"
+
+msgid "Not loaded"
+msgstr "Not loaded"
+
+msgid "Custom Config Path:"
+msgstr "Custom Config Path:"
+
+msgid "Enter custom configuration file path..."
+msgstr "Enter custom configuration file path..."
+
+msgid "Browse..."
+msgstr "Browse..."
+
+msgid "Validate Configuration"
+msgstr "Validate Configuration"
+
+msgid "Required Sections in Config File"
+msgstr "Required Sections in Config File"
+
+msgid "Reset to Default"
+msgstr "Reset to Default"
+
+msgid "Config"
+msgstr "Config"
+
+msgid "Select Configuration File"
+msgstr "Select Configuration File"
+
+msgid "Please enter a configuration file path"
+msgstr "Please enter a configuration file path"
+
+msgid "File does not exist"
+msgstr "File does not exist"
+
+msgid "JSON root must be an object"
+msgstr "JSON root must be an object"
+
+msgid "Configuration file is valid!"
+msgstr "Configuration file is valid!"
+
+msgid "INI format is deprecated; consider migrating to config.json"
+msgstr "INI format is deprecated; consider migrating to config.json"
 
 msgid "OK"
 msgstr "OK"
@@ -44,368 +122,419 @@ msgstr "Cancel"
 msgid "Apply"
 msgstr "Apply"
 
-# Menu Items
-msgid "&File"
-msgstr "&File"
+msgid "Using default paths"
+msgstr "Using default paths"
 
-msgid "File"
-msgstr "File"
+msgid "✓ Translation is complete"
+msgstr "✓ Translation is complete"
 
-msgid "&Edit"
-msgstr "&Edit"
-
-msgid "Edit"
-msgstr "Edit"
-
-msgid "&Help"
-msgstr "&Help"
-
-msgid "Help"
-msgstr "Help"
-
-msgid "&New"
-msgstr "&New"
-
-msgid "&Open"
-msgstr "&Open"
-
-msgid "&Save"
-msgstr "&Save"
-
-msgid "Save &As..."
-msgstr "Save &As..."
-
-msgid "E&xit"
-msgstr "E&xit"
-
-msgid "&Undo"
-msgstr "&Undo"
-
-msgid "&Redo"
-msgstr "&Redo"
-
-msgid "&Cut"
-msgstr "&Cut"
-
-msgid "&Copy"
-msgstr "&Copy"
-
-msgid "&Paste"
-msgstr "&Paste"
-
-msgid "&About"
-msgstr "&About"
-
-# Battery Configuration
-msgid "Battery Configuration"
-msgstr "Battery Configuration"
-
-msgid "Battery Type"
-msgstr "Battery Type"
-
-msgid "Construction Method"
-msgstr "Construction Method"
-
-msgid "Specification Type"
-msgstr "Specification Type"
-
-msgid "Specification Method"
-msgstr "Specification Method"
-
-msgid "Manufacturer"
-msgstr "Manufacturer"
-
-msgid "Test Information"
-msgstr "Test Information"
-
-msgid "Batch Date Code"
-msgstr "Batch Date Code"
-
-msgid "Samples Quantity"
-msgstr "Samples Quantity"
-
-msgid "Temperature"
-msgstr "Temperature"
-
-msgid "Tester Location"
-msgstr "Tester Location"
-
-msgid "Tested By"
-msgstr "Tested By"
-
-msgid "Data Processing Platforms"
-msgstr "Data Processing Platforms"
-
-msgid "Accelerated Aging"
-msgstr "Accelerated Aging"
-
-msgid "Required Useable Capacity (mAh)"
-msgstr "Required Useable Capacity (mAh)"
-
-msgid "Calculation Nominal Capacity (mAh)"
-msgstr "Calculation Nominal Capacity (mAh)"
-
-msgid "Datasheet Nominal Capacity (mAh)"
-msgstr "Datasheet Nominal Capacity (mAh)"
-
-msgid "Test Profile"
-msgstr "Test Profile"
-
-# File Operations
-msgid "Version"
-msgstr "Version"
-
-msgid "Input Path"
-msgstr "Input Path"
-
-msgid "Browse"
-msgstr "Browse"
-
-msgid "Output Path"
-msgstr "Output Path"
-
-msgid "Data File"
-msgstr "Data File"
-
-msgid "Open File"
-msgstr "Open File"
-
-msgid "File Path"
-msgstr "File Path"
-
-msgid "Run"
-msgstr "Run"
-
-msgid "Clear Table"
-msgstr "Clear Table"
-
-msgid "Status"
-msgstr "Status"
-
-msgid "Progress"
-msgstr "Progress"
-
-# Status Messages
-msgid "Ready"
-msgstr "Ready"
-
-msgid "Processing..."
-msgstr "Processing..."
-
-msgid "Completed"
-msgstr "Completed"
-
-msgid "Error"
-msgstr "Error"
-
-msgid "Success"
-msgstr "Success"
-
-msgid "Failed"
-msgstr "Failed"
+msgid "⚠ Some translations are missing"
+msgstr "⚠ Some translations are missing"
 
 msgid "Warning"
 msgstr "Warning"
 
-msgid "Information"
-msgstr "Information"
-
-# Progress Dialog
-msgid "progress_title"
-msgstr "Battery Analysis Progress"
-
-msgid "progress_ready"
-msgstr "Ready to start analysis..."
-
-# Preferences Dialog
-msgid "preferences_title"
-msgstr "Preferences"
-
-msgid "general_settings"
-msgstr "General Settings"
-
-msgid "auto_save"
-msgstr "Auto-save settings"
-
-msgid "auto_save_tooltip"
-msgstr "Automatically save settings when changes are made"
-
-msgid "confirm_exit"
-msgstr "Confirm before exiting"
-
-msgid "confirm_exit_tooltip"
-msgstr "Show confirmation dialog when exiting the application"
-
-msgid "display_settings"
-msgstr "Display Settings"
-
-msgid "theme"
-msgstr "Theme:"
-
-msgid "theme_light"
-msgstr "Light"
-
-msgid "theme_dark"
-msgstr "Dark"
-
-msgid "theme_system"
-msgstr "System"
-
-msgid "font_size"
-msgstr "Font Size:"
-
-msgid "general"
-msgstr "General"
-
-msgid "language_settings"
-msgstr "Language Settings"
-
-msgid "current_language"
-msgstr "Current Language:"
-
-msgid "select_language"
-msgstr "Select Language:"
-
-msgid "apply_language"
-msgstr "Apply Language"
-
-msgid "language"
-msgstr "Language"
-
-msgid "translation_status"
-msgstr "Translation Status"
-
-msgid "translation_info"
-msgstr "Translation information will be displayed here."
-
-msgid "translation_status_text"
-msgstr "Translation coverage: {0}/{1} keys translated"
-
-msgid "translation_complete"
-msgstr "✓ Translation is complete"
-
-msgid "translation_incomplete"
-msgstr "⚠ Some translations are missing"
-
-msgid "language_change_failed"
+msgid "Failed to change language"
 msgstr "Failed to change language"
 
-msgid "language_change_error"
+msgid "Error"
+msgstr "Error"
+
+msgid "Language change error"
 msgstr "Language change error"
 
-msgid "settings_applied"
-msgstr "Settings have been applied successfully."
-
-msgid "settings_apply_error"
+msgid "Settings apply error"
 msgstr "Settings apply error"
 
-msgid "Confirm"
-msgstr "Confirm"
+msgid "[Error]: Input path has no data"
+msgstr "[Error]: Input path has no data"
 
-msgid "Save"
-msgstr "Save"
+msgid "Ready"
+msgstr "Ready"
 
-msgid "Load"
-msgstr "Load"
+msgid "Please set the input path first."
+msgstr "Please set the input path first."
 
-msgid "Select"
-msgstr "Select"
+msgid "Analyzing data..."
+msgstr "Analyzing data..."
 
-msgid "Open"
-msgstr "Open"
+msgid "Analysis Result"
+msgstr "Analysis Result"
 
-msgid "Close"
-msgstr "Close"
+msgid "No Excel files found."
+msgstr "No Excel files found."
 
-msgid "Exit"
-msgstr "Exit"
+msgid "Data analysis failed: {}"
+msgstr "Data analysis failed: {}"
 
-msgid "Settings"
-msgstr "Settings"
+msgid "Cannot open user manual"
+msgstr "Cannot open user manual"
+
+msgid "Failed to open online help."
+msgstr "Failed to open online help."
+
+msgid "Version format is invalid. Expected x.y.z format"
+msgstr "Version format is invalid. Expected x.y.z format"
+
+msgid "Input path does not exist"
+msgstr "Input path does not exist"
+
+msgid "The following required fields are empty"
+msgstr "The following required fields are empty"
+
+msgid "basic_attributes"
+msgstr "basic_attributes"
+
+msgid "command_manager"
+msgstr "command_manager"
+
+msgid "environment"
+msgstr "environment"
+
+msgid "handlers"
+msgstr "handlers"
+
+msgid "language"
+msgstr "language"
+
+msgid "managers"
+msgstr "managers"
+
+msgid "presenters"
+msgstr "presenters"
+
+msgid "processors"
+msgstr "processors"
+
+msgid "services"
+msgstr "services"
+
+msgid "styles"
+msgstr "styles"
+
+msgid "ui_setup"
+msgstr "ui_setup"
+
+msgid "App icon not found; using default icon."
+msgstr "App icon not found; using default icon."
+
+msgid "Battery Analysis Progress"
+msgstr "Battery Analysis Progress"
+
+msgid "Ready to start analysis..."
+msgstr "Ready to start analysis..."
+
+msgid "Input Validation Failed"
+msgstr "Input Validation Failed"
+
+msgid "Input data path cannot be empty"
+msgstr "Input data path cannot be empty"
+
+msgid "Output path cannot be empty"
+msgstr "Output path cannot be empty"
+
+msgid "Start Failed"
+msgstr "Start Failed"
+
+msgid "Cannot start the analysis task"
+msgstr "Cannot start the analysis task"
+
+msgid "progress_title"
+msgstr "progress_title"
+
+msgid "progress_ready"
+msgstr "progress_ready"
+
+msgid "status_ready"
+msgstr "status_ready"
 
 msgid "Configuration"
 msgstr "Configuration"
 
-msgid "Help"
-msgstr "Help"
+msgid "Battery Config"
+msgstr "Battery Config"
+
+msgid "Test Config"
+msgstr "Test Config"
+
+msgid "Equipment"
+msgstr "Equipment"
+
+msgid "Reset Defaults"
+msgstr "Reset Defaults"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Reset all configuration to default values? This cannot be undone."
+msgstr "Reset all configuration to default values? This cannot be undone."
+
+msgid "Failed to save configuration"
+msgstr "Failed to save configuration"
+
+msgid "Confirm Exit"
+msgstr "Confirm Exit"
+
+msgid "Are you sure you want to exit the application?"
+msgstr "Are you sure you want to exit the application?"
+
+msgid "About Battery Analyzer"
+msgstr "About Battery Analyzer"
+
+msgid "Failed to show preferences dialog"
+msgstr "Failed to show preferences dialog"
+
+msgid "Data Load Error - Recovery Options"
+msgstr "Data Load Error - Recovery Options"
+
+msgid "Unable to load battery data. Choose how to continue:"
+msgstr "Unable to load battery data. Choose how to continue:"
+
+msgid "Choose one of the following recovery options:"
+msgstr "Choose one of the following recovery options:"
+
+msgid "Reselect Data Directory"
+msgstr "Reselect Data Directory"
+
+msgid "Restart with Default Configuration"
+msgstr "Restart with Default Configuration"
+
+msgid "Cancel Operation"
+msgstr "Cancel Operation"
+
+msgid "Opening data directory selector..."
+msgstr "Opening data directory selector..."
+
+msgid "Restarting with default configuration..."
+msgstr "Restarting with default configuration..."
+
+msgid "Restart"
+msgstr "Restart"
+
+msgid "The application will restart with the default configuration.\n\nPlease make sure you have valid data files available."
+msgstr "The application will restart with the default configuration.\n\nPlease make sure you have valid data files available."
+
+msgid "Operation canceled"
+msgstr "Operation canceled"
+
+msgid "Canceled"
+msgstr "Canceled"
+
+msgid "Operation canceled. You can retry via the 'File -> Open Data' menu."
+msgstr "Operation canceled. You can retry via the 'File -> Open Data' menu."
+
+msgid "New Project"
+msgstr "New Project"
+
+msgid "Open Project"
+msgstr "Open Project"
+
+msgid "Save Settings"
+msgstr "Save Settings"
+
+msgid "Save As"
+msgstr "Save As"
+
+msgid "Exit"
+msgstr "Exit"
+
+msgid "Undo"
+msgstr "Undo"
+
+msgid "Redo"
+msgstr "Redo"
+
+msgid "Cut"
+msgstr "Cut"
+
+msgid "Copy"
+msgstr "Copy"
+
+msgid "Paste"
+msgstr "Paste"
+
+msgid "Zoom In"
+msgstr "Zoom In"
+
+msgid "Zoom Out"
+msgstr "Zoom Out"
+
+msgid "Reset Zoom"
+msgstr "Reset Zoom"
+
+msgid "Show/Hide Toolbar"
+msgstr "Show/Hide Toolbar"
+
+msgid "Show/Hide Status Bar"
+msgstr "Show/Hide Status Bar"
+
+msgid "Calculate Battery Parameters"
+msgstr "Calculate Battery Parameters"
+
+msgid "Analyze Data"
+msgstr "Analyze Data"
+
+msgid "Generate Report"
+msgstr "Generate Report"
+
+msgid "Open Battery Chart Viewer"
+msgstr "Open Battery Chart Viewer"
+
+msgid "Batch Process Data"
+msgstr "Batch Process Data"
+
+msgid "Manage Data Dictionary"
+msgstr "Manage Data Dictionary"
+
+msgid "Open User Manual"
+msgstr "Open User Manual"
+
+msgid "Open Online Help"
+msgstr "Open Online Help"
 
 msgid "About"
 msgstr "About"
 
-# Dialog Manager
-msgid "confirm_exit_title"
-msgstr "Confirm Exit"
+msgid "Export Report"
+msgstr "Export Report"
 
-msgid "confirm_exit_message"
-msgstr "Are you sure you want to exit?"
+msgid "Task canceled..."
+msgstr "Task canceled..."
 
-msgid "about_title"
-msgstr "About Battery Analyzer"
+msgid "Use System Default Theme"
+msgstr "Use System Default Theme"
 
-msgid "about_text"
-msgstr "<h3>Battery Analyzer</h3>\n<p>version: v{version}</p>\n<p>Battery Analysis Tool, used for battery performance testing and data analysis.</p>\n<p>© {year} Sandman Zhang, Shane Zhao</p>"
+msgid "Use Windows 11 Style Theme"
+msgstr "Use Windows 11 Style Theme"
 
-msgid "data_error_title"
-msgstr "Data Load Error - Recovery Options"
+msgid "Use Windows Vista Style Theme"
+msgstr "Use Windows Vista Style Theme"
 
-msgid "data_error_message"
-msgstr "Failed to load battery data, please choose how to proceed:"
+msgid "Use Cross-platform Fusion Theme"
+msgstr "Use Cross-platform Fusion Theme"
 
-msgid "data_error_detail"
-msgstr "Error details: {error}"
+msgid "Use Dark Theme for Night Use"
+msgstr "Use Dark Theme for Night Use"
 
-msgid "data_error_prompt"
-msgstr "Please select one of the following recovery options:"
+msgid "Switched to System Default theme"
+msgstr "Switched to System Default theme"
 
-msgid "data_error_retry"
-msgstr "Reselect data directory"
+msgid "Switched to Fusion theme"
+msgstr "Switched to Fusion theme"
 
-msgid "data_error_default"
-msgstr "Restart with default configuration"
+msgid "Switched to Dark theme"
+msgstr "Switched to Dark theme"
 
-msgid "data_error_cancel"
-msgstr "Cancel operation"
+msgid "Switched to Simple Dark theme"
+msgstr "Switched to Simple Dark theme"
 
-msgid "ok"
-msgstr "OK"
+msgid "Settings related to the test configuration"
+msgstr "Settings related to the test configuration"
 
-msgid "cancel"
-msgstr "Cancel"
+msgid "Settings related to the battery configuration"
+msgstr "Settings related to the battery configuration"
 
-msgid "data_error_opening_dir"
-msgstr "Opening data directory selection..."
+msgid "Run Analysis"
+msgstr "Run Analysis"
 
-msgid "data_error_restarting"
-msgstr "Restarting with default configuration..."
+msgid "Start battery analysis"
+msgstr "Start battery analysis"
 
-msgid "data_error_restart_title"
-msgstr "Restart"
+msgid "Select Test Profile"
+msgstr "Select Test Profile"
 
-msgid "data_error_restart_msg"
-msgstr "The application will restart with default configuration.\n\nPlease ensure you have valid data files available."
+msgid "Select battery test profile file"
+msgstr "Select battery test profile file"
 
-msgid "data_error_cancelled"
-msgstr "Operation cancelled"
+msgid "Select Input Path"
+msgstr "Select Input Path"
 
-msgid "data_error_cancelled_title"
-msgstr "Cancelled"
+msgid "Select input data file path"
+msgstr "Select input data file path"
 
-msgid "data_error_cancelled_msg"
-msgstr "Operation cancelled. You can retry via the 'File -> Open Data' menu."
+msgid "Select Output Path"
+msgstr "Select Output Path"
 
-# Configuration dialog
-msgid "config_dialog_title"
-msgstr "Configuration"
+msgid "Select analysis output path"
+msgstr "Select analysis output path"
 
-msgid "save_failed"
-msgstr "Failed to save configuration"
+msgid "Test Information Table"
+msgstr "Test Information Table"
 
-# Preferences dialog
-msgid "config_valid"
-msgstr "Configuration file is valid!"
+msgid "Table containing test equipment and software version information"
+msgstr "Table containing test equipment and software version information"
 
-msgid "ini_deprecated"
-msgstr "INI format is deprecated; consider migrating to config.json"
+msgid "Test config group - settings related to the test configuration"
+msgstr "Test config group - settings related to the test configuration"
 
-msgid "config_parse_error"
-msgstr "Error parsing config: {error}"
+msgid "Battery config group - settings related to the battery configuration"
+msgstr "Battery config group - settings related to the battery configuration"
+
+msgid "Select battery type"
+msgstr "Select battery type"
+
+msgid "Select battery construction method"
+msgstr "Select battery construction method"
+
+msgid "Select battery specification type"
+msgstr "Select battery specification type"
+
+msgid "Select battery specification method"
+msgstr "Select battery specification method"
+
+msgid "Select battery manufacturer"
+msgstr "Select battery manufacturer"
+
+msgid "Enter battery batch date code"
+msgstr "Enter battery batch date code"
+
+msgid "Enter number of samples"
+msgstr "Enter number of samples"
+
+msgid "Select temperature type"
+msgstr "Select temperature type"
+
+msgid "Enter freezing temperature value"
+msgstr "Enter freezing temperature value"
+
+msgid "Enter datasheet nominal capacity"
+msgstr "Enter datasheet nominal capacity"
+
+msgid "Enter calculated nominal capacity"
+msgstr "Enter calculated nominal capacity"
+
+msgid "Enter accelerated aging days"
+msgstr "Enter accelerated aging days"
+
+msgid "Enter required usable capacity"
+msgstr "Enter required usable capacity"
+
+msgid "Select tester location"
+msgstr "Select tester location"
+
+msgid "Select tested-by"
+msgstr "Select tested-by"
+
+msgid "Select reported-by"
+msgstr "Select reported-by"
+
+msgid "Test profile file path"
+msgstr "Test profile file path"
+
+msgid "Select test profile file"
+msgstr "Select test profile file"
+
+msgid "Input data file path"
+msgstr "Input data file path"
+
+msgid "Output result file path"
+msgstr "Output result file path"
+
+msgid "Select output result file path"
+msgstr "Select output result file path"
+
+msgid "Enter version number"
+msgstr "Enter version number"
+
+msgid "Test information table - contains test equipment and software version information"
+msgstr "Test information table - contains test equipment and software version information"

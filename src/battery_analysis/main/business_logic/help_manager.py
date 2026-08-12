@@ -76,7 +76,7 @@ class HelpManager:
             QW.QMessageBox.warning(
                 self.main_window,
                 _("Error"),
-                f"{_('Cannot open user manual')}: {str(e)}",
+                f"{_("Cannot open user manual")}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
     

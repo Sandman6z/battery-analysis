@@ -95,7 +95,7 @@ class DialogManager:
             QW.QMessageBox.critical(
                 self.main_window,
                 _("Error"),
-                f"{_('Failed to show preferences dialog')}: {str(e)}"
+                f"{_("Failed to show preferences dialog")}: {str(e)}"
             )
     
     def show_user_manual(self):
@@ -151,7 +151,7 @@ class DialogManager:
             QW.QMessageBox.warning(
                 self.main_window,
                 _("Error"),
-                f"{_('Cannot open user manual')}: {str(e)}",
+                f"{_("Cannot open user manual")}: {str(e)}",
                 QW.QMessageBox.StandardButton.Ok
             )
     
