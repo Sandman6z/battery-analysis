@@ -60,12 +60,12 @@ class LanguageManager(QObject):
     
     def _initialize_settings(self):
         """Initialize language settings from configuration"""
-        # Get saved language preference or detect system locale
+        # Get saved language preference or default to English
         saved_locale = self.settings.value("language/locale", "")
         
         if not saved_locale:
-            # Detect system locale on first run
-            saved_locale = detect_system_locale()
+            # 默认语言固定为英文（不跟随系统语言）
+            saved_locale = "en"
             self.settings.setValue("language/locale", saved_locale)
         
         # Set the detected/saved locale

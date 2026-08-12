@@ -590,3 +590,15 @@ class TestLanguageManager:
         lm = LanguageManager()
         lm._on_language_changed("zh_CN")
         assert "Language changed to: zh_CN" in caplog.text
+
+    def test_default_locale_is_english_when_no_saved(self):
+        from battery_analysis.i18n.language_manager import LanguageManager
+        lm = LanguageManager()
+        lm.settings = MagicMock()
+        lm.settings.value.return_value = ""
+        # Force a non-English system locale so the assertion proves the default
+        # is fixed to "en" regardless of what detect_system_locale() returns.
+        with patch("battery_analysis.i18n.language_manager.detect_system_locale", return_value="zh_CN"):
+            with patch.object(lm, "set_locale", return_value=True) as mock_set:
+                lm._initialize_settings()
+        mock_set.assert_called_once_with("en")
