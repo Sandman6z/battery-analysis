@@ -30,19 +30,19 @@ class DataException(BaseAppException):
 
 class FileNotFoundException(DataException):
     def __init__(self, path: str):
-        super().__init__(f"文件未找到: {path}", 404)
+        super().__init__(f"File not found: {path}", 404)
 
 
 class FileFormatException(DataException):
     """Excel/CSV/XML 格式不符合预期。"""
     def __init__(self, detail: str = "", error_code: int = 422):
-        super().__init__(f"文件格式错误: {detail}", error_code)
+        super().__init__(f"File format error: {detail}", error_code)
 
 
 class ConfigException(BaseAppException):
     """配置相关错误。"""
     def __init__(self, message: str, error_code: int = 500):
-        super().__init__(f"配置错误: {message}", error_code)
+        super().__init__(f"Configuration error: {message}", error_code)
 
 
 # ── 分析引擎层 ────────────────────────────────────────────────
@@ -57,7 +57,7 @@ class AnalysisException(BaseAppException):
 class ValidationException(BaseAppException):
     """输入数据验证失败。"""
     def __init__(self, message: str, error_code: int = 422):
-        super().__init__(f"验证失败: {message}", error_code)
+        super().__init__(f"Validation failed: {message}", error_code)
 
 
 # ── 应用/UI 层 ────────────────────────────────────────────────
@@ -66,7 +66,7 @@ class ValidationException(BaseAppException):
 class ServiceException(BaseAppException):
     """服务不可用或初始化失败。"""
     def __init__(self, service_name: str, detail: str = ""):
-        msg = f"服务 '{service_name}' 不可用"
+        msg = f"Service '{service_name}' unavailable"
         if detail:
             msg += f": {detail}"
         super().__init__(msg, 503)
@@ -75,7 +75,7 @@ class ServiceException(BaseAppException):
 class InitializationException(BaseAppException):
     """应用初始化阶段失败。"""
     def __init__(self, component: str, detail: str = ""):
-        msg = f"组件 '{component}' 初始化失败"
+        msg = f"Component '{component}' initialization failed"
         if detail:
             msg += f": {detail}"
         super().__init__(msg, 500)

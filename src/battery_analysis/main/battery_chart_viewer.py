@@ -232,7 +232,7 @@ class BatteryChartViewer(
             try:
                 fig, ax, title_fontdict, axis_fontdict = self._initialize_figure()
                 if fig is None or ax is None:
-                    raise ValueError("无法初始化图表或坐标轴")
+                    raise ValueError("Failed to initialize figure or axes")
                 self.current_fig = fig
 
                 try:

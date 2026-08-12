@@ -37,7 +37,7 @@ class VisualizerFactory:
             visualizer_class: 可视化器类
         """
         if not issubclass(visualizer_class, IVisualizer):
-            raise ValueError(f"类 {visualizer_class.__name__} 必须实现 IVisualizer 接口")
+            raise ValueError(f"Class {visualizer_class.__name__} must implement the IVisualizer interface")
         
         self._visualizers[name] = visualizer_class
         self.logger.debug("Registered visualizer: %s -> %s", name, visualizer_class.__name__)

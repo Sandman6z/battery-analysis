@@ -493,13 +493,13 @@ class InteractionControlsMixin:
                 about_action.triggered.connect(on_about_clicked)
                 logger.info("PyQt6 menubar added successfully")
             else:
-                raise RuntimeError("窗口不支持菜单栏")
+                raise RuntimeError("Window does not support a menu bar")
 
         except ImportError as e:
-            raise ImportError(f"PyQt6依赖缺失: {e}. 请确保已正确安装PyQt6")
+            raise ImportError(f"PyQt6 dependency missing: {e}. Please ensure PyQt6 is installed correctly")
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             logger.error("Failed to add menubar: %s", e)
-            raise RuntimeError(f"菜单栏初始化失败: {e}") from e
+            raise RuntimeError(f"Menu bar initialization failed: {e}") from e
 
     def _open_file_dialog(self):
         """打开文件对话框，允许用户选择数据文件"""

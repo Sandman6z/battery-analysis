@@ -283,14 +283,14 @@ class SignalConnector:
         error_details_lower = error_details.lower() if isinstance(error_details, str) else str(error_details).lower()
         error_details_str = error_details if isinstance(error_details, str) else str(error_details)
         
-        if "input path" in error_details_lower or "找不到文件" in error_details_str:
+        if "input path" in error_details_lower or "not found" in error_details_lower:
             suggestions.append("Check whether the input path is correct")
             suggestions.append("Ensure the necessary data files are included")
-        if "格式" in error_details_str or "format" in error_details_lower:
+        if "format" in error_details_lower:
             suggestions.append("Check whether the data file format meets the requirements")
-        if "权限" in error_details_str or "permission" in error_details_lower:
+        if "permission" in error_details_lower:
             suggestions.append("Ensure you have sufficient file operation permissions")
-        if "output" in error_details_lower or "写入" in error_details_str:
+        if "output" in error_details_lower or "write" in error_details_lower:
             suggestions.extend([
                 "Check whether the output path exists and is writable",
                 "Ensure there is enough disk space",

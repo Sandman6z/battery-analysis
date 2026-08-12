@@ -74,7 +74,7 @@ class VisualizationManager:
             visualizer = factory.create_visualizer("battery_chart") if factory else None
 
             if visualizer is None:
-                raise RuntimeError("无法创建可视化器实例")
+                raise RuntimeError("Failed to create visualizer instance")
 
             # 显示可视化（传递XML路径，让viewer处理数据搜索和加载）
             show_success = visualizer.show_figure(xml_path=xml_path)
@@ -83,7 +83,7 @@ class VisualizationManager:
                 self.logger.info("Visualizer started")
                 self._status("Visualizer started")
             else:
-                raise RuntimeError("显示可视化失败")
+                raise RuntimeError("Failed to display visualization")
 
         except (OSError, ValueError, RuntimeError, ImportError) as e:
             self.logger.error("Error starting visualizer: %s", e)
@@ -98,7 +98,7 @@ class VisualizationManager:
 
     def _handle_visualization_error(self, error_msg: str):
         """处理可视化错误"""
-        data_error_keywords = ['data', 'csv', 'load', 'file', 'path', 'config', 'info_image', '数据']
+        data_error_keywords = ['data', 'csv', 'load', 'file', 'path', 'config', 'info_image']
         is_data_error = any(keyword in error_msg.lower() for keyword in data_error_keywords)
 
         if is_data_error:

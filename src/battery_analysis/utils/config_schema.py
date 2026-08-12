@@ -77,7 +77,7 @@ class AppConfigSchema:
             errors.append("test.locations is missing")
 
         if errors:
-            raise ConfigException("配置验证失败: " + "; ".join(errors))
+            raise ConfigException("Configuration validation failed: " + "; ".join(errors))
 
         return cls(
             version=version,
