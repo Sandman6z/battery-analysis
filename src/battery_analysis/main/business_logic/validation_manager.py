@@ -52,7 +52,7 @@ class ValidationManager:
             self.main_window.lineEdit_Version.setStyleSheet("")
             # 如果所有验证都通过，显示正常状态
             if self.main_window.checker_battery_type.b_check_pass:
-                self.main_window.statusBar_BatteryAnalysis.showMessage(_("status_ok", "status:ok"))
+                self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
     
     def validate_input_path(self) -> None:
         """
@@ -67,7 +67,7 @@ class ValidationManager:
             self.main_window.lineEdit_InputPath.setStyleSheet("")
             # 如果所有验证都通过，显示正常状态
             if self.main_window.checker_battery_type.b_check_pass:
-                self.main_window.statusBar_BatteryAnalysis.showMessage(_("status_ok", "status:ok"))
+                self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
     
     def validate_required_fields(self) -> None:
         """
@@ -109,7 +109,7 @@ class ValidationManager:
         else:
             # 如果所有验证都通过，显示正常状态
             if self.main_window.checker_battery_type.b_check_pass:
-                self.main_window.statusBar_BatteryAnalysis.showMessage(_("status_ok", "status:ok"))
+                self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
     
     def check_batterytype(self) -> None:
         """

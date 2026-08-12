@@ -61,7 +61,7 @@ class ProgressDialog(QW.QDialog):
             parent: 父窗口
         """
         super().__init__(parent)
-        self.setWindowTitle(_("progress_title", "Battery Analysis Progress"))
+        self.setWindowTitle(_("Battery Analysis Progress"))
         self.setModal(False)  # Non-modal window, allows user to operate main interface
         self.setFixedSize(450, 150)
         self.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
@@ -78,7 +78,7 @@ class ProgressDialog(QW.QDialog):
         layout.setSpacing(15)
 
         # 添加状态文本标签
-        self.status_label = QW.QLabel(_("progress_ready", "Ready to start analysis..."))
+        self.status_label = QW.QLabel(_("Ready to start analysis..."))
         self.status_label.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
         self.status_label.setWordWrap(True)
         self.status_label.setObjectName("progress_status_label")
@@ -98,7 +98,7 @@ class ProgressDialog(QW.QDialog):
         button_layout.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
         
         # 添加取消按钮
-        self.cancel_button = QW.QPushButton(_("cancel", "Cancel"))
+        self.cancel_button = QW.QPushButton(_("Cancel"))
         self.cancel_button.setObjectName("cancel_button")
         self.cancel_button.setMinimumHeight(32)
         self.cancel_button.setMinimumWidth(100)
@@ -125,7 +125,7 @@ class ProgressDialog(QW.QDialog):
         self.status_label.setText(status_text)
         
         # 更新窗口标题，显示百分比
-        self.setWindowTitle(f"{_("progress_title", "Battery Analysis Progress")} - {progress}%")
+        self.setWindowTitle(f"{_("Battery Analysis Progress")} - {progress}%")
 
         # 确保界面实时更新
         QW.QApplication.processEvents()
@@ -136,7 +136,7 @@ class ProgressDialog(QW.QDialog):
         """
         self.is_canceled = True
         self.canceled.emit()
-        self.status_label.setText(_("progress_canceled", "Task canceled..."))
+        self.status_label.setText(_("Task canceled..."))
         QW.QApplication.processEvents()
 
     def closeEvent(self, event):

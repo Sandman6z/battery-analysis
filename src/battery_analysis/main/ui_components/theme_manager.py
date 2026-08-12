@@ -56,11 +56,11 @@ class ThemeManager:
         
         # 定义主题工具提示
         theme_tooltips = {
-            "System Default": _("tooltip_system_default", "使用系统默认主题"),
-            "Windows 11": _("tooltip_windows_11", "使用Windows 11风格主题"),
-            "Windows Vista": _("tooltip_windows_vista", "使用Windows Vista风格主题"),
-            "Fusion": _("tooltip_fusion", "使用跨平台Fusion主题"),
-            "Dark Theme": _("tooltip_dark_theme", "使用深色主题，适合夜间使用")
+            "System Default": _("Use System Default Theme"),
+            "Windows 11": _("Use Windows 11 Style Theme"),
+            "Windows Vista": _("Use Windows Vista Style Theme"),
+            "Fusion": _("Use Cross-platform Fusion Theme"),
+            "Dark Theme": _("Use Dark Theme for Night Use")
         }
         
         # 检查并添加存在的主题动作
@@ -94,40 +94,40 @@ class ThemeManager:
                 # 使用系统默认样式
                 app.setStyle(QW.QStyleFactory.create(
                     "windowsvista" if sys.platform == "win32" else "fusion"))
-                self.main_window.statusBar_BatteryAnalysis.showMessage(_("theme_switched_default", f"已切换到系统默认主题"))
+                self.main_window.statusBar_BatteryAnalysis.showMessage(_("Switched to System Default theme"))
             elif theme_name == "Windows 11":
                 # 尝试使用Windows 11样式（如果可用）
                 if sys.platform == "win32":
                     app.setStyle(QW.QStyleFactory.create("windowsvista"))
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Windows 11主题")
+                        "Switched to Windows 11 theme")
                 else:
                     # 非Windows平台回退到Fusion
                     app.setStyle(QW.QStyleFactory.create("fusion"))
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Fusion主题（Windows 11样式在当前平台不可用）")
+                        "Switched to Fusion theme (Windows 11 style is unavailable on this platform)")
             elif theme_name == "Windows Vista":
                 # 使用Windows Vista样式
                 if sys.platform == "win32":
                     app.setStyle(QW.QStyleFactory.create("windowsvista"))
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Windows Vista主题")
+                        "Switched to Windows Vista theme")
                 else:
                     # 非Windows平台回退到Fusion
                     app.setStyle(QW.QStyleFactory.create("fusion"))
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"已切换到Fusion主题（Windows Vista样式在当前平台不可用）")
+                        "Switched to Fusion theme (Windows Vista style is unavailable on this platform)")
             elif theme_name == "Fusion":
                 # 使用Fusion样式（跨平台）
                 app.setStyle(QW.QStyleFactory.create("fusion"))
-                self.main_window.statusBar_BatteryAnalysis.showMessage(_("theme_switched_fusion", f"已切换到Fusion主题"))
+                self.main_window.statusBar_BatteryAnalysis.showMessage(_("Switched to Fusion theme"))
             elif theme_name == "Dark Theme":
                 # 使用深色主题
                 try:
                     # 尝试使用我们的QSS主题系统
                     from battery_analysis.ui.styles import style_manager
                     style_manager.apply_global_style(app, "dark")
-                    self.main_window.statusBar_BatteryAnalysis.showMessage(_("theme_switched_dark", f"已切换到深色主题"))
+                    self.main_window.statusBar_BatteryAnalysis.showMessage(_("Switched to Dark theme"))
                 except (ImportError, AttributeError, TypeError, RuntimeError) as e:
                     # 如果主题系统加载失败，使用简单的深色主题样式表
                     dark_stylesheet = """QWidget {
@@ -185,10 +185,10 @@ QFrame {
 }
 """
                     app.setStyleSheet(dark_stylesheet)
-                    self.main_window.statusBar_BatteryAnalysis.showMessage(_("theme_switched_simple_dark", f"已切换到简单深色主题"))
+                    self.main_window.statusBar_BatteryAnalysis.showMessage(_("Switched to Simple Dark theme"))
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
-            self.logger.error("切换主题失败: %s", e)
-            self.main_window.statusBar_BatteryAnalysis.showMessage(_("theme_switch_failed", f"切换主题失败: {str(e)}"))
+            self.logger.error("Failed to switch theme: %s", e)
+            self.main_window.statusBar_BatteryAnalysis.showMessage(f"Failed to switch theme: {str(e)}")
         
         # 设置当前主题动作的选中状态
         if theme_name in self.theme_actions:

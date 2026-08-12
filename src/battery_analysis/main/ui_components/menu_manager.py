@@ -46,98 +46,98 @@ class MenuManager:
             # 文件菜单快捷键和工具提示
             if hasattr(self.main_window, 'actionNew'):
                 self.main_window.actionNew.setShortcut(QG.QKeySequence.StandardKey.New)
-                self.main_window.actionNew.setToolTip(_("tooltip_new", "新建项目"))
+                self.main_window.actionNew.setToolTip(_("New Project"))
             if hasattr(self.main_window, 'actionOpen'):
                 self.main_window.actionOpen.setShortcut(QG.QKeySequence.StandardKey.Open)
-                self.main_window.actionOpen.setToolTip(_("tooltip_open", "打开项目"))
+                self.main_window.actionOpen.setToolTip(_("Open Project"))
             if hasattr(self.main_window, 'actionSave'):
                 self.main_window.actionSave.setShortcut(QG.QKeySequence.StandardKey.Save)
-                self.main_window.actionSave.setToolTip(_("tooltip_save", "保存设置"))
+                self.main_window.actionSave.setToolTip(_("Save Settings"))
             if hasattr(self.main_window, 'actionSave_As'):
                 self.main_window.actionSave_As.setShortcut(
                     QG.QKeySequence.StandardKey.SaveAs)
-                self.main_window.actionSave_As.setToolTip(_("tooltip_save_as", "另存为"))
+                self.main_window.actionSave_As.setToolTip(_("Save As"))
             if hasattr(self.main_window, 'actionExit'):
                 self.main_window.actionExit.setShortcut(QG.QKeySequence.StandardKey.Quit)
-                self.main_window.actionExit.setToolTip(_("tooltip_exit", "退出应用"))
+                self.main_window.actionExit.setToolTip(_("Exit"))
 
             # 编辑菜单快捷键和工具提示
             if hasattr(self.main_window, 'actionUndo'):
                 self.main_window.actionUndo.setShortcut(QG.QKeySequence.StandardKey.Undo)
-                self.main_window.actionUndo.setToolTip(_("tooltip_undo", "撤销操作"))
+                self.main_window.actionUndo.setToolTip(_("Undo"))
             if hasattr(self.main_window, 'actionRedo'):
                 self.main_window.actionRedo.setShortcut(QG.QKeySequence.StandardKey.Redo)
-                self.main_window.actionRedo.setToolTip(_("tooltip_redo", "重做操作"))
+                self.main_window.actionRedo.setToolTip(_("Redo"))
             if hasattr(self.main_window, 'actionCut'):
                 self.main_window.actionCut.setShortcut(QG.QKeySequence.StandardKey.Cut)
-                self.main_window.actionCut.setToolTip(_("tooltip_cut", "剪切选中内容"))
+                self.main_window.actionCut.setToolTip(_("Cut"))
             if hasattr(self.main_window, 'actionCopy'):
                 self.main_window.actionCopy.setShortcut(QG.QKeySequence.StandardKey.Copy)
-                self.main_window.actionCopy.setToolTip(_("tooltip_copy", "复制选中内容"))
+                self.main_window.actionCopy.setToolTip(_("Copy"))
             if hasattr(self.main_window, 'actionPaste'):
                 self.main_window.actionPaste.setShortcut(QG.QKeySequence.StandardKey.Paste)
-                self.main_window.actionPaste.setToolTip(_("tooltip_paste", "粘贴内容"))
+                self.main_window.actionPaste.setToolTip(_("Paste"))
 
             # 视图菜单快捷键和工具提示
             if hasattr(self.main_window, 'actionZoom_In'):
                 self.main_window.actionZoom_In.setShortcut(
                     QG.QKeySequence.StandardKey.ZoomIn)
-                self.main_window.actionZoom_In.setToolTip(_("tooltip_zoom_in", "放大界面"))
+                self.main_window.actionZoom_In.setToolTip(_("Zoom In"))
             if hasattr(self.main_window, 'actionZoom_Out'):
                 self.main_window.actionZoom_Out.setShortcut(
                     QG.QKeySequence.StandardKey.ZoomOut)
-                self.main_window.actionZoom_Out.setToolTip(_("tooltip_zoom_out", "缩小界面"))
+                self.main_window.actionZoom_Out.setToolTip(_("Zoom Out"))
             if hasattr(self.main_window, 'actionReset_Zoom'):
-                self.main_window.actionReset_Zoom.setToolTip(_("tooltip_reset_zoom", "重置界面缩放"))
+                self.main_window.actionReset_Zoom.setToolTip(_("Reset Zoom"))
             if hasattr(self.main_window, 'actionShow_Toolbar'):
                 self.main_window.actionShow_Toolbar.setCheckable(True)
                 self.main_window.actionShow_Toolbar.setChecked(False)
-                self.main_window.actionShow_Toolbar.setToolTip(_("tooltip_show_toolbar", "显示/隐藏工具栏"))
+                self.main_window.actionShow_Toolbar.setToolTip(_("Show/Hide Toolbar"))
                 # 确保toolbar的可见性与action状态一致
                 if hasattr(self.main_window, 'toolBar'):
                     self.main_window.toolBar.setVisible(False)
             if hasattr(self.main_window, 'actionShow_Statusbar'):
                 self.main_window.actionShow_Statusbar.setCheckable(True)
                 self.main_window.actionShow_Statusbar.setChecked(True)
-                self.main_window.actionShow_Statusbar.setToolTip(_("tooltip_show_statusbar", "显示/隐藏状态栏"))
+                self.main_window.actionShow_Statusbar.setToolTip(_("Show/Hide Status Bar"))
 
             # 工具菜单快捷键和工具提示
             if hasattr(self.main_window, 'actionCalculate_Battery'):
                 self.main_window.actionCalculate_Battery.setShortcut(
                     QG.QKeySequence("Ctrl+B"))
-                self.main_window.actionCalculate_Battery.setToolTip(_("tooltip_calculate_battery", "计算电池参数"))
+                self.main_window.actionCalculate_Battery.setToolTip(_("Calculate Battery Parameters"))
             if hasattr(self.main_window, 'actionAnalyze_Data'):
                 self.main_window.actionAnalyze_Data.setShortcut(QG.QKeySequence("Ctrl+D"))
-                self.main_window.actionAnalyze_Data.setToolTip(_("tooltip_analyze_data", "分析数据"))
+                self.main_window.actionAnalyze_Data.setToolTip(_("Analyze Data"))
             if hasattr(self.main_window, 'actionGenerate_Report'):
                 self.main_window.actionGenerate_Report.setShortcut(
                     QG.QKeySequence("Ctrl+R"))
-                self.main_window.actionGenerate_Report.setToolTip(_("tooltip_generate_report", "生成报告"))
+                self.main_window.actionGenerate_Report.setToolTip(_("Generate Report"))
             if hasattr(self.main_window, 'actionBatteryChartViewer'):
-                self.main_window.actionBatteryChartViewer.setToolTip(_("tooltip_chart_viewer", "打开电池图表查看器"))
+                self.main_window.actionBatteryChartViewer.setToolTip(_("Open Battery Chart Viewer"))
             if hasattr(self.main_window, 'actionBatch_Processing'):
-                self.main_window.actionBatch_Processing.setToolTip(_("tooltip_batch_processing", "批量处理数据"))
+                self.main_window.actionBatch_Processing.setToolTip(_("Batch Process Data"))
             if hasattr(self.main_window, 'actionConfiguration'):
                 self.main_window.actionConfiguration.setToolTip(
-                    _("tooltip_configuration", "配置管理系统数据字典"))
+                    _("Manage Data Dictionary"))
             if hasattr(self.main_window, 'actionPreferences'):
-                self.main_window.actionPreferences.setToolTip(_("tooltip_preferences", "首选项设置"))
+                self.main_window.actionPreferences.setToolTip(_("Preferences"))
 
             # 帮助菜单快捷键和工具提示
             if hasattr(self.main_window, 'actionUser_Mannual'):
                 self.main_window.actionUser_Mannual.setShortcut(
                     QG.QKeySequence.StandardKey.HelpContents)
-                self.main_window.actionUser_Mannual.setToolTip(_("tooltip_user_manual", "打开用户手册"))
+                self.main_window.actionUser_Mannual.setToolTip(_("Open User Manual"))
             if hasattr(self.main_window, 'actionOnline_Help'):
                 self.main_window.actionOnline_Help.setShortcut(QG.QKeySequence("F1"))
-                self.main_window.actionOnline_Help.setToolTip(_("tooltip_online_help", "打开在线帮助"))
+                self.main_window.actionOnline_Help.setToolTip(_("Open Online Help"))
             if hasattr(self.main_window, 'actionAbout'):
                 self.main_window.actionAbout.setShortcut(QG.QKeySequence("Ctrl+Alt+A"))
-                self.main_window.actionAbout.setToolTip(_("tooltip_about", "关于应用"))
+                self.main_window.actionAbout.setToolTip(_("About"))
             if hasattr(self.main_window, 'actionExport_Report'):
-                self.main_window.actionExport_Report.setToolTip(_("tooltip_export_report", "导出报告"))
+                self.main_window.actionExport_Report.setToolTip(_("Export Report"))
         except (AttributeError, TypeError, RuntimeError) as e:
-            logging.error("设置菜单快捷键和工具提示失败: %s", e)
+            logging.error("Failed to set up menu shortcuts and tooltips: %s", e)
     
     def connect_menu_actions(self):
         """
@@ -258,7 +258,6 @@ class MenuManager:
         更新菜单文本为当前语言
         """
         # 这里可以添加菜单文本的国际化更新
-        # 例如：self.main_window.actionExit.setText(_("menu_exit", "Exit"))
         pass
     
     def update_statusbar_messages(self):
@@ -270,7 +269,7 @@ class MenuManager:
             current_message = self.main_window.statusBar_BatteryAnalysis.currentMessage()
             
             # 获取翻译后的状态消息
-            status_ready = _("status_ready", "状态:就绪")
+            status_ready = _("Ready")
             
             # 更新状态栏
             if current_message in ("状态:就绪", "Ready"):
