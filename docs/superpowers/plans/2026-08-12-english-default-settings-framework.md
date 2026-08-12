@@ -665,6 +665,7 @@ Run: `grep -rnP 'logger\.\w+\([^)]*[\x{4e00}-\x{9fff}]' src --include=*.py | gre
 - 其余 grep 命中的模块。
 - `src/battery_analysis/main/business_logic/validation_manager.py` 的 `validate_required_fields` 中拼接进状态消息的字段名中文（"样品数量"、"标称容量"、"计算容量"、"可用容量"）——属运行时字符串，同样转英文。
 - `src/battery_analysis/main/ui_components/ui_manager.py:502` 陈旧 sentinel `("状态:就绪", "Ready")` → 改为 `("Ready", "就绪")`（Task 1.7 重建后 `"状态:就绪"` 已无生产者，且 zh_CN 译文为 `"就绪"`；此处是语言切换重译的匹配用字面量）。
+- **Task 1.6 spec 审查补充（真实调用路径）**：语言切换重译的**实际生效路径**是 `main_window._on_language_changed` → `_update_statusbar_messages` → `menu_manager.update_statusbar_messages()`（`menu_manager.py:275` 的 `if current_message in ("状态:就绪", "Ready"):`）——`ui_manager.py:502` 所在方法无调用者，是死路径。因此 `menu_manager.py:275` 必须同样改为 `("Ready", "就绪")`，否则 zh→en 重译失效。`language_handler.py:89` 同款陈旧 tuple，但该文件 Phase 3 删除，不改。
 - Task 1.5 质量审查确认：`ui_manager.py:292` 的 `"Not provided"` 与 `ui_manager.py:65` 的 `"status:ok"` 是**内部 sentinel**（与 visualizer_controller.py:151 / analysis_runner.py:165 比对），visualizer_controller 将在 Phase 3 删除——**决定：保持硬编码英文，不改**（避免破坏比对）。
 
 > 注意：docstring 与注释保持中文不改（spec 明确排除）。
