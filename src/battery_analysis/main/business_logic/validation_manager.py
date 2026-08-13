@@ -143,11 +143,12 @@ class ValidationManager:
                 self.main_window.check_specification)
             return
 
-        # 通用处理：清空容量、加载所有规格、启用控件
-        # （不按电池类型分支——差异由配置和数据驱动）
-        self.main_window.comboBox_ConstructionMethod.setEnabled(True)
-        # 将文件名解析到的构造方法设置到下拉框
-        if self.main_window.construction_method:
+        # 构造方法：仅需要的电池类型（如 Pouch Cell）启用，其他类型禁用并清空
+        requires_construction = current_type in self._get_types_requiring_construction()
+        self.main_window.comboBox_ConstructionMethod.setEnabled(requires_construction)
+        self.main_window.comboBox_ConstructionMethod.setCurrentIndex(-1)
+        # 将文件名解析到的构造方法设置到下拉框（仅需要的类型）
+        if requires_construction and self.main_window.construction_method:
             for c in range(self.main_window.comboBox_ConstructionMethod.count()):
                 if self.main_window.construction_method == self.main_window.comboBox_ConstructionMethod.itemText(c):
                     self.main_window.comboBox_ConstructionMethod.setCurrentIndex(c)
@@ -289,19 +290,12 @@ class ValidationManager:
                 pass
     
     def _get_types_requiring_construction(self) -> list:
-        """从配置中推断哪些电池类型需要填写构造方法。
+        """返回需要填写构造方法的电池类型名称列表。
 
-        约定：凡是在 `battery.specifications` 中定义了规格的电池类型，
-        都需要填写构造方法。返回类型名称列表。
+        业务约定：仅 Pouch Cell（软包电池）需要填写构造方法；
+        Coin Cell（纽扣电池）不需要，且下拉框禁用。
         """
-        coin = self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") or []
-        pouch = self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell") or []
-        result = []
-        if coin:
-            result.append("Coin Cell")
-        if pouch:
-            result.append("Pouch Cell")
-        return result
+        return ["Pouch Cell"]
 
     def validate_fields(self) -> ValidationResult:
         """使用纯 InputValidator 验证当前 UI 字段。"""
@@ -361,11 +355,12 @@ class ValidationManager:
                                                self.main_window.label_BatteryType,
                                                warning_info)
 
-        # 检查构造方法（InputValidator 根据配置决定是否必填）
-        check_pass_flag &= self._check_combobox("Construction Method",
-                                               self.main_window.comboBox_ConstructionMethod,
-                                               self.main_window.label_ConstructionMethod,
-                                               warning_info)
+        # 检查构造方法（仅需要的电池类型，如 Pouch Cell；Coin Cell 不需要且下拉框禁用）
+        if self.main_window.comboBox_BatteryType.currentText() in self._get_types_requiring_construction():
+            check_pass_flag &= self._check_combobox("Construction Method",
+                                                   self.main_window.comboBox_ConstructionMethod,
+                                                   self.main_window.label_ConstructionMethod,
+                                                   warning_info)
 
         # 检查规格
         spec_valid = self.main_window.comboBox_Specification_Type.currentText() and \
@@ -467,21 +462,37 @@ class ValidationManager:
         return check_pass_flag
     
     def _apply_field_errors(self, field_errors: dict) -> None:
-        """根据字段错误字典高亮对应 UI 控件。"""
+        """根据字段错误字典高亮对应 UI 控件。
+
+        覆盖所有必填字段（含组合框），否则验证失败时用户看不到具体是哪个字段。
+        """
         field_to_widget = {
+            "battery_type": (self.main_window.comboBox_BatteryType, self.main_window.label_BatteryType),
+            "construction_method": (self.main_window.comboBox_ConstructionMethod, self.main_window.label_ConstructionMethod),
+            "specification_type": (self.main_window.comboBox_Specification_Type, self.main_window.label_Specification),
+            "specification_method": (self.main_window.comboBox_Specification_Method, self.main_window.label_Specification),
+            "manufacturer": (self.main_window.comboBox_Manufacturer, self.main_window.label_Manufacturer),
+            "batch_date_code": (self.main_window.lineEdit_BatchDateCode, self.main_window.label_BatchDateCode),
+            "samples_qty": (self.main_window.lineEdit_SamplesQty, self.main_window.label_SamplesQty),
+            "temperature": (self.main_window.comboBox_Temperature, self.main_window.label_Temperature),
+            "datasheet_nominal_capacity": (self.main_window.lineEdit_DatasheetNominalCapacity, self.main_window.label_DatasheetNominalCapacity),
+            "calculation_nominal_capacity": (self.main_window.lineEdit_CalculationNominalCapacity, self.main_window.label_CalculationNominalCapacity),
+            "required_usable_capacity": (self.main_window.lineEdit_RequiredUseableCapacity, self.main_window.label_RequiredUseableCapacity),
+            "tester_location": (self.main_window.comboBox_TesterLocation, self.main_window.label_TesterLocation),
+            "tested_by": (self.main_window.comboBox_TestedBy, self.main_window.label_TestedBy),
+            "test_profile": (self.main_window.lineEdit_TestProfile, self.main_window.label_TestProfile),
             "input_path": (self.main_window.lineEdit_InputPath, self.main_window.label_InputPath),
             "output_path": (self.main_window.lineEdit_OutputPath, self.main_window.label_OutputPath),
             "version": (self.main_window.lineEdit_Version, self.main_window.label_Version),
-            "test_profile": (self.main_window.lineEdit_TestProfile, self.main_window.label_TestProfile),
-            "samples_qty": (self.main_window.lineEdit_SamplesQty, self.main_window.label_SamplesQty),
+            "accelerated_aging": (self.main_window.spinBox_AcceleratedAging, self.main_window.label_AcceleratedAging),
         }
-        for field_name, (line_edit, label) in field_to_widget.items():
+        for field_name, (widget, label) in field_to_widget.items():
             if field_name in field_errors:
-                line_edit.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
+                widget.setStyleSheet("background-color: #FFDDDD; border: 1px solid #FF6666;")
                 if label:
                     label.setStyleSheet("background-color:red")
             else:
-                line_edit.setStyleSheet("")
+                widget.setStyleSheet("")
                 if label:
                     label.setStyleSheet("")
 

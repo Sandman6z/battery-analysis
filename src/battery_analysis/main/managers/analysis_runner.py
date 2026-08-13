@@ -67,17 +67,26 @@ class AnalysisRunner:
             bool: 输入是否完整
         """
         if not self.main_window.checkinput():
-            # 检查失败，获取警告信息
-            warning_info = []
-            if not self.main_window.comboBox_ReportedBy.currentText():
-                warning_info.append("Reported By")
-            
-            # 构建警告信息
-            if warning_info:
-                warning_str = "Please complete the following required fields: " + ", ".join(warning_info)
-                QW.QMessageBox.warning(self.main_window, "Input Validation Failed", warning_str)
+            # 检查失败：从验证管理器获取具体失败字段，便于用户定位
+            failed_messages = []
+            try:
+                result = self.main_window.validation_manager.validate_fields()
+                if result.field_errors:
+                    failed_messages = list(result.field_errors.values())
+            except (AttributeError, TypeError, RuntimeError):
+                failed_messages = []
+
+            if failed_messages:
+                warning_str = "The following fields failed validation:\n- " + "\n- ".join(failed_messages)
             else:
-                QW.QMessageBox.warning(self.main_window, "Input Validation Failed", "Please check all required fields")
+                # 兜底：至少指出 Reported By
+                warning_info = []
+                if not self.main_window.comboBox_ReportedBy.currentText():
+                    warning_info.append("Reported By")
+                warning_str = ("Please complete the following required fields: " + ", ".join(warning_info)
+                               if warning_info else "Please check all required fields")
+
+            QW.QMessageBox.warning(self.main_window, "Input Validation Failed", warning_str)
 
             self.main_window.pushButton_Run.setEnabled(True)
             return False
