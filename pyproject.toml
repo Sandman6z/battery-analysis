@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "battery-analysis"
-version = "2.12.2"
+version = "2.13.0"
 description = "Battery test data analysis App, support serveral data type import, and chart viewer"
 authors = [
   { name = "Ewin Hardware Group", email = "zhangbaoning@ewin-tech.com" }
