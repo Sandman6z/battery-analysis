@@ -22,7 +22,6 @@ wheels = [
 
 [[package]]
 name = "battery-analysis"
-version = "2.13.0"
 source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },
