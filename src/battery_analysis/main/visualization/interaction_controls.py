@@ -37,6 +37,18 @@ class InteractionControlsMixin:
         """
         return min(0.02, min(width, height) * 0.15)
 
+    def _battery_name_sort_key(self, name):
+        """解析电池名称的数字排序键，用于按钮正序（从小到大）排列。
+
+        名称形如 '8-8'（或 '8_8'、'Battery-5'），取前两个数字段构成排序元组，
+        使 5-1 排在最上、8-8 排在最后。无法解析的名称返回无穷大排到末尾。
+        """
+        try:
+            parts = str(name).replace('-', '_').split('_')
+            return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (ValueError, IndexError, TypeError):
+            return (float('inf'), 0)
+
     def _create_modern_button(self, ax, x, y, width, height, text, callback,
                               is_toggle=False, initial_state=False):
         """创建现代化按钮"""
@@ -329,6 +341,9 @@ class InteractionControlsMixin:
                 logger.error("Error selecting battery: %s", e)
 
         valid_batteries = [battery for battery in battery_info if not battery['is_none']]
+        # 按电池名称数字正序排列（如 5-1 在最上、8-8 在最下）。
+        # 仅改变按钮显示顺序，battery['index'] 仍绑定真实通道的曲线数据。
+        valid_batteries.sort(key=lambda x: self._battery_name_sort_key(x['name']))
         num_valid = len(valid_batteries)
 
         for i, battery in enumerate(valid_batteries):
