@@ -37,6 +37,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self._controllers = {}
         self._lazy_init_done = False
 
+        # 日志器在构造时即就绪，避免 on_preferences_applied 等方法的
+        # except 分支在 _deferred_init 执行前访问 self.logger 时崩溃。
+        # （_deferred_init 会再次赋值同一 logger，幂等无副作用）
+        from battery_analysis.utils.log_manager import get_logger
+        self.logger = get_logger('main_window')
+
         # 仅构建 UI 骨架（Qt 控件树 + 布局），不填充数据
         self.setupUi(self)
 
