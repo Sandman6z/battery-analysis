@@ -283,29 +283,12 @@ class BatteryChartViewer(
             try:
                 if hasattr(fig.canvas.manager, 'window'):
                     window = fig.canvas.manager.window
-                    window.setWindowFlags(
-                        Qt.WindowType.Window |
-                        Qt.WindowType.WindowMinimizeButtonHint |
-                        Qt.WindowType.WindowMaximizeButtonHint |
-                        Qt.WindowType.WindowCloseButtonHint
-                    )
-                    window.showNormal()
-                    window.show()
                     window.activateWindow()
                     window.raise_()
                     window.setWindowState(Qt.WindowState.WindowActive)
-
-                    screen = window.screen().availableGeometry()
-                    window.move(int((screen.width() - window.width()) / 2),
-                                int((screen.height() - window.height()) / 2))
-                    window.repaint()
-                    window.update()
             except (AttributeError, TypeError, RuntimeError) as e:
                 logger.warning("Unable to bring window to front: %s", str(e))
 
-            plt.pause(0.5)
-            fig.canvas.draw()
-            fig.canvas.flush_events()
             fig.canvas.draw()
             fig.canvas.flush_events()
 

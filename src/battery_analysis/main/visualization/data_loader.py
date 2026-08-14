@@ -317,18 +317,18 @@ class DataLoaderMixin:
                     strBatteryNameSplit = self.listBatteryName[b].split("BTS")[
                         1].split("_")
                     if len(strBatteryNameSplit) >= 4:
-                        strBatteryName = f"{strBatteryNameSplit[2]}_{strBatteryNameSplit[3]}"
+                        strBatteryName = f"{strBatteryNameSplit[2]}-{strBatteryNameSplit[3]}"
                     else:
-                        strBatteryName = "_".join(strBatteryNameSplit[1:3]) if len(
-                            strBatteryNameSplit) >= 3 else f"Battery_{b}"
+                        strBatteryName = "-".join(strBatteryNameSplit[1:3]) if len(
+                            strBatteryNameSplit) >= 3 else f"Battery-{b}"
                 else:
                     name_parts = self.listBatteryName[b].split("_")
-                    strBatteryName = "_".join(
-                        name_parts[-2:]) if len(name_parts) >= 2 else f"Battery_{b}"
+                    strBatteryName = "-".join(
+                        name_parts[-2:]) if len(name_parts) >= 2 else f"Battery-{b}"
                 self.listBatteryNameSplit.append(strBatteryName)
             except (IndexError, TypeError, AttributeError, ValueError) as e:
                 logger.warning("Error parsing battery name: %s, using default name", e)
-                self.listBatteryNameSplit.append(f"Battery_{b}")
+                self.listBatteryNameSplit.append(f"Battery-{b}")
 
     def filter_data(self, list_plt_charge, list_plt_voltage,
                     times=5, slope_max=0.2, difference_max=0.05):

@@ -22,13 +22,43 @@ logger = logging.getLogger(__name__)
 class InteractionControlsMixin:
     """交互控件混入类，提供按钮、菜单、悬停等交互功能"""
 
+    def _get_button_pad(self, width, height):
+        """计算 FancyBboxPatch 的圆角 pad（transAxes 分数单位）。
+
+        matplotlib 的 FancyBboxPatch 在 transform=ax.transAxes 下，boxstyle 的
+        pad 单位是 axes 分数（不是像素）。若 pad 固定取 4/100=0.04，而电池按钮
+        高度只有 0.95/32≈0.03（32 个电池时），每个按钮 patch 会向外扩张 pad，
+        视觉高度膨胀到按钮高度的 3.7 倍，导致 hover 高亮覆盖 3~4 个按钮、视觉
+        边界与点击命中区域错位。
+
+        这里让 pad 随按钮尺寸动态取小值：
+        - 不超过按钮最小尺寸的 15%（保证补偿后矩形仍为正）
+        - 上限 0.02（避免大按钮圆角过大）
+        """
+        return min(0.02, min(width, height) * 0.15)
+
+    def _battery_name_sort_key(self, name):
+        """解析电池名称的数字排序键，用于按钮正序（从小到大）排列。
+
+        名称形如 '8-8'（或 '8_8'、'Battery-5'），取前两个数字段构成排序元组，
+        使 5-1 排在最上、8-8 排在最后。无法解析的名称返回无穷大排到末尾。
+        """
+        try:
+            parts = str(name).replace('-', '_').split('_')
+            return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (ValueError, IndexError, TypeError):
+            return (float('inf'), 0)
+
     def _create_modern_button(self, ax, x, y, width, height, text, callback,
                               is_toggle=False, initial_state=False):
         """创建现代化按钮"""
         try:
+            pad = self._get_button_pad(width, height)
+            # 矩形内缩 pad 以补偿 boxstyle 的向外扩张，使视觉范围恰好等于
+            # 逻辑范围 [x, x+width]×[y, y+height]，与点击命中检测保持一致。
             button_bg = FancyBboxPatch(
-                (x, y), width, height,
-                boxstyle=f"round,pad={MODERN_BUTTON_STYLE['padding']/100}",
+                (x + pad, y + pad), width - 2 * pad, height - 2 * pad,
+                boxstyle=f"round,pad={pad}",
                 facecolor=MODERN_BUTTON_STYLE['inactive_color'],
                 edgecolor=MODERN_BUTTON_STYLE['border_color'],
                 linewidth=MODERN_BUTTON_STYLE['border_width'],
@@ -46,7 +76,8 @@ class InteractionControlsMixin:
                 transform=ax.transAxes
             )
 
-            state = {'active': initial_state, 'bg': button_bg, 'text': button_text, 'hover': False}
+            state = {'active': initial_state, 'bg': button_bg, 'text': button_text,
+                     'hover': False, 'pad': pad}
 
             self._update_button_style(state)
 
@@ -269,8 +300,12 @@ class InteractionControlsMixin:
             button_width = 0.96
 
         button_states = []
+        # 电池索引 → 按钮 state 映射，供 toggle 回调按索引查找对应按钮状态。
+        # 避免 lambda 晚绑定捕获循环变量 button_state（所有回调曾指向最后一个
+        # 按钮的 state，导致点击任意电池都会连带切换排序后的末位按钮）。
+        index_to_state = {}
 
-        def toggle_battery_visibility(battery_idx, button_state):
+        def toggle_battery_visibility(battery_idx, button_state=None):
             try:
                 logger.debug("Toggling visibility of battery %s", battery_idx)
 
@@ -301,6 +336,10 @@ class InteractionControlsMixin:
                     if i % self.intBatteryNum == battery_index:
                         other_lines[i].set_visible(new_visibility)
 
+                if button_state is None:
+                    button_state = index_to_state.get(battery_idx)
+                if button_state is None:
+                    return
                 button_state['active'] = new_visibility
                 self._update_button_style(button_state)
 
@@ -310,20 +349,26 @@ class InteractionControlsMixin:
                 logger.error("Error selecting battery: %s", e)
 
         valid_batteries = [battery for battery in battery_info if not battery['is_none']]
+        # 按电池名称数字正序排列（如 5-1 在最上、8-8 在最下）。
+        # 仅改变按钮显示顺序，battery['index'] 仍绑定真实通道的曲线数据。
+        valid_batteries.sort(key=lambda x: self._battery_name_sort_key(x['name']))
         num_valid = len(valid_batteries)
 
         for i, battery in enumerate(valid_batteries):
-            y_pos = i * button_height
+            # matplotlib axes 的 y 轴自下而上：y_pos 越大越靠上。
+            # 反转 i 使正序（5-1 顶、8-8 底）在视觉上从上到下排列。
+            y_pos = (num_valid - 1 - i) * button_height
 
             button_state = self._create_modern_button(
                 ax_buttons, 0.02, y_pos, button_width, button_height,
                 battery['name'][:12] + '...' if len(battery['name']) > 12 else battery['name'],
-                lambda idx=battery['index']: toggle_battery_visibility(idx, button_state),
+                lambda idx=battery['index']: toggle_battery_visibility(idx),
                 is_toggle=True,
                 initial_state=battery['initial_state']
             )
 
             if button_state:
+                index_to_state[battery['index']] = button_state
                 button_states.append((battery['index'], button_state))
 
         logger.info("Modern battery selection button group created successfully (%s-%s)", start_idx, end_idx)
