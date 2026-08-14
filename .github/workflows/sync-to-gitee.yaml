@@ -36,13 +36,13 @@ jobs:
       id: check_secrets
       run: |
         if (-not (Test-Path env:GITEE_USERNAME) -or [string]::IsNullOrEmpty($env:GITEE_USERNAME)) {
-          Write-Output "secrets_configured=false"
+          "secrets_configured=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           Write-Warning "GITEE_USERNAME secret is not configured"
         } elseif (-not (Test-Path env:GITEE_TOKEN) -or [string]::IsNullOrEmpty($env:GITEE_TOKEN)) {
-          Write-Output "secrets_configured=false"
+          "secrets_configured=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           Write-Warning "GITEE_TOKEN secret is not configured"
         } else {
-          Write-Output "secrets_configured=true"
+          "secrets_configured=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           Write-Output "Gitee secrets are configured"
         }
       shell: powershell
