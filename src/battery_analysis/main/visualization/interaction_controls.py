@@ -300,8 +300,12 @@ class InteractionControlsMixin:
             button_width = 0.96
 
         button_states = []
+        # 电池索引 → 按钮 state 映射，供 toggle 回调按索引查找对应按钮状态。
+        # 避免 lambda 晚绑定捕获循环变量 button_state（所有回调曾指向最后一个
+        # 按钮的 state，导致点击任意电池都会连带切换排序后的末位按钮）。
+        index_to_state = {}
 
-        def toggle_battery_visibility(battery_idx, button_state):
+        def toggle_battery_visibility(battery_idx, button_state=None):
             try:
                 logger.debug("Toggling visibility of battery %s", battery_idx)
 
@@ -332,6 +336,10 @@ class InteractionControlsMixin:
                     if i % self.intBatteryNum == battery_index:
                         other_lines[i].set_visible(new_visibility)
 
+                if button_state is None:
+                    button_state = index_to_state.get(battery_idx)
+                if button_state is None:
+                    return
                 button_state['active'] = new_visibility
                 self._update_button_style(button_state)
 
@@ -347,17 +355,20 @@ class InteractionControlsMixin:
         num_valid = len(valid_batteries)
 
         for i, battery in enumerate(valid_batteries):
-            y_pos = i * button_height
+            # matplotlib axes 的 y 轴自下而上：y_pos 越大越靠上。
+            # 反转 i 使正序（5-1 顶、8-8 底）在视觉上从上到下排列。
+            y_pos = (num_valid - 1 - i) * button_height
 
             button_state = self._create_modern_button(
                 ax_buttons, 0.02, y_pos, button_width, button_height,
                 battery['name'][:12] + '...' if len(battery['name']) > 12 else battery['name'],
-                lambda idx=battery['index']: toggle_battery_visibility(idx, button_state),
+                lambda idx=battery['index']: toggle_battery_visibility(idx),
                 is_toggle=True,
                 initial_state=battery['initial_state']
             )
 
             if button_state:
+                index_to_state[battery['index']] = button_state
                 button_states.append((battery['index'], button_state))
 
         logger.info("Modern battery selection button group created successfully (%s-%s)", start_idx, end_idx)
