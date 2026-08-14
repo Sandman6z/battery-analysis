@@ -57,6 +57,7 @@ main push 流程相同，只是 Release 名带 `-beta.SHA` 后缀且标记为 pr
    ```
 
    - `tag_name` 与 GitHub 的 release 名一致。
+   - **tag 保障**：ci-cd 的 Gitee 发布步骤自行确保 tag 存在——先尝试 push 对应 tag 到 Gitee（`git push gitee refs/tags/<tag>`，用 Gitee 凭据 URL），消除与 sync-to-gitee 的并发竞态。tag 推送失败视为 Release 创建失败并告警。
    - 若 Gitee 已存在同名 Release，先删除（`DELETE /repos/{owner}/{repo}/releases/{id}`，需先按 tag 查询 `GET /repos/{owner}/{repo}/releases/tags/{tag}`）再创建，保证幂等。
 4. 上传 exe 附件（multipart）：
 
@@ -70,7 +71,7 @@ main push 流程相同，只是 Release 名带 `-beta.SHA` 后缀且标记为 pr
 ### 凭据
 
 - 需要 `GITEE_USERNAME`、`GITEE_TOKEN` secrets 映射到 job `env`（与 `sync-to-gitee` 修复相同手法）。
-- 上传脚本建议用 PowerShell + `Invoke-RestMethod`（runner 为 windows-latest），或 `actions/github-script` 内 `fetch`。
+- 上传脚本采用 PowerShell + `Invoke-RestMethod`（runner 为 windows-latest），独立步骤实现，与现有 PowerShell 步骤风格一致。
 
 ## `sync-to-gitee.yaml` 修复
 
@@ -90,7 +91,7 @@ main push 流程相同，只是 Release 名带 `-beta.SHA` 后缀且标记为 pr
 
 ## 风险与注意
 
-- Gitee API 创建 Release 时 `tag_name` 需在 Gitee 仓库存在，否则可能失败。由于 `sync-to-gitee` 同步 tag 与 `ci-cd` 创建 Release 可能并发执行，需在 Gitee API 步骤中处理"tag 尚未同步"的竞态：可重试（如 tag 未就绪则等待重试数次）。
+- Gitee API 创建 Release 时 `tag_name` 需在 Gitee 仓库存在。由 ci-cd 的 Gitee 发布步骤自行 push tag，消除与 `sync-to-gitee` 并发同步的竞态；若 push 失败则告警并终止该发布步骤。
 - Gitee 附件大小限制与 API 速率限制：单 exe 通常数 MB~几十 MB，需关注。
 - `GITEE_TOKEN` 生命周期：需在 Gitee 后台生成并妥善保管，写入 GitHub secrets。
 
