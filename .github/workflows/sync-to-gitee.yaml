@@ -53,9 +53,10 @@ jobs:
         # 获取仓库名称
         $repoName = $env:GITHUB_REPOSITORY.Split('/')[1]
         
-        # 移除现有的 gitee 远程仓库（如果存在）
-        git remote remove gitee 2>&1 | Out-Null
-        
+        # 移除现有的 gitee 远程仓库（如果存在），忽略不存在时的报错
+        git remote remove gitee 2>$null | Out-Null
+        if ($LASTEXITCODE -ne 0) { Write-Output "No existing gitee remote to remove" }
+
         # 添加新的 Gitee 远程仓库
         $giteeRepoUrl = "https://${env:GITEE_USERNAME}:${env:GITEE_TOKEN}@gitee.com/${env:GITEE_USERNAME}/${repoName}.git"
         git remote add gitee $giteeRepoUrl
