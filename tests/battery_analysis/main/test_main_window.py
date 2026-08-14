@@ -13,13 +13,29 @@ def app():
     return QApplication([])
 
 
+@pytest.fixture(scope="module", autouse=True)
+def qapp():
+    """模块级 QApplication：整个测试模块复用同一实例，
+    避免跨测试重建导致 Qt 对象生命周期问题（如 'Main has been deleted'）。"""
+    app = QApplication.instance() or QApplication([])
+    yield app
+
+
 class TestMainWindow:
     """测试主窗口类"""
     
     def setup_method(self):
         """设置测试环境"""
+        # 确保 QApplication 存在（测试自包含，不依赖其他测试模块隐式创建）
+        if QApplication.instance() is None:
+            self._test_app = QApplication([])
+
         # 模拟初始化管理器，避免实际初始化过程
-        with patch('battery_analysis.main.managers.initialization_manager.InitializationManager') as mock_init_manager:
+        # 同时覆盖 _deferred_init：Main() 构造时注册的 QTimer.singleShot(0, _deferred_init)
+        # 会在测试后的 processEvents 里触发真实初始化管线（patch 已撤销）导致套件卡住，
+        # 这里在创建 Main 前用 no-op 替换，timer 触发时无副作用。
+        with patch('battery_analysis.main.managers.initialization_manager.InitializationManager') as mock_init_manager, \
+             patch.object(Main, '_deferred_init', lambda self: None):
             # 创建模拟的初始化管理器实例
             mock_init_instance = Mock()
             mock_init_manager.return_value = mock_init_instance
@@ -127,7 +143,7 @@ class TestMainWindow:
             self.main_window.signal_connector = Mock()
             self.main_window.signal_connector.progress_dialog = Mock()
             self.main_window.version = "1.0.0"
-    
+
     def test_init_window(self):
         """测试窗口初始化"""
         # 调用初始化方法

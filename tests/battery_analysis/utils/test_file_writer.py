@@ -8,11 +8,12 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import Mock, patch
-from battery_analysis.utils.xlsx_word_writer import XlsxWordWriter
+# XlsxWordWriter 已重构为 ReportCoordinator，保留向后兼容别名
+from battery_analysis.utils.report_coordinator import XlsxWordWriter
 
 
 class TestXlsxWordWriter:
-    """文件写入器测试类"""
+    """文件写入器测试类（原 XlsxWordWriter → 现 ReportCoordinator）"""
 
     def setup_method(self):
         """设置测试环境"""
@@ -59,7 +60,7 @@ class TestXlsxWordWriter:
         """清理测试环境"""
         self.temp_dir.cleanup()
 
-    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.write')
+    @patch('battery_analysis.utils.report_coordinator.XlsxWordWriter.write')
     def test_initialization(self, mock_write):
         """测试初始化"""
         # 创建XlsxWordWriter实例
@@ -74,7 +75,7 @@ class TestXlsxWordWriter:
         assert hasattr(writer, 'listTestInfo')
         assert hasattr(writer, 'listBatteryInfo')
 
-    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.write')
+    @patch('battery_analysis.utils.report_coordinator.XlsxWordWriter.write')
     def test_write_method(self, mock_write):
         """测试Excel、Word和CSV写入"""
         # 创建XlsxWordWriter实例
@@ -87,9 +88,8 @@ class TestXlsxWordWriter:
         # 验证方法存在
         assert hasattr(writer, 'write')
 
-    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.write')
-    def test_handle_data_error(self, mock_write):
-        """测试数据错误处理"""
+    def test_write_flow(self):
+        """测试写入流程入口方法可调用"""
         # 创建XlsxWordWriter实例
         writer = XlsxWordWriter(
             strResultPath=str(self.result_path),
@@ -97,16 +97,11 @@ class TestXlsxWordWriter:
             listBatteryInfo=self.list_battery_info
         )
 
-        # 测试数据错误处理
-        error_msg = "测试错误信息"
-        result = writer.handle_data_error(error_msg)
+        # write() 是协调绘图/Excel/Word/CSV 写入的入口
+        assert callable(writer.write)
 
-        # 验证结果
-        assert result == "retry"
-
-    @patch('battery_analysis.utils.xlsx_word_writer.XlsxWordWriter.write')
-    def test_directory_creation(self, mock_write):
-        """测试目录创建"""
+    def test_directory_creation(self):
+        """测试构造时自动创建结果目录"""
         # 创建XlsxWordWriter实例
         writer = XlsxWordWriter(
             strResultPath=str(self.result_path),
@@ -114,5 +109,5 @@ class TestXlsxWordWriter:
             listBatteryInfo=self.list_battery_info
         )
 
-        # 验证目录创建方法存在
-        assert hasattr(writer, 'create_directories')
+        # 重构后目录创建并入构造函数（原 create_directories 已移除）
+        assert os.path.isdir(writer.strResultPath)

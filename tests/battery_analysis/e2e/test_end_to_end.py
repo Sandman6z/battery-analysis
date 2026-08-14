@@ -32,7 +32,11 @@ class TestEndToEnd:
         self._create_test_excel_file()
         
         # 模拟初始化管理器，避免实际初始化过程
-        with patch('battery_analysis.main.managers.initialization_manager.InitializationManager') as mock_init_manager:
+        # 同时覆盖 _deferred_init：Main() 构造时注册的 QTimer.singleShot(0, _deferred_init)
+        # 会在测试后的 processEvents 里触发真实初始化管线（patch 已撤销）导致套件卡住，
+        # 这里在创建 Main 前用 no-op 替换，timer 触发时无副作用。
+        with patch('battery_analysis.main.managers.initialization_manager.InitializationManager') as mock_init_manager, \
+             patch.object(Main, '_deferred_init', lambda self: None):
             # 创建模拟的初始化管理器实例
             mock_init_instance = Mock()
             mock_init_manager.return_value = mock_init_instance
@@ -97,7 +101,7 @@ class TestEndToEnd:
             
             # 模拟其他必要属性
             self.main_window.version = "1.0.0"
-    
+
     def teardown_method(self):
         """清理测试环境"""
         # 清理临时目录

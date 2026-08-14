@@ -8,6 +8,8 @@ class TestFileController:
         mock_config_service = Mock()
         mock_config_service.load_config.return_value = True
         mock_config_service.get_all_sections.return_value = ["Section1"]
+        # 重构后 load_config 使用 get_config_sections（旧 get_all_sections 已移除）
+        mock_config_service.get_config_sections.return_value = {"Section1": {}}
         mock_config_service.get_section_options.return_value = ["option1"]
         mock_config_service.get_config_value.return_value = "value1"
 

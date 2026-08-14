@@ -431,7 +431,9 @@ class TestIConfigPathProvider:
 
 @pytest.fixture(scope="module")
 def qapp():
-    return QApplication([])
+    # 复用已有实例，避免在 e2e 等测试已创建 QApplication 后再 new 一个
+    # 导致 PyQt6 单例冲突（Windows 下触发 access violation 崩溃）
+    return QApplication.instance() or QApplication([])
 
 
 class TestLanguageManager:
@@ -619,13 +621,13 @@ class TestLanguageManager:
     def test_on_language_changed_logs(self):
         from battery_analysis.i18n.language_manager import LanguageManager
         lm = LanguageManager()
-        lm._on_language_changed("zh_CN")  # should not raise
-
-    def test_on_language_changed_logs(self, caplog):
-        from battery_analysis.i18n.language_manager import LanguageManager
-        lm = LanguageManager()
-        lm._on_language_changed("zh_CN")
-        assert "Language changed to: zh_CN" in caplog.text
+        # 用 mock 断言日志调用，而非 caplog：一旦 get_logger() 被调用过
+        # （例如 e2e 测试构造 Main），log_manager 会把 battery_analysis logger
+        # 设为 propagate=False，日志不再传播到 root，caplog（挂在 root）就捕获不到。
+        # mock 断言不依赖日志传播链，测试结果与执行顺序无关。
+        with patch.object(lm.logger, "info") as mock_info:
+            lm._on_language_changed("zh_CN")
+        mock_info.assert_called_once_with("Language changed to: %s", "zh_CN")
 
     def test_default_locale_is_english_when_no_saved(self):
         from battery_analysis.i18n.language_manager import LanguageManager
