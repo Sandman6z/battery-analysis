@@ -32,7 +32,7 @@ class ApplicationInitializer:
                 return
             
             # 记录异常信息
-            logger.critical("系统崩溃 - 未捕获的异常:", exc_info=(exctype, value, traceback))
+            logger.critical("System crash - uncaught exception:", exc_info=(exctype, value, traceback))
             
             # 尝试生成崩溃报告
             report_path = None
@@ -40,9 +40,9 @@ class ApplicationInitializer:
                 from battery_analysis.utils.error_report_generator import generate_error_report
                 report_path = generate_error_report(max_logs_per_report=5, max_reports=5)
                 if report_path:
-                    logger.critical(f"崩溃报告已生成: {report_path}")
+                    logger.critical(f"Crash report generated: {report_path}")
             except Exception as e:
-                logger.critical(f"生成崩溃报告失败: {e}")
+                logger.critical(f"Failed to generate crash report: {e}")
             
             # 显示友好的错误对话框
             try:
@@ -55,27 +55,27 @@ class ApplicationInitializer:
                 # 创建错误对话框
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Critical)
-                msg_box.setWindowTitle("应用程序错误")
-                
+                msg_box.setWindowTitle("Application Error")
+
                 # 构建错误信息
-                error_msg = f"很抱歉，应用程序遇到了一个问题。\n\n错误信息: {str(value)}\n\n"
-                error_msg += "详细信息已记录到日志文件中。"
-                
+                error_msg = f"Sorry, the application encountered a problem.\n\nError: {str(value)}\n\n"
+                error_msg += "Details have been logged to the log file."
+
                 if report_path:
-                    error_msg += f"\n\n崩溃报告已生成: {report_path}"
-                
-                error_msg += "\n\n建议您重新启动应用程序。"
+                    error_msg += f"\n\nCrash report generated: {report_path}"
+
+                error_msg += "\n\nIt is recommended that you restart the application."
                 
                 msg_box.setText(error_msg)
                 msg_box.setStandardButtons(QMessageBox.StandardButton.Close)
                 msg_box.exec()
             except Exception as e:
-                logger.critical(f"显示错误对话框失败: {e}")
+                logger.critical(f"Failed to show error dialog: {e}")
                 # 如果对话框无法显示，至少确保程序不会直接闪退
-                print(f"应用程序错误: {str(value)}")
-                print("详细信息已记录到日志文件中。")
+                print(f"Application error: {str(value)}")
+                print("Details have been logged to the log file.")
                 if report_path:
-                    print(f"崩溃报告已生成: {report_path}")
+                    print(f"Crash report generated: {report_path}")
         
         # 设置全局异常钩子
         sys.excepthook = handle_exception
@@ -85,16 +85,16 @@ class ApplicationInitializer:
         def qt_message_handler(mode, context, message):
             """处理Qt的未处理异常"""
             if mode == QApplication.qtHandlerType.CriticalMsg:
-                logger.critical("Qt关键错误: %s (文件: %s, 行: %d)", 
+                logger.critical("Qt critical error: %s (file: %s, line: %d)",
                               message, context.file, context.line)
             elif mode == QApplication.qtHandlerType.WarningMsg:
-                logger.warning("Qt警告: %s (文件: %s, 行: %d)", 
+                logger.warning("Qt warning: %s (file: %s, line: %d)",
                             message, context.file, context.line)
             elif mode == QApplication.qtHandlerType.InfoMsg:
-                logger.debug("Qt信息: %s (文件: %s, 行: %d)",
+                logger.debug("Qt info: %s (file: %s, line: %d)",
                          message, context.file, context.line)
             else:
-                logger.debug("Qt调试: %s (文件: %s, 行: %d)", 
+                logger.debug("Qt debug: %s (file: %s, line: %d)",
                           message, context.file, context.line)
         
         # 设置Qt消息处理器
@@ -111,30 +111,30 @@ class ApplicationInitializer:
         # 优化matplotlib配置，避免font cache构建警告
         # 使用QtAgg后端，自动检测Qt绑定（兼容PyQt6）
         matplotlib.use('QtAgg')
+        from battery_analysis.utils.constants import CN_FONT_LIST
         matplotlib.rcParams['font.family'] = 'sans-serif'
-        matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial',
-                                                'DejaVu Sans', 'Liberation Sans', 'Times New Roman']
+        matplotlib.rcParams['font.sans-serif'] = CN_FONT_LIST
         matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
     
 
     
     def _handle_qt_exception(self, app, e):
         """处理Qt事件循环中的异常"""
-        logger.critical("Qt事件循环中的未捕获异常:", exc_info=True)
-        
+        logger.critical("Uncaught exception in Qt event loop:", exc_info=True)
+
         # 显示错误对话框
         try:
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Critical)
-            msg_box.setWindowTitle("应用程序错误")
-            error_msg = f"很抱歉，应用程序遇到了一个问题。\n\n错误信息: {str(e)}\n\n"
-            error_msg += "详细信息已记录到日志文件中。\n\n"
-            error_msg += "建议您重新启动应用程序。"
+            msg_box.setWindowTitle("Application Error")
+            error_msg = f"Sorry, the application encountered a problem.\n\nError: {str(e)}\n\n"
+            error_msg += "Details have been logged to the log file.\n\n"
+            error_msg += "It is recommended that you restart the application."
             msg_box.setText(error_msg)
             msg_box.setStandardButtons(QMessageBox.StandardButton.Close)
             msg_box.exec()
         except Exception as dialog_error:
-            logger.critical(f"显示错误对话框失败: {dialog_error}")
+            logger.critical(f"Failed to show error dialog: {dialog_error}")
         
         # 确保应用程序可以正常关闭
         app.quit()
@@ -150,17 +150,17 @@ class ApplicationInitializer:
             
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Critical)
-            msg_box.setWindowTitle("应用程序启动失败")
-            error_msg = f"很抱歉，应用程序无法启动。\n\n错误信息: {str(e)}\n\n"
-            error_msg += "详细信息已记录到日志文件中。\n\n"
-            error_msg += "建议您重新启动应用程序。"
+            msg_box.setWindowTitle("Application Failed to Start")
+            error_msg = f"Sorry, the application could not start.\n\nError: {str(e)}\n\n"
+            error_msg += "Details have been logged to the log file.\n\n"
+            error_msg += "It is recommended that you restart the application."
             msg_box.setText(error_msg)
             msg_box.setStandardButtons(QMessageBox.StandardButton.Close)
             msg_box.exec()
         except Exception as dialog_error:
-            logger.critical(f"显示启动错误对话框失败: {dialog_error}")
-            print(f"应用程序启动失败: {str(e)}")
-            print("详细信息已记录到日志文件中。")
+            logger.critical(f"Failed to show startup error dialog: {dialog_error}")
+            print(f"Application failed to start: {str(e)}")
+            print("Details have been logged to the log file.")
     
 
     
@@ -178,7 +178,7 @@ class ApplicationInitializer:
             
             return True
         except Exception as e:
-            logger.critical("应用程序初始化失败:", exc_info=True)
+            logger.critical("Application initialization failed:", exc_info=True)
             self._show_startup_error_dialog(e)
             return False
     
@@ -209,7 +209,7 @@ class ApplicationInitializer:
             # 运行应用程序事件循环，捕获所有异常
             result = app.exec()
         except Exception as e:
-            logger.critical("应用程序事件循环中发生未捕获异常:", exc_info=True)
+            logger.critical("Uncaught exception in application event loop:", exc_info=True)
             self._handle_qt_exception(app, e)
             result = 1
         

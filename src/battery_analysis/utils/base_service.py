@@ -77,7 +77,7 @@ class BaseService(ABC):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            self.logger.error(f"操作失败: {str(e)}")
+            self.logger.error(f"Operation failed: {str(e)}")
             return None
 
 

@@ -67,29 +67,38 @@ class AnalysisRunner:
             bool: 输入是否完整
         """
         if not self.main_window.checkinput():
-            # 检查失败，获取警告信息
-            warning_info = []
-            if not self.main_window.comboBox_ReportedBy.currentText():
-                warning_info.append("Reported By")
-            
-            # 构建警告信息
-            if warning_info:
-                warning_str = "请完成以下必填项：" + ", ".join(warning_info)
-                QW.QMessageBox.warning(self.main_window, "输入验证失败", warning_str)
+            # 检查失败：从验证管理器获取具体失败字段，便于用户定位
+            failed_messages = []
+            try:
+                result = self.main_window.validation_manager.validate_fields()
+                if result.field_errors:
+                    failed_messages = list(result.field_errors.values())
+            except (AttributeError, TypeError, RuntimeError):
+                failed_messages = []
+
+            if failed_messages:
+                warning_str = "The following fields failed validation:\n- " + "\n- ".join(failed_messages)
             else:
-                QW.QMessageBox.warning(self.main_window, "输入验证失败", "请检查所有必填项")
-            
+                # 兜底：至少指出 Reported By
+                warning_info = []
+                if not self.main_window.comboBox_ReportedBy.currentText():
+                    warning_info.append("Reported By")
+                warning_str = ("Please complete the following required fields: " + ", ".join(warning_info)
+                               if warning_info else "Please check all required fields")
+
+            QW.QMessageBox.warning(self.main_window, "Input Validation Failed", warning_str)
+
             self.main_window.pushButton_Run.setEnabled(True)
             return False
-        
+
         # 简化验证，只验证必要的路径
         if not self.main_window.lineEdit_InputPath.text():
-            QW.QMessageBox.critical(self.main_window, _("validation_failed", "输入验证失败"), _("input_path_empty", "输入数据路径不能为空"))
+            QW.QMessageBox.critical(self.main_window, _("Input Validation Failed"), _("Input data path cannot be empty"))
             self.main_window.pushButton_Run.setEnabled(True)
             return False
 
         if not self.main_window.lineEdit_OutputPath.text():
-            QW.QMessageBox.critical(self.main_window, _("validation_failed", "输入验证失败"), _("output_path_empty", "输出路径不能为空"))
+            QW.QMessageBox.critical(self.main_window, _("Input Validation Failed"), _("Output path cannot be empty"))
             self.main_window.pushButton_Run.setEnabled(True)
             return False
 
@@ -98,8 +107,8 @@ class AnalysisRunner:
         if temperature_type == "Freezer Temperature" and self.main_window.spinBox_Temperature.value() == 0:
             reply = QW.QMessageBox.question(
                 self.main_window,
-                "温度确认",
-                "当前冷冻温度设置为0°C，是否继续运行？",
+                "Temperature Confirmation",
+                "The current freezer temperature is set to 0°C. Continue running?",
                 QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
                 QW.QMessageBox.StandardButton.No
             )
@@ -169,4 +178,4 @@ class AnalysisRunner:
         
         if not success:
             self.main_window.pushButton_Run.setEnabled(True)
-            QW.QMessageBox.warning(self.main_window, _("start_failed", "启动失败"), _("cannot_start_analysis", "无法启动分析任务"))
+            QW.QMessageBox.warning(self.main_window, _("Start Failed"), _("Cannot start the analysis task"))

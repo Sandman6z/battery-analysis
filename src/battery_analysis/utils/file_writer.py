@@ -26,7 +26,7 @@ class FileWriter:
             write_all(strResultPath, listTestInfo, listBatteryInfo, equipment_info)
         except Exception as e:
             self.strErrorLog = str(e)
-            logging.exception("写入报告失败")
+            logging.exception("Failed to write report")
 
     def UFW_GetErrorLog(self) -> str:
         return self.strErrorLog

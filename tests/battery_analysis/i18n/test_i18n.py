@@ -56,44 +56,70 @@ msgstr ""
 class TestSimplePOTranslator:
     """translator.SimplePOTranslator — pure unit tests"""
 
-    def test_parse_po_file_extracts_translations(self):
-        from battery_analysis.i18n.translator import SimplePOTranslator
-        t = SimplePOTranslator()
-        with patch("builtins.open", mock_open(read_data=SAMPLE_PO)):
-            result = t.parse_po_file(Path("/fake/messages.po"))
-        assert result["hello"] == "你好"
-        assert result["world"] == "世界"
+    # ── .po parsing (via _parse) ──────────────────────────────────
 
-    def test_parse_po_file_skips_empty_msgid(self):
+    def test_parse_extracts_translations(self):
+        from io import StringIO
         from battery_analysis.i18n.translator import SimplePOTranslator
-        t = SimplePOTranslator()
-        with patch("builtins.open", mock_open(read_data=PO_HEADER_ONLY)):
-            result = t.parse_po_file(Path("/fake/messages.po"))
-        assert "" not in result
+        t = SimplePOTranslator(StringIO(SAMPLE_PO))
+        assert t.gettext("hello") == "你好"
+        assert t.gettext("world") == "世界"
 
-    def test_parse_po_file_returns_empty_on_io_error(self):
+    def test_parse_skips_empty_msgid(self):
+        from io import StringIO
         from battery_analysis.i18n.translator import SimplePOTranslator
-        t = SimplePOTranslator()
-        with patch("builtins.open", side_effect=IOError("no file")):
-            result = t.parse_po_file(Path("/nonexistent.po"))
-        assert result == {}
+        t = SimplePOTranslator(StringIO(PO_HEADER_ONLY))
+        assert t.gettext("hello") == "hello"  # falls back to original
 
-    def test_parse_po_file_returns_empty_on_unicode_error(self):
+    def test_gettext_fallback_to_original_when_untranslated(self):
         from battery_analysis.i18n.translator import SimplePOTranslator
         t = SimplePOTranslator()
-        with patch("builtins.open", side_effect=UnicodeDecodeError("utf8", b"", 0, 1, "bad")):
-            result = t.parse_po_file(Path("/bad.po"))
-        assert result == {}
+        assert t.gettext("missing_key") == "missing_key"
+
+    def test_gettext_returns_translation(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        t = SimplePOTranslator()
+        t.translations = {"hello": "你好"}
+        assert t.gettext("hello") == "你好"
+
+    # ── pgettext (context-aware) ──────────────────────────────────
+
+    def test_pgettext_with_context(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        t = SimplePOTranslator()
+        t.translations = {("greeting", "hello"): "你好"}
+        assert t.pgettext("greeting", "hello") == "你好"
+
+    def test_pgettext_without_context_fallback_to_original(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        t = SimplePOTranslator()
+        t.translations = {"hello": "Hello"}
+        # (context, msgid) key doesn't exist → falls back to original text
+        assert t.pgettext("greeting", "hello") == "hello"
+
+    # ── ngettext (plurals) ────────────────────────────────────────
+
+    def test_ngettext_singular(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        t = SimplePOTranslator()
+        assert t.ngettext("cat", "cats", 1) == "cat"
+
+    def test_ngettext_plural(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        t = SimplePOTranslator()
+        assert t.ngettext("cat", "cats", 2) == "cats"
+
+    # ── load_locale ───────────────────────────────────────────────
 
     def test_load_locale_success(self):
         from battery_analysis.i18n.translator import SimplePOTranslator
         t = SimplePOTranslator()
-        with patch.object(t, "parse_po_file", return_value={"a": "b"}):
+        with patch("builtins.open", mock_open(read_data=SAMPLE_PO)):
             with patch("pathlib.Path.exists", return_value=True):
                 result = t.load_locale("zh_CN", Path("/fake"))
         assert result is True
         assert t.current_locale == "zh_CN"
-        assert t.translations == {"a": "b"}
+        assert t.gettext("hello") == "你好"
 
     def test_load_locale_file_not_found(self):
         from battery_analysis.i18n.translator import SimplePOTranslator
@@ -102,31 +128,58 @@ class TestSimplePOTranslator:
             result = t.load_locale("zh_CN", Path("/fake"))
         assert result is False
 
-    def test_get_returns_translation(self):
+    def test_load_locale_io_error_returns_empty(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        t = SimplePOTranslator()
+        with patch("builtins.open", side_effect=IOError("no file")):
+            with patch("pathlib.Path.exists", return_value=True):
+                result = t.load_locale("zh_CN", Path("/fake"))
+        assert result is False
+
+    # ── .translations property (backward compat) ──────────────────
+
+    def test_translations_property(self):
         from battery_analysis.i18n.translator import SimplePOTranslator
         t = SimplePOTranslator()
         t.translations = {"hello": "你好"}
-        assert t.get("hello") == "你好"
+        assert t.translations == {"hello": "你好"}
+        assert t.gettext("hello") == "你好"
 
-    def test_get_fallback_to_original(self):
-        from battery_analysis.i18n.translator import SimplePOTranslator
-        t = SimplePOTranslator()
-        t.translations = {}
-        assert t.get("missing_key") == "missing_key"
 
-    def test_get_with_context(self):
-        from battery_analysis.i18n.translator import SimplePOTranslator
-        t = SimplePOTranslator()
-        t.translations = {"greeting:hello": "你好"}
-        assert t.get("hello", context="greeting") == "你好"
+# ---------------------------------------------------------------------------
+# TestRealCatalogRoundTrip — 真实 locale/zh_CN 目录往返集成测试
+# ---------------------------------------------------------------------------
 
-    def test_get_without_context_fallback_to_original(self):
+class TestRealCatalogRoundTrip:
+    """Loads the real repo-root locale/zh_CN catalog (integration)."""
+
+    @staticmethod
+    def _locale_dir() -> Path:
+        # tests/battery_analysis/i18n/ -> repo root (parents[3])
+        return Path(__file__).resolve().parents[3] / "locale"
+
+    def test_zh_cn_catalog_translates_known_msgids(self):
         from battery_analysis.i18n.translator import SimplePOTranslator
+        locale_dir = self._locale_dir()
+        if not (locale_dir / "zh_CN" / "LC_MESSAGES" / "messages.po").exists():
+            pytest.skip("locale/zh_CN catalog not built")
         t = SimplePOTranslator()
-        t.translations = {"hello": "Hello"}
-        # Context lookup constructs "greeting:hello" key, which doesn't exist →
-        # falls back to the original text "hello"
-        assert t.get("hello", context="greeting") == "hello"
+        assert t.load_locale("zh_CN", locale_dir) is True
+        assert t.gettext("Preferences") == "首选项"
+        assert t.gettext("Exit") == "退出应用"
+
+    def test_zh_cn_multiline_msgid_round_trip(self):
+        from battery_analysis.i18n.translator import SimplePOTranslator
+        locale_dir = self._locale_dir()
+        if not (locale_dir / "zh_CN" / "LC_MESSAGES" / "messages.po").exists():
+            pytest.skip("locale/zh_CN catalog not built")
+        t = SimplePOTranslator()
+        assert t.load_locale("zh_CN", locale_dir) is True
+        key = ("The application will restart with the default configuration.\n\n"
+               "Please make sure you have valid data files available.")
+        expected = ("应用将使用默认配置重新启动。\n\n"
+                    "请确保您有有效的数据文件可用。")
+        assert t.gettext(key) == expected
 
 
 # ---------------------------------------------------------------------------
@@ -249,64 +302,47 @@ class TestModuleFunctionsTranslate:
 
     def test_translate_returns_translated_text(self):
         from battery_analysis.i18n import _
-        with patch("battery_analysis.i18n._po_translator") as mock_t:
-            mock_t.get.return_value = "你好"
-            assert _("hello") == "你好"
-            mock_t.get.assert_called_once_with("hello", None)
+        with patch("battery_analysis.i18n._po_translator.gettext", return_value="你好") as mock_get:
+            result = _("hello")
+        assert result == "你好"
+        mock_get.assert_called_once_with("hello")
+
+    def test_translate_with_context(self):
+        from battery_analysis.i18n import _
+        with patch("battery_analysis.i18n._po_translator.pgettext", return_value="您好") as mock_pget:
+            result = _("hello", context="greeting")
+        assert result == "您好"
+        mock_pget.assert_called_once_with("greeting", "hello")
 
     def test_translate_fallback_on_error(self):
         from battery_analysis.i18n import _
-        with patch("battery_analysis.i18n._po_translator") as mock_t:
-            mock_t.get.side_effect = AttributeError("bad")
+        with patch("battery_analysis.i18n._po_translator.gettext", side_effect=AttributeError("bad")):
             assert _("hello") == "hello"
 
     def test_pgettext_delegates_to_translate(self):
         from battery_analysis.i18n import pgettext
-        with patch("battery_analysis.i18n._po_translator") as mock_t:
-            mock_t.get.return_value = "Hello"
+        with patch("battery_analysis.i18n._po_translator.pgettext", return_value="您好") as mock_pget:
             result = pgettext("greeting", "hello")
-            assert result == "Hello"
-            mock_t.get.assert_called_once_with("hello", "greeting")
+        assert result == "您好"
+        mock_pget.assert_called_once_with("greeting", "hello")
 
     def test_ngettext_singular(self):
         from battery_analysis.i18n import ngettext
-        with patch("battery_analysis.i18n._translations", {"en": {"cat": "cats"}}):
-            with patch("battery_analysis.i18n._current_locale", "en"):
-                # key exists → returns stored translation regardless of n
-                assert ngettext("cat", "cats", 1) == "cats"
+        with patch("battery_analysis.i18n._po_translator.ngettext", return_value="cat") as mock_n:
+            assert ngettext("cat", "cats", 1) == "cat"
+        mock_n.assert_called_once_with("cat", "cats", 1)
 
     def test_ngettext_plural(self):
         from battery_analysis.i18n import ngettext
-        with patch("battery_analysis.i18n._translations", {"en": {"cat": "cats"}}):
-            with patch("battery_analysis.i18n._current_locale", "en"):
-                assert ngettext("cat", "cats", 2) == "cats"
-
-    def test_ngettext_missing_key_singular(self):
-        from battery_analysis.i18n import ngettext
-        with patch("battery_analysis.i18n._translations", {"en": {"dog": "dogs"}}):
-            with patch("battery_analysis.i18n._current_locale", "en"):
-                # key "cat" doesn't exist → falls back to singular for n=1
-                assert ngettext("cat", "cats", 1) == "cat"
-
-    def test_ngettext_missing_key_plural(self):
-        from battery_analysis.i18n import ngettext
-        with patch("battery_analysis.i18n._translations", {"en": {"dog": "dogs"}}):
-            with patch("battery_analysis.i18n._current_locale", "en"):
-                # key "cat" doesn't exist → falls back to plural for n=2
-                assert ngettext("cat", "cats", 2) == "cats"
+        with patch("battery_analysis.i18n._po_translator.ngettext", return_value="cats") as mock_n:
+            assert ngettext("cat", "cats", 2) == "cats"
+        mock_n.assert_called_once_with("cat", "cats", 2)
 
     def test_ngettext_fallback_on_error(self):
         from battery_analysis.i18n import ngettext
-        with patch("battery_analysis.i18n._translations", {"en": None}):
-            with patch("battery_analysis.i18n._current_locale", "en"):
-                result = ngettext("cat", "cats", 1)
+        with patch("battery_analysis.i18n._po_translator.ngettext", side_effect=AttributeError("bad")):
+            result = ngettext("cat", "cats", 1)
         assert result == "cat"  # fallback to singular
-
-    def test_ngettext_no_dict_fallback(self):
-        from battery_analysis.i18n import ngettext
-        with patch("battery_analysis.i18n._translations", {}):
-            with patch("battery_analysis.i18n._current_locale", "en"):
-                assert ngettext("cat", "cats", 2) == "cats"  # fallback to plural
 
     def test_get_current_locale(self):
         from battery_analysis.i18n import get_current_locale, _current_locale
@@ -322,12 +358,15 @@ class TestModuleFunctionsLoadLocale:
     """__init__._load_locale"""
 
     def test_load_locale_updates_globals(self):
-        from battery_analysis.i18n import _load_locale, _translations, _current_locale
+        from battery_analysis.i18n import _load_locale
+        import battery_analysis.i18n as i18n_module
+        saved = i18n_module._current_locale
         with patch("battery_analysis.i18n._po_translator") as mock_t:
             mock_t.load_locale.return_value = True
-            mock_t.translations = {"key": "val"}
             result = _load_locale("zh_CN")
         assert result is True
+        assert i18n_module._current_locale == "zh_CN"
+        i18n_module._current_locale = saved
 
 
 class TestModuleFunctionsDetectSystemLocale:
@@ -348,23 +387,19 @@ class TestModuleFunctionsDetectSystemLocale:
 
 
 class TestModuleFunctionsInitializeDefaultLocale:
-    """__init__.initialize_default_locale"""
+    """__init__.initialize_default_locale — 默认锁定英文"""
 
-    def test_uses_system_locale_when_available(self):
+    def test_initializes_to_english(self):
         from battery_analysis.i18n import initialize_default_locale
-        with patch("battery_analysis.i18n.locale_utils.detect_system_locale", return_value="zh_CN"):
-            with patch("battery_analysis.i18n.locale_utils.get_available_locales", return_value=["zh_CN", "en"]):
-                with patch("battery_analysis.i18n.locale_utils.system_locale_to_code", return_value="zh_CN"):
-                    with patch("battery_analysis.i18n.set_locale", return_value=True) as mock_set:
-                        assert initialize_default_locale() is True
-                        mock_set.assert_called_once_with("zh_CN")
+        with patch("battery_analysis.i18n.set_locale", return_value=True) as mock_set:
+            assert initialize_default_locale() is True
+            mock_set.assert_called_once_with("en")
 
-    def test_falls_back_to_en(self):
+    def test_returns_false_when_english_unavailable(self):
         from battery_analysis.i18n import initialize_default_locale
-        with patch("battery_analysis.i18n.locale_utils.detect_system_locale", return_value=None):
-            with patch("battery_analysis.i18n.set_locale", return_value=True) as mock_set:
-                assert initialize_default_locale() is True
-                mock_set.assert_called_once_with("en")
+        with patch("battery_analysis.i18n.set_locale", return_value=False) as mock_set:
+            assert initialize_default_locale() is False
+            mock_set.assert_called_once_with("en")
 
 
 # ---------------------------------------------------------------------------
@@ -372,20 +407,20 @@ class TestModuleFunctionsInitializeDefaultLocale:
 # ---------------------------------------------------------------------------
 
 class TestIConfigPathProvider:
-    """config_dialog_interface.IConfigPathProvider — abstract interface"""
+    """config_path_provider.IConfigPathProvider — abstract interface"""
 
     def test_cannot_instantiate(self):
-        from battery_analysis.i18n.config_dialog_interface import IConfigPathProvider
+        from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
         with pytest.raises(TypeError):
             IConfigPathProvider()
 
     def test_concrete_subclass_must_implement_abstract_method(self):
-        from battery_analysis.i18n.config_dialog_interface import IConfigPathProvider
+        from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
         with pytest.raises(TypeError):
             type("BadImpl", (IConfigPathProvider,), {})()
 
     def test_valid_implementation(self):
-        from battery_analysis.i18n.config_dialog_interface import IConfigPathProvider
+        from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
         impl = type("GoodImpl", (IConfigPathProvider,), {"get_config_path": lambda self: "/path"})()
         assert impl.get_config_path() == "/path"
 
@@ -591,3 +626,15 @@ class TestLanguageManager:
         lm = LanguageManager()
         lm._on_language_changed("zh_CN")
         assert "Language changed to: zh_CN" in caplog.text
+
+    def test_default_locale_is_english_when_no_saved(self):
+        from battery_analysis.i18n.language_manager import LanguageManager
+        lm = LanguageManager()
+        lm.settings = MagicMock()
+        lm.settings.value.return_value = ""
+        # Force a non-English system locale so the assertion proves the default
+        # is fixed to "en" regardless of what detect_system_locale() returns.
+        with patch("battery_analysis.i18n.language_manager.detect_system_locale", return_value="zh_CN"):
+            with patch.object(lm, "set_locale", return_value=True) as mock_set:
+                lm._initialize_settings()
+        mock_set.assert_called_once_with("en")

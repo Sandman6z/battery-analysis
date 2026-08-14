@@ -60,12 +60,12 @@ class LanguageManager(QObject):
     
     def _initialize_settings(self):
         """Initialize language settings from configuration"""
-        # Get saved language preference or detect system locale
+        # Get saved language preference or default to English
         saved_locale = self.settings.value("language/locale", "")
         
         if not saved_locale:
-            # Detect system locale on first run
-            saved_locale = detect_system_locale()
+            # 默认语言固定为英文（不跟随系统语言）
+            saved_locale = "en"
             self.settings.setValue("language/locale", saved_locale)
         
         # Set the detected/saved locale
@@ -170,9 +170,9 @@ class LanguageManager(QObject):
             Translated text
         """
         try:
-            # Import the same SimplePOTranslator used in i18n module
+            # Use the standard gettext API exposed by SimplePOTranslator
             from . import _po_translator
-            return _po_translator._(text)
+            return _po_translator.gettext(text)
         except (ImportError, AttributeError, KeyError) as e:
             self.logger.warning("Translation failed for '%s': %s", text, e)
             return text
@@ -302,18 +302,25 @@ class LanguageManager(QObject):
             "File", "Edit", "Help", "About", "Preferences",
             "Language", "Error", "Warning", "Information"
         ]
-        
+
         validation = {}
         old_locale = self.get_current_locale()
-        
+
         try:
+            # 如果已经是目标 locale，直接验证，避免冗余切换
+            if locale_code == old_locale:
+                for key in common_keys:
+                    translated = _(key)
+                    validation[key] = translated != key
+                return validation
+
             # Temporarily switch to target locale for validation
             if self.set_locale(locale_code):
                 for key in common_keys:
                     translated = _(key)
                     validation[key] = translated != key
-                
-                # Switch back
+
+                # Switch back only if we actually changed
                 self.set_locale(old_locale)
         
         except (OSError, ValueError, ImportError, AttributeError) as e:

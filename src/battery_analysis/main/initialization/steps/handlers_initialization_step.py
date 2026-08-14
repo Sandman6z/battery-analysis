@@ -44,10 +44,10 @@ class HandlersInitializationStep(InitializationStep):
             # 初始化验证管理器
             main_window.validation_manager = ValidationManager(main_window)
             
-            self.logger.info("处理器初始化完成")
+            self.logger.info("Handlers initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("处理器初始化失败")
+            self.logger.exception("Handlers initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

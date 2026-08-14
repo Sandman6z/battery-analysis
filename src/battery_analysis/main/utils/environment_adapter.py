@@ -77,18 +77,18 @@ class EnvironmentAdapter:
         
         # 根据环境类型进行适配
         if env_type == EnvironmentType.IDE:
-            self.logger.debug("IDE环境：调整UI行为以适应开发环境")
+            self.logger.debug("IDE environment: adjusting UI behavior for development environment")
             self.adapt_for_ide_environment()
         elif env_type == EnvironmentType.CONTAINER:
-            self.logger.debug("容器环境：调整UI行为以适应容器环境")
+            self.logger.debug("Container environment: adjusting UI behavior for container environment")
             self.adapt_for_container_environment()
         elif env_type == EnvironmentType.PRODUCTION:
-            self.logger.debug("生产环境：优化UI性能")
+            self.logger.debug("Production environment: optimizing UI performance")
             self.adapt_for_production_environment()
         
         # GUI可用性检查
         if not self.env_info['gui_available']:
-            self.logger.warning("GUI环境不可用，应用可能无法正常显示")
+            self.logger.warning("GUI environment is unavailable; the application may not display properly")
             self.handle_gui_unavailable()
     
     def adapt_for_ide_environment(self):
@@ -96,7 +96,7 @@ class EnvironmentAdapter:
         IDE环境适配
         """
         # 在IDE中可能没有显示，添加调试信息
-        self.logger.debug("在IDE环境中运行，某些功能可能受限")
+        self.logger.debug("Running in IDE environment; some features may be limited")
         
         # 调整任务阈值，在IDE中通常任务较快
         self.task_duration_threshold = 15
@@ -106,7 +106,7 @@ class EnvironmentAdapter:
         """
         容器环境适配
         """
-        self.logger.debug("在容器环境中运行，调整路径和资源管理")
+        self.logger.debug("Running in container environment; adjusting path and resource management")
         
         # 容器环境中的资源路径可能不同
         # 禁用某些容器中可能不支持的功能
@@ -117,7 +117,7 @@ class EnvironmentAdapter:
         """
         生产环境适配
         """
-        self.logger.debug("在生产环境中运行，优化性能和稳定性")
+        self.logger.debug("Running in production environment; optimizing performance and stability")
         
         # 生产环境中启用更多优化
         self.task_duration_threshold = 30
@@ -127,6 +127,6 @@ class EnvironmentAdapter:
         """
         处理GUI不可用的情况
         """
-        self.logger.error("GUI环境不可用，尝试使用无头模式")
+        self.logger.error("GUI environment is unavailable; attempting to use headless mode")
         # 在GUI不可用时，可以考虑切换到命令行模式
         # 或者显示错误信息并退出

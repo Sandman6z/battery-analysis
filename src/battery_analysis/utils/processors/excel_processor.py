@@ -49,7 +49,7 @@ def read_excel_file(file_path: str) -> dict:
             "basic_stats": df.describe().to_dict(),
         }
     except Exception as e:
-        logger.error("处理Excel文件失败 %s: %s", file_path, str(e))
+        logger.error("Failed to process Excel file %s: %s", file_path, str(e))
         return {}
 
 

@@ -52,10 +52,10 @@ class BasicAttributesInitializationStep(InitializationStep):
             main_window.sha256_checksum = ""
             main_window.sha256_checksum_run = ""
             
-            self.logger.info("基本属性初始化完成")
+            self.logger.info("Basic attributes initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("基本属性初始化失败")
+            self.logger.exception("Basic attributes initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

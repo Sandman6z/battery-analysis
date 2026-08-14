@@ -9,22 +9,23 @@ class TestPlotUtils:
     @patch('matplotlib.pyplot.axis')
     @patch('matplotlib.pyplot.xticks')
     def test_set_plt_axis_coin_cell(self, mock_xticks, mock_axis):
-        # 测试Coin Cell类型
+        # 测试Coin Cell类型（max_xaxis=600 → 动态计算）
         set_plt_axis("Coin Cell", 600)
-        # 验证调用参数
-        mock_axis.assert_called_once_with([10, 600, 1, 3])
-        mock_xticks.assert_called_once_with([10, 100, 200, 300, 400, 500, 600])
+        mock_axis.assert_called_once_with([18, 600, 1, 3])
+        mock_xticks.assert_called_once_with([18, 100, 200, 300, 400, 500, 600])
 
     @patch('matplotlib.pyplot.axis')
     @patch('matplotlib.pyplot.xticks')
     def test_set_plt_axis_pouch_cell(self, mock_xticks, mock_axis):
-        # 测试Pouch Cell类型
+        # 测试Pouch Cell类型（所有类型统一走动态计算）
         set_plt_axis("Pouch Cell", 1500)
-        # 验证调用（具体参数可能因计算而不同，这里只验证函数被调用）
+        mock_axis.assert_called_once_with([45, 1500, 1, 3])
+        mock_xticks.assert_called_once_with([45, 200, 400, 600, 800, 1000, 1200, 1400, 1600])
+
+    @patch('matplotlib.pyplot.axis')
+    @patch('matplotlib.pyplot.xticks')
+    def test_set_plt_axis_unknown_type(self, mock_xticks, mock_axis):
+        # 未知电池类型不再抛出异常，统一走动态计算
+        set_plt_axis("Unknown Type", 600)
         mock_axis.assert_called_once()
         mock_xticks.assert_called_once()
-
-    def test_set_plt_axis_invalid_battery_type(self):
-        # 测试无效的电池类型
-        with pytest.raises(BatteryAnalysisException):
-            set_plt_axis("Unknown Type", 600)

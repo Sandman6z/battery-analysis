@@ -113,12 +113,12 @@ class DomainEventBus:
         if len(self._history) > self._max_history:
             self._history = self._history[-self._max_history:]
 
-        logger.debug("发布领域事件: %s", event)
+        logger.debug("Publishing domain event: %s", event)
         for callback in self._subscribers.get(event.type, []):
             try:
                 callback(event)
             except Exception as e:
-                logger.error("领域事件回调异常 [%s]: %s", event.type.name, e)
+                logger.error("Domain event callback error [%s]: %s", event.type.name, e)
 
     def get_history(self, limit: int = 10) -> List[DomainEvent]:
         """获取最近 N 个事件（用于诊断/调试）。"""

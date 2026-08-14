@@ -166,7 +166,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             from battery_analysis.main.application_initializer import ApplicationInitializer
             initializer = ApplicationInitializer()
             if not initializer.initialize():
-                self.logger.error("应用初始化失败，部分功能可能不可用")
+                self.logger.error("Application initialization failed; some features may be unavailable")
                 return
 
             # ── 阶段 1-3: 初始化管线 ───────────────────────
@@ -179,14 +179,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 PHASE_LAUNCH,
             )
             self.logger.info("─" * 40)
-            self.logger.info("初始化管线: %s → %s → %s",
+            self.logger.info("Initialization pipeline: %s → %s → %s",
                            PHASE_ENV_PREP, PHASE_CORE_SVC, PHASE_UI_BUILD)
             init_manager = InitializationManager(self)
             init_manager.initialize()
 
             # ── 阶段 4: 启动完成 ────────────────────────────
             self.logger.info("")
-            self.logger.info("▶ 阶段 [%s]", PHASE_LAUNCH)
+            self.logger.info("▶ Phase [%s]", PHASE_LAUNCH)
 
             # 4a) UI 后处理（窗口属性、控件填充）
             self.init_window()
@@ -209,12 +209,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             except Exception:
                 pass
 
-            self.logger.info("  阶段 [%s] 全部完成 ✓", PHASE_LAUNCH)
+            self.logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
 
             elapsed = (time.time() - t0) * 1000
-            self.logger.info("后台初始化完成，耗时 %dms", elapsed)
+            self.logger.info("Background initialization completed in %dms", elapsed)
         except Exception as e:
-            logging.getLogger(__name__).error("后台初始化异常: %s", e)
+            logging.getLogger(__name__).error("Background initialization error: %s", e)
 
     # ------------------------------
     # 服务和控制器获取方法
@@ -257,10 +257,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             for icon_path in icon_paths:
                 if icon_path.exists():
                     return QG.QIcon(str(icon_path))
-            logger.warning(_("app_icon_not_found", "未找到应用图标文件，使用默认图标"))
+            logger.warning(_("App icon not found; using default icon."))
             return QG.QIcon()
         except (OSError, TypeError, ValueError, RuntimeError, ImportError) as e:
-            logger.error("加载应用图标失败: %s", e)
+            logger.error("Failed to load application icon: %s", e)
             return QG.QIcon()
 
     # ------------------------------
@@ -272,15 +272,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self._update_ui_texts()
         self._update_statusbar_messages()
         self._refresh_dialogs()
-        logging.info("界面语言已切换到: %s", language_code)
+        logging.info("Interface language switched to: %s", language_code)
 
     def _update_ui_texts(self):
         from battery_analysis.i18n.language_manager import _
         if hasattr(self, 'signal_connector') and self.signal_connector.progress_dialog:
             self.signal_connector.progress_dialog.setWindowTitle(
-                _("progress_title", "Battery Analysis Progress"))
+                _("Battery Analysis Progress"))
             self.signal_connector.progress_dialog.status_label.setText(
-                _("progress_ready", "Ready to start analysis..."))
+                _("Ready to start analysis..."))
 
     def _update_statusbar_messages(self):
         self.menu_manager.update_statusbar_messages()
@@ -313,34 +313,37 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def on_preferences_applied(self) -> None:
         try:
-            from battery_analysis.utils.config_utils import (
-                clear_config_cache, set_custom_config_path, clear_custom_config_path,
-            )
-            from PyQt6.QtCore import QSettings
+            # 配置路径/重载统一经 ConfigService；仅需丢弃 config_utils 的路径缓存，
+            # 让 ConfigService 重新解析（含 QSettings 里的自定义路径）
+            from battery_analysis.utils.config_utils import clear_config_cache
             clear_config_cache()
-            custom_path = QSettings().value("config/custom_config_path", "", type=str)
-            if custom_path:
-                set_custom_config_path(custom_path)
-            else:
-                clear_custom_config_path()
-            self.reload_configuration()
-        except (OSError, ValueError, ImportError) as e:
-            self.logger.error("应用首选项后处理时发生错误: %s", e)
+            svc = self._get_service("config")
+            if svc is not None:
+                svc.reload_config()
+            if hasattr(self, 'config_manager'):
+                self.config_manager.reload_config()
+            if hasattr(self, 'ui_manager'):
+                self.ui_manager.init_combobox()
+            self.refresh_ui()
+        except Exception as e:
+            self.logger.error("Preferences apply post-processing failed: %s", e)
 
     def reload_configuration(self) -> None:
         try:
             from battery_analysis.utils.config_utils import clear_config_cache
             clear_config_cache()
+            svc = self._get_service("config")
+            if svc is not None:
+                svc.reload_config()
             if hasattr(self, 'config_manager'):
-                self.config_manager._initialize_config()
+                self.config_manager.reload_config()
             if hasattr(self, 'ui_manager'):
                 self.ui_manager.init_combobox()
             self.refresh_ui()
-            QW.QMessageBox.information(self, "Configuration Reloaded",
-                                       "Configuration reloaded successfully.")
         except Exception as e:
-            self.logger.error("重新加载配置时发生错误: %s", e)
-            QW.QMessageBox.warning(self, "Error", f"Failed to reload configuration: {str(e)}")
+            self.logger.error("Failed to reload configuration: %s", e)
+            if hasattr(self, 'statusBar_BatteryAnalysis'):
+                self.statusBar_BatteryAnalysis.showMessage(f"Configuration reload failed: {str(e)}")
 
     def refresh_ui(self) -> None:
         try:
@@ -353,7 +356,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     if index >= 0:
                         self.comboBox_Specification_Type.setCurrentIndex(index)
         except Exception as e:
-            self.logger.error("刷新界面时发生错误: %s", e)
+            self.logger.error("Error refreshing UI: %s", e)
 
     def toggle_toolbar_safe(self) -> None:
         self.menu_manager.toggle_toolbar_safe()
@@ -429,7 +432,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         from battery_analysis.main.ui_components.config_dialog import ConfigDialog
         dialog = ConfigDialog(self)
         if dialog.exec() == QW.QDialog.DialogCode.Accepted:
-            self.statusBar_BatteryAnalysis.showMessage("配置已保存")
+            self.statusBar_BatteryAnalysis.showMessage("Configuration saved")
             self.config_manager.reload_config()
             self.ui_manager.init_combobox()
             for name, text in saved.items():
@@ -438,7 +441,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                     combo.setCurrentText(text)
 
     def save_settings(self) -> None:
-        self.statusBar_BatteryAnalysis.showMessage("设置已保存")
+        self.statusBar_BatteryAnalysis.showMessage("Settings saved")
 
     # ------------------------------
     # 报告相关方法
@@ -548,9 +551,9 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             if hasattr(self, 'ui_manager'):
                 self.ui_manager.setup_accessibility()
                 self.ui_manager.setup_tooltips()
-            self.logger.debug("延迟初始化完成，耗时: %dms", (time.time() - t0) * 1000)
+            self.logger.debug("Deferred initialization completed in %dms", (time.time() - t0) * 1000)
         except Exception as e:
-            self.logger.warning("延迟初始化失败: %s", e)
+            self.logger.warning("Deferred initialization failed: %s", e)
 
 
 def _create_splash_screen(app):
@@ -572,7 +575,7 @@ def _create_splash_screen(app):
 
         return splash
     except Exception as e:
-        logging.getLogger(__name__).warning("创建闪屏失败: %s", e)
+        logging.getLogger(__name__).warning("Failed to create splash screen: %s", e)
         return None
 
 
@@ -599,7 +602,7 @@ def main(app=None, splash=None) -> None:
     try:
         result = app.exec()
     except Exception as e:
-        logging.getLogger(__name__).critical("事件循环异常: %s", e)
+        logging.getLogger(__name__).critical("Event loop error: %s", e)
         result = 1
 
     sys.exit(result)

@@ -65,19 +65,19 @@ class AppConfigSchema:
 
         version = data.get("version", 1)
         if not isinstance(version, int):
-            errors.append("version 必须是整数")
+            errors.append("version must be an integer")
 
         battery_data = _to_snake(data.get("battery", {}))
         test_data = _to_snake(data.get("test", {}))
 
         # 验证必需字段
         if "types" not in battery_data:
-            errors.append("battery.types 缺失")
+            errors.append("battery.types is missing")
         if "locations" not in test_data:
-            errors.append("test.locations 缺失")
+            errors.append("test.locations is missing")
 
         if errors:
-            raise ConfigException("配置验证失败: " + "; ".join(errors))
+            raise ConfigException("Configuration validation failed: " + "; ".join(errors))
 
         return cls(
             version=version,
@@ -89,13 +89,13 @@ class AppConfigSchema:
         """返回所有验证警告（非致命）。"""
         warnings = []
         if not self.battery.types:
-            warnings.append("battery.types 为空")
+            warnings.append("battery.types is empty")
         if not self.battery.pulse_currents:
-            warnings.append("battery.pulseCurrents 为空 — 使用默认值")
+            warnings.append("battery.pulseCurrents is empty - using default value")
         if not self.battery.cut_off_voltages:
-            warnings.append("battery.cutOffVoltages 为空 — 使用默认值")
+            warnings.append("battery.cutOffVoltages is empty - using default value")
         if not self.test.locations:
-            warnings.append("test.locations 为空")
+            warnings.append("test.locations is empty")
         if not self.test.tested_by:
-            warnings.append("test.testedBy 为空")
+            warnings.append("test.testedBy is empty")
         return warnings

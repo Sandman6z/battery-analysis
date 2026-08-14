@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from battery_analysis.utils.base_service import BaseService
 from battery_analysis.utils.json_config_manager import JsonConfigManager
+from battery_analysis.utils.config_utils import _get_custom_config_path
 import os
 
 
@@ -45,7 +46,7 @@ class ConfigService(BaseService):
                 self.load_config()
             return self._config_manager.get(key, default)
         except (KeyError, TypeError, ValueError) as e:
-            self.logger.error("获取配置值失败: %s", e)
+            self.logger.error("Failed to get config value: %s", e)
             return default
 
     def get_config_value_raw(self, key: str, default: Optional[str] = None) -> Optional[str]:
@@ -67,7 +68,7 @@ class ConfigService(BaseService):
                 return None
             return str(value)
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("获取原始配置值失败: %s", e)
+            self.logger.error("Failed to get raw config value: %s", e)
             return default
 
     def set_config_value(self, key: str, value: Any) -> bool:
@@ -84,7 +85,7 @@ class ConfigService(BaseService):
         try:
             return self._config_manager.set(key, value)
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("设置配置值失败: %s", e)
+            self.logger.error("Failed to set config value: %s", e)
             return False
 
     def replace_all_config(self, data: Dict[str, Any]) -> bool:
@@ -102,7 +103,7 @@ class ConfigService(BaseService):
             self._loaded = True
             return True
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("设置默认配置失败: %s", e)
+            self.logger.error("Failed to set default config: %s", e)
             return False
 
     def save_config(self) -> bool:
@@ -116,13 +117,13 @@ class ConfigService(BaseService):
             if self._config_path and self._config_manager.is_loaded():
                 success = self._config_manager.write_config(str(self._config_path))
                 if success:
-                    self.logger.info("配置已保存到: %s", self._config_path)
+                    self.logger.info("Config saved to: %s", self._config_path)
                 return success
             else:
-                self.logger.warning("无法保存配置：未指定配置路径或配置未加载")
+                self.logger.warning("Unable to save config: no config path specified or config not loaded")
                 return False
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("保存配置失败: %s", e)
+            self.logger.error("Failed to save config: %s", e)
             return False
 
     def load_config(self, config_path: Optional[str] = None, use_cache: bool = True) -> bool:
@@ -148,7 +149,7 @@ class ConfigService(BaseService):
                 self._config_manager.set_defaults(DEFAULT_CONFIG)
                 self._config_manager.write_config(str(self._config_path))
                 self._loaded = True
-                self.logger.info("首次运行，已创建默认配置文件: %s", self._config_path)
+                self.logger.info("First run, created default config file: %s", self._config_path)
                 return True
 
             success = self._config_manager.read_config(str(self._config_path))
@@ -161,9 +162,9 @@ class ConfigService(BaseService):
                     schema = AppConfigSchema.from_dict(all_data)
                     warnings = schema.validate()
                     for w in warnings:
-                        self.logger.warning("配置警告: %s", w)
+                        self.logger.warning("Config warning: %s", w)
                 except Exception as schema_err:
-                    self.logger.warning("配置 schema 验证失败（不影响运行）: %s", schema_err)
+                    self.logger.warning("Config schema validation failed (does not affect operation): %s", schema_err)
 
                 # 版本化迁移
                 try:
@@ -173,16 +174,16 @@ class ConfigService(BaseService):
                     if migrated.get("version", 0) > all_data.get("version", 0):
                         self._config_manager.replace_all(migrated)
                         self._config_manager.write_config(str(self._config_path))
-                        self.logger.info("配置已迁移至 v%d", migrated["version"])
+                        self.logger.info("Config migrated to v%d", migrated["version"])
                 except Exception as migrate_err:
-                    self.logger.warning("配置迁移失败（使用旧版配置继续）: %s", migrate_err)
+                    self.logger.warning("Config migration failed (continuing with old config): %s", migrate_err)
 
-                self.logger.info("配置已加载: %s", self._config_path)
+                self.logger.info("Config loaded: %s", self._config_path)
             else:
-                self.logger.warning("配置文件加载失败: %s", self._config_path)
+                self.logger.warning("Config file load failed: %s", self._config_path)
             return success
         except (OSError, IOError, PermissionError) as e:
-            self.logger.error("加载配置 I/O 错误: %s", e)
+            self.logger.error("I/O error loading config: %s", e)
             self._loaded = False
             return False
 
@@ -217,7 +218,7 @@ class ConfigService(BaseService):
             data = self._config_manager.get_all()
             return [k for k in data.keys() if isinstance(data[k], dict)]
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("获取配置节失败: %s", e)
+            self.logger.error("Failed to get config section: %s", e)
             return []
 
     def get_all_values(self) -> Dict[str, Any]:
@@ -232,7 +233,7 @@ class ConfigService(BaseService):
                 self.load_config()
             return self._config_manager.get_all()
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("获取全部配置值失败: %s", e)
+            self.logger.error("Failed to get all config values: %s", e)
             return {}
 
     def get_section_options(self, section: str) -> List[str]:
@@ -253,7 +254,7 @@ class ConfigService(BaseService):
                 return list(section_data.keys())
             return []
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("获取配置节选项失败: %s", e)
+            self.logger.error("Failed to get config section options: %s", e)
             return []
 
     def get_section_config(self, section: str) -> Dict[str, Any]:
@@ -272,7 +273,7 @@ class ConfigService(BaseService):
             result = self._config_manager.get(section, {})
             return result if isinstance(result, dict) else {}
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("获取配置节失败: %s", e)
+            self.logger.error("Failed to get config section: %s", e)
             return {}
 
     def has_config_key(self, key: str) -> bool:
@@ -290,11 +291,17 @@ class ConfigService(BaseService):
                 self.load_config()
             return self._config_manager.get(key) is not None
         except (KeyError, TypeError, ValueError, OSError) as e:
-            self.logger.error("检查配置键失败: %s", e)
+            self.logger.error("Failed to check config key: %s", e)
             return False
 
     def _resolve_config_path(self) -> Path:
-        """解析配置文件的 %APPDATA% 路径"""
+        """解析配置文件路径，优先使用用户自定义路径"""
+        # 1. 检查用户自定义路径（从 QSettings + 模块级缓存）
+        custom = _get_custom_config_path()
+        if custom:
+            self.logger.debug("Using custom config path: %s", custom)
+            return Path(custom)
+        # 2. 回退到 %APPDATA% 默认路径
         appdata = os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming"))
         return Path(appdata) / "battery-analysis" / "config.json"
 
@@ -303,10 +310,13 @@ class ConfigService(BaseService):
         查找配置文件路径
 
         Args:
-            file_name: 配置文件名称（兼容旧接口，默认改为 config.json）
+            file_name: 配置文件名（当前仅用于记录日志，实际路径由 _resolve_config_path 决定）
             use_cache: 是否使用缓存的配置文件路径，默认为False
 
         Returns:
             Optional[Path]: 配置文件路径
         """
-        return self._resolve_config_path()
+        resolved = self._resolve_config_path()
+        self.logger.debug("find_config_file(file_name=%s, use_cache=%s) → %s",
+                          file_name, use_cache, resolved)
+        return resolved

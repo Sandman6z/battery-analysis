@@ -4,7 +4,6 @@
 """
 
 from battery_analysis.main.initialization.initialization_step import InitializationStep
-from battery_analysis.main.ui.language_handler import LanguageHandler
 from battery_analysis.i18n.language_manager import get_language_manager
 
 
@@ -26,9 +25,6 @@ class LanguageInitializationStep(InitializationStep):
             是否执行成功
         """
         try:
-            # 初始化语言处理器
-            main_window.language_handler = LanguageHandler(main_window)
-            
             # 连接语言管理器信号
             self._connect_language_signals(main_window)
             
@@ -39,10 +35,10 @@ class LanguageInitializationStep(InitializationStep):
             if hasattr(main_window, '_ensure_env_info_keys'):
                 main_window._ensure_env_info_keys()
             
-            self.logger.info("语言初始化完成")
+            self.logger.info("Language initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("语言初始化失败")
+            self.logger.exception("Language initialization failed")
             return False
     
     def _connect_language_signals(self, main_window) -> None:

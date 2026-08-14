@@ -38,10 +38,10 @@ class UISetupStep(InitializationStep):
 
             # 注意：setupUi 已在 Main.__init__ 中调用，此处不再重复调用
             # 重复调用会重置整个 UI 布局，覆盖 _apply_responsive_layout 的工作
-            self.logger.info("UI设置完成（跳过 setupUi，已在初始化时调用）")
+            self.logger.info("UI setup complete (skipped setupUi, already called during initialization)")
             return True
         except Exception as e:
-            self.logger.exception("UI设置失败")
+            self.logger.exception("UI setup failed")
             return False
     
     def can_execute(self, main_window) -> bool:

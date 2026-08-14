@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "battery-analysis"
-version = "2.12.1"
 description = "Battery test data analysis App, support serveral data type import, and chart viewer"
+dynamic = ["version"]
 authors = [
   { name = "Ewin Hardware Group", email = "zhangbaoning@ewin-tech.com" }
 ]
@@ -132,6 +132,9 @@ include = ["battery_analysis*"]
 [tool.setuptools]
 package-dir = {"" = "src"}
 include-package-data = true
+
+[tool.setuptools.dynamic]
+version = { attr = "battery_analysis._version.__version__" }
 
 [tool.setuptools.package-data]
 battery_analysis = ["templates/*.docx"]

@@ -111,25 +111,25 @@ class LogManager:
     def _log_environment_info(self):
         """记录应用程序运行环境信息"""
         self.logger.info("=" * 50)
-        self.logger.info("应用程序启动")
-        self.logger.info(f"Python版本: {sys.version}")
-        self.logger.info(f"操作系统: {platform.system()} {platform.release()} {platform.version()}")
-        self.logger.info(f"处理器: {platform.processor()}")
+        self.logger.info("Application started")
+        self.logger.info(f"Python version: {sys.version}")
+        self.logger.info(f"Operating system: {platform.system()} {platform.release()} {platform.version()}")
+        self.logger.info(f"Processor: {platform.processor()}")
 
         # 记录内存信息
         mem = psutil.virtual_memory()
-        self.logger.info(f"总内存: {mem.total / (1024**3):.2f} GB")
-        self.logger.info(f"可用内存: {mem.available / (1024**3):.2f} GB")
-        self.logger.info(f"内存使用率: {mem.percent}%")
+        self.logger.info(f"Total memory: {mem.total / (1024**3):.2f} GB")
+        self.logger.info(f"Available memory: {mem.available / (1024**3):.2f} GB")
+        self.logger.info(f"Memory usage: {mem.percent}%")
 
         # 记录CPU信息（interval=0 避免模块导入时的阻塞）
-        self.logger.info(f"CPU核心数: {psutil.cpu_count(logical=True)}")
-        self.logger.info(f"CPU使用率: {psutil.cpu_percent(interval=0)}%")
+        self.logger.info(f"CPU cores: {psutil.cpu_count(logical=True)}")
+        self.logger.info(f"CPU usage: {psutil.cpu_percent(interval=0)}%")
 
         # 记录应用程序路径
-        self.logger.info(f"应用程序路径: {sys.argv[0]}")
-        self.logger.info(f"当前工作目录: {os.getcwd()}")
-        self.logger.info(f"日志文件路径: {self.log_dir}")
+        self.logger.info(f"Application path: {sys.argv[0]}")
+        self.logger.info(f"Current working directory: {os.getcwd()}")
+        self.logger.info(f"Log file path: {self.log_dir}")
         self.logger.info("=" * 50)
     
     def get_logger(self, name=None):
@@ -187,7 +187,7 @@ class LogManager:
                 for log_file in logs_to_delete:
                     self._delete_log_file_with_retry(log_file, max_retries=3)
         except (OSError, PermissionError) as e:
-            self.logger.error(f"清理旧日志文件失败: {e}")
+            self.logger.error(f"Failed to clean up old log files: {e}")
 
     def _delete_log_file_with_retry(self, log_file, max_retries=3):
         """尝试删除日志文件，失败时重试（处理Windows文件锁）
@@ -200,13 +200,13 @@ class LogManager:
         for attempt in range(max_retries):
             try:
                 log_file.unlink()
-                self.logger.info(f"已清理旧日志文件: {log_file}")
+                self.logger.info(f"Cleaned up old log file: {log_file}")
                 return
             except (OSError, PermissionError) as e:
                 if attempt < max_retries - 1:
                     time.sleep(0.1 * (attempt + 1))  # 递增等待: 0.1s, 0.2s, 0.3s
                 else:
-                    self.logger.debug(f"清理日志文件 {log_file} 失败（已重试{max_retries}次）: {e}")
+                    self.logger.debug(f"Failed to clean up log file {log_file} (retried {max_retries} times): {e}")
 
     def clear_old_logs(self, keep_count=10):
         """清理旧日志文件，只保留指定数量的最新日志
@@ -223,7 +223,7 @@ class LogManager:
             name="LogCleanupThread"
         )
         cleanup_thread.start()
-        self.logger.debug("日志清理任务已在后台启动")
+        self.logger.debug("Log cleanup task started in the background")
 
 
 # 创建全局日志管理器实例

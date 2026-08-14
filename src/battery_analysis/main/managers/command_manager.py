@@ -34,7 +34,7 @@ class CommandManager:
         """
         初始化所有命令对象
         """
-        self.logger.info("初始化命令对象")
+        self.logger.info("Initializing command objects")
         
         # 初始化各种命令并设置为Main类的属性
         self._commands["run_analysis"] = RunAnalysisCommand(self.main_window.analysis_runner)
@@ -85,10 +85,10 @@ class CommandManager:
             try:
                 return command.execute()
             except Exception as e:
-                self.logger.exception(f"执行命令失败: {command_name}")
+                self.logger.exception(f"Failed to execute command: {command_name}")
                 return False
         else:
-            self.logger.error(f"未找到命令: {command_name}")
+            self.logger.error(f"Command not found: {command_name}")
             return False
     
     def get_all_commands(self) -> dict:

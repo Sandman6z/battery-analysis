@@ -54,7 +54,7 @@ class AnalysisWorker(QC.QRunnable):
         请求取消任务
         """
         self.b_cancel_requested = True
-        self.signals.progress_update.emit(self.progress_value, "正在取消任务...")
+        self.signals.progress_update.emit(self.progress_value, "Canceling task...")
 
     def set_info(self, str_path, str_input_path, str_output_path, test_info):
         """
@@ -110,10 +110,10 @@ class AnalysisWorker(QC.QRunnable):
             self.signals.info.emit(True, 2, status_text)
             self.signals.info.emit(True, 3, status_text)
         except RuntimeError as e:
-            logging.warning("发送初始运行状态失败: %s", str(e))
+            logging.warning("Failed to send initial running status: %s", str(e))
 
         try:
-            self._emit_progress(0, "准备分析...")
+            self._emit_progress(0, "Preparing analysis...")
 
             # 后向兼容：若传入 TestInfo，转为 list 供旧版引擎使用
             from battery_analysis.domain.entities.test_info import TestInfo
@@ -131,15 +131,15 @@ class AnalysisWorker(QC.QRunnable):
                 return
 
             os.mkdir(version_dir)
-            self._emit_progress(3, "正在初始化分析环境...")
+            self._emit_progress(3, "Initializing analysis environment...")
 
             # 电池分析
             # 延迟导入以避免循环引用
             from battery_analysis.utils.processors import battery_analysis
 
-            self._emit_progress(5, "正在加载电池分析模块...")
+            self._emit_progress(5, "Loading battery analysis module...")
 
-            self._emit_progress(8, "正在初始化电池分析引擎...")
+            self._emit_progress(8, "Initializing battery analysis engine...")
 
             info_battery = battery_analysis.BatteryAnalysis(
                 strInDataXlsxDir=self.str_input_path,
@@ -149,7 +149,7 @@ class AnalysisWorker(QC.QRunnable):
             )
 
             # BatteryAnalysis.__init__ 内部已报告进度至约55%，继续后续步骤
-            self._emit_progress(self.progress_value, "正在处理电池信息...")
+            self._emit_progress(self.progress_value, "Processing battery information...")
 
             self.str_error_battery = info_battery.UBA_GetErrorLog()
             if self.str_error_battery == "":
@@ -165,7 +165,7 @@ class AnalysisWorker(QC.QRunnable):
                 original_cycle_date = list_battery_info[4]
 
                 logging.info(
-                    "获取到的Test Date: %s, 原始周期日期: %s", test_date, original_cycle_date)
+                    "Retrieved Test Date: %s, original cycle date: %s", test_date, original_cycle_date)
 
                 from battery_analysis.utils.readers.date_parser import parse_test_date
 
@@ -177,9 +177,9 @@ class AnalysisWorker(QC.QRunnable):
                 self.str_test_date = parse_test_date(
                     test_date, original_cycle_date, fallback
                 )
-                logging.info("最终确定的测试日期: %s", self.str_test_date)
+                logging.info("Final test date determined: %s", self.str_test_date)
 
-                self._emit_progress(self.progress_value, "正在处理输出目录...")
+                self._emit_progress(self.progress_value, "Processing output directory...")
 
                 # 重命名目录
                 try:
@@ -192,17 +192,17 @@ class AnalysisWorker(QC.QRunnable):
                     try:
                         self.signals.rename_path.emit(self.str_test_date)
                     except RuntimeError:
-                        logging.warning("信号对象已被删除，无法发送重命名路径信号")
+                        logging.warning("Signal object already deleted, cannot emit rename path signal")
 
                     os.rename(version_dir, final_dir)
                 except (OSError, PermissionError, FileNotFoundError) as e:
-                    logging.error("目录重命名失败: %s", e)
+                    logging.error("Failed to rename directory: %s", e)
                     # 重命名失败时，使用默认目录名继续执行
                     final_dir = version_dir
 
-                self._emit_progress(self.progress_value, "正在准备生成报告...")
+                self._emit_progress(self.progress_value, "Preparing to generate report...")
 
-                self._emit_progress(60, "正在初始化报告生成模块...")
+                self._emit_progress(60, "Initializing report generation module...")
 
                 # 文件写入
                 try:
@@ -227,46 +227,46 @@ class AnalysisWorker(QC.QRunnable):
                         equipment_info=_equipment,
                     )
 
-                    self._emit_progress(63, "正在整理分析数据...")
+                    self._emit_progress(63, "Organizing analysis data...")
 
-                    self._emit_progress(65, "正在写入分析结果...")
+                    self._emit_progress(65, "Writing analysis results...")
 
-                    self._emit_progress(70, "正在生成图表...")
+                    self._emit_progress(70, "Generating charts...")
 
-                    self._emit_progress(74, "正在优化图表布局...")
+                    self._emit_progress(74, "Optimizing chart layout...")
 
-                    self._emit_progress(78, "正在验证分析结果数据...")
+                    self._emit_progress(78, "Validating analysis result data...")
 
-                    self._emit_progress(82, "正在封装最终数据包...")
+                    self._emit_progress(82, "Packaging final data...")
 
                     self.str_error_xlsx = info_file.UFW_GetErrorLog()
                     if self.str_error_xlsx != "":
                         logging.error(self.str_error_xlsx)
                     else:
-                        self._emit_progress(85, "正在完成最终处理...")
+                        self._emit_progress(85, "Completing final processing...")
 
-                        self._emit_progress(90, "正在验证输出结果...")
+                        self._emit_progress(90, "Validating output results...")
 
-                        self._emit_progress(95, "正在清理临时文件...")
+                        self._emit_progress(95, "Cleaning up temporary files...")
 
-                        self._emit_progress(100, "分析完成！")
+                        self._emit_progress(100, "Analysis complete!")
 
                     # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                     try:
                         self._start_visualizer()
                     except (ImportError, OSError, PermissionError, ValueError) as e:
-                        logging.error("启动可视化工具失败: %s", e)
+                        logging.error("Failed to start visualizer: %s", e)
                 except (ImportError, OSError, PermissionError, IOError, ValueError) as e:
-                    logging.error("文件写入过程中发生错误: %s", e)
-                    self.str_error_xlsx = f"文件写入错误: {str(e)}"
+                    logging.error("An error occurred during file writing: %s", e)
+                    self.str_error_xlsx = f"File writing error: {str(e)}"
 
         except _TaskCancelled:
             return
         except Exception as e:
             # 捕获所有异常，包括自定义的 BatteryAnalysisException
-            logging.error("线程运行过程中发生错误: %s", e)
+            logging.error("An error occurred during thread execution: %s", e)
             # 将未捕获的异常信息传递给UI层
-            self.str_error_xlsx = f"线程运行错误: {str(e)}"
+            self.str_error_xlsx = f"Thread execution error: {str(e)}"
         finally:
             self.b_thread_run = False
             # 发送完成状态（取消的任务发 cancelled 信号，其他正常上报）
@@ -281,7 +281,7 @@ class AnalysisWorker(QC.QRunnable):
                     self.signals.info.emit(False, 0, "status:success")
                     self.signals.thread_end.emit()
             except RuntimeError as e:
-                logging.warning("信号对象已被删除，无法发送完成状态: %s", e)
+                logging.warning("Signal object already deleted, cannot emit completion status: %s", e)
 
     def _start_visualizer(self):
         """
@@ -292,6 +292,6 @@ class AnalysisWorker(QC.QRunnable):
             if hasattr(self, 'signals'):
                 self.signals.start_visualizer.emit()
         except RuntimeError as e:
-            logging.warning("信号对象已被删除，无法发送启动可视化工具信号: %s", e)
+            logging.warning("Signal object already deleted, cannot emit start visualizer signal: %s", e)
         except RuntimeError as e:
-            logging.error("发送启动可视化工具信号时发生错误: %s", e)
+            logging.error("An error occurred while emitting start visualizer signal: %s", e)

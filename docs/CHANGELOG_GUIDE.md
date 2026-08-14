@@ -105,11 +105,11 @@ python scripts/generate_changelog.py --version v2.9.0
 # 3. 检查生成的 changelog
 git diff CHANGELOG.md
 
-# 4. 更新版本号（pyproject.toml）
+# 4. 更新版本号（src/battery_analysis/_version.py）
 # 手动编辑或使用工具
 
 # 5. 提交 changelog 和版本号更新
-git add CHANGELOG.md pyproject.toml
+git add CHANGELOG.md src/battery_analysis/_version.py
 git commit -m "chore: 准备发布 v2.9.0"
 ```
 

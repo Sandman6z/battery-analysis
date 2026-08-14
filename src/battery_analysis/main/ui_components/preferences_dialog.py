@@ -13,9 +13,9 @@ import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
-from . import _, get_available_locales, set_locale, get_current_locale
-from .config_dialog_interface import IConfigPathProvider
-from .language_manager import get_language_manager
+from battery_analysis.i18n import _, get_available_locales, set_locale, get_current_locale
+from battery_analysis.i18n.language_manager import get_language_manager
+from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
 
 
 class PreferencesDialog(QW.QDialog):
@@ -34,12 +34,11 @@ class PreferencesDialog(QW.QDialog):
         self._config_provider = config_provider
         
         # Set dialog properties
-        self.setWindowTitle(_("preferences_title", "Preferences"))
+        self.setWindowTitle(_("Preferences"))
         self.setModal(True)
         self.setMinimumSize(500, 400)
         
         # Initialize attributes
-        self.auto_save_checkbox = None
         self.confirm_exit_checkbox = None
         self.theme_combo = None
         self.font_size_spinbox = None
@@ -91,55 +90,50 @@ class PreferencesDialog(QW.QDialog):
         general_layout = QW.QVBoxLayout(general_widget)
         
         # General settings group
-        general_group = QW.QGroupBox(_("general_settings", "General Settings"))
+        general_group = QW.QGroupBox(_("General Settings"))
         general_group_layout = QW.QVBoxLayout(general_group)
-        
-        # Auto-save option
-        self.auto_save_checkbox = QW.QCheckBox(_("auto_save", "Auto-save settings"))
-        self.auto_save_checkbox.setToolTip(_("auto_save_tooltip", "Automatically save settings when changes are made"))
-        general_group_layout.addWidget(self.auto_save_checkbox)
-        
+
         # Confirmation on exit
-        self.confirm_exit_checkbox = QW.QCheckBox(_("confirm_exit", "Confirm before exiting"))
-        self.confirm_exit_checkbox.setToolTip(_("confirm_exit_tooltip", "Show confirmation dialog when exiting the application"))
+        self.confirm_exit_checkbox = QW.QCheckBox(_("Confirm before exiting"))
+        self.confirm_exit_checkbox.setToolTip(_("Show confirmation dialog when exiting the application"))
         general_group_layout.addWidget(self.confirm_exit_checkbox)
-        
+
         general_layout.addWidget(general_group)
-        
+
         # Display settings group
-        display_group = QW.QGroupBox(_("display_settings", "Display Settings"))
+        display_group = QW.QGroupBox(_("Display Settings"))
         display_group_layout = QW.QVBoxLayout(display_group)
-        
+
         # Theme selection
         theme_layout = QW.QHBoxLayout()
-        theme_layout.addWidget(QW.QLabel(_("theme", "Theme:")))
+        theme_layout.addWidget(QW.QLabel(_("Theme:")))
         self.theme_combo = QW.QComboBox()
         self.theme_combo.addItems([
-            _("theme_light", "Light"),
-            _("theme_dark", "Dark"),
-            _("theme_system", "System")
+            _("Light"),
+            _("Dark"),
+            _("System")
         ])
         theme_layout.addWidget(self.theme_combo)
         theme_layout.addStretch()
         display_group_layout.addLayout(theme_layout)
-        
+
         # Font size
         font_layout = QW.QHBoxLayout()
-        font_layout.addWidget(QW.QLabel(_("font_size", "Font Size:")))
+        font_layout.addWidget(QW.QLabel(_("Font Size:")))
         self.font_size_spinbox = QW.QSpinBox()
         self.font_size_spinbox.setRange(8, 24)
         self.font_size_spinbox.setSuffix(" pt")
         font_layout.addWidget(self.font_size_spinbox)
         font_layout.addStretch()
         display_group_layout.addLayout(font_layout)
-        
+
         general_layout.addWidget(display_group)
-        
+
         # Add stretch to push groups to top
         general_layout.addStretch()
-        
+
         # Add tab
-        self.tab_widget.addTab(general_widget, _("general", "General"))
+        self.tab_widget.addTab(general_widget, _("General"))
     
     def _create_language_tab(self):
         """Create the language preferences tab"""
@@ -147,49 +141,49 @@ class PreferencesDialog(QW.QDialog):
         language_layout = QW.QVBoxLayout(language_widget)
         
         # Language selection group
-        language_group = QW.QGroupBox(_("language_settings", "Language Settings"))
+        language_group = QW.QGroupBox(_("Language Settings"))
         language_group_layout = QW.QVBoxLayout(language_group)
-        
+
         # Current language display
         current_lang_layout = QW.QHBoxLayout()
-        current_lang_layout.addWidget(QW.QLabel(_("current_language", "Current Language:")))
+        current_lang_layout.addWidget(QW.QLabel(_("Current Language:")))
         self.current_language_label = QW.QLabel()
         current_lang_layout.addWidget(self.current_language_label)
         current_lang_layout.addStretch()
         language_group_layout.addLayout(current_lang_layout)
-        
+
         # Language selection
         lang_selection_layout = QW.QHBoxLayout()
-        lang_selection_layout.addWidget(QW.QLabel(_("select_language", "Select Language:")))
+        lang_selection_layout.addWidget(QW.QLabel(_("Select Language:")))
         self.language_combo = QW.QComboBox()
         self._populate_language_combo()
         lang_selection_layout.addWidget(self.language_combo)
         lang_selection_layout.addStretch()
         language_group_layout.addLayout(lang_selection_layout)
-        
+
         # Apply button
-        apply_lang_button = QW.QPushButton(_("apply_language", "Apply Language"))
+        apply_lang_button = QW.QPushButton(_("Apply Language"))
         apply_lang_button.clicked.connect(self._apply_language)
         language_group_layout.addWidget(apply_lang_button)
-        
+
         language_layout.addWidget(language_group)
-        
+
         # Translation status group
-        status_group = QW.QGroupBox(_("translation_status", "Translation Status"))
+        status_group = QW.QGroupBox(_("Translation Status"))
         status_layout = QW.QVBoxLayout(status_group)
-        
+
         # Status text
-        self.status_text = QW.QLabel(_("translation_info", "Translation information will be displayed here."))
+        self.status_text = QW.QLabel(_("Translation information will be displayed here."))
         self.status_text.setWordWrap(True)
         status_layout.addWidget(self.status_text)
-        
+
         language_layout.addWidget(status_group)
-        
+
         # Add stretch
         language_layout.addStretch()
 
         # Add tab
-        self.tab_widget.addTab(language_widget, _("language", "Language"))
+        self.tab_widget.addTab(language_widget, _("Language"))
 
     def _create_config_tab(self):
         """Create the configuration file settings tab"""
@@ -197,23 +191,23 @@ class PreferencesDialog(QW.QDialog):
         config_layout = QW.QVBoxLayout(config_widget)
 
         # Config file path group
-        config_group = QW.QGroupBox(_("config_file_settings", "Configuration File Settings"))
+        config_group = QW.QGroupBox(_("Configuration File Settings"))
         config_group_layout = QW.QVBoxLayout(config_group)
 
         # Current config path display
         current_path_layout = QW.QHBoxLayout()
-        current_path_layout.addWidget(QW.QLabel(_("current_config_path", "Current Config Path:")))
-        self.config_path_label = QW.QLabel(_("not_loaded", "Not loaded"))
+        current_path_layout.addWidget(QW.QLabel(_("Current Config Path:")))
+        self.config_path_label = QW.QLabel(_("Not loaded"))
         self.config_path_label.setStyleSheet("color: gray;")
         current_path_layout.addWidget(self.config_path_label, 1)
         config_group_layout.addLayout(current_path_layout)
 
         # Config path selection
         path_layout = QW.QHBoxLayout()
-        path_layout.addWidget(QW.QLabel(_("custom_config_path", "Custom Config Path:")))
+        path_layout.addWidget(QW.QLabel(_("Custom Config Path:")))
         self.config_path_lineedit = QW.QLineEdit()
-        self.config_path_lineedit.setPlaceholderText(_("enter_config_path", "Enter custom configuration file path..."))
-        self.config_browse_button = QW.QPushButton(_("browse", "Browse..."))
+        self.config_path_lineedit.setPlaceholderText(_("Enter custom configuration file path..."))
+        self.config_browse_button = QW.QPushButton(_("Browse..."))
         self.config_browse_button.clicked.connect(self._browse_config_file)
         path_layout.addWidget(self.config_path_lineedit, 1)
         path_layout.addWidget(self.config_browse_button)
@@ -221,7 +215,7 @@ class PreferencesDialog(QW.QDialog):
 
         # Validate button
         validate_layout = QW.QHBoxLayout()
-        self.config_validate_button = QW.QPushButton(_("validate_config", "Validate Configuration"))
+        self.config_validate_button = QW.QPushButton(_("Validate Configuration"))
         self.config_validate_button.clicked.connect(self._validate_config_file)
         self.config_status_label = QW.QLabel()
         self.config_status_label.setWordWrap(True)
@@ -232,7 +226,7 @@ class PreferencesDialog(QW.QDialog):
         config_layout.addWidget(config_group)
 
         # Required sections info
-        info_group = QW.QGroupBox(_("required_sections", "Required Sections in Config File"))
+        info_group = QW.QGroupBox(_("Required Sections in Config File"))
         info_layout = QW.QVBoxLayout(info_group)
 
         required_sections = [
@@ -247,7 +241,7 @@ class PreferencesDialog(QW.QDialog):
 
         # Reset to default button
         reset_layout = QW.QHBoxLayout()
-        reset_button = QW.QPushButton(_("reset_to_default", "Reset to Default"))
+        reset_button = QW.QPushButton(_("Reset to Default"))
         reset_button.clicked.connect(self._reset_config_path)
         reset_layout.addWidget(reset_button)
         reset_layout.addStretch()
@@ -257,13 +251,13 @@ class PreferencesDialog(QW.QDialog):
         config_layout.addStretch()
 
         # Add tab
-        self.tab_widget.addTab(config_widget, _("config", "Config"))
+        self.tab_widget.addTab(config_widget, _("Config"))
 
     def _browse_config_file(self):
         """Open file dialog to browse for config file"""
         file_path, filter_ = QW.QFileDialog.getOpenFileName(
             self,
-            _("select_config_file", "Select Configuration File"),
+            _("Select Configuration File"),
             "",
             "JSON Files (*.json);;INI Files (*.ini);;All Files (*)"
         )
@@ -276,12 +270,12 @@ class PreferencesDialog(QW.QDialog):
         file_path = self.config_path_lineedit.text().strip()
 
         if not file_path:
-            self.config_status_label.setText(_("please_enter_path", "Please enter a configuration file path"))
+            self.config_status_label.setText(_("Please enter a configuration file path"))
             self.config_status_label.setStyleSheet("color: orange;")
             return
 
         if not os.path.exists(file_path):
-            self.config_status_label.setText(_("file_not_exists", "File does not exist"))
+            self.config_status_label.setText(_("File does not exist"))
             self.config_status_label.setStyleSheet("color: red;")
             return
 
@@ -292,7 +286,7 @@ class PreferencesDialog(QW.QDialog):
                 with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 if not isinstance(data, dict):
-                    self.config_status_label.setText(_("invalid_json", "JSON root must be an object"))
+                    self.config_status_label.setText(_("JSON root must be an object"))
                     self.config_status_label.setStyleSheet("color: red;")
                     return
                 required_keys = ["battery", "test"]
@@ -303,10 +297,10 @@ class PreferencesDialog(QW.QDialog):
                     )
                     self.config_status_label.setStyleSheet("color: orange;")
                 else:
-                    self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
+                    self.config_status_label.setText(_("Configuration file is valid!"))
                     self.config_status_label.setStyleSheet("color: green;")
             else:
-                # INI 文件兼容验证
+                # INI 文件兼容验证（已弃用，仅用于旧版兼容）
                 import configparser
                 parser = configparser.ConfigParser()
                 parser.read(file_path, encoding='utf-8')
@@ -316,15 +310,16 @@ class PreferencesDialog(QW.QDialog):
 
                 if missing_sections:
                     self.config_status_label.setText(
-                        _("missing_sections", f"Missing required sections: {', '.join(missing_sections)}")
+                        _(f"Missing required sections: {', '.join(missing_sections)}")
                     )
                     self.config_status_label.setStyleSheet("color: orange;")
                 else:
-                    self.config_status_label.setText(_("config_valid", "Configuration file is valid!"))
-                    self.config_status_label.setStyleSheet("color: green;")
+                    self.config_status_label.setText(
+                        _("INI format is deprecated; consider migrating to config.json"))
+                    self.config_status_label.setStyleSheet("color: orange;")
 
         except Exception as e:
-            self.config_status_label.setText(_("config_parse_error", f"Error parsing config: {str(e)}"))
+            self.config_status_label.setText(_(f"Error parsing config: {str(e)}"))
             self.config_status_label.setStyleSheet("color: red;")
 
     def _reset_config_path(self):
@@ -333,6 +328,9 @@ class PreferencesDialog(QW.QDialog):
         self.config_status_label.setText("")
         settings = QC.QSettings()
         settings.remove("config/custom_config_path")
+        # 同步清除模块级缓存，确保 config_utils 不再返回旧路径
+        from battery_analysis.utils.config_utils import clear_custom_config_path
+        clear_custom_config_path()
 
     def _populate_language_combo(self):
         """Populate the language combo box with available languages"""
@@ -357,15 +355,15 @@ class PreferencesDialog(QW.QDialog):
         button_layout.addStretch()
         
         # OK button
-        self.ok_button = QW.QPushButton(_("ok", "OK"))
+        self.ok_button = QW.QPushButton(_("OK"))
         self.ok_button.clicked.connect(self.accept)
-        
+
         # Cancel button
-        self.cancel_button = QW.QPushButton(_("cancel", "Cancel"))
+        self.cancel_button = QW.QPushButton(_("Cancel"))
         self.cancel_button.clicked.connect(self.reject)
-        
+
         # Apply button
-        self.apply_button = QW.QPushButton(_("apply", "Apply"))
+        self.apply_button = QW.QPushButton(_("Apply"))
         self.apply_button.clicked.connect(self._apply_settings)
         
         button_layout.addWidget(self.apply_button)
@@ -379,11 +377,6 @@ class PreferencesDialog(QW.QDialog):
         try:
             # Load general settings
             settings = QC.QSettings()
-            
-            # Auto-save
-            self.auto_save_checkbox.setChecked(
-                settings.value("general/auto_save", True, type=bool)
-            )
             
             # Confirm exit
             self.confirm_exit_checkbox.setChecked(
@@ -419,13 +412,13 @@ class PreferencesDialog(QW.QDialog):
                         self.config_path_label.setText(cfg_path)
                         self.config_path_label.setStyleSheet("color: green;")
                     else:
-                        self.config_path_label.setText(_("using_default", "Using default paths"))
+                        self.config_path_label.setText(_("Using default paths"))
                         self.config_path_label.setStyleSheet("color: gray;")
                 except Exception:
-                    self.config_path_label.setText(_("not_loaded", "Not loaded"))
+                    self.config_path_label.setText(_("Not loaded"))
                     self.config_path_label.setStyleSheet("color: gray;")
             else:
-                self.config_path_label.setText(_("not_loaded", "Not loaded"))
+                self.config_path_label.setText(_("Not loaded"))
                 self.config_path_label.setStyleSheet("color: gray;")
 
             self.logger.debug("Settings loaded successfully")
@@ -443,14 +436,13 @@ class PreferencesDialog(QW.QDialog):
             translated_keys = sum(1 for translated in validation.values() if translated)
             
             status_text = _(
-                "translation_status_text", 
                 f"Translation coverage: {translated_keys}/{total_keys} keys translated"
             )
-            
+
             if translated_keys == total_keys:
-                status_text += f"\n{_('translation_complete', '✓ Translation is complete')}"
+                status_text += f'\n{_("✓ Translation is complete")}'
             else:
-                status_text += f"\n{_('translation_incomplete', '⚠ Some translations are missing')}"
+                status_text += f'\n{_("⚠ Some translations are missing")}'
             
             self.status_text.setText(status_text)
             
@@ -478,16 +470,16 @@ class PreferencesDialog(QW.QDialog):
                 else:
                     QW.QMessageBox.warning(
                         self,
-                        _("warning", "Warning"),
-                        _("language_change_failed", "Failed to change language")
+                        _("Warning"),
+                        _("Failed to change language")
                     )
         
         except (OSError, ValueError, AttributeError, TypeError) as e:
             self.logger.error("Failed to apply language: %s", e)
             QW.QMessageBox.critical(
                 self,
-                _("error", "Error"),
-                f"{_('language_change_error', 'Language change error')}: {str(e)}"
+                _("Error"),
+                f'{_("Language change error")}: {str(e)}'
             )
     
     def _apply_settings(self):
@@ -496,7 +488,6 @@ class PreferencesDialog(QW.QDialog):
             settings = QC.QSettings()
             
             # Save general settings
-            settings.setValue("general/auto_save", self.auto_save_checkbox.isChecked())
             settings.setValue("general/confirm_exit", self.confirm_exit_checkbox.isChecked())
             
             # Save display settings
@@ -512,15 +503,15 @@ class PreferencesDialog(QW.QDialog):
 
             # Save custom config path
             custom_path = self.config_path_lineedit.text().strip()
-            self.logger.debug(f"保存自定义配置路径: '{custom_path}'")
+            self.logger.debug(f"Saving custom config path: '{custom_path}'")
             if custom_path:
                 if os.path.exists(custom_path):
                     settings.setValue("config/custom_config_path", custom_path)
-                    self.logger.debug(f"成功保存自定义配置路径: '{custom_path}'")
+                    self.logger.debug(f"Saved custom config path: '{custom_path}'")
                 else:
-                    self.logger.warning(f"配置文件不存在: '{custom_path}'")
+                    self.logger.warning(f"Config file does not exist: '{custom_path}'")
                     settings.setValue("config/custom_config_path", custom_path)
-                    self.logger.debug(f"已保存配置路径（文件不存在）: '{custom_path}'")
+                    self.logger.debug(f"Saved config path (file does not exist): '{custom_path}'")
             else:
                 settings.remove("config/custom_config_path")
 
@@ -534,21 +525,19 @@ class PreferencesDialog(QW.QDialog):
             self.logger.error("Failed to apply settings: %s", e)
             QW.QMessageBox.critical(
                 self,
-                _("error", "Error"),
-                f"{_('settings_apply_error', 'Settings apply error')}: {str(e)}"
+                _("Error"),
+                f'{_("Settings apply error")}: {str(e)}'
             )
     
     def accept(self):
-        """Handle OK button clicked"""
+        """Handle OK button clicked — apply settings once then close"""
         self._apply_settings()
         super().accept()
-    
-    
-    
+
+    def reject(self):
+        """Handle Cancel / Escape — close without saving"""
+        super().reject()
+
     def closeEvent(self, event):
-        """Handle dialog close event"""
-        # Save any pending changes
-        if hasattr(self, 'auto_save_checkbox') and self.auto_save_checkbox.isChecked():
-            self._apply_settings()
-        
+        """Handle dialog close event (e.g. X button) — same as Cancel, no auto-save"""
         super().closeEvent(event)

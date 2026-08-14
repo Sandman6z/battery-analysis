@@ -34,7 +34,7 @@ def set_custom_config_path(path: str) -> None:
     """
     global _custom_config_path_cache
     _custom_config_path_cache = path
-    logger.info(f"已设置自定义配置路径缓存: '{path}'")
+    logger.info(f"Custom config path cache set: '{path}'")
 
 
 def clear_custom_config_path() -> None:
@@ -45,19 +45,20 @@ def clear_custom_config_path() -> None:
     """
     global _custom_config_path_cache
     _custom_config_path_cache = None
-    logger.info("已清除自定义配置路径缓存")
+    logger.info("Custom config path cache cleared")
 
 
 def clear_config_cache() -> None:
     """
-    清除配置文件路径缓存
+    清除全部配置文件路径缓存（含自定义配置路径缓存）
 
-    当用户更改配置文件路径设置后，需要调用此函数清除缓存
-    注意：不清除 _custom_config_path_cache，因为那是用户设置的自定义路径
+    当用户更改配置文件路径设置后，需要调用此函数清除缓存，
+    下次将从 QSettings 重新解析（含用户自定义的配置路径）
     """
-    global _config_path_cache
+    global _config_path_cache, _custom_config_path_cache
     _config_path_cache.clear()
-    logger.info("配置文件路径缓存已清除")
+    _custom_config_path_cache = None
+    logger.info("Config file path cache cleared")
 
 
 def _get_custom_config_path() -> Optional[str]:
@@ -71,11 +72,11 @@ def _get_custom_config_path() -> Optional[str]:
     """
     global _custom_config_path_cache
 
-    logger.info(f"[_get_custom_config_path] 模块级缓存: '{_custom_config_path_cache}'")
+    logger.info(f"[_get_custom_config_path] module-level cache: '{_custom_config_path_cache}'")
 
     # 首先检查模块级缓存
     if _custom_config_path_cache:
-        logger.info(f"使用模块级缓存的自定义配置路径: '{_custom_config_path_cache}'")
+        logger.info(f"Using module-level cached custom config path: '{_custom_config_path_cache}'")
         return _custom_config_path_cache
 
     # 如果模块级缓存没有，则从QSettings读取
@@ -86,18 +87,18 @@ def _get_custom_config_path() -> Optional[str]:
         custom_path = settings.value("config/custom_config_path", "", type=str)
         if not custom_path:
             custom_path = settings.value("custom_config_path", "", type=str)
-        logger.info(f"从QSettings读取到的自定义配置路径: '{custom_path}'")
+        logger.info(f"Custom config path read from QSettings: '{custom_path}'")
 
         # 即使文件不存在，也返回路径，让调用者处理不存在的情况
         if custom_path:
             # 更新模块级缓存
             _custom_config_path_cache = custom_path
-            logger.info(f"返回自定义配置路径: '{custom_path}'")
+            logger.info(f"Returning custom config path: '{custom_path}'")
             return custom_path
         else:
-            logger.info("未设置自定义配置路径")
+            logger.info("No custom config path set")
     except Exception as e:
-        logger.error("无法读取自定义配置路径: %s", e)
+        logger.error("Failed to read custom config path: %s", e)
     return None
 
 
@@ -129,14 +130,14 @@ def find_config_file(
     # 如果使用缓存且缓存中存在，则直接返回
     if use_cache and cache_key in _config_path_cache:
         cached = _config_path_cache[cache_key]
-        logger.info(f"[find_config_file] 使用路径缓存: {cached}")
+        logger.info(f"[find_config_file] using path cache: {cached}")
         return cached
 
     # 首先检查是否有用户自定义的配置路径（这个检查不应该被缓存）
     custom_path = _get_custom_config_path()
-    logger.info(f"[find_config_file] _get_custom_config_path() 返回: {custom_path}")
+    logger.info(f"[find_config_file] _get_custom_config_path() returned: {custom_path}")
     if custom_path:
-        logger.info("使用用户自定义配置文件: %s", custom_path)
+        logger.info("Using user custom config file: %s", custom_path)
         _config_path_cache[cache_key] = str(custom_path)
         return str(custom_path)
 
@@ -146,24 +147,24 @@ def find_config_file(
 
     # 根据环境类型调整搜索策略
     if env_info['environment_type'] == EnvironmentType.CONTAINER:
-        logger.debug("容器环境：优先使用标准路径")
+        logger.debug("Container environment: using standard paths first")
         possible_config_paths = _get_container_config_paths(file_name, config_dir, env_info)
     elif env_info['environment_type'] == EnvironmentType.PRODUCTION:
-        logger.debug("生产环境：使用打包资源路径")
+        logger.debug("Production environment: using packaged resource paths")
         possible_config_paths = _get_production_config_paths(file_name, config_dir, env_info)
     else:
-        logger.debug("开发环境：使用灵活路径搜索")
+        logger.debug("Development environment: using flexible path search")
         possible_config_paths = _get_development_config_paths(file_name, config_dir, env_info)
 
     # 遍历查找第一个存在的配置文件
     for path in possible_config_paths:
         if path.exists():
-            logger.info("找到配置文件: %s", path)
+            logger.info("Found config file: %s", path)
             # 将结果存入缓存
             _config_path_cache[cache_key] = str(path)
             return str(path)
 
-    logger.warning("未找到配置文件: %s", file_name)
+    logger.warning("Config file not found: %s", file_name)
     # 将结果存入缓存
     _config_path_cache[cache_key] = None
     return None

@@ -27,10 +27,10 @@ class CommandManagerInitializationStep(InitializationStep):
         try:
             # 初始化命令管理器
             main_window.command_manager = CommandManager(main_window)
-            self.logger.info("命令管理器初始化完成")
+            self.logger.info("Command manager initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("命令管理器初始化失败")
+            self.logger.exception("Command manager initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

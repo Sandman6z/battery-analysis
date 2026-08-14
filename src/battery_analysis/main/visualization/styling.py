@@ -72,9 +72,9 @@ class ChartStylingMixin:
 
             ax.grid(True, alpha=0.3, color='#e9ecef', linestyle='-', linewidth=0.5)
 
-            logger.info("已应用现代化图表样式")
+            logger.info("Modern chart style applied")
         except (AttributeError, TypeError, ValueError) as e:
-            logger.warning("应用现代化图表样式失败: %s", e)
+            logger.warning("Failed to apply modern chart style: %s", e)
 
     def _apply_window_modern_style(self, window):
         """为PyQt6窗口应用现代化样式"""
@@ -87,9 +87,9 @@ class ChartStylingMixin:
                 }
             """
             window.setStyleSheet(modern_style)
-            logger.info("已应用窗口现代化样式")
+            logger.info("Modern window style applied")
         except (AttributeError, TypeError, ValueError) as e:
-            logger.warning("应用窗口现代化样式失败: %s", e)
+            logger.warning("Failed to apply modern window style: %s", e)
 
     def _apply_menubar_style(self, menubar):
         """为菜单栏应用现代化样式"""
@@ -122,9 +122,9 @@ class ChartStylingMixin:
                 }
             """
             menubar.setStyleSheet(menubar_style)
-            logger.info("已应用菜单栏现代化样式")
+            logger.info("Modern menubar style applied")
         except (AttributeError, TypeError, ValueError) as e:
-            logger.warning("应用菜单栏现代化样式失败: %s", e)
+            logger.warning("Failed to apply modern menubar style: %s", e)
 
     def _apply_menu_style(self, menu):
         """为菜单应用现代化样式"""
@@ -161,9 +161,9 @@ class ChartStylingMixin:
                 }
             """
             menu.setStyleSheet(menu_style)
-            logger.info("已应用菜单现代化样式")
+            logger.info("Modern menu style applied")
         except (AttributeError, TypeError, ValueError) as e:
-            logger.warning("应用菜单现代化样式失败: %s", e)
+            logger.warning("Failed to apply modern menu style: %s", e)
 
     def _update_button_style(self, state, pressed=False, hover=False):
         """更新按钮样式 - 增强版 v4.1"""
@@ -206,7 +206,7 @@ class ChartStylingMixin:
 
             state['bg'].set_alpha(0.95)
         except (AttributeError, TypeError, ValueError) as e:
-            logger.error("更新按钮样式时出错: %s", e)
+            logger.error("Error updating button style: %s", e)
 
     def _reset_button_after_delay(self, state, delay=0.1):
         """延迟重置按钮状态"""

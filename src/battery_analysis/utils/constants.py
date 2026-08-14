@@ -5,9 +5,15 @@
 """
 
 # Matplotlib 中文字体配置
-CN_FONT_LIST = ['SimHei', 'Microsoft YaHei', 'Segoe UI Emoji',
-                'Apple Color Emoji', 'Noto Color Emoji',
-                'DejaVu Sans', 'Arial', 'Times New Roman']
+# 注意：首个字体必须支持中文字形，后续为备选
+CN_FONT_LIST = [
+    'Microsoft YaHei',       # Windows 中文字体
+    'SimHei',                # Windows 中文字体
+    'Segoe UI Emoji',        # Windows emoji 支持
+    'DengXian',              # Windows 等线字体
+    'DejaVu Sans',           # matplotlib 内置备选
+    'Arial', 'Times New Roman',
+]
 
 # 电池类型基础规格
 BATTERY_TYPE_BASE = ["CoinCell", "ButtonCell", "Cylindrical", "Prismatic", "PouchCell"]

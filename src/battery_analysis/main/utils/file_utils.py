@@ -109,5 +109,5 @@ class FileUtils:
             # 记录错误但不中断程序
             import logging
             logger = logging.getLogger(__name__)
-            logger.error("计算SHA-256校验和失败: %s", e)
+            logger.error("Failed to compute SHA-256 checksum: %s", e)
             return ""

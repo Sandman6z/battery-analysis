@@ -1,54 +1,44 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from battery_analysis.utils.version import Version
 import sys
+import tomllib
 from pathlib import Path
+
+from battery_analysis._version import __version__
+from battery_analysis.utils.version import Version, get_version
 
 
 class TestVersion:
-    def setup_method(self):
-        # 确保每次测试都创建新实例
-        Version._instance = None
-        self.version = Version()
+    def test_version_is_nonempty_string(self):
+        assert isinstance(Version().version, str)
+        assert len(Version().version) > 0
 
-    def test_singleton_pattern(self):
-        # 测试单例模式
-        version1 = Version()
-        version2 = Version()
-        assert version1 is version2
+    def test_version_matches_single_source(self, monkeypatch):
+        """非 debug 环境下，Version().version 与 _version.py 单一源一致"""
+        monkeypatch.delenv("DEBUG", raising=False)
+        monkeypatch.delenv("APP_DEBUG", raising=False)
+        monkeypatch.setattr(sys, "argv", ["pytest"])
+        assert Version().version == __version__
 
-    def test_get_version(self):
-        # 测试获取版本号
-        result = self.version.version
-        assert isinstance(result, str)
-        assert len(result) > 0
+    def test_get_version_matches_package_version(self, monkeypatch):
+        monkeypatch.delenv("DEBUG", raising=False)
+        monkeypatch.delenv("APP_DEBUG", raising=False)
+        monkeypatch.setattr(sys, "argv", ["pytest"])
+        assert get_version() == __version__
 
-    @patch('battery_analysis.utils.version.Path.exists')
-    @patch('builtins.open')
-    def test_get_version_from_pyproject(self, mock_open, mock_exists):
-        # 模拟pyproject.toml存在且包含版本信息
-        mock_exists.return_value = True
-        
-        # 模拟文件读取
-        mock_file = MagicMock()
-        mock_file.__enter__.return_value.read.return_value = b'project = { version = "1.2.3" }'
-        mock_open.return_value = mock_file
-        
-        # 重置单例并重新初始化
-        Version._instance = None
-        version = Version()
-        
-        assert isinstance(version.version, str)
-        assert len(version.version) > 0
+    def test_debug_suffix_appended(self, monkeypatch):
+        """DEBUG 环境下版本号附加 .debug 后缀"""
+        monkeypatch.setenv("DEBUG", "1")
+        monkeypatch.delenv("APP_DEBUG", raising=False)
+        assert get_version() == __version__ + ".debug"
 
-    @patch('battery_analysis.utils.version.Path.exists')
-    def test_get_default_version(self, mock_exists):
-        # 模拟pyproject.toml不存在
-        mock_exists.return_value = False
-        
-        # 重置单例并重新初始化
-        Version._instance = None
-        version = Version()
-        
-        assert isinstance(version.version, str)
-        assert len(version.version) > 0
+    def test_pyproject_declares_dynamic_version(self):
+        """pyproject.toml 不写死版本号，声明为动态并从 _version.py 读取"""
+        root = Path(__file__).resolve().parents[3]
+        with open(root / "pyproject.toml", "rb") as f:
+            data = tomllib.load(f)
+
+        project = data["project"]
+        assert "version" not in project
+        assert "version" in project["dynamic"]
+
+        dynamic = data["tool"]["setuptools"]["dynamic"]
+        assert dynamic["version"]["attr"] == "battery_analysis._version.__version__"

@@ -39,7 +39,7 @@ def fmts():
 
 SAMPLE_TEST_INFO = [
     "Coin Cell",           # 0: 电池类型
-    "Wind",                # 1: 构造方式
+    "",                    # 1: 构造方式（Coin Cell 无构造方法，空字符串）
     "LCO",                 # 2: 电池材料
     "ICR18650",            # 3: 规格
     "Ewin",                # 4: 制造商
@@ -102,9 +102,10 @@ def writer_coin_cell():
 
 @pytest.fixture
 def writer_pouch_cell():
-    """Pouch Cell 类型的 writer"""
+    """Pouch Cell 类型的 writer（有构造方法）"""
     info = copy.deepcopy(SAMPLE_TEST_INFO)
     info[0] = "Pouch Cell"
+    info[1] = "Laminate Type"  # Pouch Cell 有构造方法
     return ExcelReportWriter("/tmp/r", info, copy.deepcopy(SAMPLE_BATTERY_INFO))
 
 
@@ -319,7 +320,7 @@ class TestPrepareSampleContent:
         assert content[0] == "Coin Cell"
         assert content[1] == "LCO-ICR18650"
         assert content[2] == "Ewin"
-        assert content[3] == "Wind"
+        assert content[3] == ""  # Coin Cell 无构造方法
 
     def test_result_pass_when_mm2s_meets_requirement(self, writer, stats):
         """Required 1575, mm2s at 500mA/2.25V = 1280, 1280/1750 = 73% < 1575/1750=90% => Fail"""
@@ -438,7 +439,7 @@ class TestWriteSampleExcel:
         writer._write_sample_excel(ws, sample, stats, fmts)
         content_calls = [c[0][2] for c in ws.write.call_args_list if not isinstance(c[0][2], (int, float))]
         assert "LCO-ICR18650" in content_calls
-        assert "Wind" in content_calls
+        assert "Ewin" in content_calls  # Manufacturer
 
 
 # ── _write_sample_word ──

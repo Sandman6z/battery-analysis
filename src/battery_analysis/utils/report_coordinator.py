@@ -6,6 +6,7 @@
 
 import os
 import re
+import math
 import logging
 import importlib.resources
 from pathlib import Path
@@ -76,15 +77,11 @@ def compute_report_content_base(
             intPosi2V25 = v
             break
 
-    # 测试配置起始行
-    if listTestInfo[0] == "Coin Cell":
-        intTestProfileStartLine = 3
-    elif listTestInfo[0] == "Pouch Cell":
-        intTestProfileStartLine = 4
-    else:
-        from battery_analysis.utils.exceptions import BatteryAnalysisException
-        raise BatteryAnalysisException(
-            "[Test Info Error]: listTestInfo[0] is a unknown battery type")
+    # 测试配置起始行：基础 3 行（Battery Type / Specification / Manufacturer）
+    # 如果构造方法（listTestInfo[1]）有值，则增加一行
+    intTestProfileStartLine = 3
+    if listTestInfo[1]:
+        intTestProfileStartLine += 1
 
     intActualMeasuredCapacityLength = intVoltageLevelNum * 2
 
@@ -231,7 +228,7 @@ class ReportCoordinator:
                              str(original_cycle) if original_cycle else "")
 
         if td and td != "00000000":
-            logger.info("成功解析日期: %s", td)
+            logger.info("Successfully parsed date: %s", td)
             return td
 
         # 回退：从电池名称中提取
@@ -239,7 +236,7 @@ class ReportCoordinator:
 
     def _extract_date_from_battery_name(self) -> str:
         """从电池名称的最后一组连续数字提取日期"""
-        logger.warning("标准日期解析失败，尝试从电池名称提取")
+        logger.warning("Standard date parsing failed, trying to extract from battery name")
         if len(self.listBatteryInfo) > 1 and self.listBatteryInfo[1]:
             first_name = self.listBatteryInfo[1][0] if self.listBatteryInfo[1] else ""
             if first_name:
@@ -248,14 +245,14 @@ class ReportCoordinator:
                     last_group = digit_groups[-1]
                     if len(last_group) >= 8:
                         td = last_group[:8]
-                        logger.info("从电池名称提取前8位日期: %s", td)
+                        logger.info("Extracted first 8 digits as date from battery name: %s", td)
                         return td
                     match = re.search(r'(\d{8})', first_name)
                     if match:
                         td = match.group(1)
-                        logger.info("从电池名称提取8位日期: %s", td)
+                        logger.info("Extracted 8-digit date from battery name: %s", td)
                         return td
-        logger.warning("无法从电池名称提取日期，使用默认值")
+        logger.warning("Could not extract date from battery name, using default value")
         return "00000000"
 
     def _build_image_paths_and_titles(self, td: str) -> None:
@@ -271,8 +268,8 @@ class ReportCoordinator:
                 temperature=self.listTestInfo[7] if len(self.listTestInfo) > 7 else "",
             )
         except (IndexError, TypeError, ValueError) as e:
-            logging.error("获取标题时发生错误: %s", e)
-            strImageTitle = "默认电池分析图标题"
+            logging.error("An error occurred while getting the title: %s", e)
+            strImageTitle = "Default battery analysis plot title"
 
         # 框线图标题
         self.listBoxplotTitle = []
@@ -334,13 +331,13 @@ class ReportCoordinator:
             )
             if pkg_template.is_file():
                 self.strSampleReportWordPath = str(pkg_template)
-                logger.info("从包内模板目录加载Word模板: %s", self.strSampleReportWordPath)
+                logger.info("Loading Word template from in-package template directory: %s", self.strSampleReportWordPath)
             else:
                 raise FileNotFoundError
         except (TypeError, ModuleNotFoundError, FileNotFoundError):
             self.strSampleReportWordPath = str(
                 Path(self.strResultPath) / f"../../0_doc/{template_filename}")
-            logger.info("从外部0_doc目录加载Word模板: %s", self.strSampleReportWordPath)
+            logger.info("Loading Word template from external 0_doc directory: %s", self.strSampleReportWordPath)
 
         report_name = (
             f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}"

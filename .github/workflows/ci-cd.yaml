@@ -94,8 +94,8 @@ jobs:
       run: |
         if ("${{ github.ref }}" -eq 'refs/heads/main') {
           # main branch push: use version from toml + beta + 6-digit SHA
-          $pyprojectContent = Get-Content -Path pyproject.toml -Raw
-          if ($pyprojectContent -match 'version\s*=\s*"([^"]+)"') {
+          $versionFile = Get-Content -Path src/battery_analysis/_version.py -Raw
+          if ($versionFile -match '__version__\s*=\s*"([^"]+)"') {
             $version = $matches[1]
             $shortSha = "${{ github.sha }}".Substring(0, 6)
             $releaseName = "v${version}-beta.${shortSha}"
@@ -105,7 +105,7 @@ jobs:
             echo "release_type=prerelease" >> $env:GITHUB_OUTPUT
             Write-Host "Generated prerelease name: $releaseName"
           } else {
-            Write-Error "Failed to extract version from pyproject.toml"
+            Write-Error "Failed to extract version from src/battery_analysis/_version.py"
             exit 1
           }
         } else {

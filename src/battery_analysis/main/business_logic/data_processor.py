@@ -165,11 +165,11 @@ class DataProcessor:
 
         excel_data = self._process_excel_files(input_dir, excel_files)
         if not excel_data:
-            self.logger.error("没有成功处理的Excel文件")
+            self.logger.error("No Excel files were processed successfully")
             if hasattr(self.main_window, 'checker_input_xlsx'):
-                self.main_window.checker_input_xlsx.set_error("没有成功处理的Excel文件，请检查文件格式")
+                self.main_window.checker_input_xlsx.set_error("No Excel files were processed successfully. Please check the file format.")
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-                self.main_window.statusBar_BatteryAnalysis.showMessage("[错误]: 没有成功处理的Excel文件")
+                self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: No Excel files were processed successfully")
             return
 
         self._update_ui_with_excel_info(excel_files, excel_data)
@@ -178,14 +178,14 @@ class DataProcessor:
         self._reconnect_specification_signals()
 
     def _on_scan_error(self, error_msg):
-        self.logger.error("扫描Excel文件失败: %s", error_msg)
+        self.logger.error("Failed to scan Excel files: %s", error_msg)
         if hasattr(self.main_window, 'checker_input_xlsx'):
-            self.main_window.checker_input_xlsx.set_error(f"扫描文件失败: {error_msg}")
+            self.main_window.checker_input_xlsx.set_error(f"Failed to scan files: {error_msg}")
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            self.main_window.statusBar_BatteryAnalysis.showMessage("[错误]: 扫描文件失败")
+            self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Failed to scan files")
 
     def get_xlsxinfo(self) -> None:
-        self.logger.info("获取Excel文件信息")
+        self.logger.info("Retrieving Excel file info")
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
         self._disconnect_specification_signals()
@@ -199,13 +199,13 @@ class DataProcessor:
             if hasattr(self.main_window, 'checker_input_xlsx'):
                 self.main_window.checker_input_xlsx.set_error(error_msg)
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[错误]: {error_msg.split(':')[0]}")
+                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {error_msg.split(':')[0]}")
             return
 
         cached = self._cache['directory_files'].get(input_dir)
         if cached is None:
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-                self.main_window.statusBar_BatteryAnalysis.showMessage("正在扫描Excel文件...")
+                self.main_window.statusBar_BatteryAnalysis.showMessage("Scanning Excel files...")
             self.run_in_background(self._scan_excel_files_task, self._on_scan_finished,
                                    self._on_scan_error, input_dir)
         else:
@@ -221,7 +221,7 @@ class DataProcessor:
             pass
 
     def _handle_no_excel_files(self, input_dir):
-        self.logger.warning("没有找到Excel文件: %s", input_dir)
+        self.logger.warning("No Excel files found: %s", input_dir)
         self.main_window.comboBox_BatteryType.setCurrentIndex(-1)
         self.main_window.comboBox_Specification_Type.clear()
         self.main_window.comboBox_Specification_Type.addItems(
@@ -242,7 +242,7 @@ class DataProcessor:
             self.main_window.checker_input_xlsx.set_error("Input path has no data")
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("input_path_no_data", "[Error]: Input path has no data"))
+                _("[Error]: Input path has no data"))
 
     def _process_excel_files(self, input_dir, excel_files):
         excel_data = []
@@ -265,23 +265,23 @@ class DataProcessor:
             excel_data.append(file_info)
 
         if error_files:
-            error_message = "以下文件存在问题:\n" + "\n".join(f"- {f}: {m}" for f, m in error_files)
+            error_message = "The following files have issues:\n" + "\n".join(f"- {f}: {m}" for f, m in error_files)
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[错误]: 发现{len(error_files)}个问题文件")
+                    f"[Error]: Found {len(error_files)} problematic files")
             if hasattr(self.main_window, 'checker_input_xlsx'):
                 self.main_window.checker_input_xlsx.set_error(error_message)
             try:
                 msg = QW.QMessageBox(self.main_window)
                 msg.setIcon(QW.QMessageBox.Icon.Warning)
-                msg.setWindowTitle("文件验证错误")
-                msg.setText(f"发现 {len(error_files)} 个问题文件，无法分析")
-                msg.setInformativeText("请检查文件格式和内容后重试")
+                msg.setWindowTitle("File Validation Error")
+                msg.setText(f"Found {len(error_files)} problematic files that cannot be analyzed")
+                msg.setInformativeText("Please check the file format and content, then retry")
                 msg.setDetailedText(error_message)
                 msg.setStandardButtons(QW.QMessageBox.StandardButton.Ok)
                 msg.exec()
             except Exception as e:
-                self.logger.warning("显示错误对话框时出错: %s", e)
+                self.logger.warning("Error showing error dialog: %s", e)
 
         return excel_data
 
@@ -290,7 +290,7 @@ class DataProcessor:
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.clear()
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            self.main_window.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
+            self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
 
     def _process_first_excel_file(self, filename):
         mw = self.main_window
@@ -330,7 +330,7 @@ class DataProcessor:
             pass
 
     def save_table(self) -> None:
-        self.logger.info("保存表格数据")
+        self.logger.info("Saving table data")
         self.main_window.pushButton_Run.setFocus()
 
         def set_item(config_key, row, col):
@@ -374,21 +374,21 @@ class DataProcessor:
             set_item(key, row, col)
 
     def update_config(self, test_info) -> None:
-        self.logger.info("更新配置")
+        self.logger.info("Updating configuration")
         if not hasattr(self.main_window, 'checker_update_config'):
             from battery_analysis.main.main_window import Checker
             self.main_window.checker_update_config = Checker()
         self.main_window.checker_update_config.clear()
 
     def analyze_data(self) -> None:
-        self.logger.info("开始数据分析")
+        self.logger.info("Starting data analysis")
         input_path = self.main_window.lineEdit_InputPath.text()
         if not input_path:
-            QW.QMessageBox.warning(self.main_window, _("warning_title", "警告"),
-                                   _("input_path_not_set", "请先设置输入路径。"))
+            QW.QMessageBox.warning(self.main_window, _("Warning"),
+                                   _("Please set the input path first."))
             return
 
-        self.main_window.statusBar_BatteryAnalysis.showMessage(_("analyzing_data", "分析数据..."))
+        self.main_window.statusBar_BatteryAnalysis.showMessage(_("Analyzing data..."))
 
         try:
             cached = self._cache['directory_files'].get(input_path)
@@ -399,8 +399,8 @@ class DataProcessor:
                 excel_files = cached
 
             if not excel_files:
-                QW.QMessageBox.information(self.main_window, _("analysis_result", "分析结果"),
-                                           _("no_excel_files_found", "没有找到Excel文件。"))
+                QW.QMessageBox.information(self.main_window, _("Analysis Result"),
+                                           _("No Excel files found."))
                 return
 
             from battery_analysis.utils.resource_manager import ResourceManager
@@ -416,7 +416,7 @@ class DataProcessor:
                 for future in as_completed(futures):
                     result = future.result()
                     if 'error' in result:
-                        self.logger.error("分析失败 %s: %s", result['filename'], result['error'])
+                        self.logger.error("Analysis failed %s: %s", result['filename'], result['error'])
                     else:
                         all_data.append(result)
 
@@ -427,16 +427,16 @@ class DataProcessor:
                 'total_records': sum(r['total_records'] for r in all_data),
             }
 
-            msg = (f"数据分析已完成！\n\n总文件数: {summary['total_files']}\n"
-                   f"成功分析: {summary['successful_files']}\n"
-                   f"失败文件: {summary['failed_files']}\n"
-                   f"总记录数: {summary['total_records']}\n\n详细结果已记录到日志。")
-            QW.QMessageBox.information(self.main_window, _("analysis_result", "分析结果"), msg)
-            self.logger.info("数据分析汇总: %s", summary)
+            msg = (f"Data analysis completed!\n\nTotal files: {summary['total_files']}\n"
+                   f"Successful: {summary['successful_files']}\n"
+                   f"Failed: {summary['failed_files']}\n"
+                   f"Total records: {summary['total_records']}\n\nDetailed results have been logged.")
+            QW.QMessageBox.information(self.main_window, _("Analysis Result"), msg)
+            self.logger.info("Data analysis summary: %s", summary)
 
         except Exception as e:
-            self.logger.error("数据分析失败: %s", str(e))
-            QW.QMessageBox.error(self.main_window, _("error_title", "错误"),
-                                 _("data_analysis_failed", "数据分析失败: {}").format(str(e)))
+            self.logger.error("Data analysis failed: %s", str(e))
+            QW.QMessageBox.error(self.main_window, _("Error"),
+                                 _("Data analysis failed: {}").format(str(e)))
         finally:
-            self.main_window.statusBar_BatteryAnalysis.showMessage(_("status_ready", "状态:就绪"))
+            self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))

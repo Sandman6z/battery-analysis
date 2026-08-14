@@ -44,7 +44,7 @@ class MainPresenter:
         """
         初始化Presenter
         """
-        self.logger.info("初始化MainPresenter")
+        self.logger.info("Initializing MainPresenter")
         self._initialize_environment_info()
         self._ensure_env_info_keys()
     
@@ -52,7 +52,7 @@ class MainPresenter:
         """
         初始化环境信息
         """
-        self.logger.info("初始化环境信息")
+        self.logger.info("Initializing environment info")
         # 这里可以实现环境信息的初始化逻辑
         self.env_info = {
             "os": "",
@@ -80,25 +80,25 @@ class MainPresenter:
 
     def _notify_integrated(self, feature_name: str):
         """功能已集成到主分析流程中的通用提示"""
-        self.logger.info("%s 由主分析流程处理", feature_name)
-        self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.logger.info("%s handled by the main analysis flow", feature_name)
+        self.view.statusBar_BatteryAnalysis.showMessage("Ready")
 
     def on_calculate_battery(self):
-        self._notify_integrated("电池计算")
+        self._notify_integrated("Battery Calculation")
 
     def on_analyze_data(self):
-        self._notify_integrated("数据分析")
+        self._notify_integrated("Data Analysis")
 
     def on_generate_report(self):
-        self._notify_integrated("报告生成")
+        self._notify_integrated("Report Generation")
 
     def on_export_report(self):
-        self._notify_integrated("报告导出")
+        self._notify_integrated("Report Export")
 
     def on_batch_processing(self):
         """批量处理（开发中）"""
-        self.logger.info("批量处理（开发中）")
-        self.view.statusBar_BatteryAnalysis.showMessage("状态:就绪")
+        self.logger.info("Batch processing (in development)")
+        self.view.statusBar_BatteryAnalysis.showMessage("Ready")
     
     def on_input_path_changed(self, path: str):
         """
@@ -107,7 +107,7 @@ class MainPresenter:
         Args:
             path: 新的输入路径
         """
-        self.logger.info("输入路径变化: %s", path)
+        self.logger.info("Input path changed: %s", path)
         self.input_path = path
         # 可以在这里添加路径验证逻辑
     
@@ -118,7 +118,7 @@ class MainPresenter:
         Args:
             path: 新的输出路径
         """
-        self.logger.info("输出路径变化: %s", path)
+        self.logger.info("Output path changed: %s", path)
         self.output_path = path
         # 可以在这里添加路径验证逻辑
     
@@ -129,7 +129,7 @@ class MainPresenter:
         Args:
             battery_type: 新的电池类型
         """
-        self.logger.info("电池类型变化: %s", battery_type)
+        self.logger.info("Battery type changed: %s", battery_type)
         self.battery_type = battery_type
         # 可以在这里添加电池类型相关的逻辑
     
@@ -140,7 +140,7 @@ class MainPresenter:
         Returns:
             bool: 输入参数是否合法
         """
-        self.logger.info("检查输入参数")
+        self.logger.info("Checking input parameters")
         
         # 从View获取输入数据
         battery_type = self.view.comboBox_BatteryType.currentText()
@@ -160,34 +160,34 @@ class MainPresenter:
         missing_fields = []
         
         if not battery_type:
-            missing_fields.append("电池类型")
+            missing_fields.append("Battery Type")
         if not construction_method:
-            missing_fields.append("构造方法")
+            missing_fields.append("Construction Method")
         if not specification_type:
-            missing_fields.append("规格类型")
+            missing_fields.append("Specification Type")
         if not specification_method:
-            missing_fields.append("规格方法")
+            missing_fields.append("Specification Method")
         if not manufacturer:
-            missing_fields.append("制造商")
+            missing_fields.append("Manufacturer")
         if not tester_location:
-            missing_fields.append("测试者位置")
+            missing_fields.append("Tester Location")
         if not tested_by:
-            missing_fields.append("测试者")
+            missing_fields.append("Tested By")
         if not reported_by:
-            missing_fields.append("报告者")
+            missing_fields.append("Reported By")
         if not temperature:
-            missing_fields.append("温度")
+            missing_fields.append("Temperature")
         if not input_path:
-            missing_fields.append("输入路径")
+            missing_fields.append("Input Path")
         if not output_path:
-            missing_fields.append("输出路径")
+            missing_fields.append("Output Path")
         if not barcode:
-            missing_fields.append("条形码")
+            missing_fields.append("Barcode")
         
         # 如果有缺少的字段，显示警告信息
         if missing_fields:
-            warning_message = f"缺少必要字段，请检查以下项:\n{', '.join(missing_fields)}"
-            self.view.show_warning("警告", warning_message)
+            warning_message = f"Missing required fields, please check the following:\n{', '.join(missing_fields)}"
+            self.view.show_warning("Warning", warning_message)
             return False
         
         return True

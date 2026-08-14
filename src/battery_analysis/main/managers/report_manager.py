@@ -64,14 +64,14 @@ class ReportManager:
             output_path = Path(output_path_str)
 
             if not output_path.exists() or not output_path.is_dir():
-                self._warn("警告", f"无效的输出路径: {output_path}")
+                self._warn("Warning", f"Invalid output path: {output_path}")
                 return
 
             # 搜索docx文件（word报告保存在输出目录的上一级）
             docx_files = list(output_path.parent.rglob("*.docx"))
 
             if not docx_files:
-                self._info("信息", f"未找到docx报告文件\n搜索路径: {output_path.parent}")
+                self._info("Information", f"No docx report file found\nSearch path: {output_path.parent}")
                 return
 
             # 找到与当前版本匹配的报告
@@ -91,15 +91,15 @@ class ReportManager:
                 try:
                     os.startfile(target_path)
                 except Exception as popen_error:
-                    self.logger.error("打开报告失败: %s", popen_error)
-                    self._critical("错误", f"打开报告失败: {str(popen_error)}")
+                    self.logger.error("Failed to open report: %s", popen_error)
+                    self._critical("Error", f"Failed to open report: {str(popen_error)}")
 
                 # 关闭对话框（如果提供）
                 if dialog:
                     dialog.accept()
         except Exception as e:
-            self._critical("错误", f"打开报告失败: {str(e)}")
-            self.logger.error("打开报告失败: %s", e)
+            self._critical("Error", f"Failed to open report: {str(e)}")
+            self.logger.error("Failed to open report: %s", e)
 
     def open_report_path(self, dialog=None):
         """
@@ -114,22 +114,22 @@ class ReportManager:
             output_path = Path(output_path_str)
 
             if not output_path.exists() or not output_path.is_dir():
-                self._warn("警告", f"无效的输出路径: {output_path}")
+                self._warn("Warning", f"Invalid output path: {output_path}")
                 return
 
             # 直接打开输出路径
             try:
                 os.startfile(str(output_path))
             except Exception as popen_error:
-                self.logger.error("打开报告文件夹失败: %s", popen_error)
-                self._critical("错误", f"打开文件夹失败: {str(popen_error)}")
+                self.logger.error("Failed to open report folder: %s", popen_error)
+                self._critical("Error", f"Failed to open folder: {str(popen_error)}")
 
             # 关闭对话框（如果提供）
             if dialog:
                 dialog.accept()
         except Exception as e:
-            self._critical("错误", f"打开文件夹失败: {str(e)}")
-            self.logger.error("打开报告文件夹失败: %s", e)
+            self._critical("Error", f"Failed to open folder: {str(e)}")
+            self.logger.error("Failed to open report folder: %s", e)
     
     # ── UI 助手 ──────────────────────────────────────────────────
 
@@ -156,7 +156,7 @@ class ReportManager:
         显示分析完成对话框，包含"打开报告"、"打开路径"和"确定"按钮
         """
         dialog = QW.QDialog(self.main_window)
-        dialog.setWindowTitle("分析完成")
+        dialog.setWindowTitle("Analysis Complete")
         dialog.setFixedSize(450, 150)
         dialog.setWindowFlags(
             QW.Qt.WindowType.Window | 
@@ -169,7 +169,7 @@ class ReportManager:
         layout.setSpacing(15)
         
         # 添加状态文本标签
-        status_label = QW.QLabel("电池分析已完成！")
+        status_label = QW.QLabel("Battery analysis completed!")
         status_label.setAlignment(QW.Qt.AlignmentFlag.AlignCenter)
         status_label.setWordWrap(True)
         layout.addWidget(status_label)
@@ -180,21 +180,21 @@ class ReportManager:
         button_layout.setAlignment(QW.Qt.AlignmentFlag.AlignCenter)
         
         # 添加打开报告按钮
-        open_report_button = QW.QPushButton("打开报告")
+        open_report_button = QW.QPushButton("Open Report")
         open_report_button.setMinimumHeight(32)
         open_report_button.setMinimumWidth(120)
         open_report_button.clicked.connect(lambda: self.open_report(dialog))
         button_layout.addWidget(open_report_button)
         
         # 添加打开路径按钮
-        open_path_button = QW.QPushButton("打开路径")
+        open_path_button = QW.QPushButton("Open Path")
         open_path_button.setMinimumHeight(32)
         open_path_button.setMinimumWidth(120)
         open_path_button.clicked.connect(lambda: self.open_report_path(dialog))
         button_layout.addWidget(open_path_button)
         
         # 添加确定按钮
-        ok_button = QW.QPushButton("确定")
+        ok_button = QW.QPushButton("OK")
         ok_button.setMinimumHeight(32)
         ok_button.setMinimumWidth(120)
         ok_button.clicked.connect(dialog.accept)

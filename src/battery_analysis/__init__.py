@@ -6,9 +6,8 @@ import logging
 logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-# 硬编码版本号，避免模块导入时触发 Version() 的 heavy import 链
-# 更新版本号时请同步修改 pyproject.toml 中的 version 字段
-__version__ = "2.12.1"
+# 版本号单一来源见 _version.py，升级版本时只需修改该文件
+from ._version import __version__
 
 # 导出版本号和子模块供外部使用
 __all__ = ["__version__", "utils"]

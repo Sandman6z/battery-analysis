@@ -1,3 +1,40 @@
+### v2.13.0
+
+#### 功能增强
+- feat: 新增电池分类器工具，根据电池规格自动推断电池类型
+- feat: 配置对话框改为主从结构，规则表支持按行编辑，规格改为派生只读
+- feat: 默认语言锁定为英文，重建 en / zh_CN 翻译目录
+
+#### i18n 国际化
+- i18n: 将运行时硬编码中文消息全部改为英文 msgid
+- i18n: 收紧 msgid 提取正则，新增翻译目录回环测试
+
+#### 重构优化
+- refactor: 移除冗余 LanguageHandler，语言切换由主窗口统一处理
+- refactor: 移除未集成的 i18n/application/visualizer 服务与 clean-architecture 骨架
+- refactor: 配置加载统一经 ConfigService 路由，清除自定义配置路径缓存
+
+#### Bug Fixes
+- fix: 构造方法下拉框仅 Pouch Cell 启用并回填，Coin Cell 禁用并清空
+- fix: 校验失败字段高亮覆盖所有必填字段（含下拉框、数值框）
+- fix: 输入校验失败时逐条列出真实失败字段，不再误报 Reported By
+- fix: 首次运行时从规则派生默认电池规格，避免空界面
+- fix: 测试前先收集设备，确保派生位置使用最新数据
+- fix: 修复状态栏重翻译哨兵，菜单切换语言后重译失效
+
+### v2.12.2 (Released)
+
+#### Bug Fixes
+- fix: 静默 openpyxl "Workbook contains no default style" 警告，消除日志噪音
+- fix: 解决循环导入——将共享常量拆分为独立 constants.py 模块
+
+#### 重构优化
+- refactor: 清理重复代码——strFileCurrentType循环、matplotlib字体、颜色数组
+- refactor: 清理冗余代码，总计 -1,911 行
+
+#### 清理
+- chore: 删除不再使用的测试文件以清理代码库
+
 ### v2.12.1 (Released)
 
 #### Bug Fixes

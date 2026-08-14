@@ -105,7 +105,7 @@ class SignalConnector:
         if hasattr(self.main_window, 'progressBar'):
             self._animate_progress_bar(self.main_window.progressBar, progress)
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            self.main_window.statusBar_BatteryAnalysis.showMessage(f"状态: {status_text}")
+            self.main_window.statusBar_BatteryAnalysis.showMessage(f"Status: {status_text}")
 
         if self.progress_start_time is not None:
             elapsed_time = time.time() - self.progress_start_time
@@ -139,12 +139,12 @@ class SignalConnector:
         if is_running:
             # 处理取消状态
             if "canceling" in threadinfo:
-                self.main_window.statusBar_BatteryAnalysis.showMessage("正在取消任务...")
-                self.main_window.pushButton_Run.setText("取消中...")
+                self.main_window.statusBar_BatteryAnalysis.showMessage("Canceling task...")
+                self.main_window.pushButton_Run.setText("Canceling...")
                 self.main_window.pushButton_Run.setEnabled(False)
             else:
                 # 正常运行状态显示
-                self.main_window.statusBar_BatteryAnalysis.showMessage("正在分析电池数据...")
+                self.main_window.statusBar_BatteryAnalysis.showMessage("Analyzing battery data...")
                 self.main_window.pushButton_Run.setText("Running")
         else:
             # 任务完成处理
@@ -154,19 +154,19 @@ class SignalConnector:
 
                 self.main_window.pushButton_Run.setText("Run")
                 self.main_window.pushButton_Run.setEnabled(True)
-                self.main_window.statusBar_BatteryAnalysis.showMessage("电池分析完成！")
+                self.main_window.statusBar_BatteryAnalysis.showMessage("Battery analysis completed!")
 
                 # 显示成功提示，添加打开报告和打开路径按钮
                 msg_box = QW.QMessageBox()
-                msg_box.setWindowTitle("分析完成")
-                msg_box.setText("电池分析已成功完成！\n\n报告已生成到指定输出路径。")
+                msg_box.setWindowTitle("Analysis Completed")
+                msg_box.setText("Battery analysis completed successfully!\n\nThe report has been generated to the specified output path.")
                 msg_box.setIcon(QW.QMessageBox.Icon.Information)
-                
+
                 # 添加打开报告按钮
-                open_report_button = msg_box.addButton("打开报告", QW.QMessageBox.ButtonRole.ActionRole)
-                
+                open_report_button = msg_box.addButton("Open Report", QW.QMessageBox.ButtonRole.ActionRole)
+
                 # 添加打开路径按钮
-                open_path_button = msg_box.addButton("打开路径", QW.QMessageBox.ButtonRole.ActionRole)
+                open_path_button = msg_box.addButton("Open Path", QW.QMessageBox.ButtonRole.ActionRole)
                 
                 # 添加确定按钮
                 ok_button = msg_box.addButton(QW.QMessageBox.StandardButton.Ok)
@@ -192,18 +192,18 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setEnabled(True)
 
                 # 日期不一致错误消息处理
-                error_title = "日期不一致错误"
+                error_title = "Date Mismatch Error"
                 error_details = threadinfo
 
                 # 构建日期不一致错误的具体建议
                 suggestions = [
-                    "请检查Excel文件中的Test Date字段是否correct",
-                    "确保Test Date与实际测试日期一致",
-                    "修正日期后重新运行分析"
+                    "Please check whether the Test Date field in the Excel file is correct",
+                    "Ensure the Test Date matches the actual test date",
+                    "Correct the date and re-run the analysis"
                 ]
 
                 # 构建完整的错误消息
-                full_error_msg = f"{error_title}:\n\n{error_details}\n\n建议解决步骤:\n"
+                full_error_msg = f"{error_title}:\n\n{error_details}\n\nSuggested steps:\n"
                 full_error_msg += "\n".join([f"- {s}" for s in suggestions])
 
                 # 显示专门的日期不一致错误对话框
@@ -215,7 +215,7 @@ class SignalConnector:
                 )
 
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[错误]: {error_title}")
+                    f"[Error]: {error_title}")
             elif stateindex == 1:
                 # 电池分析错误处理
                 # 关闭进度条
@@ -226,8 +226,8 @@ class SignalConnector:
 
                 # 增强的电池分析错误处理
                 self._handle_error(
-                    "电池分析错误",
-                    "分析电池数据时出现错误。",
+                    "Battery Analysis Error",
+                    "An error occurred while analyzing battery data.",
                     threadinfo,
                     True  # 需要关闭进度条
                 )
@@ -240,8 +240,8 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setEnabled(True)
 
                 self._handle_error(
-                    "报告生成错误",
-                    "生成分析报告时出现错误。",
+                    "Report Generation Error",
+                    "An error occurred while generating the analysis report.",
                     threadinfo,
                     False  # 进度条已关闭
                 )
@@ -255,13 +255,13 @@ class SignalConnector:
                 
                 # 显示错误提示
                 msg_box = QW.QMessageBox()
-                msg_box.setWindowTitle("分析错误")
-                msg_box.setText(f"分析过程中发生错误：\n\n{threadinfo}")
+                msg_box.setWindowTitle("Analysis Error")
+                msg_box.setText(f"An error occurred during analysis:\n\n{threadinfo}")
                 msg_box.setIcon(QW.QMessageBox.Icon.Critical)
                 msg_box.exec()
-                
+
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[错误]: {threadinfo}")
+                    f"[Error]: {threadinfo}")
     
     def _handle_error(self, error_title, error_msg, error_details, need_close_progress=True):
         """
@@ -283,31 +283,31 @@ class SignalConnector:
         error_details_lower = error_details.lower() if isinstance(error_details, str) else str(error_details).lower()
         error_details_str = error_details if isinstance(error_details, str) else str(error_details)
         
-        if "input path" in error_details_lower or "找不到文件" in error_details_str:
-            suggestions.append("请检查输入路径是否正确")
-            suggestions.append("确保包含必要的数据文件")
-        if "格式" in error_details_str or "format" in error_details_lower:
-            suggestions.append("检查数据文件格式是否符合要求")
-        if "权限" in error_details_str or "permission" in error_details_lower:
-            suggestions.append("确保您有足够的文件操作权限")
-        if "output" in error_details_lower or "写入" in error_details_str:
+        if "input path" in error_details_lower or "not found" in error_details_lower:
+            suggestions.append("Check whether the input path is correct")
+            suggestions.append("Ensure the necessary data files are included")
+        if "format" in error_details_lower:
+            suggestions.append("Check whether the data file format meets the requirements")
+        if "permission" in error_details_lower:
+            suggestions.append("Ensure you have sufficient file operation permissions")
+        if "output" in error_details_lower or "write" in error_details_lower:
             suggestions.extend([
-                "检查输出路径是否存在且可写",
-                "确保有足够的磁盘空间",
-                "关闭可能正在使用输出文件的其他程序",
-                "尝试选择不同的输出目录"
+                "Check whether the output path exists and is writable",
+                "Ensure there is enough disk space",
+                "Close other programs that may be using the output files",
+                "Try selecting a different output directory"
             ])
 
         # 如果没有具体建议，提供通用建议
         if not suggestions:
             suggestions.extend([
-                "检查输入数据的完整性",
-                "确保文件路径不包含特殊字符",
-                "重新选择有效的输入和输出目录"
+                "Check the integrity of the input data",
+                "Ensure the file path does not contain special characters",
+                "Re-select valid input and output directories"
             ])
 
         # 构建完整的错误消息
-        full_error_msg = f"{error_msg}:\n\n{error_details_str}\n\n建议解决步骤:\n"
+        full_error_msg = f"{error_msg}:\n\n{error_details_str}\n\nSuggested steps:\n"
         full_error_msg += "\n".join([f"- {s}" for s in suggestions])
 
         # 显示详细的错误对话框
@@ -319,7 +319,7 @@ class SignalConnector:
         )
 
         self.main_window.statusBar_BatteryAnalysis.showMessage(
-            f"[错误]: {error_title}")
+            f"[Error]: {error_title}")
 
     def _on_config_loaded(self, config_dict):
         """配置加载完成处理"""
@@ -328,7 +328,7 @@ class SignalConnector:
     def _on_controller_error(self, error_msg):
         """控制器错误处理"""
         self._close_progress_dialog()
-        QW.QMessageBox.critical(self.main_window, _("error_title", "错误"), error_msg)
+        QW.QMessageBox.critical(self.main_window, _("Error"), error_msg)
 
     def _show_progress_dialog(self):
         """显示弹出式进度条对话框"""

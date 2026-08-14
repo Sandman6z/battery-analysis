@@ -31,7 +31,7 @@ class BatteryConfigInitializationStep(InitializationStep):
             是否执行成功
         """
         try:
-            self.logger.info("开始初始化电池配置")
+            self.logger.info("Starting battery configuration initialization")
             
             # 获取配置
             listPulseCurrent = main_window.get_config("BatteryConfig/PulseCurrent")
@@ -44,13 +44,13 @@ class BatteryConfigInitializationStep(InitializationStep):
             except (ValueError, TypeError):
                 # 如果转换失败，使用默认值
                 main_window.listCurrentLevel = [0] * len(listPulseCurrent)
-                self.logger.warning("电流值转换失败，使用默认值")
+                self.logger.warning("Failed to convert current values, using defaults")
 
             main_window.listVoltageLevel = [
                 safe_float_convert(listCutoffVoltage[c].strip()) for c in range(len(listCutoffVoltage))]
             
-            self.logger.info("电池配置初始化完成")
+            self.logger.info("Battery configuration initialization complete")
             return True
         except Exception as e:
-            self.logger.error(f"电池配置初始化失败: {e}")
+            self.logger.error(f"Battery configuration initialization failed: {e}")
             return False

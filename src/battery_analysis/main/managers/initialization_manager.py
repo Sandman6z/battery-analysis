@@ -47,10 +47,10 @@ from battery_analysis.main.initialization.steps.battery_config_initialization_st
 )
 
 # ── 阶段名称 ──────────────────────────────────────────────
-PHASE_ENV_PREP = "环境准备"
-PHASE_CORE_SVC = "核心服务"
-PHASE_UI_BUILD = "UI 构建"
-PHASE_LAUNCH = "启动完成"
+PHASE_ENV_PREP = "Environment Preparation"
+PHASE_CORE_SVC = "Core Services"
+PHASE_UI_BUILD = "UI Build"
+PHASE_LAUNCH = "Startup Complete"
 
 
 class InitializationManager:
@@ -67,7 +67,7 @@ class InitializationManager:
 
     def initialize(self):
         """执行完整的初始化流程"""
-        self.logger.info("开始执行模块化初始化流程")
+        self.logger.info("Starting modular initialization process")
         return self._orchestrator.execute_all(self.main_window)
 
     def _register_all_steps(self):
@@ -118,7 +118,7 @@ class InitializationManager:
         phases = len(self._orchestrator.get_phases())
         phase_names = " → ".join(self._orchestrator.get_phases().keys())
         self.logger.info(
-            "已注册 %d 个初始化步骤，共 %d 阶段: %s", total, phases, phase_names
+            "Registered %d initialization steps across %d phases: %s", total, phases, phase_names
         )
 
     def get_executed_steps(self):

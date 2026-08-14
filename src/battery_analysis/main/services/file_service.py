@@ -96,7 +96,7 @@ class FileService:
             return True, ""
             
         except (OSError, PermissionError, IsADirectoryError) as e:
-            error_msg = f"创建目录失败: {e}"
+            error_msg = f"Failed to create directory: {e}"
             self.logger.error(error_msg)
             return False, error_msg
     
@@ -114,10 +114,10 @@ class FileService:
         try:
             dir_path = Path(path)
             if not dir_path.exists():
-                return False, f"目录不存在: {path}"
+                return False, f"Directory does not exist: {path}"
             
             if not dir_path.is_dir():
-                return False, f"路径不是目录: {path}"
+                return False, f"Path is not a directory: {path}"
             
             if recursive:
                 shutil.rmtree(path)
@@ -132,7 +132,7 @@ class FileService:
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, NotADirectoryError) as e:
-            error_msg = f"删除目录失败: {e}"
+            error_msg = f"Failed to delete directory: {e}"
             self.logger.error(error_msg)
             return False, error_msg
     
@@ -234,10 +234,10 @@ class FileService:
             return hidden
             
         except ImportError:
-            self.logger.warning("win32api不可用，无法检查文件隐藏属性")
+            self.logger.warning("win32api is unavailable; cannot check file hidden attribute")
             return False
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
-            self.logger.error("检查文件隐藏属性失败: %s", e)
+            self.logger.error("Failed to check file hidden attribute: %s", e)
             return False
     
     def copy_file(self, source: Union[str, Path], destination: Union[str, Path]) -> Tuple[bool, str]:
@@ -266,7 +266,7 @@ class FileService:
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
-            error_msg = f"复制文件失败: {e}"
+            error_msg = f"Failed to copy file: {e}"
             self.logger.error(error_msg)
             return False, error_msg
     
@@ -296,7 +296,7 @@ class FileService:
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
-            error_msg = f"移动文件失败: {e}"
+            error_msg = f"Failed to move file: {e}"
             self.logger.error(error_msg)
             return False, error_msg
     
@@ -313,10 +313,10 @@ class FileService:
         try:
             path = Path(file_path)
             if not path.exists():
-                return False, f"文件不存在: {file_path}"
+                return False, f"File does not exist: {file_path}"
 
             if not path.is_file():
-                return False, f"路径不是文件: {file_path}"
+                return False, f"Path is not a file: {file_path}"
 
             path.unlink()
 
@@ -326,7 +326,7 @@ class FileService:
             return True, ""
             
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
-            error_msg = f"删除文件失败: {e}"
+            error_msg = f"Failed to delete file: {e}"
             self.logger.error(error_msg)
             return False, error_msg
     
@@ -363,11 +363,11 @@ class FileService:
             return True, ""
             
         except ImportError:
-            error_msg = "win32api不可用，无法设置文件属性"
+            error_msg = "win32api is unavailable; cannot set file attributes"
             self.logger.warning(error_msg)
             return False, error_msg
         except (OSError, PermissionError, FileNotFoundError, IsADirectoryError) as e:
-            error_msg = f"设置文件属性失败: {e}"
+            error_msg = f"Failed to set file attributes: {e}"
             self.logger.error(error_msg)
             return False, error_msg
     

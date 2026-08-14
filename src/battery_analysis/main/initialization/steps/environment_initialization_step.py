@@ -58,10 +58,10 @@ class EnvironmentInitializationStep(InitializationStep):
             main_window.current_directory = str(project_root)
             main_window.path = str(project_root)
             
-            self.logger.info("环境初始化完成")
+            self.logger.info("Environment initialization complete")
             return True
         except Exception as e:
-            self.logger.exception("环境初始化失败")
+            self.logger.exception("Environment initialization failed")
             return False
     
     def can_execute(self, main_window) -> bool:

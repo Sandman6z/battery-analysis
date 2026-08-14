@@ -16,7 +16,7 @@ class TestValidationService:
     def test_validate_test_info_empty(self):
         is_valid, msg = self.service.validate_test_info([])
         assert is_valid is False
-        assert "不能为空" in msg
+        assert "Test information cannot be empty" in msg
 
     def test_validate_test_info_missing_field(self):
         test_info = ["项目A", "规格1", "", "1000"]
@@ -38,7 +38,7 @@ class TestValidationService:
         with patch('os.path.exists', return_value=False):
             is_valid, msg = self.service.validate_file_path("nonexistent.xlsx")
             assert is_valid is False
-            assert "不存在" in msg
+            assert "File does not exist" in msg
 
     def test_validate_directory_path_success(self):
         with patch('os.path.exists', return_value=True), \

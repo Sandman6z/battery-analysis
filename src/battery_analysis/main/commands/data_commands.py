@@ -25,7 +25,7 @@ class AnalyzeDataCommand(Command):
             self.presenter.on_analyze_data()
             return True
         except Exception as e:
-            logging.error(f"分析数据失败: {str(e)}")
+            logging.error(f"Failed to analyze data: {str(e)}")
             return False
 
 
@@ -52,7 +52,7 @@ class ProcessExcelCommand(Command):
         try:
             return self.data_processor.process_excel_with_pandas(self.file_path)
         except Exception as e:
-            logging.error(f"处理Excel文件失败: {str(e)}")
+            logging.error(f"Failed to process Excel file: {str(e)}")
             return {}
 
 
@@ -79,7 +79,7 @@ class ProcessAllExcelCommand(Command):
         try:
             return self.data_processor.process_all_excel_files(self.directory)
         except Exception as e:
-            logging.error(f"批量处理Excel文件失败: {str(e)}")
+            logging.error(f"Failed to batch process Excel files: {str(e)}")
             return []
 
 
@@ -105,7 +105,7 @@ class GetXlsxInfoCommand(Command):
             self.data_processor.get_xlsxinfo()
             return True
         except Exception as e:
-            logging.error(f"获取Excel文件信息失败: {str(e)}")
+            logging.error(f"Failed to get Excel file info: {str(e)}")
             return False
 
 
@@ -131,7 +131,7 @@ class SaveTableCommand(Command):
             self.data_processor.save_table()
             return True
         except Exception as e:
-            logging.error(f"保存表格数据失败: {str(e)}")
+            logging.error(f"Failed to save table data: {str(e)}")
             return False
 
 
@@ -159,7 +159,7 @@ class UpdateConfigCommand(Command):
             self.data_processor.update_config(self.test_info)
             return True
         except Exception as e:
-            logging.error(f"更新配置失败: {str(e)}")
+            logging.error(f"Failed to update config: {str(e)}")
             return False
 
 
@@ -184,7 +184,7 @@ class CheckInputCommand(Command):
         try:
             return self.battery_calculator.check_input()
         except Exception as e:
-            logging.error(f"检查输入失败: {str(e)}")
+            logging.error(f"Failed to check input: {str(e)}")
             return False
 
 
@@ -212,5 +212,5 @@ class HandleDataErrorCommand(Command):
             self.data_processor.handle_data_error_recovery(self.error_msg)
             return True
         except Exception as e:
-            logging.error(f"处理数据错误失败: {str(e)}")
+            logging.error(f"Failed to handle data error: {str(e)}")
             return False

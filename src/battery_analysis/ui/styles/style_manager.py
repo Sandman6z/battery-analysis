@@ -59,7 +59,7 @@ class StyleManager(QObject):
                     self._style_cache["battery_analyzer"] = main_style
                     self._style_cache["modern"] = main_style
                     self._style_cache["light"] = main_style
-                    logging.info("主样式文件已加载: %s", main_style_file)
+                    logging.info("Main style file loaded: %s", main_style_file)
                     
                     # 尝试加载深色主题（如果存在）
                     dark_style_path = self._style_dir / "dark_theme.qss"
@@ -67,7 +67,7 @@ class StyleManager(QObject):
                         with open(dark_style_path, 'r', encoding='utf-8') as f:
                             dark_style = f.read()
                             self._style_cache["dark"] = dark_style
-                            logging.info("深色主题样式文件已加载: dark_theme.qss")
+                            logging.info("Dark theme style file loaded: dark_theme.qss")
                     else:
                         # 如果深色主题文件不存在，基于主样式创建
                         dark_style = main_style
@@ -80,7 +80,7 @@ class StyleManager(QObject):
                         dark_style = dark_style.replace("#8a7a6a", "#bdc3c7")  # secondary text
                         dark_style = dark_style.replace("#e0d8cc", "#4a5f7a")  # border/divider
                         self._style_cache["dark"] = dark_style
-                        logging.info("已基于主样式创建深色主题")
+                        logging.info("Created dark theme based on main style")
                     
                     # 尝试加载高对比度主题（如果存在）
                     high_contrast_style_path = self._style_dir / "high_contrast.qss"
@@ -88,7 +88,7 @@ class StyleManager(QObject):
                         with open(high_contrast_style_path, 'r', encoding='utf-8') as f:
                             high_contrast_style = f.read()
                             self._style_cache["high_contrast"] = high_contrast_style
-                            logging.info("高对比度主题样式文件已加载: high_contrast.qss")
+                            logging.info("High contrast theme style file loaded: high_contrast.qss")
                     else:
                         # 如果高对比度主题文件不存在，基于主样式创建
                         high_contrast_style = main_style
@@ -100,7 +100,7 @@ class StyleManager(QObject):
                         high_contrast_style = high_contrast_style.replace("#e0d8cc", "#000000")
                         high_contrast_style = high_contrast_style.replace("#27ae60", "#0000ff")
                         self._style_cache["high_contrast"] = high_contrast_style
-                        logging.info("已基于主样式创建高对比度主题")
+                        logging.info("Created high contrast theme based on main style")
                     
                     # 添加蓝色主题（基于主样式创建）
                     blue_style = main_style
@@ -111,7 +111,7 @@ class StyleManager(QObject):
                     blue_style = blue_style.replace("#8a7a6a", "#2196f3")
                     blue_style = blue_style.replace("#e0d8cc", "#bbdefb")
                     self._style_cache["blue"] = blue_style
-                    logging.info("已基于主样式创建蓝色主题")
+                    logging.info("Created blue theme based on main style")
                     
                     # 添加绿色主题（基于主样式创建）
                     green_style = main_style
@@ -122,11 +122,11 @@ class StyleManager(QObject):
                     green_style = green_style.replace("#8a7a6a", "#43a047")
                     green_style = green_style.replace("#e0d8cc", "#c8e6c9")
                     self._style_cache["green"] = green_style
-                    logging.info("已基于主样式创建绿色主题")
+                    logging.info("Created green theme based on main style")
             except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
-                logging.error("加载主样式文件失败 %s: %s", main_style_file, e)
+                logging.error("Failed to load main style file %s: %s", main_style_file, e)
         else:
-            logging.error("未找到主样式文件: %s", main_style_file)
+            logging.error("Main style file not found: %s", main_style_file)
     
     def apply_style(self, widget: QWidget, theme: Optional[str] = None):
         """应用样式到指定控件"""
@@ -136,9 +136,9 @@ class StyleManager(QObject):
         
         if theme in self._style_cache:
             widget.setStyleSheet(self._style_cache[theme])
-            logging.debug("已应用主题样式: %s", theme)
+            logging.debug("Applied theme style: %s", theme)
         else:
-            logging.warning("未找到主题样式: %s", theme)
+            logging.warning("Theme style not found: %s", theme)
     
     def apply_global_style(self, app: QApplication, theme: Optional[str] = None):
         """应用全局样式"""
@@ -152,9 +152,9 @@ class StyleManager(QObject):
             app.setStyleSheet(self._style_cache[theme])
             self._current_theme = theme
             self.theme_changed.emit(theme)
-            logging.info("已应用全局主题: %s", theme)
+            logging.info("Applied global theme: %s", theme)
         else:
-            logging.error("未找到主题样式: %s", theme)
+            logging.error("Theme style not found: %s", theme)
     
     def load_custom_style(self, file_path: str) -> bool:
         """加载自定义样式文件"""
@@ -163,10 +163,10 @@ class StyleManager(QObject):
             with open(file_path, 'r', encoding='utf-8') as f:
                 custom_style = f.read()
                 self._style_cache["custom"] = custom_style
-                logging.info("已加载自定义样式: %s", file_path)
+                logging.info("Custom style loaded: %s", file_path)
                 return True
         except (IOError, OSError, UnicodeDecodeError, TypeError, ValueError) as e:
-            logging.error("加载自定义样式失败: %s", e)
+            logging.error("Failed to load custom style: %s", e)
             return False
     
     def get_style_variables(self, theme: Optional[str] = None) -> Dict[str, Any]:
@@ -257,11 +257,11 @@ class StyleManager(QObject):
                 font_families = self._font_database.applicationFontFamilies(font_id)
                 if font_families:
                     family_name = family_name or font_families[0]
-                    logging.info("字体已注册: %s", family_name)
+                    logging.info("Font registered: %s", family_name)
                     return True
             return False
         except (ImportError, AttributeError, TypeError, OSError, RuntimeError) as e:
-            logging.error("注册字体失败: %s", e)
+            logging.error("Failed to register font: %s", e)
             return False
     
     def set_application_font(self, app: QApplication, font_family: str, size: int = 11):
@@ -270,9 +270,9 @@ class StyleManager(QObject):
         try:
             font = QFont(font_family, size)
             app.setFont(font)
-            logging.info("应用程序字体已设置: %s %spt", font_family, size)
+            logging.info("Application font set: %s %spt", font_family, size)
         except (ImportError, TypeError, RuntimeError, AttributeError) as e:
-            logging.error("设置字体失败: %s", e)
+            logging.error("Failed to set font: %s", e)
     
     def create_themed_button(self, parent, text: str, action_type: str, 
                            callback=None, **kwargs) -> 'QPushButton':

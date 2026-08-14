@@ -208,12 +208,7 @@ class BuildManager(BuildConfig):
             shutil.rmtree(build_path)
         build_path.mkdir(parents=True, exist_ok=True)
 
-        # 复制pyproject.toml到临时目录，确保Version类能读取到正确的版本号
-        pyproject_src = self.project_root / "pyproject.toml"
-        pyproject_dest = build_path / "pyproject.toml"
-        if pyproject_src.exists():
-            shutil.copy2(pyproject_src, pyproject_dest)
-            logger.info("已将pyproject.toml复制到构建目录: %s", pyproject_dest)
+        # 版本号随包内 _version.py 一起被打包，无需再复制 pyproject.toml
 
         # 复制所有应用的资源
         for app_config in self.apps_config:
@@ -369,8 +364,6 @@ class BuildManager(BuildConfig):
             '--add-data', f'{src_path / "battery_analysis" / "templates"};battery_analysis/templates',
             # QSS 样式文件（通过 Path(__file__).parent 相对路径加载）
             '--add-data', f'{src_path / "battery_analysis" / "ui" / "styles"};battery_analysis/ui/styles',
-            # 版本信息（运行时读取 pyproject.toml）
-            '--add-data', f'{self.project_root / "pyproject.toml"};.',
             # 国际化翻译文件（.po 文件在运行时解析）
             '--add-data', f'{self.project_root / "locale"};locale',
         ])

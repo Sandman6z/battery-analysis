@@ -48,22 +48,22 @@ class VisualizationManager:
 
     def run_visualizer(self, xml_path=None) -> None:
         """运行可视化工具"""
-        self.logger.info("进入可视化工具运行方法")
+        self.logger.info("Entering visualizer run method")
 
         # 检查xml_path是否为布尔值，如果是，则忽略（可能来自QAction的triggered信号）
         if isinstance(xml_path, bool):
-            self.logger.info("检测到布尔类型的xml_path参数，忽略它")
+            self.logger.info("Detected boolean xml_path parameter, ignoring it")
             xml_path = None
 
         # 如果未提供xml_path，尝试从主窗口获取
         if xml_path is None:
             xml_path = self._get_test_profile()
             if xml_path:
-                self.logger.info("获取到XML路径: %s", xml_path)
+                self.logger.info("Retrieved XML path: %s", xml_path)
             else:
-                self.logger.info("未设置XML路径")
+                self.logger.info("XML path not set")
 
-        self._status("启动可视化工具...")
+        self._status("Starting visualizer...")
 
         try:
             # 清理matplotlib资源
@@ -74,19 +74,19 @@ class VisualizationManager:
             visualizer = factory.create_visualizer("battery_chart") if factory else None
 
             if visualizer is None:
-                raise RuntimeError("无法创建可视化器实例")
+                raise RuntimeError("Failed to create visualizer instance")
 
             # 显示可视化（传递XML路径，让viewer处理数据搜索和加载）
             show_success = visualizer.show_figure(xml_path=xml_path)
 
             if show_success:
-                self.logger.info("可视化工具已启动")
-                self._status("可视化工具已启动")
+                self.logger.info("Visualizer started")
+                self._status("Visualizer started")
             else:
-                raise RuntimeError("显示可视化失败")
+                raise RuntimeError("Failed to display visualization")
 
         except (OSError, ValueError, RuntimeError, ImportError) as e:
-            self.logger.error("启动可视化工具时发生错误: %s", e)
+            self.logger.error("Error starting visualizer: %s", e)
             self._handle_visualization_error(str(e))
 
     def _cleanup_matplotlib_resources(self):
@@ -94,11 +94,11 @@ class VisualizationManager:
         try:
             plt.close('all')
         except (ImportError, RuntimeError) as e:
-            self.logger.warning("清理matplotlib资源时出错: %s", e)
+            self.logger.warning("Error cleaning up matplotlib resources: %s", e)
 
     def _handle_visualization_error(self, error_msg: str):
         """处理可视化错误"""
-        data_error_keywords = ['data', 'csv', 'load', 'file', 'path', 'config', 'info_image', '数据']
+        data_error_keywords = ['data', 'csv', 'load', 'file', 'path', 'config', 'info_image']
         is_data_error = any(keyword in error_msg.lower() for keyword in data_error_keywords)
 
         if is_data_error:
@@ -106,16 +106,16 @@ class VisualizationManager:
             dialog = DataErrorRecoveryDialog(self._parent_widget or self.main_window)
             dialog.show(error_msg)
         else:
-            self._critical("错误",
-                           f"启动可视化工具时出错:\n\n{error_msg}\n\n请检查配置文件或联系技术支持。")
+            self._critical("Error",
+                           f"Error starting visualizer:\n\n{error_msg}\n\nPlease check the configuration file or contact technical support.")
 
-        self._status("状态:就绪")
+        self._status("Status: Ready")
 
     def show_visualizer_error(self, error_msg: str):
         """显示可视化错误消息"""
-        self._critical("错误",
-                       f"启动可视化工具时发生错误: {error_msg}")
-        self._status("状态:就绪")
+        self._critical("Error",
+                       f"Error starting visualizer: {error_msg}")
+        self._status("Status: Ready")
 
     # ── UI 助手 ──────────────────────────────────────────────────
 

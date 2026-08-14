@@ -1,39 +1,117 @@
-# Chinese (Simplified) translations for Battery Analysis application
-# Copyright (C) 2025 Battery Analysis
-# This file is distributed under the same license as the Battery Analysis package.
-#
+# zh_CN translations for Battery Analysis application
+# Language: zh_CN
 msgid ""
 msgstr ""
-"Project-Id-Version: Battery Analysis 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-26 12:00+0000\n"
-"PO-Revision-Date: 2025-12-26 12:00+0000\n"
-"Last-Translator: \n"
-"Language-Team: Chinese (Simplified)\n"
-"Language: zh_CN\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-
-# Main Window
-msgid "window_title"
-msgstr "电池分析器 v{version}"
-
-msgid "battery-analyzer"
-msgstr "电池分析器"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "Preferences"
 msgstr "首选项"
 
+msgid "General Settings"
+msgstr "常规设置"
+
+msgid "Auto-save settings"
+msgstr "自动保存设置"
+
+msgid "Automatically save settings when changes are made"
+msgstr "更改时自动保存设置"
+
+msgid "Confirm before exiting"
+msgstr "退出前确认"
+
+msgid "Show confirmation dialog when exiting the application"
+msgstr "退出应用程序时显示确认对话框"
+
+msgid "Display Settings"
+msgstr "显示设置"
+
+msgid "Theme:"
+msgstr "主题:"
+
+msgid "Light"
+msgstr "浅色"
+
+msgid "Dark"
+msgstr "深色"
+
+msgid "System"
+msgstr "跟随系统"
+
+msgid "Font Size:"
+msgstr "字体大小:"
+
+msgid "General"
+msgstr "常规"
+
+msgid "Language Settings"
+msgstr "语言设置"
+
+msgid "Current Language:"
+msgstr "当前语言:"
+
+msgid "Select Language:"
+msgstr "选择语言:"
+
+msgid "Apply Language"
+msgstr "应用语言"
+
+msgid "Translation Status"
+msgstr "翻译状态"
+
+msgid "Translation information will be displayed here."
+msgstr "翻译信息将显示在这里。"
+
 msgid "Language"
 msgstr "语言"
 
-msgid "English"
-msgstr "英语"
+msgid "Configuration File Settings"
+msgstr "配置文件设置"
 
-msgid "Chinese (Simplified)"
-msgstr "简体中文"
+msgid "Current Config Path:"
+msgstr "当前配置路径:"
+
+msgid "Not loaded"
+msgstr "未加载"
+
+msgid "Custom Config Path:"
+msgstr "自定义配置路径:"
+
+msgid "Enter custom configuration file path..."
+msgstr "输入自定义配置文件路径..."
+
+msgid "Browse..."
+msgstr "浏览..."
+
+msgid "Validate Configuration"
+msgstr "校验配置"
+
+msgid "Required Sections in Config File"
+msgstr "配置文件必需部分"
+
+msgid "Reset to Default"
+msgstr "重置为默认"
+
+msgid "Config"
+msgstr "配置"
+
+msgid "Select Configuration File"
+msgstr "选择配置文件"
+
+msgid "Please enter a configuration file path"
+msgstr "请输入配置文件路径"
+
+msgid "File does not exist"
+msgstr "文件不存在"
+
+msgid "JSON root must be an object"
+msgstr "JSON 根必须是对象"
+
+msgid "Configuration file is valid!"
+msgstr "配置文件有效！"
+
+msgid "INI format is deprecated; consider migrating to config.json"
+msgstr "INI 格式已弃用，建议迁移到 config.json"
 
 msgid "OK"
 msgstr "确定"
@@ -44,290 +122,377 @@ msgstr "取消"
 msgid "Apply"
 msgstr "应用"
 
-# Menu Items
-msgid "&File"
-msgstr "文件(&F)"
+msgid "Using default paths"
+msgstr "使用默认路径"
 
-msgid "File"
-msgstr "文件"
+msgid "✓ Translation is complete"
+msgstr "✓ 翻译完整"
 
-msgid "&Edit"
-msgstr "编辑(&E)"
-
-msgid "Edit"
-msgstr "编辑"
-
-msgid "&Help"
-msgstr "帮助(&H)"
-
-msgid "Help"
-msgstr "帮助"
-
-msgid "&New"
-msgstr "新建(&N)"
-
-msgid "&Open"
-msgstr "打开(&O)"
-
-msgid "&Save"
-msgstr "保存(&S)"
-
-msgid "Save &As..."
-msgstr "另存为(&A)..."
-
-msgid "E&xit"
-msgstr "退出(&X)"
-
-msgid "&Undo"
-msgstr "撤销(&U)"
-
-msgid "&Redo"
-msgstr "重做(&R)"
-
-msgid "&Cut"
-msgstr "剪切(&T)"
-
-msgid "&Copy"
-msgstr "复制(&C)"
-
-msgid "&Paste"
-msgstr "粘贴(&P)"
-
-msgid "&About"
-msgstr "关于(&A)"
-
-# Battery Configuration
-msgid "Battery Configuration"
-msgstr "电池配置"
-
-msgid "Battery Type"
-msgstr "电池类型"
-
-msgid "Construction Method"
-msgstr "结构方法"
-
-msgid "Specification Type"
-msgstr "规格类型"
-
-msgid "Specification Method"
-msgstr "规格方法"
-
-msgid "Manufacturer"
-msgstr "制造商"
-
-msgid "Test Information"
-msgstr "测试信息"
-
-msgid "Batch Date Code"
-msgstr "批次日期代码"
-
-msgid "Samples Quantity"
-msgstr "样品数量"
-
-msgid "Temperature"
-msgstr "温度"
-
-msgid "Tester Location"
-msgstr "测试地点"
-
-msgid "Tested By"
-msgstr "测试人员"
-
-msgid "Data Processing Platforms"
-msgstr "数据处理平台"
-
-msgid "Accelerated Aging"
-msgstr "加速老化"
-
-msgid "Required Useable Capacity (mAh)"
-msgstr "所需可用容量 (mAh)"
-
-msgid "Calculation Nominal Capacity (mAh)"
-msgstr "计算标称容量 (mAh)"
-
-msgid "Datasheet Nominal Capacity (mAh)"
-msgstr "数据表标称容量 (mAh)"
-
-msgid "Test Profile"
-msgstr "测试配置文件"
-
-# File Operations
-msgid "Version"
-msgstr "版本"
-
-msgid "Input Path"
-msgstr "输入路径"
-
-msgid "Browse"
-msgstr "浏览"
-
-msgid "Output Path"
-msgstr "输出路径"
-
-msgid "Data File"
-msgstr "数据文件"
-
-msgid "Open File"
-msgstr "打开文件"
-
-msgid "File Path"
-msgstr "文件路径"
-
-msgid "Run"
-msgstr "运行"
-
-msgid "Clear Table"
-msgstr "清空表格"
-
-msgid "Status"
-msgstr "状态"
-
-msgid "Progress"
-msgstr "进度"
-
-# Status Messages
-msgid "Ready"
-msgstr "就绪"
-
-msgid "Processing..."
-msgstr "处理中..."
-
-msgid "Completed"
-msgstr "完成"
-
-msgid "Error"
-msgstr "错误"
-
-msgid "Success"
-msgstr "成功"
-
-msgid "Failed"
-msgstr "失败"
+msgid "⚠ Some translations are missing"
+msgstr "⚠ 部分翻译缺失"
 
 msgid "Warning"
 msgstr "警告"
 
-msgid "Information"
-msgstr "信息"
+msgid "Failed to change language"
+msgstr "切换语言失败"
 
-# Progress Dialog
-msgid "progress_title"
-msgstr "电池分析进度"
+msgid "Error"
+msgstr "错误"
 
-msgid "progress_ready"
-msgstr "准备开始分析..."
+msgid "Language change error"
+msgstr "切换语言错误"
 
-# Preferences Dialog
-msgid "preferences_title"
-msgstr "首选项"
-
-msgid "general_settings"
-msgstr "常规设置"
-
-msgid "auto_save"
-msgstr "自动保存设置"
-
-msgid "auto_save_tooltip"
-msgstr "更改时自动保存设置"
-
-msgid "confirm_exit"
-msgstr "退出前确认"
-
-msgid "confirm_exit_tooltip"
-msgstr "退出应用程序时显示确认对话框"
-
-msgid "display_settings"
-msgstr "显示设置"
-
-msgid "theme"
-msgstr "主题"
-
-msgid "theme_light"
-msgstr "浅色"
-
-msgid "theme_dark"
-msgstr "深色"
-
-msgid "theme_system"
-msgstr "系统"
-
-msgid "font_size"
-msgstr "字体大小："
-
-msgid "general"
-msgstr "常规"
-
-msgid "language_settings"
-msgstr "语言设置"
-
-msgid "current_language"
-msgstr "当前语言："
-
-msgid "select_language"
-msgstr "选择语言"
-
-msgid "apply_language"
-msgstr "应用语言"
-
-msgid "language"
-msgstr "语言"
-
-msgid "translation_status"
-msgstr "翻译状态"
-
-msgid "translation_info"
-msgstr "翻译信息将在这里显示。"
-
-msgid "translation_status_text"
-msgstr "翻译覆盖率：{0}/{1} 个键已翻译"
-
-msgid "translation_complete"
-msgstr "✓ 翻译已完成"
-
-msgid "translation_incomplete"
-msgstr "⚠ 部分翻译缺失"
-
-msgid "language_change_failed"
-msgstr "语言切换失败"
-
-msgid "language_change_error"
-msgstr "语言切换错误"
-
-msgid "settings_applied"
-msgstr "设置已成功应用。"
-
-msgid "settings_apply_error"
+msgid "Settings apply error"
 msgstr "设置应用错误"
 
-msgid "Confirm"
-msgstr "确认"
+msgid "[Error]: Input path has no data"
+msgstr "[Error]: 输入路径没有数据"
 
-msgid "Save"
-msgstr "保存"
+msgid "Ready"
+msgstr "就绪"
 
-msgid "Load"
-msgstr "加载"
+msgid "Please set the input path first."
+msgstr "请先设置输入路径。"
 
-msgid "Select"
-msgstr "选择"
+msgid "Analyzing data..."
+msgstr "分析数据..."
 
-msgid "Open"
-msgstr "打开"
+msgid "Analysis Result"
+msgstr "分析结果"
 
-msgid "Close"
-msgstr "关闭"
+msgid "No Excel files found."
+msgstr "没有找到Excel文件。"
 
-msgid "Exit"
-msgstr "退出"
+msgid "Data analysis failed: {}"
+msgstr "数据分析失败: {}"
 
-msgid "Settings"
-msgstr "设置"
+msgid "Cannot open user manual"
+msgstr "无法打开用户手册"
+
+msgid "Failed to open online help."
+msgstr "无法打开在线帮助。"
+
+msgid "Version format is invalid. Expected x.y.z format"
+msgstr "版本号格式不正确，应为 x.y.z 格式"
+
+msgid "Input path does not exist"
+msgstr "输入路径不存在"
+
+msgid "The following required fields are empty"
+msgstr "以下必填字段为空"
+
+msgid "App icon not found; using default icon."
+msgstr "未找到应用图标文件，使用默认图标"
+
+msgid "Battery Analysis Progress"
+msgstr "电池分析进度"
+
+msgid "Ready to start analysis..."
+msgstr "准备开始分析..."
+
+msgid "Input Validation Failed"
+msgstr "输入验证失败"
+
+msgid "Input data path cannot be empty"
+msgstr "输入数据路径不能为空"
+
+msgid "Output path cannot be empty"
+msgstr "输出路径不能为空"
+
+msgid "Start Failed"
+msgstr "启动失败"
+
+msgid "Cannot start the analysis task"
+msgstr "无法启动分析任务"
 
 msgid "Configuration"
 msgstr "配置"
 
-msgid "Help"
-msgstr "帮助"
+msgid "Battery Config"
+msgstr "电池配置"
+
+msgid "Test Config"
+msgstr "测试配置"
+
+msgid "Equipment"
+msgstr "设备"
+
+msgid "Reset Defaults"
+msgstr "恢复默认"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Reset all configuration to default values? This cannot be undone."
+msgstr "将所有配置恢复为默认值？此操作不可撤销。"
+
+msgid "Failed to save configuration"
+msgstr "保存配置失败"
+
+msgid "Confirm Exit"
+msgstr "确认退出"
+
+msgid "Are you sure you want to exit the application?"
+msgstr "确定要退出应用程序吗？"
+
+msgid "About Battery Analyzer"
+msgstr "关于电池分析器"
+
+msgid "Failed to show preferences dialog"
+msgstr "显示首选项对话框失败"
+
+msgid "Data Load Error - Recovery Options"
+msgstr "数据加载错误 - 恢复选项"
+
+msgid "Unable to load battery data. Choose how to continue:"
+msgstr "无法加载电池数据，请选择如何继续:"
+
+msgid "Choose one of the following recovery options:"
+msgstr "请选择以下恢复选项之一:"
+
+msgid "Reselect Data Directory"
+msgstr "重新选择数据目录"
+
+msgid "Restart with Default Configuration"
+msgstr "使用默认配置重新启动"
+
+msgid "Cancel Operation"
+msgstr "取消操作"
+
+msgid "Opening data directory selector..."
+msgstr "正在打开数据目录选择..."
+
+msgid "Restarting with default configuration..."
+msgstr "使用默认配置重新启动..."
+
+msgid "Restart"
+msgstr "重新启动"
+
+msgid "The application will restart with the default configuration.\n\nPlease make sure you have valid data files available."
+msgstr "应用将使用默认配置重新启动。\n\n请确保您有有效的数据文件可用。"
+
+msgid "Operation canceled"
+msgstr "操作已取消"
+
+msgid "Canceled"
+msgstr "取消"
+
+msgid "Operation canceled. You can retry via the 'File -> Open Data' menu."
+msgstr "操作已取消。您可以通过菜单 'File -> Open Data' 重新尝试。"
+
+msgid "New Project"
+msgstr "新建项目"
+
+msgid "Open Project"
+msgstr "打开项目"
+
+msgid "Save Settings"
+msgstr "保存设置"
+
+msgid "Save As"
+msgstr "另存为"
+
+msgid "Exit"
+msgstr "退出应用"
+
+msgid "Undo"
+msgstr "撤销操作"
+
+msgid "Redo"
+msgstr "重做操作"
+
+msgid "Cut"
+msgstr "剪切选中内容"
+
+msgid "Copy"
+msgstr "复制选中内容"
+
+msgid "Paste"
+msgstr "粘贴内容"
+
+msgid "Zoom In"
+msgstr "放大界面"
+
+msgid "Zoom Out"
+msgstr "缩小界面"
+
+msgid "Reset Zoom"
+msgstr "重置界面缩放"
+
+msgid "Show/Hide Toolbar"
+msgstr "显示/隐藏工具栏"
+
+msgid "Show/Hide Status Bar"
+msgstr "显示/隐藏状态栏"
+
+msgid "Calculate Battery Parameters"
+msgstr "计算电池参数"
+
+msgid "Analyze Data"
+msgstr "分析数据"
+
+msgid "Generate Report"
+msgstr "生成报告"
+
+msgid "Open Battery Chart Viewer"
+msgstr "打开电池图表查看器"
+
+msgid "Batch Process Data"
+msgstr "批量处理数据"
+
+msgid "Manage Data Dictionary"
+msgstr "配置管理系统数据字典"
+
+msgid "Open User Manual"
+msgstr "打开用户手册"
+
+msgid "Open Online Help"
+msgstr "打开在线帮助"
 
 msgid "About"
-msgstr "关于"
+msgstr "关于应用"
+
+msgid "Export Report"
+msgstr "导出报告"
+
+msgid "Task canceled..."
+msgstr "任务已取消..."
+
+msgid "Use System Default Theme"
+msgstr "使用系统默认主题"
+
+msgid "Use Windows 11 Style Theme"
+msgstr "使用Windows 11风格主题"
+
+msgid "Use Windows Vista Style Theme"
+msgstr "使用Windows Vista风格主题"
+
+msgid "Use Cross-platform Fusion Theme"
+msgstr "使用跨平台Fusion主题"
+
+msgid "Use Dark Theme for Night Use"
+msgstr "使用深色主题，适合夜间使用"
+
+msgid "Switched to System Default theme"
+msgstr "已切换到系统默认主题"
+
+msgid "Switched to Fusion theme"
+msgstr "已切换到Fusion主题"
+
+msgid "Switched to Dark theme"
+msgstr "已切换到深色主题"
+
+msgid "Switched to Simple Dark theme"
+msgstr "已切换到简单深色主题"
+
+msgid "Settings related to the test configuration"
+msgstr "包含测试相关配置的设置"
+
+msgid "Settings related to the battery configuration"
+msgstr "包含电池相关配置的设置"
+
+msgid "Run Analysis"
+msgstr "运行分析"
+
+msgid "Start battery analysis"
+msgstr "开始电池分析"
+
+msgid "Select Test Profile"
+msgstr "选择测试文件"
+
+msgid "Select battery test profile file"
+msgstr "选择电池测试配置文件"
+
+msgid "Select Input Path"
+msgstr "选择输入路径"
+
+msgid "Select input data file path"
+msgstr "选择输入数据文件路径"
+
+msgid "Select Output Path"
+msgstr "选择输出路径"
+
+msgid "Select analysis output path"
+msgstr "选择分析结果输出路径"
+
+msgid "Test Information Table"
+msgstr "测试信息表格"
+
+msgid "Table containing test equipment and software version information"
+msgstr "包含测试设备和软件版本信息的表格"
+
+msgid "Test config group - settings related to the test configuration"
+msgstr "测试配置组 - 包含测试相关配置的设置"
+
+msgid "Battery config group - settings related to the battery configuration"
+msgstr "电池配置组 - 包含电池相关配置的设置"
+
+msgid "Select battery type"
+msgstr "选择电池类型"
+
+msgid "Select battery construction method"
+msgstr "选择电池构造方法"
+
+msgid "Select battery specification type"
+msgstr "选择电池规格类型"
+
+msgid "Select battery specification method"
+msgstr "选择电池规格方法"
+
+msgid "Select battery manufacturer"
+msgstr "选择电池制造商"
+
+msgid "Enter battery batch date code"
+msgstr "输入电池批次日期代码"
+
+msgid "Enter number of samples"
+msgstr "输入样品数量"
+
+msgid "Select temperature type"
+msgstr "选择温度类型"
+
+msgid "Enter freezing temperature value"
+msgstr "输入冷冻温度值"
+
+msgid "Enter datasheet nominal capacity"
+msgstr "输入数据手册中的标称容量"
+
+msgid "Enter calculated nominal capacity"
+msgstr "输入计算得出的标称容量"
+
+msgid "Enter accelerated aging days"
+msgstr "输入加速老化天数"
+
+msgid "Enter required usable capacity"
+msgstr "输入所需可用容量"
+
+msgid "Select tester location"
+msgstr "选择测试地点"
+
+msgid "Select tested-by"
+msgstr "选择测试人员"
+
+msgid "Select reported-by"
+msgstr "选择报告人员"
+
+msgid "Test profile file path"
+msgstr "测试配置文件路径"
+
+msgid "Select test profile file"
+msgstr "选择测试配置文件"
+
+msgid "Input data file path"
+msgstr "输入数据文件路径"
+
+msgid "Output result file path"
+msgstr "输出结果文件路径"
+
+msgid "Select output result file path"
+msgstr "选择输出结果文件路径"
+
+msgid "Enter version number"
+msgstr "输入版本号"
+
+msgid "Test information table - contains test equipment and software version information"
+msgstr "测试信息表格 - 包含测试设备和软件版本信息"

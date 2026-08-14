@@ -28,7 +28,6 @@ class Services:
     main_controller: Any = None
     file_controller: Any = None
     validation_controller: Any = None
-    visualizer_controller: Any = None
 
     _name_map: Dict[str, str] = field(default_factory=lambda: {
         "config": "config",
@@ -39,7 +38,6 @@ class Services:
         "main_controller": "main_controller",
         "file_controller": "file_controller",
         "validation_controller": "validation_controller",
-        "visualizer_controller": "visualizer_controller",
     })
 
     def get(self, name: str) -> Any:
@@ -91,12 +89,10 @@ class ServiceContainer:
         from battery_analysis.main.controllers.file_controller import FileController
         from battery_analysis.main.controllers.main_controller import MainController
         from battery_analysis.main.controllers.validation_controller import ValidationController
-        from battery_analysis.main.controllers.visualizer_controller import VisualizerController
 
         self._impl.file_controller = FileController()
         self._impl.main_controller = MainController()
         self._impl.validation_controller = ValidationController()
-        self._impl.visualizer_controller = VisualizerController()
 
         self.logger.info("Services initialized incrementally: %s", type(self._impl).__name__)
 
@@ -110,7 +106,7 @@ class ServiceContainer:
 
     def register(self, name: str, implementation, singleton=True) -> bool:
         """不再支持动态注册（保留方法签名避免调用方报错）。"""
-        self.logger.warning("ServiceContainer.register('%s') 已弃用，服务通过 create_services() 静态创建", name)
+        self.logger.warning("ServiceContainer.register('%s') is deprecated; services are created statically via create_services()", name)
         return False
 
 
