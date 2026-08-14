@@ -43,8 +43,8 @@ python -m nuitka \
     --output-filename=BatteryAnalysis.exe \
     --company-name="Ewin Hardware Group" \
     --product-name="Battery Analysis" \
-    --file-version=2.13.0 \
-    --product-version=2.13.0 \
+    --file-version=2.14.0 \
+    --product-version=2.14.0 \
     --file-description="Battery test data analysis application" \
     --copyright="Copyright (c) 2024 Ewin Hardware Group" \
     --include-data-dir=src/battery_analysis/templates=battery_analysis/templates \
@@ -65,8 +65,8 @@ python -m nuitka \
     --output-filename=BatteryAnalysis.exe \
     --company-name="Ewin Hardware Group" \
     --product-name="Battery Analysis" \
-    --file-version=2.13.0 \
-    --product-version=2.13.0 \
+    --file-version=2.14.0 \
+    --product-version=2.14.0 \
     --file-description="Battery test data analysis application" \
     --copyright="Copyright (c) 2024 Ewin Hardware Group" \
     --include-package=battery_analysis\
@@ -144,7 +144,7 @@ ICON_PATH = ROOT_DIR / "config/resources/icons/Icon_BatteryTestGUI.ico"
 ENTRY_POINT = SRC_DIR / "battery_analysis/main/main_window.py"
 
 # 版本信息
-VERSION = "2.13.0"
+VERSION = "2.14.0"
 COMPANY = "Ewin Hardware Group"
 PRODUCT = "Battery Analysis"
 
@@ -362,8 +362,8 @@ python -m nuitka ^
     --output-filename=BatteryAnalysis.exe ^
     --company-name="Ewin Hardware Group" ^
     --product-name="Battery Analysis" ^
-    --file-version=2.13.0 ^
-    --product-version=2.13.0 ^
+    --file-version=2.14.0 ^
+    --product-version=2.14.0 ^
     --file-description="Battery test data analysis application" ^
     --copyright="Copyright (c) 2024 Ewin Hardware Group" ^
     --include-package=battery_analysis ^

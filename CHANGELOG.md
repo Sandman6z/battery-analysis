@@ -1,3 +1,20 @@
+### v2.14.0
+
+#### 功能增强
+- feat: 电池按钮正序排列，名称分隔符 `_` 改为 `-`
+
+#### 修复和改进
+- fix: 主窗口构造时即初始化 logger，避免 `_deferred_init` 前访问崩溃
+- fix: 修复电池按钮排序方向与点击串扰
+- fix: 修复 FancyBboxPatch pad 过大导致按钮视觉扩张
+- fix: 移除 plt_figure 激进窗口操作，修复多显示器 DPI 下控件点击偏移
+
+#### 重构优化
+- refactor: 统一版本单一来源，版本号由 `_version.py` 提供
+
+#### 测试
+- test: 适配重构后的 API 并修复 Qt pending timer 残留导致套件卡住
+
 ### v2.13.0
 
 #### 功能增强
