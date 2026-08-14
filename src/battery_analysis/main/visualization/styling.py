@@ -173,8 +173,8 @@ class ChartStylingMixin:
 
             try:
                 if hasattr(state['bg'], 'set_boxstyle'):
-                    state['bg'].set_boxstyle(
-                        f"round,pad={MODERN_BUTTON_STYLE['padding']/100}")
+                    pad = state.get('pad', MODERN_BUTTON_STYLE['padding'] / 100)
+                    state['bg'].set_boxstyle(f"round,pad={pad}")
             except (AttributeError, TypeError, ValueError):
                 pass
 

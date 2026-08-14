@@ -22,13 +22,31 @@ logger = logging.getLogger(__name__)
 class InteractionControlsMixin:
     """交互控件混入类，提供按钮、菜单、悬停等交互功能"""
 
+    def _get_button_pad(self, width, height):
+        """计算 FancyBboxPatch 的圆角 pad（transAxes 分数单位）。
+
+        matplotlib 的 FancyBboxPatch 在 transform=ax.transAxes 下，boxstyle 的
+        pad 单位是 axes 分数（不是像素）。若 pad 固定取 4/100=0.04，而电池按钮
+        高度只有 0.95/32≈0.03（32 个电池时），每个按钮 patch 会向外扩张 pad，
+        视觉高度膨胀到按钮高度的 3.7 倍，导致 hover 高亮覆盖 3~4 个按钮、视觉
+        边界与点击命中区域错位。
+
+        这里让 pad 随按钮尺寸动态取小值：
+        - 不超过按钮最小尺寸的 15%（保证补偿后矩形仍为正）
+        - 上限 0.02（避免大按钮圆角过大）
+        """
+        return min(0.02, min(width, height) * 0.15)
+
     def _create_modern_button(self, ax, x, y, width, height, text, callback,
                               is_toggle=False, initial_state=False):
         """创建现代化按钮"""
         try:
+            pad = self._get_button_pad(width, height)
+            # 矩形内缩 pad 以补偿 boxstyle 的向外扩张，使视觉范围恰好等于
+            # 逻辑范围 [x, x+width]×[y, y+height]，与点击命中检测保持一致。
             button_bg = FancyBboxPatch(
-                (x, y), width, height,
-                boxstyle=f"round,pad={MODERN_BUTTON_STYLE['padding']/100}",
+                (x + pad, y + pad), width - 2 * pad, height - 2 * pad,
+                boxstyle=f"round,pad={pad}",
                 facecolor=MODERN_BUTTON_STYLE['inactive_color'],
                 edgecolor=MODERN_BUTTON_STYLE['border_color'],
                 linewidth=MODERN_BUTTON_STYLE['border_width'],
@@ -46,7 +64,8 @@ class InteractionControlsMixin:
                 transform=ax.transAxes
             )
 
-            state = {'active': initial_state, 'bg': button_bg, 'text': button_text, 'hover': False}
+            state = {'active': initial_state, 'bg': button_bg, 'text': button_text,
+                     'hover': False, 'pad': pad}
 
             self._update_button_style(state)
 
