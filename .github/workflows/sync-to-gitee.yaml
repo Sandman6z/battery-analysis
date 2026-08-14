@@ -17,6 +17,8 @@ jobs:
       contents: write  # 确保有写入权限
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      GITEE_USERNAME: ${{ secrets.GITEE_USERNAME }}
+      GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
 
     steps:
     - name: Checkout code
