@@ -19,6 +19,6 @@ class TestReadXlsxSheets:
         expected_step = pd.read_excel(sample_xlsx, sheet_name=1, header=None, engine="openpyxl")
         expected_record = pd.read_excel(sample_xlsx, sheet_name=2, header=None, engine="openpyxl")
 
-        pd.testing.assert_frame_equal(cycle_df, expected_cycle)
-        pd.testing.assert_frame_equal(step_df, expected_step)
-        pd.testing.assert_frame_equal(record_df, expected_record)
+        pd.testing.assert_frame_equal(cycle_df, expected_cycle, check_exact=True)
+        pd.testing.assert_frame_equal(step_df, expected_step, check_exact=True)
+        pd.testing.assert_frame_equal(record_df, expected_record, check_exact=True)

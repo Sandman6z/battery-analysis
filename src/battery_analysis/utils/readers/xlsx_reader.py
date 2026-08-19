@@ -9,7 +9,7 @@ import xlrd as rd
 logger = logging.getLogger(__name__)
 
 
-def read_xlsx_sheets(filepath: str):
+def read_xlsx_sheets(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """用 calamine 引擎一次性读取 xlsx 的三个工作表，返回 (cycle_df, step_df, record_df)"""
     sheets = pd.read_excel(filepath, sheet_name=[0, 1, 2], header=None, engine='calamine')
     return sheets[0], sheets[1], sheets[2]
