@@ -10,11 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 def read_xlsx_sheets(filepath: str):
-    """用 pandas 读取 xlsx 的三个工作表，返回 (cycle_df, step_df, record_df)"""
-    cycle_df = pd.read_excel(filepath, sheet_name=0, header=None, engine='openpyxl')
-    step_df = pd.read_excel(filepath, sheet_name=1, header=None, engine='openpyxl')
-    record_df = pd.read_excel(filepath, sheet_name=2, header=None, engine='openpyxl')
-    return cycle_df, step_df, record_df
+    """用 calamine 引擎一次性读取 xlsx 的三个工作表，返回 (cycle_df, step_df, record_df)"""
+    sheets = pd.read_excel(filepath, sheet_name=[0, 1, 2], header=None, engine='calamine')
+    return sheets[0], sheets[1], sheets[2]
 
 
 def extract_test_date_from_xls(filepath: str) -> str:
