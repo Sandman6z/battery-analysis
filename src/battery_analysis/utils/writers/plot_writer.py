@@ -141,7 +141,7 @@ def draw_boxplot_and_curves(
     plt.ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
     for b in range(int_battery_num):
         for c in range(int_current_level_num):
-            plt.plot(list_plt[c][0][b], list_plt[c][1][b],
+            plt.plot(list_plt[c][2][b], list_plt[c][3][b],
                      color=f"{list_plt_color_type[c]}", linewidth=0.5)
     plt.grid(linestyle="--", alpha=0.3)
     plt.savefig(str_filtered_png_path)
