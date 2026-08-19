@@ -178,7 +178,23 @@ class TestDataProcessor:
             
             # 调用方法
             self.processor.get_xlsxinfo()
-            
+
             # 验证结果
             self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
-    
+
+    def test_analyze_data_shows_error_dialog_on_failure(self):
+        """analyze_data 失败时调用 PyQt6 存在的 QMessageBox.critical（而非不存在的 error）"""
+        from battery_analysis.main.business_logic import data_processor as dp
+
+        self.mock_main_window.lineEdit_InputPath.text = Mock(return_value="C:/fake/input")
+
+        with patch.object(dp.os, 'listdir', return_value=["a.xlsx", "b.xlsx"]), \
+             patch('battery_analysis.utils.resource_manager.ResourceManager.get_optimal_process_count', return_value=2), \
+             patch.object(dp, 'ProcessPoolExecutor', side_effect=RuntimeError("executor boom")), \
+             patch.object(dp.QW.QMessageBox, 'critical') as mock_critical, \
+             patch.object(dp.QW.QMessageBox, 'information') as mock_info:
+            self.processor.analyze_data()
+
+        mock_critical.assert_called_once()
+        mock_info.assert_not_called()
+

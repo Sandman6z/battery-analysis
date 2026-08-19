@@ -436,7 +436,7 @@ class DataProcessor:
 
         except Exception as e:
             self.logger.error("Data analysis failed: %s", str(e))
-            QW.QMessageBox.error(self.main_window, _("Error"),
-                                 _("Data analysis failed: {}").format(str(e)))
+            QW.QMessageBox.critical(self.main_window, _("Error"),
+                                    _("Data analysis failed: {}").format(str(e)))
         finally:
             self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
