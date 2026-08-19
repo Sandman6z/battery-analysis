@@ -52,17 +52,17 @@ jobs:
       run: |
         # 获取仓库名称
         $repoName = $env:GITHUB_REPOSITORY.Split('/')[1]
-        
+
         # 移除现有的 gitee 远程仓库（如果存在），忽略不存在时的报错
         git remote remove gitee 2>$null | Out-Null
         if ($LASTEXITCODE -ne 0) { Write-Output "No existing gitee remote to remove" }
 
-        # 添加新的 Gitee 远程仓库
-        $giteeRepoUrl = "https://${env:GITEE_USERNAME}:${env:GITEE_TOKEN}@gitee.com/${env:GITEE_USERNAME}/${repoName}.git"
+        # remote URL 不含凭据（token 仅经 http.extraheader 传递，避免 git remote -v 泄漏）
+        $giteeRepoUrl = "https://gitee.com/${env:GITEE_USERNAME}/${repoName}.git"
         git remote add gitee $giteeRepoUrl
-        
-        # 验证远程仓库配置
-        git remote -v
+
+        # 只展示 remote 名称，不打印 URL（URL 不含凭据，但为谨慎不输出完整地址）
+        git remote show -n gitee 2>$null | Select-Object -First 1 | ForEach-Object { "Gitee remote configured for $repoName" }
       shell: powershell
 
     - name: Push to Gitee
@@ -71,32 +71,32 @@ jobs:
         Write-Output "正在同步到 Gitee..."
         Write-Output "触发事件: $env:GITHUB_EVENT_NAME"
         Write-Output "引用: $env:GITHUB_REF"
-        
+
+        # 凭据仅经 http.extraheader 传递，绝不进入 remote URL
+        $auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${env:GITEE_USERNAME}:${env:GITEE_TOKEN}"))
+        $pushArgs = @("-c", "http.extraheader=AUTHORIZATION: basic $auth", "push", "gitee")
+
         # 根据触发事件确定要推送的内容
         if ($env:GITHUB_EVENT_NAME -eq 'push') {
           if ($env:GITHUB_REF_TYPE -eq 'tag') {
-            # 推送标签
             $tagName = $env:GITHUB_REF_NAME
             Write-Output "推送标签 $tagName 到 Gitee..."
-            git push -v gitee "refs/tags/$tagName"
+            git @pushArgs "refs/tags/$tagName"
           } else {
-            # 推送分支
             $branchName = $env:GITHUB_REF_NAME
             Write-Output "推送分支 $branchName 到 Gitee..."
-            git push -v gitee "$branchName"
+            git @pushArgs "$branchName"
           }
         } elseif ($env:GITHUB_EVENT_NAME -eq 'release') {
-          # 推送标签和 main 分支
           $releaseTag = $env:GITHUB_REF_NAME
           Write-Output "推送 Release 标签 $releaseTag 到 Gitee..."
-          git push -v gitee "refs/tags/$releaseTag"
-          
+          git @pushArgs "refs/tags/$releaseTag"
+
           Write-Output "推送 main 分支到 Gitee..."
-          git push -v gitee "main"
+          git @pushArgs "main"
         } else {
-          # 手动触发，推送当前分支
           $currentBranch = git branch --show-current
           Write-Output "推送当前分支 $currentBranch 到 Gitee..."
-          git push -v gitee "$currentBranch"
+          git @pushArgs "$currentBranch"
         }
       shell: powershell
