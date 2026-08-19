@@ -1,6 +1,7 @@
 """测试 interaction_controls 模块的纯函数逻辑"""
 from battery_analysis.main.visualization.interaction_controls import (
     _battery_line_indices,
+    _select_hover_lines,
 )
 
 
@@ -20,3 +21,19 @@ class TestBatteryLineIndices:
 
     def test_edge_battery_index_zero(self):
         assert list(_battery_line_indices(0, 2)) == [0, 1]
+
+
+class TestSelectHoverLines:
+    """悬停曲线集合应反映过滤按钮的 dict 状态"""
+
+    def test_filtered_active(self):
+        assert _select_hover_lines({'active': True}, 'F', 'U') == 'F'
+
+    def test_all_data_active(self):
+        assert _select_hover_lines({'active': False}, 'F', 'U') == 'U'
+
+    def test_missing_active_key_defaults_to_filtered(self):
+        assert _select_hover_lines({'text': 'x'}, 'F', 'U') == 'F'
+
+    def test_none_defaults_to_filtered(self):
+        assert _select_hover_lines(None, 'F', 'U') == 'F'

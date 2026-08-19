@@ -29,6 +29,18 @@ def _battery_line_indices(battery_index, current_level_num):
     return range(start, start + current_level_num)
 
 
+def _select_hover_lines(check_filter, lines_filtered, lines_unfiltered):
+    """根据过滤按钮状态选择悬停应扫描的曲线集合。
+
+    修复：check_filter 实为过滤按钮状态 dict（含 'active' 键），
+    旧代码对其调用 .get_status() 必抛 AttributeError，导致悬停永远扫描 Filtered 曲线。
+    """
+    filtered = True
+    if check_filter is not None and isinstance(check_filter, dict):
+        filtered = check_filter.get('active', True)
+    return lines_filtered if filtered else lines_unfiltered
+
+
 class InteractionControlsMixin:
     """交互控件混入类，提供按钮、菜单、悬停等交互功能"""
 
@@ -410,13 +422,8 @@ class InteractionControlsMixin:
 
             def on_hover(event):
                 if event.inaxes == ax:
-                    if check_filter is not None:
-                        try:
-                            current_lines = lines_filtered if check_filter.get_status()[0] else lines_unfiltered
-                        except (AttributeError, IndexError):
-                            current_lines = lines_filtered
-                    else:
-                        current_lines = lines_filtered
+                    current_lines = _select_hover_lines(
+                        check_filter, lines_filtered, lines_unfiltered)
 
                     min_dist = float('inf')
                     closest_point = None
