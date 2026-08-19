@@ -75,13 +75,13 @@ def _parse_date_str(date_value) -> str | None:
     if "-" in date_str and "." in date_str:
         start = date_str.split("-")[0].strip()
         parts = start.split(".")
-        if len(parts) == 3:
+        if len(parts) == 3 and all(p.isdigit() for p in parts):
             day, month, year = parts
             return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
     # 格式2: 2025-06-10
     if "-" in date_str:
         parts = date_str.split("-")
-        if len(parts) >= 3:
+        if len(parts) >= 3 and all(p.isdigit() for p in parts[:3]):
             year, month, day = parts[:3]
             return f"{year.zfill(4)}{month.zfill(2)}{day.zfill(2)}"
     return None

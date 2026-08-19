@@ -47,3 +47,16 @@ class TestExtractTestDate:
         broken = tmp_path / "broken.xlsx"
         broken.write_bytes(b"not a real xlsx file")
         assert extract_test_date_from_xls(str(broken)) == "00000000"
+
+    def test_valid_file_no_date_returns_default(self, tmp_path):
+        """有效文件但无 Test Date 且文件名无日期 → 默认值"""
+        import openpyxl
+
+        file_path = tmp_path / "no_date_file.xlsx"
+        wb = openpyxl.Workbook()
+        ws0 = wb.active
+        ws0.title = "Cycle"
+        ws0.append(["Cycle#", "CycleBegin"])
+        ws0.append([1, "2025-06-10 08:00:00"])
+        wb.save(file_path)
+        assert extract_test_date_from_xls(str(file_path)) == "00000000"
