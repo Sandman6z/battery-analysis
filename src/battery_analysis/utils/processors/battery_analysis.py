@@ -22,8 +22,6 @@ import re
 import sys
 import traceback
 
-import xlrd as rd
-
 from battery_analysis.utils.exceptions import BatteryAnalysisException
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.file_finder import scan_sorted_xlsx
@@ -239,7 +237,7 @@ class BatteryAnalysis:
             if progress_callback:
                 progress_callback(55, "Data processing complete")
 
-        except (IOError, OSError, ValueError, rd.XLRDError,
+        except (IOError, OSError, ValueError,
                 BatteryAnalysisException, KeyError) as e:
             self.strErrorLog = str(e)
             if not isinstance(e, (BatteryAnalysisException, KeyError)):
@@ -255,9 +253,11 @@ class BatteryAnalysis:
 
         try:
             cycle_df, step_df, record_df = read_xlsx_sheets(strPath)
-        except Exception as e:
-            logging.error("pandas read failed %s, falling back to xlrd. Original error: %s", strPath, e)
-            return BatteryAnalysis._parallel_process_file_xlrd_fallback(args)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            # calamine 引擎异常类型随 pandas 版本变化，统一归一化为业务异常，
+            # 由 worker 层的异常处理跳过该文件
+            raise BatteryAnalysisException(
+                f"Failed to read Excel file: {strPath}: {e}") from e
 
         if len(cycle_df) < 3 or len(step_df) < 3 or len(record_df) < 3:
             raise BatteryAnalysisException(
@@ -320,167 +320,6 @@ class BatteryAnalysis:
         listChargeForInfoImageCsv = []
         for c, posi_list in enumerate(listPosiForInfoImageCsv):
             charges = calculator.calculate(posi_list, is_single=False)
-            if len(charges) != len(listVoltageForInfoImageCsv[c]):
-                raise BatteryAnalysisException(
-                    f"[Plt Data Error]: battery {battery_name} "
-                    f"{listCurrentLevel[c]}mA pulse, "
-                    f"charge is not equal to voltage")
-            listChargeForInfoImageCsv.append(charges)
-
-        return (
-            battery_name,
-            listOneBatteryCharge,
-            listPosiForInfoImageCsv,
-            listVoltageForInfoImageCsv,
-            listChargeForInfoImageCsv,
-            listTimeStamp,
-        )
-
-    # ────────────────────────────────────────────────────────────
-    #  文件级处理（xlrd 回退路径）
-    # ────────────────────────────────────────────────────────────
-    @staticmethod
-    def _parallel_process_file_xlrd_fallback(args):
-        """xlrd 回退路径：当 pandas 读取失败时使用"""
-        strPath, listCurrentLevel, listVoltageLevel = args
-
-        # ── 读取工作簿 ──────────────────────────────────────────
-        try:
-            rb = rd.open_workbook(strPath)
-        except (FileNotFoundError, PermissionError, rd.XLRDError) as e:
-            logging.error("Failed to read Excel file: %s, error: %s", strPath, e)
-            raise BatteryAnalysisException(f"Unable to open Excel file: {strPath}") from e
-
-        sheets = rb.sheets()
-        if len(sheets) < 3:
-            raise BatteryAnalysisException(
-                f"Excel file format error: {strPath} is missing required worksheets. "
-                f"Expected at least 3 worksheets, but found {len(sheets)}")
-
-        # ── 读取列数据 ──────────────────────────────────────────
-        cycleTable = sheets[0]
-        cycleRows = cycleTable.nrows
-        cycleCycle = cycleTable.col_values(0) if cycleTable.ncols > 0 else []
-        cycleBegin = cycleTable.col_values(1) if cycleTable.ncols > 1 else []
-        cycleEnd = cycleTable.col_values(2) if cycleTable.ncols > 2 else []
-        cycleCharge = cycleTable.col_values(3) if cycleTable.ncols > 3 else []
-
-        if len(cycleCycle) < 3 or len(cycleBegin) < 3 or len(cycleEnd) < 3 or len(cycleCharge) < 3:
-            raise BatteryAnalysisException(
-                f"Excel file format error: {strPath} first worksheet is missing required column data")
-
-        stepTable = sheets[1]
-        stepRows = stepTable.nrows
-        stepCycle = stepTable.col_values(0) if stepTable.ncols > 0 else []
-        stepStep = stepTable.col_values(1) if stepTable.ncols > 1 else []
-        stepCharge = stepTable.col_values(2) if stepTable.ncols > 2 else []
-
-        if len(stepCycle) < 3 or len(stepStep) < 3 or len(stepCharge) < 3:
-            raise BatteryAnalysisException(
-                f"Excel file format error: {strPath} second worksheet is missing required column data")
-
-        recordTable = sheets[2]
-        recordRows = recordTable.nrows
-        recordCycle = recordTable.col_values(0) if recordTable.ncols > 0 else []
-        recordStep = recordTable.col_values(1) if recordTable.ncols > 1 else []
-        recordCurrent = recordTable.col_values(2) if recordTable.ncols > 2 else []
-        recordVoltage = recordTable.col_values(3) if recordTable.ncols > 3 else []
-        recordCharge = recordTable.col_values(4) if recordTable.ncols > 4 else []
-
-        if len(recordCycle) < 3 or len(recordStep) < 3 or len(recordCurrent) < 3 \
-                or len(recordVoltage) < 3 or len(recordCharge) < 3:
-            raise BatteryAnalysisException(
-                f"Excel file format error: {strPath} third worksheet is missing required column data")
-
-        # ── 时间戳 ──────────────────────────────────────────────
-        listTimeStamp = [cycleBegin[2], cycleEnd[-1]]
-        battery_name = cycleCycle[0]
-
-        # ── 构建脉冲掩码 ────────────────────────────────────────
-        pulse_mask = [False] * recordRows
-        for row in range(2, recordRows):
-            pulse_mask[row] = str(recordStep[row]).strip() in ("脉冲", "Pulse")
-
-        # ── 脉冲等级匹配 ────────────────────────────────────────
-        matched = match_pulse_levels(
-            [float(v) if v else 0.0 for v in recordCurrent],
-            [float(v) if v else 0.0 for v in recordVoltage],
-            pulse_mask,
-            listCurrentLevel,
-            listVoltageLevel,
-            start_row=2,
-        )
-        if matched is None:
-            raise BatteryAnalysisException(f"Pulse data not found: {strPath}")
-
-        listLevelToVoltage, listLevelToRow, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = matched
-
-        # ── 电荷计算（xlrd 原生实现）──────────────────────────────
-        cycle_cumulative_charge = [0.0] * cycleRows
-        total_charge = 0.0
-        for c1 in range(2, cycleRows):
-            try:
-                total_charge += abs(float(cycleCharge[c1]))
-                cycle_cumulative_charge[c1] = total_charge
-            except (ValueError, TypeError):
-                continue
-
-        step_dict = {}
-        for c2 in range(2, stepRows):
-            cycle_key = stepCycle[c2]
-            if cycle_key not in step_dict:
-                step_dict[cycle_key] = []
-            if str(stepStep[c2]).strip() not in ("脉冲", "Pulse"):
-                try:
-                    step_dict[cycle_key].append(abs(float(stepCharge[c2])))
-                except (ValueError, TypeError):
-                    continue
-
-        def _calculate_charge(positions, is_single=True):
-            if is_single:
-                positions = [positions]
-                results = []
-            else:
-                results = [0.0] * len(positions)
-
-            for idx, intPosi in enumerate(positions):
-                if not intPosi:
-                    if is_single:
-                        results.append(0)
-                    continue
-
-                _cycle = recordCycle[intPosi]
-
-                cycle_idx = 2
-                while cycle_idx < cycleRows and cycleCycle[cycle_idx] < _cycle:
-                    cycle_idx += 1
-
-                intCharge = cycle_cumulative_charge[cycle_idx - 1] if cycle_idx > 2 else 0
-
-                if _cycle in step_dict:
-                    intCharge += sum(step_dict[_cycle])
-
-                try:
-                    intCharge += abs(float(recordCharge[intPosi]))
-                except (ValueError, TypeError):
-                    continue
-
-                if is_single:
-                    results.append(round(intCharge))
-                else:
-                    results[idx] = intCharge
-
-            return results[0] if is_single else results
-
-        listOneBatteryCharge = []
-        for c in range(len(listCurrentLevel)):
-            for v in range(len(listVoltageLevel)):
-                charge = _calculate_charge(listLevelToRow[c][v])
-                listOneBatteryCharge.append(charge)
-
-        listChargeForInfoImageCsv = []
-        for c, posi_list in enumerate(listPosiForInfoImageCsv):
-            charges = _calculate_charge(posi_list, is_single=False)
             if len(charges) != len(listVoltageForInfoImageCsv[c]):
                 raise BatteryAnalysisException(
                     f"[Plt Data Error]: battery {battery_name} "
