@@ -1,5 +1,8 @@
+import logging
+
+
 def filter_data(
-    plt_charge_list: list, 
+    plt_charge_list: list,
     plt_voltage_list: list, 
     times=5, 
     slope_max=0.2, 
