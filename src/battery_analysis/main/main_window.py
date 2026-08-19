@@ -213,14 +213,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 if lm:
                     lm.log_environment_info()
             except Exception:
-                pass
+                logging.getLogger(__name__).exception("Failed to log environment info")
 
             self.logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
 
             elapsed = (time.time() - t0) * 1000
             self.logger.info("Background initialization completed in %dms", elapsed)
         except Exception as e:
-            logging.getLogger(__name__).error("Background initialization error: %s", e)
+            logging.getLogger(__name__).exception("Background initialization error: %s", e)
 
     # ------------------------------
     # 服务和控制器获取方法
