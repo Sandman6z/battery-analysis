@@ -17,25 +17,25 @@ logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 导入Version类，统一版本管理
 # 添加sys.path以确保可以导入battery_analysis模块
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-try:
-    from battery_analysis.utils.version import Version
-except ImportError as e:
-    logger.error("无法导入Version类: %s", e)
-    sys.exit(1)
 
-# 检查PyInstaller是否已安装，如果未安装则提示用户安装build依赖
-try:
-    import PyInstaller
-    logger.info("PyInstaller已安装: %s", PyInstaller.__version__)
-except ImportError:
-    logger.warning("警告: 未找到PyInstaller模块。请先安装build依赖组:")
-    logger.warning("  uv pip install -e '.[build]'")
-    logger.warning("或")
-    logger.warning("  pip install -e '.[build]'")
-    sys.exit(1)
+
+def _check_build_env():
+    """检查构建环境：PyInstaller 已安装（缺失时输出安装指引并退出）。
+
+    由 main() 在构建前调用，避免 import 本模块产生副作用——模块级 sys.exit
+    会让未安装 build 依赖的环境连 pytest 收集都无法完成。
+    """
+    try:
+        import PyInstaller
+        logger.info("PyInstaller已安装: %s", PyInstaller.__version__)
+    except ImportError:
+        logger.warning("警告: 未找到PyInstaller模块。请先安装build依赖组:")
+        logger.warning("  uv pip install -e '.[build]'")
+        logger.warning("或")
+        logger.warning("  pip install -e '.[build]'")
+        sys.exit(1)
 
 # 添加项目根目录到Python路径，确保能正确导入模块
 script_dir = Path(__file__).absolute().parent
@@ -61,6 +61,7 @@ class BuildConfig:
 
         # 使用Version类获取版本号（版本号中心化管理）
         try:
+            from battery_analysis.utils.version import Version
             self.version = Version().version
             logger.info("从Version类获取的版本号: %s", self.version)
         except (FileNotFoundError, ImportError, IOError, PermissionError, KeyError, TOMLDecodeError) as e:
@@ -466,7 +467,10 @@ def main():
     
     # 解析命令行参数
     args = parser.parse_args()
-    
+
+    # 构建前检查构建环境（PyInstaller 缺失时输出安装指引并退出）
+    _check_build_env()
+
     # 如果请求详细日志，将日志级别设置为DEBUG
     if args.verbose:
         logger.setLevel(logging.DEBUG)
