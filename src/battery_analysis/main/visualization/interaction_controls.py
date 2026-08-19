@@ -19,6 +19,16 @@ from battery_analysis.utils.version import Version
 logger = logging.getLogger(__name__)
 
 
+def _battery_line_indices(battery_index, current_level_num):
+    """返回属于指定电池的所有曲线索引。
+
+    曲线按电池主序构建（figure_builder 中 line = b*current_level + c），
+    因此电池 b 的曲线索引区间为 [b*level, (b+1)*level)。
+    """
+    start = battery_index * current_level_num
+    return range(start, start + current_level_num)
+
+
 class InteractionControlsMixin:
     """交互控件混入类，提供按钮、菜单、悬停等交互功能"""
 
@@ -183,9 +193,11 @@ class InteractionControlsMixin:
                             "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
                         for i in range(min(len(lines_unfiltered), len(lines_filtered))):
-                            battery_index = i % self.intBatteryNum
-                            battery_visible = any(lines_unfiltered[battery_index + j * self.intBatteryNum].get_visible()
-                                                  for j in range(self.intCurrentLevelNum))
+                            battery_index = i // self.intCurrentLevelNum
+                            battery_visible = any(
+                                lines_unfiltered[j].get_visible()
+                                for j in _battery_line_indices(battery_index, self.intCurrentLevelNum)
+                                if j < len(lines_unfiltered))
                             lines_filtered[i].set_visible(battery_visible)
                             lines_unfiltered[i].set_visible(False)
                     else:
@@ -197,9 +209,11 @@ class InteractionControlsMixin:
                             "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
                         for i in range(min(len(lines_filtered), len(lines_unfiltered))):
-                            battery_index = i % self.intBatteryNum
-                            battery_visible = any(lines_filtered[battery_index + j * self.intBatteryNum].get_visible()
-                                                  for j in range(self.intCurrentLevelNum))
+                            battery_index = i // self.intCurrentLevelNum
+                            battery_visible = any(
+                                lines_filtered[j].get_visible()
+                                for j in _battery_line_indices(battery_index, self.intCurrentLevelNum)
+                                if j < len(lines_filtered))
                             lines_unfiltered[i].set_visible(battery_visible)
                             lines_filtered[i].set_visible(False)
 
@@ -317,23 +331,23 @@ class InteractionControlsMixin:
                 battery_index = battery_info[battery_idx - start_idx]['index']
 
                 current_lines = lines_filtered if is_filtered else lines_unfiltered
-                battery_visible = False
-                for i in range(len(current_lines)):
-                    if i % self.intBatteryNum == battery_index:
-                        battery_visible = current_lines[i].get_visible()
-                        break
+                line_indices = _battery_line_indices(battery_index, self.intCurrentLevelNum)
+
+                battery_visible = any(
+                    current_lines[i].get_visible()
+                    for i in line_indices if i < len(current_lines))
 
                 new_visibility = not battery_visible
 
                 updated = False
-                for i in range(len(current_lines)):
-                    if i % self.intBatteryNum == battery_index:
+                for i in line_indices:
+                    if i < len(current_lines):
                         current_lines[i].set_visible(new_visibility)
                         updated = True
 
                 other_lines = lines_unfiltered if is_filtered else lines_filtered
-                for i in range(len(other_lines)):
-                    if i % self.intBatteryNum == battery_index:
+                for i in line_indices:
+                    if i < len(other_lines):
                         other_lines[i].set_visible(new_visibility)
 
                 if button_state is None:
