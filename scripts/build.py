@@ -43,6 +43,14 @@ project_root = script_dir.parent
 sys.path.insert(0, str(project_root))
 
 
+def _build_failed(result):
+    """PyInstaller 构建失败判定：返回码非零（或结果为 None）即失败。
+
+    修复：旧代码用 check=False 且忽略返回值，构建失败时脚本仍返回 0，导致 CI 假绿。
+    """
+    return result is None or result.returncode != 0
+
+
 class BuildConfig:
     """构建配置基类"""
 
@@ -432,7 +440,10 @@ class BuildManager(BuildConfig):
             cmd_args = self._build_pyinstaller_args(app_config, temp_path, src_path, final_build_dir)
             
             # 执行PyInstaller命令
-            self._execute_pyinstaller_command(app_config["build_dir"], cmd_args)
+            result = self._execute_pyinstaller_command(app_config["build_dir"], cmd_args)
+            if _build_failed(result):
+                logger.error("构建失败：%s（返回码 %s）", app_config["name"], getattr(result, "returncode", "N/A"))
+                sys.exit(1)
 
         # 清理临时文件
         if temp_path.exists():
