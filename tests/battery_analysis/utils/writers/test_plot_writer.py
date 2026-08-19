@@ -1,5 +1,5 @@
 """测试 plot_writer 报告图生成的数据流向"""
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -64,7 +64,17 @@ def test_filtered_plot_uses_filtered_data(tmp_path, info_image_csv, monkeypatch)
         max_xaxis=5.0,
     )
 
-    # 最后一次 plt.plot 调用即 Filtered 图
+    # Unfiltered 图 + Filtered 图各一次 plt.plot
+    assert len(plot_calls) == 2, "应恰好有 unfiltered 图与 filtered 图两次 plt.plot 调用"
+
+    # 第一次 plt.plot 调用即 Unfiltered 图：仍应使用原始数据 [0]/[1]
+    unfiltered_call = plot_calls[0]
+    assert list(unfiltered_call[0]) == [1.0, 2.0, 3.0, 4.0], \
+        "Unfiltered 图应使用原始 charge 数据 [0]"
+    assert list(unfiltered_call[1]) == [5.0, 6.0, 7.0, 8.0], \
+        "Unfiltered 图应使用原始 voltage 数据 [1]"
+
+    # 最后一次 plt.plot 调用即 Filtered 图：应使用过滤后数据 [2]/[3]
     last_call = plot_calls[-1]
     assert list(last_call[0]) == [9.0, 10.0], "Filtered 图应使用过滤后 charge 数据 [2]"
     assert list(last_call[1]) == [11.0, 12.0], "Filtered 图应使用过滤后 voltage 数据 [3]"

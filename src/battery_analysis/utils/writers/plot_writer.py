@@ -101,6 +101,7 @@ def draw_boxplot_and_curves(
                                                1].append([float(row[i]) for i in range(len(row))])
             index += 1
 
+    # list_plt[c] 布局：[0]=原始 charge, [1]=原始 voltage, [2]=过滤 charge, [3]=过滤 voltage
     for c in range(int_current_level_num):
         list_plt[c][2], list_plt[c][3] = data_utils.filter_data(
             list_plt[c][0], list_plt[c][1])
