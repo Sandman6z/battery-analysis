@@ -99,6 +99,8 @@ allow-import-from-stdlib-without-as = [
 [tool.pytest.ini_options]
 # 测试目录配置
 testpaths = ["tests"]
+# importlib 模式不修改 sys.path，需显式把仓库根加入，使 scripts/ 等非安装目录可导入
+pythonpath = ["."]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*TestCase"]
 python_functions = ["test_*"]

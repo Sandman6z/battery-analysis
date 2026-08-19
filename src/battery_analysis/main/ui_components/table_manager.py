@@ -6,6 +6,7 @@
 从 test.equipment（JSON config）读取测试信息，与 ConfigDialog 共用数据源。
 """
 
+import logging
 from typing import Any
 from PyQt6.QtWidgets import QTableWidgetItem
 
