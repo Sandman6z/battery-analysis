@@ -203,7 +203,8 @@ class BatteryAnalysis:
                     try:
                         results = pool.map(self._parallel_process_file, process_args)
                     except (FileNotFoundError, PermissionError,
-                            ValueError, KeyError, IndexError) as e:
+                            ValueError, KeyError, IndexError,
+                            BatteryAnalysisException) as e:
                         logging.error("Error while processing files in parallel: %s", e)
                         pool.terminate()
                         raise BatteryAnalysisException(f"Parallel processing failed: {str(e)}")
