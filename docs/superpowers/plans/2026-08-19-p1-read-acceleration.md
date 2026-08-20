@@ -17,8 +17,8 @@
 - ✅ Task 4 excel_processor/excel_validator 换 calamine — d3fc6b9（全量 523 passed/9 skipped）
 - ✅ Task 5 num2letter 改用 xlsxwriter — 8761e851（含边界契约锁，7 passed；**规格偏差修正见下**）+ 0f0bd10（code quality Minor 修复：陈旧注释改 0 基读数 + 负数契约 guard，8 passed，复核 ✅）
 - ✅ Task 6 data_loader 流式计数 — ad50e818（契约锁定 2 passed + 全目录 9 passed；code quality 由 controller 内联核验，无 Blocker/Important）
-- ✅ Task 7 移除 xlrd + 全量回归 + 基准 — bdeeb06（**527 passed/9 skipped**，基准 **Speedup 8.7x** 达标；pylint 门槛偏差见下）
-- ⬜ Task 8 待执行
+- ✅ Task 7 移除 xlrd + 全量回归 + 基准 — bdeeb06（**527 passed/9 skipped**，基准 **Speedup 8.7x** 达标；pylint 门槛偏差见下）+ 18c5c03（build.py xlrd 打包配置清理 + 测试笔误）
+- ⏳ Task 8 收尾中：final review ✅ 可合并（6 项验收标准全过，17 commits/0 behind）；**PR #5 已创建**（2026-08-20），CI build-and-test ✅ pass（3m6s）；合并 main 待用户确认（auto mode classifier 拦截 `gh pr merge`）
 
 **Task 7 审查记录（2026-08-20）：**
 - **pylint 门槛偏差（已核验）**：计划 Step 5 要求"评分 ≥8.7，无新增 error"，实际基线即 **7.37/10**（error：pyproject.toml E0015 配置选项、log_manager.py:54 E1101、utils/__init__.py:7-11 E0603 undefined-all-variable ×5）。`git log main..HEAD` 确认 `utils/__init__.py` 与 `log_manager.py` 在 P1 分支 0 commit 触碰 → **全部为 P0 合并后存量，Task 7 delta 0**（implementer 还原 charge_calculator 复测 7.37 印证）。门槛修正为：**无新增 error、评分不下降**。存量 pylint 债（336 invalid-name 等）建议后续阶段单列任务，不进 P1。
