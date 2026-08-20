@@ -2,7 +2,10 @@
 
 import os
 import tempfile
+from unittest.mock import patch
+
 import pandas as pd
+
 from battery_analysis.utils.processors.excel_processor import (
     optimize_dataframe_memory,
     read_excel_file,
@@ -74,17 +77,17 @@ class TestAnalyzeSingleExcel:
         assert "error" in result
 
 
-"""excel_processor 引擎迁移测试（calamine）"""
-from unittest.mock import patch
-
-import pandas as pd
-
-from battery_analysis.utils.processors.excel_processor import read_excel_file
-
-
 class TestCalamineEngine:
+    """read_excel 入口引擎回归锁：pandas.read_excel 必须以 engine='calamine' 调用"""
+
     def test_read_excel_file_uses_calamine_engine(self, sample_xlsx):
         with patch("pandas.read_excel") as mock_read:
             mock_read.return_value = pd.DataFrame({"A": [1, 2, 3]})
             read_excel_file(str(sample_xlsx))
+        assert mock_read.call_args.kwargs["engine"] == "calamine"
+
+    def test_analyze_single_excel_uses_calamine_engine(self, sample_xlsx):
+        with patch("pandas.read_excel") as mock_read:
+            mock_read.return_value = pd.DataFrame({"A": [1, 2, 3]})
+            analyze_single_excel(str(sample_xlsx), "test.xlsx")
         assert mock_read.call_args.kwargs["engine"] == "calamine"
