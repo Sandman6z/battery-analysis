@@ -20,7 +20,7 @@ class TestPandasParsing:
         assert len(record_df) >= 5
 
     def test_pulse_detection(self, sample_xlsx):
-        """验证脉冲检测：筛选 Step# 为脉冲的的行"""
+        """验证脉冲检测：筛选 Step# 为脉冲的行"""
         record_df = pd.read_excel(sample_xlsx, sheet_name=2, engine='calamine')
 
         pulses = record_df[record_df.iloc[:, 1].astype(str).isin(PULSE_STEPS)]

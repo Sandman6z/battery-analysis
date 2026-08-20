@@ -123,7 +123,7 @@ class BuildManager(BuildConfig):
                     "battery_analysis.utils.battery_analysis",
                     "battery_analysis.ui.ui_main_window",
                     # 第三方库
-                    "openpyxl", "xlsxwriter", "xlrd",
+                    "openpyxl", "xlsxwriter",
                     "docx", "matplotlib.backends.backend_svg",
                     # pandas 内部模块（Cython 隐式导入，需显式声明以防遗漏）
                     "pandas._config.localization",
@@ -319,7 +319,6 @@ class BuildManager(BuildConfig):
 
             # 其他库测试
             'openpyxl.tests',
-            'xlrd.tests',
 
             # GUI 框架排除（只用 PyQt6）
             'tkinter',
