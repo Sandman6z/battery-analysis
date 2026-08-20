@@ -35,7 +35,7 @@ def read_excel_file(file_path: str) -> dict:
     import pandas as pd
 
     try:
-        df = pd.read_excel(file_path, sheet_name=0, engine="openpyxl", header=0)
+        df = pd.read_excel(file_path, sheet_name=0, engine="calamine", header=0)
         df = optimize_dataframe_memory(df)
 
         return {
@@ -66,7 +66,7 @@ def analyze_single_excel(file_path: str, filename: str) -> dict:
     import pandas as pd
 
     try:
-        df = pd.read_excel(file_path, sheet_name=0, engine="openpyxl", header=0)
+        df = pd.read_excel(file_path, sheet_name=0, engine="calamine", header=0)
         df = optimize_dataframe_memory(df)
 
         return {
