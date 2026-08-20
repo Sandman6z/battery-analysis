@@ -51,7 +51,7 @@ class LogManager:
         # Windows 下確保 stdout/stderr 使用 UTF-8 編碼，避免中文亂碼
         if os.name == 'nt':
             for stream in (sys.stdout, sys.stderr):
-                if hasattr(stream, 'reconfigure') and getattr(stream, 'encoding', '').upper() != 'UTF-8':
+                if hasattr(stream, 'reconfigure') and str(getattr(stream, 'encoding', '')).upper() != 'UTF-8':
                     try:
                         stream.reconfigure(encoding='utf-8')
                     except Exception:
