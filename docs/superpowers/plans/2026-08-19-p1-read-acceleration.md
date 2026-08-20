@@ -10,6 +10,18 @@
 
 **设计修正（相对路线图）：** 路线图"预览/校验加 nrows"经代码审查确认**只适用于 `extract_test_date_from_xls`**。`read_excel_file`/`analyze_single_excel` 返回 `row_count`/`basic_stats`/`missing_values`，`validate_excel_file` 返回完整 df 供 `data_processor.py:261` 算 `row_count`——三者都依赖完整数据，nrows 会破坏统计语义。nrows 收益仅在日期提取（只搜前 20 行）处获得。
 
+**执行状态（2026-08-20）：**
+- ✅ Task 1 `read_xlsx_sheets` calamine 化 + 依赖 — 9d93fb3, f670cc1
+- ✅ Task 2 `extract_test_date_from_xls` calamine + nrows + fixture — c72dcfc, c1e3c04（全量 521 passed/9 skipped）
+- ✅ Task 3 删除 xlrd 回退 + 异常归一化 — 67eefd9, a876272（全量 522 passed/9 skipped，删 195 行）
+- ✅ Task 4 excel_processor/excel_validator 换 calamine — d3fc6b9（全量 523 passed/9 skipped）
+- ⬜ Task 5-8 待执行
+
+**Task 4 审查遗留（Minor，可选）：**
+- **M1** test_excel_processor.py:77-82 — 游离 docstring 字符串 + 重复 `import pandas`/`import read_excel_file`（顶部已导入），`TestCalamineEngine` 建议就近放 TestReadExcelFile 后。纯风格，未改。
+- **M2** 引擎回归锁只覆盖 `read_excel_file` 一个调用点；`analyze_single_excel`（excel_processor.py:69）与 `validate_excel_file`（excel_validator.py:100）同款替换无独立锁。全量套件 + 实证对比已给出行为保障，未补。
+- **注意** Task 1 契约锁（`assert_frame_equal(check_exact=True)`）锁的是 `read_xlsx_sheets` header=None 三 sheet 路径，非 Task 4 的 header=0 单 sheet 路径；code quality review 实证两引擎在该路径输出一致，风险可控。
+
 ---
 
 ## File Structure
