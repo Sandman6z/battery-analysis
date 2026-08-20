@@ -15,7 +15,7 @@
 - ✅ Task 2 `extract_test_date_from_xls` calamine + nrows + fixture — c72dcfc, c1e3c04（全量 521 passed/9 skipped）
 - ✅ Task 3 删除 xlrd 回退 + 异常归一化 — 67eefd9, a876272（全量 522 passed/9 skipped，删 195 行）
 - ✅ Task 4 excel_processor/excel_validator 换 calamine — d3fc6b9（全量 523 passed/9 skipped）
-- ✅ Task 5 num2letter 改用 xlsxwriter — 8761e851（含边界契约锁，7 passed；**规格偏差修正见下**）
+- ✅ Task 5 num2letter 改用 xlsxwriter — 8761e851（含边界契约锁，7 passed；**规格偏差修正见下**）+ 0f0bd10（code quality Minor 修复：陈旧注释改 0 基读数 + 负数契约 guard，8 passed，复核 ✅）
 - ⬜ Task 6-8 待执行
 
 **Task 5 规格修正（2026-08-20，implementer 发现 + 实证核验）：**
