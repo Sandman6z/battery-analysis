@@ -14,9 +14,9 @@
 > rm .\main.py #删除自动创建的无用文件
 > uv venv --python 3.11
 > .\venv\Scripts\activate
-> uv sync -i https://mirrors.aliyun.com/pypi/simple/
+> uv sync --all-extras -i https://mirrors.aliyun.com/pypi/simple/
 
-**注意：** 在新电脑上首次使用`uv sync`时，请以管理员权限运行终端，否则可能会出现多个错误。
+**注意：** 必须带 `--all-extras`。pytest/pylint/pyinstaller 等开发与打包工具声明在 `[project.optional-dependencies]`（dev/build extras），裸 `uv sync` 会跳过它们，得到的 venv 无法跑测试。在新电脑上首次使用`uv sync`时，请以管理员权限运行终端，否则可能会出现多个错误。
 
 ### 开发工具安装
 - **Qt Designer**：设计UI界面
