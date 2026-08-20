@@ -1,5 +1,5 @@
 import math
-from openpyxl.utils import get_column_letter
+from xlsxwriter.utility import xl_col_to_name
 
 
 def ws_set_col(_WorkSheet, _intCol: int, _intLength: int, _intSize: int):
@@ -15,4 +15,5 @@ def ws_result_write_data(_intRow, _intCol, _strMessage, _format, ws_result):
 
 
 def num2letter(_intCol: int) -> str:
-    return get_column_letter(_intCol + 1)
+    """列序号转列字母（0 → A, 25 → Z, 26 → AA）"""
+    return xl_col_to_name(_intCol)

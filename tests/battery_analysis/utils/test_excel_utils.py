@@ -78,3 +78,9 @@ class TestExcelUtils:
         assert num2letter(25) == "Z"  # 25 + 1 = 26 -> Z
         assert num2letter(26) == "AA"  # 26 + 1 = 27 -> AA
         assert num2letter(27) == "AB"  # 27 + 1 = 28 -> AB
+
+    def test_num2letter_boundaries(self):
+        """Z/AA/AZ 列边界——get_column_letter 与 xl_col_to_name 计数差异回归锁"""
+        assert num2letter(25) == "Z"
+        assert num2letter(26) == "AA"
+        assert num2letter(51) == "AZ"
