@@ -3,6 +3,8 @@
 提供各种通用工具函数和装饰器
 """
 
+# pylint: disable=undefined-all-variable
+# PEP 562 __getattr__ 惰性加载：__all__ 名字运行时才解析，静态检查无法识别
 __all__ = [
     'get_logger',
     'get_log_directory',
