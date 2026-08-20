@@ -15,7 +15,11 @@
 - ✅ Task 2 `extract_test_date_from_xls` calamine + nrows + fixture — c72dcfc, c1e3c04（全量 521 passed/9 skipped）
 - ✅ Task 3 删除 xlrd 回退 + 异常归一化 — 67eefd9, a876272（全量 522 passed/9 skipped，删 195 行）
 - ✅ Task 4 excel_processor/excel_validator 换 calamine — d3fc6b9（全量 523 passed/9 skipped）
-- ⬜ Task 5-8 待执行
+- ✅ Task 5 num2letter 改用 xlsxwriter — 8761e851（含边界契约锁，7 passed；**规格偏差修正见下**）
+- ⬜ Task 6-8 待执行
+
+**Task 5 规格修正（2026-08-20，implementer 发现 + 实证核验）：**
+计划原写 `xl_col_to_name(_intCol + 1)`，假设 xl_col_to_name 1 基计数。**实测 xlsxwriter 3.0.9 源码该函数是 0 基**（文档 `Convert a zero indexed column cell reference to a string`，`xl_col_to_name(0)=='A'`），内部自行 `col_num += 1`。而 openpyxl `get_column_letter(1)=='A'` 是 1 基。原始 `num2letter(_intCol)` 输入即 0 基，正确替换为 **`xl_col_to_name(_intCol)` 不加偏移**——照搬 `+1` 会把输出整体平移一位（0→B），破坏行为保留。边界测试 `test_num2letter_boundaries` 正是为此设的回归锁。已更新下方 Step 3 代码。
 
 **Task 4 审查遗留（Minor，可选）：**
 - **M1** test_excel_processor.py:77-82 — 游离 docstring 字符串 + 重复 `import pandas`/`import read_excel_file`（顶部已导入），`TestCalamineEngine` 建议就近放 TestReadExcelFile 后。纯风格，未改。
@@ -569,10 +573,10 @@ from xlsxwriter.utility import xl_col_to_name
 ```python
 def num2letter(_intCol: int) -> str:
     """列序号转列字母（0 → A, 25 → Z, 26 → AA）"""
-    return xl_col_to_name(_intCol + 1)
+    return xl_col_to_name(_intCol)
 ```
 
-`xl_col_to_name` 从 1 开始计数（`xl_col_to_name(1) == "A"`），与 `get_column_letter` 一致，故 `+1` 偏移不变。
+**注意：`xl_col_to_name` 是 0 基**（`xl_col_to_name(0) == "A"`，源码文档 `Convert a zero indexed column cell reference to a string`），而 `get_column_letter` 是 1 基（`get_column_letter(1) == "A"`）。原始 `num2letter(_intCol)` 输入即为 0 基，故**不加 `+1` 偏移**。早期计划片段误写为 `+1`（会把输出整体平移一位，0→B），2026-08-20 由 implementer 实证修正，边界测试 `test_num2letter_boundaries` 是回归锁。
 
 - [ ] **Step 4: 运行测试**
 
