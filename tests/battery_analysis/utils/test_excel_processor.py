@@ -72,3 +72,19 @@ class TestAnalyzeSingleExcel:
         result = analyze_single_excel("nonexistent.xlsx", "test.xlsx")
         assert result["filename"] == "test.xlsx"
         assert "error" in result
+
+
+"""excel_processor 引擎迁移测试（calamine）"""
+from unittest.mock import patch
+
+import pandas as pd
+
+from battery_analysis.utils.processors.excel_processor import read_excel_file
+
+
+class TestCalamineEngine:
+    def test_read_excel_file_uses_calamine_engine(self, sample_xlsx):
+        with patch("pandas.read_excel") as mock_read:
+            mock_read.return_value = pd.DataFrame({"A": [1, 2, 3]})
+            read_excel_file(str(sample_xlsx))
+        assert mock_read.call_args.kwargs["engine"] == "calamine"

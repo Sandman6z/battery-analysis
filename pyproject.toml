@@ -31,9 +31,9 @@ dependencies = [
     "pandas>=2.3.3",
     "psutil>=5.9.0,<6.0.0",
     "pyqt6>=6.6.0,<7.0.0",
+    "python-calamine>=0.3.0,<1.0.0",
     "python-docx>=1.2.0,<2.0.0",
     "pywin32>=311,<400",
-    "xlrd==1.2.0",
     "xlsxwriter~=3.0.8",
 ]
 

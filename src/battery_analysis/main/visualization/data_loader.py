@@ -216,8 +216,9 @@ class DataLoaderMixin:
 
             with open(csv_path, mode='r', encoding='utf-8') as f:
                 csvreader = csv.reader(f)
-                all_rows = list(csvreader)
-                if len(all_rows) < 5:
+                # 流式计数替代 list() 全量读，避免大文件内存翻倍（all_rows 只用于行数检查）
+                row_count = sum(1 for _ in csvreader)
+                if row_count < 5:
                     logger.error(
                         "Error: CSV file %s has insufficient data rows", self.strInfoImageCsvPath)
                     self.intBatteryNum = 0

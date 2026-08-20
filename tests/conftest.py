@@ -77,6 +77,43 @@ def create_sample_xlsx(tmp_path: Path, filename: str = "test_battery.xlsx") -> P
     return filepath
 
 
+def create_sample_xlsx_with_test_date(
+    tmp_path: Path,
+    filename: str = "test_date_sample.xlsx",
+    test_date_value: str = "10.06.2025 - 08.07.2025",
+) -> Path:
+    """Create a test xlsx file with a Test Date field in the Cycle sheet
+
+    文件名故意不含 8 位连续数字，避免触发 extract_test_date 的文件名回退，
+    从而隔离验证 Test Date 单元格提取路径。
+    """
+    filepath = tmp_path / filename
+    wb = openpyxl.Workbook()
+
+    ws0 = wb.active
+    ws0.title = "Cycle"
+    ws0.append(["Test Date", test_date_value])
+    ws0.append(["Cycle#", "CycleBegin", "CycleEnd", "Charge"])
+    ws0.append([1, "2025-06-10 08:00:00", "2025-06-10 08:30:00", 0.5])
+
+    ws1 = wb.create_sheet("Step")
+    ws1.append(["Cycle#", "Step#", "Charge"])
+    ws1.append([1, "Charge", 0.4])
+
+    ws2 = wb.create_sheet("Record")
+    ws2.append(["Cycle#", "Step#", "Current", "Voltage", "Charge"])
+    ws2.append([1, "脉冲", -4.0, 4.2, 0.0])
+
+    wb.save(filepath)
+    return filepath
+
+
+@pytest.fixture
+def sample_xlsx_with_test_date(tmp_path):
+    """pytest fixture: xlsx file containing a Test Date field"""
+    return create_sample_xlsx_with_test_date(tmp_path)
+
+
 @pytest.fixture
 def sample_xlsx(tmp_path):
     """pytest fixture: return small sample xlsx path"""

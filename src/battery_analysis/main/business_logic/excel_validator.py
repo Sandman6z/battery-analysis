@@ -97,7 +97,7 @@ def validate_excel_file(file_path, filename, cache, optimize_dataframe_memory):
         return result
 
     try:
-        df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl', header=0)
+        df = pd.read_excel(file_path, sheet_name=0, engine='calamine', header=0)
         df = optimize_dataframe_memory(df)
 
         is_valid, error_msg = validate_excel_file_content(df, filename)

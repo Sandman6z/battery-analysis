@@ -38,7 +38,7 @@ class ChargeCalculator:
         self._record_charge_values = pd.to_numeric(record_df.iloc[:, 4], errors='coerce').fillna(0).abs()
 
     def calculate(self, position_idx, is_single=True):
-        """计算指定行位置的累积充电量（xlrd 兼容索引）"""
+        """计算指定行位置的累积充电量"""
         if is_single:
             positions = [position_idx]
             single_result = True
@@ -70,7 +70,7 @@ class ChargeCalculator:
                     return 0
                 continue
 
-            # 找 cycle 索引，与 xlrd 原代码一致（用 < 而非 !=，容错 cycle 跳号）
+            # 找 cycle 索引（用 < 而非 !=，容错 cycle 跳号）
             cycle_idx = 2
             while cycle_idx < self._cycle_df_len and self._cycle_cycle.iloc[cycle_idx] < row_cycle:
                 cycle_idx += 1

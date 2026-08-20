@@ -73,8 +73,19 @@ class TestExcelUtils:
     def test_num2letter(self):
         """测试将数字列索引转换为字母"""
         # 测试不同的列索引
-        assert num2letter(0) == "A"  # 0 + 1 = 1 -> A
-        assert num2letter(1) == "B"  # 1 + 1 = 2 -> B
-        assert num2letter(25) == "Z"  # 25 + 1 = 26 -> Z
-        assert num2letter(26) == "AA"  # 26 + 1 = 27 -> AA
-        assert num2letter(27) == "AB"  # 27 + 1 = 28 -> AB
+        assert num2letter(0) == "A"  # 0 -> A
+        assert num2letter(1) == "B"  # 1 -> B
+        assert num2letter(25) == "Z"  # 25 -> Z
+        assert num2letter(26) == "AA"  # 26 -> AA
+        assert num2letter(27) == "AB"  # 27 -> AB
+
+    def test_num2letter_boundaries(self):
+        """Z/AA/AZ 列边界——get_column_letter 与 xl_col_to_name 计数差异回归锁"""
+        assert num2letter(25) == "Z"
+        assert num2letter(26) == "AA"
+        assert num2letter(51) == "AZ"
+
+    def test_num2letter_negative_raises(self):
+        """负数列索引应响亮失败（与 openpyxl get_column_letter 行为一致）"""
+        with pytest.raises(ValueError, match="Column index must be >= 0"):
+            num2letter(-1)
