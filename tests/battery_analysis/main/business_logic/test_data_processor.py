@@ -94,8 +94,9 @@ class TestDataProcessor:
             assert result == []
     
     @patch('battery_analysis.main.business_logic.data_processor.ProcessPoolExecutor')
+    @patch('battery_analysis.utils.resource_manager.ResourceManager.get_optimal_process_count', return_value=2)
     @patch('battery_analysis.main.business_logic.data_processor._read_excel_worker')
-    def test_process_all_excel_files_success(self, mock_read_excel_worker, mock_pool_cls):
+    def test_process_all_excel_files_success(self, mock_read_excel_worker, mock_opt_count, mock_pool_cls):
         """测试成功处理目录中所有Excel文件的情况"""
         expected_info = {'filename': 'test.xlsx', 'row_count': 3}
         mock_read_excel_worker.return_value = expected_info
@@ -127,9 +128,11 @@ class TestDataProcessor:
         assert len(result) == 2
         mock_read_excel_worker.assert_called()
         # 进程池 submit 的目标必须是模块级 worker（spy），而非实例绑定方法
-        mock_pool_cls.assert_called_once()
+        mock_pool_cls.assert_called_once_with(max_workers=2)
         for call in executor_mock.submit.call_args_list:
             assert call.args[0] is mock_read_excel_worker
+        # 缓存由主进程写入（每个成功文件一条，key 为绝对路径）
+        assert len(self.processor._cache['excel_files']) == 2
     
     def test__set_specification_type(self):
         """测试设置规格类型的方法"""
@@ -224,10 +227,64 @@ class TestProcessPoolFix:
             pickle.dumps(DataProcessor(Mock()).process_excel_with_pandas)
 
     def test_process_all_excel_files_real_pool_skips_bad_files(self, tmp_path):
-        """真实进程池：worker 可 pickle，坏文件被跳过不崩溃、不静默全串行"""
+        """真实进程池 smoke test：worker 可 pickle、坏文件被跳过不崩溃、池真实创建
+
+        目录含 1 个合法文件 + 3 个内容损坏文件：合法文件正常返回，损坏文件被跳过。
+        用 wraps 包真实 ProcessPoolExecutor 的 spy 断言池被创建 —— 串行回退路径不创建池，
+        从而区分"真并行"与"pickle 失败后静默全串行"。
+        """
         for name in ["DC1,mA1.xlsx", "DC1,mA2.xlsx", "bad.xlsx"]:
             (tmp_path / name).write_bytes(b"not a real excel")
+        pd.DataFrame({"Voltage": [3.7, 3.6], "Capacity": [1000, 950]}).to_excel(
+            tmp_path / "good.xlsx", index=False)
+
+        from concurrent.futures import ProcessPoolExecutor
+        from battery_analysis.main.business_logic import data_processor as dp
+
         processor = DataProcessor(Mock())
-        result = processor.process_all_excel_files(str(tmp_path))
-        # 两个文件名合法但内容损坏 → read_excel_file 返回 {} → 全部跳过
-        assert result == []
+        with patch.object(dp, "ProcessPoolExecutor", wraps=ProcessPoolExecutor) as mock_pool:
+            result = processor.process_all_excel_files(str(tmp_path))
+
+        mock_pool.assert_called()  # 池被创建 → 走真并行而非串行回退
+        # 三个文件内容损坏 → read_excel_file 返回 {} → 全部跳过；仅合法文件成功返回
+        assert [r["filename"] for r in result] == ["good.xlsx"]
+
+    def test_process_all_excel_files_re_raises_broken_process_pool(self, tmp_path):
+        """BrokenProcessPool 不被 per-future except 吞掉：re-raise 触发外层串行回退兜底
+
+        worker 进程硬崩溃（原生库 segfault/OOM）时剩余 future 全抛 BrokenProcessPool，
+        它必须传播到外层 except（串行重读兜底），而非被当"不可读文件"跳过静默返回部分数据。
+        """
+        from concurrent.futures import Future
+        from concurrent.futures.process import BrokenProcessPool
+        from battery_analysis.main.business_logic import data_processor as dp
+
+        for name in ["a.xlsx", "b.xlsx"]:
+            (tmp_path / name).write_bytes(b"not a real excel")
+
+        # executor 替身：submit 返回的 future 在 result() 时抛 BrokenProcessPool（模拟 worker 崩溃）
+        class _BrokenExecutor:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def submit(self, fn, *args, **kwargs):
+                fut = Future()
+                fut.set_exception(BrokenProcessPool("worker process died"))
+                return fut
+
+        processor = DataProcessor(Mock())
+        expected = {'filename': 'a.xlsx', 'row_count': 3}
+        with patch.object(dp, 'ProcessPoolExecutor', _BrokenExecutor), \
+             patch('battery_analysis.utils.resource_manager.ResourceManager.get_optimal_process_count', return_value=2), \
+             patch.object(processor, 'process_excel_with_pandas', return_value=expected) as mock_serial:
+            result = processor.process_all_excel_files(str(tmp_path))
+
+        # BrokenProcessPool 被 re-raise → 外层 except → 串行回退读取全部文件
+        assert len(result) == 2
+        mock_serial.assert_called()

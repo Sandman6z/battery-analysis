@@ -7,6 +7,7 @@
 import logging
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 from PyQt6 import QtWidgets as QW
 from PyQt6 import QtCore as QC
 
@@ -153,7 +154,11 @@ class DataProcessor:
                     f = futures[future]
                     try:
                         info = future.result()
+                    except BrokenProcessPool:
+                        raise  # worker 进程崩溃（原生库 segfault/OOM）→ 外层串行回退兜底
                     except Exception as e:  # pylint: disable=broad-exception-caught
+                        # 剩余可抛错误仅为 unpickle 反序列化失败；per-file 读取错误已由
+                        # read_excel_file 内部捕获返回 {}，此处按"不可读文件"跳过
                         self.logger.warning("Skipped unreadable Excel file %s: %s", f, e)
                         continue
                     if info:
