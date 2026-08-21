@@ -67,11 +67,25 @@ class TestChargeCalculator:
         assert calc.calculate(1) == 0      # pos < 2
         assert calc.calculate(2) == 0      # pos>=2 但 row_cycle 是 NaN → 0
 
+    def test_degenerate_cycle_df_rows(self):
+        """cycle_df 0/1 行：_cycle_cycle_search 空 → idx 恒 2 → base=0（防 cumsum 越界）"""
+        cycle_df = pd.DataFrame({0: [1], 1: [0], 2: [0], 3: [100.0]})
+        step_df = pd.DataFrame({0: [0, 0, 1], 1: ["充电", "充电", "充电"], 2: [0.0, 0.0, 5.0]})
+        record_df = pd.DataFrame({
+            0: [1, 1, 1], 1: [0, 0, 0], 2: [0.0, 0.0, 0.5],
+            3: [0.0, 0.0, 3.0], 4: [0.0, 0.0, 7.0],
+        })
+        calc = ChargeCalculator(cycle_df, step_df, record_df)
+        assert calc.calculate(2) == 12        # base 0 + step 5 + rec 7（与旧实现一致）
+        assert calc.calculate([2], is_single=False) == [12.0]
+
     def test_cycle_gap_jump_tolerance(self):
         """cycle 跳号：row_cycle=3.5 落在 3 与 4 之间 → 取前一个累积（searchsorted 左边界）"""
+        # pylint: disable=protected-access  # 设计需要：monkey-patch 新私有字段
         calc = _make_calculator()
         # 直接替换预计算结构（_cycle_cumsum/_cycle_cycle_search 复用 _make_calculator 的）
         calc._record_cycle_np = np.asarray([1.0, 1.0, 3.5], dtype=float)
         calc._record_charge_np = np.asarray([0.0, 0.0, 9.0], dtype=float)
         calc._record_df_len = 3
         assert calc.calculate(2) == 609    # searchsorted([3,4], 3.5, 'left')=1 → idx=3 → base=600
+        # pylint: enable=protected-access

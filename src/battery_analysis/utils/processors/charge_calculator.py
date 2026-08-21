@@ -19,7 +19,6 @@ class ChargeCalculator:
         """
         self._cycle_cycle = cycle_df.iloc[:, 0]
         self._record_cycle = record_df.iloc[:, 0]
-        self._cycle_df_len = len(cycle_df)
         self._record_df_len = len(record_df)
 
         # 预计算 cycle 累积充电量（numpy 数组）
@@ -27,10 +26,17 @@ class ChargeCalculator:
         self._cycle_cumsum = cycle_charge.cumsum().to_numpy(dtype=float)
 
         # 列转 numpy 数组，供 searchsorted 批量定位
-        self._cycle_cycle_np = pd.to_numeric(self._cycle_cycle, errors='coerce').to_numpy(dtype=float)
-        self._record_cycle_np = pd.to_numeric(self._record_cycle, errors='coerce').to_numpy(dtype=float)
+        self._cycle_cycle_np = (
+            pd.to_numeric(self._cycle_cycle, errors='coerce').to_numpy(dtype=float)
+        )
+        self._record_cycle_np = (
+            pd.to_numeric(self._record_cycle, errors='coerce').to_numpy(dtype=float)
+        )
         self._record_charge_np = (
-            pd.to_numeric(record_df.iloc[:, 4], errors='coerce').fillna(0).abs().to_numpy(dtype=float)
+            pd.to_numeric(record_df.iloc[:, 4], errors='coerce')
+            .fillna(0)
+            .abs()
+            .to_numpy(dtype=float)
         )
         # searchsorted 子数组：原逻辑从 cycle_idx=2 起扫描，隐含该段升序
         self._cycle_cycle_search = self._cycle_cycle_np[2:]
@@ -38,9 +44,13 @@ class ChargeCalculator:
         # 预计算 step 数据（按 cycle 分组，排除脉冲步骤）
         step_data = step_df.iloc[2:].copy() if len(step_df) > 2 else step_df.iloc[0:0].copy()
         if len(step_data) > 0:
-            step_data['_abs_charge'] = pd.to_numeric(step_data.iloc[:, 2], errors='coerce').fillna(0).abs()
+            step_data['_abs_charge'] = (
+                pd.to_numeric(step_data.iloc[:, 2], errors='coerce').fillna(0).abs()
+            )
             non_pulse = ~step_data.iloc[:, 1].astype(str).str.strip().isin(["脉冲", "Pulse"])
-            self._step_charge_by_cycle = step_data[non_pulse].groupby(step_data.iloc[:, 0])['_abs_charge'].sum()
+            self._step_charge_by_cycle = (
+                step_data[non_pulse].groupby(step_data.iloc[:, 0])['_abs_charge'].sum()
+            )
         else:
             self._step_charge_by_cycle = pd.Series(dtype=float)
 
@@ -70,6 +80,8 @@ class ChargeCalculator:
             mask = idx > 2
             if mask.any():
                 base[mask] = self._cycle_cumsum[idx[mask] - 1]
+            # reindex 依赖 pandas int/float coercion：整值 float 键匹配 int 索引；
+            # 勿改 astype(int) 转换（会把 3.5 截断成 3 错误匹配 step 值）。
             step_add = self._step_charge_by_cycle.reindex(cycles).fillna(0.0).to_numpy(dtype=float)
             rec_add = self._record_charge_np[good_pos]
             results[valid_full] = base + step_add + rec_add
