@@ -64,7 +64,12 @@ class ChargeCalculator:
             cycles = row_cycles[not_nan]
             # 批量定位 cycle 索引（第一个 cycle >= row_cycle，等价原 while 循环）
             idx = np.searchsorted(self._cycle_cycle_search, cycles, side='left') + 2
-            base = np.where(idx > 2, self._cycle_cumsum[idx - 1], 0.0)
+            # 行为等价 np.where(idx>2, cumsum[idx-1], 0.0)，但惰性求值避免越界：
+            # 0/1 行 cycle_df 时 search 子数组为空 → idx 恒 2 → cumsum 恒不取。
+            base = np.zeros_like(idx, dtype=float)
+            mask = idx > 2
+            if mask.any():
+                base[mask] = self._cycle_cumsum[idx[mask] - 1]
             step_add = self._step_charge_by_cycle.reindex(cycles).fillna(0.0).to_numpy(dtype=float)
             rec_add = self._record_charge_np[good_pos]
             results[valid_full] = base + step_add + rec_add
