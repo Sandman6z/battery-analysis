@@ -82,6 +82,7 @@ def match_pulse_levels(
     mask[:common] = pm[:common]
 
     valid_row = np.zeros(data_len, dtype=bool)
+    # max(..., 0) 是有意的：旧代码负 start_row 会因 Python 负索引从 pulse_mask 末尾取值
     valid_row[max(start_row, 0):] = True
     valid_row &= mask
 
@@ -107,6 +108,9 @@ def match_pulse_levels(
             listVoltageForInfoImageCsv[c_idx].extend(float(voltage[r]) for r in endpoint_rows)
 
         # ── 电压等级匹配：每 (c,v) 首个满足 voltage <= v_level 的匹配行 ──
+        # 有意去掉原实现的 listLevelToRow==0 哨兵保护：np.argmax 取首个匹配行。
+        # 生产调用方恒 start_row=2，与旧实现行为一致；若首匹配行恰为 0 行，
+        # 旧实现 0 哨兵会与行索引 0 冲突（记录最后一个匹配行），此处采用计划规定的 argmax 首匹配语义。
         for v_idx, v_level in enumerate(voltage_levels):
             satisfies = matched_row & (voltage <= v_level)
             if satisfies.any():

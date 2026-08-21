@@ -3,6 +3,8 @@
 注意：放电电流记录为负值（如 -0.5A = -500mA），
 原实现用 neg_current_levels = [-level] 与之比较。
 """
+import numpy as np
+
 from battery_analysis.utils.processors.pulse_matcher import match_pulse_levels
 
 
@@ -62,12 +64,21 @@ class TestMatchPulseLevels:
         assert listPosi == [[2], [2]]
         assert listVoltage == [[2.9], [2.9]]
 
-    def test_accepts_numpy_arrays(self):
-        """battery_analysis 将传 to_numpy() 数组，须兼容"""
-        import numpy as np
-        rc, rv, pm = _toy_data()
+    def test_short_pulse_mask_skips_tail(self):
+        """pulse_mask 短于 record：尾部越界行跳过（原 row >= len(pulse_mask) 保护）"""
         result = match_pulse_levels(
+            [0.0, 0.0, -0.5, -0.5], [0.0, 0.0, 3.0, 3.1], [False, True],
+            [500], [3.0], start_row=2,
+        )
+        assert result is None  # 行 2、3 均 >= len(pulse_mask)=2 被跳过
+
+    def test_accepts_numpy_arrays(self):
+        """battery_analysis 将传 to_numpy() 数组，须兼容（ndarray 结果须与 list 输入逐项一致）"""
+        rc, rv, pm = _toy_data()
+        list_result = match_pulse_levels(rc, rv, pm, [500, 1000], [3.0, 4.0], start_row=2)
+        np_result = match_pulse_levels(
             np.asarray(rc), np.asarray(rv), np.asarray(pm),
             [500, 1000], [3.0, 4.0], start_row=2,
         )
-        assert result is not None
+        assert np_result is not None
+        assert np_result == list_result
