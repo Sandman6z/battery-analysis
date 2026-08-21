@@ -230,8 +230,10 @@ class TestProcessPoolFix:
         """真实进程池 smoke test：worker 可 pickle、坏文件被跳过不崩溃、池真实创建
 
         目录含 1 个合法文件 + 3 个内容损坏文件：合法文件正常返回，损坏文件被跳过。
-        用 wraps 包真实 ProcessPoolExecutor 的 spy 断言池被创建 —— 串行回退路径不创建池，
-        从而区分"真并行"与"pickle 失败后静默全串行"。
+        区分点：新并行路径从不调用实例方法 process_excel_with_pandas（直接 submit
+        模块级 worker、主进程写缓存）；旧坏实现 pickle 失败后在池创建之后静默串行回退、
+        必在父进程调用该实例方法。故 wraps-spy 验证池创建 + process_excel_with_pandas
+        spy 断言其未被调用，即可区分真并行与 pickle 失败后的静默串行回退。
         """
         for name in ["DC1,mA1.xlsx", "DC1,mA2.xlsx", "bad.xlsx"]:
             (tmp_path / name).write_bytes(b"not a real excel")
@@ -242,10 +244,14 @@ class TestProcessPoolFix:
         from battery_analysis.main.business_logic import data_processor as dp
 
         processor = DataProcessor(Mock())
-        with patch.object(dp, "ProcessPoolExecutor", wraps=ProcessPoolExecutor) as mock_pool:
+        with patch.object(dp, "ProcessPoolExecutor", wraps=ProcessPoolExecutor) as mock_pool, \
+             patch.object(processor, "process_excel_with_pandas") as mock_serial:
             result = processor.process_all_excel_files(str(tmp_path))
 
-        mock_pool.assert_called()  # 池被创建 → 走真并行而非串行回退
+        # 新旧实现都在 with 行创建池，仅证池存在；区分点在下方 mock_serial
+        mock_pool.assert_called()
+        # 真并行路径从不调用实例串行方法（直接 submit 模块级 worker）；串行回退必调用
+        mock_serial.assert_not_called()
         # 三个文件内容损坏 → read_excel_file 返回 {} → 全部跳过；仅合法文件成功返回
         assert [r["filename"] for r in result] == ["good.xlsx"]
 
