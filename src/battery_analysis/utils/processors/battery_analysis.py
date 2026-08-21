@@ -297,9 +297,9 @@ class BatteryAnalysis:
 
         # ── 脉冲等级匹配 ────────────────────────────────────────
         matched = match_pulse_levels(
-            record_current.tolist(),
-            record_voltage.tolist(),
-            pulse_mask.tolist(),
+            record_current.to_numpy(dtype=float),
+            record_voltage.to_numpy(dtype=float),
+            pulse_mask.to_numpy(dtype=bool),
             listCurrentLevel,
             listVoltageLevel,
             start_row=2,
