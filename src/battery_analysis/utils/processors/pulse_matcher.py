@@ -1,6 +1,7 @@
 """脉冲电流/电压等级匹配逻辑"""
+from typing import List, Optional, Tuple
 
-from typing import List, Tuple, Optional
+import numpy as np
 
 
 def b_is_in_range(current: float, standard: float) -> bool:
@@ -47,10 +48,11 @@ def match_pulse_levels(
     listVoltageLevel: list,
     start_row: int = 2,
 ) -> Optional[Tuple[list, list, list, list]]:
-    """将脉冲行匹配到电流/电压等级
+    """将脉冲行匹配到电流/电压等级（numpy 广播向量化）
 
-    遍历脉冲数据行，对每个脉冲行匹配对应的电流等级和电压等级，
-    返回用于后续电荷计算和绘图的四组数据结构。
+    对每个电流等级一次性广播比较整个电流数组，替代逐行三重嵌套循环。
+    返回结构与原实现完全一致：(listLevelToVoltage, listLevelToRow,
+    listPosiForInfoImageCsv, listVoltageForInfoImageCsv)；无脉冲数据返回 None。
 
     Args:
         record_current: 电流数据列表（单位 A，函数内部转为 mA 比较）
@@ -67,41 +69,50 @@ def match_pulse_levels(
     structures = _init_level_structures(listCurrentLevel, listVoltageLevel)
     listLevelToVoltage, listLevelToRow, _, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = structures
 
-    neg_current_levels = [-float(level) for level in listCurrentLevel]
-    data_len = len(record_current)
-    has_pulse = False
-
-    for row in range(start_row, data_len):
-        if row >= len(pulse_mask) or not pulse_mask[row]:
-            continue
-        has_pulse = True
-
-        current_ma = float(record_current[row]) * 1000
-        voltage = float(record_voltage[row])
-
-        for c_idx, neg_level in enumerate(neg_current_levels):
-            if not b_is_in_range(current_ma, neg_level):
-                continue
-
-            # 检查是否是脉冲结束点
-            is_endpoint = True
-            if row + 1 < data_len:
-                next_current = float(record_current[row + 1]) * 1000
-                if b_is_in_range(next_current, neg_level):
-                    is_endpoint = False
-
-            if is_endpoint:
-                listPosiForInfoImageCsv[c_idx].append(row)
-                listVoltageForInfoImageCsv[c_idx].append(voltage)
-
-            # 匹配电压等级
-            for v_idx, v_level in enumerate(listVoltageLevel):
-                if voltage <= v_level and listLevelToRow[c_idx][v_idx] == 0:
-                    listLevelToVoltage[c_idx][v_idx] = voltage
-                    listLevelToRow[c_idx][v_idx] = row
-
-    if not has_pulse:
+    cur_ma = np.asarray(record_current, dtype=float) * 1000.0
+    voltage = np.asarray(record_voltage, dtype=float)
+    data_len = len(cur_ma)
+    if data_len == 0:
         return None
+
+    # pulse_mask 可能与 record 不等长（原代码 row >= len(pulse_mask) 保护尾部）
+    mask = np.zeros(data_len, dtype=bool)
+    pm = np.asarray(pulse_mask, dtype=bool)
+    common = min(data_len, pm.size)
+    mask[:common] = pm[:common]
+
+    valid_row = np.zeros(data_len, dtype=bool)
+    valid_row[max(start_row, 0):] = True
+    valid_row &= mask
+
+    if not valid_row.any():
+        return None
+
+    neg_levels = [-float(level) for level in listCurrentLevel]
+    voltage_levels = [float(v) for v in listVoltageLevel]
+
+    for c_idx, neg_level in enumerate(neg_levels):
+        tolerance = abs(neg_level * 0.05)
+        in_range = np.abs(cur_ma - neg_level) <= tolerance
+        matched_row = valid_row & in_range
+
+        # ── 脉冲结束点：当前行匹配、下一行不在范围内（末尾行视为端点）──
+        next_in_range = np.empty(data_len, dtype=bool)
+        next_in_range[:-1] = in_range[1:]
+        next_in_range[-1] = False
+        is_endpoint = matched_row & ~next_in_range
+        endpoint_rows = np.nonzero(is_endpoint)[0]
+        if endpoint_rows.size > 0:
+            listPosiForInfoImageCsv[c_idx].extend(int(r) for r in endpoint_rows)
+            listVoltageForInfoImageCsv[c_idx].extend(float(voltage[r]) for r in endpoint_rows)
+
+        # ── 电压等级匹配：每 (c,v) 首个满足 voltage <= v_level 的匹配行 ──
+        for v_idx, v_level in enumerate(voltage_levels):
+            satisfies = matched_row & (voltage <= v_level)
+            if satisfies.any():
+                first_idx = int(np.argmax(satisfies))
+                listLevelToVoltage[c_idx][v_idx] = float(voltage[first_idx])
+                listLevelToRow[c_idx][v_idx] = first_idx
 
     return (
         listLevelToVoltage,
