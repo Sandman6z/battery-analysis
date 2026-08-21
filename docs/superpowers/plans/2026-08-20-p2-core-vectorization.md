@@ -57,6 +57,8 @@
 
 ```python
 """pulse_matcher 向量化契约锁测试"""
+import numpy as np
+
 from battery_analysis.utils.processors.pulse_matcher import match_pulse_levels
 
 
@@ -115,7 +117,6 @@ class TestMatchPulseLevels:
 
     def test_accepts_numpy_arrays(self):
         """battery_analysis 将传 to_numpy() 数组，须兼容"""
-        import numpy as np
         rc, rv, pm = _toy_data()
         result = match_pulse_levels(
             np.asarray(rc), np.asarray(rv), np.asarray(pm),
@@ -337,26 +338,23 @@ class TestChargeCalculator:
 
     def test_nan_row_cycle_zero(self):
         record_df = pd.DataFrame({
-            0: [1.0, np.nan, 2.0], 1: [0, 0, 0], 2: [0.0, 0.0, 0.5],
+            0: [1.0, 2.0, np.nan], 1: [0, 0, 0], 2: [0.0, 0.0, 0.5],
             3: [0.0, 0.0, 3.0], 4: [0.0, 0.0, 7.0],
         })
         cycle_df = pd.DataFrame({0: [1, 2, 3], 1: [0, 0, 0], 2: [0, 0, 0], 3: [10.0, 20.0, 30.0]})
         step_df = pd.DataFrame({0: [0, 0, 1], 1: ["充电", "充电", "充电"], 2: [0.0, 0.0, 5.0]})
         calc = ChargeCalculator(cycle_df, step_df, record_df)
-        assert calc.calculate(1) == 0      # row_cycle 是 NaN
-        assert calc.calculate(2) > 0
+        assert calc.calculate(1) == 0      # pos < 2
+        assert calc.calculate(2) == 0      # pos>=2 但 row_cycle 是 NaN → 0
 
     def test_cycle_gap_jump_tolerance(self):
         """cycle 跳号：row_cycle=3.5 落在 3 与 4 之间 → 取前一个累积（searchsorted 左边界）"""
         calc = _make_calculator()
-        record_df_gap = pd.DataFrame({
-            0: [1.0, 3.5], 1: [0, 0], 2: [0.0, 0.5], 3: [0.0, 3.0], 4: [0.0, 9.0],
-        })
-        # 直接用 _make_calculator 的预计算结构：replace record 行
-        calc._record_cycle_np = np.asarray([1.0, 3.5], dtype=float)
-        calc._record_charge_np = np.asarray([0.0, 9.0], dtype=float)
-        calc._record_df_len = 2
-        assert calc.calculate(1) == 609    # searchsorted([3,4], 3.5, 'left')=1 → idx=3 → base=600
+        # 直接替换预计算结构（_cycle_cumsum/_cycle_cycle_search 复用 _make_calculator 的）
+        calc._record_cycle_np = np.asarray([1.0, 1.0, 3.5], dtype=float)
+        calc._record_charge_np = np.asarray([0.0, 0.0, 9.0], dtype=float)
+        calc._record_df_len = 3
+        assert calc.calculate(2) == 609    # searchsorted([3,4], 3.5, 'left')=1 → idx=3 → base=600
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
