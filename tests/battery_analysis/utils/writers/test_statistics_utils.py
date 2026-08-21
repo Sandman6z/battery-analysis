@@ -76,3 +76,14 @@ class TestComputeStatistics:
                     assert stats['std'][ci][vi] == pytest.approx(numeric_utils.np_std(cell))
                     assert stats['min'][ci][vi] == pytest.approx(numeric_utils.np_min(cell))
                     assert stats['max'][ci][vi] == pytest.approx(numeric_utils.np_max(cell))
+
+    def test_mixed_empty_and_single(self):
+        """混合空/单样本 cell：空→0.0、单样本 std→0.0、非空正常"""
+        list_cpt = [[[1.0, 2.0, 3.0], []], [[4.0], [5.0, 6.0]]]
+        stats = compute_statistics(list_cpt, 2, 2)
+        assert stats['mean'] == [[2.0, 0.0], [4.0, 5.5]]
+        assert stats['std'][0] == [1.0, 0.0]
+        assert stats['std'][1][0] == 0.0  # 单样本 std→0.0
+        assert stats['std'][1][1] == pytest.approx(np.std([5.0, 6.0], ddof=1))
+        assert stats['min'] == [[1.0, 0.0], [4.0, 5.0]]
+        assert stats['max'] == [[3.0, 0.0], [4.0, 6.0]]

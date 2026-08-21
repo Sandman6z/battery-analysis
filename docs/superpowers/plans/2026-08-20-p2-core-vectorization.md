@@ -662,7 +662,7 @@ def compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
 - [ ] **Step 4: 跑测试确认通过**
 
 Run: `uv run pytest tests/battery_analysis/utils/writers/test_statistics_utils.py -v`
-Expected: PASS（5 tests）。浮点断言用 `pytest.approx`，忽略位级差异。
+Expected: PASS（4 tests）。浮点断言用 `pytest.approx`，忽略位级差异。
 
 - [ ] **Step 5: 全量回归 + commit**
 
