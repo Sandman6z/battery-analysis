@@ -8,8 +8,6 @@ import warnings
 
 import numpy as np
 
-from battery_analysis.utils import numeric_utils
-
 
 def compute_list_cpt(listBatteryCharge, intBatteryNum, intCurrentLevelNum, intVoltageLevelNum):
     """从电池充电数据计算容量列表，用于后续统计计算"""
