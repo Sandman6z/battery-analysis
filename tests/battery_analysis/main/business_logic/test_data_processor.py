@@ -1,6 +1,8 @@
 """
 测试数据处理器模块的功能
 """
+import pickle
+
 import pytest
 import os
 import tempfile
@@ -91,15 +93,25 @@ class TestDataProcessor:
             # 验证结果
             assert result == []
     
-    @patch('battery_analysis.main.business_logic.data_processor.DataProcessor.process_excel_with_pandas')
-    def test_process_all_excel_files_success(self, mock_process_excel):
+    @patch('battery_analysis.main.business_logic.data_processor.ProcessPoolExecutor')
+    @patch('battery_analysis.main.business_logic.data_processor._read_excel_worker')
+    def test_process_all_excel_files_success(self, mock_read_excel_worker, mock_pool_cls):
         """测试成功处理目录中所有Excel文件的情况"""
-        # 设置模拟返回值
-        mock_process_excel.return_value = {
-            'filename': 'test.xlsx',
-            'row_count': 3
-        }
-        
+        expected_info = {'filename': 'test.xlsx', 'row_count': 3}
+        mock_read_excel_worker.return_value = expected_info
+
+        # 用同步 executor 替身：在父进程内直接调用 worker，
+        # 保证 worker mock 可被断言且不依赖真实进程 spawn
+        from concurrent.futures import Future
+
+        def fake_submit(fn, *args, **kwargs):
+            fut = Future()
+            fut.set_result(fn(*args, **kwargs))
+            return fut
+
+        executor_mock = mock_pool_cls.return_value.__enter__.return_value
+        executor_mock.submit.side_effect = fake_submit
+
         # 创建临时目录
         with tempfile.TemporaryDirectory() as temp_dir:
             # 创建临时Excel文件
@@ -107,13 +119,17 @@ class TestDataProcessor:
                 f.write('')
             with open(os.path.join(temp_dir, 'test2.xlsx'), 'w') as f:
                 f.write('')
-            
+
             # 调用处理方法
             result = self.processor.process_all_excel_files(temp_dir)
-            
-            # 验证结果
-            assert len(result) == 2
-            mock_process_excel.assert_called()
+
+        # 验证结果
+        assert len(result) == 2
+        mock_read_excel_worker.assert_called()
+        # 进程池 submit 的目标必须是模块级 worker（spy），而非实例绑定方法
+        mock_pool_cls.assert_called_once()
+        for call in executor_mock.submit.call_args_list:
+            assert call.args[0] is mock_read_excel_worker
     
     def test__set_specification_type(self):
         """测试设置规格类型的方法"""
@@ -198,3 +214,20 @@ class TestDataProcessor:
         mock_critical.assert_called_once()
         mock_info.assert_not_called()
 
+
+class TestProcessPoolFix:
+    def test_worker_is_picklable_module_level(self):
+        """模块级 worker 可 pickle；实例绑定方法不可 pickle（修复必要性证明）"""
+        from battery_analysis.main.business_logic import data_processor
+        pickle.dumps(data_processor._read_excel_worker)  # 不应抛
+        with pytest.raises((pickle.PicklingError, AttributeError, TypeError)):
+            pickle.dumps(DataProcessor(Mock()).process_excel_with_pandas)
+
+    def test_process_all_excel_files_real_pool_skips_bad_files(self, tmp_path):
+        """真实进程池：worker 可 pickle，坏文件被跳过不崩溃、不静默全串行"""
+        for name in ["DC1,mA1.xlsx", "DC1,mA2.xlsx", "bad.xlsx"]:
+            (tmp_path / name).write_bytes(b"not a real excel")
+        processor = DataProcessor(Mock())
+        result = processor.process_all_excel_files(str(tmp_path))
+        # 两个文件名合法但内容损坏 → read_excel_file 返回 {} → 全部跳过
+        assert result == []

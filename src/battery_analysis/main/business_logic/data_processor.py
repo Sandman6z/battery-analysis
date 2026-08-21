@@ -18,6 +18,15 @@ from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory, read_excel_file, analyze_single_excel
 
 
+def _read_excel_worker(file_path: str) -> dict:
+    """进程 worker：读取单个 Excel 返回 info。
+
+    模块级、不访问 self，确保 Windows spawn 下可 pickle。
+    缓存由主进程写入（_cache 不可跨进程共享）。
+    """
+    return read_excel_file(file_path)
+
+
 class _MainThreadCallback(QC.QObject):
     """确保回调在 Qt 主线程执行的信号中继器
 
@@ -136,11 +145,19 @@ class DataProcessor:
             actual_count = min(optimal_count, len(listAllInXlsx))
 
             with ProcessPoolExecutor(max_workers=actual_count) as executor:
-                futures = {executor.submit(self.process_excel_with_pandas, os.path.join(directory, f)): f
-                           for f in listAllInXlsx}
+                futures = {
+                    executor.submit(_read_excel_worker, os.path.join(directory, f)): f
+                    for f in listAllInXlsx
+                }
                 for future in as_completed(futures):
-                    info = future.result()
+                    f = futures[future]
+                    try:
+                        info = future.result()
+                    except Exception as e:  # pylint: disable=broad-exception-caught
+                        self.logger.warning("Skipped unreadable Excel file %s: %s", f, e)
+                        continue
                     if info:
+                        self._cache['excel_files'].put(os.path.join(directory, f), info)
                         excel_data.append(info)
             return excel_data
         except Exception:
