@@ -68,6 +68,7 @@ class DataProcessor:
         }
         self._background_thread = None
         self._background_worker = None
+        self._scanning_input_dir = None
 
     def _invalidate_cache(self, path=None):
         if path:
@@ -180,6 +181,7 @@ class DataProcessor:
     def _on_scan_finished(self, excel_files):
         input_dir = self.main_window.lineEdit_InputPath.text()
         self._cache['directory_files'].put(input_dir, excel_files)
+        self._scanning_input_dir = input_dir
 
         if not excel_files:
             self._handle_no_excel_files(input_dir)
@@ -289,6 +291,12 @@ class DataProcessor:
 
     def _on_excel_files_processed(self, result):
         """主线程：_process_excel_files_task 完成后的 UI 更新"""
+        # 过期结果守卫（roadmap #9 异步化后）：用户已切换输入路径时，
+        # 丢弃旧路径的慢解析结果，避免覆盖新路径 UI。
+        if self.main_window.lineEdit_InputPath.text() != self._scanning_input_dir:
+            self.logger.info("Discarding stale Excel parse result for changed input path")
+            return
+
         excel_files, excel_data, error_files = result
 
         if error_files:
@@ -322,12 +330,16 @@ class DataProcessor:
             return
 
         self._update_ui_with_excel_info(excel_files, excel_data)
-        if excel_files:
-            self._process_first_excel_file(excel_files[0])
+        if excel_data:
+            self._process_first_excel_file(excel_data[0]['filename'])
         self._reconnect_specification_signals()
 
     def _on_excel_files_process_error(self, error_msg):
         """主线程：后台任务异常兜底"""
+        # 过期结果守卫：用户已切换输入路径时，丢弃旧路径的错误兜底。
+        if self.main_window.lineEdit_InputPath.text() != self._scanning_input_dir:
+            self.logger.info("Discarding stale Excel parse result for changed input path")
+            return
         self.logger.error("Failed to process Excel files: %s", error_msg)
         if hasattr(self.main_window, 'checker_input_xlsx'):
             self.main_window.checker_input_xlsx.set_error(f"Failed to process files: {error_msg}")
