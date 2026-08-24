@@ -7,6 +7,7 @@
 import logging
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 from PyQt6 import QtWidgets as QW
 from PyQt6 import QtCore as QC
 
@@ -16,6 +17,15 @@ from battery_analysis.main.business_logic.background_worker import BackgroundWor
 from battery_analysis.main.business_logic import excel_validator
 from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory, read_excel_file, analyze_single_excel
+
+
+def _read_excel_worker(file_path: str) -> dict:
+    """进程 worker：读取单个 Excel 返回 info。
+
+    模块级、不访问 self，确保 Windows spawn 下可 pickle。
+    缓存由主进程写入（_cache 不可跨进程共享）。
+    """
+    return read_excel_file(file_path)
 
 
 class _MainThreadCallback(QC.QObject):
@@ -136,11 +146,23 @@ class DataProcessor:
             actual_count = min(optimal_count, len(listAllInXlsx))
 
             with ProcessPoolExecutor(max_workers=actual_count) as executor:
-                futures = {executor.submit(self.process_excel_with_pandas, os.path.join(directory, f)): f
-                           for f in listAllInXlsx}
+                futures = {
+                    executor.submit(_read_excel_worker, os.path.join(directory, f)): f
+                    for f in listAllInXlsx
+                }
                 for future in as_completed(futures):
-                    info = future.result()
+                    f = futures[future]
+                    try:
+                        info = future.result()
+                    except BrokenProcessPool:
+                        raise  # worker 进程崩溃（原生库 segfault/OOM）→ 外层串行回退兜底
+                    except Exception as e:  # pylint: disable=broad-exception-caught
+                        # 剩余可抛错误仅为 unpickle 反序列化失败；per-file 读取错误已由
+                        # read_excel_file 内部捕获返回 {}，此处按"不可读文件"跳过
+                        self.logger.warning("Skipped unreadable Excel file %s: %s", f, e)
+                        continue
                     if info:
+                        self._cache['excel_files'].put(os.path.join(directory, f), info)
                         excel_data.append(info)
             return excel_data
         except Exception:

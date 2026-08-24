@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def optimize_dataframe_memory(df) -> "pd.DataFrame":
+def optimize_dataframe_memory(df) -> "pd.DataFrame":  # noqa: F821 pd 延迟 import，pyflakes 误报
     """优化 DataFrame 内存占用
 
     向下转型数值列，对低基数对象列使用 category 类型。
