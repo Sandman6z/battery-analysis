@@ -82,3 +82,25 @@ class TestMatchPulseLevels:
         )
         assert np_result is not None
         assert np_result == list_result
+
+    def test_bts_header_rows_with_strings_are_skipped(self):
+        """回归：真实 BTS 导出头部行含非数值单元格（行0 测试名、行1 '电流(A)'/'电压(V)' 列名）
+        不得触发 'could not convert string to float'；行索引须含头部偏移。
+
+        数据行与 _toy_data() 完全一致（行2-7），故匹配结果同 test_basic_match，
+        但 listLevelToRow / listPosi 的行号整体 +2（头部两行偏移）。
+        """
+        record_current = [None, '电流(A)', 0.0, 0.0, -0.5, -0.5, -0.4, -1.0]
+        record_voltage = [None, '电压(V)', 0.0, 0.0, 3.2, 2.9, 3.1, 3.5]
+        pulse_mask = [False, False, False, False, True, True, True, True]
+
+        result = match_pulse_levels(
+            record_current, record_voltage, pulse_mask,
+            [500, 1000], [3.0, 4.0], start_row=2,
+        )
+        assert result is not None
+        listLevelToVoltage, listLevelToRow, listPosi, listVoltage = result
+        assert listLevelToVoltage == [[2.9, 3.2], [3.0, 3.5]]
+        assert listLevelToRow == [[5, 4], [0, 7]]
+        assert listPosi == [[5], [7]]
+        assert listVoltage == [[2.9], [3.5]]

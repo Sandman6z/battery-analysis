@@ -296,9 +296,12 @@ class BatteryAnalysis:
             raise BatteryAnalysisException(f"Pulse data not found: {strPath}")
 
         # ── 脉冲等级匹配 ────────────────────────────────────────
+        # 不在此处 to_numpy(dtype=float)：record 列含头部标题行（行1 '电流(A)' 等
+        # 非数值单元格），全数组强转会抛 ValueError；由 match_pulse_levels 按
+        # start_row=2 裁剪后再转换，等价旧实现从 start_row 起逐行 float()。
         matched = match_pulse_levels(
-            record_current.to_numpy(dtype=float),
-            record_voltage.to_numpy(dtype=float),
+            record_current.to_numpy(),
+            record_voltage.to_numpy(),
             pulse_mask.to_numpy(dtype=bool),
             listCurrentLevel,
             listVoltageLevel,

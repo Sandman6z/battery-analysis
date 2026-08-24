@@ -69,23 +69,26 @@ def match_pulse_levels(
     structures = _init_level_structures(listCurrentLevel, listVoltageLevel)
     listLevelToVoltage, listLevelToRow, _, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = structures
 
-    cur_ma = np.asarray(record_current, dtype=float) * 1000.0
-    voltage = np.asarray(record_voltage, dtype=float)
+    # 先按 start_row 裁剪再做 float 转换：真实 BTS 导出文件头部常有非数值行
+    #（第 0 行测试名、第 1 行列名如 '电流(A)'/'电压(V)'），旧实现从 start_row 起
+    # 逐行 float() 天然跳过它们，此处向量化须保持相同语义（裁剪后再转换，
+    # 避免全数组一次性 dtype=float 对头部字符串抛 ValueError）。
+    start = max(start_row, 0)
+    cur_ma = np.asarray(record_current[start:], dtype=float) * 1000.0
+    voltage = np.asarray(record_voltage[start:], dtype=float)
     data_len = len(cur_ma)
     if data_len == 0:
         return None
 
-    # pulse_mask 可能与 record 不等长（原代码 row >= len(pulse_mask) 保护尾部）
+    # pulse_mask 可能与 record 不等长（原代码 row >= len(pulse_mask) 保护尾部）；
+    # 按绝对索引裁剪，缺失部分默认 False（无效行）
     mask = np.zeros(data_len, dtype=bool)
-    pm = np.asarray(pulse_mask, dtype=bool)
+    pm = np.asarray(pulse_mask[start:start + data_len], dtype=bool)
     common = min(data_len, pm.size)
     mask[:common] = pm[:common]
 
-    valid_row = np.zeros(data_len, dtype=bool)
-    # max(..., 0) 是有意的：旧代码负 start_row 会因 Python 负索引从 pulse_mask 末尾取值
-    valid_row[max(start_row, 0):] = True
-    valid_row &= mask
-
+    # 数组已裁剪到 [start, ...)，全部位于 start_row 之后，有效行即 pulse 行
+    valid_row = mask
     if not valid_row.any():
         return None
 
@@ -104,7 +107,8 @@ def match_pulse_levels(
         is_endpoint = matched_row & ~next_in_range
         endpoint_rows = np.nonzero(is_endpoint)[0]
         if endpoint_rows.size > 0:
-            listPosiForInfoImageCsv[c_idx].extend(int(r) for r in endpoint_rows)
+            # +start 补偿：返回的行索引须为原始 record 的绝对索引（旧实现如此）
+            listPosiForInfoImageCsv[c_idx].extend(int(r) + start for r in endpoint_rows)
             listVoltageForInfoImageCsv[c_idx].extend(float(voltage[r]) for r in endpoint_rows)
 
         # ── 电压等级匹配：每 (c,v) 首个满足 voltage <= v_level 的匹配行 ──
@@ -116,7 +120,7 @@ def match_pulse_levels(
             if satisfies.any():
                 first_idx = int(np.argmax(satisfies))
                 listLevelToVoltage[c_idx][v_idx] = float(voltage[first_idx])
-                listLevelToRow[c_idx][v_idx] = first_idx
+                listLevelToRow[c_idx][v_idx] = first_idx + start
 
     return (
         listLevelToVoltage,
