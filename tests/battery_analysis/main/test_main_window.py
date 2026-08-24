@@ -446,6 +446,34 @@ class TestMainWindow:
         # 调用方法
         test_info = {"TestDate": "2024-01-01"}
         self.main_window.update_config(test_info)
-        
+
         # 验证config_manager的update_config方法被调用
         self.main_window.config_manager.update_config.assert_called_once_with(test_info)
+
+    def test_resize_event_debounces_resize_columns(self):
+        """resize 只调度 150ms 去抖的列宽自适应，不逐帧同步执行"""
+        table = MagicMock()
+        table.rowCount.return_value = 3
+        self.main_window.tableWidget_TestInformation = table
+        from PyQt6.QtCore import QSize
+        from PyQt6.QtGui import QResizeEvent
+        event = QResizeEvent(QSize(800, 600), QSize(790, 590))
+        with patch('battery_analysis.main.main_window.QC.QTimer.singleShot') as mock_single_shot:
+            self.main_window.resizeEvent(event)
+            mock_single_shot.assert_called_once_with(150, self.main_window._resize_table_columns)
+            table.resizeColumnsToContents.assert_not_called()
+        # 去抖到期后真正触发列宽自适应
+        self.main_window._resize_table_columns()
+        table.resizeColumnsToContents.assert_called_once()
+
+    def test_resize_event_skips_empty_table(self):
+        """空表格不调度去抖"""
+        table = MagicMock()
+        table.rowCount.return_value = 0
+        self.main_window.tableWidget_TestInformation = table
+        from PyQt6.QtCore import QSize
+        from PyQt6.QtGui import QResizeEvent
+        event = QResizeEvent(QSize(800, 600), QSize(790, 590))
+        with patch('battery_analysis.main.main_window.QC.QTimer.singleShot') as mock_single_shot:
+            self.main_window.resizeEvent(event)
+            mock_single_shot.assert_not_called()

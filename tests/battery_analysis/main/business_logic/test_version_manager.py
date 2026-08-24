@@ -163,7 +163,7 @@ class TestSetVersion:
 
 
 class TestGetVersion:
-    """get_version()方法测试"""
+    """get_version()方法测试（P3 改为后台派发后，直接测 task+callback 两个阶段）"""
 
     def test_reads_existing_times(self, tmp_path):
         """校验和已存在时，读取Times值显示为版本号"""
@@ -189,10 +189,14 @@ class TestGetVersion:
         with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
                    return_value="dummy_checksum"):
             vm = VersionManager(main_window)
-            vm.get_version()
+            vm._checksum_input_dir = str(input_dir)
+            checksum = vm._calc_checksum_task(str(input_dir))
+            vm._on_checksum_ready(checksum)
 
         # 应显示1.3（第一个校验和，Times=3）
         main_window.lineEdit_Version.setText.assert_called_with("1.3")
+        # 校验和已回写，供 set_version/analysis_runner 随时读取
+        assert main_window.sha256_checksum == "dummy_checksum"
 
     def test_invalid_times_uses_zero(self, tmp_path):
         """Times值无效时，默认使用0"""
@@ -217,7 +221,91 @@ class TestGetVersion:
         with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
                    return_value="dummy_checksum"):
             vm = VersionManager(main_window)
-            vm.get_version()
+            vm._checksum_input_dir = str(input_dir)
+            checksum = vm._calc_checksum_task(str(input_dir))
+            vm._on_checksum_ready(checksum)
 
         # Times为空字符串→转换为0→显示1.0
         main_window.lineEdit_Version.setText.assert_called_with("1.0")
+
+    def test_get_version_dispatches_background_checksum(self):
+        """get_version 把 SHA-256 计算派发到后台线程，不阻塞主线程"""
+        main_window = MagicMock()
+        main_window.lineEdit_InputPath.text.return_value = "/tmp/in"
+        main_window.lineEdit_OutputPath.text.return_value = "/tmp/out"
+        vm = VersionManager(main_window)
+        with patch('os.path.exists', return_value=True), \
+             patch.object(vm, 'run_in_background') as mock_run:
+            vm.get_version()
+        mock_run.assert_called_once_with(
+            vm._calc_checksum_task, vm._on_checksum_ready, vm._on_checksum_error, "/tmp/in")
+
+    def test_run_in_background_forwards_kwargs(self):
+        """run_in_background 把 kwargs 转发给 BackgroundWorker（防静默丢弃）"""
+        main_window = MagicMock()
+        vm = VersionManager(main_window)
+        with patch('battery_analysis.main.business_logic.version_manager.BackgroundWorker') as mock_worker, \
+             patch('battery_analysis.main.business_logic.version_manager.QC.QThread') as mock_thread:
+            vm.run_in_background(lambda: None, lambda r: None, lambda e: None, "arg", extra=1)
+        mock_worker.assert_called_once()
+        assert mock_worker.call_args[0][0]  # task_func 是第一个位置参数
+        assert mock_worker.call_args[0][1:] == ("arg",)
+        assert mock_worker.call_args[1] == {"extra": 1}
+
+    def test_on_checksum_ready_discards_stale_result(self):
+        """输入路径已变更 → 丢弃旧目录的校验和结果，不落盘不更新版本号"""
+        main_window = MagicMock()
+        main_window.lineEdit_InputPath.text.return_value = "/new/dir"
+        main_window.lineEdit_OutputPath.text.return_value = "/tmp/out"
+        main_window.lineEdit_Version = MagicMock()
+        vm = VersionManager(main_window)
+        vm._checksum_input_dir = "/old/dir"
+        with patch('os.path.exists', return_value=True), \
+             patch.object(vm.logger, 'info') as mock_info:
+            vm._on_checksum_ready("stale_checksum")
+        mock_info.assert_called_once()
+        main_window.lineEdit_Version.setText.assert_not_called()
+
+    def test_get_version_missing_dirs_clears_version(self):
+        """输入/输出目录缺失时，直接清空版本号，不启动线程"""
+        main_window = MagicMock()
+        main_window.lineEdit_InputPath.text.return_value = "/nonexistent/in"
+        main_window.lineEdit_OutputPath.text.return_value = "/nonexistent/out"
+        main_window.lineEdit_Version = MagicMock()
+        vm = VersionManager(main_window)
+        with patch('os.path.exists', return_value=False), \
+             patch.object(vm, 'run_in_background') as mock_run:
+            vm.get_version()
+        main_window.lineEdit_Version.setText.assert_called_once_with("")
+        mock_run.assert_not_called()
+
+    def test_calc_checksum_task_returns_none_without_xlsx(self, tmp_path):
+        """目录内无 xlsx → 任务返回 None（回调据此清空版本号）"""
+        (tmp_path / "readme.txt").write_text("hi", encoding='utf-8')
+        vm = VersionManager(MagicMock())
+        assert vm._calc_checksum_task(str(tmp_path)) is None
+
+    def test_calc_checksum_task_returns_checksum(self, tmp_path):
+        """有 xlsx → 返回 FileUtils.calc_checksum 结果"""
+        (tmp_path / "a.xlsx").write_bytes(b"dummy")
+        vm = VersionManager(MagicMock())
+        with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
+                   return_value="abc123"):
+            assert vm._calc_checksum_task(str(tmp_path)) == "abc123"
+
+    def test_on_checksum_ready_none_clears_version(self):
+        """回调收到 None（无 xlsx）→ 清空版本号"""
+        main_window = MagicMock()
+        main_window.lineEdit_Version = MagicMock()
+        vm = VersionManager(main_window)
+        vm._on_checksum_ready(None)
+        main_window.lineEdit_Version.setText.assert_called_once_with("")
+        # 目录切换为无 xlsx 时，校验和缓存也应清空
+        assert main_window.sha256_checksum == ""
+
+    def test_on_checksum_error_logs(self):
+        """校验和计算异常 → 记录日志，不崩溃"""
+        vm = VersionManager(MagicMock())
+        with patch.object(vm.logger, 'error') as mock_error:
+            vm._on_checksum_error("boom")
+        mock_error.assert_called_once()

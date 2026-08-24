@@ -126,9 +126,8 @@ class ProgressDialog(QW.QDialog):
         
         # 更新窗口标题，显示百分比
         self.setWindowTitle(f"{_("Battery Analysis Progress")} - {progress}%")
-
-        # 确保界面实时更新
-        QW.QApplication.processEvents()
+        # 移除 processEvents()（roadmap #12）：进度刷新走 Qt 事件循环自然调度，
+        # 显式 processEvents 会深度重入事件循环，造成嵌套 dispatch 风险。
 
     def _on_cancel(self):
         """
@@ -137,7 +136,7 @@ class ProgressDialog(QW.QDialog):
         self.is_canceled = True
         self.canceled.emit()
         self.status_label.setText(_("Task canceled..."))
-        QW.QApplication.processEvents()
+        # 移除 processEvents()（roadmap #12）：同 update_progress，避免重入。
 
     def closeEvent(self, event):
         """

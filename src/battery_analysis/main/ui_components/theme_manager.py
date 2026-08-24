@@ -195,7 +195,8 @@ QFrame {
             self.theme_actions[theme_name].setChecked(True)
         
         # 确保界面立即更新
-        QW.QApplication.processEvents()
+        # 移除 processEvents()（roadmap #12）：setStyleSheet 走 Qt 样式系统
+        # 自动重绘，显式 processEvents 只会重入事件循环。
     
     def toggle_statusbar(self):
         """

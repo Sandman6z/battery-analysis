@@ -544,6 +544,16 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         super().resizeEvent(event)
         if hasattr(self, 'tableWidget_TestInformation'):
             if self.tableWidget_TestInformation.rowCount() > 0:
+                # 去抖（roadmap #13）：resize 事件高频触发，逐帧同步
+                # resizeColumnsToContents 是 O(rows×cols) 重排。
+                # singleShot 150ms 合并快速连发；首次布局由 _deferred_init
+                # 同步执行一次。
+                QC.QTimer.singleShot(150, self._resize_table_columns)
+
+    def _resize_table_columns(self):
+        """去抖后的列宽自适应（由 resizeEvent 的 QTimer.singleShot 触发）"""
+        if hasattr(self, 'tableWidget_TestInformation'):
+            if self.tableWidget_TestInformation.rowCount() > 0:
                 self.tableWidget_TestInformation.resizeColumnsToContents()
 
     def _lazy_init(self):
@@ -577,6 +587,7 @@ def _create_splash_screen(app):
             f"Battery Analyzer v{__version__}",
             QC.Qt.AlignmentFlag.AlignTop | QC.Qt.AlignmentFlag.AlignCenter,
             QG.QColor("#ecf0f1"))
+        # 保留 processEvents()：同 launcher，启动期 splash 绘制（进入事件循环前）。
         app.processEvents()
 
         return splash
