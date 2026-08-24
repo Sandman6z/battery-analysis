@@ -13,6 +13,11 @@ import csv
 import logging
 from pathlib import Path
 
+from PyQt6 import QtCore as QC
+
+from battery_analysis.main.business_logic.background_worker import BackgroundWorker
+from battery_analysis.main.business_logic.data_processor import _MainThreadCallback
+
 
 class VersionManager:
     """
@@ -30,28 +35,55 @@ class VersionManager:
         self.main_window = main_window
         self._ctx = ctx
         self.logger = logging.getLogger(__name__)
+        self._background_thread = None
+        self._background_worker = None
 
     def get_version(self) -> None:
         """
         计算并设置电池分析的版本号
 
-        此方法通过分析输入目录中的XLSX文件，计算其SHA-256校验和，
-        然后根据SHA256.csv文件中的历史记录确定当前版本号。如果输入文件内容变更，
-        版本号会自动增加。
+        目录存在性检查在主线程同步完成；SHA-256 校验和计算派发到后台线程，
+        完成后由 _on_checksum_ready 在主线程落盘 SHA256.csv 并更新 UI（roadmap #9）。
         """
         strInPutDir = self.main_window.lineEdit_InputPath.text()
         strOutoutDir = self.main_window.lineEdit_OutputPath.text()
         if os.path.exists(strInPutDir) and os.path.exists(strOutoutDir):
-            listAllInXlsx = [strInPutDir + f"/{f}" for f in os.listdir(
-                strInPutDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-            if not listAllInXlsx:
-                self.main_window.lineEdit_Version.setText("")
-                return
+            self.run_in_background(
+                self._calc_checksum_task,
+                self._on_checksum_ready,
+                self._on_checksum_error,
+                strInPutDir,
+            )
+        else:
+            self.main_window.lineEdit_Version.setText("")
+
+    def _calc_checksum_task(self, strInPutDir, **kwargs):
+        """后台线程：计算目录内全部 xlsx 的 SHA-256 校验和（不触碰 UI）。
+
+        目录内无 xlsx 文件时返回 None（回调据此清空版本号）。
+        progress_callback 由 TaskRunner 强制注入，此处忽略。
+        """
+        listAllInXlsx = [strInPutDir + f"/{f}" for f in os.listdir(
+            strInPutDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        if not listAllInXlsx:
+            return None
+        from battery_analysis.main.utils.file_utils import FileUtils
+        return FileUtils.calc_checksum(listAllInXlsx)
+
+    def _on_checksum_ready(self, checksum):
+        """主线程：校验和计算完成后的版本号落盘 + UI 更新"""
+        if checksum is None:
+            # 目录内无 xlsx 文件
+            self.main_window.lineEdit_Version.setText("")
+            return
+        # 时序保证：sha256_checksum 必须随时可用（analysis_runner.py:173、
+        # set_version 均读取它），故在任何读取者之前回写。
+        self.main_window.sha256_checksum = checksum
+
+        try:
+            strOutoutDir = self.main_window.lineEdit_OutputPath.text()
             strCsvPath = strOutoutDir + "/SHA256.csv"
 
-            # 使用FileUtils.calc_checksum计算SHA-256校验和
-            from battery_analysis.main.utils.file_utils import FileUtils
-            self.main_window.sha256_checksum = FileUtils.calc_checksum(listAllInXlsx)
             if os.path.exists(strCsvPath) and os.path.getsize(strCsvPath) != 0:
                 listSHA256Reader = []
                 f = open(strCsvPath, mode='r', encoding='utf-8')
@@ -68,10 +100,10 @@ class VersionManager:
                     listTimes = []
 
                 # 检查当前校验和是否已存在
-                current_checksum = self.main_window.sha256_checksum
+                current_checksum = checksum
                 existing_index = -1
-                for i, checksum in enumerate(listChecksum):
-                    if checksum == current_checksum:
+                for i, chk in enumerate(listChecksum):
+                    if chk == current_checksum:
                         existing_index = i
                         break
 
@@ -120,11 +152,12 @@ class VersionManager:
                 f = open(strCsvPath, mode='w', newline='', encoding='utf-8')
                 csvSHA256Writer = csv.writer(f)
                 csvSHA256Writer.writerow(["Checksums:"])
-                csvSHA256Writer.writerow([self.main_window.sha256_checksum])
+                csvSHA256Writer.writerow([checksum])
                 csvSHA256Writer.writerow(["Times:"])
                 csvSHA256Writer.writerow(["0"])
                 f.close()
                 self.main_window.lineEdit_Version.setText("1.0")
+
             # 使用文件服务设置文件隐藏属性
             file_service = self.main_window._get_service("file")
             if file_service:
@@ -137,9 +170,40 @@ class VersionManager:
                     win32api.SetFileAttributes(strCsvPath, win32con.FILE_ATTRIBUTE_HIDDEN)
                 except ImportError:
                     self.logger.warning("File service is unavailable; cannot set file hidden attribute")
-        else:
-            self.main_window.lineEdit_Version.setText("")
-    
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            # 后台派发后不再有 _deferred_init 的 try/except 兜底，这里主动记录
+            self.logger.error("Failed to finalize version after checksum: %s", e)
+
+    def _on_checksum_error(self, error_msg):
+        """主线程：校验和计算异常兜底"""
+        self.logger.error("Failed to compute SHA-256 checksum: %s", error_msg)
+
+    def run_in_background(self, task_func, on_finished, on_error, *args):
+        """QThread + BackgroundWorker 执行后台任务，回调经 QueuedConnection 切回主线程"""
+        self._cleanup_background_thread()
+        self._background_thread = QC.QThread()
+        self._background_worker = BackgroundWorker(task_func, *args)
+        self._background_worker.moveToThread(self._background_thread)
+
+        self._background_thread.started.connect(self._background_worker.run)
+        self._background_worker.finished.connect(self._background_thread.quit)
+        self._background_worker.finished.connect(self._background_worker.deleteLater)
+        self._background_thread.finished.connect(self._background_thread.deleteLater)
+        if on_finished:
+            self._background_worker.finished.connect(_MainThreadCallback(on_finished))
+        if on_error:
+            self._background_worker.error.connect(_MainThreadCallback(on_error))
+        self._background_thread.start()
+
+    def _cleanup_background_thread(self):
+        if self._background_thread and self._background_thread.isRunning():
+            self._background_thread.quit()
+            self._background_thread.wait(1000)
+            if self._background_thread.isRunning():
+                self._background_thread.terminate()
+        self._background_thread = None
+        self._background_worker = None
+
     def set_version(self) -> None:
         """
         更新版本号，增加次要版本号
