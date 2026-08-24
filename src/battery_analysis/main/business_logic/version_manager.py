@@ -37,6 +37,7 @@ class VersionManager:
         self.logger = logging.getLogger(__name__)
         self._background_thread = None
         self._background_worker = None
+        self._checksum_input_dir = None
 
     def get_version(self) -> None:
         """
@@ -48,6 +49,7 @@ class VersionManager:
         strInPutDir = self.main_window.lineEdit_InputPath.text()
         strOutoutDir = self.main_window.lineEdit_OutputPath.text()
         if os.path.exists(strInPutDir) and os.path.exists(strOutoutDir):
+            self._checksum_input_dir = strInPutDir
             self.run_in_background(
                 self._calc_checksum_task,
                 self._on_checksum_ready,
@@ -72,12 +74,23 @@ class VersionManager:
 
     def _on_checksum_ready(self, checksum):
         """主线程：校验和计算完成后的版本号落盘 + UI 更新"""
+        # 过期结果守卫（roadmap #9 异步化后）：用户已切换输入路径时，
+        # 丢弃旧目录的校验和结果，避免覆盖新目录的 checksum/CSV/版本号。
+        if (self._checksum_input_dir is not None
+                and self.main_window.lineEdit_InputPath.text() != self._checksum_input_dir):
+            self.logger.info("Discarding stale checksum result for changed input path")
+            return
+
         if checksum is None:
-            # 目录内无 xlsx 文件
+            # 目录内无 xlsx 文件，清空版本号与校验和缓存
+            self.main_window.sha256_checksum = ""
             self.main_window.lineEdit_Version.setText("")
             return
         # 时序保证：sha256_checksum 必须随时可用（analysis_runner.py:173、
         # set_version 均读取它），故在任何读取者之前回写。
+        # 已知限制：get_version 异步化后，用户若在后台校验和完成前点 Run，
+        # analysis_runner 会快照到旧值/空值，本次版本号递增可能跳过
+        #（下次 Run 时校验和已就绪即自愈）。P3 接受的 trade-off，跨文件修复另议。
         self.main_window.sha256_checksum = checksum
 
         try:
@@ -177,8 +190,11 @@ class VersionManager:
     def _on_checksum_error(self, error_msg):
         """主线程：校验和计算异常兜底"""
         self.logger.error("Failed to compute SHA-256 checksum: %s", error_msg)
+        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                "[Error]: Failed to compute checksum")
 
-    def run_in_background(self, task_func, on_finished, on_error, *args):
+    def run_in_background(self, task_func, on_finished, on_error, *args, **kwargs):
         """QThread + BackgroundWorker 执行后台任务，回调经 QueuedConnection 切回主线程"""
         self._cleanup_background_thread()
         self._background_thread = QC.QThread()

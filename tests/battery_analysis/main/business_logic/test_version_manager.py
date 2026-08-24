@@ -189,6 +189,7 @@ class TestGetVersion:
         with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
                    return_value="dummy_checksum"):
             vm = VersionManager(main_window)
+            vm._checksum_input_dir = str(input_dir)
             checksum = vm._calc_checksum_task(str(input_dir))
             vm._on_checksum_ready(checksum)
 
@@ -220,6 +221,7 @@ class TestGetVersion:
         with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
                    return_value="dummy_checksum"):
             vm = VersionManager(main_window)
+            vm._checksum_input_dir = str(input_dir)
             checksum = vm._calc_checksum_task(str(input_dir))
             vm._on_checksum_ready(checksum)
 
@@ -235,11 +237,22 @@ class TestGetVersion:
         with patch('os.path.exists', return_value=True), \
              patch.object(vm, 'run_in_background') as mock_run:
             vm.get_version()
-        mock_run.assert_called_once()
-        args = mock_run.call_args[0]
-        assert args[0] == vm._calc_checksum_task
-        assert args[1] == vm._on_checksum_ready
-        assert args[3] == "/tmp/in"
+        mock_run.assert_called_once_with(
+            vm._calc_checksum_task, vm._on_checksum_ready, vm._on_checksum_error, "/tmp/in")
+
+    def test_on_checksum_ready_discards_stale_result(self):
+        """输入路径已变更 → 丢弃旧目录的校验和结果，不落盘不更新版本号"""
+        main_window = MagicMock()
+        main_window.lineEdit_InputPath.text.return_value = "/new/dir"
+        main_window.lineEdit_OutputPath.text.return_value = "/tmp/out"
+        main_window.lineEdit_Version = MagicMock()
+        vm = VersionManager(main_window)
+        vm._checksum_input_dir = "/old/dir"
+        with patch('os.path.exists', return_value=True), \
+             patch.object(vm.logger, 'info') as mock_info:
+            vm._on_checksum_ready("stale_checksum")
+        mock_info.assert_called_once()
+        main_window.lineEdit_Version.setText.assert_not_called()
 
     def test_get_version_missing_dirs_clears_version(self):
         """输入/输出目录缺失时，直接清空版本号，不启动线程"""
@@ -275,6 +288,8 @@ class TestGetVersion:
         vm = VersionManager(main_window)
         vm._on_checksum_ready(None)
         main_window.lineEdit_Version.setText.assert_called_once_with("")
+        # 目录切换为无 xlsx 时，校验和缓存也应清空
+        assert main_window.sha256_checksum == ""
 
     def test_on_checksum_error_logs(self):
         """校验和计算异常 → 记录日志，不崩溃"""
