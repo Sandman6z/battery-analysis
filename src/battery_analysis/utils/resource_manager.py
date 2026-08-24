@@ -39,8 +39,11 @@ class ResourceManager:
 
         if PSUTIL_AVAILABLE:
             try:
-                # 检测系统CPU使用率（1秒平均值）
-                cpu_usage = psutil.cpu_percent(interval=1, percpu=False)
+                # 检测系统CPU使用率（非阻塞采样）
+                # interval=None 立即返回自上次调用以来的占用率（首次调用返回 0.0）；
+                # 原 interval=1 会阻塞调用线程整整 1 秒，GUI 主线程调用时直接冻结 UI
+                #（roadmap #12）。首次调用返回 0.0 → 走低负载默认分支，语义安全。
+                cpu_usage = psutil.cpu_percent(interval=None, percpu=False)
                 logging.info("Current system CPU usage: %.2f%%", cpu_usage)
 
                 # 根据CPU使用率动态调整进程数
