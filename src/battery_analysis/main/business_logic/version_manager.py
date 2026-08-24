@@ -198,7 +198,7 @@ class VersionManager:
         """QThread + BackgroundWorker 执行后台任务，回调经 QueuedConnection 切回主线程"""
         self._cleanup_background_thread()
         self._background_thread = QC.QThread()
-        self._background_worker = BackgroundWorker(task_func, *args)
+        self._background_worker = BackgroundWorker(task_func, *args, **kwargs)
         self._background_worker.moveToThread(self._background_thread)
 
         self._background_thread.started.connect(self._background_worker.run)

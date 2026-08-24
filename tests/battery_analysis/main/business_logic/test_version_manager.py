@@ -240,6 +240,18 @@ class TestGetVersion:
         mock_run.assert_called_once_with(
             vm._calc_checksum_task, vm._on_checksum_ready, vm._on_checksum_error, "/tmp/in")
 
+    def test_run_in_background_forwards_kwargs(self):
+        """run_in_background 把 kwargs 转发给 BackgroundWorker（防静默丢弃）"""
+        main_window = MagicMock()
+        vm = VersionManager(main_window)
+        with patch('battery_analysis.main.business_logic.version_manager.BackgroundWorker') as mock_worker, \
+             patch('battery_analysis.main.business_logic.version_manager.QC.QThread') as mock_thread:
+            vm.run_in_background(lambda: None, lambda r: None, lambda e: None, "arg", extra=1)
+        mock_worker.assert_called_once()
+        assert mock_worker.call_args[0][0]  # task_func 是第一个位置参数
+        assert mock_worker.call_args[0][1:] == ("arg",)
+        assert mock_worker.call_args[1] == {"extra": 1}
+
     def test_on_checksum_ready_discards_stale_result(self):
         """输入路径已变更 → 丢弃旧目录的校验和结果，不落盘不更新版本号"""
         main_window = MagicMock()
