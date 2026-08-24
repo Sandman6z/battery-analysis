@@ -217,6 +217,76 @@ class TestDataProcessor:
         mock_critical.assert_called_once()
         mock_info.assert_not_called()
 
+    def test_on_scan_finished_dispatches_background_processing(self):
+        """扫描完成 → 后台线程处理 Excel 解析，主线程不阻塞"""
+        self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        with patch.object(self.processor, 'run_in_background') as mock_run:
+            self.processor._on_scan_finished(['a.xlsx', 'b.xlsx'])
+        mock_run.assert_called_once()
+        task_func, on_finished, on_error, input_dir, excel_files = mock_run.call_args[0]
+        assert task_func == self.processor._process_excel_files_task
+        assert on_finished == self.processor._on_excel_files_processed
+        assert on_error == self.processor._on_excel_files_process_error
+        assert input_dir == '/fake/dir'
+        assert excel_files == ['a.xlsx', 'b.xlsx']
+
+    def test_on_scan_finished_empty_files_no_background(self):
+        """无文件 → 走 _handle_no_excel_files，不派发后台任务"""
+        with patch.object(self.processor, '_handle_no_excel_files') as mock_handle, \
+             patch.object(self.processor, 'run_in_background') as mock_run:
+            self.processor._on_scan_finished([])
+        mock_handle.assert_called_once()
+        mock_run.assert_not_called()
+
+    def test_process_excel_files_task_returns_data_and_errors(self, tmp_path):
+        """后台任务只读文件：返回 (excel_files, excel_data, error_files)，不碰 UI
+
+        文件名须通过 validate_excel_filename（含 DC / mA / 逗号 / 温度），
+        否则文件在内容校验前就被拒绝，无法测到读取路径。
+        """
+        valid = tmp_path / 'DC1,mA1.xlsx'
+        pd.DataFrame({'Capacity': [1000, 2000]}).to_excel(valid, index=False)
+        invalid = tmp_path / 'DC2,mA2.xlsx'
+        invalid.write_bytes(b'not a real xlsx')
+        result = self.processor._process_excel_files_task(str(tmp_path), ['DC1,mA1.xlsx', 'DC2,mA2.xlsx'])
+        excel_files, excel_data, error_files = result
+        assert excel_files == ['DC1,mA1.xlsx', 'DC2,mA2.xlsx']
+        assert len(excel_data) == 1
+        assert excel_data[0]['filename'] == 'DC1,mA1.xlsx'
+        assert excel_data[0]['row_count'] == 2
+        assert len(error_files) == 1
+        assert error_files[0][0] == 'DC2,mA2.xlsx'
+
+    def test_on_excel_files_processed_success(self):
+        """处理成功 → 更新 UI + 解析首个文件 + 重连规格信号"""
+        excel_files = ['a.xlsx']
+        excel_data = [{'filename': 'a.xlsx'}]
+        with patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui, \
+             patch.object(self.processor, '_process_first_excel_file') as mock_first, \
+             patch.object(self.processor, '_reconnect_specification_signals') as mock_reconnect:
+            self.processor._on_excel_files_processed((excel_files, excel_data, []))
+        mock_ui.assert_called_once_with(excel_files, excel_data)
+        mock_first.assert_called_once_with('a.xlsx')
+        mock_reconnect.assert_called_once()
+
+    def test_on_excel_files_processed_all_failed(self):
+        """全部文件失败 → 设置错误提示，不进入成功流程"""
+        self.mock_main_window.checker_input_xlsx = Mock()
+        with patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui:
+            self.processor._on_excel_files_processed((['a.xlsx'], [], []))
+        mock_ui.assert_not_called()
+        self.mock_main_window.checker_input_xlsx.set_error.assert_called()
+        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
+
+    def test_on_excel_files_processed_shows_error_dialog(self):
+        """存在错误文件 → 主线程弹 QMessageBox 明细"""
+        from battery_analysis.main.business_logic import data_processor as dp
+        mock_msgbox = Mock()
+        with patch.object(dp.QW, 'QMessageBox', return_value=mock_msgbox):
+            self.processor._on_excel_files_processed((['a.xlsx'], [], [('a.xlsx', 'bad format')]))
+        mock_msgbox.exec.assert_called_once()
+        mock_msgbox.setDetailedText.assert_called_once()
+
 
 class TestProcessPoolFix:
     def test_worker_is_picklable_module_level(self):

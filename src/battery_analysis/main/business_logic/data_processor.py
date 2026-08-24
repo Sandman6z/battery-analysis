@@ -185,19 +185,14 @@ class DataProcessor:
             self._handle_no_excel_files(input_dir)
             return
 
-        excel_data = self._process_excel_files(input_dir, excel_files)
-        if not excel_data:
-            self.logger.error("No Excel files were processed successfully")
-            if hasattr(self.main_window, 'checker_input_xlsx'):
-                self.main_window.checker_input_xlsx.set_error("No Excel files were processed successfully. Please check the file format.")
-            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-                self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: No Excel files were processed successfully")
-            return
-
-        self._update_ui_with_excel_info(excel_files, excel_data)
-        if excel_files:
-            self._process_first_excel_file(excel_files[0])
-        self._reconnect_specification_signals()
+        # 逐文件 pd.read_excel 校验是重活，放后台线程执行；回调在
+        # 主线程弹窗/更新 UI（roadmap #9）。
+        self.run_in_background(
+            self._process_excel_files_task,
+            self._on_excel_files_processed,
+            self._on_excel_files_process_error,
+            input_dir, excel_files,
+        )
 
     def _on_scan_error(self, error_msg):
         self.logger.error("Failed to scan Excel files: %s", error_msg)
@@ -266,7 +261,12 @@ class DataProcessor:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
                 _("[Error]: Input path has no data"))
 
-    def _process_excel_files(self, input_dir, excel_files):
+    def _process_excel_files_task(self, input_dir, excel_files, **kwargs):
+        """后台线程：逐文件验证并提取 Excel 元信息（不触碰任何 UI）。
+
+        返回 (excel_files, excel_data, error_files)；progress_callback 由
+        TaskRunner 强制注入，此处忽略。
+        """
         excel_data = []
         error_files = []
         for filename in excel_files:
@@ -285,9 +285,15 @@ class DataProcessor:
                 'first_five_rows': df.head().to_dict('records'),
             }
             excel_data.append(file_info)
+        return excel_files, excel_data, error_files
+
+    def _on_excel_files_processed(self, result):
+        """主线程：_process_excel_files_task 完成后的 UI 更新"""
+        excel_files, excel_data, error_files = result
 
         if error_files:
-            error_message = "The following files have issues:\n" + "\n".join(f"- {f}: {m}" for f, m in error_files)
+            error_message = "The following files have issues:\n" + "\n".join(
+                f"- {f}: {m}" for f, m in error_files)
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
                     f"[Error]: Found {len(error_files)} problematic files")
@@ -302,10 +308,32 @@ class DataProcessor:
                 msg.setDetailedText(error_message)
                 msg.setStandardButtons(QW.QMessageBox.StandardButton.Ok)
                 msg.exec()
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 self.logger.warning("Error showing error dialog: %s", e)
 
-        return excel_data
+        if not excel_data:
+            self.logger.error("No Excel files were processed successfully")
+            if hasattr(self.main_window, 'checker_input_xlsx'):
+                self.main_window.checker_input_xlsx.set_error(
+                    "No Excel files were processed successfully. Please check the file format.")
+            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                self.main_window.statusBar_BatteryAnalysis.showMessage(
+                    "[Error]: No Excel files were processed successfully")
+            return
+
+        self._update_ui_with_excel_info(excel_files, excel_data)
+        if excel_files:
+            self._process_first_excel_file(excel_files[0])
+        self._reconnect_specification_signals()
+
+    def _on_excel_files_process_error(self, error_msg):
+        """主线程：后台任务异常兜底"""
+        self.logger.error("Failed to process Excel files: %s", error_msg)
+        if hasattr(self.main_window, 'checker_input_xlsx'):
+            self.main_window.checker_input_xlsx.set_error(f"Failed to process files: {error_msg}")
+        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Failed to process files")
+        self._reconnect_specification_signals()
 
     def _update_ui_with_excel_info(self, excel_files, excel_data):
         self.main_window.lineEdit_SamplesQty.setText(str(len(excel_files)))
