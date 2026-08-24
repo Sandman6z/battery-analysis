@@ -325,7 +325,7 @@ class BatteryChartViewerWrapper(IVisualizer):
         return self._config.copy()
 
     @property
-    def viewer(self) -> "BatteryChartViewer":
+    def viewer(self) -> "BatteryChartViewer":  # noqa: F821 延迟 import，pyflakes 误报
         """
         获取原始的viewer实例
         
