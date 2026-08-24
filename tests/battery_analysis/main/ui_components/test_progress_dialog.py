@@ -29,3 +29,15 @@ class TestProgressDialog:
         self.dialog.progress_bar.setRange(0, 100)
         assert self.dialog.progress_bar.minimum() == 0
         assert self.dialog.progress_bar.maximum() == 100
+
+    def test_update_progress_does_not_process_events(self):
+        """update_progress 不调用 processEvents（防重入，roadmap #12）"""
+        with patch('battery_analysis.main.ui_components.progress_dialog.QW.QApplication.processEvents') as mock_pe:
+            self.dialog.update_progress(50, "Test progress")
+            mock_pe.assert_not_called()
+
+    def test_on_cancel_does_not_process_events(self):
+        """_on_cancel 不调用 processEvents"""
+        with patch('battery_analysis.main.ui_components.progress_dialog.QW.QApplication.processEvents') as mock_pe:
+            self.dialog._on_cancel()
+            mock_pe.assert_not_called()

@@ -22,3 +22,9 @@ class TestThemeManager:
 
     def test_initialize_theme_actions(self):
         self.manager._initialize_theme_actions()
+
+    def test_set_theme_does_not_process_events(self):
+        """set_theme 不调用 processEvents（unpolish/polish 已触发重绘）"""
+        with patch('battery_analysis.main.ui_components.theme_manager.QW.QApplication.processEvents') as mock_pe:
+            self.manager.set_theme("System Default")
+            mock_pe.assert_not_called()

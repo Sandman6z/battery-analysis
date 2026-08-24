@@ -330,7 +330,7 @@ if __name__ == '__main__':
             with open(unified_style_path, 'r', encoding='utf-8') as f:
                 unified_style = f.read()
                 app.setStyleSheet(unified_style)
-                app.processEvents()
+                # 移除 processEvents()（roadmap #12）：unpolish/polish 已触发完整重绘
                 app.style().unpolish(app)
                 app.style().polish(app)
                 app.update()

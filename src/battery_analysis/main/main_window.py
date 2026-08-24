@@ -587,6 +587,7 @@ def _create_splash_screen(app):
             f"Battery Analyzer v{__version__}",
             QC.Qt.AlignmentFlag.AlignTop | QC.Qt.AlignmentFlag.AlignCenter,
             QG.QColor("#ecf0f1"))
+        # 保留 processEvents()：同 launcher，启动期 splash 绘制（进入事件循环前）。
         app.processEvents()
 
         return splash

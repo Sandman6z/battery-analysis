@@ -39,6 +39,9 @@ def _create_splash(app):
             "Loading...",
             Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter,
             QColor("white"))
+        # 保留 processEvents()：启动时尚未进入事件循环，QSplashScreen 官方模式
+        # 要求在此绘制 splash。roadmap #12 移除的是 progress_dialog/theme_manager/
+        # battery_chart_viewer 的防重入调用，此处移除会导致启动 splash 空白。
         app.processEvents()
         return splash
     except Exception:
