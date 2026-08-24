@@ -93,7 +93,8 @@ def test_resize_event_debounces_resize_columns(self):
     table = MagicMock()
     table.rowCount.return_value = 3
     self.main_window.tableWidget_TestInformation = table
-    from PyQt6.QtCore import QResizeEvent, QSize
+    from PyQt6.QtCore import QSize
+    from PyQt6.QtGui import QResizeEvent
     event = QResizeEvent(QSize(800, 600), QSize(790, 590))
     with patch('battery_analysis.main.main_window.QC.QTimer.singleShot') as mock_single_shot:
         self.main_window.resizeEvent(event)
@@ -108,7 +109,8 @@ def test_resize_event_skips_empty_table(self):
     table = MagicMock()
     table.rowCount.return_value = 0
     self.main_window.tableWidget_TestInformation = table
-    from PyQt6.QtCore import QResizeEvent, QSize
+    from PyQt6.QtCore import QSize
+    from PyQt6.QtGui import QResizeEvent
     event = QResizeEvent(QSize(800, 600), QSize(790, 590))
     with patch('battery_analysis.main.main_window.QC.QTimer.singleShot') as mock_single_shot:
         self.main_window.resizeEvent(event)
