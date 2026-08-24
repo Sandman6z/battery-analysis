@@ -280,8 +280,8 @@ Expected: FAIL——3 个新用例的 `assert_not_called` 不满足（processEve
 Run: `uv run pytest tests/battery_analysis/main/ui_components/test_progress_dialog.py tests/battery_analysis/main/ui_components/test_theme_manager.py -v`
 Expected: PASS。随后确认仅剩 2 处 processEvents：
 
-Run: `uv run python -c "import re, pathlib; hits=[(str(p),i,l.strip()) for p in pathlib.Path('src').rglob('*.py') for i,l in enumerate(open(p,encoding='utf-8')) if 'processEvents' in l]; [print(f'{p}:{i+1} {l}') for p,i,l in hits]"`
-Expected: 恰好两行——`launcher.py` 与 `main_window.py` 各一处（splash 保留项）。
+Run: `uv run python -c "import pathlib; hits=[(str(p),i+1,l.strip()) for p in pathlib.Path('src').rglob('*.py') for i,l in enumerate(open(p,encoding='utf-8')) if 'processEvents' in l and not l.strip().startswith('#')]; [print(f'{p}:{i} {l}') for p,i,l in hits]"`
+Expected: 恰好两行——`launcher.py` 与 `main_window.py` 各一处（splash 保留项）。注意：需排除以 `#` 开头的注释行（注释措辞里也含 `processEvents()`），只统计真实调用。`battery_chart_viewer.py` 独立入口的调用已在 `__main__` 块内移除，故不出现。
 
 - [ ] **Step 5: 提交**
 
