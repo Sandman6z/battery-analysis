@@ -6,7 +6,9 @@ ServiceContext/MultiServiceContext）简化为简单工厂模式。服务实例�
 _initialize_services() 显式创建，register() 不再支持动态注册。
 """
 import pytest
-from battery_analysis.main.services.service_container import ServiceContainer, Services, get_service_container
+from battery_analysis.main.services.service_container import (
+    ServiceContainer, Services, get_service_container,
+)
 
 
 class TestServiceContainer:
