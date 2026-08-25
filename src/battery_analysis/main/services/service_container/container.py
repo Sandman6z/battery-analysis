@@ -9,8 +9,8 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
+from dataclasses import dataclass
+from typing import Optional, Any
 
 
 # ── Services 数据类 ──────────────────────────────────────────────
@@ -29,23 +29,9 @@ class Services:
     file_controller: Any = None
     validation_controller: Any = None
 
-    _name_map: Dict[str, str] = field(default_factory=lambda: {
-        "config": "config",
-        "environment": "environment",
-        "file": "file",
-        "progress": "progress",
-        "validation": "validation",
-        "main_controller": "main_controller",
-        "file_controller": "file_controller",
-        "validation_controller": "validation_controller",
-    })
-
     def get(self, name: str) -> Any:
         """按字符串名获取服务（保持向后兼容）。"""
-        attr = self._name_map.get(name)
-        if attr is None:
-            return None
-        return getattr(self, attr, None)
+        return getattr(self, name, None)
 
 
 # ── ServiceContainer 兼容包装 ────────────────────────────────────
@@ -103,11 +89,6 @@ class ServiceContainer:
 
     def has(self, name: str) -> bool:
         return self.get(name) is not None
-
-    def register(self, name: str, implementation, singleton=True) -> bool:
-        """不再支持动态注册（保留方法签名避免调用方报错）。"""
-        self.logger.warning("ServiceContainer.register('%s') is deprecated; services are created statically via create_services()", name)
-        return False
 
 
 # ── 全局访问点 ────────────────────────────────────────────────────

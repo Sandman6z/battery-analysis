@@ -31,21 +31,6 @@ def test_basic_service_container():
     
     container = get_service_container()
     
-    # 测试服务注册
-    class TestService:
-        def __init__(self):
-            self.name = "test_service"
-        
-        def get_name(self):
-            return self.name
-        
-        def shutdown(self):
-            logger.debug("TestService shutdown called")
-    
-    # 注册服务
-    result = container.register("test", TestService)
-    logger.info(f"注册服务结果: {result}")
-    
     # 获取服务
     service = container.get("test")
     logger.info(f"获取服务结果: {service is not None}")
@@ -129,17 +114,7 @@ def test_service_context():
     
     # 测试多服务上下文
     logger.info("测试多服务上下文...")
-    # 先注册另一个服务
-    class AnotherService:
-        def __init__(self):
-            self.name = "another_service"
-        
-        def get_name(self):
-            return self.name
-    
-    container = get_service_container()
-    container.register("another", AnotherService)
-    
+
     with MultiServiceContext(["test", "another"]) as services:
         test_service = services.get("test")
         another_service = services.get("another")
