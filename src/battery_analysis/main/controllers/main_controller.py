@@ -6,7 +6,6 @@
 import logging
 from PyQt6 import QtCore as QC
 from battery_analysis.main.workers.analysis_worker import AnalysisWorker
-from battery_analysis.utils.domain_events import DomainEventBus, analysis_completed, analysis_failed
 
 
 class MainController(QC.QObject):
@@ -140,9 +139,6 @@ class MainController(QC.QObject):
         """
         self.is_analysis_running = False
         self.analysis_completed.emit()
-        DomainEventBus.instance().publish(
-            analysis_completed(test_date=self.str_test_date if hasattr(self, 'str_test_date') else "", source="MainController")
-        )
 
     def _on_path_renamed(self, test_date):
         """
