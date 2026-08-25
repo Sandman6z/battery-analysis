@@ -5,7 +5,6 @@
 ServiceContext/MultiServiceContext）简化为简单工厂模式。服务实例通过
 _initialize_services() 显式创建，register() 不再支持动态注册。
 """
-import pytest
 from battery_analysis.main.services.service_container import (
     ServiceContainer, Services, get_service_container,
 )
@@ -58,7 +57,6 @@ class TestServiceContainer:
     def test_name_map_removed(self):
         """_name_map 死代码已删除，get 改用 getattr"""
         assert not hasattr(Services(), '_name_map')
-
 
     def test_register_removed(self):
         """register() 死代码已删除"""

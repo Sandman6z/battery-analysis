@@ -30,7 +30,11 @@ class Services:
     validation_controller: Any = None
 
     def get(self, name: str) -> Any:
-        """按字符串名获取服务（保持向后兼容）。"""
+        """按字符串名获取服务（保持向后兼容）。
+
+        通用属性查找：直接返回对应字段值，不再经 _name_map 白名单；
+        未知名称或未设置字段返回 None（如 get('application') 现返回字段默认值）。
+        """
         return getattr(self, name, None)
 
 
