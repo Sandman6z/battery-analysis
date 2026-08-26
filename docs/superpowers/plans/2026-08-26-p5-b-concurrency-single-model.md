@@ -26,7 +26,7 @@
 | 决策点 | 结论 | 理由 |
 |---|---|---|
 | `_MainThreadCallback` 处置 | **删除**（非「提取到公共位置」） | 执行 spec :47 写「提取」时未考虑 TaskRunner 信号已内建主线程回跳。迁移后该私有类零引用，保留即死代码（违背 P5 目标）。plan Task B4 删除。 |
-| 协作式取消机制 | TaskRunner 的 progress_callback 包装器每次调用检查 `self._cancelled`，取消则抛 `_TaskCancelled`；run() 捕获后发 cancelled 信号 | 复用 AnalysisWorker 已验证的「进度点即取消检查点」模式；task_func 在长跑循环内调用 progress_callback 即获得取消点，不依赖 terminate。 |
+| 协作式取消机制 | TaskRunner 的 progress_callback 包装器每次调用检查 `self._cancelled`，取消则抛 `TaskCancelled`；`cancel()` 是 cancelled 信号的**唯一发射者**（run() 终止路径只抑制 finished，不重复 emit） | 复用 AnalysisWorker 已验证的「进度点即取消检查点」模式；task_func 在长跑循环内调用 progress_callback 即获得取消点，不依赖 terminate。 |
 | TaskSignals 扩展 | 在 TaskSignals 直接加 `info(bool,int,str)`/`thread_end()`/`rename_path(str)`/`start_visualizer()` 4 信号；`progress_update` 由既有 `progress(int,str)` 承担（AnalysisWorker 改发 progress） | 执行 spec :45「5 个自定义信号并入 TaskSignals 扩展」；progress_update 与 progress 签名重复，保留一份。 |
 | AnalysisWorker 形态 | 改为 `AnalysisWorker(TaskRunner)` 子类：复用 TaskRunner 的 `_cancelled`/`cancel()`/QThreadPool 兼容，重写 `run()` 保留 297 LOC 分析流程，signals 用扩展 TaskSignals | 最小侵入；main_controller 的 `thread_pool.start(worker)` 与 `request_cancel()` 调用面基本不变。 |
 | generation counter | `_scan_generation`/`_checksum_generation` 单调递增：触发扫描/校验时自增并捕获到 closure，回调带 generation 参数，`generation != 当前值` 即丢弃 | 精确匹配派发代次，根治双派发误放行（`[[p3-worker-race-known-limitation]]` 建议方案）。 |
@@ -53,7 +53,7 @@
 from PyQt6 import QtCore as QC
 from PyQt6.QtTest import QSignalSpy
 
-from battery_analysis.main.workers.task_runner import TaskRunner, _TaskCancelled
+from battery_analysis.main.workers.task_runner import TaskRunner, TaskCancelled
 
 
 def test_success_emits_finished_with_result():
@@ -110,7 +110,7 @@ def test_cancel_mid_execution_raises_at_next_progress_point():
     spy_cancelled = QSignalSpy(runner.signals.cancelled)
     spy_finished = QSignalSpy(runner.signals.finished)
 
-    # 第一次 progress_callback 调用前已取消 → 首次调用即抛 _TaskCancelled
+    # 第一次 progress_callback 调用前已取消 → 首次调用即抛 TaskCancelled
     runner.cancel()
     runner.run()
     assert spy_cancelled.count() == 1
@@ -119,7 +119,7 @@ def test_cancel_mid_execution_raises_at_next_progress_point():
 ```
 
 Run: `uv run pytest tests/battery_analysis/main/workers/test_task_runner.py -q`
-Expected: FAIL——`_TaskCancelled` 不存在（ImportError）、取消语义未实现。
+Expected: FAIL——`TaskCancelled` 不存在（ImportError）、取消语义未实现。
 
 - [ ] **Step 2: 实现协作式取消**
 
@@ -127,8 +127,8 @@ Expected: FAIL——`_TaskCancelled` 不存在（ImportError）、取消语义�
 
 1. 模块顶部加：
 ```python
-class _TaskCancelled(Exception):
-    """协作式取消信号——progress_callback 检测到取消请求时抛出，run() 捕获后发 cancelled。"""
+class TaskCancelled(Exception):
+    """协作式取消信号——progress_callback 检测到取消请求时抛出，run() 捕获后终止（cancelled 由 cancel() 发射）。"""
 ```
 
 2. `TaskRunner.run()` 重写 progress_callback 包装逻辑，统一包一层取消检查：
@@ -136,13 +136,12 @@ class _TaskCancelled(Exception):
     def run(self):
         """执行任务（QRunnable 入口）。"""
         if self._cancelled:
-            self.signals.cancelled.emit()
-            return
+            return  # cancel() 已发 cancelled，入口不再重复 emit
 
-        # 包装 progress_callback：每次调用检查取消标志，取消则抛 _TaskCancelled
+        # 包装 progress_callback：每次调用检查取消标志，取消则抛 TaskCancelled
         def wrapped_cb(pct, msg):
             if self._cancelled:
-                raise _TaskCancelled
+                raise TaskCancelled
             self.signals.progress.emit(pct, msg)
 
         try:
@@ -154,8 +153,8 @@ class _TaskCancelled(Exception):
             )
             if not self._cancelled:
                 self.signals.finished.emit(result)
-        except _TaskCancelled:
-            self.signals.cancelled.emit()
+        except TaskCancelled:
+            pass  # cancel() 已发 cancelled；仅抑制 finished
         except Exception as e:
             self.logger.error("Task execution failed: %s", e)
             self.signals.error.emit(str(e))
@@ -218,19 +217,19 @@ def test_stale_generation_result_is_discarded():
 1. 删 `_background_thread`/`_background_worker` 初始化（:58-59）与 `_scanning_input_dir`（:60），改加：
 ```python
         self._scan_generation = 0
+        self._task_manager = TaskManager()
 ```
 
-2. 删 `_cleanup_background_thread`（:76-83）与 `run_in_background`（:85-99）。新增统一派发：
+2. 删 `_cleanup_background_thread`（:76-83）与 `run_in_background`（:85-99）。新增统一派发（经 TaskManager.submit，与决策表「任务排队」、执行 spec :43「TaskRunner + TaskManager」一致）：
 ```python
     def _run_async(self, task_func, on_finished, on_error, *args, **kwargs):
         """TaskRunner 派发：回调经 TaskSignals 自动回主线程（AutoConnection Queued）。"""
-        from battery_analysis.main.workers.task_runner import TaskRunner
         runner = TaskRunner(task_func, *args, **kwargs)
         if on_finished:
             runner.signals.finished.connect(on_finished)
         if on_error:
             runner.signals.error.connect(on_error)
-        QC.QThreadPool.globalInstance().start(runner)
+        self._task_manager.submit(runner)
         return runner
 ```
 
@@ -284,7 +283,7 @@ def test_stale_generation_result_is_discarded():
 
 7. `get_xlsxinfo`（:161-162）的调用同步改为 `self._run_async(self._scan_excel_files_task, self._on_scan_finished, self._on_scan_error, input_dir)`。
 
-8. 删 :14 `from ...background_worker import BackgroundWorker` import（本 Task 内即无引用）；`_MainThreadCallback` 相关连接（:96,98）随 run_in_background 删除而消失。
+8. 删 :14 `from ...background_worker import BackgroundWorker` import，替换为顶层 `from battery_analysis.main.workers.task_runner import TaskRunner, TaskManager`（TaskManager 供 __init__ 实例化，TaskRunner 供 _run_async；task_runner 无启动路径 heavy 依赖）；`_MainThreadCallback` 相关连接（:96,98）随 run_in_background 删除而消失。
 
 - [ ] **Step 3: 运行测试验证**
 
@@ -336,7 +335,7 @@ def test_stale_checksum_generation_is_discarded():
 
 修改 `src/battery_analysis/main/business_logic/version_manager.py`：
 
-1. `__init__` 删 `_background_thread`/`_background_worker`（:38-39），`_checksum_input_dir`（:40）改 `self._checksum_generation = 0`。
+1. `__init__` 删 `_background_thread`/`_background_worker`（:38-39），`_checksum_input_dir`（:40）改 `self._checksum_generation = 0`，并加 `self._task_manager = TaskManager()`（与 B2 同构）。
 2. 删 `_cleanup_background_thread`（:214-221）与 `run_in_background`（:197-212），加与 B2 相同的 `_run_async` 私有方法。
 3. `get_version`（:42-58）改：
 ```python
@@ -362,7 +361,7 @@ def test_stale_checksum_generation_is_discarded():
             return
 ```
 （函数体其余部分不变）
-5. 删 :18 `from ...background_worker import BackgroundWorker` 与 :19 `from ...data_processor import _MainThreadCallback` import。
+5. 删 :18 `from ...background_worker import BackgroundWorker` 与 :19 `from ...data_processor import _MainThreadCallback` import，替换为顶层 `from battery_analysis.main.workers.task_runner import TaskRunner, TaskManager`（与 B2 同构）。
 
 - [ ] **Step 3-4: 验证 + 回归**
 
@@ -478,7 +477,7 @@ Expected: `test_signals_are_task_signals` FAIL（当前 AnalysisWorker 无 progr
 - [ ] **Step 3: 重构 AnalysisWorker**
 
 `analysis_worker.py`：
-1. 头部 import 改为 `from battery_analysis.main.workers.task_runner import TaskRunner, _TaskCancelled`；删除私有 `Signals` 类与本地 `_TaskCancelled` 定义。
+1. 头部 import 改为 `from battery_analysis.main.workers.task_runner import TaskRunner, TaskCancelled`；删除私有 `Signals` 类与本地 `_TaskCancelled` 定义。
 2. 类定义改 `class AnalysisWorker(TaskRunner):`。
 3. `__init__`：调用 `super().__init__(self._run_placeholder)`（task_func 占位，run() 重写不使用），`self.signals = TaskSignals()`（TaskRunner.__init__ 已创建，子类保持），保留现有属性初始化（str_path/b_thread_run/b_cancel_requested/progress_value/...）。
 4. `request_cancel()` 改为调用 `super().cancel()` 并保持发进度提示：
