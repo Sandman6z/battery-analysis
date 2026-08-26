@@ -189,9 +189,9 @@ class TestGetVersion:
         with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
                    return_value="dummy_checksum"):
             vm = VersionManager(main_window)
-            vm._checksum_input_dir = str(input_dir)
+            vm._checksum_generation = 1
             checksum = vm._calc_checksum_task(str(input_dir))
-            vm._on_checksum_ready(checksum)
+            vm._on_checksum_ready(checksum, generation=1)
 
         # 应显示1.3（第一个校验和，Times=3）
         main_window.lineEdit_Version.setText.assert_called_with("1.3")
@@ -221,63 +221,106 @@ class TestGetVersion:
         with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
                    return_value="dummy_checksum"):
             vm = VersionManager(main_window)
-            vm._checksum_input_dir = str(input_dir)
+            vm._checksum_generation = 1
             checksum = vm._calc_checksum_task(str(input_dir))
-            vm._on_checksum_ready(checksum)
+            vm._on_checksum_ready(checksum, generation=1)
 
         # Times为空字符串→转换为0→显示1.0
         main_window.lineEdit_Version.setText.assert_called_with("1.0")
 
     def test_get_version_dispatches_background_checksum(self):
-        """get_version 把 SHA-256 计算派发到后台线程，不阻塞主线程"""
+        """get_version 校验通过 → bump generation + cancel_all + 派发后台校验和任务"""
         main_window = MagicMock()
         main_window.lineEdit_InputPath.text.return_value = "/tmp/in"
         main_window.lineEdit_OutputPath.text.return_value = "/tmp/out"
         vm = VersionManager(main_window)
+        vm._task_manager = MagicMock()
         with patch('os.path.exists', return_value=True), \
-             patch.object(vm, 'run_in_background') as mock_run:
+             patch.object(vm, '_run_async') as mock_run:
             vm.get_version()
-        mock_run.assert_called_once_with(
-            vm._calc_checksum_task, vm._on_checksum_ready, vm._on_checksum_error, "/tmp/in")
+        assert vm._checksum_generation == 1
+        vm._task_manager.cancel_all.assert_called_once()
+        mock_run.assert_called_once()
+        task_func, on_finished, on_error, input_dir = mock_run.call_args[0]
+        assert task_func == vm._calc_checksum_task
+        assert input_dir == "/tmp/in"
+        # 回调是 closure：转发到同名方法并携带代次
+        with patch.object(vm, '_on_checksum_ready') as mock_ready:
+            on_finished("abc123")
+        mock_ready.assert_called_once_with("abc123", 1)
+        with patch.object(vm, '_on_checksum_error') as mock_error:
+            on_error("boom")
+        mock_error.assert_called_once_with("boom", 1)
 
-    def test_run_in_background_forwards_kwargs(self):
-        """run_in_background 把 kwargs 转发给 BackgroundWorker（防静默丢弃）"""
-        main_window = MagicMock()
-        vm = VersionManager(main_window)
-        with patch('battery_analysis.main.business_logic.version_manager.BackgroundWorker') as mock_worker, \
-             patch('battery_analysis.main.business_logic.version_manager.QC.QThread') as mock_thread:
-            vm.run_in_background(lambda: None, lambda r: None, lambda e: None, "arg", extra=1)
-        mock_worker.assert_called_once()
-        assert mock_worker.call_args[0][0]  # task_func 是第一个位置参数
-        assert mock_worker.call_args[0][1:] == ("arg",)
-        assert mock_worker.call_args[1] == {"extra": 1}
+    def test_calc_checksum_task_absorbs_progress_callback_kwarg(self, tmp_path):
+        """TaskRunner 注入的 progress_callback 经 **kwargs 吸收，不影响计算"""
+        (tmp_path / "a.xlsx").write_bytes(b"dummy")
+        vm = VersionManager(MagicMock())
+        with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
+                   return_value="abc123"):
+            result = vm._calc_checksum_task(
+                str(tmp_path), progress_callback=lambda pct, msg: None)
+        assert result == "abc123"
 
     def test_on_checksum_ready_discards_stale_result(self):
-        """输入路径已变更 → 丢弃旧目录的校验和结果，不落盘不更新版本号"""
+        """旧代次 → 丢弃校验和结果，不落盘不更新版本号"""
         main_window = MagicMock()
         main_window.lineEdit_InputPath.text.return_value = "/new/dir"
         main_window.lineEdit_OutputPath.text.return_value = "/tmp/out"
         main_window.lineEdit_Version = MagicMock()
         vm = VersionManager(main_window)
-        vm._checksum_input_dir = "/old/dir"
-        with patch('os.path.exists', return_value=True), \
-             patch.object(vm.logger, 'info') as mock_info:
-            vm._on_checksum_ready("stale_checksum")
+        vm._checksum_generation = 5
+        with patch.object(vm.logger, 'info') as mock_info:
+            vm._on_checksum_ready("stale_checksum", generation=4)
         mock_info.assert_called_once()
         main_window.lineEdit_Version.setText.assert_not_called()
 
+    def test_stale_checksum_generation_is_discarded(self):
+        """旧代次校验和结果被丢弃（守卫拦截，UI 零访问）"""
+        vm = VersionManager()
+        vm.main_window = MagicMock()
+        vm._checksum_generation = 3
+        vm._on_checksum_ready(None, generation=2)
+        vm.main_window.assert_not_called()  # 守卫在触碰 main_window 前 return
+
     def test_get_version_missing_dirs_clears_version(self):
-        """输入/输出目录缺失时，直接清空版本号，不启动线程"""
+        """输入/输出目录缺失时，清空版本号并推进代次/取消在途任务"""
         main_window = MagicMock()
         main_window.lineEdit_InputPath.text.return_value = "/nonexistent/in"
         main_window.lineEdit_OutputPath.text.return_value = "/nonexistent/out"
         main_window.lineEdit_Version = MagicMock()
         vm = VersionManager(main_window)
+        vm._task_manager = MagicMock()
         with patch('os.path.exists', return_value=False), \
-             patch.object(vm, 'run_in_background') as mock_run:
+             patch.object(vm, '_run_async') as mock_run:
             vm.get_version()
         main_window.lineEdit_Version.setText.assert_called_once_with("")
+        # 目录失效也推进代次并取消在途任务，防旧代次结果误接受（I-1 回归修复）
+        assert vm._checksum_generation == 1
+        vm._task_manager.cancel_all.assert_called_once()
         mock_run.assert_not_called()
+
+    def test_stale_checksum_after_missing_dirs_is_discarded(self):
+        """I-1 回归：目录失效后旧代次结果到达 → 守卫丢弃，不复活版本号"""
+        main_window = MagicMock()
+        main_window.lineEdit_InputPath.text.return_value = "/now/invalid/in"
+        main_window.lineEdit_OutputPath.text.return_value = "/now/invalid/out"
+        main_window.lineEdit_Version = MagicMock()
+        vm = VersionManager(main_window)
+        vm._task_manager = MagicMock()
+        vm._checksum_generation = 1  # gen 1 校验和任务在途
+        with patch('os.path.exists', return_value=False), \
+             patch.object(vm, '_run_async') as mock_run:
+            vm.get_version()
+        # 目录失效 → 推进到 gen 2，版本号清空，不派发新任务
+        assert vm._checksum_generation == 2
+        main_window.lineEdit_Version.setText.assert_called_once_with("")
+        mock_run.assert_not_called()
+        # 旧代次（gen 1）结果此刻到达 → 守卫丢弃，版本号保持清空不被复活
+        with patch.object(vm.logger, 'info') as mock_info:
+            vm._on_checksum_ready("stale_checksum", generation=1)
+        mock_info.assert_called_once()
+        main_window.lineEdit_Version.setText.assert_called_once_with("")
 
     def test_calc_checksum_task_returns_none_without_xlsx(self, tmp_path):
         """目录内无 xlsx → 任务返回 None（回调据此清空版本号）"""
@@ -298,7 +341,8 @@ class TestGetVersion:
         main_window = MagicMock()
         main_window.lineEdit_Version = MagicMock()
         vm = VersionManager(main_window)
-        vm._on_checksum_ready(None)
+        vm._checksum_generation = 1
+        vm._on_checksum_ready(None, generation=1)
         main_window.lineEdit_Version.setText.assert_called_once_with("")
         # 目录切换为无 xlsx 时，校验和缓存也应清空
         assert main_window.sha256_checksum == ""
@@ -306,6 +350,15 @@ class TestGetVersion:
     def test_on_checksum_error_logs(self):
         """校验和计算异常 → 记录日志，不崩溃"""
         vm = VersionManager(MagicMock())
+        vm._checksum_generation = 1
         with patch.object(vm.logger, 'error') as mock_error:
-            vm._on_checksum_error("boom")
+            vm._on_checksum_error("boom", generation=1)
         mock_error.assert_called_once()
+
+    def test_on_checksum_error_discards_stale_result(self):
+        """旧代次 → 错误兜底同样丢弃"""
+        vm = VersionManager(MagicMock())
+        vm._checksum_generation = 5
+        with patch.object(vm.logger, 'error') as mock_error:
+            vm._on_checksum_error("boom", generation=4)
+        mock_error.assert_not_called()
