@@ -137,9 +137,40 @@ class TestDataProcessor:
             self.processor.get_xlsxinfo()
         self.processor._task_manager.cancel_all.assert_called_once()
 
+    def test_get_xlsxinfo_valid_dir_advances_generation_before_dispatch(self):
+        """有效路径请求时即推进 generation：切换路径后旧代次已入队结果被丢弃"""
+        self.processor._task_manager = MagicMock()
+        # 第一次请求（dirA）→ 请求时推进到 gen 1
+        self.mock_main_window.lineEdit_InputPath.text.return_value = '/dir/a'
+        with patch('battery_analysis.utils.file_validator.FileValidator') as mock_file_validator:
+            mock_validator_instance = Mock()
+            mock_validator_instance.validate_input_directory.return_value = (True, 'ok')
+            mock_file_validator.return_value = mock_validator_instance
+            self.processor.get_xlsxinfo()
+        assert self.processor._scan_generation == 1
+
+        # 用户切到 dirB → 第二次请求再次推进 gen 到 2
+        self.mock_main_window.lineEdit_InputPath.text.return_value = '/dir/b'
+        with patch('battery_analysis.utils.file_validator.FileValidator') as mock_file_validator:
+            mock_validator_instance = Mock()
+            mock_validator_instance.validate_input_directory.return_value = (True, 'ok')
+            mock_file_validator.return_value = mock_validator_instance
+            self.processor.get_xlsxinfo()
+        assert self.processor._scan_generation == 2
+
+        # dirA 的 process 结果（gen=1）此刻才被派发（信号已入队，cancel_all 无法撤销）
+        # → 守卫 1 != 2 丢弃，不更新 UI 不解析首个文件
+        with patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui, \
+             patch.object(self.processor, '_process_first_excel_file') as mock_first:
+            self.processor._on_excel_files_processed(
+                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=1)
+        mock_ui.assert_not_called()
+        mock_first.assert_not_called()
+
     def test_on_scan_finished_dispatches_background_processing(self):
         """扫描完成 → TaskRunner 派发后台处理，主线程不阻塞"""
         self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        self.processor._scan_generation = 1  # get_xlsxinfo 请求时已推进到 gen 1
         with patch.object(self.processor, '_run_async') as mock_run:
             self.processor._on_scan_finished(['a.xlsx', 'b.xlsx'])
         mock_run.assert_called_once()
@@ -147,6 +178,7 @@ class TestDataProcessor:
         assert task_func == self.processor._process_excel_files_task
         assert input_dir == '/fake/dir'
         assert excel_files == ['a.xlsx', 'b.xlsx']
+        # _on_scan_finished 不再自增：仅捕获 get_xlsxinfo 已推进的当前值
         assert self.processor._scan_generation == 1
         # 回调是 closure：验证转发到同名方法并携带代次
         result = (['a.xlsx'], [{'filename': 'a.xlsx'}], [])

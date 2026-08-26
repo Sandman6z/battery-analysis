@@ -77,7 +77,8 @@ class DataProcessor:
     def _on_scan_finished(self, excel_files):
         input_dir = self.main_window.lineEdit_InputPath.text()
         self._cache['directory_files'].put(input_dir, excel_files)
-        self._scan_generation += 1
+        # generation 已在 get_xlsxinfo 请求时推进（唯一入口）；此处仅捕获当前值
+        # 传给后续 process dispatch 的 closures，守卫判定在 _on_excel_files_processed。
         generation = self._scan_generation
 
         if not excel_files:
@@ -122,10 +123,12 @@ class DataProcessor:
                 self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {error_msg.split(':')[0]}")
             return
 
-        # 新扫描请求会切换 UI 目标：取消在途 process/scan 任务（协作式，逐文件
-        # progress_callback 检查点抛 TaskCancelled），避免旧目录结果在新目录 scan
-        # 完成前误放行到新 UI；generation guard 仍作兜底。
+        # 新扫描请求会切换 UI 目标：请求时即推进 generation，使任何在途/已入队的旧
+        # process 结果（generation 低于新值）被守卫丢弃（对齐 version_manager 派发时
+        # 推进语义）；同时取消在途 process/scan 任务（协作式，逐文件 progress_callback
+        # 检查点抛 TaskCancelled），中断仍在执行的路径。双保险。
         self._task_manager.cancel_all()
+        self._scan_generation += 1
 
         cached = self._cache['directory_files'].get(input_dir)
         if cached is None:
