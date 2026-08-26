@@ -6,8 +6,6 @@
 
 import logging
 import os
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from concurrent.futures.process import BrokenProcessPool
 from PyQt6 import QtWidgets as QW
 from PyQt6 import QtCore as QC
 
@@ -16,16 +14,7 @@ from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.business_logic.background_worker import BackgroundWorker
 from battery_analysis.main.business_logic import excel_validator
 from battery_analysis.main.business_logic import filename_parser
-from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory, read_excel_file, analyze_single_excel
-
-
-def _read_excel_worker(file_path: str) -> dict:
-    """进程 worker：读取单个 Excel 返回 info。
-
-    模块级、不访问 self，确保 Windows spawn 下可 pickle。
-    缓存由主进程写入（_cache 不可跨进程共享）。
-    """
-    return read_excel_file(file_path)
+from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory
 
 
 class _MainThreadCallback(QC.QObject):
@@ -118,62 +107,6 @@ class DataProcessor:
             'max_directory': self.MAX_DIRECTORY_CACHE_SIZE,
             'max_validation': self.MAX_VALIDATION_CACHE_SIZE,
         }
-
-    def process_excel_with_pandas(self, file_path: str) -> dict:
-        cached = self._cache['excel_files'].get(file_path)
-        if cached is not None:
-            return cached
-
-        file_info = read_excel_file(file_path)
-        if file_info:
-            self._cache['excel_files'].put(file_path, file_info)
-        return file_info
-
-    def process_all_excel_files(self, directory: str) -> list:
-        try:
-            cached = self._cache['directory_files'].get(directory)
-            if cached is None:
-                listAllInXlsx = [f for f in os.listdir(directory) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-                self._cache['directory_files'].put(directory, listAllInXlsx)
-            else:
-                listAllInXlsx = cached
-
-            if not listAllInXlsx:
-                return []
-
-            from battery_analysis.utils.resource_manager import ResourceManager
-            excel_data = []
-            optimal_count = ResourceManager.get_optimal_process_count()
-            actual_count = min(optimal_count, len(listAllInXlsx))
-
-            with ProcessPoolExecutor(max_workers=actual_count) as executor:
-                futures = {
-                    executor.submit(_read_excel_worker, os.path.join(directory, f)): f
-                    for f in listAllInXlsx
-                }
-                for future in as_completed(futures):
-                    f = futures[future]
-                    try:
-                        info = future.result()
-                    except BrokenProcessPool:
-                        raise  # worker 进程崩溃（原生库 segfault/OOM）→ 外层串行回退兜底
-                    except Exception as e:  # pylint: disable=broad-exception-caught
-                        # 剩余可抛错误仅为 unpickle 反序列化失败；per-file 读取错误已由
-                        # read_excel_file 内部捕获返回 {}，此处按"不可读文件"跳过
-                        self.logger.warning("Skipped unreadable Excel file %s: %s", f, e)
-                        continue
-                    if info:
-                        self._cache['excel_files'].put(os.path.join(directory, f), info)
-                        excel_data.append(info)
-            return excel_data
-        except Exception:
-            excel_data = []
-            for f in os.listdir(directory):
-                if f[:2] != "~$" and f[-5:] == ".xlsx":
-                    info = self.process_excel_with_pandas(os.path.join(directory, f))
-                    if info:
-                        excel_data.append(info)
-            return excel_data
 
     def _scan_excel_files_task(self, input_dir, **kwargs):
         return [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
@@ -434,71 +367,3 @@ class DataProcessor:
         ]
         for key, row, col in mappings:
             set_item(key, row, col)
-
-    def update_config(self, test_info) -> None:
-        self.logger.info("Updating configuration")
-        if not hasattr(self.main_window, 'checker_update_config'):
-            from battery_analysis.main.main_window import Checker
-            self.main_window.checker_update_config = Checker()
-        self.main_window.checker_update_config.clear()
-
-    def analyze_data(self) -> None:
-        self.logger.info("Starting data analysis")
-        input_path = self.main_window.lineEdit_InputPath.text()
-        if not input_path:
-            QW.QMessageBox.warning(self.main_window, _("Warning"),
-                                   _("Please set the input path first."))
-            return
-
-        self.main_window.statusBar_BatteryAnalysis.showMessage(_("Analyzing data..."))
-
-        try:
-            cached = self._cache['directory_files'].get(input_path)
-            if cached is None:
-                excel_files = [f for f in os.listdir(input_path) if f[:2] != "~$" and f[-5:] == ".xlsx"]
-                self._cache['directory_files'].put(input_path, excel_files)
-            else:
-                excel_files = cached
-
-            if not excel_files:
-                QW.QMessageBox.information(self.main_window, _("Analysis Result"),
-                                           _("No Excel files found."))
-                return
-
-            from battery_analysis.utils.resource_manager import ResourceManager
-            all_data = []
-            optimal_count = ResourceManager.get_optimal_process_count()
-            actual_count = min(optimal_count, len(excel_files))
-
-            with ProcessPoolExecutor(max_workers=actual_count) as executor:
-                futures = {
-                    executor.submit(analyze_single_excel, os.path.join(input_path, f), f): f
-                    for f in excel_files
-                }
-                for future in as_completed(futures):
-                    result = future.result()
-                    if 'error' in result:
-                        self.logger.error("Analysis failed %s: %s", result['filename'], result['error'])
-                    else:
-                        all_data.append(result)
-
-            summary = {
-                'total_files': len(excel_files),
-                'successful_files': len(all_data),
-                'failed_files': len(excel_files) - len(all_data),
-                'total_records': sum(r['total_records'] for r in all_data),
-            }
-
-            msg = (f"Data analysis completed!\n\nTotal files: {summary['total_files']}\n"
-                   f"Successful: {summary['successful_files']}\n"
-                   f"Failed: {summary['failed_files']}\n"
-                   f"Total records: {summary['total_records']}\n\nDetailed results have been logged.")
-            QW.QMessageBox.information(self.main_window, _("Analysis Result"), msg)
-            self.logger.info("Data analysis summary: %s", summary)
-
-        except Exception as e:
-            self.logger.exception("Data analysis failed: %s", str(e))
-            QW.QMessageBox.critical(self.main_window, _("Error"),
-                                    _("Data analysis failed: {}").format(str(e)))
-        finally:
-            self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
