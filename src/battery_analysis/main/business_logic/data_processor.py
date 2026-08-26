@@ -134,6 +134,10 @@ class DataProcessor:
         is_valid, error_msg = validator.validate_input_directory(input_dir)
         if not is_valid:
             self.logger.error(error_msg)
+            # 对齐 version_manager else 分支：无效路径也推进代次并取消在途任务，
+            # 防在途旧 process 结果（generation 匹配旧值）误接受覆盖当前无效路径 UI。
+            self._scan_generation += 1
+            self._task_manager.cancel_all()
             if hasattr(self.main_window, 'checker_input_xlsx'):
                 self.main_window.checker_input_xlsx.set_error(error_msg)
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):

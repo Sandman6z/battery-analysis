@@ -88,18 +88,43 @@ class TestDataProcessor:
         """测试获取Excel文件信息时目录无效的情况"""
         # 设置模拟返回值
         self.mock_main_window.lineEdit_InputPath.text.return_value = 'non_existent_directory'
-        
+        self.processor._task_manager = MagicMock()
+
         # 模拟FileValidator
         with patch('battery_analysis.utils.file_validator.FileValidator') as mock_file_validator:
             mock_validator_instance = Mock()
             mock_validator_instance.validate_input_directory.return_value = (False, 'Directory not found')
             mock_file_validator.return_value = mock_validator_instance
-            
+
             # 调用方法
             self.processor.get_xlsxinfo()
 
             # 验证结果
             self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
+            # 无效路径也推进代次并取消在途任务，防旧结果误接受（对齐 version_manager else 分支）
+            assert self.processor._scan_generation == 1
+            self.processor._task_manager.cancel_all.assert_called_once()
+
+    def test_stale_result_after_invalid_dir_is_discarded(self):
+        """无效路径早退推进代次并取消在途任务：旧代次 process 结果被丢弃"""
+        self.mock_main_window.lineEdit_InputPath.text.return_value = 'non_existent_directory'
+        self.processor._scan_generation = 1  # gen 1 process 任务在途
+        self.processor._task_manager = MagicMock()
+        with patch('battery_analysis.utils.file_validator.FileValidator') as mock_file_validator:
+            mock_validator_instance = Mock()
+            mock_validator_instance.validate_input_directory.return_value = (False, 'Directory not found')
+            mock_file_validator.return_value = mock_validator_instance
+            self.processor.get_xlsxinfo()
+        # 无效路径 → 推进到 gen 2 并取消在途任务（对齐 version_manager else 分支）
+        assert self.processor._scan_generation == 2
+        self.processor._task_manager.cancel_all.assert_called_once()
+        # 旧代次（gen 1）process 结果此刻到达 → 守卫丢弃，不更新 UI 不解析首个文件
+        with patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui, \
+             patch.object(self.processor, '_process_first_excel_file') as mock_first:
+            self.processor._on_excel_files_processed(
+                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=1)
+        mock_ui.assert_not_called()
+        mock_first.assert_not_called()
 
     def test_get_xlsxinfo_valid_dir_cancels_inflight_tasks(self):
         """有效目录 → 先取消在途后台任务，避免旧目录结果误应用到新路径 UI"""
