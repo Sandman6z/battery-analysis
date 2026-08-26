@@ -9,8 +9,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable, Optional, Any
+from typing import Callable
 from PyQt6 import QtCore as QC
+
+
+class TaskCancelled(Exception):
+    """协作式取消信号——progress_callback 检测到取消请求时抛出，run() 捕获后中断任务。"""
 
 
 class TaskSignals(QC.QObject):
@@ -21,6 +25,12 @@ class TaskSignals(QC.QObject):
     error = QC.pyqtSignal(str)          # 错误消息
     cancelled = QC.pyqtSignal()
 
+    # P5-B：AnalysisWorker 并入的信号
+    info = QC.pyqtSignal(bool, int, str)     # (is_running, 状态码, 消息)
+    thread_end = QC.pyqtSignal()             # 分析线程结束
+    rename_path = QC.pyqtSignal(str)         # 输出目录重命名后的日期
+    start_visualizer = QC.pyqtSignal()       # 通知主线程启动可视化
+
 
 class TaskRunner(QC.QRunnable):
     """通用后台任务执行器。
@@ -29,6 +39,11 @@ class TaskRunner(QC.QRunnable):
         runner = TaskRunner(fn, arg1, arg2, progress_callback=on_progress)
         runner.signals.finished.connect(on_done)
         QThreadPool.globalInstance().start(runner)
+
+    协作式取消：cancel() 是 cancelled 信号的唯一发射者；取消只在 task_func 调用
+    progress_callback 时生效（每次调用检查标志，取消抛 TaskCancelled 中断）。
+    不调用 progress_callback 的 task_func 无法被中断，会在取消后跑完但其结果被丢弃
+    （finished 被抑制）。
     """
 
     def __init__(self, task_func: Callable, *args, progress_callback=None, **kwargs):
@@ -44,27 +59,27 @@ class TaskRunner(QC.QRunnable):
     def run(self):
         """执行任务（QRunnable 入口）。"""
         if self._cancelled:
-            self.signals.cancelled.emit()
             return
+
+        # 包装 progress_callback：每次调用检查取消标志，取消则抛 TaskCancelled
+        def wrapped_cb(pct, msg):
+            if self._cancelled:
+                raise TaskCancelled
+            self.signals.progress.emit(pct, msg)
+            if self._progress_cb is not None:
+                self._progress_cb(pct, msg)
 
         try:
             self.signals.started.emit()
-
-            # 包装 progress_callback
-            if self._progress_cb is None:
-                def default_progress(pct, msg):
-                    self.signals.progress.emit(pct, msg)
-                wrapped_cb = default_progress
-            else:
-                wrapped_cb = self._progress_cb
-
             result = self._task_func(
                 *self._args,
                 progress_callback=wrapped_cb,
-                **self._kwargs
+                **self._kwargs,
             )
             if not self._cancelled:
                 self.signals.finished.emit(result)
+        except TaskCancelled:
+            return
         except Exception as e:
             self.logger.error("Task execution failed: %s", e)
             self.signals.error.emit(str(e))
@@ -93,6 +108,7 @@ class TaskManager(QC.QObject):
         self._active.append(runner)
         runner.signals.finished.connect(lambda: self._on_done(runner))
         runner.signals.error.connect(lambda _: self._on_done(runner))
+        runner.signals.cancelled.connect(lambda: self._on_done(runner))
         self._pool.start(runner)
         return runner
 

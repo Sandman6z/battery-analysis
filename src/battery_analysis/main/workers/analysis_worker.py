@@ -1,43 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-电池分析工作线程模块
+电池分析工作线程模块（AnalysisWorker 继承 TaskRunner，信号并入 TaskSignals）
 """
 import os
-import sys
-import re
 import shutil
-import subprocess
 import logging
-from PyQt6 import QtCore as QC
+from battery_analysis.main.workers.task_runner import TaskRunner, TaskCancelled
 
 
-class _TaskCancelled(Exception):
-    """检测到取消请求时抛出，优雅退出 run()，避免逐行 if-return"""
-    pass
-
-
-class AnalysisWorker(QC.QRunnable):
+class AnalysisWorker(TaskRunner):
     """
-    电池分析工作线程类，继承自QRunnable
+    电池分析工作线程类，继承自 TaskRunner
     负责执行后台分析任务
     """
-    # 定义信号
-    class Signals(QC.QObject):
-        """
-        信号定义类
-        """
-        info = QC.pyqtSignal(bool, int, str)
-        thread_end = QC.pyqtSignal()
-        rename_path = QC.pyqtSignal(str)
-        progress_update = QC.pyqtSignal(int, str)  # 进度更新信号：进度值(0-100)，状态文本
-        start_visualizer = QC.pyqtSignal()  # 通知主线程启动可视化工具的信号
 
     def __init__(self):
         """
         初始化工作线程
         """
-        super().__init__()
-        self.signals = self.Signals()
+        super().__init__(self._run_placeholder)
         self.str_path = ""
         self.str_input_path = ""
         self.str_output_path = ""
@@ -49,12 +30,17 @@ class AnalysisWorker(QC.QRunnable):
         self.str_error_xlsx = ""
         self.str_test_date = ""
 
+    def _run_placeholder(self):
+        """占位 task_func：run() 被重写，不使用 task_func 机制。"""
+        return None
+
     def request_cancel(self):
         """
-        请求取消任务
+        请求取消任务（协作式：下次进度检查点生效）
         """
         self.b_cancel_requested = True
-        self.signals.progress_update.emit(self.progress_value, "Canceling task...")
+        self.cancel()  # TaskRunner.cancel()：设 _cancelled + 发 cancelled 信号
+        self.signals.progress.emit(self.progress_value, "Canceling task...")
 
     def set_info(self, str_path, str_input_path, str_output_path, test_info):
         """
@@ -76,23 +62,16 @@ class AnalysisWorker(QC.QRunnable):
         更新进度值并检查取消请求
 
         将「设置进度→发射信号→检查取消」三步合并为一行，
-        检测到取消时抛出 _TaskCancelled，由 run() 顶层的 except 统一捕获退出。
+        检测到取消时抛出 TaskCancelled，由 run() 顶层的 except 统一捕获退出。
         每个进度点只需一行 self._emit_progress(...)，无需逐行 if-return。
         """
         self.progress_value = value
         try:
-            self.signals.progress_update.emit(value, status)
+            self.signals.progress.emit(value, status)
         except RuntimeError:
-            raise _TaskCancelled from None
-        if self.b_cancel_requested:
-            raise _TaskCancelled
-
-    def _emit_info_safe(self, is_running, state_index, message):
-        """安全发射 info 信号，忽略信号对象已删除的异常"""
-        try:
-            self.signals.info.emit(is_running, state_index, message)
-        except RuntimeError:
-            pass
+            raise TaskCancelled from None
+        if self.b_cancel_requested or self._cancelled:
+            raise TaskCancelled
 
     def run(self):
         """
@@ -260,7 +239,7 @@ class AnalysisWorker(QC.QRunnable):
                     logging.error("An error occurred during file writing: %s", e)
                     self.str_error_xlsx = f"File writing error: {str(e)}"
 
-        except _TaskCancelled:
+        except TaskCancelled:
             return
         except Exception as e:
             # 捕获所有异常，包括自定义的 BatteryAnalysisException
@@ -271,7 +250,7 @@ class AnalysisWorker(QC.QRunnable):
             self.b_thread_run = False
             # 发送完成状态（取消的任务发 cancelled 信号，其他正常上报）
             try:
-                if self.b_cancel_requested:
+                if self.b_cancel_requested or self._cancelled:
                     self.signals.info.emit(False, 0, "status:cancelled")
                 elif self.str_error_battery != "":
                     self.signals.info.emit(False, 1, self.str_error_battery)
@@ -293,5 +272,3 @@ class AnalysisWorker(QC.QRunnable):
                 self.signals.start_visualizer.emit()
         except RuntimeError as e:
             logging.warning("Signal object already deleted, cannot emit start visualizer signal: %s", e)
-        except RuntimeError as e:
-            logging.error("An error occurred while emitting start visualizer signal: %s", e)

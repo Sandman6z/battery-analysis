@@ -13,10 +13,7 @@ import csv
 import logging
 from pathlib import Path
 
-from PyQt6 import QtCore as QC
-
-from battery_analysis.main.business_logic.background_worker import BackgroundWorker
-from battery_analysis.main.business_logic.data_processor import _MainThreadCallback
+from battery_analysis.main.workers.task_runner import TaskRunner, TaskManager
 
 
 class VersionManager:
@@ -35,9 +32,8 @@ class VersionManager:
         self.main_window = main_window
         self._ctx = ctx
         self.logger = logging.getLogger(__name__)
-        self._background_thread = None
-        self._background_worker = None
-        self._checksum_input_dir = None
+        self._checksum_generation = 0
+        self._task_manager = TaskManager()
 
     def get_version(self) -> None:
         """
@@ -49,14 +45,18 @@ class VersionManager:
         strInPutDir = self.main_window.lineEdit_InputPath.text()
         strOutoutDir = self.main_window.lineEdit_OutputPath.text()
         if os.path.exists(strInPutDir) and os.path.exists(strOutoutDir):
-            self._checksum_input_dir = strInPutDir
-            self.run_in_background(
+            self._checksum_generation += 1
+            generation = self._checksum_generation
+            self._task_manager.cancel_all()  # 取消在途旧校验和任务（B2 确立模式）
+            self._run_async(
                 self._calc_checksum_task,
-                self._on_checksum_ready,
-                self._on_checksum_error,
+                lambda checksum, g=generation: self._on_checksum_ready(checksum, g),
+                lambda error, g=generation: self._on_checksum_error(error, g),
                 strInPutDir,
             )
         else:
+            self._checksum_generation += 1
+            self._task_manager.cancel_all()  # 目录失效也推进代次并取消在途任务，防旧结果误接受
             self.main_window.lineEdit_Version.setText("")
 
     def _calc_checksum_task(self, strInPutDir, **kwargs):
@@ -72,12 +72,10 @@ class VersionManager:
         from battery_analysis.main.utils.file_utils import FileUtils
         return FileUtils.calc_checksum(listAllInXlsx)
 
-    def _on_checksum_ready(self, checksum):
+    def _on_checksum_ready(self, checksum, generation):
         """主线程：校验和计算完成后的版本号落盘 + UI 更新"""
-        # 过期结果守卫（roadmap #9 异步化后）：用户已切换输入路径时，
-        # 丢弃旧目录的校验和结果，避免覆盖新目录的 checksum/CSV/版本号。
-        if (self._checksum_input_dir is not None
-                and self.main_window.lineEdit_InputPath.text() != self._checksum_input_dir):
+        # 过期结果守卫（generation 精确匹配）：用户已切换输入路径时丢弃旧代次结果。
+        if generation != self._checksum_generation:
             self.logger.info("Discarding stale checksum result for changed input path")
             return
 
@@ -187,38 +185,26 @@ class VersionManager:
             # 后台派发后不再有 _deferred_init 的 try/except 兜底，这里主动记录
             self.logger.error("Failed to finalize version after checksum: %s", e)
 
-    def _on_checksum_error(self, error_msg):
+    def _on_checksum_error(self, error_msg, generation):
         """主线程：校验和计算异常兜底"""
+        # 过期结果守卫：丢弃旧代次错误兜底（与 _on_checksum_ready 一致）
+        if generation != self._checksum_generation:
+            self.logger.debug("Discarding stale checksum error for changed input path")
+            return
         self.logger.error("Failed to compute SHA-256 checksum: %s", error_msg)
         if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
             self.main_window.statusBar_BatteryAnalysis.showMessage(
                 "[Error]: Failed to compute checksum")
 
-    def run_in_background(self, task_func, on_finished, on_error, *args, **kwargs):
-        """QThread + BackgroundWorker 执行后台任务，回调经 QueuedConnection 切回主线程"""
-        self._cleanup_background_thread()
-        self._background_thread = QC.QThread()
-        self._background_worker = BackgroundWorker(task_func, *args, **kwargs)
-        self._background_worker.moveToThread(self._background_thread)
-
-        self._background_thread.started.connect(self._background_worker.run)
-        self._background_worker.finished.connect(self._background_thread.quit)
-        self._background_worker.finished.connect(self._background_worker.deleteLater)
-        self._background_thread.finished.connect(self._background_thread.deleteLater)
+    def _run_async(self, task_func, on_finished, on_error, *args, **kwargs):
+        """TaskRunner 派发：回调经 TaskSignals 自动回主线程（AutoConnection Queued）。"""
+        runner = TaskRunner(task_func, *args, **kwargs)
         if on_finished:
-            self._background_worker.finished.connect(_MainThreadCallback(on_finished))
+            runner.signals.finished.connect(on_finished)
         if on_error:
-            self._background_worker.error.connect(_MainThreadCallback(on_error))
-        self._background_thread.start()
-
-    def _cleanup_background_thread(self):
-        if self._background_thread and self._background_thread.isRunning():
-            self._background_thread.quit()
-            self._background_thread.wait(1000)
-            if self._background_thread.isRunning():
-                self._background_thread.terminate()
-        self._background_thread = None
-        self._background_worker = None
+            runner.signals.error.connect(on_error)
+        self._task_manager.submit(runner)
+        return runner
 
     def set_version(self) -> None:
         """
