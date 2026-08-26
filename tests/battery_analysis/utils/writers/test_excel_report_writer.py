@@ -441,6 +441,12 @@ class TestWriteSampleExcel:
         assert "LCO-ICR18650" in content_calls
         assert "Ewin" in content_calls  # Manufacturer
 
+    def test_percentage_formula_uses_capacity_cell(self, writer, sample, stats, fmts):
+        ws = MagicMock()
+        writer._write_sample_excel(ws, sample, stats, fmts)
+        formulas = [c.args[1] for c in ws.write_formula.call_args_list]
+        assert "=TRUNC(M3/J3, 2)" in formulas
+
 
 # ── _write_sample_word ──
 
@@ -470,6 +476,11 @@ class TestWriteSampleWord:
         writer._write_sample_word(ws, sample, stats, fmts)
         assert ws.write.call_count > 0 or ws.merge_range.call_count > 0
 
+    def test_percentage_formula_uses_excel_capacity_row(self, writer, sample, stats, fmts):
+        ws = MagicMock()
+        writer._write_sample_word(ws, sample, stats, fmts)
+        formulas = [c.args[1] for c in ws.write_formula.call_args_list]
+        assert "=TRUNC(B13/B10, 2)" in formulas
 
 # ── write() 主入口 ──
 

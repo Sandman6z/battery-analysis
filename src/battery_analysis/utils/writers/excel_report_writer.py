@@ -422,7 +422,7 @@ class ExcelReportWriter:
             wsExcel.write(2, col, f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}", fmt_val)
             wsExcel.write_formula(
                 f"{excel_utils.num2letter(col + 1)}3",
-                f"=TRUNC({excel_utils.num2letter(col + 1)}3/"
+                f"=TRUNC({excel_utils.num2letter(col)}3/"
                 f"{excel_utils.num2letter(intTestProfileStartLine + 6)}3, 2)",
                 fmt_pct)
 
