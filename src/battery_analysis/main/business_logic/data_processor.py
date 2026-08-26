@@ -11,12 +11,13 @@ from PyQt6 import QtCore as QC
 
 from battery_analysis.i18n.language_manager import _
 from battery_analysis.main.business_logic.cache import LRUCache
-from battery_analysis.main.business_logic.background_worker import BackgroundWorker
+from battery_analysis.main.workers.task_runner import TaskRunner, TaskManager
 from battery_analysis.main.business_logic import excel_validator
 from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory
 
 
+# 保留至 B4 删除（version_manager.py:19 仍 import；B3 迁移后清零）。
 class _MainThreadCallback(QC.QObject):
     """确保回调在 Qt 主线程执行的信号中继器
 
@@ -55,9 +56,8 @@ class DataProcessor:
             'directory_files': LRUCache(self.MAX_DIRECTORY_CACHE_SIZE),
             'file_validation': LRUCache(self.MAX_VALIDATION_CACHE_SIZE),
         }
-        self._background_thread = None
-        self._background_worker = None
-        self._scanning_input_dir = None
+        self._scan_generation = 0
+        self._task_manager = TaskManager()
 
     def _invalidate_cache(self, path=None):
         if path:
@@ -73,30 +73,15 @@ class DataProcessor:
         self._invalidate_cache()
         self.logger.info("DataProcessor cache cleared")
 
-    def _cleanup_background_thread(self):
-        if self._background_thread and self._background_thread.isRunning():
-            self._background_thread.quit()
-            self._background_thread.wait(1000)
-            if self._background_thread.isRunning():
-                self._background_thread.terminate()
-        self._background_thread = None
-        self._background_worker = None
-
-    def run_in_background(self, task_func, on_finished, on_error, *args, **kwargs):
-        self._cleanup_background_thread()
-        self._background_thread = QC.QThread()
-        self._background_worker = BackgroundWorker(task_func, *args, **kwargs)
-        self._background_worker.moveToThread(self._background_thread)
-
-        self._background_thread.started.connect(self._background_worker.run)
-        self._background_worker.finished.connect(self._background_thread.quit)
-        self._background_worker.finished.connect(self._background_worker.deleteLater)
-        self._background_thread.finished.connect(self._background_thread.deleteLater)
+    def _run_async(self, task_func, on_finished, on_error, *args, **kwargs):
+        """TaskRunner 派发：回调经 TaskSignals 自动回主线程（AutoConnection Queued）。"""
+        runner = TaskRunner(task_func, *args, **kwargs)
         if on_finished:
-            self._background_worker.finished.connect(_MainThreadCallback(on_finished))
+            runner.signals.finished.connect(on_finished)
         if on_error:
-            self._background_worker.error.connect(_MainThreadCallback(on_error))
-        self._background_thread.start()
+            runner.signals.error.connect(on_error)
+        self._task_manager.submit(runner)
+        return runner
 
     def get_cache_stats(self):
         return {
@@ -114,18 +99,19 @@ class DataProcessor:
     def _on_scan_finished(self, excel_files):
         input_dir = self.main_window.lineEdit_InputPath.text()
         self._cache['directory_files'].put(input_dir, excel_files)
-        self._scanning_input_dir = input_dir
+        self._scan_generation += 1
+        generation = self._scan_generation
 
         if not excel_files:
             self._handle_no_excel_files(input_dir)
             return
 
-        # 逐文件 pd.read_excel 校验是重活，放后台线程执行；回调在
-        # 主线程弹窗/更新 UI（roadmap #9）。
-        self.run_in_background(
+        # 逐文件 pd.read_excel 校验是重活，放后台线程执行；回调经
+        # TaskSignals 自动回主线程弹窗/更新 UI（roadmap #9）。
+        self._run_async(
             self._process_excel_files_task,
-            self._on_excel_files_processed,
-            self._on_excel_files_process_error,
+            lambda result, g=generation: self._on_excel_files_processed(result, g),
+            lambda error, g=generation: self._on_excel_files_process_error(error, g),
             input_dir, excel_files,
         )
 
@@ -154,12 +140,17 @@ class DataProcessor:
                 self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {error_msg.split(':')[0]}")
             return
 
+        # 新扫描请求会切换 UI 目标：取消在途 process/scan 任务（协作式，逐文件
+        # progress_callback 检查点抛 TaskCancelled），避免旧目录结果在新目录 scan
+        # 完成前误放行到新 UI；generation guard 仍作兜底。
+        self._task_manager.cancel_all()
+
         cached = self._cache['directory_files'].get(input_dir)
         if cached is None:
             if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
                 self.main_window.statusBar_BatteryAnalysis.showMessage("Scanning Excel files...")
-            self.run_in_background(self._scan_excel_files_task, self._on_scan_finished,
-                                   self._on_scan_error, input_dir)
+            self._run_async(self._scan_excel_files_task, self._on_scan_finished,
+                            self._on_scan_error, input_dir)
         else:
             self._on_scan_finished(cached)
 
@@ -196,15 +187,18 @@ class DataProcessor:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
                 _("[Error]: Input path has no data"))
 
-    def _process_excel_files_task(self, input_dir, excel_files, **kwargs):
+    def _process_excel_files_task(self, input_dir, excel_files, progress_callback=None, **kwargs):
         """后台线程：逐文件验证并提取 Excel 元信息（不触碰任何 UI）。
 
-        返回 (excel_files, excel_data, error_files)；progress_callback 由
-        TaskRunner 强制注入，此处忽略。
+        progress_callback 由 TaskRunner 注入，每次调用即协作式取消检查点。
+        返回 (excel_files, excel_data, error_files)。
         """
         excel_data = []
         error_files = []
-        for filename in excel_files:
+        for index, filename in enumerate(excel_files):
+            if progress_callback:
+                progress_callback(int((index + 1) / len(excel_files) * 100),
+                                  f"Validating {filename}...")
             file_path = os.path.join(input_dir, filename)
             is_valid, error_msg, df = excel_validator.validate_excel_file(
                 file_path, filename, self._cache['file_validation'], optimize_dataframe_memory)
@@ -222,11 +216,10 @@ class DataProcessor:
             excel_data.append(file_info)
         return excel_files, excel_data, error_files
 
-    def _on_excel_files_processed(self, result):
+    def _on_excel_files_processed(self, result, generation):
         """主线程：_process_excel_files_task 完成后的 UI 更新"""
-        # 过期结果守卫（roadmap #9 异步化后）：用户已切换输入路径时，
-        # 丢弃旧路径的慢解析结果，避免覆盖新路径 UI。
-        if self.main_window.lineEdit_InputPath.text() != self._scanning_input_dir:
+        # 过期结果守卫（generation 精确匹配）：用户已切换输入路径时丢弃旧代次结果。
+        if generation != self._scan_generation:
             self.logger.info("Discarding stale Excel parse result for changed input path")
             return
 
@@ -267,10 +260,10 @@ class DataProcessor:
             self._process_first_excel_file(excel_data[0]['filename'])
         self._reconnect_specification_signals()
 
-    def _on_excel_files_process_error(self, error_msg):
+    def _on_excel_files_process_error(self, error_msg, generation):
         """主线程：后台任务异常兜底"""
-        # 过期结果守卫：用户已切换输入路径时，丢弃旧路径的错误兜底。
-        if self.main_window.lineEdit_InputPath.text() != self._scanning_input_dir:
+        # 过期结果守卫（generation 精确匹配）：用户已切换输入路径时丢弃旧代次错误。
+        if generation != self._scan_generation:
             self.logger.info("Discarding stale Excel parse result for changed input path")
             return
         self.logger.error("Failed to process Excel files: %s", error_msg)

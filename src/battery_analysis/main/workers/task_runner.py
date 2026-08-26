@@ -102,6 +102,7 @@ class TaskManager(QC.QObject):
         self._active.append(runner)
         runner.signals.finished.connect(lambda: self._on_done(runner))
         runner.signals.error.connect(lambda _: self._on_done(runner))
+        runner.signals.cancelled.connect(lambda: self._on_done(runner))
         self._pool.start(runner)
         return runner
 

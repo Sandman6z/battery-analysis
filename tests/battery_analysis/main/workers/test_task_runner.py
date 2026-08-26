@@ -1,7 +1,9 @@
 """TaskRunner 单元测试——执行/错误/进度/协作式取消"""
+from unittest.mock import Mock, patch
+
 from PyQt6.QtTest import QSignalSpy
 
-from battery_analysis.main.workers.task_runner import TaskRunner
+from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
 
 
 def test_success_emits_finished_with_result():
@@ -94,3 +96,16 @@ def test_no_progress_task_completes_but_finished_suppressed():
     runner.run()
     assert calls == ["ran"]         # task 无取消点，仍跑完
     assert len(spy) == 0            # finished 被抑制
+
+
+def test_cancelled_runner_removed_from_active():
+    """cancel() 后 runner 从 _active 移除（cancelled → _on_done 连接）"""
+    mock_pool = Mock()
+    with patch('battery_analysis.main.workers.task_runner.QC.QThreadPool.globalInstance',
+               return_value=mock_pool):
+        mgr = TaskManager()
+        runner = TaskRunner(lambda progress_callback=None, **kwargs: None)
+        mgr.submit(runner)
+    assert mgr.active_count == 1
+    runner.cancel()
+    assert mgr.active_count == 0

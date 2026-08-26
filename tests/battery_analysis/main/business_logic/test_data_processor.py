@@ -2,7 +2,7 @@
 测试数据处理器模块的功能
 """
 import pandas as pd
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 from battery_analysis.main.business_logic.data_processor import DataProcessor
 
 
@@ -101,24 +101,41 @@ class TestDataProcessor:
             # 验证结果
             self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
 
-    def test_on_scan_finished_dispatches_background_processing(self):
-        """扫描完成 → 后台线程处理 Excel 解析，主线程不阻塞"""
+    def test_get_xlsxinfo_valid_dir_cancels_inflight_tasks(self):
+        """有效目录 → 先取消在途后台任务，避免旧目录结果误应用到新路径 UI"""
         self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
-        with patch.object(self.processor, 'run_in_background') as mock_run:
+        self.processor._task_manager = MagicMock()
+        with patch('battery_analysis.utils.file_validator.FileValidator') as mock_file_validator:
+            mock_validator_instance = Mock()
+            mock_validator_instance.validate_input_directory.return_value = (True, 'ok')
+            mock_file_validator.return_value = mock_validator_instance
+            self.processor.get_xlsxinfo()
+        self.processor._task_manager.cancel_all.assert_called_once()
+
+    def test_on_scan_finished_dispatches_background_processing(self):
+        """扫描完成 → TaskRunner 派发后台处理，主线程不阻塞"""
+        self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        with patch.object(self.processor, '_run_async') as mock_run:
             self.processor._on_scan_finished(['a.xlsx', 'b.xlsx'])
         mock_run.assert_called_once()
         task_func, on_finished, on_error, input_dir, excel_files = mock_run.call_args[0]
         assert task_func == self.processor._process_excel_files_task
-        assert on_finished == self.processor._on_excel_files_processed
-        assert on_error == self.processor._on_excel_files_process_error
         assert input_dir == '/fake/dir'
         assert excel_files == ['a.xlsx', 'b.xlsx']
-        assert self.processor._scanning_input_dir == '/fake/dir'
+        assert self.processor._scan_generation == 1
+        # 回调是 closure：验证转发到同名方法并携带代次
+        result = (['a.xlsx'], [{'filename': 'a.xlsx'}], [])
+        with patch.object(self.processor, '_on_excel_files_processed') as mock_processed:
+            on_finished(result)
+        mock_processed.assert_called_once_with(result, 1)
+        with patch.object(self.processor, '_on_excel_files_process_error') as mock_error:
+            on_error('boom')
+        mock_error.assert_called_once_with('boom', 1)
 
     def test_on_scan_finished_empty_files_no_background(self):
         """无文件 → 走 _handle_no_excel_files，不派发后台任务"""
         with patch.object(self.processor, '_handle_no_excel_files') as mock_handle, \
-             patch.object(self.processor, 'run_in_background') as mock_run:
+             patch.object(self.processor, '_run_async') as mock_run:
             self.processor._on_scan_finished([])
         mock_handle.assert_called_once()
         mock_run.assert_not_called()
@@ -144,14 +161,13 @@ class TestDataProcessor:
 
     def test_on_excel_files_processed_success(self):
         """处理成功 → 更新 UI + 解析首个文件 + 重连规格信号"""
-        self.processor._scanning_input_dir = '/fake/dir'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        self.processor._scan_generation = 5
         excel_files = ['a.xlsx']
         excel_data = [{'filename': 'a.xlsx'}]
         with patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui, \
              patch.object(self.processor, '_process_first_excel_file') as mock_first, \
              patch.object(self.processor, '_reconnect_specification_signals') as mock_reconnect:
-            self.processor._on_excel_files_processed((excel_files, excel_data, []))
+            self.processor._on_excel_files_processed((excel_files, excel_data, []), generation=5)
         mock_ui.assert_called_once_with(excel_files, excel_data)
         mock_first.assert_called_once_with('a.xlsx')
         mock_reconnect.assert_called_once()
@@ -162,11 +178,10 @@ class TestDataProcessor:
         注：(['a.xlsx'], [], []) 是 _process_excel_files_task 不可能返回的组合
         （非空 excel_files 时每文件必进一个桶），此处仅用于隔离 not excel_data 分支。
         """
-        self.processor._scanning_input_dir = '/fake/dir'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        self.processor._scan_generation = 5
         self.mock_main_window.checker_input_xlsx = Mock()
         with patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui:
-            self.processor._on_excel_files_processed((['a.xlsx'], [], []))
+            self.processor._on_excel_files_processed((['a.xlsx'], [], []), generation=5)
         mock_ui.assert_not_called()
         self.mock_main_window.checker_input_xlsx.set_error.assert_called()
         self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
@@ -174,42 +189,50 @@ class TestDataProcessor:
     def test_on_excel_files_processed_shows_error_dialog(self):
         """存在错误文件 → 主线程弹 QMessageBox 明细"""
         from battery_analysis.main.business_logic import data_processor as dp
-        self.processor._scanning_input_dir = '/fake/dir'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        self.processor._scan_generation = 5
         mock_msgbox = Mock()
         with patch.object(dp.QW, 'QMessageBox', return_value=mock_msgbox):
-            self.processor._on_excel_files_processed((['a.xlsx'], [], [('a.xlsx', 'bad format')]))
+            self.processor._on_excel_files_processed(
+                (['a.xlsx'], [], [('a.xlsx', 'bad format')]), generation=5)
         mock_msgbox.exec.assert_called_once()
         mock_msgbox.setDetailedText.assert_called_once()
 
+    def test_stale_generation_result_is_discarded(self):
+        """旧代次结果被丢弃（守卫拦截，UI 零访问）"""
+        dp = DataProcessor()
+        dp.main_window = MagicMock()
+        dp._scan_generation = 5
+        # 旧代次：守卫在触碰 main_window 之前 return——若守卫失效，
+        # _update_ui_with_excel_info 会 setText lineEdit_SamplesQty，断言即失败。
+        dp._on_excel_files_processed((["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=4)
+        dp.main_window.lineEdit_SamplesQty.assert_not_called()
+
     def test_on_excel_files_processed_discards_stale_result(self):
-        """输入路径已变更 → 丢弃旧路径的解析结果，不更新 UI"""
-        self.processor._scanning_input_dir = '/old/dir'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = '/new/dir'
+        """旧代次 → 丢弃解析结果，不更新 UI 不解析首个文件"""
+        self.processor._scan_generation = 5
         with patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui, \
              patch.object(self.processor, '_process_first_excel_file') as mock_first, \
              patch.object(self.processor, '_reconnect_specification_signals') as mock_reconnect:
-            self.processor._on_excel_files_processed((['a.xlsx'], [{'filename': 'a.xlsx'}], []))
+            self.processor._on_excel_files_processed(
+                (['a.xlsx'], [{'filename': 'a.xlsx'}], []), generation=4)
         mock_ui.assert_not_called()
         mock_first.assert_not_called()
         mock_reconnect.assert_not_called()
 
     def test_on_excel_files_process_error_discards_stale_result(self):
-        """输入路径已变更 → 错误兜底同样丢弃"""
-        self.processor._scanning_input_dir = '/old/dir'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = '/new/dir'
+        """旧代次 → 错误兜底同样丢弃"""
+        self.processor._scan_generation = 5
         with patch.object(self.processor.logger, 'error') as mock_log:
-            self.processor._on_excel_files_process_error('boom')
+            self.processor._on_excel_files_process_error('boom', generation=4)
         mock_log.assert_not_called()
 
     def test_on_excel_files_process_error_sets_ui_and_reconnects(self):
         """后台任务异常 → 记录日志 + checker/状态栏报错 + 重连规格信号"""
-        self.processor._scanning_input_dir = '/fake/dir'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        self.processor._scan_generation = 5
         self.mock_main_window.checker_input_xlsx = Mock()
         with patch.object(self.processor, '_reconnect_specification_signals') as mock_reconnect, \
              patch.object(self.processor.logger, 'error') as mock_log:
-            self.processor._on_excel_files_process_error('boom')
+            self.processor._on_excel_files_process_error('boom', generation=5)
         mock_log.assert_called_once()
         self.mock_main_window.checker_input_xlsx.set_error.assert_called()
         self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
@@ -219,15 +242,14 @@ class TestDataProcessor:
         """部分成功部分失败 → 既弹错误框，也用有效文件更新 UI"""
         from battery_analysis.main.business_logic import data_processor as dp
         mock_msgbox = Mock()
-        self.processor._scanning_input_dir = '/fake/dir'
-        self.mock_main_window.lineEdit_InputPath.text.return_value = '/fake/dir'
+        self.processor._scan_generation = 5
         self.mock_main_window.checker_input_xlsx = Mock()
         with patch.object(dp.QW, 'QMessageBox', return_value=mock_msgbox), \
              patch.object(self.processor, '_update_ui_with_excel_info') as mock_ui, \
              patch.object(self.processor, '_process_first_excel_file') as mock_first, \
              patch.object(self.processor, '_reconnect_specification_signals') as mock_reconnect:
             self.processor._on_excel_files_processed(
-                (['a.xlsx', 'b.xlsx'], [{'filename': 'a.xlsx'}], [('b.xlsx', 'bad')]))
+                (['a.xlsx', 'b.xlsx'], [{'filename': 'a.xlsx'}], [('b.xlsx', 'bad')]), generation=5)
         mock_msgbox.exec.assert_called_once()
         mock_ui.assert_called_once_with(['a.xlsx', 'b.xlsx'], [{'filename': 'a.xlsx'}])
         mock_first.assert_called_once_with('a.xlsx')  # Fix 4 生效后是 excel_data[0]['filename']
