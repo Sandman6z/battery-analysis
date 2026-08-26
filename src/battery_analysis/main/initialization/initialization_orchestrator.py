@@ -95,6 +95,8 @@ class InitializationOrchestrator:
             (是否全部成功, 成功数, 失败数)
         """
         # 按优先级分组（同优先级步骤依次执行）
+        # 防回归：当前所有已注册 phase 内优先级互异（len(group) > 1 恒不成立），
+        # 平行执行分支已于 P5-A Task 4 删除；若未来注册同优先级步骤将顺序执行。
         priority_groups: Dict[int, List[InitializationStep]] = {}
         for step in steps:
             p = step.get_priority()

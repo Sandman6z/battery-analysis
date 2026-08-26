@@ -56,7 +56,7 @@ PHASE_LAUNCH = "Startup Complete"
 class InitializationManager:
     """
     初始化管理器
-    将 12 个初始化步骤按职责划分为 4 个阶段，阶段内同优先级步骤可并行执行
+    将 12 个初始化步骤按职责划分为 4 个阶段，阶段内步骤按优先级顺序执行
     """
 
     def __init__(self, main_window):
@@ -79,7 +79,7 @@ class InitializationManager:
         """
 
         # ── 阶段 1: 环境准备 ──────────────────────────────
-        # 所有步骤无依赖关系，理想并行
+        # 所有步骤无依赖关系，按序执行
         self._orchestrator.register_steps(
             [
                 BasicAttributesInitializationStep(),
