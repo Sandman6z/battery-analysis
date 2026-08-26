@@ -80,7 +80,7 @@ class MainController(QC.QObject):
         )
 
         # 连接信号
-        self.current_worker.signals.progress_update.connect(
+        self.current_worker.signals.progress.connect(
             self._on_progress_update)
         self.current_worker.signals.info.connect(self._on_status_changed)
         self.current_worker.signals.thread_end.connect(

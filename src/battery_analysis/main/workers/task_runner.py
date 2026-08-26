@@ -25,6 +25,12 @@ class TaskSignals(QC.QObject):
     error = QC.pyqtSignal(str)          # 错误消息
     cancelled = QC.pyqtSignal()
 
+    # P5-B：AnalysisWorker 并入的信号
+    info = QC.pyqtSignal(bool, int, str)     # (is_running, 状态码, 消息)
+    thread_end = QC.pyqtSignal()             # 分析线程结束
+    rename_path = QC.pyqtSignal(str)         # 输出目录重命名后的日期
+    start_visualizer = QC.pyqtSignal()       # 通知主线程启动可视化
+
 
 class TaskRunner(QC.QRunnable):
     """通用后台任务执行器。
