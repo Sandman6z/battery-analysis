@@ -3,11 +3,10 @@
 初始化协调器
 
 负责管理和执行所有初始化步骤，支持按阶段分组的模块化初始化流程。
-阶段顺序执行，阶段内步骤按优先级排序（同优先级可并行）。
+阶段顺序执行，阶段内步骤按优先级排序。
 """
 
 import logging
-import concurrent.futures
 from typing import Dict, List, Optional, Tuple
 from battery_analysis.main.initialization.initialization_step import InitializationStep
 
@@ -85,7 +84,7 @@ class InitializationOrchestrator:
     def _execute_phase(self, phase_name: str, steps: List[InitializationStep],
                        main_window) -> Tuple[bool, int, int]:
         """
-        执行单个阶段内的所有步骤（按优先级分组，同优先级并行）
+        执行单个阶段内的所有步骤（按优先级分组执行）
 
         Args:
             phase_name: 阶段名称
@@ -95,7 +94,9 @@ class InitializationOrchestrator:
         Returns:
             (是否全部成功, 成功数, 失败数)
         """
-        # 按优先级分组（同优先级步骤可并行执行）
+        # 按优先级分组（同优先级步骤依次执行）
+        # 防回归：当前所有已注册 phase 内优先级互异（len(group) > 1 恒不成立），
+        # 平行执行分支已于 P5-A Task 4 删除；若未来注册同优先级步骤将顺序执行。
         priority_groups: Dict[int, List[InitializationStep]] = {}
         for step in steps:
             p = step.get_priority()
@@ -113,10 +114,8 @@ class InitializationOrchestrator:
             if not group:
                 continue
 
-            if len(group) == 1:
-                self._execute_step(group[0], main_window)
-            else:
-                self._execute_parallel(group, main_window)
+            for step in group:
+                self._execute_step(step, main_window)
 
             for step in group:
                 if self._executed_steps.get(step.get_name(), False):
@@ -141,23 +140,6 @@ class InitializationOrchestrator:
         except Exception as e:
             self.logger.exception("Exception executing step: %s", step.get_name())
             self._executed_steps[step.get_name()] = False
-
-    def _execute_parallel(self, steps: List[InitializationStep], main_window) -> None:
-        """并行执行一组步骤"""
-        step_names = [s.get_name() for s in steps]
-        self.logger.info("  Executing in parallel: %s", ", ".join(step_names))
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future_to_step = {
-                executor.submit(self._execute_step, step, main_window): step
-                for step in steps
-            }
-            for future in concurrent.futures.as_completed(future_to_step):
-                try:
-                    future.result()
-                except Exception as e:
-                    step = future_to_step[future]
-                    self.logger.exception("Exception getting step execution result: %s", step.get_name())
 
     # ── 查询与维护 ──────────────────────────────────────
 

@@ -1,6 +1,5 @@
 """可视化管理器模块"""
 import logging
-import matplotlib.pyplot as plt
 from PyQt6 import QtWidgets as QW
 from battery_analysis.main.app_context import AppContext, UIBridge
 
@@ -91,6 +90,8 @@ class VisualizationManager:
 
     def _cleanup_matplotlib_resources(self):
         """清理matplotlib资源"""
+        import matplotlib.pyplot as plt
+
         try:
             plt.close('all')
         except (ImportError, RuntimeError) as e:

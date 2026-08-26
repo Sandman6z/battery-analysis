@@ -35,8 +35,6 @@ def __getattr__(name):
         'InputValidator': ('battery_analysis.utils.input_validator', 'InputValidator'),
         'ValidationResult': ('battery_analysis.utils.input_validator', 'ValidationResult'),
         'FieldValues': ('battery_analysis.utils.input_validator', 'FieldValues'),
-        'DomainEventBus': ('battery_analysis.utils.domain_events', 'DomainEventBus'),
-        'DomainEvent': ('battery_analysis.utils.domain_events', 'DomainEvent'),
         'AppConfigSchema': ('battery_analysis.utils.config_schema', 'AppConfigSchema'),
         'run_migrations': ('battery_analysis.utils.config_migration', 'run_migrations'),
     }

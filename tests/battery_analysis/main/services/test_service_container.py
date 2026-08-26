@@ -5,9 +5,9 @@
 ServiceContext/MultiServiceContext）简化为简单工厂模式。服务实例通过
 _initialize_services() 显式创建，register() 不再支持动态注册。
 """
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from battery_analysis.main.services.service_container import ServiceContainer, get_service_container
+from battery_analysis.main.services.service_container import (
+    ServiceContainer, Services, get_service_container,
+)
 
 
 class TestServiceContainer:
@@ -44,16 +44,6 @@ class TestServiceContainer:
         """测试 has 对未知服务返回 False"""
         assert self.container.has('nonexistent_service') is False
 
-    def test_register_is_deprecated(self):
-        """测试 register 已弃用，返回 False 而非注册"""
-        class TestService:
-            pass
-
-        result = self.container.register('test_service', TestService)
-        assert result is False
-        # 注册不会生效
-        assert self.container.has('test_service') is False
-
     def test_get_global_service_container(self):
         """测试获取全局服务容器"""
         global_container = get_service_container()
@@ -64,10 +54,10 @@ class TestServiceContainer:
         """测试全局容器是单例"""
         assert get_service_container() is get_service_container()
 
-    def test_register_invalid_service(self):
-        """测试注册无效服务（弃用后始终返回 False）"""
-        result = self.container.register('', Mock)
-        assert result is False
+    def test_name_map_removed(self):
+        """_name_map 死代码已删除，get 改用 getattr"""
+        assert not hasattr(Services(), '_name_map')
 
-        result = self.container.register('test_service', 'not a class')
-        assert result is False
+    def test_register_removed(self):
+        """register() 死代码已删除"""
+        assert not hasattr(ServiceContainer, 'register')

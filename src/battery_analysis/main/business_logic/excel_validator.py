@@ -3,7 +3,6 @@ Excel文件验证模块
 """
 
 import logging
-import pandas as pd
 from battery_analysis.utils.file_validator import FileValidator
 
 
@@ -23,6 +22,8 @@ def validate_excel_file_content(df, filename):
     Returns:
         tuple: (是否有效, 错误消息)
     """
+    import pandas as pd
+
     if df.empty:
         return False, f"Sheet is empty: {filename}"
 
@@ -76,6 +77,8 @@ def validate_excel_file(file_path, filename, cache, optimize_dataframe_memory):
     Returns:
         tuple: (是否有效, 错误消息, 数据框)
     """
+    import pandas as pd
+
     cache_key = f"{file_path}:{filename}"
     cached_result = cache.get(cache_key)
     if cached_result is not None:

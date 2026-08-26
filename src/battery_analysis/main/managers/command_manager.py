@@ -2,7 +2,7 @@
 """
 命令管理器
 
-负责管理所有命令对象的初始化和执行
+负责管理所有命令对象的初始化，并将其暴露为主窗口的 *_command 属性
 """
 
 import logging
@@ -15,7 +15,7 @@ from battery_analysis.main.commands import (
 
 class CommandManager:
     """
-    命令管理器类，负责管理所有命令对象的初始化和执行
+    命令管理器类，负责管理所有命令对象的初始化，并将其暴露为主窗口的 *_command 属性
     """
     
     def __init__(self, main_window):
@@ -27,6 +27,7 @@ class CommandManager:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
+        # 命令注册表：按 P5-A 计划有意保留（初始化完成后无读取方），请勿删除
         self._commands = {}
         self._initialize_commands()
     
@@ -57,45 +58,3 @@ class CommandManager:
         
         self._commands["calculate_battery"] = CalculateBatteryCommand(self.main_window.presenter)
         self.main_window.calculate_battery_command = self._commands["calculate_battery"]
-    
-    def get_command(self, command_name: str):
-        """
-        获取命令对象
-        
-        Args:
-            command_name: 命令名称
-            
-        Returns:
-            命令对象，或None
-        """
-        return self._commands.get(command_name)
-    
-    def execute_command(self, command_name: str) -> bool:
-        """
-        执行命令
-        
-        Args:
-            command_name: 命令名称
-            
-        Returns:
-            命令执行是否成功
-        """
-        command = self.get_command(command_name)
-        if command:
-            try:
-                return command.execute()
-            except Exception as e:
-                self.logger.exception(f"Failed to execute command: {command_name}")
-                return False
-        else:
-            self.logger.error(f"Command not found: {command_name}")
-            return False
-    
-    def get_all_commands(self) -> dict:
-        """
-        获取所有命令对象
-        
-        Returns:
-            所有命令对象的字典
-        """
-        return self._commands.copy()
