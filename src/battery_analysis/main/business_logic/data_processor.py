@@ -7,7 +7,6 @@
 import logging
 import os
 from PyQt6 import QtWidgets as QW
-from PyQt6 import QtCore as QC
 
 from battery_analysis.i18n.language_manager import _
 from battery_analysis.main.business_logic.cache import LRUCache
@@ -15,27 +14,6 @@ from battery_analysis.main.workers.task_runner import TaskRunner, TaskManager
 from battery_analysis.main.business_logic import excel_validator
 from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory
-
-
-# 保留至 B4 删除（version_manager.py:19 仍 import；B3 迁移后清零）。
-class _MainThreadCallback(QC.QObject):
-    """确保回调在 Qt 主线程执行的信号中继器
-
-    用法: 包装回调后连接到后台线程的信号，自动通过 QueuedConnection
-    将执行切换到主线程。
-    """
-    _signal = QC.pyqtSignal(object)
-
-    def __init__(self, callback):
-        super().__init__()
-        self._callback = callback
-        self._signal.connect(self._invoke, QC.Qt.ConnectionType.QueuedConnection)
-
-    def __call__(self, result):
-        self._signal.emit(result)
-
-    def _invoke(self, result):
-        self._callback(result)
 
 
 class DataProcessor:
