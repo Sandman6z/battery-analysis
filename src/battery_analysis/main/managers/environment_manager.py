@@ -1,27 +1,22 @@
 """环境管理器模块"""
 import logging
-from battery_analysis.main.app_context import AppContext
 
 
 class EnvironmentManager:
     """环境信息管理器"""
 
-    def __init__(self, main_window=None, ctx: AppContext = None):
+    def __init__(self, main_window=None):
         """
         初始化环境管理器
 
         Args:
-            main_window: 主窗口实例（旧接口，过渡用）
-            ctx: 应用上下文（新接口）
+            main_window: 主窗口实例
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        self._ctx = ctx
         self._env_info = {}  # 当无 main_window 时使用本地存储
 
     def _get_env_service(self):
-        if self._ctx:
-            return self._ctx.get_service("environment")
         if self.main_window:
             return self.main_window._get_service("environment")
         return None

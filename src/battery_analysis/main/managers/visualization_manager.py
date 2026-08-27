@@ -1,43 +1,29 @@
 """可视化管理器模块"""
 import logging
 from PyQt6 import QtWidgets as QW
-from battery_analysis.main.app_context import AppContext, UIBridge
 
 
 class VisualizationManager:
     """可视化工具管理器"""
 
-    def __init__(self, main_window=None, ctx: AppContext = None):
+    def __init__(self, main_window=None):
         """
         初始化可视化管理器
 
         Args:
-            main_window: 主窗口实例（旧接口，过渡用）
-            ctx: 应用上下文（新接口）
+            main_window: 主窗口实例
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        self._ctx = ctx
-        self._ui: UIBridge = ctx.ui if ctx and ctx.ui else \
-            (self._make_bridge(main_window) if main_window else None)
         self._parent_widget = main_window
 
-    @staticmethod
-    def _make_bridge(mw) -> UIBridge:
-        from battery_analysis.main.app_context import UIBridgeImpl
-        return UIBridgeImpl(mw)
-
     def _get_test_profile(self) -> str:
-        if self._ui:
-            return self._ui.get_lineedit_text("TestProfile")
         if self.main_window and hasattr(self.main_window, 'lineEdit_TestProfile'):
             return self.main_window.lineEdit_TestProfile.text()
         return ""
 
     def _status(self, msg: str):
-        if self._ui:
-            self._ui.update_statusbar(msg)
-        elif self.main_window and hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+        if self.main_window and hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
             self.main_window.statusBar_BatteryAnalysis.showMessage(msg)
 
     def _get_visualizer_factory(self):
@@ -121,7 +107,5 @@ class VisualizationManager:
     # ── UI 助手 ──────────────────────────────────────────────────
 
     def _critical(self, title, msg):
-        if self._ui:
-            self._ui.show_critical(title, msg)
-        elif self.main_window:
+        if self.main_window:
             QW.QMessageBox.critical(self.main_window, title, msg)
