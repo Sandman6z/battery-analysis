@@ -14,16 +14,14 @@ class WindowSetup:
     窗口设置类，负责主窗口的初始化和设置
     """
     
-    def __init__(self, main_window=None, ctx=None):
+    def __init__(self, main_window=None):
         """
         初始化窗口设置
 
         Args:
             main_window: 主窗口实例（旧接口）
-            ctx: AppContext（新接口）
         """
         self.main_window = main_window
-        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def init_window(self) -> None:

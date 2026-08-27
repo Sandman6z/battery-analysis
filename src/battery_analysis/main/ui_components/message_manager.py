@@ -17,16 +17,14 @@ class MessageManager:
     消息管理器类，用于统一管理应用中的消息提示
     """
     
-    def __init__(self, parent=None, ctx=None):
+    def __init__(self, parent=None):
         """
         初始化消息管理器
 
         Args:
             parent: 父窗口实例（旧接口）
-            ctx: AppContext（新接口）
         """
         self.parent = parent
-        self._ctx = ctx
     
     def show_message(self, title: str, message: str) -> None:
         """

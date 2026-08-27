@@ -32,16 +32,14 @@ class DialogManager:
     对话框管理器类，负责各种对话框的处理
     """
     
-    def __init__(self, main_window=None, ctx=None):
+    def __init__(self, main_window=None):
         """
         初始化对话框管理器
 
         Args:
             main_window: 主窗口实例（旧接口）
-            ctx: AppContext（新接口）
         """
         self.main_window = main_window
-        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def handle_exit(self):
