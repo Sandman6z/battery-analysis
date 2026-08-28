@@ -7,24 +7,22 @@ This module implements the preferences dialog for language and other application
 
 import logging
 import os
-from typing import Optional
 
 import PyQt6.QtCore as QC
-import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
-from battery_analysis.i18n import _, get_available_locales, set_locale, get_current_locale
+from battery_analysis.i18n import _, get_current_locale
 from battery_analysis.i18n.language_manager import get_language_manager
 from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
 
 
 class PreferencesDialog(QW.QDialog):
     """Preferences dialog for application settings"""
-    
+
     # Signal emitted when preferences are applied
     preferences_applied = QC.pyqtSignal()
-    
-    def __init__(self, parent=None, config_provider: Optional[IConfigPathProvider] = None):
+
+    def __init__(self, parent=None, config_provider: IConfigPathProvider | None = None):
         """Initialize the preferences dialog"""
         super().__init__(parent)
         self.logger = logging.getLogger(__name__)
@@ -32,12 +30,12 @@ class PreferencesDialog(QW.QDialog):
         # Get language manager
         self.language_manager = get_language_manager()
         self._config_provider = config_provider
-        
+
         # Set dialog properties
         self.setWindowTitle(_("Preferences"))
         self.setModal(True)
         self.setMinimumSize(500, 400)
-        
+
         # Initialize attributes
         self.confirm_exit_checkbox = None
         self.theme_combo = None
@@ -60,18 +58,18 @@ class PreferencesDialog(QW.QDialog):
         # Initialize UI
         self._setup_ui()
         self._load_settings()
-        
+
         self.logger.info("Preferences dialog initialized")
-    
+
     def _setup_ui(self):
         """Setup the user interface"""
         # Create main layout
         main_layout = QW.QVBoxLayout(self)
-        
+
         # Create tab widget
         self.tab_widget = QW.QTabWidget()
         main_layout.addWidget(self.tab_widget)
-        
+
         # Create General tab
         self._create_general_tab()
 
@@ -83,19 +81,21 @@ class PreferencesDialog(QW.QDialog):
 
         # Create buttons
         self._create_buttons(main_layout)
-    
+
     def _create_general_tab(self):
         """Create the general preferences tab"""
         general_widget = QW.QWidget()
         general_layout = QW.QVBoxLayout(general_widget)
-        
+
         # General settings group
         general_group = QW.QGroupBox(_("General Settings"))
         general_group_layout = QW.QVBoxLayout(general_group)
 
         # Confirmation on exit
         self.confirm_exit_checkbox = QW.QCheckBox(_("Confirm before exiting"))
-        self.confirm_exit_checkbox.setToolTip(_("Show confirmation dialog when exiting the application"))
+        self.confirm_exit_checkbox.setToolTip(
+            _("Show confirmation dialog when exiting the application")
+        )
         general_group_layout.addWidget(self.confirm_exit_checkbox)
 
         general_layout.addWidget(general_group)
@@ -108,11 +108,7 @@ class PreferencesDialog(QW.QDialog):
         theme_layout = QW.QHBoxLayout()
         theme_layout.addWidget(QW.QLabel(_("Theme:")))
         self.theme_combo = QW.QComboBox()
-        self.theme_combo.addItems([
-            _("Light"),
-            _("Dark"),
-            _("System")
-        ])
+        self.theme_combo.addItems([_("Light"), _("Dark"), _("System")])
         theme_layout.addWidget(self.theme_combo)
         theme_layout.addStretch()
         display_group_layout.addLayout(theme_layout)
@@ -134,12 +130,12 @@ class PreferencesDialog(QW.QDialog):
 
         # Add tab
         self.tab_widget.addTab(general_widget, _("General"))
-    
+
     def _create_language_tab(self):
         """Create the language preferences tab"""
         language_widget = QW.QWidget()
         language_layout = QW.QVBoxLayout(language_widget)
-        
+
         # Language selection group
         language_group = QW.QGroupBox(_("Language Settings"))
         language_group_layout = QW.QVBoxLayout(language_group)
@@ -259,7 +255,7 @@ class PreferencesDialog(QW.QDialog):
             self,
             _("Select Configuration File"),
             "",
-            "JSON Files (*.json);;INI Files (*.ini);;All Files (*)"
+            "JSON Files (*.json);;INI Files (*.ini);;All Files (*)",
         )
         if file_path:
             self.config_path_lineedit.setText(file_path)
@@ -283,7 +279,8 @@ class PreferencesDialog(QW.QDialog):
         try:
             if ext == ".json":
                 import json
-                with open(file_path, "r", encoding="utf-8") as f:
+
+                with open(file_path, encoding="utf-8") as f:
                     data = json.load(f)
                 if not isinstance(data, dict):
                     self.config_status_label.setText(_("JSON root must be an object"))
@@ -292,9 +289,7 @@ class PreferencesDialog(QW.QDialog):
                 required_keys = ["battery", "test"]
                 missing = [k for k in required_keys if k not in data]
                 if missing:
-                    self.config_status_label.setText(
-                        f"Missing required keys: {', '.join(missing)}"
-                    )
+                    self.config_status_label.setText(f"Missing required keys: {', '.join(missing)}")
                     self.config_status_label.setStyleSheet("color: orange;")
                 else:
                     self.config_status_label.setText(_("Configuration file is valid!"))
@@ -302,10 +297,11 @@ class PreferencesDialog(QW.QDialog):
             else:
                 # INI 文件兼容验证（已弃用，仅用于旧版兼容）
                 import configparser
-                parser = configparser.ConfigParser()
-                parser.read(file_path, encoding='utf-8')
 
-                required_sections = ['BatteryConfig', 'TestConfig', 'PltConfig']
+                parser = configparser.ConfigParser()
+                parser.read(file_path, encoding="utf-8")
+
+                required_sections = ["BatteryConfig", "TestConfig", "PltConfig"]
                 missing_sections = [s for s in required_sections if not parser.has_section(s)]
 
                 if missing_sections:
@@ -315,11 +311,12 @@ class PreferencesDialog(QW.QDialog):
                     self.config_status_label.setStyleSheet("color: orange;")
                 else:
                     self.config_status_label.setText(
-                        _("INI format is deprecated; consider migrating to config.json"))
+                        _("INI format is deprecated; consider migrating to config.json")
+                    )
                     self.config_status_label.setStyleSheet("color: orange;")
 
         except Exception as e:
-            self.config_status_label.setText(_(f"Error parsing config: {str(e)}"))
+            self.config_status_label.setText(_(f"Error parsing config: {e!s}"))
             self.config_status_label.setStyleSheet("color: red;")
 
     def _reset_config_path(self):
@@ -330,30 +327,31 @@ class PreferencesDialog(QW.QDialog):
         settings.remove("config/custom_config_path")
         # 同步清除模块级缓存，确保 config_utils 不再返回旧路径
         from battery_analysis.utils.config_utils import clear_custom_config_path
+
         clear_custom_config_path()
 
     def _populate_language_combo(self):
         """Populate the language combo box with available languages"""
         self.language_combo.clear()
-        
+
         # Get installed locales
         installed_locales = self.language_manager.get_installed_locales()
-        
+
         for locale_code, display_name in installed_locales.items():
             self.language_combo.addItem(display_name, locale_code)
-        
+
         # Set current selection
         current_locale = get_current_locale()
         for i in range(self.language_combo.count()):
             if self.language_combo.itemData(i) == current_locale:
                 self.language_combo.setCurrentIndex(i)
                 break
-    
+
     def _create_buttons(self, main_layout):
         """Create dialog buttons"""
         button_layout = QW.QHBoxLayout()
         button_layout.addStretch()
-        
+
         # OK button
         self.ok_button = QW.QPushButton(_("OK"))
         self.ok_button.clicked.connect(self.accept)
@@ -365,38 +363,40 @@ class PreferencesDialog(QW.QDialog):
         # Apply button
         self.apply_button = QW.QPushButton(_("Apply"))
         self.apply_button.clicked.connect(self._apply_settings)
-        
+
         button_layout.addWidget(self.apply_button)
         button_layout.addWidget(self.cancel_button)
         button_layout.addWidget(self.ok_button)
-        
+
         main_layout.addLayout(button_layout)
-    
+
     def _load_settings(self):
         """Load current settings"""
         try:
             # Load general settings
             settings = QC.QSettings()
-            
+
             # Confirm exit
             self.confirm_exit_checkbox.setChecked(
                 settings.value("general/confirm_exit", True, type=bool)
             )
-            
+
             # Theme
             theme = settings.value("display/theme", "light")
             theme_map = {"light": 0, "dark": 1, "system": 2}
             self.theme_combo.setCurrentIndex(theme_map.get(theme, 0))
-            
+
             # Font size
             font_size = settings.value("display/font_size", 10, type=int)
             self.font_size_spinbox.setValue(font_size)
-            
+
             # Load current language info
             current_locale = get_current_locale()
-            current_language_name = self.language_manager.get_locale_info(current_locale).get("name", current_locale)
+            current_language_name = self.language_manager.get_locale_info(current_locale).get(
+                "name", current_locale
+            )
             self.current_language_label.setText(current_language_name)
-            
+
             # Update translation status
             self._update_translation_status(current_locale)
 
@@ -422,33 +422,31 @@ class PreferencesDialog(QW.QDialog):
                 self.config_path_label.setStyleSheet("color: gray;")
 
             self.logger.debug("Settings loaded successfully")
-            
+
         except (OSError, ValueError, ImportError, AttributeError) as e:
             self.logger.error("Failed to load settings: %s", e)
-    
+
     def _update_translation_status(self, locale_code):
         """Update the translation status display"""
         try:
             # Get validation results
             validation = self.language_manager.validate_translations(locale_code)
-            
+
             total_keys = len(validation)
             translated_keys = sum(1 for translated in validation.values() if translated)
-            
-            status_text = _(
-                f"Translation coverage: {translated_keys}/{total_keys} keys translated"
-            )
+
+            status_text = _(f"Translation coverage: {translated_keys}/{total_keys} keys translated")
 
             if translated_keys == total_keys:
-                status_text += f'\n{_("✓ Translation is complete")}'
+                status_text += f"\n{_('✓ Translation is complete')}"
             else:
-                status_text += f'\n{_("⚠ Some translations are missing")}'
-            
+                status_text += f"\n{_('⚠ Some translations are missing')}"
+
             self.status_text.setText(status_text)
-            
+
         except (OSError, ValueError, AttributeError) as e:
             self.logger.error("Failed to update translation status: %s", e)
-    
+
     def _apply_language(self):
         """Apply the selected language"""
         try:
@@ -456,45 +454,41 @@ class PreferencesDialog(QW.QDialog):
             current_index = self.language_combo.currentIndex()
             if current_index >= 0:
                 selected_locale = self.language_combo.itemData(current_index)
-                
+
                 # Set the locale
                 if self.language_manager.set_locale(selected_locale):
                     # Update current language display
-                    current_language_name = self.language_manager.get_locale_info(selected_locale).get("name", selected_locale)
+                    current_language_name = self.language_manager.get_locale_info(
+                        selected_locale
+                    ).get("name", selected_locale)
                     self.current_language_label.setText(current_language_name)
-                    
+
                     # Update translation status
                     self._update_translation_status(selected_locale)
-                    
+
                     self.logger.info("Language applied: %s", selected_locale)
                 else:
-                    QW.QMessageBox.warning(
-                        self,
-                        _("Warning"),
-                        _("Failed to change language")
-                    )
-        
+                    QW.QMessageBox.warning(self, _("Warning"), _("Failed to change language"))
+
         except (OSError, ValueError, AttributeError, TypeError) as e:
             self.logger.error("Failed to apply language: %s", e)
-            QW.QMessageBox.critical(
-                self,
-                _("Error"),
-                f'{_("Language change error")}: {str(e)}'
-            )
-    
+            QW.QMessageBox.critical(self, _("Error"), f"{_('Language change error')}: {e!s}")
+
     def _apply_settings(self):
         """Apply current settings"""
         try:
             settings = QC.QSettings()
-            
+
             # Save general settings
             settings.setValue("general/confirm_exit", self.confirm_exit_checkbox.isChecked())
-            
+
             # Save display settings
             theme_map = {0: "light", 1: "dark", 2: "system"}
-            settings.setValue("display/theme", theme_map.get(self.theme_combo.currentIndex(), "light"))
+            settings.setValue(
+                "display/theme", theme_map.get(self.theme_combo.currentIndex(), "light")
+            )
             settings.setValue("display/font_size", self.font_size_spinbox.value())
-            
+
             # Save language preference
             current_index = self.language_combo.currentIndex()
             if current_index >= 0:
@@ -520,15 +514,11 @@ class PreferencesDialog(QW.QDialog):
 
             # Emit signal that preferences have been applied
             self.preferences_applied.emit()
-            
+
         except (OSError, ValueError, AttributeError, TypeError) as e:
             self.logger.error("Failed to apply settings: %s", e)
-            QW.QMessageBox.critical(
-                self,
-                _("Error"),
-                f'{_("Settings apply error")}: {str(e)}'
-            )
-    
+            QW.QMessageBox.critical(self, _("Error"), f"{_('Settings apply error')}: {e!s}")
+
     def accept(self):
         """Handle OK button clicked — apply settings once then close"""
         self._apply_settings()

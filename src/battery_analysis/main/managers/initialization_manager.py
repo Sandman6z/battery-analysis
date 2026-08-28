@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 初始化管理器
 
@@ -14,37 +13,37 @@ from battery_analysis.main.initialization.initialization_orchestrator import (
 from battery_analysis.main.initialization.steps.basic_attributes_step import (
     BasicAttributesInitializationStep,
 )
-from battery_analysis.main.initialization.steps.services_initialization_step import (
-    ServicesInitializationStep,
-)
-from battery_analysis.main.initialization.steps.environment_initialization_step import (
-    EnvironmentInitializationStep,
-)
-from battery_analysis.main.initialization.steps.ui_setup_step import UISetupStep
-from battery_analysis.main.initialization.steps.managers_initialization_step import (
-    ManagersInitializationStep,
-)
-from battery_analysis.main.initialization.steps.processors_initialization_step import (
-    ProcessorsInitializationStep,
-)
-from battery_analysis.main.initialization.steps.handlers_initialization_step import (
-    HandlersInitializationStep,
-)
-from battery_analysis.main.initialization.steps.presenters_initialization_step import (
-    PresentersInitializationStep,
+from battery_analysis.main.initialization.steps.battery_config_initialization_step import (
+    BatteryConfigInitializationStep,
 )
 from battery_analysis.main.initialization.steps.command_manager_initialization_step import (
     CommandManagerInitializationStep,
 )
+from battery_analysis.main.initialization.steps.environment_initialization_step import (
+    EnvironmentInitializationStep,
+)
+from battery_analysis.main.initialization.steps.handlers_initialization_step import (
+    HandlersInitializationStep,
+)
 from battery_analysis.main.initialization.steps.language_initialization_step import (
     LanguageInitializationStep,
+)
+from battery_analysis.main.initialization.steps.managers_initialization_step import (
+    ManagersInitializationStep,
+)
+from battery_analysis.main.initialization.steps.presenters_initialization_step import (
+    PresentersInitializationStep,
+)
+from battery_analysis.main.initialization.steps.processors_initialization_step import (
+    ProcessorsInitializationStep,
+)
+from battery_analysis.main.initialization.steps.services_initialization_step import (
+    ServicesInitializationStep,
 )
 from battery_analysis.main.initialization.steps.styles_initialization_step import (
     StylesInitializationStep,
 )
-from battery_analysis.main.initialization.steps.battery_config_initialization_step import (
-    BatteryConfigInitializationStep,
-)
+from battery_analysis.main.initialization.steps.ui_setup_step import UISetupStep
 
 # ── 阶段名称 ──────────────────────────────────────────────
 PHASE_ENV_PREP = "Environment Preparation"

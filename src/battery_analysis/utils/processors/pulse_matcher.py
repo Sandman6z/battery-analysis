@@ -1,5 +1,4 @@
 """脉冲电流/电压等级匹配逻辑"""
-from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -12,7 +11,7 @@ def b_is_in_range(current: float, standard: float) -> bool:
 def _init_level_structures(
     listCurrentLevel: list,
     listVoltageLevel: list,
-) -> Tuple[list, list, list, list, list]:
+) -> tuple[list, list, list, list, list]:
     """初始化等级匹配所需的嵌套列表结构"""
     listLevelToVoltage = []
     listLevelToRow = []
@@ -41,13 +40,13 @@ def _init_level_structures(
 
 
 def match_pulse_levels(
-    record_current: List[float],
-    record_voltage: List[float],
-    pulse_mask: List[bool],
+    record_current: list[float],
+    record_voltage: list[float],
+    pulse_mask: list[bool],
     listCurrentLevel: list,
     listVoltageLevel: list,
     start_row: int = 2,
-) -> Optional[Tuple[list, list, list, list]]:
+) -> tuple[list, list, list, list] | None:
     """将脉冲行匹配到电流/电压等级（numpy 广播向量化）
 
     对每个电流等级一次性广播比较整个电流数组，替代逐行三重嵌套循环。
@@ -67,10 +66,12 @@ def match_pulse_levels(
         如果无脉冲数据返回 None
     """
     structures = _init_level_structures(listCurrentLevel, listVoltageLevel)
-    listLevelToVoltage, listLevelToRow, _, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = structures
+    listLevelToVoltage, listLevelToRow, _, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = (
+        structures
+    )
 
     # 先按 start_row 裁剪再做 float 转换：真实 BTS 导出文件头部常有非数值行
-    #（第 0 行测试名、第 1 行列名如 '电流(A)'/'电压(V)'），旧实现从 start_row 起
+    # （第 0 行测试名、第 1 行列名如 '电流(A)'/'电压(V)'），旧实现从 start_row 起
     # 逐行 float() 天然跳过它们，此处向量化须保持相同语义（裁剪后再转换，
     # 避免全数组一次性 dtype=float 对头部字符串抛 ValueError）。
     start = max(start_row, 0)
@@ -83,7 +84,7 @@ def match_pulse_levels(
     # pulse_mask 可能与 record 不等长（原代码 row >= len(pulse_mask) 保护尾部）；
     # 按绝对索引裁剪，缺失部分默认 False（无效行）
     mask = np.zeros(data_len, dtype=bool)
-    pm = np.asarray(pulse_mask[start:start + data_len], dtype=bool)
+    pm = np.asarray(pulse_mask[start : start + data_len], dtype=bool)
     common = min(data_len, pm.size)
     mask[:common] = pm[:common]
 

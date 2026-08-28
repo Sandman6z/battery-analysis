@@ -4,14 +4,12 @@
 已优化为支持多种环境（开发、IDE、容器、PyInstaller打包）
 """
 
-import os
+import logging
 import sys
 from pathlib import Path
-import logging
-from typing import Optional
 
 # 导入新的环境检测工具
-from .environment_utils import get_environment_detector, EnvironmentType
+from .environment_utils import EnvironmentType, get_environment_detector
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +59,7 @@ def clear_config_cache() -> None:
     logger.info("Config file path cache cleared")
 
 
-def _get_custom_config_path() -> Optional[str]:
+def _get_custom_config_path() -> str | None:
     """
     获取用户自定义的配置文件路径
 
@@ -82,6 +80,7 @@ def _get_custom_config_path() -> Optional[str]:
     # 如果模块级缓存没有，则从QSettings读取
     try:
         from PyQt6.QtCore import QSettings
+
         settings = QSettings()
         # 尝试读取不同的键名，确保兼容性
         custom_path = settings.value("config/custom_config_path", "", type=str)
@@ -103,9 +102,7 @@ def _get_custom_config_path() -> Optional[str]:
 
 
 def find_config_file(
-    file_name: str = "config.json",
-    config_dir: str = "config",
-    use_cache: bool = True
+    file_name: str = "config.json", config_dir: str = "config", use_cache: bool = True
 ) -> str:
     """
     在多个可能的位置查找配置文件，并返回第一个找到的配置文件的路径。
@@ -146,10 +143,10 @@ def find_config_file(
     env_info = env_detector.get_environment_info()
 
     # 根据环境类型调整搜索策略
-    if env_info['environment_type'] == EnvironmentType.CONTAINER:
+    if env_info["environment_type"] == EnvironmentType.CONTAINER:
         logger.debug("Container environment: using standard paths first")
         possible_config_paths = _get_container_config_paths(file_name, config_dir, env_info)
-    elif env_info['environment_type'] == EnvironmentType.PRODUCTION:
+    elif env_info["environment_type"] == EnvironmentType.PRODUCTION:
         logger.debug("Production environment: using packaged resource paths")
         possible_config_paths = _get_production_config_paths(file_name, config_dir, env_info)
     else:
@@ -173,7 +170,7 @@ def find_config_file(
 def _get_container_config_paths(file_name: str, config_dir: str, env_info: dict) -> list:
     """获取容器环境的配置路径列表"""
     paths = []
-    
+
     # 容器环境优先使用标准路径
     standard_paths = [
         # 标准配置路径
@@ -183,54 +180,58 @@ def _get_container_config_paths(file_name: str, config_dir: str, env_info: dict)
         # 应用数据路径
         Path.home() / ".local" / "share" / "battery_analysis" / config_dir / file_name,
     ]
-    
+
     # 开发相关路径
     dev_paths = [
         # 基于项目根目录
-        env_info.get('project_root', Path.cwd()) / config_dir / file_name,
+        env_info.get("project_root", Path.cwd()) / config_dir / file_name,
         # 当前工作目录
         Path.cwd() / config_dir / file_name,
         # 基于当前文件的路径
-        env_info.get('current_file_dir', Path(__file__).parent).parent.parent.parent / config_dir / file_name,
+        env_info.get("current_file_dir", Path(__file__).parent).parent.parent.parent
+        / config_dir
+        / file_name,
     ]
-    
+
     return standard_paths + dev_paths
 
 
 def _get_production_config_paths(file_name: str, config_dir: str, env_info: dict) -> list:
     """获取生产环境的配置路径列表"""
     paths = []
-    
+
     # 生产环境优先使用PyInstaller资源路径
-    if env_info.get('meipass'):
+    if env_info.get("meipass"):
         # PyInstaller _MEIPASS路径
-        meipass_path = Path(env_info['meipass'])
-        paths.extend([
-            meipass_path / config_dir / file_name,
-            meipass_path / file_name,
-        ])
-    
+        meipass_path = Path(env_info["meipass"])
+        paths.extend(
+            [
+                meipass_path / config_dir / file_name,
+                meipass_path / file_name,
+            ]
+        )
+
     # 标准的生产配置路径
     production_paths = [
         # 当前可执行文件目录
-        Path(env_info.get('python_executable', sys.executable)).parent / config_dir / file_name,
+        Path(env_info.get("python_executable", sys.executable)).parent / config_dir / file_name,
         # 当前工作目录
         Path.cwd() / config_dir / file_name,
         # 用户配置目录
         Path.home() / ".battery_analysis" / config_dir / file_name,
     ]
-    
+
     return paths + production_paths
 
 
 def _get_development_config_paths(file_name: str, config_dir: str, env_info: dict) -> list:
     """获取开发环境的配置路径列表"""
     paths = []
-    
+
     # 开发环境使用灵活的路径搜索
-    current_file_dir = env_info.get('current_file_dir', Path(__file__).parent)
-    project_root = env_info.get('project_root', Path.cwd())
-    
+    current_file_dir = env_info.get("current_file_dir", Path(__file__).parent)
+    project_root = env_info.get("project_root", Path.cwd())
+
     # 优先级顺序：从高到低
     dev_paths = [
         # 1. 项目根目录的config子目录（最优先）
@@ -248,7 +249,5 @@ def _get_development_config_paths(file_name: str, config_dir: str, env_info: dic
         # 7. 源代码目录的config
         current_file_dir.parent.parent.parent / config_dir / file_name,
     ]
-    
+
     return dev_paths
-
-

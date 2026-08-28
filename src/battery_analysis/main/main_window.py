@@ -11,11 +11,8 @@
 # 标准库导入
 import logging
 import multiprocessing
-import os
 import sys
 import time
-from pathlib import Path
-from typing import Any
 
 # 第三方库导入
 import PyQt6.QtCore as QC
@@ -41,7 +38,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         # except 分支在 _deferred_init 执行前访问 self.logger 时崩溃。
         # （_deferred_init 会再次赋值同一 logger，幂等无副作用）
         from battery_analysis.utils.log_manager import get_logger
-        self.logger = get_logger('main_window')
+
+        self.logger = get_logger("main_window")
 
         # 仅构建 UI 骨架（Qt 控件树 + 布局），不填充数据
         self.setupUi(self)
@@ -73,8 +71,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(5)
 
-        for w in (self.groupBox_TestConfig, self.groupBox_Path,
-                  self.groupBox_BatteryConfig, self.groupBox_TestInformation):
+        for w in (
+            self.groupBox_TestConfig,
+            self.groupBox_Path,
+            self.groupBox_BatteryConfig,
+            self.groupBox_TestInformation,
+        ):
             w.setParent(left_content)
             left_layout.addWidget(w)
 
@@ -86,13 +88,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         # 3) 大小策略
         self.groupBox_TestConfig.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed
+        )
         self.groupBox_Path.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed
+        )
         self.groupBox_BatteryConfig.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding)
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding
+        )
         self.groupBox_TestInformation.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding)
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding
+        )
         # 给 TestInformation 设布局替换 setGeometry，让内部 scrollArea/table 随宽度自适应
         info_lo = QW.QVBoxLayout(self.groupBox_TestInformation)
         info_lo.setContentsMargins(5, 15, 5, 5)
@@ -126,7 +132,8 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         # 6) 右侧面板不垂直拉伸，固定最小尺寸（原始 setGeometry 的尺寸）
         self.frame_RunButton.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Preferred)
+            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Preferred
+        )
         self.frame_RunButton.setMinimumSize(231, 301)
 
         # 7) 窗口显示后调整大小并居中
@@ -167,26 +174,35 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         try:
             # ── 前置准备（日志、异常钩子）────────────────────
             from battery_analysis.utils.log_manager import get_logger
-            self.logger = get_logger('main_window')
+
+            self.logger = get_logger("main_window")
 
             from battery_analysis.main.application_initializer import ApplicationInitializer
+
             initializer = ApplicationInitializer()
             if not initializer.initialize():
-                self.logger.error("Application initialization failed; some features may be unavailable")
+                self.logger.error(
+                    "Application initialization failed; some features may be unavailable"
+                )
                 return
 
             # ── 阶段 1-3: 初始化管线 ───────────────────────
             # 环境准备 → 核心服务 → UI 构建
             from battery_analysis.main.managers.initialization_manager import (
+                PHASE_CORE_SVC,
+                PHASE_ENV_PREP,
+                PHASE_LAUNCH,
+                PHASE_UI_BUILD,
                 InitializationManager,
+            )
+
+            self.logger.info("─" * 40)
+            self.logger.info(
+                "Initialization pipeline: %s → %s → %s",
                 PHASE_ENV_PREP,
                 PHASE_CORE_SVC,
                 PHASE_UI_BUILD,
-                PHASE_LAUNCH,
             )
-            self.logger.info("─" * 40)
-            self.logger.info("Initialization pipeline: %s → %s → %s",
-                           PHASE_ENV_PREP, PHASE_CORE_SVC, PHASE_UI_BUILD)
             init_manager = InitializationManager(self)
             init_manager.initialize()
 
@@ -197,7 +213,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 4a) UI 后处理（窗口属性、控件填充）
             self.init_window()
             self.init_widget()
-            if hasattr(self, 'tableWidget_TestInformation'):
+            if hasattr(self, "tableWidget_TestInformation"):
                 self.tableWidget_TestInformation.resizeColumnsToContents()
 
             # 4b) 版本号
@@ -209,6 +225,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 4d) 环境日志（包含 psutil/platform 调用，UI 已可见）
             try:
                 from battery_analysis.utils.log_manager import get_log_manager
+
                 lm = get_log_manager()
                 if lm:
                     lm.log_environment_info()
@@ -254,12 +271,15 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # 窗口和UI管理方法
     # ------------------------------
     def _load_application_icon(self) -> QG.QIcon:
-        logger = getattr(self, 'logger', logging.getLogger(__name__))
+        logger = getattr(self, "logger", logging.getLogger(__name__))
         try:
-            from battery_analysis.main.utils import FileUtils
             from battery_analysis.i18n.language_manager import _
-            env_detector = getattr(self, 'env_detector', None)
-            icon_paths = FileUtils.get_icon_paths(env_detector, getattr(self, 'current_directory', None))
+            from battery_analysis.main.utils import FileUtils
+
+            env_detector = getattr(self, "env_detector", None)
+            icon_paths = FileUtils.get_icon_paths(
+                env_detector, getattr(self, "current_directory", None)
+            )
             for icon_path in icon_paths:
                 if icon_path.exists():
                     return QG.QIcon(str(icon_path))
@@ -273,7 +293,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # 语言相关方法
     # ------------------------------
     def _on_language_changed(self, language_code):
-        from battery_analysis.i18n.language_manager import _
         self.setWindowTitle(f"Battery Analyzer v{self.version}")
         self._update_ui_texts()
         self._update_statusbar_messages()
@@ -282,11 +301,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def _update_ui_texts(self):
         from battery_analysis.i18n.language_manager import _
-        if hasattr(self, 'signal_connector') and self.signal_connector.progress_dialog:
-            self.signal_connector.progress_dialog.setWindowTitle(
-                _("Battery Analysis Progress"))
+
+        if hasattr(self, "signal_connector") and self.signal_connector.progress_dialog:
+            self.signal_connector.progress_dialog.setWindowTitle(_("Battery Analysis Progress"))
             self.signal_connector.progress_dialog.status_label.setText(
-                _("Ready to start analysis..."))
+                _("Ready to start analysis...")
+            )
 
     def _update_statusbar_messages(self):
         self.menu_manager.update_statusbar_messages()
@@ -322,13 +342,14 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 配置路径/重载统一经 ConfigService；仅需丢弃 config_utils 的路径缓存，
             # 让 ConfigService 重新解析（含 QSettings 里的自定义路径）
             from battery_analysis.utils.config_utils import clear_config_cache
+
             clear_config_cache()
             svc = self._get_service("config")
             if svc is not None:
                 svc.reload_config()
-            if hasattr(self, 'config_manager'):
+            if hasattr(self, "config_manager"):
                 self.config_manager.reload_config()
-            if hasattr(self, 'ui_manager'):
+            if hasattr(self, "ui_manager"):
                 self.ui_manager.init_combobox()
             self.refresh_ui()
         except Exception as e:
@@ -337,25 +358,26 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def reload_configuration(self) -> None:
         try:
             from battery_analysis.utils.config_utils import clear_config_cache
+
             clear_config_cache()
             svc = self._get_service("config")
             if svc is not None:
                 svc.reload_config()
-            if hasattr(self, 'config_manager'):
+            if hasattr(self, "config_manager"):
                 self.config_manager.reload_config()
-            if hasattr(self, 'ui_manager'):
+            if hasattr(self, "ui_manager"):
                 self.ui_manager.init_combobox()
             self.refresh_ui()
         except Exception as e:
             self.logger.error("Failed to reload configuration: %s", e)
-            if hasattr(self, 'statusBar_BatteryAnalysis'):
-                self.statusBar_BatteryAnalysis.showMessage(f"Configuration reload failed: {str(e)}")
+            if hasattr(self, "statusBar_BatteryAnalysis"):
+                self.statusBar_BatteryAnalysis.showMessage(f"Configuration reload failed: {e!s}")
 
     def refresh_ui(self) -> None:
         try:
-            if hasattr(self, 'statusBar_BatteryAnalysis'):
+            if hasattr(self, "statusBar_BatteryAnalysis"):
                 self.statusBar_BatteryAnalysis.showMessage("Configuration reloaded successfully")
-            if hasattr(self, 'comboBox_Specification_Type'):
+            if hasattr(self, "comboBox_Specification_Type"):
                 current_text = self.comboBox_Specification_Type.currentText()
                 if current_text:
                     index = self.comboBox_Specification_Type.findText(current_text)
@@ -436,6 +458,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             "ReportedBy": self.comboBox_ReportedBy.currentText(),
         }
         from battery_analysis.main.ui_components.config_dialog import ConfigDialog
+
         dialog = ConfigDialog(self)
         if dialog.exec() == QW.QDialog.DialogCode.Accepted:
             self.statusBar_BatteryAnalysis.showMessage("Configuration saved")
@@ -542,7 +565,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     def resizeEvent(self, event):
         """窗口大小改变时的事件处理函数"""
         super().resizeEvent(event)
-        if hasattr(self, 'tableWidget_TestInformation'):
+        if hasattr(self, "tableWidget_TestInformation"):
             if self.tableWidget_TestInformation.rowCount() > 0:
                 # 去抖（roadmap #13）：resize 事件高频触发，逐帧同步
                 # resizeColumnsToContents 是 O(rows×cols) 重排。
@@ -552,7 +575,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def _resize_table_columns(self):
         """去抖后的列宽自适应（由 resizeEvent 的 QTimer.singleShot 触发）"""
-        if hasattr(self, 'tableWidget_TestInformation'):
+        if hasattr(self, "tableWidget_TestInformation"):
             if self.tableWidget_TestInformation.rowCount() > 0:
                 self.tableWidget_TestInformation.resizeColumnsToContents()
 
@@ -564,10 +587,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         try:
             t0 = time.time()
             # 可访问性设置和工具提示 — 不影响功能
-            if hasattr(self, 'ui_manager'):
+            if hasattr(self, "ui_manager"):
                 self.ui_manager.setup_accessibility()
                 self.ui_manager.setup_tooltips()
-            self.logger.debug("Deferred initialization completed in %dms", (time.time() - t0) * 1000)
+            self.logger.debug(
+                "Deferred initialization completed in %dms", (time.time() - t0) * 1000
+            )
         except Exception as e:
             self.logger.warning("Deferred initialization failed: %s", e)
 
@@ -583,10 +608,12 @@ def _create_splash_screen(app):
 
         # 绘制标题文字
         from battery_analysis import __version__
+
         splash.showMessage(
             f"Battery Analyzer v{__version__}",
             QC.Qt.AlignmentFlag.AlignTop | QC.Qt.AlignmentFlag.AlignCenter,
-            QG.QColor("#ecf0f1"))
+            QG.QColor("#ecf0f1"),
+        )
         # 保留 processEvents()：同 launcher，启动期 splash 绘制（进入事件循环前）。
         app.processEvents()
 
@@ -625,7 +652,7 @@ def main(app=None, splash=None) -> None:
     sys.exit(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 这确保在multiprocessing子进程中不会执行UI初始化代码
     # 防止在Windows和PyInstaller环境下的递归启动问题
     main()

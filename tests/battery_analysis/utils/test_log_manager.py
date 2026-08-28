@@ -1,5 +1,3 @@
-import pytest
-from unittest.mock import Mock, patch
 from battery_analysis.utils.log_manager import LogManager
 
 
@@ -8,7 +6,7 @@ class TestLogManager:
         self.manager = LogManager()
 
     def test_init(self):
-        assert hasattr(self.manager, 'logger')
+        assert hasattr(self.manager, "logger")
 
     def test_log_environment_info(self):
         # Should not throw
@@ -21,4 +19,5 @@ class TestLogManager:
     def test_get_log_directory(self):
         log_dir = self.manager.get_log_directory()
         from pathlib import Path
+
         assert isinstance(log_dir, Path)

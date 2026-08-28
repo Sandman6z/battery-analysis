@@ -1,4 +1,5 @@
 """环境管理器模块"""
+
 import logging
 
 
@@ -23,12 +24,12 @@ class EnvironmentManager:
 
     def _get_env_info_dict(self):
         """获取 env_info 字典（main_window 优先）。"""
-        if self.main_window and hasattr(self.main_window, 'env_info'):
+        if self.main_window and hasattr(self.main_window, "env_info"):
             return self.main_window.env_info
         return self._env_info
 
     def _set_env_info_dict(self, value):
-        if self.main_window and hasattr(self.main_window, 'env_info'):
+        if self.main_window and hasattr(self.main_window, "env_info"):
             self.main_window.env_info = value
         self._env_info = value
 
@@ -37,10 +38,10 @@ class EnvironmentManager:
         try:
             env_svc = self._get_env_service()
             if env_svc:
-                if hasattr(env_svc, 'env_info'):
+                if hasattr(env_svc, "env_info"):
                     self._set_env_info_dict(env_svc.env_info)
-                elif hasattr(env_svc, 'initialize'):
-                    if env_svc.initialize() and hasattr(env_svc, 'env_info'):
+                elif hasattr(env_svc, "initialize"):
+                    if env_svc.initialize() and hasattr(env_svc, "env_info"):
                         self._set_env_info_dict(env_svc.env_info)
         except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to initialize environment service: %s", e)
@@ -49,21 +50,23 @@ class EnvironmentManager:
         """确保环境信息包含必要的键"""
         env_info = self._get_env_info_dict()
 
-        if 'environment_type' not in env_info:
+        if "environment_type" not in env_info:
             try:
                 env_svc = self._get_env_service()
-                if env_svc and hasattr(env_svc, 'EnvironmentType'):
-                    env_info['environment_type'] = env_svc.EnvironmentType.DEVELOPMENT
+                if env_svc and hasattr(env_svc, "EnvironmentType"):
+                    env_info["environment_type"] = env_svc.EnvironmentType.DEVELOPMENT
                 else:
                     from battery_analysis.utils.environment_utils import EnvironmentType
-                    env_info['environment_type'] = EnvironmentType.DEVELOPMENT
+
+                    env_info["environment_type"] = EnvironmentType.DEVELOPMENT
             except (AttributeError, TypeError, ImportError) as e:
                 self.logger.warning("Failed to get EnvironmentType: %s", e)
                 from battery_analysis.utils.environment_utils import EnvironmentType
-                env_info['environment_type'] = EnvironmentType.DEVELOPMENT
 
-        if 'gui_available' not in env_info:
-            env_info['gui_available'] = True
+                env_info["environment_type"] = EnvironmentType.DEVELOPMENT
+
+        if "gui_available" not in env_info:
+            env_info["gui_available"] = True
 
         self._set_env_info_dict(env_info)
 

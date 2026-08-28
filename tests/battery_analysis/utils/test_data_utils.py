@@ -1,6 +1,10 @@
-import pytest
-from unittest.mock import Mock, patch
-from battery_analysis.utils.processors.data_utils import filter_data, generate_current_type_string, detect_outliers
+from unittest.mock import Mock
+
+from battery_analysis.utils.processors.data_utils import (
+    detect_outliers,
+    filter_data,
+    generate_current_type_string,
+)
 
 
 class TestDataUtils:
@@ -9,10 +13,10 @@ class TestDataUtils:
         # 测试数据
         plt_charge_list = [[1, 2, 3, 4, 5]]
         plt_voltage_list = [[4.2, 4.1, 4.0, 3.9, 3.8]]
-        
+
         # 调用函数
         result_charge, result_voltage = filter_data(plt_charge_list, plt_voltage_list)
-        
+
         # 验证结果
         assert isinstance(result_charge, list)
         assert isinstance(result_voltage, list)
@@ -23,10 +27,10 @@ class TestDataUtils:
         """测试生成电流类型字符串函数"""
         # 测试数据
         list_current_level = [500, 1000, 1500]
-        
+
         # 调用函数
         result = generate_current_type_string(list_current_level)
-        
+
         # 验证结果
         assert isinstance(result, str)
         assert result == "500-1000-1500"
@@ -46,7 +50,7 @@ class TestDataUtils:
 
         # 调用函数
         result = detect_outliers(data, data_name, result_index, test_results)
-        
+
         # 验证结果
         assert isinstance(result, list)
         assert len(result) > 0
@@ -54,8 +58,8 @@ class TestDataUtils:
     def test_filter_data_fallback_no_name_error(self):
         """numpy 转换失败走 fallback 分支时不抛 NameError（修复缺 import logging）"""
         # 'x' 无法 float()，触发 numpy 转换失败 → fallback 分支 → logging.warning
-        plt_charge_list = [['1', 'x', '2']]
-        plt_voltage_list = [['4', '5', '3.9']]
+        plt_charge_list = [["1", "x", "2"]]
+        plt_voltage_list = [["4", "5", "3.9"]]
 
         result_charge, result_voltage = filter_data(plt_charge_list, plt_voltage_list)
 

@@ -1,12 +1,11 @@
 """测试电池分类工具"""
 
-import pytest
 from battery_analysis.utils.battery_classifier import (
-    classify_spec,
-    extract_spec_name,
-    extract_capacity,
-    derive_specifications,
     DEFAULT_CAPACITY_THRESHOLD,
+    classify_spec,
+    derive_specifications,
+    extract_capacity,
+    extract_spec_name,
 )
 
 

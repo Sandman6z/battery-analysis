@@ -1,7 +1,8 @@
 """xlsx 文件读取器，封装 pandas/calamine 读取逻辑"""
+
+import logging
 import os
 import re
-import logging
 
 import pandas as pd
 
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def read_xlsx_sheets(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """用 calamine 引擎一次性读取 xlsx 的三个工作表，返回 (cycle_df, step_df, record_df)"""
-    sheets = pd.read_excel(filepath, sheet_name=[0, 1, 2], header=None, engine='calamine')
+    sheets = pd.read_excel(filepath, sheet_name=[0, 1, 2], header=None, engine="calamine")
     return sheets[0], sheets[1], sheets[2]
 
 
@@ -28,8 +29,7 @@ def extract_test_date_from_xls(filepath: str) -> str:
         str: 格式化的日期字符串 (YYYYMMDD)，如果无法提取则返回默认值
     """
     try:
-        sheets = pd.read_excel(
-            filepath, sheet_name=None, header=None, nrows=20, engine="calamine")
+        sheets = pd.read_excel(filepath, sheet_name=None, header=None, nrows=20, engine="calamine")
 
         # 搜索所有工作表中的 "Test Date" 字段（只查前 20 行）
         for sheet_df in sheets.values():
@@ -59,8 +59,7 @@ def extract_test_date_from_xls(filepath: str) -> str:
 
     except Exception as e:  # pylint: disable=broad-exception-caught
         # 日期提取是尽力而为：任何读取/解析失败都回退默认值
-        logger.error(
-            "Failed to extract Test Date from Excel: %s, error: %s", filepath, e)
+        logger.error("Failed to extract Test Date from Excel: %s, error: %s", filepath, e)
 
     # 确保总是有返回值
     return "00000000"

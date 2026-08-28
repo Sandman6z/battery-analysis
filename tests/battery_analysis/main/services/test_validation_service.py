@@ -1,5 +1,6 @@
 import unittest.mock
-from unittest.mock import Mock, patch
+from unittest.mock import patch
+
 from battery_analysis.main.services.validation_service import ValidationService
 
 
@@ -8,7 +9,25 @@ class TestValidationService:
         self.service = ValidationService()
 
     def test_validate_test_info_success(self):
-        test_info = ["项目A", "规格1", "磷酸铁锂", "1000", "", "", "", "", "", "", "", "", "", "", "", "", "v1.0"]
+        test_info = [
+            "项目A",
+            "规格1",
+            "磷酸铁锂",
+            "1000",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "v1.0",
+        ]
         is_valid, msg = self.service.validate_test_info(test_info)
         assert is_valid is True
         assert msg == ""
@@ -24,9 +43,11 @@ class TestValidationService:
         assert is_valid is False
 
     def test_validate_file_path_success(self):
-        with patch('os.path.exists', return_value=True), \
-             patch('os.path.isfile', return_value=True), \
-             patch('builtins.open', unittest.mock.mock_open()):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("os.path.isfile", return_value=True),
+            patch("builtins.open", unittest.mock.mock_open()),
+        ):
             is_valid, msg = self.service.validate_file_path("test.xlsx")
             assert is_valid is True
 
@@ -35,15 +56,17 @@ class TestValidationService:
         assert is_valid is False
 
     def test_validate_file_path_not_found(self):
-        with patch('os.path.exists', return_value=False):
+        with patch("os.path.exists", return_value=False):
             is_valid, msg = self.service.validate_file_path("nonexistent.xlsx")
             assert is_valid is False
             assert "File does not exist" in msg
 
     def test_validate_directory_path_success(self):
-        with patch('os.path.exists', return_value=True), \
-             patch('os.path.isdir', return_value=True), \
-             patch('os.listdir', return_value=[]):
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("os.path.isdir", return_value=True),
+            patch("os.listdir", return_value=[]),
+        ):
             is_valid, msg = self.service.validate_directory_path("output")
             assert is_valid is True
 

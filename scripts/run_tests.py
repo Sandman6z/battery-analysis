@@ -4,10 +4,10 @@
 用于执行项目的自动测试流程
 """
 
-import os
-import sys
-import subprocess
 import argparse
+import os
+import subprocess
+import sys
 
 
 def run_tests(test_path=None, generate_report=False, report_format="html"):
@@ -21,8 +21,8 @@ def run_tests(test_path=None, generate_report=False, report_format="html"):
     """
     print("开始运行测试...")
 
-    # 构建pytest命令
-    pytest_cmd = [sys.executable, "-m", "pytest"]
+    # 构建 pytest 命令（通过 uv run 确保使用项目虚拟环境）
+    pytest_cmd = ["uv", "run", "pytest"]
 
     if test_path:
         pytest_cmd.append(test_path)
@@ -42,9 +42,8 @@ def run_tests(test_path=None, generate_report=False, report_format="html"):
         result = subprocess.run(
             pytest_cmd,
             cwd=os.path.dirname(os.path.abspath(__file__)),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            capture_output=True,
+            text=True,
         )
 
         # 打印测试输出
@@ -75,35 +74,20 @@ def main():
         "test_path",
         nargs="?",
         default=None,
-        help="测试路径（可选），如果提供则只运行该路径下的测试"
+        help="测试路径（可选），如果提供则只运行该路径下的测试",
     )
+    parser.add_argument("-r", "--report", action="store_true", help="生成测试报告")
     parser.add_argument(
-        "-r", "--report",
-        action="store_true",
-        help="生成测试报告"
-    )
-    parser.add_argument(
-        "-f", "--format",
+        "-f",
+        "--format",
         default="html",
         choices=["html", "xml", "junit-xml"],
-        help="测试报告格式（默认：html）"
+        help="测试报告格式（默认：html）",
     )
 
     args = parser.parse_args()
 
-    # 安装必要的依赖
-    print("检查并安装测试依赖...")
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-e", ".[dev]"],
-            cwd=os.path.dirname(os.path.abspath(__file__)),
-            check=True
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"安装依赖时出错: {e}")
-        return 1
-
-    # 运行测试
+    # 运行测试（依赖由 uv sync 管理，无需手动安装）
     success = run_tests(args.test_path, args.report, args.format)
 
     return 0 if success else 1

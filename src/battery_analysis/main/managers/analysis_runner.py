@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 分析运行管理器
 
@@ -11,14 +10,14 @@
 
 # 标准库导入
 import logging
-import os
 
 # 第三方库导入
 import PyQt6.QtWidgets as QW
 
+from battery_analysis.domain.entities.test_info import TestInfo
+
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
-from battery_analysis.domain.entities.test_info import TestInfo
 
 
 class AnalysisRunner:
@@ -26,7 +25,7 @@ class AnalysisRunner:
     分析运行管理器
     负责处理电池分析的运行逻辑
     """
-    
+
     def __init__(self, main_window=None):
         """
         初始化分析运行管理器
@@ -36,7 +35,7 @@ class AnalysisRunner:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-    
+
     def run_analysis(self):
         """
         执行分析运行逻辑
@@ -44,7 +43,7 @@ class AnalysisRunner:
         # 保存表格数据
         self.main_window.save_table()
         self.main_window.init_widgetcolor()
-        
+
         # 检查输入是否完整，包括reportedby
         if not self._check_inputs():
             return
@@ -56,11 +55,11 @@ class AnalysisRunner:
 
         # 更新控制器的上下文和测试信息
         self._update_controller_context(test_info)
-    
+
     def _check_inputs(self):
         """
         检查输入是否完整
-        
+
         Returns:
             bool: 输入是否完整
         """
@@ -75,14 +74,19 @@ class AnalysisRunner:
                 failed_messages = []
 
             if failed_messages:
-                warning_str = "The following fields failed validation:\n- " + "\n- ".join(failed_messages)
+                warning_str = "The following fields failed validation:\n- " + "\n- ".join(
+                    failed_messages
+                )
             else:
                 # 兜底：至少指出 Reported By
                 warning_info = []
                 if not self.main_window.comboBox_ReportedBy.currentText():
                     warning_info.append("Reported By")
-                warning_str = ("Please complete the following required fields: " + ", ".join(warning_info)
-                               if warning_info else "Please check all required fields")
+                warning_str = (
+                    "Please complete the following required fields: " + ", ".join(warning_info)
+                    if warning_info
+                    else "Please check all required fields"
+                )
 
             QW.QMessageBox.warning(self.main_window, "Input Validation Failed", warning_str)
 
@@ -91,31 +95,38 @@ class AnalysisRunner:
 
         # 简化验证，只验证必要的路径
         if not self.main_window.lineEdit_InputPath.text():
-            QW.QMessageBox.critical(self.main_window, _("Input Validation Failed"), _("Input data path cannot be empty"))
+            QW.QMessageBox.critical(
+                self.main_window, _("Input Validation Failed"), _("Input data path cannot be empty")
+            )
             self.main_window.pushButton_Run.setEnabled(True)
             return False
 
         if not self.main_window.lineEdit_OutputPath.text():
-            QW.QMessageBox.critical(self.main_window, _("Input Validation Failed"), _("Output path cannot be empty"))
+            QW.QMessageBox.critical(
+                self.main_window, _("Input Validation Failed"), _("Output path cannot be empty")
+            )
             self.main_window.pushButton_Run.setEnabled(True)
             return False
 
         # 检查冷冻温度是否设置为0，如果是则提示用户
         temperature_type = self.main_window.comboBox_Temperature.currentText()
-        if temperature_type == "Freezer Temperature" and self.main_window.spinBox_Temperature.value() == 0:
+        if (
+            temperature_type == "Freezer Temperature"
+            and self.main_window.spinBox_Temperature.value() == 0
+        ):
             reply = QW.QMessageBox.question(
                 self.main_window,
                 "Temperature Confirmation",
                 "The current freezer temperature is set to 0°C. Continue running?",
                 QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-                QW.QMessageBox.StandardButton.No
+                QW.QMessageBox.StandardButton.No,
             )
             if reply == QW.QMessageBox.StandardButton.No:
                 self.main_window.pushButton_Run.setEnabled(True)
                 return False
-        
+
         return True
-    
+
     def _prepare_test_info(self):
         """
         准备测试信息
@@ -147,11 +158,11 @@ class AnalysisRunner:
             required_usable_capacity=self.main_window.lineEdit_RequiredUseableCapacity.text(),
             reported_by=self.main_window.comboBox_ReportedBy.currentText(),
         )
-    
+
     def _update_controller_context(self, test_info):
         """
         更新控制器的上下文和测试信息
-        
+
         Args:
             test_info: 测试信息列表
         """
@@ -162,7 +173,7 @@ class AnalysisRunner:
             main_controller.set_project_context(
                 project_path=self.main_window.path,
                 input_path=self.main_window.lineEdit_InputPath.text(),
-                output_path=self.main_window.lineEdit_OutputPath.text()
+                output_path=self.main_window.lineEdit_OutputPath.text(),
             )
             main_controller.set_test_info(test_info)
 
@@ -173,7 +184,9 @@ class AnalysisRunner:
 
             # 启动分析
             success = main_controller.start_analysis()
-        
+
         if not success:
             self.main_window.pushButton_Run.setEnabled(True)
-            QW.QMessageBox.warning(self.main_window, _("Start Failed"), _("Cannot start the analysis task"))
+            QW.QMessageBox.warning(
+                self.main_window, _("Start Failed"), _("Cannot start the analysis task")
+            )

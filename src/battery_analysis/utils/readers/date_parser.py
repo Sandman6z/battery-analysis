@@ -1,9 +1,7 @@
 """测试日期解析工具"""
 
-from typing import Optional
 
-
-def _parse_date_string(date_str: str) -> Optional[str]:
+def _parse_date_string(date_str: str) -> str | None:
     """尝试将单个日期字符串解析为 YYYYMMDD 格式
 
     支持格式: YYYYMMDD, YYYY-MM-DD, YYYY/MM/DD

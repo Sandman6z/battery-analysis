@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 初始化协调器
 
@@ -7,7 +6,7 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
+
 from battery_analysis.main.initialization.initialization_step import InitializationStep
 
 
@@ -16,9 +15,9 @@ class InitializationOrchestrator:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self._phases: Dict[str, List[InitializationStep]] = {}
-        self._phase_order: List[str] = []
-        self._executed_steps: Dict[str, bool] = {}
+        self._phases: dict[str, list[InitializationStep]] = {}
+        self._phase_order: list[str] = []
+        self._executed_steps: dict[str, bool] = {}
 
     def register_step(self, step: InitializationStep, phase: str) -> None:
         """
@@ -33,7 +32,7 @@ class InitializationOrchestrator:
             self._phase_order.append(phase)
         self._phases[phase].append(step)
 
-    def register_steps(self, steps: List[InitializationStep], phase: str) -> None:
+    def register_steps(self, steps: list[InitializationStep], phase: str) -> None:
         """
         批量注册初始化步骤到指定阶段
 
@@ -77,12 +76,17 @@ class InitializationOrchestrator:
 
         self.logger.info("")
         self.logger.info("=" * 50)
-        self.logger.info("Initialization complete — succeeded: %d, failed: %d, phases: %d",
-                         total_executed, total_failed, len(self._phase_order))
+        self.logger.info(
+            "Initialization complete — succeeded: %d, failed: %d, phases: %d",
+            total_executed,
+            total_failed,
+            len(self._phase_order),
+        )
         return all_success
 
-    def _execute_phase(self, phase_name: str, steps: List[InitializationStep],
-                       main_window) -> Tuple[bool, int, int]:
+    def _execute_phase(
+        self, phase_name: str, steps: list[InitializationStep], main_window
+    ) -> tuple[bool, int, int]:
         """
         执行单个阶段内的所有步骤（按优先级分组执行）
 
@@ -97,7 +101,7 @@ class InitializationOrchestrator:
         # 按优先级分组（同优先级步骤依次执行）
         # 防回归：当前所有已注册 phase 内优先级互异（len(group) > 1 恒不成立），
         # 平行执行分支已于 P5-A Task 4 删除；若未来注册同优先级步骤将顺序执行。
-        priority_groups: Dict[int, List[InitializationStep]] = {}
+        priority_groups: dict[int, list[InitializationStep]] = {}
         for step in steps:
             p = step.get_priority()
             if p not in priority_groups:
@@ -124,7 +128,11 @@ class InitializationOrchestrator:
                     phase_failed += 1
                     phase_success = False
 
-        status = "All succeeded ✓" if phase_success else f"succeeded {phase_executed}, failed {phase_failed} ⚠"
+        status = (
+            "All succeeded ✓"
+            if phase_success
+            else f"succeeded {phase_executed}, failed {phase_failed} ⚠"
+        )
         self.logger.info("  Phase [%s] %s", phase_name, status)
         return phase_success, phase_executed, phase_failed
 
@@ -137,13 +145,13 @@ class InitializationOrchestrator:
                 self.logger.debug("  ✓ %s", step.get_name())
             else:
                 self.logger.error("  ✗ %s", step.get_name())
-        except Exception as e:
+        except Exception:
             self.logger.exception("Exception executing step: %s", step.get_name())
             self._executed_steps[step.get_name()] = False
 
     # ── 查询与维护 ──────────────────────────────────────
 
-    def get_step(self, name: str) -> Optional[InitializationStep]:
+    def get_step(self, name: str) -> InitializationStep | None:
         """根据名称查找步骤"""
         for step_list in self._phases.values():
             for step in step_list:
@@ -151,7 +159,7 @@ class InitializationOrchestrator:
                     return step
         return None
 
-    def get_executed_steps(self) -> Dict[str, bool]:
+    def get_executed_steps(self) -> dict[str, bool]:
         """获取已执行步骤的结果"""
         return self._executed_steps.copy()
 
@@ -159,7 +167,7 @@ class InitializationOrchestrator:
         """获取所有阶段的总步骤数"""
         return sum(len(steps) for steps in self._phases.values())
 
-    def get_pending_steps(self) -> List[InitializationStep]:
+    def get_pending_steps(self) -> list[InitializationStep]:
         """获取所有阶段中未执行的步骤"""
         pending = []
         for step_list in self._phases.values():
@@ -168,7 +176,7 @@ class InitializationOrchestrator:
                     pending.append(step)
         return pending
 
-    def get_phases(self) -> Dict[str, List[InitializationStep]]:
+    def get_phases(self) -> dict[str, list[InitializationStep]]:
         """获取所有阶段及其步骤"""
         return {name: list(steps) for name, steps in self._phases.items()}
 

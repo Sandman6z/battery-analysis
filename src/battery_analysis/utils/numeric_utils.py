@@ -6,6 +6,7 @@
 
 import numpy as np
 
+
 def np_mean(_listCpt):
     if len(_listCpt) > 0:
         return float(np.mean(_listCpt))

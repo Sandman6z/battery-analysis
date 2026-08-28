@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 服务容器 — 简单工厂模式
 
@@ -10,8 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Optional, Any
-
+from typing import Any
 
 # ── Services 数据类 ──────────────────────────────────────────────
 
@@ -19,6 +17,7 @@ from typing import Optional, Any
 @dataclass
 class Services:
     """应用中所有共享服务的具名容器。"""
+
     config: Any = None
     environment: Any = None
     file: Any = None
@@ -52,7 +51,7 @@ class ServiceContainer:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self._services_initialized = False
-        self._impl: Optional[Services] = None
+        self._impl: Services | None = None
 
     def _initialize_services(self):
         if self._services_initialized:
@@ -97,7 +96,7 @@ class ServiceContainer:
 
 # ── 全局访问点 ────────────────────────────────────────────────────
 
-_global_container: Optional[ServiceContainer] = None
+_global_container: ServiceContainer | None = None
 
 
 def get_service_container() -> ServiceContainer:

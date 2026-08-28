@@ -8,12 +8,12 @@
 - 设置文件隐藏属性
 """
 
-import os
 import csv
 import logging
+import os
 from pathlib import Path
 
-from battery_analysis.main.workers.task_runner import TaskRunner, TaskManager
+from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
 
 
 class VersionManager:
@@ -63,11 +63,15 @@ class VersionManager:
         目录内无 xlsx 文件时返回 None（回调据此清空版本号）。
         progress_callback 由 TaskRunner 强制注入，此处忽略。
         """
-        listAllInXlsx = [strInPutDir + f"/{f}" for f in os.listdir(
-            strInPutDir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        listAllInXlsx = [
+            strInPutDir + f"/{f}"
+            for f in os.listdir(strInPutDir)
+            if f[:2] != "~$" and f[-5:] == ".xlsx"
+        ]
         if not listAllInXlsx:
             return None
         from battery_analysis.main.utils.file_utils import FileUtils
+
         return FileUtils.calc_checksum(listAllInXlsx)
 
     def _on_checksum_ready(self, checksum, generation):
@@ -86,7 +90,7 @@ class VersionManager:
         # set_version 均读取它），故在任何读取者之前回写。
         # 已知限制：get_version 异步化后，用户若在后台校验和完成前点 Run，
         # analysis_runner 会快照到旧值/空值，本次版本号递增可能跳过
-        #（下次 Run 时校验和已就绪即自愈）。P3 接受的 trade-off，跨文件修复另议。
+        # （下次 Run 时校验和已就绪即自愈）。P3 接受的 trade-off，跨文件修复另议。
         self.main_window.sha256_checksum = checksum
 
         try:
@@ -95,7 +99,7 @@ class VersionManager:
 
             if os.path.exists(strCsvPath) and os.path.getsize(strCsvPath) != 0:
                 listSHA256Reader = []
-                f = open(strCsvPath, mode='r', encoding='utf-8')
+                f = open(strCsvPath, encoding="utf-8")
                 csvSHA256Reader = csv.reader(f)
                 for row in csvSHA256Reader:
                     listSHA256Reader.append(row)
@@ -117,7 +121,7 @@ class VersionManager:
                         break
 
                 os.remove(strCsvPath)
-                f = open(strCsvPath, mode='w', newline='', encoding='utf-8')
+                f = open(strCsvPath, mode="w", newline="", encoding="utf-8")
                 csvSHA256Writer = csv.writer(f)
 
                 if not listChecksum:
@@ -131,7 +135,11 @@ class VersionManager:
                     # 校验和已存在，使用现有的版本号和运行次数
                     intVersionMajor = existing_index + 1
                     try:
-                        intVersionMinor = int(listTimes[existing_index]) if existing_index < len(listTimes) and listTimes[existing_index] else 0
+                        intVersionMinor = (
+                            int(listTimes[existing_index])
+                            if existing_index < len(listTimes) and listTimes[existing_index]
+                            else 0
+                        )
                     except (ValueError, IndexError):
                         intVersionMinor = 0
 
@@ -140,7 +148,8 @@ class VersionManager:
                     csvSHA256Writer.writerow(["Times:"])
                     csvSHA256Writer.writerow(listTimes)
                     self.main_window.lineEdit_Version.setText(
-                        f"{intVersionMajor}.{intVersionMinor}")
+                        f"{intVersionMajor}.{intVersionMinor}"
+                    )
                 else:
                     # 校验和不存在，增加主版本号
                     intVersionMajor = len(listChecksum) + 1
@@ -155,10 +164,11 @@ class VersionManager:
                     csvSHA256Writer.writerow(["Times:"])
                     csvSHA256Writer.writerow(listTimes)
                     self.main_window.lineEdit_Version.setText(
-                        f"{intVersionMajor}.{intVersionMinor}")
+                        f"{intVersionMajor}.{intVersionMinor}"
+                    )
                 f.close()
             else:
-                f = open(strCsvPath, mode='w', newline='', encoding='utf-8')
+                f = open(strCsvPath, mode="w", newline="", encoding="utf-8")
                 csvSHA256Writer = csv.writer(f)
                 csvSHA256Writer.writerow(["Checksums:"])
                 csvSHA256Writer.writerow([checksum])
@@ -176,9 +186,12 @@ class VersionManager:
                 try:
                     import win32api
                     import win32con
+
                     win32api.SetFileAttributes(strCsvPath, win32con.FILE_ATTRIBUTE_HIDDEN)
                 except ImportError:
-                    self.logger.warning("File service is unavailable; cannot set file hidden attribute")
+                    self.logger.warning(
+                        "File service is unavailable; cannot set file hidden attribute"
+                    )
         except Exception as e:  # pylint: disable=broad-exception-caught
             # 后台派发后不再有 _deferred_init 的 try/except 兜底，这里主动记录
             self.logger.error("Failed to finalize version after checksum: %s", e)
@@ -190,9 +203,10 @@ class VersionManager:
             self.logger.debug("Discarding stale checksum error for changed input path")
             return
         self.logger.error("Failed to compute SHA-256 checksum: %s", error_msg)
-        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+        if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "[Error]: Failed to compute checksum")
+                "[Error]: Failed to compute checksum"
+            )
 
     def _run_async(self, task_func, on_finished, on_error, *args, **kwargs):
         """TaskRunner 派发：回调经 TaskSignals 自动回主线程（AutoConnection Queued）。"""
@@ -209,9 +223,12 @@ class VersionManager:
         更新版本号，增加次要版本号
         """
         # 初始化必要的属性如果不存在
-        if not hasattr(self.main_window, 'sha256_checksum_run'):
-            self.main_window.sha256_checksum_run = self.main_window.sha256_checksum if hasattr(
-                self.main_window, 'sha256_checksum') else ''
+        if not hasattr(self.main_window, "sha256_checksum_run"):
+            self.main_window.sha256_checksum_run = (
+                self.main_window.sha256_checksum
+                if hasattr(self.main_window, "sha256_checksum")
+                else ""
+            )
 
         list_sha256_reader = []
         output_path_str = self.main_window.lineEdit_OutputPath.text()
@@ -224,23 +241,26 @@ class VersionManager:
             # 检查路径是否有效
             if not output_path_str or not output_path.is_dir():
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[Warning]: Invalid output path: {output_path_str}")
+                    f"[Warning]: Invalid output path: {output_path_str}"
+                )
                 return
 
             # 读取SHA256文件
             if sha256_file.exists():
                 try:
-                    with sha256_file.open(mode='r', encoding='utf-8') as f:
+                    with sha256_file.open(mode="r", encoding="utf-8") as f:
                         csv_sha256_reader = csv.reader(f)
                         for row in csv_sha256_reader:
                             list_sha256_reader.append(row)
                 except PermissionError:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"[Warning]: Permission denied reading {sha256_file}")
+                        f"[Warning]: Permission denied reading {sha256_file}"
+                    )
                     return
-                except (IOError, UnicodeDecodeError, csv.Error, OSError) as read_error:
+                except (UnicodeDecodeError, csv.Error, OSError) as read_error:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"[Warning]: Failed to read SHA256 file: {str(read_error)}")
+                        f"[Warning]: Failed to read SHA256 file: {read_error!s}"
+                    )
                     return
 
             # 处理文件内容
@@ -257,24 +277,30 @@ class VersionManager:
                             checksum_found = True
                             version_major = c + 1
                             try:
-                                current_times = int(list_times[c]) if c < len(list_times) and list_times[c] else 0
+                                current_times = (
+                                    int(list_times[c])
+                                    if c < len(list_times) and list_times[c]
+                                    else 0
+                                )
                             except (ValueError, IndexError):
                                 current_times = 0
                             new_times = current_times + 1
                             list_times[c] = str(new_times)
                             self.main_window.lineEdit_Version.setText(
-                                f"{version_major}.{new_times}")
+                                f"{version_major}.{new_times}"
+                            )
                             break
 
                     if not checksum_found:
                         self.logger.warning(
                             "Checksum %s was not found in SHA256.csv; unable to update version number",
-                            self.main_window.sha256_checksum_run)
+                            self.main_window.sha256_checksum_run,
+                        )
                         return
 
                     # 创建临时文件避免权限问题
                     temp_file = output_path / "SHA256_temp.csv"
-                    with temp_file.open(mode='w', newline='', encoding='utf-8') as f:
+                    with temp_file.open(mode="w", newline="", encoding="utf-8") as f:
                         csv_sha256_writer = csv.writer(f)
                         csv_sha256_writer.writerow(["Checksums:"])
                         csv_sha256_writer.writerow(list_checksum)
@@ -287,7 +313,8 @@ class VersionManager:
                             sha256_file.unlink()  # 删除原文件
                         except PermissionError:
                             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                                "[Warning]: Cannot remove existing SHA256 file, using new location")
+                                "[Warning]: Cannot remove existing SHA256 file, using new location"
+                            )
                             sha256_file = temp_file  # 使用临时文件作为新的SHA256文件
                             temp_file = None
 
@@ -299,48 +326,65 @@ class VersionManager:
                     if file_service:
                         success, error_msg = file_service.hide_file(str(sha256_file))
                         if not success:
-                            self.logger.warning("Unable to set SHA256 file hidden attribute: %s", error_msg)
+                            self.logger.warning(
+                                "Unable to set SHA256 file hidden attribute: %s", error_msg
+                            )
                     else:
                         # 降级到直接调用
                         try:
                             import win32api
                             import win32con
-                            win32api.SetFileAttributes(str(sha256_file), win32con.FILE_ATTRIBUTE_HIDDEN)
+
+                            win32api.SetFileAttributes(
+                                str(sha256_file), win32con.FILE_ATTRIBUTE_HIDDEN
+                            )
                         except (ImportError, AttributeError, OSError) as e:
                             # 忽略设置隐藏属性失败的错误
-                            self.logger.debug("Unable to set SHA256 file hidden attribute (direct call): %s", e)
+                            self.logger.debug(
+                                "Unable to set SHA256 file hidden attribute (direct call): %s", e
+                            )
                 except PermissionError:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"[Warning]: Permission denied writing to {output_path}")
-                except (IOError, UnicodeEncodeError, csv.Error, OSError, PermissionError) as write_error:
+                        f"[Warning]: Permission denied writing to {output_path}"
+                    )
+                except (UnicodeEncodeError, csv.Error, OSError, PermissionError) as write_error:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"[Warning]: Failed to write SHA256 file: {str(write_error)}")
+                        f"[Warning]: Failed to write SHA256 file: {write_error!s}"
+                    )
             else:
                 # 如果文件不存在或格式不正确，创建新文件
                 try:
-                    with sha256_file.open(mode='w', newline='', encoding='utf-8') as f:
+                    with sha256_file.open(mode="w", newline="", encoding="utf-8") as f:
                         csv_sha256_writer = csv.writer(f)
                         csv_sha256_writer.writerow(["Checksums:"])
                         csv_sha256_writer.writerow(
-                            [self.main_window.sha256_checksum_run if self.main_window.sha256_checksum_run else ""])
+                            [
+                                self.main_window.sha256_checksum_run
+                                if self.main_window.sha256_checksum_run
+                                else ""
+                            ]
+                        )
                         csv_sha256_writer.writerow(["Times:"])
                         csv_sha256_writer.writerow(["1"])
 
                     try:
                         import win32api
                         import win32con
-                        win32api.SetFileAttributes(
-                            str(sha256_file), win32con.FILE_ATTRIBUTE_HIDDEN)
+
+                        win32api.SetFileAttributes(str(sha256_file), win32con.FILE_ATTRIBUTE_HIDDEN)
                     except (ImportError, AttributeError, OSError) as e:
                         self.logger.debug("Unable to set SHA256 file hidden attribute: %s", e)
                 except PermissionError:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"[Warning]: Cannot create SHA256 file in {output_path}")
-                except (IOError, UnicodeEncodeError, csv.Error, OSError, PermissionError) as create_error:
+                        f"[Warning]: Cannot create SHA256 file in {output_path}"
+                    )
+                except (UnicodeEncodeError, csv.Error, OSError, PermissionError) as create_error:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
-                        f"[Warning]: Failed to create SHA256 file: {str(create_error)}")
+                        f"[Warning]: Failed to create SHA256 file: {create_error!s}"
+                    )
 
-        except (IOError, UnicodeError, csv.Error, OSError, PermissionError, TypeError, ValueError) as e:
+        except (UnicodeError, csv.Error, OSError, PermissionError, TypeError, ValueError) as e:
             # 捕获所有其他异常但不中断程序
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                f"[Info]: Version tracking skipped: {str(e)}")
+                f"[Info]: Version tracking skipped: {e!s}"
+            )

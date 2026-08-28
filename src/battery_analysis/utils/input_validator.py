@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 纯输入验证器 — 无 UI 依赖，返回结构化验证结果。
 
@@ -8,18 +7,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
 import re
+from dataclasses import dataclass, field
 
 
 @dataclass
 class ValidationResult:
     """验证结果。"""
+
     is_valid: bool = True
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    field_errors: Dict[str, str] = field(default_factory=dict)  # 字段名 -> 错误消息
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    field_errors: dict[str, str] = field(default_factory=dict)  # 字段名 -> 错误消息
 
     def merge(self, other: ValidationResult) -> ValidationResult:
         self.is_valid = self.is_valid and other.is_valid
@@ -32,6 +31,7 @@ class ValidationResult:
 @dataclass
 class FieldValues:
     """待验证的所有输入字段的纯数据表示。"""
+
     battery_type: str = ""
     construction_method: str = ""
     specification_type: str = ""
@@ -76,8 +76,9 @@ class InputValidator:
     ]
 
     @staticmethod
-    def validate_all(values: FieldValues,
-                     types_requiring_construction: list | None = None) -> ValidationResult:
+    def validate_all(
+        values: FieldValues, types_requiring_construction: list | None = None
+    ) -> ValidationResult:
         """执行全部验证规则。
 
         Args:
@@ -93,14 +94,17 @@ class InputValidator:
         if types_requiring_construction is None:
             types_requiring_construction = ["Pouch Cell"]
         if values.battery_type in types_requiring_construction:
-            result.merge(InputValidator._validate_required_text(
-                values.construction_method, "construction_method", "Construction Method"
-            ))
+            result.merge(
+                InputValidator._validate_required_text(
+                    values.construction_method, "construction_method", "Construction Method"
+                )
+            )
         return result
 
     @staticmethod
-    def validate_before_run(values: FieldValues,
-                            types_requiring_construction: list | None = None) -> ValidationResult:
+    def validate_before_run(
+        values: FieldValues, types_requiring_construction: list | None = None
+    ) -> ValidationResult:
         """运行前的快速检查（仅必填项 + 路径）。"""
         return InputValidator.validate_all(values, types_requiring_construction)
 
@@ -135,6 +139,7 @@ class InputValidator:
     def _validate_paths(values: FieldValues) -> ValidationResult:
         """验证输入/输出路径。"""
         import os
+
         result = ValidationResult()
         if values.input_path and not os.path.exists(values.input_path):
             result.is_valid = False
@@ -161,7 +166,9 @@ class InputValidator:
         result = ValidationResult()
         if values.accelerated_aging < 0 or values.accelerated_aging > 10:
             result.is_valid = False
-            result.field_errors["accelerated_aging"] = "Accelerated aging value should be between 0 and 10"
+            result.field_errors["accelerated_aging"] = (
+                "Accelerated aging value should be between 0 and 10"
+            )
         return result
 
     @staticmethod

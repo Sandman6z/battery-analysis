@@ -4,18 +4,17 @@ import csv
 import json
 import logging
 import os
-from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
 
 def write_info_csv(
     result_path: str,
-    list_battery_name: List[str],
+    list_battery_name: list[str],
     list_current_level: list,
-    list_all_posi: List[List[List[int]]],
-    list_all_charge: List[List[list]],
-    list_all_voltage: List[List[list]],
+    list_all_posi: list[list[list[int]]],
+    list_all_charge: list[list[list]],
+    list_all_voltage: list[list[list]],
 ) -> None:
     """写入 Info_Image.csv（供 BatteryChartViewer 绘制图表）
 
@@ -46,7 +45,7 @@ def write_info_csv(
             csv_data.append(list_all_charge[b][c])
             csv_data.append(list_all_voltage[b][c])
 
-    with open(file_path, 'w', newline='', encoding='utf-8') as f:
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerows(csv_data)
 
@@ -60,7 +59,7 @@ def write_info_json(
     batch_code: str = "",
     capacity: str = "",
     temperature: str = "",
-    current_levels: Optional[list] = None,
+    current_levels: list | None = None,
 ) -> None:
     """写入 Info_Plot.json（供 BatteryChartViewer 读取动态标题）
 
@@ -85,8 +84,9 @@ def write_info_json(
         "batch_code": batch_code or (list_test_info[5] if len(list_test_info) > 5 else ""),
         "capacity": capacity or (list_test_info[8] if len(list_test_info) > 8 else ""),
         "temperature": temperature or (list_test_info[7] if len(list_test_info) > 7 else ""),
-        "current_levels": current_levels or (list_test_info[14] if len(list_test_info) > 14 else []),
+        "current_levels": current_levels
+        or (list_test_info[14] if len(list_test_info) > 14 else []),
     }
 
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         json.dump(meta_data, f, ensure_ascii=False, indent=2)

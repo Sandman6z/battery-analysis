@@ -11,37 +11,32 @@
   - writers.info_csv_writer: 绘图用 CSV/JSON 写入
 """
 
-import csv
 import concurrent.futures
 import datetime
-import json
 import logging
 import multiprocessing
-import os
-import re
 import sys
 import traceback
 
 from battery_analysis.utils.exceptions import BatteryAnalysisException
-from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.file_finder import scan_sorted_xlsx
-from battery_analysis.utils.readers.xlsx_reader import (
-    read_xlsx_sheets,
-    extract_test_date_from_xls,
-)
+from battery_analysis.utils.processors.charge_calculator import ChargeCalculator
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.processors.pulse_detector import detect_pulse_rows
 from battery_analysis.utils.processors.pulse_matcher import match_pulse_levels
-from battery_analysis.utils.processors.charge_calculator import ChargeCalculator
+from battery_analysis.utils.readers.xlsx_reader import (
+    extract_test_date_from_xls,
+    read_xlsx_sheets,
+)
 from battery_analysis.utils.writers.info_csv_writer import (
     write_info_csv,
     write_info_json,
 )
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
 
-logging.basicConfig(level=logging.WARNING,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 class BatteryAnalysis:
@@ -51,20 +46,26 @@ class BatteryAnalysis:
     计算电荷量，输出 CSV/JSON 结果供图表工具使用。
     """
 
-    def __init__(self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list,
-                 progress_callback=None) -> None:
+    def __init__(
+        self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list, progress_callback=None
+    ) -> None:
         # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
         from battery_analysis.domain.entities.test_info import TestInfo
+
         if isinstance(listTestInfo, TestInfo):
             listTestInfo = listTestInfo.to_list()
 
         # ── 输入验证 ──────────────────────────────────────────────
         if len(listTestInfo) < 19:
-            logging.error("Test info list format error: missing required information. "
-                          "Need at least 19 elements, but only found %d", len(listTestInfo))
+            logging.error(
+                "Test info list format error: missing required information. "
+                "Need at least 19 elements, but only found %d",
+                len(listTestInfo),
+            )
             raise BatteryAnalysisException(
                 f"Test information list format error: missing required information. "
-                f"Expected at least 19 elements, but found {len(listTestInfo)}")
+                f"Expected at least 19 elements, but found {len(listTestInfo)}"
+            )
 
         self.listCurrentLevel = listTestInfo[14]
         self.listVoltageLevel = listTestInfo[15]
@@ -82,7 +83,7 @@ class BatteryAnalysis:
         # ── 路径设置 ──────────────────────────────────────────────
         self.strInDataXlsxDir = f"{strInDataXlsxDir}/"
         self.strResultPath = strResultPath
-        safe_temperature = listTestInfo[7].replace(':', '_')
+        safe_temperature = listTestInfo[7].replace(":", "_")
         self.strResultLogTxt = (
             f"{strResultPath}/V{listTestInfo[16]}/"
             f"{listTestInfo[4]}_{listTestInfo[2]}_{listTestInfo[3]}"
@@ -142,13 +143,14 @@ class BatteryAnalysis:
             ]
 
             results = []
-            is_frozen = getattr(sys, 'frozen', False)
+            is_frozen = getattr(sys, "frozen", False)
 
             if progress_callback:
                 progress_callback(12, "Reading Excel file...")
 
-            if is_frozen or sys.platform.startswith('win'):
+            if is_frozen or sys.platform.startswith("win"):
                 from battery_analysis.utils.resource_manager import ResourceManager
+
                 max_processes = ResourceManager.get_optimal_process_count()
                 ctx = ResourceManager.get_processing_context()
 
@@ -172,28 +174,34 @@ class BatteryAnalysis:
                             result = future.result()
                             if result is not None:
                                 results_map[idx] = result
-                        except (FileNotFoundError, PermissionError,
-                                ValueError, KeyError, IndexError,
-                                BatteryAnalysisException) as e:
-                            file_name = (process_args[idx][0]
-                                         if idx < len(process_args)
-                                         else "unknown")
-                            logging.error("Error processing file (skipped): %s - %s",
-                                          file_name, e)
+                        except (
+                            FileNotFoundError,
+                            PermissionError,
+                            ValueError,
+                            KeyError,
+                            IndexError,
+                            BatteryAnalysisException,
+                        ) as e:
+                            file_name = (
+                                process_args[idx][0] if idx < len(process_args) else "unknown"
+                            )
+                            logging.error("Error processing file (skipped): %s - %s", file_name, e)
                             # 跳过失败文件，继续处理其余文件
 
                         completed += 1
                         if progress_callback and total > 1:
                             pct = 15 + int((completed / total) * 35)
                             progress_callback(
-                                pct, f"Analyzing battery data... ({completed}/{total})")
+                                pct, f"Analyzing battery data... ({completed}/{total})"
+                            )
 
                     results = [results_map.get(i) for i in range(len(process_args))]
                     results = [r for r in results if r is not None]
 
                     if not results:
                         raise BatteryAnalysisException(
-                            "[Analysis Error]: All files failed to process, please check the data format")
+                            "[Analysis Error]: All files failed to process, please check the data format"
+                        )
 
             else:
                 cpu_count = min(multiprocessing.cpu_count(), 4)
@@ -202,19 +210,30 @@ class BatteryAnalysis:
                 with multiprocessing.Pool(processes=cpu_count) as pool:
                     try:
                         results = pool.map(self._parallel_process_file, process_args)
-                    except (FileNotFoundError, PermissionError,
-                            ValueError, KeyError, IndexError,
-                            BatteryAnalysisException) as e:
+                    except (
+                        FileNotFoundError,
+                        PermissionError,
+                        ValueError,
+                        KeyError,
+                        IndexError,
+                        BatteryAnalysisException,
+                    ) as e:
                         logging.error("Error while processing files in parallel: %s", e)
                         pool.terminate()
-                        raise BatteryAnalysisException(f"Parallel processing failed: {str(e)}")
+                        raise BatteryAnalysisException(f"Parallel processing failed: {e!s}")
                     finally:
                         pool.close()
                         pool.join()
 
             # ── 合并结果 ──────────────────────────────────────────
-            for battery_name, battery_charge, posi_data, \
-                    voltage_data, charge_data, timestamp_info in results:
+            for (
+                battery_name,
+                battery_charge,
+                posi_data,
+                voltage_data,
+                charge_data,
+                timestamp_info,
+            ) in results:
                 self.listBatteryName.append(battery_name)
                 self.listAllBatteryCharge.append(battery_charge)
                 self.listAllPosiForInfoImageCsv.append(posi_data)
@@ -225,9 +244,11 @@ class BatteryAnalysis:
                     self.listTimeStamp = timestamp_info
                 else:
                     self.listTimeStamp[0] = self._str_compare_date(
-                        timestamp_info[0], self.listTimeStamp[0], True)
+                        timestamp_info[0], self.listTimeStamp[0], True
+                    )
                     self.listTimeStamp[1] = self._str_compare_date(
-                        timestamp_info[1], self.listTimeStamp[1], False)
+                        timestamp_info[1], self.listTimeStamp[1], False
+                    )
 
             if progress_callback:
                 progress_callback(52, "Writing CSV file...")
@@ -238,8 +259,7 @@ class BatteryAnalysis:
             if progress_callback:
                 progress_callback(55, "Data processing complete")
 
-        except (IOError, OSError, ValueError,
-                BatteryAnalysisException, KeyError) as e:
+        except (OSError, ValueError, BatteryAnalysisException, KeyError) as e:
             self.strErrorLog = str(e)
             if not isinstance(e, (BatteryAnalysisException, KeyError)):
                 traceback.print_exc()
@@ -257,12 +277,12 @@ class BatteryAnalysis:
         except Exception as e:  # pylint: disable=broad-exception-caught
             # calamine 引擎异常类型随 pandas 版本变化，统一归一化为业务异常，
             # 由 worker 层的异常处理跳过该文件
-            raise BatteryAnalysisException(
-                f"Failed to read Excel file: {strPath}: {e}") from e
+            raise BatteryAnalysisException(f"Failed to read Excel file: {strPath}: {e}") from e
 
         if len(cycle_df) < 3 or len(step_df) < 3 or len(record_df) < 3:
             raise BatteryAnalysisException(
-                f"Excel file format error: {strPath} has insufficient data rows")
+                f"Excel file format error: {strPath} has insufficient data rows"
+            )
 
         # ── 列提取 ──────────────────────────────────────────────
         cycle_cycle = cycle_df.iloc[:, 0]
@@ -279,7 +299,8 @@ class BatteryAnalysis:
             listTimeStamp = [
                 str(cycle_begin.iloc[2]) if pd_notna(cycle_begin.iloc[2]) else "",
                 str(cycle_end.iloc[len(cycle_df) - 1])
-                if pd_notna(cycle_end.iloc[len(cycle_df) - 1]) else "",
+                if pd_notna(cycle_end.iloc[len(cycle_df) - 1])
+                else "",
             ]
         except IndexError:
             listTimeStamp = ["", ""]
@@ -310,7 +331,9 @@ class BatteryAnalysis:
         if matched is None:
             raise BatteryAnalysisException(f"Pulse data not found: {strPath}")
 
-        listLevelToVoltage, listLevelToRow, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = matched
+        listLevelToVoltage, listLevelToRow, listPosiForInfoImageCsv, listVoltageForInfoImageCsv = (
+            matched
+        )
 
         # ── 电荷计算 ────────────────────────────────────────────
         calculator = ChargeCalculator(cycle_df, step_df, record_df)
@@ -328,7 +351,8 @@ class BatteryAnalysis:
                 raise BatteryAnalysisException(
                     f"[Plt Data Error]: battery {battery_name} "
                     f"{listCurrentLevel[c]}mA pulse, "
-                    f"charge is not equal to voltage")
+                    f"charge is not equal to voltage"
+                )
             listChargeForInfoImageCsv.append(charges)
 
         return (
@@ -346,6 +370,7 @@ class BatteryAnalysis:
     @staticmethod
     def _str_compare_date(strDate1, strDate2, bEarlier):
         """比较两个日期字符串，返回较早或较晚的日期"""
+
         def int_convert_date(strDate):
             try:
                 if " " in strDate:
@@ -382,7 +407,8 @@ class BatteryAnalysis:
     def UBA_AnalysisXlsx(self, strPath: str) -> None:
         """分析单个 xlsx 文件"""
         result = self._parallel_process_file(
-            (strPath, self.listCurrentLevel, self.listVoltageLevel))
+            (strPath, self.listCurrentLevel, self.listVoltageLevel)
+        )
 
         battery_name, battery_charge, posi_data, voltage_data, charge_data, timestamp_info = result
 
@@ -400,16 +426,20 @@ class BatteryAnalysis:
                     if "-" in date_part:
                         parts = date_part.split("-")
                         if len(parts) >= 3:
-                            self.original_cycle_date = f"{parts[0]}{parts[1].zfill(2)}{parts[2].zfill(2)}"
+                            self.original_cycle_date = (
+                                f"{parts[0]}{parts[1].zfill(2)}{parts[2].zfill(2)}"
+                            )
                 except (ValueError, IndexError):
                     pass
         else:
             self.listTimeStamp[0] = self._str_compare_date(
-                timestamp_info[0], self.listTimeStamp[0], True)
+                timestamp_info[0], self.listTimeStamp[0], True
+            )
             self.listTimeStamp[1] = self._str_compare_date(
-                timestamp_info[1], self.listTimeStamp[1], False)
+                timestamp_info[1], self.listTimeStamp[1], False
+            )
 
-        self.UBA_Log(datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S]") + '\r')
+        self.UBA_Log(datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S]") + "\r")
         self.UBA_Log(f"Battery {battery_name}:\r")
 
         # 构建日志用的等级信息
@@ -470,20 +500,20 @@ class BatteryAnalysis:
             self._flush_log_buffer()
 
     def _flush_log_buffer(self):
-        if not getattr(self, '_log_buffer', None):
+        if not getattr(self, "_log_buffer", None):
             return
         try:
-            with open(self.strResultLogTxt, "a", encoding='utf-8') as f:
+            with open(self.strResultLogTxt, "a", encoding="utf-8") as f:
                 f.writelines(self._log_buffer)
             self._log_buffer = []
             self._log_buffer_size = 0
-        except (IOError, OSError) as e:
+        except OSError as e:
             logging.error("Failed to write log file: %s", e)
 
     def __del__(self):
         try:
             self._flush_log_buffer()
-        except (IOError, OSError):
+        except OSError:
             pass
 
     # ────────────────────────────────────────────────────────────
@@ -506,6 +536,7 @@ def pd_notna(val):
     """pandas na 检查（避免文件级 import pandas）"""
     try:
         import pandas as pd
+
         return pd.notna(val)
     except ImportError:
         return val is not None

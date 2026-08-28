@@ -1,5 +1,5 @@
-import pytest
 from unittest.mock import Mock, patch
+
 from battery_analysis.main.controllers.file_controller import FileController
 
 
@@ -18,12 +18,12 @@ class TestFileController:
         mock_container = Mock()
         mock_container.get.side_effect = lambda name: {
             "file": mock_file_service,
-            "config": mock_config_service
+            "config": mock_config_service,
         }.get(name)
 
         patcher = patch(
-            'battery_analysis.main.services.service_container.get_service_container',
-            return_value=mock_container
+            "battery_analysis.main.services.service_container.get_service_container",
+            return_value=mock_container,
         )
         patcher.start()
         self.controller = FileController()
@@ -40,6 +40,7 @@ class TestFileController:
 
     def test_validate_directory_valid(self):
         import os
+
         result = self.controller.validate_directory(os.getcwd())
         assert result[0] is True
 
@@ -49,8 +50,10 @@ class TestFileController:
 
     def test_ensure_directory_exists(self):
         import tempfile
+
         with tempfile.TemporaryDirectory() as tmpdir:
             import os
+
             test_path = os.path.join(tmpdir, "new_dir")
             result = self.controller.ensure_directory_exists(test_path)
             assert result[0] is True

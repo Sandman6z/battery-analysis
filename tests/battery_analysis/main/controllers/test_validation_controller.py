@@ -1,4 +1,5 @@
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
+
 from battery_analysis.main.controllers.validation_controller import ValidationController
 
 
@@ -12,21 +13,21 @@ class TestValidationController:
         mock_container.get.return_value = mock_validation_service
 
         patcher = patch(
-            'battery_analysis.main.services.service_container.get_service_container',
-            return_value=mock_container
+            "battery_analysis.main.services.service_container.get_service_container",
+            return_value=mock_container,
         )
         patcher.start()
         self.controller = ValidationController()
         patcher.stop()
 
     def test_sanitize_file_name_colon(self):
-        result = self.controller.sanitize_file_name('test:name.xlsx')
-        assert result == 'test_name.xlsx'
+        result = self.controller.sanitize_file_name("test:name.xlsx")
+        assert result == "test_name.xlsx"
 
     def test_sanitize_file_name_angle_bracket(self):
-        result = self.controller.sanitize_file_name('test<name>.xlsx')
-        assert result == 'test_name_.xlsx'
+        result = self.controller.sanitize_file_name("test<name>.xlsx")
+        assert result == "test_name_.xlsx"
 
     def test_sanitize_file_name_no_change(self):
-        result = self.controller.sanitize_file_name('normal-file.name.xlsx')
-        assert result == 'normal-file.name.xlsx'
+        result = self.controller.sanitize_file_name("normal-file.name.xlsx")
+        assert result == "normal-file.name.xlsx"

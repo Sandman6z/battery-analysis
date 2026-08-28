@@ -1,5 +1,5 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
+
 from battery_analysis.utils.config_utils import find_config_file
 
 
@@ -18,7 +18,9 @@ class TestConfigUtils:
         （修改/清空自定义配置路径后无法生效）
         """
         from battery_analysis.utils.config_utils import (
-            _get_custom_config_path, clear_config_cache, clear_custom_config_path,
+            _get_custom_config_path,
+            clear_config_cache,
+            clear_custom_config_path,
         )
 
         # 确保缓存干净

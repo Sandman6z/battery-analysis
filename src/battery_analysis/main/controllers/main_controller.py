@@ -1,10 +1,12 @@
-# -*- coding: utf-8 -*-
 """
 主控制器模块
 负责处理核心业务逻辑和协调各个组件
 """
+
 import logging
+
 from PyQt6 import QtCore as QC
+
 from battery_analysis.main.workers.analysis_worker import AnalysisWorker
 
 
@@ -13,6 +15,7 @@ class MainController(QC.QObject):
     主控制器类
     负责应用程序的核心业务逻辑控制
     """
+
     # 定义信号
     progress_updated = QC.pyqtSignal(int, str)  # 进度更新信号
     status_changed = QC.pyqtSignal(bool, int, str)  # 状态变化信号
@@ -73,18 +76,13 @@ class MainController(QC.QObject):
         # 创建工作线程
         self.current_worker = AnalysisWorker()
         self.current_worker.set_info(
-            self.project_path,
-            self.input_path,
-            self.output_path,
-            self.test_info
+            self.project_path, self.input_path, self.output_path, self.test_info
         )
 
         # 连接信号
-        self.current_worker.signals.progress.connect(
-            self._on_progress_update)
+        self.current_worker.signals.progress.connect(self._on_progress_update)
         self.current_worker.signals.info.connect(self._on_status_changed)
-        self.current_worker.signals.thread_end.connect(
-            self._on_analysis_completed)
+        self.current_worker.signals.thread_end.connect(self._on_analysis_completed)
         self.current_worker.signals.rename_path.connect(self._on_path_renamed)
         self.current_worker.signals.start_visualizer.connect(self._on_start_visualizer)
 
@@ -155,9 +153,11 @@ class MainController(QC.QObject):
         转发信号给主窗口
         """
         try:
-            if hasattr(self, 'start_visualizer'):
+            if hasattr(self, "start_visualizer"):
                 self.start_visualizer.emit()
             else:
-                logging.error("main_controller.start_visualizer signal does not exist, cannot forward")
+                logging.error(
+                    "main_controller.start_visualizer signal does not exist, cannot forward"
+                )
         except (AttributeError, TypeError, RuntimeError) as e:
             logging.error("Failed to forward start visualizer signal: %s", e)

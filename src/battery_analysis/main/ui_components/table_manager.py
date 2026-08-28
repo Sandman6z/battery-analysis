@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 表格管理器模块
 负责处理测试信息表格的设置和保存功能
@@ -8,6 +7,7 @@
 
 import logging
 from typing import Any
+
 from PyQt6.QtWidgets import QTableWidgetItem
 
 
@@ -78,10 +78,10 @@ class TableManager:
                         break
 
         if matched_info is None:
-            self.main_window.checker_table.set_error(
-                "Equipment config not found")
+            self.main_window.checker_table.set_error("Equipment config not found")
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "[Error]: Equipment config not found")
+                "[Error]: Equipment config not found"
+            )
             return
 
         def set_item(item_data, row: int, col: int) -> None:

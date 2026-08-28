@@ -2,12 +2,12 @@
 测试配置保存/重新加载/刷新同步的完整性
 模拟 ConfigDialog._on_save → ConfigManager.reload_config() → get_config 的完整流程
 """
+
 import copy
 import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 from battery_analysis.main.services.config_service import ConfigService
 from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
@@ -30,6 +30,7 @@ class TestConfigSync:
     def teardown_method(self):
         """清理临时文件和环境变量"""
         import shutil
+
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
         if self._orig_appdata:
             os.environ["APPDATA"] = self._orig_appdata
@@ -106,7 +107,9 @@ class TestConfigSync:
 
         # 此时 locations 应该包含新条目
         locations_after_reload = service.get_config_value("test.locations", [])
-        print(f"After reload_config(), locations ({len(locations_after_reload)}): {locations_after_reload}")
+        print(
+            f"After reload_config(), locations ({len(locations_after_reload)}): {locations_after_reload}"
+        )
         assert any("Copy" in loc for loc in locations_after_reload), (
             f"After reload_config(), locations missing copy: {locations_after_reload}"
         )

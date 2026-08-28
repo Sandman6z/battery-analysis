@@ -1,4 +1,3 @@
-from unittest.mock import Mock, patch
 from battery_analysis.main.services.environment_service import EnvironmentService
 
 

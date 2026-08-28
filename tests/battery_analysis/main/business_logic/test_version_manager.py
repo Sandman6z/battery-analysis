@@ -1,10 +1,8 @@
 """VersionManager单元测试"""
 
 import csv
-import os
-import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -30,7 +28,7 @@ def version_manager():
 def create_sha256_csv(tmp_path: Path, checksums: list, times: list):
     """在tmp_path下创建测试用SHA256.csv文件"""
     csv_path = tmp_path / "SHA256.csv"
-    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["Checksums:"])
         writer.writerow(checksums)
@@ -56,7 +54,7 @@ class TestSetVersion:
         vm.set_version()
 
         # 验证Times已递增
-        with open(csv_path, 'r', encoding='utf-8') as f:
+        with open(csv_path, encoding="utf-8") as f:
             reader = list(csv.reader(f))
         assert reader[3] == ["1"]
         # 验证UI已更新
@@ -75,7 +73,7 @@ class TestSetVersion:
         vm = VersionManager(main_window)
         vm.set_version()
 
-        with open(csv_path, 'r', encoding='utf-8') as f:
+        with open(csv_path, encoding="utf-8") as f:
             reader = list(csv.reader(f))
         assert reader[3] == ["2"]
         main_window.lineEdit_Version.setText.assert_called_once_with("1.2")
@@ -94,7 +92,7 @@ class TestSetVersion:
         vm.set_version()
 
         csv_path = tmp_path / "SHA256.csv"
-        with open(csv_path, 'r', encoding='utf-8') as f:
+        with open(csv_path, encoding="utf-8") as f:
             reader = list(csv.reader(f))
         # def456是第二个checksum（索引1），Times应从3变成4
         assert reader[3] == ["5", "4", "7"]
@@ -104,7 +102,7 @@ class TestSetVersion:
     def test_checksum_not_found(self, tmp_path):
         """校验和不存在时，文件不变，版本号不更新"""
         csv_path = create_sha256_csv(tmp_path, ["abc123"], ["1"])
-        original_content = csv_path.read_text(encoding='utf-8')
+        original_content = csv_path.read_text(encoding="utf-8")
 
         main_window = MagicMock()
         main_window.lineEdit_OutputPath.text.return_value = str(tmp_path)
@@ -114,11 +112,11 @@ class TestSetVersion:
         main_window._get_service.return_value = None
 
         vm = VersionManager(main_window)
-        with patch.object(vm.logger, 'warning') as mock_warning:
+        with patch.object(vm.logger, "warning") as mock_warning:
             vm.set_version()
 
         # 文件内容不变
-        assert csv_path.read_text(encoding='utf-8') == original_content
+        assert csv_path.read_text(encoding="utf-8") == original_content
         # 发出警告
         mock_warning.assert_called_once()
         # UI版本号不更新
@@ -148,7 +146,7 @@ class TestSetVersion:
         main_window._get_service.return_value = None
 
         # 模拟win32api可用
-        with patch('win32api.SetFileAttributes'):
+        with patch("win32api.SetFileAttributes"):
             vm = VersionManager(main_window)
             # 确保hasattr检查通过
             vm.main_window = main_window
@@ -156,7 +154,7 @@ class TestSetVersion:
 
         csv_path = tmp_path / "SHA256.csv"
         assert csv_path.exists()
-        with open(csv_path, 'r', encoding='utf-8') as f:
+        with open(csv_path, encoding="utf-8") as f:
             reader = list(csv.reader(f))
         assert reader[1] == ["abc123"]
         assert reader[3] == ["1"]
@@ -186,8 +184,10 @@ class TestGetVersion:
         main_window._get_service.return_value = None
 
         # 模拟calc_checksum返回固定值
-        with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
-                   return_value="dummy_checksum"):
+        with patch(
+            "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum",
+            return_value="dummy_checksum",
+        ):
             vm = VersionManager(main_window)
             vm._checksum_generation = 1
             checksum = vm._calc_checksum_task(str(input_dir))
@@ -218,8 +218,10 @@ class TestGetVersion:
         main_window.statusBar_BatteryAnalysis = MagicMock()
         main_window._get_service.return_value = None
 
-        with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
-                   return_value="dummy_checksum"):
+        with patch(
+            "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum",
+            return_value="dummy_checksum",
+        ):
             vm = VersionManager(main_window)
             vm._checksum_generation = 1
             checksum = vm._calc_checksum_task(str(input_dir))
@@ -235,8 +237,7 @@ class TestGetVersion:
         main_window.lineEdit_OutputPath.text.return_value = "/tmp/out"
         vm = VersionManager(main_window)
         vm._task_manager = MagicMock()
-        with patch('os.path.exists', return_value=True), \
-             patch.object(vm, '_run_async') as mock_run:
+        with patch("os.path.exists", return_value=True), patch.object(vm, "_run_async") as mock_run:
             vm.get_version()
         assert vm._checksum_generation == 1
         vm._task_manager.cancel_all.assert_called_once()
@@ -245,10 +246,10 @@ class TestGetVersion:
         assert task_func == vm._calc_checksum_task
         assert input_dir == "/tmp/in"
         # 回调是 closure：转发到同名方法并携带代次
-        with patch.object(vm, '_on_checksum_ready') as mock_ready:
+        with patch.object(vm, "_on_checksum_ready") as mock_ready:
             on_finished("abc123")
         mock_ready.assert_called_once_with("abc123", 1)
-        with patch.object(vm, '_on_checksum_error') as mock_error:
+        with patch.object(vm, "_on_checksum_error") as mock_error:
             on_error("boom")
         mock_error.assert_called_once_with("boom", 1)
 
@@ -256,10 +257,10 @@ class TestGetVersion:
         """TaskRunner 注入的 progress_callback 经 **kwargs 吸收，不影响计算"""
         (tmp_path / "a.xlsx").write_bytes(b"dummy")
         vm = VersionManager(MagicMock())
-        with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
-                   return_value="abc123"):
-            result = vm._calc_checksum_task(
-                str(tmp_path), progress_callback=lambda pct, msg: None)
+        with patch(
+            "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum", return_value="abc123"
+        ):
+            result = vm._calc_checksum_task(str(tmp_path), progress_callback=lambda pct, msg: None)
         assert result == "abc123"
 
     def test_on_checksum_ready_discards_stale_result(self):
@@ -270,7 +271,7 @@ class TestGetVersion:
         main_window.lineEdit_Version = MagicMock()
         vm = VersionManager(main_window)
         vm._checksum_generation = 5
-        with patch.object(vm.logger, 'info') as mock_info:
+        with patch.object(vm.logger, "info") as mock_info:
             vm._on_checksum_ready("stale_checksum", generation=4)
         mock_info.assert_called_once()
         main_window.lineEdit_Version.setText.assert_not_called()
@@ -291,8 +292,10 @@ class TestGetVersion:
         main_window.lineEdit_Version = MagicMock()
         vm = VersionManager(main_window)
         vm._task_manager = MagicMock()
-        with patch('os.path.exists', return_value=False), \
-             patch.object(vm, '_run_async') as mock_run:
+        with (
+            patch("os.path.exists", return_value=False),
+            patch.object(vm, "_run_async") as mock_run,
+        ):
             vm.get_version()
         main_window.lineEdit_Version.setText.assert_called_once_with("")
         # 目录失效也推进代次并取消在途任务，防旧代次结果误接受（I-1 回归修复）
@@ -309,22 +312,24 @@ class TestGetVersion:
         vm = VersionManager(main_window)
         vm._task_manager = MagicMock()
         vm._checksum_generation = 1  # gen 1 校验和任务在途
-        with patch('os.path.exists', return_value=False), \
-             patch.object(vm, '_run_async') as mock_run:
+        with (
+            patch("os.path.exists", return_value=False),
+            patch.object(vm, "_run_async") as mock_run,
+        ):
             vm.get_version()
         # 目录失效 → 推进到 gen 2，版本号清空，不派发新任务
         assert vm._checksum_generation == 2
         main_window.lineEdit_Version.setText.assert_called_once_with("")
         mock_run.assert_not_called()
         # 旧代次（gen 1）结果此刻到达 → 守卫丢弃，版本号保持清空不被复活
-        with patch.object(vm.logger, 'info') as mock_info:
+        with patch.object(vm.logger, "info") as mock_info:
             vm._on_checksum_ready("stale_checksum", generation=1)
         mock_info.assert_called_once()
         main_window.lineEdit_Version.setText.assert_called_once_with("")
 
     def test_calc_checksum_task_returns_none_without_xlsx(self, tmp_path):
         """目录内无 xlsx → 任务返回 None（回调据此清空版本号）"""
-        (tmp_path / "readme.txt").write_text("hi", encoding='utf-8')
+        (tmp_path / "readme.txt").write_text("hi", encoding="utf-8")
         vm = VersionManager(MagicMock())
         assert vm._calc_checksum_task(str(tmp_path)) is None
 
@@ -332,8 +337,9 @@ class TestGetVersion:
         """有 xlsx → 返回 FileUtils.calc_checksum 结果"""
         (tmp_path / "a.xlsx").write_bytes(b"dummy")
         vm = VersionManager(MagicMock())
-        with patch('battery_analysis.main.utils.file_utils.FileUtils.calc_checksum',
-                   return_value="abc123"):
+        with patch(
+            "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum", return_value="abc123"
+        ):
             assert vm._calc_checksum_task(str(tmp_path)) == "abc123"
 
     def test_on_checksum_ready_none_clears_version(self):
@@ -351,7 +357,7 @@ class TestGetVersion:
         """校验和计算异常 → 记录日志，不崩溃"""
         vm = VersionManager(MagicMock())
         vm._checksum_generation = 1
-        with patch.object(vm.logger, 'error') as mock_error:
+        with patch.object(vm.logger, "error") as mock_error:
             vm._on_checksum_error("boom", generation=1)
         mock_error.assert_called_once()
 
@@ -359,6 +365,6 @@ class TestGetVersion:
         """旧代次 → 错误兜底同样丢弃"""
         vm = VersionManager(MagicMock())
         vm._checksum_generation = 5
-        with patch.object(vm.logger, 'error') as mock_error:
+        with patch.object(vm.logger, "error") as mock_error:
             vm._on_checksum_error("boom", generation=4)
         mock_error.assert_not_called()

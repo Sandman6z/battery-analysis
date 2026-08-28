@@ -1,5 +1,7 @@
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, patch
+
 from battery_analysis.ui.styles.style_manager import StyleManager
 
 

@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
+
 from battery_analysis.main.ui_components.ui_manager import UIManager
 
 
@@ -11,7 +13,7 @@ class TestUIManager:
         self.manager = UIManager(mock_main)
 
     def test_init_window(self):
-        with patch.object(self.manager, '_load_application_icon', return_value=Mock()):
+        with patch.object(self.manager, "_load_application_icon", return_value=Mock()):
             self.manager.init_window()
 
     @pytest.mark.skip(reason="需要 Qt 运行环境")

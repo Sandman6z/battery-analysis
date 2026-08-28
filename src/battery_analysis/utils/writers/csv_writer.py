@@ -5,17 +5,15 @@ CSV输出写入器
 """
 
 import csv
-import os
 import logging
 
-from battery_analysis.utils.writers import csv_utils
-from battery_analysis.utils import numeric_utils
-from battery_analysis.utils.processors.data_utils import generate_current_type_string
-from battery_analysis.utils.writers.statistics_utils import (
-    compute_list_cpt, compute_statistics,
-)
 from battery_analysis import __version__
-
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
+from battery_analysis.utils.writers import csv_utils
+from battery_analysis.utils.writers.statistics_utils import (
+    compute_list_cpt,
+    compute_statistics,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +41,7 @@ class CsvWriter:
         self.intBatteryNum = len(self.listBatteryName)
 
         # CSV路径
-        safe_temperature = self.listTestInfo[7].replace(':', '_')
+        safe_temperature = self.listTestInfo[7].replace(":", "_")
         self.strResultCsvPath = (
             f"{self.strResultPath}/{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}"
             f"_{self.strFileCurrentType}_{safe_temperature}.csv"
@@ -52,7 +50,7 @@ class CsvWriter:
     def write(self, list_cpt=None, stats=None) -> None:
         """写入CSV文件"""
         # init csv writer
-        f = open(self.strResultCsvPath, mode='w', newline='', encoding='utf-8')
+        f = open(self.strResultCsvPath, mode="w", newline="", encoding="utf-8")
         csvwriterResultCsvFile = csv.writer(f)
 
         # CSV写入缓冲区，减少I/O操作
@@ -62,9 +60,9 @@ class CsvWriter:
 
         # Write CSV header information
         csv_header_info = [
-            f"#BEGIN HEADER",
-            f"#PULSE DISCHARGE",
-            f"#BATTERY CHARACTERISTICS",
+            "#BEGIN HEADER",
+            "#PULSE DISCHARGE",
+            "#BATTERY CHARACTERISTICS",
             f"#Start Time: {self.listBatteryInfo[2][0]}",
             f"#End Time: {self.listBatteryInfo[2][1]}",
             f"#Battery Type: {self.listTestInfo[2]} {self.listTestInfo[3]}",
@@ -73,15 +71,17 @@ class CsvWriter:
             f"#Temperature: {self.listTestInfo[6]}",
             f"#Test Profile: {self.listTestInfo[13]}",
             f"#Version: v{__version__}",
-            f"#END HEADER"
+            "#END HEADER",
         ]
         for info in csv_header_info:
             csv_buffer_size = csv_utils.csv_write(
-                info, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+                info, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size
+            )
 
         # Write CSV column headers
         csv_buffer_size = csv_utils.csv_write(
-            "", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+            "", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size
+        )
         listCsvLine = [""]
         for c in range(self.intCurrentLevelNum):
             listCsvLine.append(f"{self.listCurrentLevel[c]}mA")
@@ -89,7 +89,8 @@ class CsvWriter:
             for v in range(self.intVoltageLevelNum):
                 listCsvLine.append("")
         csv_buffer_size = csv_utils.csv_write(
-            listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+            listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size
+        )
         listCsvLine = []
         for c in range(self.intCurrentLevelNum):
             listCsvLine.append("")
@@ -98,7 +99,8 @@ class CsvWriter:
                 listCsvLine.append(f"{self.listVoltageLevel[v]}V")
         listCsvLine[0] = "Battery"
         csv_buffer_size = csv_utils.csv_write(
-            listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+            listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size
+        )
 
         # Write analytical battery statistic
         for b in range(self.intBatteryNum):
@@ -112,16 +114,21 @@ class CsvWriter:
                     i += 1
             listCsvLine[0] = f"{self.listBatteryName[b]}"
             csv_buffer_size = csv_utils.csv_write(
-                listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+                listCsvLine,
+                csvwriterResultCsvFile,
+                csv_buffer,
+                csv_buffer_size,
+                max_csv_buffer_size,
+            )
 
         # Compute statistics (if not pre-computed)
         if list_cpt is None:
             list_cpt = compute_list_cpt(
-            self.listBatteryCharge,
-            self.intBatteryNum,
-            self.intCurrentLevelNum,
-            self.intVoltageLevelNum,
-        )
+                self.listBatteryCharge,
+                self.intBatteryNum,
+                self.intCurrentLevelNum,
+                self.intVoltageLevelNum,
+            )
         stats = compute_statistics(
             list_cpt,
             self.intCurrentLevelNum,
@@ -129,13 +136,31 @@ class CsvWriter:
         )
 
         # Write calculated statistic
-        listCsvName = ["Mean(μ)", "Median", "Std. Var.(σ)", "μ-3σ",
-                       "μ-2σ", "μ+2σ", "μ+3σ", "Minimum", "Maximum"]
-        listCsvList = [stats['mean'], stats['med'], stats['std'],
-                       stats['mm3s'], stats['mm2s'], stats['mp2s'],
-                       stats['mp3s'], stats['min'], stats['max']]
+        listCsvName = [
+            "Mean(μ)",
+            "Median",
+            "Std. Var.(σ)",
+            "μ-3σ",
+            "μ-2σ",
+            "μ+2σ",
+            "μ+3σ",
+            "Minimum",
+            "Maximum",
+        ]
+        listCsvList = [
+            stats["mean"],
+            stats["med"],
+            stats["std"],
+            stats["mm3s"],
+            stats["mm2s"],
+            stats["mp2s"],
+            stats["mp3s"],
+            stats["min"],
+            stats["max"],
+        ]
         csv_buffer_size = csv_utils.csv_write(
-            "", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+            "", csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size
+        )
         for n in range(len(listCsvName)):
             listCsvLine = []
             for c in range(self.intCurrentLevelNum):
@@ -145,7 +170,12 @@ class CsvWriter:
                     listCsvLine.append(round(listCsvList[n][c][v], 5))
             listCsvLine[0] = f"{listCsvName[n]}"
             csv_buffer_size = csv_utils.csv_write(
-                listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size)
+                listCsvLine,
+                csvwriterResultCsvFile,
+                csv_buffer,
+                csv_buffer_size,
+                max_csv_buffer_size,
+            )
 
         # Flush buffer and close
         if csv_buffer:

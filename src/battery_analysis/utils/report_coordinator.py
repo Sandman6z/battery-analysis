@@ -4,34 +4,38 @@
 与新版 writer 的差异：生成插件标题、管理图片/ SVG 路径、处理旧式日期回退逻辑。
 """
 
+import importlib.resources
+import logging
+import math
 import os
 import re
-import math
-import logging
-import importlib.resources
 from pathlib import Path
 
-from battery_analysis.utils.processors.data_utils import (
-    build_plot_title, generate_current_type_string,
-)
-from battery_analysis.utils.constants import (
-    CN_FONT_LIST, PLT_COLOR_TYPE, COLOR_NAME, BATTERY_TYPE_BASE,
-)
-from battery_analysis.utils.writers import plot_writer
-from battery_analysis.utils.readers.date_parser import parse_test_date
-from battery_analysis import __version__
-
 import matplotlib
-matplotlib.use('Agg')
+
+from battery_analysis.utils.constants import (
+    BATTERY_TYPE_BASE,
+    CN_FONT_LIST,
+    COLOR_NAME,
+    PLT_COLOR_TYPE,
+)
+from battery_analysis.utils.processors.data_utils import (
+    build_plot_title,
+    generate_current_type_string,
+)
+from battery_analysis.utils.readers.date_parser import parse_test_date
+from battery_analysis.utils.writers import plot_writer
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-plt.rcParams['font.sans-serif'] = CN_FONT_LIST
-plt.rcParams['axes.unicode_minus'] = False
+
+plt.rcParams["font.sans-serif"] = CN_FONT_LIST
+plt.rcParams["axes.unicode_minus"] = False
 
 
 logger = logging.getLogger(__name__)
 
 # ── 共享常量 ──────────────────────────────────────────────────
-
 
 
 def match_battery_type(test_info_type: str) -> str:
@@ -51,11 +55,16 @@ def match_battery_type(test_info_type: str) -> str:
 
 
 def compute_report_content_base(
-    listCurrentLevel, intCurrentLevelNum,
-    listVoltageLevel, intVoltageLevelNum,
-    listTestInfo, listBatteryInfo,
-    strSampleXlsxPath, strResultXlsxPath, strReportWordPath,
-    stats
+    listCurrentLevel,
+    intCurrentLevelNum,
+    listVoltageLevel,
+    intVoltageLevelNum,
+    listTestInfo,
+    listBatteryInfo,
+    strSampleXlsxPath,
+    strResultXlsxPath,
+    strReportWordPath,
+    stats,
 ):
     """计算报告内容的位置参数和列表项（Excel/Word 共享部分）
 
@@ -87,31 +96,30 @@ def compute_report_content_base(
 
     # 构建列表项
     listStrItems = [
-        "Battery Type",                          # 0
-        "Specification",                         # 1
-        "Manufacturer",                          # 2
-        "Construction Method",                   # 3
-        "Test Profile",                          # 4
-        "Tester location",                       # 5
-        "Tested By",                             # 6
-        "Batch/Date Code",                       # 7
-        "Accelerated Aging[Years]",              # 8
-        "Datasheet Nominal Capacity[mAh]",       # 9
-        "Calculation Nominal Capacity[mAh]",     # 10
-        "Required Useable Capacity[mAh]",        # 11
-        None,                                    # 12
+        "Battery Type",  # 0
+        "Specification",  # 1
+        "Manufacturer",  # 2
+        "Construction Method",  # 3
+        "Test Profile",  # 4
+        "Tester location",  # 5
+        "Tested By",  # 6
+        "Batch/Date Code",  # 7
+        "Accelerated Aging[Years]",  # 8
+        "Datasheet Nominal Capacity[mAh]",  # 9
+        "Calculation Nominal Capacity[mAh]",  # 10
+        "Required Useable Capacity[mAh]",  # 11
+        None,  # 12
         f"Actual Measured Capacity[mAh]\n(at {listCurrentLevel[intPosiMaxmA]}mA/2.25V)",  # 13
-        "Test Date",                             # 14
-        "Samples Qty",                           # 15
-        "Temperature[℃]",                        # 16
-        "Result",                                # 17
-        "Test Results File",                     # 18
-        "Remarks"                                # 19
+        "Test Date",  # 14
+        "Samples Qty",  # 15
+        "Temperature[℃]",  # 16
+        "Result",  # 17
+        "Test Results File",  # 18
+        "Remarks",  # 19
     ]
 
     try:
-        strRelProfilePath = os.path.relpath(
-            listTestInfo[13], os.path.dirname(strSampleXlsxPath))
+        strRelProfilePath = os.path.relpath(listTestInfo[13], os.path.dirname(strSampleXlsxPath))
     except ValueError:
         strRelProfilePath = listTestInfo[13]
 
@@ -122,10 +130,9 @@ def compute_report_content_base(
     [sy, sm, sd] = listBatteryInfo[2][0].split(" ")[0].split("-")
     [ey, em, ed] = listBatteryInfo[2][1].split(" ")[0].split("-")
 
-    strRelResultPath = os.path.relpath(
-        strResultXlsxPath, os.path.dirname(strReportWordPath))
+    strRelResultPath = os.path.relpath(strResultXlsxPath, os.path.dirname(strReportWordPath))
 
-    listMM2S = stats['mm2s']
+    listMM2S = stats["mm2s"]
     if listMM2S[intPosiMaxmA][intPosi2V25] / int(listTestInfo[9]) >= intPassRate:
         strResult = "Pass"
         strRemarks = "OK"
@@ -139,40 +146,40 @@ def compute_report_content_base(
         )
 
     listStrContent = [
-        listTestInfo[0],                                                       # 0
-        f"{listTestInfo[2]}-{listTestInfo[3]}",                                # 1
-        listTestInfo[4],                                                       # 2
-        listTestInfo[1],                                                       # 3
-        strRelProfilePath,                                                     # 4
-        listTestInfo[11],                                                      # 5
-        listTestInfo[12],                                                      # 6
-        strBatchDateCode,                                                      # 7
-        listTestInfo[10],                                                      # 8
-        listTestInfo[8],                                                       # 9
-        listTestInfo[9],                                                       # 10
-        listTestInfo[17],                                                      # 11
-        strRequiredUseableCapacityPercentage,                                  # 12
-        None,                                                                  # 13
-        f"{sd}.{sm}.{sy} - {ed}.{em}.{ey}",                                   # 14
-        listTestInfo[6],                                                       # 15
-        listTestInfo[7],                                                       # 16
-        strResult,                                                             # 17
-        strRelResultPath,                                                      # 18
-        strRemarks                                                             # 19
+        listTestInfo[0],  # 0
+        f"{listTestInfo[2]}-{listTestInfo[3]}",  # 1
+        listTestInfo[4],  # 2
+        listTestInfo[1],  # 3
+        strRelProfilePath,  # 4
+        listTestInfo[11],  # 5
+        listTestInfo[12],  # 6
+        strBatchDateCode,  # 7
+        listTestInfo[10],  # 8
+        listTestInfo[8],  # 9
+        listTestInfo[9],  # 10
+        listTestInfo[17],  # 11
+        strRequiredUseableCapacityPercentage,  # 12
+        None,  # 13
+        f"{sd}.{sm}.{sy} - {ed}.{em}.{ey}",  # 14
+        listTestInfo[6],  # 15
+        listTestInfo[7],  # 16
+        strResult,  # 17
+        strRelResultPath,  # 18
+        strRemarks,  # 19
     ]
 
     return {
-        'intPosiMaxmA': intPosiMaxmA,
-        'intPosi2V25': intPosi2V25,
-        'intTestProfileStartLine': intTestProfileStartLine,
-        'intActualMeasuredCapacityLength': intActualMeasuredCapacityLength,
-        'listStrItems': listStrItems,
-        'listStrContent': listStrContent,
-        'strResult': strResult,
-        'strRemarks': strRemarks,
-        'strRequiredUseableCapacityPercentage': strRequiredUseableCapacityPercentage,
-        'strBatchDateCode': strBatchDateCode,
-        'strRelResultPath': strRelResultPath,
+        "intPosiMaxmA": intPosiMaxmA,
+        "intPosi2V25": intPosi2V25,
+        "intTestProfileStartLine": intTestProfileStartLine,
+        "intActualMeasuredCapacityLength": intActualMeasuredCapacityLength,
+        "listStrItems": listStrItems,
+        "listStrContent": listStrContent,
+        "strResult": strResult,
+        "strRemarks": strRemarks,
+        "strRequiredUseableCapacityPercentage": strRequiredUseableCapacityPercentage,
+        "strBatchDateCode": strBatchDateCode,
+        "strRelResultPath": strRelResultPath,
     }
 
 
@@ -182,10 +189,16 @@ class ReportCoordinator:
     旧名 XlsxWordWriter（保留为别名以保持向后兼容）。
     """
 
-    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list,
-                 equipment_info: dict | None = None) -> None:
+    def __init__(
+        self,
+        strResultPath: str,
+        listTestInfo: list,
+        listBatteryInfo: list,
+        equipment_info: dict | None = None,
+    ) -> None:
         # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
         from battery_analysis.domain.entities.test_info import TestInfo
+
         if isinstance(listTestInfo, TestInfo):
             listTestInfo = listTestInfo.to_list()
 
@@ -224,8 +237,9 @@ class ReportCoordinator:
         # 优先使用 listBatteryInfo[3] (标准路径)
         test_date = self.listBatteryInfo[3] if len(self.listBatteryInfo) > 3 else ""
         original_cycle = self.listBatteryInfo[4] if len(self.listBatteryInfo) > 4 else ""
-        td = parse_test_date(str(test_date) if test_date else "",
-                             str(original_cycle) if original_cycle else "")
+        td = parse_test_date(
+            str(test_date) if test_date else "", str(original_cycle) if original_cycle else ""
+        )
 
         if td and td != "00000000":
             logger.info("Successfully parsed date: %s", td)
@@ -240,14 +254,14 @@ class ReportCoordinator:
         if len(self.listBatteryInfo) > 1 and self.listBatteryInfo[1]:
             first_name = self.listBatteryInfo[1][0] if self.listBatteryInfo[1] else ""
             if first_name:
-                digit_groups = re.findall(r'(\d+)', first_name)
+                digit_groups = re.findall(r"(\d+)", first_name)
                 if digit_groups:
                     last_group = digit_groups[-1]
                     if len(last_group) >= 8:
                         td = last_group[:8]
                         logger.info("Extracted first 8 digits as date from battery name: %s", td)
                         return td
-                    match = re.search(r'(\d{8})', first_name)
+                    match = re.search(r"(\d{8})", first_name)
                     if match:
                         td = match.group(1)
                         logger.info("Extracted 8-digit date from battery name: %s", td)
@@ -278,9 +292,12 @@ class ReportCoordinator:
         else:
             strSplit = "A, "
             strBoxplotTitle = (
-                strImageTitle.split(strSplit)[0] + strSplit + "\n" +
-                strImageTitle.split(strSplit)[1] + strSplit +
-                strImageTitle.split(strSplit)[2]
+                strImageTitle.split(strSplit)[0]
+                + strSplit
+                + "\n"
+                + strImageTitle.split(strSplit)[1]
+                + strSplit
+                + strImageTitle.split(strSplit)[2]
             )
 
         # 图像路径
@@ -288,14 +305,21 @@ class ReportCoordinator:
         self.listSvgPath = []
         for b in range(self.intCurrentLevelNum):
             self.listBoxplotTitle.append(
-                f"Useable Capacity over Cutoff Voltage, {self.listCurrentLevel[b]}mA Load\n{strBoxplotTitle}")
+                f"Useable Capacity over Cutoff Voltage, {self.listCurrentLevel[b]}mA Load\n{strBoxplotTitle}"
+            )
             self.listPngPath.append(
-                f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.png")
+                f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.png"
+            )
             self.listSvgPath.append(
-                f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.svg")
+                f"{self.strResultPath}/Image_UseableCapacityOverCutoffVoltage{self.listCurrentLevel[b]}mALoad.svg"
+            )
 
-        self.strUnfilteredPngPath = f"{self.strResultPath}/Image_UnfilteredLoadVoltageOverCharge.png"
-        self.strUnfilteredSvgPath = f"{self.strResultPath}/Image_UnfilteredLoadVoltageOverCharge.svg"
+        self.strUnfilteredPngPath = (
+            f"{self.strResultPath}/Image_UnfilteredLoadVoltageOverCharge.png"
+        )
+        self.strUnfilteredSvgPath = (
+            f"{self.strResultPath}/Image_UnfilteredLoadVoltageOverCharge.svg"
+        )
         self.strFilteredPngPath = f"{self.strResultPath}/Image_FilteredLoadVoltageOverCharge.png"
         self.strFilteredSvgPath = f"{self.strResultPath}/Image_FilteredLoadVoltageOverCharge.svg"
         self.strPltName = f"Load Voltage over Charge\n{strImageTitle}"
@@ -307,7 +331,7 @@ class ReportCoordinator:
 
     def _build_document_paths(self, td: str) -> None:
         """构建 Excel / Word / CSV 输出路径"""
-        safe_temperature = self.listTestInfo[7].replace(':', '_')
+        safe_temperature = self.listTestInfo[7].replace(":", "_")
 
         self.strResultXlsxPath = (
             f"{self.strResultPath}/{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}"
@@ -326,18 +350,24 @@ class ReportCoordinator:
 
         try:
             pkg_template = (
-                importlib.resources.files('battery_analysis')
-                / 'templates' / template_filename
+                importlib.resources.files("battery_analysis") / "templates" / template_filename
             )
             if pkg_template.is_file():
                 self.strSampleReportWordPath = str(pkg_template)
-                logger.info("Loading Word template from in-package template directory: %s", self.strSampleReportWordPath)
+                logger.info(
+                    "Loading Word template from in-package template directory: %s",
+                    self.strSampleReportWordPath,
+                )
             else:
                 raise FileNotFoundError
         except (TypeError, ModuleNotFoundError, FileNotFoundError):
             self.strSampleReportWordPath = str(
-                Path(self.strResultPath) / f"../../0_doc/{template_filename}")
-            logger.info("Loading Word template from external 0_doc directory: %s", self.strSampleReportWordPath)
+                Path(self.strResultPath) / f"../../0_doc/{template_filename}"
+            )
+            logger.info(
+                "Loading Word template from external 0_doc directory: %s",
+                self.strSampleReportWordPath,
+            )
 
         report_name = (
             f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}"
@@ -354,9 +384,18 @@ class ReportCoordinator:
     def _build_replacements(self) -> None:
         """构建 Word 模板文本替换列表"""
         self.listTextToReplace = [
-            "TypeA", "TypeB", "TypeC", "TypeD",
-            "TypeE", "TypeF", "TypeG", "StrA",
-            "StrB", "StrC", "StrD", "StrF"
+            "TypeA",
+            "TypeB",
+            "TypeC",
+            "TypeD",
+            "TypeE",
+            "TypeF",
+            "TypeG",
+            "StrA",
+            "StrB",
+            "StrC",
+            "StrD",
+            "StrF",
         ]
         self.listImageToReplace = ["<<Image_FilteredLoadVoltageOverCharge>>"]
         for i in range(10):
@@ -373,9 +412,18 @@ class ReportCoordinator:
         strStrF = strStrF[:-2]
 
         self.listTestInfoForReplace = [
-            self.listTestInfo[2], self.listTestInfo[3], self.listTestInfo[4],
-            self.listTestInfo[5], self.listTestInfo[7], self.listTestInfo[11],
-            strBatteryType, None, None, None, None, strStrF
+            self.listTestInfo[2],
+            self.listTestInfo[3],
+            self.listTestInfo[4],
+            self.listTestInfo[5],
+            self.listTestInfo[7],
+            self.listTestInfo[11],
+            strBatteryType,
+            None,
+            None,
+            None,
+            None,
+            strStrF,
         ]
 
     # ── 公共方法 ──
@@ -383,36 +431,53 @@ class ReportCoordinator:
     def write(self) -> None:
         """执行完整的写入流程：绘图 → Excel → Word → CSV"""
         from battery_analysis.utils.writers.statistics_utils import (
-            compute_list_cpt, compute_statistics,
+            compute_list_cpt,
+            compute_statistics,
         )
 
         listCpt = compute_list_cpt(
-            self.listBatteryCharge, self.intBatteryNum,
-            self.intCurrentLevelNum, self.intVoltageLevelNum)
-        stats = compute_statistics(
-            listCpt, self.intCurrentLevelNum, self.intVoltageLevelNum)
+            self.listBatteryCharge,
+            self.intBatteryNum,
+            self.intCurrentLevelNum,
+            self.intVoltageLevelNum,
+        )
+        stats = compute_statistics(listCpt, self.intCurrentLevelNum, self.intVoltageLevelNum)
 
         # 绘制箱线图
         plot_writer.draw_boxplot_and_curves(
-            self.intCurrentLevelNum, self.intVoltageLevelNum,
-            self.listVoltageLevel, self.listBoxplotTitle,
-            self.listPngPath, self.listSvgPath,
-            self.strInfoImageCsvPath, self.strPltName,
-            self.strUnfilteredPngPath, self.strUnfilteredSvgPath,
-            self.strFilteredPngPath, self.strFilteredSvgPath,
-            self.listTestInfo, self.listPltColorType,
-            self.intBatteryNum, listCpt,
+            self.intCurrentLevelNum,
+            self.intVoltageLevelNum,
+            self.listVoltageLevel,
+            self.listBoxplotTitle,
+            self.listPngPath,
+            self.listSvgPath,
+            self.strInfoImageCsvPath,
+            self.strPltName,
+            self.strUnfilteredPngPath,
+            self.strUnfilteredSvgPath,
+            self.strFilteredPngPath,
+            self.strFilteredSvgPath,
+            self.listTestInfo,
+            self.listPltColorType,
+            self.intBatteryNum,
+            listCpt,
             int(self.listTestInfo[8]),
         )
 
         # 委托给专用写入器
+        from battery_analysis.utils.writers.csv_writer import CsvWriter
         from battery_analysis.utils.writers.excel_report_writer import ExcelReportWriter
         from battery_analysis.utils.writers.word_report_writer import WordReportWriter
-        from battery_analysis.utils.writers.csv_writer import CsvWriter
 
-        ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
-        WordReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo,
-                         equipment_info=self._equipment_info).write(listCpt, stats)
+        ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(
+            listCpt, stats
+        )
+        WordReportWriter(
+            self.strResultPath,
+            self.listTestInfo,
+            self.listBatteryInfo,
+            equipment_info=self._equipment_info,
+        ).write(listCpt, stats)
         CsvWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
 
     # ── 静态工具 ──

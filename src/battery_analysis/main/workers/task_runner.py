@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 统一后台任务执行器
 
@@ -9,7 +8,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
+
 from PyQt6 import QtCore as QC
 
 
@@ -19,17 +19,18 @@ class TaskCancelled(Exception):
 
 class TaskSignals(QC.QObject):
     """任务信号 — 所有 TaskRunner 共享的信号集合。"""
+
     started = QC.pyqtSignal()
     progress = QC.pyqtSignal(int, str)  # (百分比, 状态文本)
-    finished = QC.pyqtSignal(object)    # 返回结果
-    error = QC.pyqtSignal(str)          # 错误消息
+    finished = QC.pyqtSignal(object)  # 返回结果
+    error = QC.pyqtSignal(str)  # 错误消息
     cancelled = QC.pyqtSignal()
 
     # P5-B：AnalysisWorker 并入的信号
-    info = QC.pyqtSignal(bool, int, str)     # (is_running, 状态码, 消息)
-    thread_end = QC.pyqtSignal()             # 分析线程结束
-    rename_path = QC.pyqtSignal(str)         # 输出目录重命名后的日期
-    start_visualizer = QC.pyqtSignal()       # 通知主线程启动可视化
+    info = QC.pyqtSignal(bool, int, str)  # (is_running, 状态码, 消息)
+    thread_end = QC.pyqtSignal()  # 分析线程结束
+    rename_path = QC.pyqtSignal(str)  # 输出目录重命名后的日期
+    start_visualizer = QC.pyqtSignal()  # 通知主线程启动可视化
 
 
 class TaskRunner(QC.QRunnable):
@@ -95,6 +96,7 @@ class TaskManager(QC.QObject):
 
     可替代原有的 MainController（部分职责），统一线程池和任务队列管理。
     """
+
     all_completed = QC.pyqtSignal()
 
     def __init__(self, parent=None):

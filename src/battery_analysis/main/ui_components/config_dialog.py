@@ -5,18 +5,21 @@
 
 import copy
 import logging
-from typing import Dict
 
-from PyQt6 import QtWidgets as QW
 from PyQt6 import QtCore as QC
+from PyQt6 import QtWidgets as QW
 
 from battery_analysis.i18n.language_manager import _
 from battery_analysis.utils.battery_classifier import derive_specifications
 from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
 
 RULE_COLUMNS = [
-    "Specification", "Spec Method", "Datasheet Capacity",
-    "Calculation Capacity", "Required Useable Capacity", "Coefficient",
+    "Specification",
+    "Spec Method",
+    "Datasheet Capacity",
+    "Calculation Capacity",
+    "Required Useable Capacity",
+    "Coefficient",
 ]
 
 
@@ -84,7 +87,8 @@ class ConfigDialog(QW.QDialog):
 
     def _on_reset_defaults(self):
         reply = QW.QMessageBox.question(
-            self, _("Reset Defaults"),
+            self,
+            _("Reset Defaults"),
             _("Reset all configuration to default values? This cannot be undone."),
             QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
         )
@@ -102,10 +106,7 @@ class ConfigDialog(QW.QDialog):
             self.accept()
         except Exception as e:
             self.logger.error("Failed to save configuration: %s", e)
-            QW.QMessageBox.critical(
-                self, _("Error"),
-                f"{_('Failed to save configuration')}: {e}"
-            )
+            QW.QMessageBox.critical(self, _("Error"), f"{_('Failed to save configuration')}: {e}")
 
     def _populate_data(self):
         wd = self._working_data if isinstance(self._working_data, dict) else {}
@@ -157,8 +158,11 @@ class _ListEditor(QW.QGroupBox):
             self._lw.addItem(item)
 
     def items(self) -> list:
-        return [self._lw.item(i).text().strip() for i in range(self._lw.count())
-                if self._lw.item(i).text().strip()]
+        return [
+            self._lw.item(i).text().strip()
+            for i in range(self._lw.count())
+            if self._lw.item(i).text().strip()
+        ]
 
 
 class _RulesEditor(QW.QGroupBox):
@@ -194,8 +198,9 @@ class _RulesEditor(QW.QGroupBox):
         self._table.editItem(self._table.item(row, 0))
 
     def _remove_rows(self):
-        rows = sorted({idx.row() for idx in self._table.selectionModel().selectedRows()},
-                      reverse=True)
+        rows = sorted(
+            {idx.row() for idx in self._table.selectionModel().selectedRows()}, reverse=True
+        )
         for row in rows:
             self._table.removeRow(row)
 
@@ -361,7 +366,11 @@ class _TestConfigPage(QW.QWidget):
             return loc_key
         site, lab = parts
         prefix = "NEWARE Battery Testing System "
-        model = test_equipment[len(prefix):].strip() if test_equipment.startswith(prefix) else test_equipment.strip()
+        model = (
+            test_equipment[len(prefix) :].strip()
+            if test_equipment.startswith(prefix)
+            else test_equipment.strip()
+        )
         lab_display = lab + "." if lab == "Qual" else lab
         return f"{model} ({lab_display}), {site}"
 
@@ -390,7 +399,7 @@ class _EquipmentPage(QW.QWidget):
     def __init__(self, parent_dialog):
         super().__init__()
         self._dialog = parent_dialog
-        self._data: Dict[str, dict] = {}
+        self._data: dict[str, dict] = {}
 
         layout = QW.QVBoxLayout(self)
 
@@ -433,7 +442,9 @@ class _EquipmentPage(QW.QWidget):
             self._table.setItem(row, 0, QW.QTableWidgetItem(str(i + 1)))
             self._table.setItem(row, 1, QW.QTableWidgetItem(loc_key))
             self._table.setItem(row, 2, QW.QTableWidgetItem(info.get("testEquipment", "")))
-            self._table.setItem(row, 3, QW.QTableWidgetItem(info.get("testUnits", {}).get("model", "")))
+            self._table.setItem(
+                row, 3, QW.QTableWidgetItem(info.get("testUnits", {}).get("model", ""))
+            )
 
     def _on_edit_row(self, index):
         self._edit_location(index.row())

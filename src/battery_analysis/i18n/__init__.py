@@ -45,7 +45,7 @@ def _load_locale(locale_code: str) -> bool:
 # ── Public API (stable contract for all callers) ──────────────────
 
 
-def _(text: str, context: Optional[str] = None) -> str:
+def _(text: str, context: str | None = None) -> str:
     """Translate *text*; return *text* itself if no translation exists."""
     try:
         if context:
@@ -87,6 +87,8 @@ def set_locale(locale_code: str) -> bool:
 
     from battery_analysis.i18n.locale_utils import (
         get_available_locales as _get_available,
+    )
+    from battery_analysis.i18n.locale_utils import (
         resolve_locale_code,
     )
 
@@ -115,8 +117,12 @@ def detect_system_locale() -> str:
     """Detect system locale, falling back to 'en'."""
     from battery_analysis.i18n.locale_utils import (
         detect_system_locale as _detect,
-        system_locale_to_code,
+    )
+    from battery_analysis.i18n.locale_utils import (
         get_available_locales as _get_available,
+    )
+    from battery_analysis.i18n.locale_utils import (
+        system_locale_to_code,
     )
 
     sys_locale = _detect()

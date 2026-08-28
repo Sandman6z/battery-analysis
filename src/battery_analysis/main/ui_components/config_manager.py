@@ -13,7 +13,6 @@
 # 标准库导入
 import logging
 from pathlib import Path
-from typing import Any, List, Optional
 
 # 本地应用/库导入
 
@@ -89,7 +88,7 @@ class ConfigManager:
         if not self.b_has_config:
             self.logger.info("[_initialize_config] Configuration file does not exist")
 
-    def get_config(self, config_key: str) -> List[str]:
+    def get_config(self, config_key: str) -> list[str]:
         """
         获取配置值并处理为列表格式，通过 ConfigService 读取
 
@@ -121,8 +120,8 @@ class ConfigManager:
         保存用户配置（已弃用，保留空方法避免调用方报错）
         """
         pass
-    
-    def get_current_config_path(self) -> Optional[str]:
+
+    def get_current_config_path(self) -> str | None:
         """
         获取当前配置文件路径
 
@@ -157,31 +156,33 @@ class ConfigManager:
         config_path_obj = Path(self.config_path) if self.config_path else None
         path_exists = config_path_obj.exists() if config_path_obj else False
         self.b_has_config = bool(self.config_path and path_exists)
-    
+
     def update_config(self, test_info) -> None:
         """
         更新内存中的图表相关设置，不再修改配置文件
-        
+
         Args:
             test_info: 测试信息列表
         """
         try:
             # 初始化checker_update_config如果不存在
-            if not hasattr(self.main_window, 'checker_update_config'):
+            if not hasattr(self.main_window, "checker_update_config"):
                 from battery_analysis.main.utils import Checker
+
                 self.main_window.checker_update_config = Checker()
-            
+
             self.main_window.checker_update_config.clear()
-            
+
             # 不再更新配置文件，只在内存中处理
             # 图表路径和标题将在需要时动态计算
-            
+
             bSetTitle = False
             rules = self.main_window.get_config("BatteryConfig/Rules")
             specification_type = self.main_window.comboBox_Specification_Type.currentText()
             strPulseCurrent = "".join(
-                [f"{current_level}mA/" for current_level in self.main_window.listCurrentLevel])
-            
+                [f"{current_level}mA/" for current_level in self.main_window.listCurrentLevel]
+            )
+
             for rule in rules:
                 rule_parts = rule.split("/")
                 if not self.main_window.cc_current:
@@ -190,18 +191,19 @@ class ConfigManager:
                     # 标题信息将在需要时动态生成
                     bSetTitle = True
                     break
-            
+
             if not bSetTitle:
                 self.main_window.checker_update_config.set_error("PltTitle")
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[Error]: No rules for {specification_type}")
+                    f"[Error]: No rules for {specification_type}"
+                )
         except (AttributeError, TypeError, ValueError, OSError) as e:
             self.logger.error("Failed to update configuration: %s", e)
-    
+
     def rename_pltPath(self, strTestDate):
         """
         根据测试日期重命名图表保存路径，不再修改配置文件
-        
+
         Args:
             strTestDate: 测试日期字符串
         """

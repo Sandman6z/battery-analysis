@@ -39,6 +39,7 @@ def test_pandas_import_is_deferred():
     """excel_validator 顶层不再 import pandas（启动路径延迟导入）"""
     import subprocess
     import sys
+
     code = (
         "import sys;"
         "from battery_analysis.main.business_logic import excel_validator;"

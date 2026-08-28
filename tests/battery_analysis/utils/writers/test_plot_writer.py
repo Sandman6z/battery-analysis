@@ -1,4 +1,5 @@
 """测试 plot_writer 报告图生成的数据流向"""
+
 from unittest.mock import Mock
 
 import pytest
@@ -9,10 +10,7 @@ def info_image_csv(tmp_path):
     """构造 1 电池 × 1 电流档的 Info_Image.csv（每电池 4 行：跳过/header/charge/voltage）"""
     csv_path = tmp_path / "Info_Image.csv"
     csv_path.write_text(
-        "Battery_1\n"
-        "Battery_1\n"
-        "1.0,2.0,3.0,4.0\n"
-        "5.0,6.0,7.0,8.0\n",
+        "Battery_1\nBattery_1\n1.0,2.0,3.0,4.0\n5.0,6.0,7.0,8.0\n",
         encoding="utf-8",
     )
     return csv_path
@@ -40,7 +38,8 @@ def test_filtered_plot_uses_filtered_data(tmp_path, info_image_csv, monkeypatch)
     monkeypatch.setattr(plot_writer, "MultipleLocator", lambda v: Mock())
     # 过滤后数据固定为已知值，便于断言
     monkeypatch.setattr(
-        plot_writer.data_utils, "filter_data",
+        plot_writer.data_utils,
+        "filter_data",
         lambda charge, voltage: ([[9.0, 10.0]], [[11.0, 12.0]]),
     )
 
@@ -69,10 +68,12 @@ def test_filtered_plot_uses_filtered_data(tmp_path, info_image_csv, monkeypatch)
 
     # 第一次 plt.plot 调用即 Unfiltered 图：仍应使用原始数据 [0]/[1]
     unfiltered_call = plot_calls[0]
-    assert list(unfiltered_call[0]) == [1.0, 2.0, 3.0, 4.0], \
+    assert list(unfiltered_call[0]) == [1.0, 2.0, 3.0, 4.0], (
         "Unfiltered 图应使用原始 charge 数据 [0]"
-    assert list(unfiltered_call[1]) == [5.0, 6.0, 7.0, 8.0], \
+    )
+    assert list(unfiltered_call[1]) == [5.0, 6.0, 7.0, 8.0], (
         "Unfiltered 图应使用原始 voltage 数据 [1]"
+    )
 
     # 最后一次 plt.plot 调用即 Filtered 图：应使用过滤后数据 [2]/[3]
     last_call = plot_calls[-1]

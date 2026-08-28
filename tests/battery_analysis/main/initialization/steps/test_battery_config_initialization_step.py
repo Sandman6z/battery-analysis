@@ -1,6 +1,8 @@
-import pytest
-from unittest.mock import Mock, patch
-from battery_analysis.main.initialization.steps.battery_config_initialization_step import BatteryConfigInitializationStep
+from unittest.mock import Mock
+
+from battery_analysis.main.initialization.steps.battery_config_initialization_step import (
+    BatteryConfigInitializationStep,
+)
 
 
 class TestBatteryConfigInitializationStep:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "battery-analysis"
-description = "Battery test data analysis App, support serveral data type import, and chart viewer"
+description = "Battery test data analysis App, support several data type import, and chart viewer"
 dynamic = ["version"]
 authors = [
   { name = "Ewin Hardware Group", email = "zhangbaoning@ewin-tech.com" }
@@ -28,23 +28,22 @@ dependencies = [
     "matplotlib>=3.8.0,<4.0.0",
     "numpy>=1.24.0,<3.0.0",
     "openpyxl>=3.1.0,<4.0.0",
-    "pandas>=2.3.3",
+    "pandas>=2.3.3,<3.0.0",
     "psutil>=5.9.0,<6.0.0",
     "pyqt6>=6.6.0,<7.0.0",
     "python-calamine>=0.3.0,<1.0.0",
     "python-docx>=1.2.0,<2.0.0",
     "pywin32>=311,<400",
-    "xlsxwriter~=3.0.8",
+    "xlsxwriter>=3.0.8,<4.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0,<8.0.0",
+    "pytest>=8.0.0",
     "pytest-cov>=7.0.0",
-    "black>=23.0.0,<24.0.0",
-    "flake8>=6.0.0,<7.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
     "pylint>=3.2.0,<4.0.0",
-    "astroid>=3.2.0,<4.0.0",
     "pylint-json2html>=0.3.0,<1.0.0"
 ]
 build = [
@@ -52,9 +51,9 @@ build = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/battery-analysis/battery-analysis"
-Repository = "https://github.com/battery-analysis/battery-analysis"
-Documentation = "https://github.com/battery-analysis/battery-analysis/blob/main/README.md"
+Homepage = "https://github.com/Sandman6z/battery-analysis"
+Repository = "https://github.com/Sandman6z/battery-analysis"
+Documentation = "https://github.com/Sandman6z/battery-analysis/blob/main/README.md"
 
 [tool.pylint]
 # Pylint配置
@@ -134,3 +133,69 @@ version = { attr = "battery_analysis._version.__version__" }
 
 [tool.setuptools.package-data]
 battery_analysis = ["templates/*.docx"]
+
+# ── Ruff ──────────────────────────────────────────────────────────────
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "E501",    # line-too-long — 由 pylint 管控
+    "E402",    # module-import-not-at-top — GUI 项目常见延迟导入模式
+    "B008",    # function-call-in-default-argument — PyQt6 的常见模式
+    "SIM108",  # ternary-operator — 不总是更可读
+    "SIM117",  # multiple-with-statements — 嵌套可读性有时更好
+    "RUF012",  # mutable-class-default — PyQt6 类属性需要
+    "RUF001",  # ambiguous-unicode-character-string — 中文字符串正常
+    "RUF002",  # ambiguous-unicode-character-docstring — 中文文档字符串正常
+    "RUF003",  # ambiguous-unicode-character-comment — 中文注释正常
+    "RUF059",  # unused-unpacked-variable — 解构赋值中偶尔需要占位
+    "F841",    # unused-variable — 部分是 PyQt 信号槽占位，逐步清理
+    "F401",    # unused-import — 部分是 re-export，逐步清理
+    "F811",    # redefined-while-unused — 部分是测试 mock 模式
+    "SIM102",  # collapsible-if — 有时拆分可读性更好
+    "SIM105",  # suppressible-exception — try/except/pass 有时是合理的
+    "SIM115",  # open-file-with-context-handler — 部分场景需要手动关闭
+    "SIM113",  # enumerate-for-loop — 逐步清理
+    "B007",    # unused-loop-control-variable — 偶尔需要占位
+    "B025",    # duplicate-try-block-exception — 逐步清理
+    "B905",    # zip-without-explicit-strict — 逐步清理
+    "RUF013",  # implicit-optional — 逐步清理
+    "E721",    # type-comparison — 逐步清理
+    "B018",    # useless-expression — 测试文件中的故意触发异常
+    "B024",    # abstract-base-class-without-abstract-method — 基类设计意图
+    "SIM116",  # if-else-block-instead-of-dict-lookup — 有时 if-else 更清晰
+    "B904",    # raise-without-from-inside-except — 逐步清理
+    "SIM103",  # needless-bool — 有时拆分更清晰
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["battery_analysis"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ── Mypy ──────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = false  # 项目尚无类型标注，先从宽松模式开始
+exclude = [
+    "^tests/",
+    "^scripts/",
+    "^\\.venv/",
+]

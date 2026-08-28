@@ -87,8 +87,7 @@ class TestParseTestDate:
 
     def test_fallback_to_third(self):
         """前两个都无效时尝试 fallback_date_str"""
-        result = parse_test_date("", "",
-                                 fallback_date_str="2022-12-31 08:00:00")
+        result = parse_test_date("", "", fallback_date_str="2022-12-31 08:00:00")
         assert result == "20221231"
 
     def test_all_fail(self):

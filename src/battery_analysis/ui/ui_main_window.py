@@ -9,11 +9,13 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow:
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(917, 754)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
@@ -22,7 +24,9 @@ class Ui_MainWindow(object):
         MainWindow.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
         MainWindow.setTabShape(QtWidgets.QTabWidget.TabShape.Rounded)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
@@ -56,7 +60,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_Temperature.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_Temperature.setObjectName("horizontalLayout_Temperature")
         self.label_TemperatureType = QtWidgets.QLabel(parent=self.verticalLayoutWidget_5)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_TemperatureType.sizePolicy().hasHeightForWidth())
@@ -67,10 +73,14 @@ class Ui_MainWindow(object):
         self.label_TemperatureType.setFont(font)
         self.label_TemperatureType.setObjectName("label_TemperatureType")
         self.horizontalLayout_Temperature.addWidget(self.label_TemperatureType)
-        spacerItem = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_Temperature.addItem(spacerItem)
         self.comboBox_Temperature = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_5)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_Temperature.sizePolicy().hasHeightForWidth())
@@ -89,7 +99,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label_Temperature = QtWidgets.QLabel(parent=self.verticalLayoutWidget_5)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_Temperature.sizePolicy().hasHeightForWidth())
@@ -100,10 +112,14 @@ class Ui_MainWindow(object):
         self.label_Temperature.setFont(font)
         self.label_Temperature.setObjectName("label_Temperature")
         self.horizontalLayout_3.addWidget(self.label_Temperature)
-        spacerItem1 = QtWidgets.QSpacerItem(50, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            50, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_3.addItem(spacerItem1)
         self.spinBox_Temperature = QtWidgets.QSpinBox(parent=self.verticalLayoutWidget_5)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.spinBox_Temperature.sizePolicy().hasHeightForWidth())
@@ -119,7 +135,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_AcceleratedAging.setSpacing(5)
         self.horizontalLayout_AcceleratedAging.setObjectName("horizontalLayout_AcceleratedAging")
         self.label_AcceleratedAging = QtWidgets.QLabel(parent=self.verticalLayoutWidget_5)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_AcceleratedAging.sizePolicy().hasHeightForWidth())
@@ -130,10 +148,14 @@ class Ui_MainWindow(object):
         self.label_AcceleratedAging.setFont(font)
         self.label_AcceleratedAging.setObjectName("label_AcceleratedAging")
         self.horizontalLayout_AcceleratedAging.addWidget(self.label_AcceleratedAging)
-        spacerItem2 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_AcceleratedAging.addItem(spacerItem2)
         self.spinBox_AcceleratedAging = QtWidgets.QSpinBox(parent=self.verticalLayoutWidget_5)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.spinBox_AcceleratedAging.sizePolicy().hasHeightForWidth())
@@ -144,7 +166,11 @@ class Ui_MainWindow(object):
         self.spinBox_AcceleratedAging.setFont(font)
         self.spinBox_AcceleratedAging.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.spinBox_AcceleratedAging.setStyleSheet("")
-        self.spinBox_AcceleratedAging.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.spinBox_AcceleratedAging.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.spinBox_AcceleratedAging.setMinimum(0)
         self.spinBox_AcceleratedAging.setMaximum(10)
         self.spinBox_AcceleratedAging.setProperty("value", 0)
@@ -164,11 +190,15 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setSpacing(5)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_Manufacturer = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_Manufacturer.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinimumSize)
+        self.horizontalLayout_Manufacturer.setSizeConstraint(
+            QtWidgets.QLayout.SizeConstraint.SetMinimumSize
+        )
         self.horizontalLayout_Manufacturer.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_Manufacturer.setObjectName("horizontalLayout_Manufacturer")
         self.label_Manufacturer = QtWidgets.QLabel(parent=self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_Manufacturer.sizePolicy().hasHeightForWidth())
@@ -179,10 +209,14 @@ class Ui_MainWindow(object):
         self.label_Manufacturer.setFont(font)
         self.label_Manufacturer.setObjectName("label_Manufacturer")
         self.horizontalLayout_Manufacturer.addWidget(self.label_Manufacturer)
-        spacerItem3 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem3 = QtWidgets.QSpacerItem(
+            25, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_Manufacturer.addItem(spacerItem3)
         self.comboBox_Manufacturer = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_Manufacturer.sizePolicy().hasHeightForWidth())
@@ -192,7 +226,9 @@ class Ui_MainWindow(object):
         font.setPointSize(9)
         font.setBold(False)
         self.comboBox_Manufacturer.setFont(font)
-        self.comboBox_Manufacturer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.comboBox_Manufacturer.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         self.comboBox_Manufacturer.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.comboBox_Manufacturer.setEditable(False)
         self.comboBox_Manufacturer.setObjectName("comboBox_Manufacturer")
@@ -202,7 +238,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_BatchDateCode.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_BatchDateCode.setObjectName("horizontalLayout_BatchDateCode")
         self.label_BatchDateCode = QtWidgets.QLabel(parent=self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_BatchDateCode.sizePolicy().hasHeightForWidth())
@@ -213,7 +251,9 @@ class Ui_MainWindow(object):
         self.label_BatchDateCode.setFont(font)
         self.label_BatchDateCode.setObjectName("label_BatchDateCode")
         self.horizontalLayout_BatchDateCode.addWidget(self.label_BatchDateCode)
-        spacerItem4 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem4 = QtWidgets.QSpacerItem(
+            5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_BatchDateCode.addItem(spacerItem4)
         self.lineEdit_BatchDateCode = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_3)
         font = QtGui.QFont()
@@ -223,7 +263,11 @@ class Ui_MainWindow(object):
         self.lineEdit_BatchDateCode.setFont(font)
         self.lineEdit_BatchDateCode.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.lineEdit_BatchDateCode.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_BatchDateCode.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_BatchDateCode.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_BatchDateCode.setObjectName("lineEdit_BatchDateCode")
         self.horizontalLayout_BatchDateCode.addWidget(self.lineEdit_BatchDateCode)
         self.verticalLayout_5.addLayout(self.horizontalLayout_BatchDateCode)
@@ -231,7 +275,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_SamplesQty.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_SamplesQty.setObjectName("horizontalLayout_SamplesQty")
         self.label_SamplesQty = QtWidgets.QLabel(parent=self.verticalLayoutWidget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_SamplesQty.sizePolicy().hasHeightForWidth())
@@ -242,7 +288,9 @@ class Ui_MainWindow(object):
         self.label_SamplesQty.setFont(font)
         self.label_SamplesQty.setObjectName("label_SamplesQty")
         self.horizontalLayout_SamplesQty.addWidget(self.label_SamplesQty)
-        spacerItem5 = QtWidgets.QSpacerItem(30, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem5 = QtWidgets.QSpacerItem(
+            30, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_SamplesQty.addItem(spacerItem5)
         self.lineEdit_SamplesQty = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_3)
         font = QtGui.QFont()
@@ -252,13 +300,19 @@ class Ui_MainWindow(object):
         self.lineEdit_SamplesQty.setFont(font)
         self.lineEdit_SamplesQty.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.lineEdit_SamplesQty.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_SamplesQty.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_SamplesQty.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_SamplesQty.setObjectName("lineEdit_SamplesQty")
         self.horizontalLayout_SamplesQty.addWidget(self.lineEdit_SamplesQty)
         self.verticalLayout_5.addLayout(self.horizontalLayout_SamplesQty)
         self.frame_3 = QtWidgets.QFrame(parent=self.groupBox_BatteryConfig)
         self.frame_3.setGeometry(QtCore.QRect(10, 18, 331, 171))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
@@ -277,7 +331,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_BatteryType.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_BatteryType.setObjectName("horizontalLayout_BatteryType")
         self.label_BatteryType = QtWidgets.QLabel(parent=self.verticalLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_BatteryType.sizePolicy().hasHeightForWidth())
@@ -288,11 +344,15 @@ class Ui_MainWindow(object):
         self.label_BatteryType.setFont(font)
         self.label_BatteryType.setObjectName("label_BatteryType")
         self.horizontalLayout_BatteryType.addWidget(self.label_BatteryType)
-        spacerItem6 = QtWidgets.QSpacerItem(62, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem6 = QtWidgets.QSpacerItem(
+            62, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_BatteryType.addItem(spacerItem6)
         self.comboBox_BatteryType = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_4)
         self.comboBox_BatteryType.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_BatteryType.sizePolicy().hasHeightForWidth())
@@ -310,9 +370,13 @@ class Ui_MainWindow(object):
         self.verticalLayout_7.addLayout(self.horizontalLayout_BatteryType)
         self.horizontalLayout_ConstructionMethod = QtWidgets.QHBoxLayout()
         self.horizontalLayout_ConstructionMethod.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_ConstructionMethod.setObjectName("horizontalLayout_ConstructionMethod")
+        self.horizontalLayout_ConstructionMethod.setObjectName(
+            "horizontalLayout_ConstructionMethod"
+        )
         self.label_ConstructionMethod = QtWidgets.QLabel(parent=self.verticalLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_ConstructionMethod.sizePolicy().hasHeightForWidth())
@@ -323,20 +387,28 @@ class Ui_MainWindow(object):
         self.label_ConstructionMethod.setFont(font)
         self.label_ConstructionMethod.setObjectName("label_ConstructionMethod")
         self.horizontalLayout_ConstructionMethod.addWidget(self.label_ConstructionMethod)
-        spacerItem7 = QtWidgets.QSpacerItem(12, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem7 = QtWidgets.QSpacerItem(
+            12, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_ConstructionMethod.addItem(spacerItem7)
         self.comboBox_ConstructionMethod = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.comboBox_ConstructionMethod.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.comboBox_ConstructionMethod.sizePolicy().hasHeightForWidth()
+        )
         self.comboBox_ConstructionMethod.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         font.setBold(False)
         self.comboBox_ConstructionMethod.setFont(font)
-        self.comboBox_ConstructionMethod.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.comboBox_ConstructionMethod.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         self.comboBox_ConstructionMethod.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.comboBox_ConstructionMethod.setEditable(False)
         self.comboBox_ConstructionMethod.setObjectName("comboBox_ConstructionMethod")
@@ -347,7 +419,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_Specification.setSpacing(5)
         self.horizontalLayout_Specification.setObjectName("horizontalLayout_Specification")
         self.label_Specification = QtWidgets.QLabel(parent=self.verticalLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_Specification.sizePolicy().hasHeightForWidth())
@@ -358,7 +432,9 @@ class Ui_MainWindow(object):
         self.label_Specification.setFont(font)
         self.label_Specification.setObjectName("label_Specification")
         self.horizontalLayout_Specification.addWidget(self.label_Specification)
-        spacerItem8 = QtWidgets.QSpacerItem(55, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem8 = QtWidgets.QSpacerItem(
+            55, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_Specification.addItem(spacerItem8)
         self.verticalLayout_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_4.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
@@ -366,10 +442,14 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setSpacing(2)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.comboBox_Specification_Method = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.comboBox_Specification_Method.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.comboBox_Specification_Method.sizePolicy().hasHeightForWidth()
+        )
         self.comboBox_Specification_Method.setSizePolicy(sizePolicy)
         self.comboBox_Specification_Method.setMinimumSize(QtCore.QSize(0, 0))
         font = QtGui.QFont()
@@ -377,16 +457,22 @@ class Ui_MainWindow(object):
         font.setPointSize(9)
         font.setBold(False)
         self.comboBox_Specification_Method.setFont(font)
-        self.comboBox_Specification_Method.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.comboBox_Specification_Method.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         self.comboBox_Specification_Method.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.comboBox_Specification_Method.setEditable(False)
         self.comboBox_Specification_Method.setObjectName("comboBox_Specification_Method")
         self.verticalLayout_4.addWidget(self.comboBox_Specification_Method)
         self.comboBox_Specification_Type = QtWidgets.QComboBox(parent=self.verticalLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.comboBox_Specification_Type.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.comboBox_Specification_Type.sizePolicy().hasHeightForWidth()
+        )
         self.comboBox_Specification_Type.setSizePolicy(sizePolicy)
         self.comboBox_Specification_Type.setMinimumSize(QtCore.QSize(0, 0))
         font = QtGui.QFont()
@@ -394,10 +480,14 @@ class Ui_MainWindow(object):
         font.setPointSize(9)
         font.setBold(False)
         self.comboBox_Specification_Type.setFont(font)
-        self.comboBox_Specification_Type.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.comboBox_Specification_Type.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         self.comboBox_Specification_Type.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.comboBox_Specification_Type.setEditable(False)
-        self.comboBox_Specification_Type.setInsertPolicy(QtWidgets.QComboBox.InsertPolicy.InsertAtBottom)
+        self.comboBox_Specification_Type.setInsertPolicy(
+            QtWidgets.QComboBox.InsertPolicy.InsertAtBottom
+        )
         self.comboBox_Specification_Type.setObjectName("comboBox_Specification_Type")
         self.verticalLayout_4.addWidget(self.comboBox_Specification_Type)
         self.horizontalLayout_Specification.addLayout(self.verticalLayout_4)
@@ -416,12 +506,18 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.setObjectName("verticalLayout_9")
         self.horizontalLayout_RequiredUseableCapacity = QtWidgets.QHBoxLayout()
         self.horizontalLayout_RequiredUseableCapacity.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_RequiredUseableCapacity.setObjectName("horizontalLayout_RequiredUseableCapacity")
+        self.horizontalLayout_RequiredUseableCapacity.setObjectName(
+            "horizontalLayout_RequiredUseableCapacity"
+        )
         self.label_RequiredUseableCapacity = QtWidgets.QLabel(parent=self.verticalLayoutWidget_6)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_RequiredUseableCapacity.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.label_RequiredUseableCapacity.sizePolicy().hasHeightForWidth()
+        )
         self.label_RequiredUseableCapacity.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
@@ -429,76 +525,128 @@ class Ui_MainWindow(object):
         self.label_RequiredUseableCapacity.setFont(font)
         self.label_RequiredUseableCapacity.setObjectName("label_RequiredUseableCapacity")
         self.horizontalLayout_RequiredUseableCapacity.addWidget(self.label_RequiredUseableCapacity)
-        spacerItem9 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem9 = QtWidgets.QSpacerItem(
+            25, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_RequiredUseableCapacity.addItem(spacerItem9)
-        self.lineEdit_RequiredUseableCapacity = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_6)
+        self.lineEdit_RequiredUseableCapacity = QtWidgets.QLineEdit(
+            parent=self.verticalLayoutWidget_6
+        )
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         font.setBold(False)
         self.lineEdit_RequiredUseableCapacity.setFont(font)
         self.lineEdit_RequiredUseableCapacity.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_RequiredUseableCapacity.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_RequiredUseableCapacity.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_RequiredUseableCapacity.setInputMethodHints(
+            QtCore.Qt.InputMethodHint.ImhHiddenText
+        )
+        self.lineEdit_RequiredUseableCapacity.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_RequiredUseableCapacity.setObjectName("lineEdit_RequiredUseableCapacity")
-        self.horizontalLayout_RequiredUseableCapacity.addWidget(self.lineEdit_RequiredUseableCapacity)
+        self.horizontalLayout_RequiredUseableCapacity.addWidget(
+            self.lineEdit_RequiredUseableCapacity
+        )
         self.verticalLayout_9.addLayout(self.horizontalLayout_RequiredUseableCapacity)
         self.horizontalLayout_CalculationNominalCapacity = QtWidgets.QHBoxLayout()
         self.horizontalLayout_CalculationNominalCapacity.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_CalculationNominalCapacity.setObjectName("horizontalLayout_CalculationNominalCapacity")
+        self.horizontalLayout_CalculationNominalCapacity.setObjectName(
+            "horizontalLayout_CalculationNominalCapacity"
+        )
         self.label_CalculationNominalCapacity = QtWidgets.QLabel(parent=self.verticalLayoutWidget_6)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_CalculationNominalCapacity.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.label_CalculationNominalCapacity.sizePolicy().hasHeightForWidth()
+        )
         self.label_CalculationNominalCapacity.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         self.label_CalculationNominalCapacity.setFont(font)
         self.label_CalculationNominalCapacity.setObjectName("label_CalculationNominalCapacity")
-        self.horizontalLayout_CalculationNominalCapacity.addWidget(self.label_CalculationNominalCapacity)
-        spacerItem10 = QtWidgets.QSpacerItem(10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_CalculationNominalCapacity.addWidget(
+            self.label_CalculationNominalCapacity
+        )
+        spacerItem10 = QtWidgets.QSpacerItem(
+            10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_CalculationNominalCapacity.addItem(spacerItem10)
-        self.lineEdit_CalculationNominalCapacity = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_6)
+        self.lineEdit_CalculationNominalCapacity = QtWidgets.QLineEdit(
+            parent=self.verticalLayoutWidget_6
+        )
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         font.setBold(False)
         self.lineEdit_CalculationNominalCapacity.setFont(font)
         self.lineEdit_CalculationNominalCapacity.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_CalculationNominalCapacity.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.lineEdit_CalculationNominalCapacity.setObjectName("lineEdit_CalculationNominalCapacity")
-        self.horizontalLayout_CalculationNominalCapacity.addWidget(self.lineEdit_CalculationNominalCapacity)
+        self.lineEdit_CalculationNominalCapacity.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
+        self.lineEdit_CalculationNominalCapacity.setObjectName(
+            "lineEdit_CalculationNominalCapacity"
+        )
+        self.horizontalLayout_CalculationNominalCapacity.addWidget(
+            self.lineEdit_CalculationNominalCapacity
+        )
         self.verticalLayout_9.addLayout(self.horizontalLayout_CalculationNominalCapacity)
         self.horizontalLayout_DatasheetNominalCapacity = QtWidgets.QHBoxLayout()
         self.horizontalLayout_DatasheetNominalCapacity.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_DatasheetNominalCapacity.setObjectName("horizontalLayout_DatasheetNominalCapacity")
+        self.horizontalLayout_DatasheetNominalCapacity.setObjectName(
+            "horizontalLayout_DatasheetNominalCapacity"
+        )
         self.label_DatasheetNominalCapacity = QtWidgets.QLabel(parent=self.verticalLayoutWidget_6)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_DatasheetNominalCapacity.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.label_DatasheetNominalCapacity.sizePolicy().hasHeightForWidth()
+        )
         self.label_DatasheetNominalCapacity.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         self.label_DatasheetNominalCapacity.setFont(font)
         self.label_DatasheetNominalCapacity.setObjectName("label_DatasheetNominalCapacity")
-        self.horizontalLayout_DatasheetNominalCapacity.addWidget(self.label_DatasheetNominalCapacity)
-        spacerItem11 = QtWidgets.QSpacerItem(15, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_DatasheetNominalCapacity.addWidget(
+            self.label_DatasheetNominalCapacity
+        )
+        spacerItem11 = QtWidgets.QSpacerItem(
+            15, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_DatasheetNominalCapacity.addItem(spacerItem11)
-        self.lineEdit_DatasheetNominalCapacity = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_6)
+        self.lineEdit_DatasheetNominalCapacity = QtWidgets.QLineEdit(
+            parent=self.verticalLayoutWidget_6
+        )
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         font.setBold(False)
         self.lineEdit_DatasheetNominalCapacity.setFont(font)
         self.lineEdit_DatasheetNominalCapacity.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_DatasheetNominalCapacity.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_DatasheetNominalCapacity.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_DatasheetNominalCapacity.setInputMethodHints(
+            QtCore.Qt.InputMethodHint.ImhHiddenText
+        )
+        self.lineEdit_DatasheetNominalCapacity.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_DatasheetNominalCapacity.setObjectName("lineEdit_DatasheetNominalCapacity")
-        self.horizontalLayout_DatasheetNominalCapacity.addWidget(self.lineEdit_DatasheetNominalCapacity)
+        self.horizontalLayout_DatasheetNominalCapacity.addWidget(
+            self.lineEdit_DatasheetNominalCapacity
+        )
         self.verticalLayout_9.addLayout(self.horizontalLayout_DatasheetNominalCapacity)
         self.frame.raise_()
         self.frame_2.raise_()
@@ -506,7 +654,9 @@ class Ui_MainWindow(object):
         self.frame_3.raise_()
         self.groupBox_TestConfig = QtWidgets.QGroupBox(parent=self.centralwidget)
         self.groupBox_TestConfig.setGeometry(QtCore.QRect(10, 2, 661, 110))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox_TestConfig.sizePolicy().hasHeightForWidth())
@@ -528,7 +678,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_TestProfile.setSpacing(5)
         self.horizontalLayout_TestProfile.setObjectName("horizontalLayout_TestProfile")
         self.label_TestProfile = QtWidgets.QLabel(parent=self.horizontalLayoutWidget_8)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_TestProfile.sizePolicy().hasHeightForWidth())
@@ -539,10 +691,14 @@ class Ui_MainWindow(object):
         self.label_TestProfile.setFont(font)
         self.label_TestProfile.setObjectName("label_TestProfile")
         self.horizontalLayout_TestProfile.addWidget(self.label_TestProfile)
-        spacerItem12 = QtWidgets.QSpacerItem(33, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem12 = QtWidgets.QSpacerItem(
+            33, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_TestProfile.addItem(spacerItem12)
         self.lineEdit_TestProfile = QtWidgets.QLineEdit(parent=self.horizontalLayoutWidget_8)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit_TestProfile.sizePolicy().hasHeightForWidth())
@@ -554,12 +710,18 @@ class Ui_MainWindow(object):
         self.lineEdit_TestProfile.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.lineEdit_TestProfile.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.lineEdit_TestProfile.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_TestProfile.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_TestProfile.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_TestProfile.setReadOnly(True)
         self.lineEdit_TestProfile.setObjectName("lineEdit_TestProfile")
         self.horizontalLayout_TestProfile.addWidget(self.lineEdit_TestProfile)
         self.pushButton_TestProfile = QtWidgets.QPushButton(parent=self.horizontalLayoutWidget_8)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pushButton_TestProfile.sizePolicy().hasHeightForWidth())
@@ -568,7 +730,9 @@ class Ui_MainWindow(object):
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         self.pushButton_TestProfile.setFont(font)
-        self.pushButton_TestProfile.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.pushButton_TestProfile.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         self.pushButton_TestProfile.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.pushButton_TestProfile.setObjectName("pushButton_TestProfile")
         self.horizontalLayout_TestProfile.addWidget(self.pushButton_TestProfile)
@@ -580,12 +744,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.horizontalLayout_TesterLocation = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_TesterLocation.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
+        self.horizontalLayout_TesterLocation.setSizeConstraint(
+            QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint
+        )
         self.horizontalLayout_TesterLocation.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_TesterLocation.setSpacing(5)
         self.horizontalLayout_TesterLocation.setObjectName("horizontalLayout_TesterLocation")
         self.label_TesterLocation = QtWidgets.QLabel(parent=self.horizontalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_TesterLocation.sizePolicy().hasHeightForWidth())
@@ -596,10 +764,14 @@ class Ui_MainWindow(object):
         self.label_TesterLocation.setFont(font)
         self.label_TesterLocation.setObjectName("label_TesterLocation")
         self.horizontalLayout_TesterLocation.addWidget(self.label_TesterLocation)
-        spacerItem13 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem13 = QtWidgets.QSpacerItem(
+            5, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_TesterLocation.addItem(spacerItem13)
         self.comboBox_TesterLocation = QtWidgets.QComboBox(parent=self.horizontalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_TesterLocation.sizePolicy().hasHeightForWidth())
@@ -608,7 +780,9 @@ class Ui_MainWindow(object):
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         self.comboBox_TesterLocation.setFont(font)
-        self.comboBox_TesterLocation.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.comboBox_TesterLocation.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         self.comboBox_TesterLocation.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.comboBox_TesterLocation.setEditable(False)
         self.comboBox_TesterLocation.setObjectName("comboBox_TesterLocation")
@@ -616,15 +790,21 @@ class Ui_MainWindow(object):
         self.horizontalLayout_TesterLocation.setStretch(0, 1)
         self.horizontalLayout_TesterLocation.setStretch(2, 10)
         self.horizontalLayout.addLayout(self.horizontalLayout_TesterLocation)
-        spacerItem14 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem14 = QtWidgets.QSpacerItem(
+            5, 0, QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem14)
         self.horizontalLayout_TestedBy = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_TestedBy.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
+        self.horizontalLayout_TestedBy.setSizeConstraint(
+            QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint
+        )
         self.horizontalLayout_TestedBy.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_TestedBy.setSpacing(5)
         self.horizontalLayout_TestedBy.setObjectName("horizontalLayout_TestedBy")
         self.label_TestedBy = QtWidgets.QLabel(parent=self.horizontalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_TestedBy.sizePolicy().hasHeightForWidth())
@@ -635,10 +815,14 @@ class Ui_MainWindow(object):
         self.label_TestedBy.setFont(font)
         self.label_TestedBy.setObjectName("label_TestedBy")
         self.horizontalLayout_TestedBy.addWidget(self.label_TestedBy)
-        spacerItem15 = QtWidgets.QSpacerItem(10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem15 = QtWidgets.QSpacerItem(
+            10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_TestedBy.addItem(spacerItem15)
         self.comboBox_TestedBy = QtWidgets.QComboBox(parent=self.horizontalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_TestedBy.sizePolicy().hasHeightForWidth())
@@ -671,7 +855,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_InputPath.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_InputPath.setObjectName("horizontalLayout_InputPath")
         self.label_InputPath = QtWidgets.QLabel(parent=self.verticalLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_InputPath.sizePolicy().hasHeightForWidth())
@@ -682,10 +868,14 @@ class Ui_MainWindow(object):
         self.label_InputPath.setFont(font)
         self.label_InputPath.setObjectName("label_InputPath")
         self.horizontalLayout_InputPath.addWidget(self.label_InputPath)
-        spacerItem16 = QtWidgets.QSpacerItem(35, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem16 = QtWidgets.QSpacerItem(
+            35, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_InputPath.addItem(spacerItem16)
         self.lineEdit_InputPath = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit_InputPath.sizePolicy().hasHeightForWidth())
@@ -697,12 +887,18 @@ class Ui_MainWindow(object):
         self.lineEdit_InputPath.setFont(font)
         self.lineEdit_InputPath.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.lineEdit_InputPath.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_InputPath.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_InputPath.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_InputPath.setReadOnly(True)
         self.lineEdit_InputPath.setObjectName("lineEdit_InputPath")
         self.horizontalLayout_InputPath.addWidget(self.lineEdit_InputPath)
         self.pushButton_InputPath = QtWidgets.QPushButton(parent=self.verticalLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pushButton_InputPath.sizePolicy().hasHeightForWidth())
@@ -720,7 +916,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_OutputPath.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_OutputPath.setObjectName("horizontalLayout_OutputPath")
         self.label_OutputPath = QtWidgets.QLabel(parent=self.verticalLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_OutputPath.sizePolicy().hasHeightForWidth())
@@ -731,10 +929,14 @@ class Ui_MainWindow(object):
         self.label_OutputPath.setFont(font)
         self.label_OutputPath.setObjectName("label_OutputPath")
         self.horizontalLayout_OutputPath.addWidget(self.label_OutputPath)
-        spacerItem17 = QtWidgets.QSpacerItem(27, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem17 = QtWidgets.QSpacerItem(
+            27, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_OutputPath.addItem(spacerItem17)
         self.lineEdit_OutputPath = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit_OutputPath.sizePolicy().hasHeightForWidth())
@@ -746,7 +948,11 @@ class Ui_MainWindow(object):
         self.lineEdit_OutputPath.setFont(font)
         self.lineEdit_OutputPath.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.lineEdit_OutputPath.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_OutputPath.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_OutputPath.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading
+            | QtCore.Qt.AlignmentFlag.AlignLeft
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_OutputPath.setReadOnly(True)
         self.lineEdit_OutputPath.setObjectName("lineEdit_OutputPath")
         self.horizontalLayout_OutputPath.addWidget(self.lineEdit_OutputPath)
@@ -755,7 +961,9 @@ class Ui_MainWindow(object):
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(9)
         self.pushButton_OutputPath.setFont(font)
-        self.pushButton_OutputPath.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.pushButton_OutputPath.setCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        )
         self.pushButton_OutputPath.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.pushButton_OutputPath.setObjectName("pushButton_OutputPath")
         self.horizontalLayout_OutputPath.addWidget(self.pushButton_OutputPath)
@@ -773,7 +981,9 @@ class Ui_MainWindow(object):
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 649, 109))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scrollAreaWidgetContents.sizePolicy().hasHeightForWidth())
@@ -781,22 +991,36 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.tableWidget_TestInformation = QtWidgets.QTableWidget(parent=self.scrollAreaWidgetContents)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.tableWidget_TestInformation = QtWidgets.QTableWidget(
+            parent=self.scrollAreaWidgetContents
+        )
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.tableWidget_TestInformation.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.tableWidget_TestInformation.sizePolicy().hasHeightForWidth()
+        )
         self.tableWidget_TestInformation.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Microsoft JhengHei")
         font.setPointSize(8)
         self.tableWidget_TestInformation.setFont(font)
-        self.tableWidget_TestInformation.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.CursorShape.IBeamCursor))
+        self.tableWidget_TestInformation.viewport().setProperty(
+            "cursor", QtGui.QCursor(QtCore.Qt.CursorShape.IBeamCursor)
+        )
         self.tableWidget_TestInformation.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.tableWidget_TestInformation.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.tableWidget_TestInformation.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.tableWidget_TestInformation.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.tableWidget_TestInformation.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustIgnored)
+        self.tableWidget_TestInformation.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.tableWidget_TestInformation.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.tableWidget_TestInformation.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustIgnored
+        )
         self.tableWidget_TestInformation.setTabKeyNavigation(False)
         self.tableWidget_TestInformation.setRowCount(12)
         self.tableWidget_TestInformation.setColumnCount(3)
@@ -863,7 +1087,9 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.frame_RunButton = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame_RunButton.setGeometry(QtCore.QRect(680, 10, 231, 301))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_RunButton.sizePolicy().hasHeightForWidth())
@@ -882,7 +1108,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_RunAndVersion.setSpacing(5)
         self.verticalLayout_RunAndVersion.setObjectName("verticalLayout_RunAndVersion")
         self.frame_7 = QtWidgets.QFrame(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_7.sizePolicy().hasHeightForWidth())
@@ -893,7 +1121,9 @@ class Ui_MainWindow(object):
         self.pushButton_Run = QtWidgets.QPushButton(parent=self.frame_7)
         self.pushButton_Run.setEnabled(True)
         self.pushButton_Run.setGeometry(QtCore.QRect(50, 5, 110, 110))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pushButton_Run.sizePolicy().hasHeightForWidth())
@@ -910,21 +1140,23 @@ class Ui_MainWindow(object):
         self.pushButton_Run.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_Run.setMouseTracking(True)
         self.pushButton_Run.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.pushButton_Run.setStyleSheet("QPushButton#pushButton_Run {\n"
-"  background-color: #00990C;     /* 背景色 */\n"
-"  color: #FFFFFF;                /* 文本颜色 */\n"
-"  border-style: solid;           \n"
-"  border-width: 2px;\n"
-"  border-color: #005F77;\n"
-"  border-radius: 6px;           /* 圆角半径 */\n"
-"  padding: 6px;                  /* 内边距，让内容不贴边 */\n"
-"}\n"
-"QPushButton#pushButton_Run:hover {\n"
-"  background-color: #FF7A99;     /* 悬停效果 */\n"
-"}\n"
-"QPushButton#pushButton_Run:pressed {\n"
-"  background-color: #005F77;     /* 按下效果 */\n"
-"}")
+        self.pushButton_Run.setStyleSheet(
+            "QPushButton#pushButton_Run {\n"
+            "  background-color: #00990C;     /* 背景色 */\n"
+            "  color: #FFFFFF;                /* 文本颜色 */\n"
+            "  border-style: solid;           \n"
+            "  border-width: 2px;\n"
+            "  border-color: #005F77;\n"
+            "  border-radius: 6px;           /* 圆角半径 */\n"
+            "  padding: 6px;                  /* 内边距，让内容不贴边 */\n"
+            "}\n"
+            "QPushButton#pushButton_Run:hover {\n"
+            "  background-color: #FF7A99;     /* 悬停效果 */\n"
+            "}\n"
+            "QPushButton#pushButton_Run:pressed {\n"
+            "  background-color: #005F77;     /* 按下效果 */\n"
+            "}"
+        )
         self.pushButton_Run.setIconSize(QtCore.QSize(16, 16))
         self.pushButton_Run.setAutoRepeatDelay(300)
         self.pushButton_Run.setAutoDefault(False)
@@ -932,10 +1164,14 @@ class Ui_MainWindow(object):
         self.pushButton_Run.setFlat(False)
         self.pushButton_Run.setObjectName("pushButton_Run")
         self.verticalLayout_RunAndVersion.addWidget(self.frame_7)
-        spacerItem18 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem18 = QtWidgets.QSpacerItem(
+            10, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.verticalLayout_RunAndVersion.addItem(spacerItem18)
         self.frame_6 = QtWidgets.QFrame(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_6.sizePolicy().hasHeightForWidth())
@@ -952,16 +1188,22 @@ class Ui_MainWindow(object):
         self.progressBar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setObjectName("progressBar")
         self.verticalLayout_RunAndVersion.addWidget(self.frame_6)
-        spacerItem19 = QtWidgets.QSpacerItem(10, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem19 = QtWidgets.QSpacerItem(
+            10, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.verticalLayout_RunAndVersion.addItem(spacerItem19)
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_Version = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_Version.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
+        self.horizontalLayout_Version.setSizeConstraint(
+            QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint
+        )
         self.horizontalLayout_Version.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_Version.setObjectName("horizontalLayout_Version")
         self.label_Version = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_Version.sizePolicy().hasHeightForWidth())
@@ -971,10 +1213,14 @@ class Ui_MainWindow(object):
         self.label_Version.setFont(font)
         self.label_Version.setObjectName("label_Version")
         self.horizontalLayout_Version.addWidget(self.label_Version)
-        spacerItem20 = QtWidgets.QSpacerItem(10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem20 = QtWidgets.QSpacerItem(
+            10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_Version.addItem(spacerItem20)
         self.lineEdit_Version = QtWidgets.QLineEdit(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit_Version.sizePolicy().hasHeightForWidth())
@@ -984,7 +1230,11 @@ class Ui_MainWindow(object):
         self.lineEdit_Version.setFont(font)
         self.lineEdit_Version.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.lineEdit_Version.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)
-        self.lineEdit_Version.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_Version.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight
+            | QtCore.Qt.AlignmentFlag.AlignTrailing
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.lineEdit_Version.setObjectName("lineEdit_Version")
         self.horizontalLayout_Version.addWidget(self.lineEdit_Version)
         self.verticalLayout.addLayout(self.horizontalLayout_Version)
@@ -992,7 +1242,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_ReportedBy.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_ReportedBy.setObjectName("horizontalLayout_ReportedBy")
         self.label_ReportedBy = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_ReportedBy.sizePolicy().hasHeightForWidth())
@@ -1003,10 +1255,14 @@ class Ui_MainWindow(object):
         self.label_ReportedBy.setFont(font)
         self.label_ReportedBy.setObjectName("label_ReportedBy")
         self.horizontalLayout_ReportedBy.addWidget(self.label_ReportedBy)
-        spacerItem21 = QtWidgets.QSpacerItem(10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem21 = QtWidgets.QSpacerItem(
+            10, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
+        )
         self.horizontalLayout_ReportedBy.addItem(spacerItem21)
         self.comboBox_ReportedBy = QtWidgets.QComboBox(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_ReportedBy.sizePolicy().hasHeightForWidth())
@@ -1149,9 +1405,15 @@ class Ui_MainWindow(object):
         self.label_BatteryType.setText(_translate("MainWindow", "Battery Type"))
         self.label_ConstructionMethod.setText(_translate("MainWindow", "Construction Method"))
         self.label_Specification.setText(_translate("MainWindow", "Specification"))
-        self.label_RequiredUseableCapacity.setText(_translate("MainWindow", "Required Useable Capacity(mAh)"))
-        self.label_CalculationNominalCapacity.setText(_translate("MainWindow", "Calculation Nominal Capacity(mAh)"))
-        self.label_DatasheetNominalCapacity.setText(_translate("MainWindow", "Datasheet Nominal Capacity(mAh)"))
+        self.label_RequiredUseableCapacity.setText(
+            _translate("MainWindow", "Required Useable Capacity(mAh)")
+        )
+        self.label_CalculationNominalCapacity.setText(
+            _translate("MainWindow", "Calculation Nominal Capacity(mAh)")
+        )
+        self.label_DatasheetNominalCapacity.setText(
+            _translate("MainWindow", "Datasheet Nominal Capacity(mAh)")
+        )
         self.groupBox_TestConfig.setTitle(_translate("MainWindow", "Test Config"))
         self.label_TestProfile.setText(_translate("MainWindow", "Test Profile"))
         self.pushButton_TestProfile.setText(_translate("MainWindow", "Open"))

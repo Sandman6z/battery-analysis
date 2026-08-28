@@ -7,9 +7,9 @@ from unittest.mock import patch
 import pandas as pd
 
 from battery_analysis.utils.processors.excel_processor import (
+    analyze_single_excel,
     optimize_dataframe_memory,
     read_excel_file,
-    analyze_single_excel,
 )
 
 

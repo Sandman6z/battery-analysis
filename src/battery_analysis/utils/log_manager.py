@@ -8,99 +8,105 @@
 - 统一的日志获取接口
 """
 
+import datetime
 import logging
 import logging.handlers
 import os
-import sys
-import datetime
 import platform
-import psutil
+import sys
 from pathlib import Path
+
+import psutil
 
 
 class LogManager:
     """日志管理器类，负责配置和管理应用程序日志"""
-    
+
     def __init__(self):
         """初始化日志管理器"""
         self.log_dir = None
         self.logger = None
         self._current_log_file = None
         self._configure_logging()
-    
+
     def _get_log_directory(self):
         """获取日志文件存储目录
-        
+
         Returns:
             Path: 日志文件目录路径
         """
-        if os.name == 'nt':
+        if os.name == "nt":
             # Windows系统，使用AppData\Local目录
-            app_data = os.environ.get('LOCALAPPDATA', os.path.join(os.environ['USERPROFILE'], 'AppData', 'Local'))
-            log_dir = Path(app_data) / 'BatteryAnalysis' / 'logs'
+            app_data = os.environ.get(
+                "LOCALAPPDATA", os.path.join(os.environ["USERPROFILE"], "AppData", "Local")
+            )
+            log_dir = Path(app_data) / "BatteryAnalysis" / "logs"
         else:
             # 非Windows系统，使用用户主目录下的.logs目录
-            log_dir = Path.home() / '.logs' / 'battery_analysis'
-        
+            log_dir = Path.home() / ".logs" / "battery_analysis"
+
         # 创建目录（如果不存在）
         log_dir.mkdir(parents=True, exist_ok=True)
         return log_dir
-    
+
     def _configure_logging(self):
         """配置日志系统"""
         # Windows 下確保 stdout/stderr 使用 UTF-8 編碼，避免中文亂碼
-        if os.name == 'nt':
+        if os.name == "nt":
             for stream in (sys.stdout, sys.stderr):
-                if hasattr(stream, 'reconfigure') and str(getattr(stream, 'encoding', '')).upper() != 'UTF-8':
+                if (
+                    hasattr(stream, "reconfigure")
+                    and str(getattr(stream, "encoding", "")).upper() != "UTF-8"
+                ):
                     try:
-                        stream.reconfigure(encoding='utf-8')
+                        stream.reconfigure(encoding="utf-8")
                     except Exception:
                         pass
 
         # 获取日志目录
         self.log_dir = self._get_log_directory()
-        
+
         # 创建带时间戳的日志文件名 - 每次启动生成一个新日志文件
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         # 所有日志文件都带时间戳，不再使用无时间戳的主日志文件
-        log_file = self.log_dir / f'battery_analysis_{timestamp}.log'
+        log_file = self.log_dir / f"battery_analysis_{timestamp}.log"
         self._current_log_file = log_file
-        
+
         # 创建主日志记录器
-        self.logger = logging.getLogger('battery_analysis')
+        self.logger = logging.getLogger("battery_analysis")
         self.logger.setLevel(logging.DEBUG)  # 捕获所有级别的日志
         self.logger.propagate = False
-        
+
         # 移除已有的处理器（避免重复配置）
         for handler in self.logger.handlers[:]:
             self.logger.removeHandler(handler)
             handler.close()
-        
+
         # 创建格式化器
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
-        
+
         # 控制台处理器
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(logging.WARNING)  # 控制台只显示WARNING及以上级别
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
-        
+
         # 文件处理器 - 直接创建带时间戳的新日志文件
         file_handler = logging.FileHandler(
             log_file,
-            mode='w',  # 每次启动创建新文件
-            encoding='utf-8'
+            mode="w",  # 每次启动创建新文件
+            encoding="utf-8",
         )
         file_handler.setLevel(logging.DEBUG)  # 文件记录所有级别
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
-        
+
         # 清理旧日志文件，只保留10个
         self._cleanup_old_logs(10)
-        
+
         # 环境信息延后记录，不阻塞启动
         # self._log_environment_info() 改由外部在适当时机调用
 
@@ -113,7 +119,9 @@ class LogManager:
         self.logger.info("=" * 50)
         self.logger.info("Application started")
         self.logger.info(f"Python version: {sys.version}")
-        self.logger.info(f"Operating system: {platform.system()} {platform.release()} {platform.version()}")
+        self.logger.info(
+            f"Operating system: {platform.system()} {platform.release()} {platform.version()}"
+        )
         self.logger.info(f"Processor: {platform.processor()}")
 
         # 记录内存信息
@@ -131,28 +139,28 @@ class LogManager:
         self.logger.info(f"Current working directory: {os.getcwd()}")
         self.logger.info(f"Log file path: {self.log_dir}")
         self.logger.info("=" * 50)
-    
+
     def get_logger(self, name=None):
         """获取日志记录器
-        
+
         Args:
             name: 日志记录器名称，如果为None则返回主日志记录器
-            
+
         Returns:
             logging.Logger: 日志记录器实例
         """
         if name:
-            return logging.getLogger(f'battery_analysis.{name}')
+            return logging.getLogger(f"battery_analysis.{name}")
         return self.logger
-    
+
     def get_log_directory(self):
         """获取日志目录
-        
+
         Returns:
             Path: 日志目录路径
         """
         return self.log_dir
-    
+
     def _cleanup_old_logs(self, keep_count=10):
         """清理旧日志文件，只保留指定数量的最新日志
         此方法在后台线程中异步执行，避免阻塞应用启动
@@ -164,7 +172,7 @@ class LogManager:
             # 获取所有日志文件
             all_logs = []
             # 匹配所有日志文件：主日志文件和归档日志文件
-            for log_file in self.log_dir.glob('battery_analysis*.log*'):
+            for log_file in self.log_dir.glob("battery_analysis*.log*"):
                 try:
                     if self._current_log_file and log_file.samefile(self._current_log_file):
                         continue
@@ -178,6 +186,7 @@ class LogManager:
                     return p.stat().st_mtime
                 except OSError:
                     return None
+
             all_logs = [p for p in all_logs if _safe_mtime(p) is not None]
             all_logs.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
@@ -197,6 +206,7 @@ class LogManager:
             max_retries: 最大重试次数
         """
         import time
+
         for attempt in range(max_retries):
             try:
                 log_file.unlink()
@@ -206,7 +216,9 @@ class LogManager:
                 if attempt < max_retries - 1:
                     time.sleep(0.1 * (attempt + 1))  # 递增等待: 0.1s, 0.2s, 0.3s
                 else:
-                    self.logger.debug(f"Failed to clean up log file {log_file} (retried {max_retries} times): {e}")
+                    self.logger.debug(
+                        f"Failed to clean up log file {log_file} (retried {max_retries} times): {e}"
+                    )
 
     def clear_old_logs(self, keep_count=10):
         """清理旧日志文件，只保留指定数量的最新日志
@@ -216,11 +228,9 @@ class LogManager:
             keep_count: 要保留的日志文件数量
         """
         import threading
+
         cleanup_thread = threading.Thread(
-            target=self._cleanup_old_logs,
-            args=(keep_count,),
-            daemon=True,
-            name="LogCleanupThread"
+            target=self._cleanup_old_logs, args=(keep_count,), daemon=True, name="LogCleanupThread"
         )
         cleanup_thread.start()
         self.logger.debug("Log cleanup task started in the background")
@@ -259,7 +269,7 @@ def get_log_manager():
 
 def get_log_directory():
     """获取日志目录的便捷函数
-    
+
     Returns:
         Path: 日志目录路径
     """

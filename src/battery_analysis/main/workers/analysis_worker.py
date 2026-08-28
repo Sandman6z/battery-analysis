@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
 """
 电池分析工作线程模块（AnalysisWorker 继承 TaskRunner，信号并入 TaskSignals）
 """
+
+import logging
 import os
 import shutil
-import logging
-from battery_analysis.main.workers.task_runner import TaskRunner, TaskCancelled
+
+from battery_analysis.main.workers.task_runner import TaskCancelled, TaskRunner
 
 
 class AnalysisWorker(TaskRunner):
@@ -96,6 +97,7 @@ class AnalysisWorker(TaskRunner):
 
             # 后向兼容：若传入 TestInfo，转为 list 供旧版引擎使用
             from battery_analysis.domain.entities.test_info import TestInfo
+
             if isinstance(self.list_test_info, TestInfo):
                 self.list_test_info = self.list_test_info.to_list()
 
@@ -124,7 +126,7 @@ class AnalysisWorker(TaskRunner):
                 strInDataXlsxDir=self.str_input_path,
                 strResultPath=self.str_output_path,
                 listTestInfo=self.list_test_info,
-                progress_callback=lambda v, s: self._emit_progress(v, s)
+                progress_callback=lambda v, s: self._emit_progress(v, s),
             )
 
             # BatteryAnalysis.__init__ 内部已报告进度至约55%，继续后续步骤
@@ -144,7 +146,10 @@ class AnalysisWorker(TaskRunner):
                 original_cycle_date = list_battery_info[4]
 
                 logging.info(
-                    "Retrieved Test Date: %s, original cycle date: %s", test_date, original_cycle_date)
+                    "Retrieved Test Date: %s, original cycle date: %s",
+                    test_date,
+                    original_cycle_date,
+                )
 
                 from battery_analysis.utils.readers.date_parser import parse_test_date
 
@@ -153,17 +158,16 @@ class AnalysisWorker(TaskRunner):
                     if len(list_battery_info) > 2 and list_battery_info[2]
                     else ""
                 )
-                self.str_test_date = parse_test_date(
-                    test_date, original_cycle_date, fallback
-                )
+                self.str_test_date = parse_test_date(test_date, original_cycle_date, fallback)
                 logging.info("Final test date determined: %s", self.str_test_date)
 
                 self._emit_progress(self.progress_value, "Processing output directory...")
 
                 # 重命名目录
                 try:
-                    final_dir = f"{self.str_output_path}/" \
-                        f"{self.str_test_date}_v{self.list_test_info[16]}"
+                    final_dir = (
+                        f"{self.str_output_path}/{self.str_test_date}_v{self.list_test_info[16]}"
+                    )
                     if os.path.exists(final_dir):
                         shutil.rmtree(final_dir)
 
@@ -171,7 +175,9 @@ class AnalysisWorker(TaskRunner):
                     try:
                         self.signals.rename_path.emit(self.str_test_date)
                     except RuntimeError:
-                        logging.warning("Signal object already deleted, cannot emit rename path signal")
+                        logging.warning(
+                            "Signal object already deleted, cannot emit rename path signal"
+                        )
 
                     os.rename(version_dir, final_dir)
                 except (OSError, PermissionError, FileNotFoundError) as e:
@@ -185,8 +191,10 @@ class AnalysisWorker(TaskRunner):
 
                 # 文件写入
                 try:
+                    from battery_analysis.main.services.service_container import (
+                        get_service_container,
+                    )
                     from battery_analysis.utils import file_writer
-                    from battery_analysis.main.services.service_container import get_service_container
 
                     _equipment = {}
                     try:
@@ -235,9 +243,9 @@ class AnalysisWorker(TaskRunner):
                         self._start_visualizer()
                     except (ImportError, OSError, PermissionError, ValueError) as e:
                         logging.error("Failed to start visualizer: %s", e)
-                except (ImportError, OSError, PermissionError, IOError, ValueError) as e:
+                except (ImportError, OSError, PermissionError, ValueError) as e:
                     logging.error("An error occurred during file writing: %s", e)
-                    self.str_error_xlsx = f"File writing error: {str(e)}"
+                    self.str_error_xlsx = f"File writing error: {e!s}"
 
         except TaskCancelled:
             return
@@ -245,7 +253,7 @@ class AnalysisWorker(TaskRunner):
             # 捕获所有异常，包括自定义的 BatteryAnalysisException
             logging.error("An error occurred during thread execution: %s", e)
             # 将未捕获的异常信息传递给UI层
-            self.str_error_xlsx = f"Thread execution error: {str(e)}"
+            self.str_error_xlsx = f"Thread execution error: {e!s}"
         finally:
             self.b_thread_run = False
             # 发送完成状态（取消的任务发 cancelled 信号，其他正常上报）
@@ -260,7 +268,9 @@ class AnalysisWorker(TaskRunner):
                     self.signals.info.emit(False, 0, "status:success")
                     self.signals.thread_end.emit()
             except RuntimeError as e:
-                logging.warning("Signal object already deleted, cannot emit completion status: %s", e)
+                logging.warning(
+                    "Signal object already deleted, cannot emit completion status: %s", e
+                )
 
     def _start_visualizer(self):
         """
@@ -268,7 +278,9 @@ class AnalysisWorker(TaskRunner):
         发送信号通知主线程启动可视化工具，确保环境一致
         """
         try:
-            if hasattr(self, 'signals'):
+            if hasattr(self, "signals"):
                 self.signals.start_visualizer.emit()
         except RuntimeError as e:
-            logging.warning("Signal object already deleted, cannot emit start visualizer signal: %s", e)
+            logging.warning(
+                "Signal object already deleted, cannot emit start visualizer signal: %s", e
+            )

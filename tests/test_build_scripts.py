@@ -1,4 +1,5 @@
 """测试 scripts/build.py 的构建失败检测逻辑"""
+
 from unittest.mock import Mock
 
 import pytest
@@ -25,7 +26,8 @@ class TestBuildFailurePropagation:
 
     def _make_manager(self, monkeypatch):
         import subprocess
-        from scripts.build import BuildConfig, BuildManager
+
+        from scripts.build import BuildManager
 
         # 避免 BuildManager.__init__ 清理/创建真实构建目录
         monkeypatch.setattr(BuildManager, "clean_build_dirs", lambda self: None)
@@ -38,7 +40,8 @@ class TestBuildFailurePropagation:
     def test_pyinstaller_nonzero_exits(self, monkeypatch):
         manager, subprocess = self._make_manager(monkeypatch)
         monkeypatch.setattr(
-            manager, "_execute_pyinstaller_command",
+            manager,
+            "_execute_pyinstaller_command",
             lambda app_dir, cmd_args: subprocess.CompletedProcess(cmd_args, 1),
         )
         with pytest.raises(SystemExit) as excinfo:
@@ -48,7 +51,8 @@ class TestBuildFailurePropagation:
     def test_pyinstaller_zero_does_not_exit(self, monkeypatch):
         manager, subprocess = self._make_manager(monkeypatch)
         monkeypatch.setattr(
-            manager, "_execute_pyinstaller_command",
+            manager,
+            "_execute_pyinstaller_command",
             lambda app_dir, cmd_args: subprocess.CompletedProcess(cmd_args, 0),
         )
         manager.build()  # 不抛 SystemExit 即通过

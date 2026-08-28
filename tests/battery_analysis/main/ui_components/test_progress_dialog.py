@@ -1,6 +1,7 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
+
 from PyQt6.QtWidgets import QApplication
+
 from battery_analysis.main.ui_components.progress_dialog import ProgressDialog
 
 
@@ -32,12 +33,16 @@ class TestProgressDialog:
 
     def test_update_progress_does_not_process_events(self):
         """update_progress 不调用 processEvents（防重入，roadmap #12）"""
-        with patch('battery_analysis.main.ui_components.progress_dialog.QW.QApplication.processEvents') as mock_pe:
+        with patch(
+            "battery_analysis.main.ui_components.progress_dialog.QW.QApplication.processEvents"
+        ) as mock_pe:
             self.dialog.update_progress(50, "Test progress")
             mock_pe.assert_not_called()
 
     def test_on_cancel_does_not_process_events(self):
         """_on_cancel 不调用 processEvents"""
-        with patch('battery_analysis.main.ui_components.progress_dialog.QW.QApplication.processEvents') as mock_pe:
+        with patch(
+            "battery_analysis.main.ui_components.progress_dialog.QW.QApplication.processEvents"
+        ) as mock_pe:
             self.dialog._on_cancel()
             mock_pe.assert_not_called()

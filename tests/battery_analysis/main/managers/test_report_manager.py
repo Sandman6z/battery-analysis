@@ -1,4 +1,5 @@
 from unittest.mock import Mock
+
 from battery_analysis.main.managers.report_manager import ReportManager
 
 

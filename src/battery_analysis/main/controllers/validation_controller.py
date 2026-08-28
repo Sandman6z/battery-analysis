@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 验证控制器模块
 负责处理输入验证相关的业务逻辑
 """
+
 import os
-import re
+
 from PyQt6 import QtCore as QC
 
 
@@ -13,6 +13,7 @@ class ValidationController(QC.QObject):
     验证控制器类
     负责各种输入验证和数据校验
     """
+
     # 定义信号
     validation_error = QC.pyqtSignal(str)  # 验证错误信号
     validation_success = QC.pyqtSignal()  # 验证成功信号
@@ -22,11 +23,12 @@ class ValidationController(QC.QObject):
         初始化验证控制器
         """
         super().__init__()
-        
+
         # 获取服务容器
         from battery_analysis.main.services.service_container import get_service_container
+
         self.service_container = get_service_container()
-        
+
         # 获取验证服务
         self.validation_service = self.service_container.get("validation")
 
@@ -48,7 +50,7 @@ class ValidationController(QC.QObject):
             else:
                 self.validation_success.emit()
             return is_valid, error_msg
-        
+
         # 降级到原来的逻辑
         error_msg = "Validation service unavailable"
         self.validation_error.emit(error_msg)
@@ -91,10 +93,9 @@ class ValidationController(QC.QObject):
         try:
             files = os.listdir(input_path)
             # 检查是否至少有一个xlsx或csv文件
-            has_data_file = any(file.endswith('.xlsx')
-                                or file.endswith('.csv') for file in files)
+            has_data_file = any(file.endswith(".xlsx") or file.endswith(".csv") for file in files)
             if not has_data_file:
-                error_msg = f"No data files (.xlsx or .csv) found in input directory"
+                error_msg = "No data files (.xlsx or .csv) found in input directory"
                 self.validation_error.emit(error_msg)
                 return False, error_msg
         except (OSError, TypeError, ValueError) as e:
@@ -128,7 +129,7 @@ class ValidationController(QC.QObject):
 
             # 测试写入权限
             test_file = os.path.join(output_path, "test_write_access.tmp")
-            with open(test_file, 'w') as f:
+            with open(test_file, "w") as f:
                 f.write("test")
             os.remove(test_file)
         except (OSError, TypeError, ValueError) as e:
@@ -180,6 +181,5 @@ class ValidationController(QC.QObject):
         """
         # 定义Windows系统中不允许的字符
         invalid_chars = '<>:"/\\|?*'
-        sanitized = ''.join(
-            c if c not in invalid_chars else '_' for c in file_name)
+        sanitized = "".join(c if c not in invalid_chars else "_" for c in file_name)
         return sanitized

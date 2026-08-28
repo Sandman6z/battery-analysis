@@ -25,5 +25,5 @@ class AnalyzeDataCommand(Command):
             self.presenter.on_analyze_data()
             return True
         except Exception as e:
-            logging.error(f"Failed to analyze data: {str(e)}")
+            logging.error(f"Failed to analyze data: {e!s}")
             return False

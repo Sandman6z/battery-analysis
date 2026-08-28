@@ -25,7 +25,7 @@ class ExportReportCommand(Command):
             self.presenter.on_export_report()
             return True
         except Exception as e:
-            logging.error(f"Failed to export report: {str(e)}")
+            logging.error(f"Failed to export report: {e!s}")
             return False
 
 
@@ -51,7 +51,7 @@ class GenerateReportCommand(Command):
             self.presenter.on_generate_report()
             return True
         except Exception as e:
-            logging.error(f"Failed to generate report: {str(e)}")
+            logging.error(f"Failed to generate report: {e!s}")
             return False
 
 
@@ -77,7 +77,7 @@ class BatchProcessingCommand(Command):
             self.presenter.on_batch_processing()
             return True
         except Exception as e:
-            logging.error(f"Failed to batch process: {str(e)}")
+            logging.error(f"Failed to batch process: {e!s}")
             return False
 
 
@@ -104,5 +104,5 @@ class SaveSettingsCommand(Command):
             self.main_window.save_settings()
             return True
         except Exception as e:
-            logging.error(f"Failed to save settings: {str(e)}")
+            logging.error(f"Failed to save settings: {e!s}")
             return False

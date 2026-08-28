@@ -203,7 +203,7 @@ MSGID_RE = re.compile(r'(?<![\w._])_\s*\(\s*"((?:[^"\\]|\\.)*)"')
 
 
 def extract_msgids(src_dir: Path) -> "list[str]":
-    msgids: "list[str]" = []
+    msgids: list[str] = []
     for path in sorted(src_dir.rglob("*.py")):
         text = path.read_text(encoding="utf-8")
         for m in MSGID_RE.finditer(text):
@@ -240,8 +240,8 @@ def _po_quote(s: str) -> str:
 
 def render_po(lang: str, entries: list) -> str:
     lines = [
-        f'# {lang} translations for Battery Analysis application',
-        f'# Language: {lang}',
+        f"# {lang} translations for Battery Analysis application",
+        f"# Language: {lang}",
         'msgid ""',
         'msgstr ""',
         '"Content-Type: text/plain; charset=UTF-8\\n"',
@@ -265,9 +265,11 @@ def main() -> None:
         zh_entries.append((m, CHINESE.get(m, existing_zh.get(m, m))))
 
     (LOCALE_DIR / "en" / "LC_MESSAGES" / "messages.po").write_text(
-        render_po("en", en_entries), encoding="utf-8")
+        render_po("en", en_entries), encoding="utf-8"
+    )
     (LOCALE_DIR / "zh_CN" / "LC_MESSAGES" / "messages.po").write_text(
-        render_po("zh_CN", zh_entries), encoding="utf-8")
+        render_po("zh_CN", zh_entries), encoding="utf-8"
+    )
     print(f"Rebuilt en.po ({len(msgids)} entries) and zh_CN.po ({len(msgids)} entries)")
 
 

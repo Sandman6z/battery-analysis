@@ -1,5 +1,5 @@
-import pytest
 from unittest.mock import Mock, patch
+
 from battery_analysis.utils.resource_manager import ResourceManager
 
 
@@ -19,8 +19,8 @@ class TestResourceManager:
         """
         fake_psutil = Mock()
         fake_psutil.cpu_percent.return_value = 90.0  # 高负载
-        fake_psutil.virtual_memory.return_value = Mock(available=32 * 1024 ** 3)
-        with patch('battery_analysis.utils.resource_manager.psutil', fake_psutil):
+        fake_psutil.virtual_memory.return_value = Mock(available=32 * 1024**3)
+        with patch("battery_analysis.utils.resource_manager.psutil", fake_psutil):
             result = ResourceManager.get_optimal_process_count(max_processes_default=8)
         fake_psutil.cpu_percent.assert_called_once_with(interval=None, percpu=False)
         # 高负载 → 上限 min(8, 2)=2；32GB 内存 → 320 进程不进一步缩
@@ -29,4 +29,4 @@ class TestResourceManager:
     def test_get_processing_context(self):
         result = self.manager.get_processing_context()
         ctx_name = result.get_start_method()
-        assert ctx_name == 'spawn'
+        assert ctx_name == "spawn"

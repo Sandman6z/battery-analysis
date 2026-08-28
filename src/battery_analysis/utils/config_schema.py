@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 配置 Schema 定义与验证
 
@@ -6,9 +5,9 @@
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
-from battery_analysis.utils.exceptions import ConfigException
+from typing import Any
 
+from battery_analysis.utils.exceptions import ConfigException
 
 # ── Schema 定义 ────────────────────────────────────────────────
 
@@ -34,34 +33,37 @@ def _to_snake(d: dict) -> dict:
 
 @dataclass
 class BatterySchema:
-    types: List[str] = field(default_factory=lambda: ["Coin Cell", "Pouch Cell"])
-    construction_methods: List[str] = field(default_factory=lambda: ["Spiral Type", "Laminate Type"])
-    specifications: Dict[str, List[str]] = field(default_factory=dict)
-    specification_methods: List[str] = field(default_factory=lambda: ["1S1P", "1S2P", "2S1P"])
-    manufacturers: List[str] = field(default_factory=list)
-    rules: List[str] = field(default_factory=list)
-    pulse_currents: List[float] = field(default_factory=list)
-    cut_off_voltages: List[float] = field(default_factory=list)
+    types: list[str] = field(default_factory=lambda: ["Coin Cell", "Pouch Cell"])
+    construction_methods: list[str] = field(
+        default_factory=lambda: ["Spiral Type", "Laminate Type"]
+    )
+    specifications: dict[str, list[str]] = field(default_factory=dict)
+    specification_methods: list[str] = field(default_factory=lambda: ["1S1P", "1S2P", "2S1P"])
+    manufacturers: list[str] = field(default_factory=list)
+    rules: list[str] = field(default_factory=list)
+    pulse_currents: list[float] = field(default_factory=list)
+    cut_off_voltages: list[float] = field(default_factory=list)
 
 
 @dataclass
 class TestSchema:
-    locations: List[str] = field(default_factory=list)
-    tested_by: List[str] = field(default_factory=list)
-    equipment: Dict[str, Any] = field(default_factory=dict)
+    locations: list[str] = field(default_factory=list)
+    tested_by: list[str] = field(default_factory=list)
+    equipment: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class AppConfigSchema:
     """完整配置的结构定义。"""
+
     version: int = 1
     battery: BatterySchema = field(default_factory=BatterySchema)
     test: TestSchema = field(default_factory=TestSchema)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AppConfigSchema":
+    def from_dict(cls, data: dict[str, Any]) -> "AppConfigSchema":
         """从原始 dict 解析并验证（自动处理 camelCase → snake_case）。"""
-        errors: List[str] = []
+        errors: list[str] = []
 
         version = data.get("version", 1)
         if not isinstance(version, int):
@@ -85,7 +87,7 @@ class AppConfigSchema:
             test=TestSchema(**test_data),
         )
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """返回所有验证警告（非致命）。"""
         warnings = []
         if not self.battery.types:

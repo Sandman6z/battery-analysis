@@ -4,12 +4,13 @@ JSON 配置管理器
 提供 JSON 配置文件的读取、写入、原子替换功能。
 键访问使用点号路径格式，如 "battery.types"。
 """
+
 import json
+import logging
 import os
 import tempfile
-import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class JsonConfigManager:
     """JSON 配置管理器，支持原子写入和键路径访问"""
 
     def __init__(self):
-        self._data: Dict[str, Any] = {}
+        self._data: dict[str, Any] = {}
         self._loaded = False
 
     def read_config(self, config_path: str) -> bool:
@@ -28,12 +29,12 @@ class JsonConfigManager:
             logger.warning("Config file does not exist: %s", config_path)
             return False
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 self._data = json.load(f)
             self._loaded = True
             logger.info("Config file read successfully: %s", config_path)
             return True
-        except (json.JSONDecodeError, IOError, OSError) as e:
+        except (json.JSONDecodeError, OSError) as e:
             logger.error("Failed to read config file: %s", e)
             self._data = {}
             self._loaded = False
@@ -44,9 +45,7 @@ class JsonConfigManager:
         try:
             os.makedirs(os.path.dirname(config_path), exist_ok=True)
             fd, tmp_path = tempfile.mkstemp(
-                suffix=".tmp",
-                prefix="config_",
-                dir=os.path.dirname(config_path)
+                suffix=".tmp", prefix="config_", dir=os.path.dirname(config_path)
             )
             try:
                 with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -60,7 +59,7 @@ class JsonConfigManager:
                 raise
             logger.info("Config file written successfully: %s", config_path)
             return True
-        except (IOError, OSError, PermissionError) as e:
+        except (OSError, PermissionError) as e:
             logger.error("Failed to write config file: %s", e)
             return False
 
@@ -95,16 +94,16 @@ class JsonConfigManager:
             logger.error("Failed to set config value: %s", e)
             return False
 
-    def get_all(self) -> Dict[str, Any]:
+    def get_all(self) -> dict[str, Any]:
         """获取完整配置数据"""
         return self._data
 
-    def replace_all(self, data: Dict[str, Any]):
+    def replace_all(self, data: dict[str, Any]):
         """替换整个配置数据"""
         self._data = data
         self._loaded = True
 
-    def set_defaults(self, defaults: Dict[str, Any]):
+    def set_defaults(self, defaults: dict[str, Any]):
         """用默认数据填充（仅当文件初次创建时调用）"""
         self._data = defaults
         self._loaded = True

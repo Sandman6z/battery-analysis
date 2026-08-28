@@ -1,5 +1,6 @@
-from unittest.mock import Mock
 import os
+from unittest.mock import Mock
+
 from battery_analysis.main.managers.path_manager import PathManager
 
 

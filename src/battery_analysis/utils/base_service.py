@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 基础服务类
 提供统一的错误处理、日志记录等公共功能
 """
 
 import logging
-from typing import Any, Tuple
 from abc import ABC
+from typing import Any
 
 
 class BaseService(ABC):
@@ -38,7 +37,7 @@ class BaseService(ABC):
 
     # ── 错误处理 ──────────────────────────────────────────────
 
-    def _handle_error(self, e: Exception, message: str) -> Tuple[bool, str]:
+    def _handle_error(self, e: Exception, message: str) -> tuple[bool, str]:
         """
         统一错误处理
 
@@ -49,7 +48,7 @@ class BaseService(ABC):
         Returns:
             Tuple[bool, str]: (是否成功, 消息)
         """
-        error_msg = f"{message}: {str(e)}"
+        error_msg = f"{message}: {e!s}"
         self.logger.error(error_msg)
         return False, error_msg
 
@@ -77,7 +76,5 @@ class BaseService(ABC):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            self.logger.error(f"Operation failed: {str(e)}")
+            self.logger.error(f"Operation failed: {e!s}")
             return None
-
-

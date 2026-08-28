@@ -1,5 +1,7 @@
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, patch
+
 from battery_analysis.ui.frameworks.pyqt6_ui_framework import PyQt6UIFramework
 
 

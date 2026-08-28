@@ -4,10 +4,9 @@
 提供现代化按钮、菜单栏、过滤切换、电池选择、悬停等功能
 """
 
+import datetime
 import logging
 import traceback
-import datetime
-import threading
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
@@ -37,7 +36,7 @@ def _select_hover_lines(check_filter, lines_filtered, lines_unfiltered):
     """
     filtered = True
     if check_filter is not None and isinstance(check_filter, dict):
-        filtered = check_filter.get('active', True)
+        filtered = check_filter.get("active", True)
     return lines_filtered if filtered else lines_unfiltered
 
 
@@ -66,59 +65,69 @@ class InteractionControlsMixin:
         使 5-1 排在最上、8-8 排在最后。无法解析的名称返回无穷大排到末尾。
         """
         try:
-            parts = str(name).replace('-', '_').split('_')
+            parts = str(name).replace("-", "_").split("_")
             return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
         except (ValueError, IndexError, TypeError):
-            return (float('inf'), 0)
+            return (float("inf"), 0)
 
-    def _create_modern_button(self, ax, x, y, width, height, text, callback,
-                              is_toggle=False, initial_state=False):
+    def _create_modern_button(
+        self, ax, x, y, width, height, text, callback, is_toggle=False, initial_state=False
+    ):
         """创建现代化按钮"""
         try:
             pad = self._get_button_pad(width, height)
             # 矩形内缩 pad 以补偿 boxstyle 的向外扩张，使视觉范围恰好等于
             # 逻辑范围 [x, x+width]×[y, y+height]，与点击命中检测保持一致。
             button_bg = FancyBboxPatch(
-                (x + pad, y + pad), width - 2 * pad, height - 2 * pad,
+                (x + pad, y + pad),
+                width - 2 * pad,
+                height - 2 * pad,
                 boxstyle=f"round,pad={pad}",
-                facecolor=MODERN_BUTTON_STYLE['inactive_color'],
-                edgecolor=MODERN_BUTTON_STYLE['border_color'],
-                linewidth=MODERN_BUTTON_STYLE['border_width'],
+                facecolor=MODERN_BUTTON_STYLE["inactive_color"],
+                edgecolor=MODERN_BUTTON_STYLE["border_color"],
+                linewidth=MODERN_BUTTON_STYLE["border_width"],
                 alpha=0.95,
-                transform=ax.transAxes
+                transform=ax.transAxes,
             )
             ax.add_patch(button_bg)
 
             button_text = ax.text(
-                x + width/2, y + height/2, text,
-                ha='center', va='center',
-                fontsize=MODERN_BUTTON_STYLE['font_size'],
-                color=MODERN_BUTTON_STYLE['inactive_text_color'],
-                weight=MODERN_BUTTON_STYLE['font_weight'] if is_toggle else 'normal',
-                transform=ax.transAxes
+                x + width / 2,
+                y + height / 2,
+                text,
+                ha="center",
+                va="center",
+                fontsize=MODERN_BUTTON_STYLE["font_size"],
+                color=MODERN_BUTTON_STYLE["inactive_text_color"],
+                weight=MODERN_BUTTON_STYLE["font_weight"] if is_toggle else "normal",
+                transform=ax.transAxes,
             )
 
-            state = {'active': initial_state, 'bg': button_bg, 'text': button_text,
-                     'hover': False, 'pad': pad}
+            state = {
+                "active": initial_state,
+                "bg": button_bg,
+                "text": button_text,
+                "hover": False,
+                "pad": pad,
+            }
 
             self._update_button_style(state)
 
             def on_button_hover(event):
                 if event.inaxes != ax:
-                    if state['hover']:
-                        state['hover'] = False
+                    if state["hover"]:
+                        state["hover"] = False
                         self._update_button_style(state)
                     return
 
-                is_in_button = (x <= event.xdata <= x + width and
-                                y <= event.ydata <= y + height)
+                is_in_button = x <= event.xdata <= x + width and y <= event.ydata <= y + height
 
-                if is_in_button and not state['hover']:
-                    state['hover'] = True
+                if is_in_button and not state["hover"]:
+                    state["hover"] = True
                     self._update_button_style(state, hover=True)
                     ax.figure.canvas.draw_idle()
-                elif not is_in_button and state['hover']:
-                    state['hover'] = False
+                elif not is_in_button and state["hover"]:
+                    state["hover"] = False
                     self._update_button_style(state)
                     ax.figure.canvas.draw_idle()
 
@@ -126,11 +135,9 @@ class InteractionControlsMixin:
                 if event.inaxes != ax:
                     return
 
-                if (x <= event.xdata <= x + width and
-                    y <= event.ydata <= y + height):
-
+                if x <= event.xdata <= x + width and y <= event.ydata <= y + height:
                     if is_toggle:
-                        state['active'] = not state['active']
+                        state["active"] = not state["active"]
                         self._update_button_style(state)
                     else:
                         self._update_button_style(state, pressed=True)
@@ -143,8 +150,8 @@ class InteractionControlsMixin:
 
                     ax.figure.canvas.draw_idle()
 
-            ax.figure.canvas.mpl_connect('motion_notify_event', on_button_hover)
-            ax.figure.canvas.mpl_connect('button_press_event', on_button_click)
+            ax.figure.canvas.mpl_connect("motion_notify_event", on_button_hover)
+            ax.figure.canvas.mpl_connect("button_press_event", on_button_click)
 
             return state
 
@@ -161,9 +168,15 @@ class InteractionControlsMixin:
             for i, config in enumerate(buttons_config):
                 btn_x = x + i * button_width
                 btn_state = self._create_modern_button(
-                    ax, btn_x, y, button_width - 0.005, height,
-                    config['text'], config['callback'],
-                    is_toggle=True, initial_state=config.get('initial', False)
+                    ax,
+                    btn_x,
+                    y,
+                    button_width - 0.005,
+                    height,
+                    config["text"],
+                    config["callback"],
+                    is_toggle=True,
+                    initial_state=config.get("initial", False),
                 )
                 if btn_state:
                     button_states.append(btn_state)
@@ -174,58 +187,63 @@ class InteractionControlsMixin:
             logger.error("Error creating modern toggle button group: %s", e)
             return []
 
-    def _add_filter_button(self, fig, ax, lines_unfiltered, lines_filtered,
-                           title_fontdict, axis_fontdict):
+    def _add_filter_button(
+        self, fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict
+    ):
         """添加过滤/未过滤数据切换按钮"""
         try:
             ax_filter = fig.add_axes([0.001, 0.92, 0.12, 0.05])
             ax_filter.set_xlim(0, 1)
             ax_filter.set_ylim(0, 1)
-            ax_filter.axis('off')
+            ax_filter.axis("off")
 
-            is_filtered = {'value': True}
-            button_state_ref = {'button_state': None}
+            is_filtered = {"value": True}
+            button_state_ref = {"button_state": None}
 
             def toggle_filter_mode():
                 try:
-                    is_filtered['value'] = not is_filtered['value']
+                    is_filtered["value"] = not is_filtered["value"]
 
                     if button_state_ref and isinstance(button_state_ref, dict):
-                        button_state = button_state_ref.get('button_state')
-                        if button_state and isinstance(button_state, dict) and 'text' in button_state:
-                            new_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
-                            button_state['text'].set_text(new_text)
+                        button_state = button_state_ref.get("button_state")
+                        if (
+                            button_state
+                            and isinstance(button_state, dict)
+                            and "text" in button_state
+                        ):
+                            new_text = "🔍 Filtered" if is_filtered["value"] else "📊 All Data"
+                            button_state["text"].set_text(new_text)
 
-                    if is_filtered['value']:
-                        fig.canvas.manager.window.setWindowTitle(
-                            f"Filtered {self.strPltName}")
-                        ax.set_title(
-                            f"Filtered {self.strPltName}", fontdict=title_fontdict)
-                        ax.set_ylabel(
-                            "Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+                    if is_filtered["value"]:
+                        fig.canvas.manager.window.setWindowTitle(f"Filtered {self.strPltName}")
+                        ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
+                        ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
                         for i in range(min(len(lines_unfiltered), len(lines_filtered))):
                             battery_index = i // self.intCurrentLevelNum
                             battery_visible = any(
                                 lines_unfiltered[j].get_visible()
-                                for j in _battery_line_indices(battery_index, self.intCurrentLevelNum)
-                                if j < len(lines_unfiltered))
+                                for j in _battery_line_indices(
+                                    battery_index, self.intCurrentLevelNum
+                                )
+                                if j < len(lines_unfiltered)
+                            )
                             lines_filtered[i].set_visible(battery_visible)
                             lines_unfiltered[i].set_visible(False)
                     else:
-                        fig.canvas.manager.window.setWindowTitle(
-                            f"Unfiltered {self.strPltName}")
-                        ax.set_title(
-                            f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
-                        ax.set_ylabel(
-                            "Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
+                        fig.canvas.manager.window.setWindowTitle(f"Unfiltered {self.strPltName}")
+                        ax.set_title(f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
+                        ax.set_ylabel("Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
 
                         for i in range(min(len(lines_filtered), len(lines_unfiltered))):
                             battery_index = i // self.intCurrentLevelNum
                             battery_visible = any(
                                 lines_filtered[j].get_visible()
-                                for j in _battery_line_indices(battery_index, self.intCurrentLevelNum)
-                                if j < len(lines_filtered))
+                                for j in _battery_line_indices(
+                                    battery_index, self.intCurrentLevelNum
+                                )
+                                if j < len(lines_filtered)
+                            )
                             lines_unfiltered[i].set_visible(battery_visible)
                             lines_filtered[i].set_visible(False)
 
@@ -233,14 +251,20 @@ class InteractionControlsMixin:
                 except (AttributeError, TypeError, ValueError, IndexError) as e:
                     logger.error("Error toggling filter mode: %s", e)
 
-            button_text = "🔍 Filtered" if is_filtered['value'] else "📊 All Data"
+            button_text = "🔍 Filtered" if is_filtered["value"] else "📊 All Data"
             button_state = self._create_modern_button(
-                ax_filter, 0.02, 0.15, 0.96, 0.7,
-                button_text, toggle_filter_mode,
-                is_toggle=True, initial_state=True
+                ax_filter,
+                0.02,
+                0.15,
+                0.96,
+                0.7,
+                button_text,
+                toggle_filter_mode,
+                is_toggle=True,
+                initial_state=True,
             )
 
-            button_state_ref['button_state'] = button_state
+            button_state_ref["button_state"] = button_state
             self.filter_button_state = button_state
 
             logger.info("Modern filter button added successfully")
@@ -248,7 +272,7 @@ class InteractionControlsMixin:
         except (ValueError, TypeError, AttributeError) as e:
             logger.error("Error creating filter button: %s", e)
 
-        return button_state_ref['button_state']
+        return button_state_ref["button_state"]
 
     def _add_battery_selection_buttons(self, fig, check_filter, lines_unfiltered, lines_filtered):
         """添加电池选择现代化按钮"""
@@ -257,42 +281,63 @@ class InteractionControlsMixin:
 
         if self.intBatteryNum > 32:
             button_states_line1 = self._create_battery_check_buttons(
-                fig, [0.001, 0.005, 0.04, 0.029*32], 0, 32,
-                check_filter, lines_unfiltered, lines_filtered
+                fig,
+                [0.001, 0.005, 0.04, 0.029 * 32],
+                0,
+                32,
+                check_filter,
+                lines_unfiltered,
+                lines_filtered,
             )
             button_states_line2 = self._create_battery_check_buttons(
-                fig, [0.041, 0.005, 0.04, 0.029*32], 32, 64,
-                check_filter, lines_unfiltered, lines_filtered
+                fig,
+                [0.041, 0.005, 0.04, 0.029 * 32],
+                32,
+                64,
+                check_filter,
+                lines_unfiltered,
+                lines_filtered,
             )
         else:
             button_states_line1 = self._create_battery_check_buttons(
-                fig, [0.001, 0.005, 0.04, 0.029*32], 0, 32,
-                check_filter, lines_unfiltered, lines_filtered
+                fig,
+                [0.001, 0.005, 0.04, 0.029 * 32],
+                0,
+                32,
+                check_filter,
+                lines_unfiltered,
+                lines_filtered,
             )
 
-            ax_empty = fig.add_axes([0.041, 0.005, 0.04, 0.029*32])
+            ax_empty = fig.add_axes([0.041, 0.005, 0.04, 0.029 * 32])
             ax_empty.set_xlim(0, 1)
             ax_empty.set_ylim(0, 1)
-            ax_empty.axis('off')
-            ax_empty.text(0.5, 0.5, 'Empty', ha='center', va='center',
-                          fontsize=8, alpha=0.5, transform=ax_empty.transAxes)
+            ax_empty.axis("off")
+            ax_empty.text(
+                0.5,
+                0.5,
+                "Empty",
+                ha="center",
+                va="center",
+                fontsize=8,
+                alpha=0.5,
+                transform=ax_empty.transAxes,
+            )
             button_states_line2 = []
 
-        self.battery_button_states = {
-            'line1': button_states_line1,
-            'line2': button_states_line2
-        }
+        self.battery_button_states = {"line1": button_states_line1, "line2": button_states_line2}
 
         logger.info("Modern battery selection buttons added successfully")
         return button_states_line1, button_states_line2
 
-    def _create_battery_check_buttons(self, fig, rect, start_idx, end_idx,
-                                      check_filter, lines_unfiltered, lines_filtered):
+    def _create_battery_check_buttons(
+        self, fig, rect, start_idx, end_idx, check_filter, lines_unfiltered, lines_filtered
+    ):
         """创建电池选择现代化按钮"""
         ax_buttons = fig.add_axes(rect)
         ax_buttons.set_xlim(0, 1)
         ax_buttons.set_ylim(0, 1)
-        ax_buttons.axis('off')
+        ax_buttons.axis("off")
         ax_buttons.invert_yaxis = False
 
         self.battery_button_states = []
@@ -300,21 +345,25 @@ class InteractionControlsMixin:
         battery_info = []
         for i in range(start_idx, end_idx):
             if i < self.intBatteryNum:
-                battery_info.append({
-                    'name': self.listBatteryNameSplit[i],
-                    'index': i,
-                    'initial_state': True,
-                    'is_none': False
-                })
+                battery_info.append(
+                    {
+                        "name": self.listBatteryNameSplit[i],
+                        "index": i,
+                        "initial_state": True,
+                        "is_none": False,
+                    }
+                )
             else:
-                battery_info.append({
-                    'name': f"Battery {start_idx + 1}",
-                    'index': i,
-                    'initial_state': False,
-                    'is_none': True
-                })
+                battery_info.append(
+                    {
+                        "name": f"Battery {start_idx + 1}",
+                        "index": i,
+                        "initial_state": False,
+                        "is_none": True,
+                    }
+                )
 
-        battery_info.sort(key=lambda x: x['index'])
+        battery_info.sort(key=lambda x: x["index"])
 
         num_valid_batteries = min(self.intBatteryNum - start_idx, end_idx - start_idx)
         if num_valid_batteries > 0:
@@ -335,19 +384,23 @@ class InteractionControlsMixin:
             try:
                 logger.debug("Toggling visibility of battery %s", battery_idx)
 
-                if battery_info[battery_idx - start_idx].get('is_none', False):
+                if battery_info[battery_idx - start_idx].get("is_none", False):
                     return
 
-                is_filtered = self.filter_button_state['active'] if hasattr(self, 'filter_button_state') else True
+                is_filtered = (
+                    self.filter_button_state["active"]
+                    if hasattr(self, "filter_button_state")
+                    else True
+                )
 
-                battery_index = battery_info[battery_idx - start_idx]['index']
+                battery_index = battery_info[battery_idx - start_idx]["index"]
 
                 current_lines = lines_filtered if is_filtered else lines_unfiltered
                 line_indices = _battery_line_indices(battery_index, self.intCurrentLevelNum)
 
                 battery_visible = any(
-                    current_lines[i].get_visible()
-                    for i in line_indices if i < len(current_lines))
+                    current_lines[i].get_visible() for i in line_indices if i < len(current_lines)
+                )
 
                 new_visibility = not battery_visible
 
@@ -366,7 +419,7 @@ class InteractionControlsMixin:
                     button_state = index_to_state.get(battery_idx)
                 if button_state is None:
                     return
-                button_state['active'] = new_visibility
+                button_state["active"] = new_visibility
                 self._update_button_style(button_state)
 
                 if updated:
@@ -374,10 +427,10 @@ class InteractionControlsMixin:
             except (AttributeError, TypeError, ValueError, IndexError) as e:
                 logger.error("Error selecting battery: %s", e)
 
-        valid_batteries = [battery for battery in battery_info if not battery['is_none']]
+        valid_batteries = [battery for battery in battery_info if not battery["is_none"]]
         # 按电池名称数字正序排列（如 5-1 在最上、8-8 在最下）。
         # 仅改变按钮显示顺序，battery['index'] 仍绑定真实通道的曲线数据。
-        valid_batteries.sort(key=lambda x: self._battery_name_sort_key(x['name']))
+        valid_batteries.sort(key=lambda x: self._battery_name_sort_key(x["name"]))
         num_valid = len(valid_batteries)
 
         for i, battery in enumerate(valid_batteries):
@@ -386,25 +439,39 @@ class InteractionControlsMixin:
             y_pos = (num_valid - 1 - i) * button_height
 
             button_state = self._create_modern_button(
-                ax_buttons, 0.02, y_pos, button_width, button_height,
-                battery['name'][:12] + '...' if len(battery['name']) > 12 else battery['name'],
-                lambda idx=battery['index']: toggle_battery_visibility(idx),
+                ax_buttons,
+                0.02,
+                y_pos,
+                button_width,
+                button_height,
+                battery["name"][:12] + "..." if len(battery["name"]) > 12 else battery["name"],
+                lambda idx=battery["index"]: toggle_battery_visibility(idx),
                 is_toggle=True,
-                initial_state=battery['initial_state']
+                initial_state=battery["initial_state"],
             )
 
             if button_state:
-                index_to_state[battery['index']] = button_state
-                button_states.append((battery['index'], button_state))
+                index_to_state[battery["index"]] = button_state
+                button_states.append((battery["index"], button_state))
 
-        logger.info("Modern battery selection button group created successfully (%s-%s)", start_idx, end_idx)
+        logger.info(
+            "Modern battery selection button group created successfully (%s-%s)", start_idx, end_idx
+        )
         return button_states
 
     def _add_help_text(self, fig):
         """添加帮助文本到图表右上角"""
         try:
-            fig.text(0.98, 0.85, "Tip: Hover over a data point to view details", fontsize=7, ha='right')
-            fig.text(0.98, 0.78, "Shortcuts: Scroll to zoom, drag to pan, right-click to reset view", fontsize=7, ha='right')
+            fig.text(
+                0.98, 0.85, "Tip: Hover over a data point to view details", fontsize=7, ha="right"
+            )
+            fig.text(
+                0.98,
+                0.78,
+                "Shortcuts: Scroll to zoom, drag to pan, right-click to reset view",
+                fontsize=7,
+                ha="right",
+            )
             logger.info("Help text added successfully")
         except (AttributeError, TypeError, ValueError) as e:
             logger.warning("Error adding help text: %s", e)
@@ -413,19 +480,22 @@ class InteractionControlsMixin:
         """添加鼠标悬停功能，显示数据点信息"""
         try:
             annot = ax.annotate(
-                '', xy=(0, 0), xytext=(10, 10),
-                textcoords='offset points',
-                bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.7),
-                arrowprops=dict(arrowstyle='->')
+                "",
+                xy=(0, 0),
+                xytext=(10, 10),
+                textcoords="offset points",
+                bbox=dict(boxstyle="round,pad=0.5", fc="yellow", alpha=0.7),
+                arrowprops=dict(arrowstyle="->"),
             )
             annot.set_visible(False)
 
             def on_hover(event):
                 if event.inaxes == ax:
                     current_lines = _select_hover_lines(
-                        check_filter, lines_filtered, lines_unfiltered)
+                        check_filter, lines_filtered, lines_unfiltered
+                    )
 
-                    min_dist = float('inf')
+                    min_dist = float("inf")
                     closest_point = None
                     closest_line_label = None
 
@@ -437,10 +507,10 @@ class InteractionControlsMixin:
                                 line_label = line.get_label()
 
                                 for i, (x, y) in enumerate(zip(x_data, y_data)):
-                                    dist = ((x - event.xdata)**2 +
-                                            (y - event.ydata) ** 2)**0.5
-                                    if (dist < min_dist
-                                            and dist < 0.05 * (self.maxXaxis - self.listAxis[0])):
+                                    dist = ((x - event.xdata) ** 2 + (y - event.ydata) ** 2) ** 0.5
+                                    if dist < min_dist and dist < 0.05 * (
+                                        self.maxXaxis - self.listAxis[0]
+                                    ):
                                         min_dist = dist
                                         closest_point = (x, y, i)
                                         closest_line_label = line_label
@@ -460,7 +530,8 @@ class InteractionControlsMixin:
                             label_text = str(closest_line_label)
 
                         annot.set_text(
-                            f"{label_text}\nPoint {idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V")
+                            f"{label_text}\nPoint {idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V"
+                        )
                         annot.set_visible(True)
                         fig.canvas.draw_idle()
                     else:
@@ -468,7 +539,7 @@ class InteractionControlsMixin:
                             annot.set_visible(False)
                             fig.canvas.draw_idle()
 
-            fig.canvas.mpl_connect('motion_notify_event', on_hover)
+            fig.canvas.mpl_connect("motion_notify_event", on_hover)
 
         except (AttributeError, TypeError, ValueError) as e:
             logger.warning("Error adding hover functionality: %s", e)
@@ -479,19 +550,11 @@ class InteractionControlsMixin:
             ax_file = fig.add_axes([0.001, 0.90, 0.17, 0.062])
             ax_file.set_xlim(0, 1)
             ax_file.set_ylim(0, 1)
-            ax_file.axis('off')
+            ax_file.axis("off")
 
             buttons_config = [
-                {
-                    'text': '📁 Open',
-                    'callback': lambda: self._open_file_dialog(),
-                    'initial': False
-                },
-                {
-                    'text': '❌ Exit',
-                    'callback': lambda: self._close_viewer(),
-                    'initial': False
-                }
+                {"text": "📁 Open", "callback": lambda: self._open_file_dialog(), "initial": False},
+                {"text": "❌ Exit", "callback": lambda: self._close_viewer(), "initial": False},
             ]
 
             self.file_button_states = self._create_modern_toggle_group(
@@ -508,21 +571,23 @@ class InteractionControlsMixin:
             logger.info("Starting to add PyQt6 menubar")
 
             manager = fig.canvas.manager
-            if not manager or not hasattr(manager, 'window'):
-                logger.warning("Unable to obtain matplotlib window manager, skipping menubar addition")
+            if not manager or not hasattr(manager, "window"):
+                logger.warning(
+                    "Unable to obtain matplotlib window manager, skipping menubar addition"
+                )
                 return False
 
-            if hasattr(manager.window, 'menuBar'):
+            if hasattr(manager.window, "menuBar"):
                 self._apply_window_modern_style(manager.window)
 
                 menubar = manager.window.menuBar()
                 self._apply_menubar_style(menubar)
 
-                file_menu = menubar.addMenu('File')
+                file_menu = menubar.addMenu("File")
                 self._apply_menu_style(file_menu)
 
-                open_action = file_menu.addAction('Open')
-                open_action.setProperty('menu_action', 'open')
+                open_action = file_menu.addAction("Open")
+                open_action.setProperty("menu_action", "open")
 
                 def on_open_clicked():
                     logger.info("Open menu item clicked")
@@ -532,8 +597,8 @@ class InteractionControlsMixin:
 
                 file_menu.addSeparator()
 
-                exit_action = file_menu.addAction('Exit')
-                exit_action.setProperty('menu_action', 'exit')
+                exit_action = file_menu.addAction("Exit")
+                exit_action.setProperty("menu_action", "exit")
 
                 def on_exit_clicked():
                     logger.info("Exit menu item clicked, closing visualizer window")
@@ -546,11 +611,11 @@ class InteractionControlsMixin:
 
                 exit_action.triggered.connect(on_exit_clicked)
 
-                help_menu = menubar.addMenu('Help')
+                help_menu = menubar.addMenu("Help")
                 self._apply_menu_style(help_menu)
 
-                about_action = help_menu.addAction('About')
-                about_action.setProperty('menu_action', 'about')
+                about_action = help_menu.addAction("About")
+                about_action.setProperty("menu_action", "about")
 
                 def on_about_clicked():
                     logger.info("About menu item clicked")
@@ -562,7 +627,9 @@ class InteractionControlsMixin:
                 raise RuntimeError("Window does not support a menu bar")
 
         except ImportError as e:
-            raise ImportError(f"PyQt6 dependency missing: {e}. Please ensure PyQt6 is installed correctly")
+            raise ImportError(
+                f"PyQt6 dependency missing: {e}. Please ensure PyQt6 is installed correctly"
+            )
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             logger.error("Failed to add menubar: %s", e)
             raise RuntimeError(f"Menu bar initialization failed: {e}") from e
@@ -581,7 +648,7 @@ class InteractionControlsMixin:
                     None,
                     "Select Data Directory",
                     self.strPltPath or ".",
-                    QFileDialog.Option.ShowDirsOnly
+                    QFileDialog.Option.ShowDirsOnly,
                 )
                 logger.info("Qt file dialog succeeded, return value: %s", data_dir)
             except (ImportError, AttributeError, TypeError, RuntimeError) as qt_error:
@@ -670,16 +737,16 @@ Thank you for using Battery Analysis Tool!"""
     def __del__(self):
         """析构函数，确保在对象销毁时释放所有资源"""
         try:
-            if hasattr(self, 'current_fig') and self.current_fig is not None:
+            if hasattr(self, "current_fig") and self.current_fig is not None:
                 plt.close(self.current_fig)
                 self.current_fig = None
                 logger.info("Destructor: closing chart window")
 
-            if hasattr(self, '_cleanup_matplotlib_state'):
+            if hasattr(self, "_cleanup_matplotlib_state"):
                 self._cleanup_matplotlib_state()
                 logger.info("Destructor: cleaning up Matplotlib state")
 
-            if hasattr(self, 'listPlt'):
+            if hasattr(self, "listPlt"):
                 try:
                     for c in range(len(self.listPlt)):
                         if len(self.listPlt[c]) >= 4:

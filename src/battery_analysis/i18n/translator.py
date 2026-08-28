@@ -1,10 +1,10 @@
 """Simple .po file translator — built on Python standard library gettext"""
 
-import re
 import gettext
 import logging
+import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple, Union
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # 覆盖当前仓库实际使用的 en/zh_CN 公式，以及常见 gettext 公式变体
 # （含 GNU 规范括号形式，如 fr 的 (n > 1)、ru 首条件带括号的嵌套三元）。
 # 未知公式降级为单数形式（lambda _n: 0），与旧 eval 失败 fallback 语义一致。
-_PLURAL_FORMULA_TABLE: Dict[str, Callable[[int], int]] = {
+_PLURAL_FORMULA_TABLE: dict[str, Callable[[int], int]] = {
     # nplurals=1（zh_TW/ja/ko）
     "0": lambda _n: 0,
     # nplurals=2 常见形式（en/zh_CN/de/es/it/pt/hi 及带括号变体）
@@ -26,21 +26,35 @@ _PLURAL_FORMULA_TABLE: Dict[str, Callable[[int], int]] = {
     "n > 1": lambda n: 0 if n <= 1 else 1,
     "(n > 1)": lambda n: 0 if n <= 1 else 1,
     # nplurals=3（ru）——俄语式嵌套三元（含 GNU 规范首条件带括号变体）
-    "n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2":
-        lambda n: (0 if n % 10 == 1 and n % 100 != 11
-                   else 1 if n % 10 >= 2 and n % 10 <= 4
-                   and (n % 100 < 10 or n % 100 >= 20) else 2),
-    "(n%10==1 && n%100!=11) ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2":
-        lambda n: (0 if n % 10 == 1 and n % 100 != 11
-                   else 1 if n % 10 >= 2 and n % 10 <= 4
-                   and (n % 100 < 10 or n % 100 >= 20) else 2),
+    "n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2": lambda n: (
+        0
+        if n % 10 == 1 and n % 100 != 11
+        else 1
+        if n % 10 >= 2 and n % 10 <= 4 and (n % 100 < 10 or n % 100 >= 20)
+        else 2
+    ),
+    "(n%10==1 && n%100!=11) ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2": lambda n: (
+        0
+        if n % 10 == 1 and n % 100 != 11
+        else 1
+        if n % 10 >= 2 and n % 10 <= 4 and (n % 100 < 10 or n % 100 >= 20)
+        else 2
+    ),
     # nplurals=6（ar）——阿拉伯语
-    "n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5":
-        lambda n: (0 if n == 0 else  # pylint: disable=use-implicit-booleaness-not-comparison-to-zero
-                   1 if n == 1 else
-                   2 if n == 2 else
-                   3 if n % 100 >= 3 and n % 100 <= 10 else
-                   4 if n % 100 >= 11 else 5),
+    "n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5": lambda n: (
+        0
+        if n == 0
+        # pylint: disable=use-implicit-booleaness-not-comparison-to-zero
+        else 1
+        if n == 1
+        else 2
+        if n == 2
+        else 3
+        if n % 100 >= 3 and n % 100 <= 10
+        else 4
+        if n % 100 >= 11
+        else 5
+    ),
 }
 
 
@@ -84,10 +98,8 @@ class SimplePOTranslator(gettext.NullTranslations):
     """
 
     def __init__(self, fp=None):
-        self._catalog: Dict[Union[str, tuple], str] = {}
-        self._plurals_catalog: Dict[
-            Union[str, tuple], Tuple[str, List[str]]
-        ] = {}
+        self._catalog: dict[str | tuple, str] = {}
+        self._plurals_catalog: dict[str | tuple, tuple[str, list[str]]] = {}
         self._nplurals: int = 1
         self._plural_fn: Callable[[int], int] = lambda _n: 0
         self.current_locale: str = "en"
@@ -122,8 +134,7 @@ class SimplePOTranslator(gettext.NullTranslations):
         # Concatenate continuation strings
         lines = re.findall(r'"((?:[^"\\]|\\.)*)"', header_continuation)
         full = "".join(
-            l.replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\")
-            for l in lines
+            line.replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\") for line in lines
         )
 
         match = re.search(
@@ -140,36 +151,26 @@ class SimplePOTranslator(gettext.NullTranslations):
 
     def _unescape(self, s: str) -> str:
         """Unescape common .po escape sequences."""
-        return (
-            s.replace("\\n", "\n")
-            .replace('\\"', '"')
-            .replace("\\\\", "\\")
-        )
+        return s.replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\")
 
     def _parse_entry(self, block: str) -> None:
         """Parse a single .po entry block (one msgid + its msgstr lines)."""
         # Optional context
-        ctx_match = re.search(
-            r'^msgctxt\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE
-        )
-        context: Optional[str] = ctx_match.group(1) if ctx_match else None
+        ctx_match = re.search(r'^msgctxt\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE)
+        context: str | None = ctx_match.group(1) if ctx_match else None
 
         # msgid (required)
-        id_match = re.search(
-            r'^msgid\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE
-        )
+        id_match = re.search(r'^msgid\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE)
         if not id_match:
             return
         msgid = self._unescape(id_match.group(1))
         if not msgid:
             return  # header block (already handled)
 
-        key: Union[str, tuple] = (context, msgid) if context else msgid
+        key: str | tuple = (context, msgid) if context else msgid
 
         # Plural or regular entry?
-        plural_match = re.search(
-            r'^msgid_plural\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE
-        )
+        plural_match = re.search(r'^msgid_plural\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE)
         if plural_match:
             # ── plural entry ────────────────────────────────────────
             msgid_plural = self._unescape(plural_match.group(1))
@@ -178,28 +179,25 @@ class SimplePOTranslator(gettext.NullTranslations):
                 block,
                 re.MULTILINE,
             )
-            forms: List[str] = [
-                self._unescape(val)
-                for _idx_str, val in sorted(indices, key=lambda x: int(x[0]))
+            forms: list[str] = [
+                self._unescape(val) for _idx_str, val in sorted(indices, key=lambda x: int(x[0]))
             ]
             self._plurals_catalog[key] = (msgid_plural, forms)
         else:
             # ── regular entry ───────────────────────────────────────
-            str_match = re.search(
-                r'^msgstr\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE
-            )
+            str_match = re.search(r'^msgstr\s+"((?:[^"\\]|\\.)*)"\s*$', block, re.MULTILINE)
             if str_match:
                 self._catalog[key] = self._unescape(str_match.group(1))
 
     # ── Public load API ────────────────────────────────────────────
 
     @property
-    def translations(self) -> Dict[Union[str, tuple], str]:
+    def translations(self) -> dict[str | tuple, str]:
         """Backward-compatibility alias for ``_catalog``."""
         return self._catalog
 
     @translations.setter
-    def translations(self, value: Dict[Union[str, tuple], str]) -> None:
+    def translations(self, value: dict[str | tuple, str]) -> None:
         self._catalog = value
 
     def load_locale(self, locale_code: str, localedir: Path) -> bool:
@@ -211,7 +209,7 @@ class SimplePOTranslator(gettext.NullTranslations):
         self._catalog.clear()
         self._plurals_catalog.clear()
         try:
-            with open(po_file, "r", encoding="utf-8") as f:
+            with open(po_file, encoding="utf-8") as f:
                 self._parse(f)
             self.current_locale = locale_code
             logger.info(
@@ -221,7 +219,7 @@ class SimplePOTranslator(gettext.NullTranslations):
                 locale_code,
             )
             return True
-        except (IOError, UnicodeDecodeError) as exc:
+        except (OSError, UnicodeDecodeError) as exc:
             logger.error("Failed to load %s: %s", po_file, exc)
             self._catalog.clear()
             self._plurals_catalog.clear()

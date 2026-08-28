@@ -4,8 +4,8 @@
 从Excel文件名中提取规格类型、方法、制造商、批次日期码、脉冲电流等信息
 """
 
-import re
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 

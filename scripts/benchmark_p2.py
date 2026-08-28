@@ -8,18 +8,18 @@
 
 实测（2026-08-21, feat/p2-vectorization）：match_pulse_levels=0.0090s、charge batch=0.0015s、charge single=0.1452s
 """
+
 import time
 
 import numpy as np
 import pandas as pd
 
-from battery_analysis.utils.processors.pulse_matcher import match_pulse_levels
 from battery_analysis.utils.processors.charge_calculator import ChargeCalculator
+from battery_analysis.utils.processors.pulse_matcher import match_pulse_levels
 
 N_ROWS = 50000
 listCurrentLevel = [500, 1000, 2000, 3000, 4000, 6000, 8000, 12000, 16000, 20000]
-listVoltageLevel = [3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8,
-                    5.0, 5.2, 5.4, 5.6, 5.8]
+listVoltageLevel = [3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.2, 5.4, 5.6, 5.8]
 rng = np.random.default_rng(42)
 
 cycle_rows = 25
@@ -35,18 +35,23 @@ voltage = rng.uniform(3.0, 4.5, N_ROWS)
 charge = rng.uniform(0, 10, N_ROWS)
 record_df = pd.DataFrame({0: record_cycle, 1: np.zeros(N_ROWS), 2: current, 3: voltage, 4: charge})
 
-cycle_df = pd.DataFrame({
-    0: np.arange(1, cycle_count + 1),
-    1: np.zeros(cycle_count), 2: np.zeros(cycle_count),
-    3: rng.uniform(100, 500, cycle_count),
-})
+cycle_df = pd.DataFrame(
+    {
+        0: np.arange(1, cycle_count + 1),
+        1: np.zeros(cycle_count),
+        2: np.zeros(cycle_count),
+        3: rng.uniform(100, 500, cycle_count),
+    }
+)
 step_cycle = np.arange(cycle_count)
 step_charge = rng.uniform(1, 20, cycle_count)
-step_df = pd.DataFrame({
-    0: np.concatenate([[0, 0], step_cycle]),
-    1: np.concatenate([["占位", "占位"], ["充电"] * cycle_count]),
-    2: np.concatenate([[0.0, 0.0], step_charge]),
-})
+step_df = pd.DataFrame(
+    {
+        0: np.concatenate([[0, 0], step_cycle]),
+        1: np.concatenate([["占位", "占位"], ["充电"] * cycle_count]),
+        2: np.concatenate([[0.0, 0.0], step_charge]),
+    }
+)
 pulse_mask = pd.Series(pulse_rows)
 
 t0 = time.perf_counter()
@@ -54,10 +59,14 @@ matched = match_pulse_levels(
     record_df.iloc[:, 2].to_numpy(dtype=float),
     record_df.iloc[:, 3].to_numpy(dtype=float),
     pulse_mask.to_numpy(dtype=bool),
-    listCurrentLevel, listVoltageLevel, start_row=2,
+    listCurrentLevel,
+    listVoltageLevel,
+    start_row=2,
 )
 t1 = time.perf_counter()
-print(f"match_pulse_levels(n={N_ROWS}, C={len(listCurrentLevel)}, V={len(listVoltageLevel)}): {t1 - t0:.4f}s  (old 0.1682s)")
+print(
+    f"match_pulse_levels(n={N_ROWS}, C={len(listCurrentLevel)}, V={len(listVoltageLevel)}): {t1 - t0:.4f}s  (old 0.1682s)"
+)
 
 calculator = ChargeCalculator(cycle_df, step_df, record_df)
 BATCH_N = 10000

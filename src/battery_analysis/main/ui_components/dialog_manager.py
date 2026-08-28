@@ -13,7 +13,6 @@
 # 标准库导入
 import logging
 import os
-import traceback
 from pathlib import Path
 
 # 第三方库导入
@@ -23,15 +22,15 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
-from battery_analysis.main.ui_components.preferences_dialog import PreferencesDialog
 from battery_analysis.main.ui_components.config_path_provider import ConfigPathProvider
+from battery_analysis.main.ui_components.preferences_dialog import PreferencesDialog
 
 
 class DialogManager:
     """
     对话框管理器类，负责各种对话框的处理
     """
-    
+
     def __init__(self, main_window=None):
         """
         初始化对话框管理器
@@ -41,7 +40,7 @@ class DialogManager:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-    
+
     def handle_exit(self):
         """
         处理退出操作，显示确认对话框
@@ -51,7 +50,7 @@ class DialogManager:
             _("Confirm Exit"),
             _("Are you sure you want to exit the application?"),
             QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-            QW.QMessageBox.StandardButton.No
+            QW.QMessageBox.StandardButton.No,
         )
 
         if reply == QW.QMessageBox.StandardButton.Yes:
@@ -62,6 +61,7 @@ class DialogManager:
         显示关于对话框
         """
         import time
+
         about_text = _(
             f"""<h3>Battery Analyzer</h3>
         <p>version: v{self.main_window.version}</p>
@@ -69,33 +69,29 @@ class DialogManager:
         <p>© {time.localtime().tm_year} Sandman Zhang, Shane Zhao</p>"""
         )
 
-        QW.QMessageBox.about(
-            self.main_window,
-            _("About Battery Analyzer"),
-            about_text
-        )
-    
+        QW.QMessageBox.about(self.main_window, _("About Battery Analyzer"), about_text)
+
     def show_preferences(self):
         """
         显示首选项对话框
         """
         try:
-            preferences_dialog = PreferencesDialog(self.main_window, config_provider=ConfigPathProvider())
-            
+            preferences_dialog = PreferencesDialog(
+                self.main_window, config_provider=ConfigPathProvider()
+            )
+
             # 连接首选项应用信号
             preferences_dialog.preferences_applied.connect(self.main_window.on_preferences_applied)
-            
+
             # 显示对话框
             preferences_dialog.exec()
-            
+
         except (OSError, ValueError, ImportError) as e:
             self.logger.error("Error showing preferences dialog: %s", e)
             QW.QMessageBox.critical(
-                self.main_window,
-                _("Error"),
-                f"{_("Failed to show preferences dialog")}: {str(e)}"
+                self.main_window, _("Error"), f"{_('Failed to show preferences dialog')}: {e!s}"
             )
-    
+
     def show_user_manual(self):
         """
         显示用户手册
@@ -104,20 +100,27 @@ class DialogManager:
             # 首先尝试从当前目录查找手册
             manual_paths = []
             # 仅当 current_directory 已设置时添加相对路径
-            if hasattr(self.main_window, 'current_directory') and self.main_window.current_directory:
-                manual_paths.extend([
-                    Path(self.main_window.current_directory) / "docs" / "user_manual.pdf",
-                    Path(self.main_window.current_directory) / "user_manual.pdf",
-                ])
-            manual_paths.extend([
-                # 绝对路径 - 项目目录
-                Path(__file__).parent.parent.parent / "docs" / "user_manual.pdf",
-                Path(__file__).parent.parent.parent / "user_manual.pdf",
-                # 常见的文档位置
-                Path(os.getcwd()) / "docs" / "user_manual.pdf",
-                Path(os.getcwd()) / "user_manual.pdf",
-            ])
-            
+            if (
+                hasattr(self.main_window, "current_directory")
+                and self.main_window.current_directory
+            ):
+                manual_paths.extend(
+                    [
+                        Path(self.main_window.current_directory) / "docs" / "user_manual.pdf",
+                        Path(self.main_window.current_directory) / "user_manual.pdf",
+                    ]
+                )
+            manual_paths.extend(
+                [
+                    # 绝对路径 - 项目目录
+                    Path(__file__).parent.parent.parent / "docs" / "user_manual.pdf",
+                    Path(__file__).parent.parent.parent / "user_manual.pdf",
+                    # 常见的文档位置
+                    Path(os.getcwd()) / "docs" / "user_manual.pdf",
+                    Path(os.getcwd()) / "user_manual.pdf",
+                ]
+            )
+
             manual_found = False
             for manual_path in manual_paths:
                 if manual_path.exists() and manual_path.is_file():
@@ -128,7 +131,9 @@ class DialogManager:
                         self.logger.info("Opened user manual: %s", manual_path)
                         break
                     except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning("Failed to open manual file %s: %s", manual_path, open_error)
+                        self.logger.warning(
+                            "Failed to open manual file %s: %s", manual_path, open_error
+                        )
                         continue
 
             if not manual_found:
@@ -141,7 +146,7 @@ class DialogManager:
                     "• docs/user_manual.pdf\n"
                     "• user_manual.pdf\n\n"
                     "For help, please contact technical support.",
-                    QW.QMessageBox.StandardButton.Ok
+                    QW.QMessageBox.StandardButton.Ok,
                 )
 
         except (OSError, TypeError, ValueError, RuntimeError) as e:
@@ -149,10 +154,10 @@ class DialogManager:
             QW.QMessageBox.warning(
                 self.main_window,
                 _("Error"),
-                f"{_("Cannot open user manual")}: {str(e)}",
-                QW.QMessageBox.StandardButton.Ok
+                f"{_('Cannot open user manual')}: {e!s}",
+                QW.QMessageBox.StandardButton.Ok,
             )
-    
+
     def show_online_help(self):
         """
         显示在线帮助
@@ -167,13 +172,13 @@ class DialogManager:
                 self.main_window,
                 "Online Help",
                 "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: https://example.com/battery-analyzer-help",
-                QW.QMessageBox.StandardButton.Ok
+                QW.QMessageBox.StandardButton.Ok,
             )
-    
+
     def handle_data_error_recovery(self, error_msg):
         """
         处理数据相关错误的恢复选项
-        
+
         Args:
             error_msg: 错误信息
         """
@@ -192,10 +197,11 @@ class DialogManager:
         layout.addWidget(error_label)
 
         # 详细错误信息
-        details_label = QW.QLabel(
-            f"Error details: {error_msg}")
+        details_label = QW.QLabel(f"Error details: {error_msg}")
         details_label.setWordWrap(True)
-        details_label.setStyleSheet("background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc;")
+        details_label.setStyleSheet(
+            "background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc;"
+        )
         layout.addWidget(details_label)
 
         # 恢复选项说明
@@ -232,118 +238,107 @@ class DialogManager:
         cancel_button = QW.QPushButton(_("Cancel"))
         cancel_button.clicked.connect(dialog.reject)
         button_layout.addWidget(cancel_button)
-        
+
         layout.addLayout(button_layout)
-        
+
         # 显示对话框
         if dialog.exec() == QW.QDialog.DialogCode.Accepted:
             selected_id = button_group.checkedId()
-            
+
             if selected_id == 1:
                 # 重新选择数据目录
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    _("Opening data directory selector..."))
+                    _("Opening data directory selector...")
+                )
                 self.main_window._open_data_directory_dialog()
 
             elif selected_id == 2:
                 # 使用默认配置重新启动
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    _("Restarting with default configuration..."))
+                    _("Restarting with default configuration...")
+                )
                 QW.QMessageBox.information(
                     self.main_window,
                     _("Restart"),
-                    _("The application will restart with the default configuration.\n\nPlease make sure you have valid data files available."),
-                    QW.QMessageBox.StandardButton.Ok
+                    _(
+                        "The application will restart with the default configuration.\n\nPlease make sure you have valid data files available."
+                    ),
+                    QW.QMessageBox.StandardButton.Ok,
                 )
                 # 清空配置字段并重新启动
-                if hasattr(self.main_window, 'lineEdit_TestProfile'):
+                if hasattr(self.main_window, "lineEdit_TestProfile"):
                     self.main_window.lineEdit_TestProfile.clear()
                 # 递归调用，但使用默认配置
                 self.main_window.run_visualizer(xml_path=None)
 
             else:
                 # 取消操作
-                self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    _("Operation canceled"))
+                self.main_window.statusBar_BatteryAnalysis.showMessage(_("Operation canceled"))
                 QW.QMessageBox.information(
                     self.main_window,
                     _("Canceled"),
                     _("Operation canceled. You can retry via the 'File -> Open Data' menu."),
-                    QW.QMessageBox.StandardButton.Ok
+                    QW.QMessageBox.StandardButton.Ok,
                 )
         else:
-            self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("Operation canceled"))
-    
+            self.main_window.statusBar_BatteryAnalysis.showMessage(_("Operation canceled"))
+
     def _open_data_directory_dialog(self):
         """
         打开数据目录选择对话框
         """
         # 这个方法会在main_window中实现，因为它需要访问特定的界面元素
         pass
-    
+
     def show_critical_message(self, title, message):
         """
         显示关键错误消息对话框
-        
+
         Args:
             title: 对话框标题
             message: 错误消息
         """
-        QW.QMessageBox.critical(
-            self.main_window,
-            title,
-            message,
-            QW.QMessageBox.StandardButton.Ok
-        )
-    
+        QW.QMessageBox.critical(self.main_window, title, message, QW.QMessageBox.StandardButton.Ok)
+
     def show_warning_message(self, title, message):
         """
         显示警告消息对话框
-        
+
         Args:
             title: 对话框标题
             message: 警告消息
         """
-        QW.QMessageBox.warning(
-            self.main_window,
-            title,
-            message,
-            QW.QMessageBox.StandardButton.Ok
-        )
-    
+        QW.QMessageBox.warning(self.main_window, title, message, QW.QMessageBox.StandardButton.Ok)
+
     def show_information_message(self, title, message):
         """
         显示信息消息对话框
-        
+
         Args:
             title: 对话框标题
             message: 信息消息
         """
         QW.QMessageBox.information(
-            self.main_window,
-            title,
-            message,
-            QW.QMessageBox.StandardButton.Ok
+            self.main_window, title, message, QW.QMessageBox.StandardButton.Ok
         )
-    
-    def show_question_message(self, title, message, buttons=QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No, default_button=QW.QMessageBox.StandardButton.No):
+
+    def show_question_message(
+        self,
+        title,
+        message,
+        buttons=QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
+        default_button=QW.QMessageBox.StandardButton.No,
+    ):
         """
         显示问题对话框
-        
+
         Args:
             title: 对话框标题
             message: 问题消息
             buttons: 对话框按钮
             default_button: 默认按钮
-            
+
         Returns:
             用户的选择
         """
-        return QW.QMessageBox.question(
-            self.main_window,
-            title,
-            message,
-            buttons,
-            default_button
-        )
+        return QW.QMessageBox.question(self.main_window, title, message, buttons, default_button)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 TestInfo 数据类
 
@@ -7,7 +6,7 @@ TestInfo 数据类
 """
 
 from dataclasses import dataclass, field
-from typing import List, Any
+from typing import Any
 
 
 @dataclass
@@ -16,6 +15,7 @@ class TestInfo:
 
     字段顺序与原先 listTestInfo 的索引位置一致（0-based）。
     """
+
     # 0
     battery_type: str = ""
     # 1
@@ -45,9 +45,9 @@ class TestInfo:
     # 13
     test_profile: str = ""
     # 14
-    current_levels: List[Any] = field(default_factory=list)
+    current_levels: list[Any] = field(default_factory=list)
     # 15
-    voltage_levels: List[Any] = field(default_factory=list)
+    voltage_levels: list[Any] = field(default_factory=list)
     # 16
     version: str = ""
     # 17

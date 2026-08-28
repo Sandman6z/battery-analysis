@@ -1,4 +1,5 @@
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+
 from battery_analysis.main.ui_components.table_manager import TableManager
 
 

@@ -6,13 +6,13 @@
 
 import logging
 import os
+
 from PyQt6 import QtWidgets as QW
 
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.main.business_logic import excel_validator, filename_parser
 from battery_analysis.main.business_logic.cache import LRUCache
-from battery_analysis.main.workers.task_runner import TaskRunner, TaskManager
-from battery_analysis.main.business_logic import excel_validator
-from battery_analysis.main.business_logic import filename_parser
+from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
 from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory
 
 
@@ -29,9 +29,9 @@ class DataProcessor:
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
         self._cache = {
-            'excel_files': LRUCache(self.MAX_EXCEL_CACHE_SIZE),
-            'directory_files': LRUCache(self.MAX_DIRECTORY_CACHE_SIZE),
-            'file_validation': LRUCache(self.MAX_VALIDATION_CACHE_SIZE),
+            "excel_files": LRUCache(self.MAX_EXCEL_CACHE_SIZE),
+            "directory_files": LRUCache(self.MAX_DIRECTORY_CACHE_SIZE),
+            "file_validation": LRUCache(self.MAX_VALIDATION_CACHE_SIZE),
         }
         self._scan_generation = 0
         self._task_manager = TaskManager()
@@ -39,9 +39,9 @@ class DataProcessor:
     def _invalidate_cache(self, path=None):
         if path:
             path_str = str(path)
-            self._cache['excel_files'].remove(path_str)
-            self._cache['file_validation'].remove(path_str)
-            self._cache['directory_files'].remove(path_str)
+            self._cache["excel_files"].remove(path_str)
+            self._cache["file_validation"].remove(path_str)
+            self._cache["directory_files"].remove(path_str)
         else:
             for c in self._cache.values():
                 c.clear()
@@ -62,12 +62,12 @@ class DataProcessor:
 
     def get_cache_stats(self):
         return {
-            'excel_files': len(self._cache['excel_files']),
-            'directory_files': len(self._cache['directory_files']),
-            'file_validation': len(self._cache['file_validation']),
-            'max_excel': self.MAX_EXCEL_CACHE_SIZE,
-            'max_directory': self.MAX_DIRECTORY_CACHE_SIZE,
-            'max_validation': self.MAX_VALIDATION_CACHE_SIZE,
+            "excel_files": len(self._cache["excel_files"]),
+            "directory_files": len(self._cache["directory_files"]),
+            "file_validation": len(self._cache["file_validation"]),
+            "max_excel": self.MAX_EXCEL_CACHE_SIZE,
+            "max_directory": self.MAX_DIRECTORY_CACHE_SIZE,
+            "max_validation": self.MAX_VALIDATION_CACHE_SIZE,
         }
 
     def _scan_excel_files_task(self, input_dir, **kwargs):
@@ -75,7 +75,7 @@ class DataProcessor:
 
     def _on_scan_finished(self, excel_files):
         input_dir = self.main_window.lineEdit_InputPath.text()
-        self._cache['directory_files'].put(input_dir, excel_files)
+        self._cache["directory_files"].put(input_dir, excel_files)
         # generation 已在 get_xlsxinfo 请求时推进（唯一入口）；此处仅捕获当前值
         # 传给后续 process dispatch 的 closures，守卫判定在 _on_excel_files_processed。
         generation = self._scan_generation
@@ -90,24 +90,26 @@ class DataProcessor:
             self._process_excel_files_task,
             lambda result, g=generation: self._on_excel_files_processed(result, g),
             lambda error, g=generation: self._on_excel_files_process_error(error, g),
-            input_dir, excel_files,
+            input_dir,
+            excel_files,
         )
 
     def _on_scan_error(self, error_msg):
         self.logger.error("Failed to scan Excel files: %s", error_msg)
-        if hasattr(self.main_window, 'checker_input_xlsx'):
+        if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.set_error(f"Failed to scan files: {error_msg}")
-        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+        if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
             self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Failed to scan files")
 
     def get_xlsxinfo(self) -> None:
         self.logger.info("Retrieving Excel file info")
-        if hasattr(self.main_window, 'checker_input_xlsx'):
+        if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.clear()
         self._disconnect_specification_signals()
 
         input_dir = self.main_window.lineEdit_InputPath.text()
         from battery_analysis.utils.file_validator import FileValidator
+
         validator = FileValidator()
         is_valid, error_msg = validator.validate_input_directory(input_dir)
         if not is_valid:
@@ -116,10 +118,12 @@ class DataProcessor:
             # 防在途旧 process 结果（generation 匹配旧值）误接受覆盖当前无效路径 UI。
             self._scan_generation += 1
             self._task_manager.cancel_all()
-            if hasattr(self.main_window, 'checker_input_xlsx'):
+            if hasattr(self.main_window, "checker_input_xlsx"):
                 self.main_window.checker_input_xlsx.set_error(error_msg)
-            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {error_msg.split(':')[0]}")
+            if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
+                self.main_window.statusBar_BatteryAnalysis.showMessage(
+                    f"[Error]: {error_msg.split(':')[0]}"
+                )
             return
 
         # 新扫描请求会切换 UI 目标：请求时即推进 generation，使任何在途/已入队的旧
@@ -129,21 +133,24 @@ class DataProcessor:
         self._task_manager.cancel_all()
         self._scan_generation += 1
 
-        cached = self._cache['directory_files'].get(input_dir)
+        cached = self._cache["directory_files"].get(input_dir)
         if cached is None:
-            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+            if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
                 self.main_window.statusBar_BatteryAnalysis.showMessage("Scanning Excel files...")
-            self._run_async(self._scan_excel_files_task, self._on_scan_finished,
-                            self._on_scan_error, input_dir)
+            self._run_async(
+                self._scan_excel_files_task, self._on_scan_finished, self._on_scan_error, input_dir
+            )
         else:
             self._on_scan_finished(cached)
 
     def _disconnect_specification_signals(self):
         try:
             self.main_window.comboBox_Specification_Type.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
+                self.main_window.check_specification
+            )
             self.main_window.comboBox_Specification_Method.currentIndexChanged.disconnect(
-                self.main_window.check_specification)
+                self.main_window.check_specification
+            )
         except (TypeError, AttributeError):
             pass
 
@@ -152,24 +159,28 @@ class DataProcessor:
         self.main_window.comboBox_BatteryType.setCurrentIndex(-1)
         self.main_window.comboBox_Specification_Type.clear()
         self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell"))
+            self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell")
+        )
         self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell"))
+            self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell")
+        )
         self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
         self.main_window.comboBox_Specification_Method.clear()
         self.main_window.comboBox_Specification_Method.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationMethod"))
+            self.main_window.get_config("BatteryConfig/SpecificationMethod")
+        )
         self.main_window.comboBox_Specification_Method.setCurrentIndex(-1)
         self.main_window.comboBox_Manufacturer.setCurrentIndex(-1)
         self.main_window.lineEdit_BatchDateCode.setText("")
         self.main_window.lineEdit_SamplesQty.setText("")
         self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
         self.main_window.lineEdit_CalculationNominalCapacity.setText("")
-        if hasattr(self.main_window, 'checker_input_xlsx'):
+        if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.set_error("Input path has no data")
-        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+        if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                _("[Error]: Input path has no data"))
+                _("[Error]: Input path has no data")
+            )
 
     def _process_excel_files_task(self, input_dir, excel_files, progress_callback=None, **kwargs):
         """后台线程：逐文件验证并提取 Excel 元信息（不触碰任何 UI）。
@@ -181,21 +192,23 @@ class DataProcessor:
         error_files = []
         for index, filename in enumerate(excel_files):
             if progress_callback:
-                progress_callback(int((index + 1) / len(excel_files) * 100),
-                                  f"Validating {filename}...")
+                progress_callback(
+                    int((index + 1) / len(excel_files) * 100), f"Validating {filename}..."
+                )
             file_path = os.path.join(input_dir, filename)
             is_valid, error_msg, df = excel_validator.validate_excel_file(
-                file_path, filename, self._cache['file_validation'], optimize_dataframe_memory)
+                file_path, filename, self._cache["file_validation"], optimize_dataframe_memory
+            )
             if not is_valid:
                 self.logger.error(error_msg)
                 error_files.append((filename, error_msg))
                 continue
             file_info = {
-                'filename': filename,
-                'sheet_name': df.columns.tolist(),
-                'row_count': len(df),
-                'column_count': len(df.columns),
-                'first_five_rows': df.head().to_dict('records'),
+                "filename": filename,
+                "sheet_name": df.columns.tolist(),
+                "row_count": len(df),
+                "column_count": len(df.columns),
+                "first_five_rows": df.head().to_dict("records"),
             }
             excel_data.append(file_info)
         return excel_files, excel_data, error_files
@@ -211,11 +224,13 @@ class DataProcessor:
 
         if error_files:
             error_message = "The following files have issues:\n" + "\n".join(
-                f"- {f}: {m}" for f, m in error_files)
-            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                f"- {f}: {m}" for f, m in error_files
+            )
+            if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[Error]: Found {len(error_files)} problematic files")
-            if hasattr(self.main_window, 'checker_input_xlsx'):
+                    f"[Error]: Found {len(error_files)} problematic files"
+                )
+            if hasattr(self.main_window, "checker_input_xlsx"):
                 self.main_window.checker_input_xlsx.set_error(error_message)
             try:
                 msg = QW.QMessageBox(self.main_window)
@@ -231,17 +246,19 @@ class DataProcessor:
 
         if not excel_data:
             self.logger.error("No Excel files were processed successfully")
-            if hasattr(self.main_window, 'checker_input_xlsx'):
+            if hasattr(self.main_window, "checker_input_xlsx"):
                 self.main_window.checker_input_xlsx.set_error(
-                    "No Excel files were processed successfully. Please check the file format.")
-            if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+                    "No Excel files were processed successfully. Please check the file format."
+                )
+            if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    "[Error]: No Excel files were processed successfully")
+                    "[Error]: No Excel files were processed successfully"
+                )
             return
 
         self._update_ui_with_excel_info(excel_files, excel_data)
         if excel_data:
-            self._process_first_excel_file(excel_data[0]['filename'])
+            self._process_first_excel_file(excel_data[0]["filename"])
         self._reconnect_specification_signals()
 
     def _on_excel_files_process_error(self, error_msg, generation):
@@ -251,17 +268,19 @@ class DataProcessor:
             self.logger.info("Discarding stale Excel parse result for changed input path")
             return
         self.logger.error("Failed to process Excel files: %s", error_msg)
-        if hasattr(self.main_window, 'checker_input_xlsx'):
+        if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.set_error(f"Failed to process files: {error_msg}")
-        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
-            self.main_window.statusBar_BatteryAnalysis.showMessage("[Error]: Failed to process files")
+        if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                "[Error]: Failed to process files"
+            )
         self._reconnect_specification_signals()
 
     def _update_ui_with_excel_info(self, excel_files, excel_data):
         self.main_window.lineEdit_SamplesQty.setText(str(len(excel_files)))
-        if hasattr(self.main_window, 'checker_input_xlsx'):
+        if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.clear()
-        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+        if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
 
     def _process_first_excel_file(self, filename):
@@ -272,12 +291,17 @@ class DataProcessor:
                 mw.construction_method = mw.comboBox_ConstructionMethod.itemText(c)
                 break
 
-        all_spec_types = mw.get_config("BatteryConfig/SpecificationTypeCoinCell") + \
-                         mw.get_config("BatteryConfig/SpecificationTypePouchCell")
+        all_spec_types = mw.get_config("BatteryConfig/SpecificationTypeCoinCell") + mw.get_config(
+            "BatteryConfig/SpecificationTypePouchCell"
+        )
         all_spec_methods = mw.get_config("BatteryConfig/SpecificationMethod")
 
-        filename_parser.set_specification_type(filename, all_spec_types, mw.comboBox_Specification_Type)
-        filename_parser.set_specification_method(filename, all_spec_methods, mw.comboBox_Specification_Method)
+        filename_parser.set_specification_type(
+            filename, all_spec_types, mw.comboBox_Specification_Type
+        )
+        filename_parser.set_specification_method(
+            filename, all_spec_methods, mw.comboBox_Specification_Method
+        )
         filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
         filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
 
@@ -294,9 +318,11 @@ class DataProcessor:
     def _reconnect_specification_signals(self):
         try:
             self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
-                self.main_window.check_specification)
+                self.main_window.check_specification
+            )
             self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
-                self.main_window.check_specification)
+                self.main_window.check_specification
+            )
             self.main_window.check_specification()
         except (TypeError, AttributeError):
             pass

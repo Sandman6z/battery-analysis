@@ -1,6 +1,8 @@
 """生成测试用的小样本 xlsx 文件"""
-import openpyxl
+
 from pathlib import Path
+
+import openpyxl
 import pytest
 
 FIXTURES_DIR = Path(__file__).parent
@@ -36,9 +38,9 @@ def create_sample_xlsx(tmp_path: Path, filename: str = "test_battery.xlsx") -> P
 
     # 模拟两段脉冲（4000mA / 2.8V）
     # 脉冲开始
-    ws2.append([1, "脉冲", -4.0, 4.2, 0.0])    # 正在放电
-    ws2.append([1, "脉冲", -4.0, 3.8, 0.01])   # 放电中
-    ws2.append([1, "脉冲", -4.0, 2.5, 0.02])   # 放电中 → 脉冲结束点
+    ws2.append([1, "脉冲", -4.0, 4.2, 0.0])  # 正在放电
+    ws2.append([1, "脉冲", -4.0, 3.8, 0.01])  # 放电中
+    ws2.append([1, "脉冲", -4.0, 2.5, 0.02])  # 放电中 → 脉冲结束点
     ws2.append([1, "Charge", 1.0, 3.0, 0.03])  # 充电，跳过
     ws2.append([2, "脉冲", -4.0, 4.1, 0.0])
     ws2.append([2, "脉冲", -4.0, 3.7, 0.01])

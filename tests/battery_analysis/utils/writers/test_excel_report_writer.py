@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ExcelReportWriter 单元测试
 
@@ -9,27 +8,42 @@ ExcelReportWriter 单元测试
 """
 
 import copy
-import math
-from unittest.mock import MagicMock, PropertyMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 import xlsxwriter as xwt
 
-from battery_analysis.utils.writers.excel_report_writer import ExcelReportWriter, _compute_list_cpt, _compute_statistics
-
+from battery_analysis.utils.writers.excel_report_writer import (
+    ExcelReportWriter,
+    _compute_list_cpt,
+    _compute_statistics,
+)
 
 # ── Helper ──
+
 
 @pytest.fixture
 def fmts():
     """完整的格式字典，所有写方法需要使用"""
     keys = [
-        "result_data", "result_data_italic",
-        "overview_stat", "overview_stat_dark", "overview_stat_light", "overview_stat_light_bold",
-        "sample_line", "sample_data", "sample_data_bold",
-        "sample_data_pct", "sample_data_pct_bold", "sample_data_yellow",
-        "word_line", "word_data", "word_data_bold",
-        "word_data_pct", "word_data_pct_bold", "word_data_yellow",
+        "result_data",
+        "result_data_italic",
+        "overview_stat",
+        "overview_stat_dark",
+        "overview_stat_light",
+        "overview_stat_light_bold",
+        "sample_line",
+        "sample_data",
+        "sample_data_bold",
+        "sample_data_pct",
+        "sample_data_pct_bold",
+        "sample_data_yellow",
+        "word_line",
+        "word_data",
+        "word_data_bold",
+        "word_data_pct",
+        "word_data_pct_bold",
+        "word_data_yellow",
         "hyperlink",
     ]
     return {k: MagicMock() for k in keys}
@@ -38,32 +52,32 @@ def fmts():
 # ── 采样数据 ──
 
 SAMPLE_TEST_INFO = [
-    "Coin Cell",           # 0: 电池类型
-    "",                    # 1: 构造方式（Coin Cell 无构造方法，空字符串）
-    "LCO",                 # 2: 电池材料
-    "ICR18650",            # 3: 规格
-    "Ewin",                # 4: 制造商
-    "DC2401",              # 5: 批次/日期代码
-    "85",                  # 6: Samples Qty
-    "25:00:00",            # 7: 温度（含冒号，测试 safe_temperature）
-    "1800",                # 8: Datasheet Nominal Capacity
-    "1750",                # 9: Calculation Nominal Capacity
-    "2",                   # 10: Accelerated Aging
-    "Lab-A.Site-1",       # 11: Tester location
-    "Sandman",             # 12: Tested By
+    "Coin Cell",  # 0: 电池类型
+    "",  # 1: 构造方式（Coin Cell 无构造方法，空字符串）
+    "LCO",  # 2: 电池材料
+    "ICR18650",  # 3: 规格
+    "Ewin",  # 4: 制造商
+    "DC2401",  # 5: 批次/日期代码
+    "85",  # 6: Samples Qty
+    "25:00:00",  # 7: 温度（含冒号，测试 safe_temperature）
+    "1800",  # 8: Datasheet Nominal Capacity
+    "1750",  # 9: Calculation Nominal Capacity
+    "2",  # 10: Accelerated Aging
+    "Lab-A.Site-1",  # 11: Tester location
+    "Sandman",  # 12: Tested By
     "/path/to/test.profile",  # 13: Test Profile
-    [100, 200, 500],       # 14: listCurrentLevel
+    [100, 200, 500],  # 14: listCurrentLevel
     [2.0, 2.25, 2.5, 2.75],  # 15: listVoltageLevel
-    30,                    # 16: 起始版本号 (int)
-    1575,                  # 17: Required Usable Capacity
+    30,  # 16: 起始版本号 (int)
+    1575,  # 17: Required Usable Capacity
 ]
 
 SAMPLE_BATTERY_INFO = [
     # listBatteryCharge — 3 batteries × 12 charge values (3 current × 4 voltage)
     [
-        [1810, 1790, 1750, 1700,  1620, 1580, 1520, 1480,  1350, 1300, 1250, 1200],
-        [1800, 1780, 1740, 1690,  1610, 1570, 1510, 1470,  1340, 1290, 1240, 1190],
-        [1820, 1800, 1760, 1710,  1630, 1590, 1530, 1490,  1360, 1310, 1260, 1210],
+        [1810, 1790, 1750, 1700, 1620, 1580, 1520, 1480, 1350, 1300, 1250, 1200],
+        [1800, 1780, 1740, 1690, 1610, 1570, 1510, 1470, 1340, 1290, 1240, 1190],
+        [1820, 1800, 1760, 1710, 1630, 1590, 1530, 1490, 1360, 1310, 1260, 1210],
     ],
     ["BAT-001", "BAT-002", "BAT-003"],  # listBatteryName
     ["2024-01-15 10:00:00", "2024-01-15 14:30:00"],  # listBatteryInfo[2] — date range
@@ -71,6 +85,7 @@ SAMPLE_BATTERY_INFO = [
 
 
 # ── Fixtures ──
+
 
 @pytest.fixture
 def mock_workbook():
@@ -110,6 +125,7 @@ def writer_pouch_cell():
 
 
 # ── __init__ ──
+
 
 class TestInit:
     """构造函数测试"""
@@ -159,18 +175,31 @@ class TestInit:
 
 # ── _create_formats ──
 
+
 class TestCreateFormats:
     """格式创建测试"""
 
     def test_returns_dict_with_all_keys(self, writer, mock_workbook):
         fmts = writer._create_formats(mock_workbook, mock_workbook)
         expected_keys = [
-            "result_data", "result_data_italic",
-            "overview_stat", "overview_stat_dark", "overview_stat_light", "overview_stat_light_bold",
-            "sample_line", "sample_data", "sample_data_bold",
-            "sample_data_pct", "sample_data_pct_bold", "sample_data_yellow",
-            "word_line", "word_data", "word_data_bold",
-            "word_data_pct", "word_data_pct_bold", "word_data_yellow",
+            "result_data",
+            "result_data_italic",
+            "overview_stat",
+            "overview_stat_dark",
+            "overview_stat_light",
+            "overview_stat_light_bold",
+            "sample_line",
+            "sample_data",
+            "sample_data_bold",
+            "sample_data_pct",
+            "sample_data_pct_bold",
+            "sample_data_yellow",
+            "word_line",
+            "word_data",
+            "word_data_bold",
+            "word_data_pct",
+            "word_data_pct_bold",
+            "word_data_yellow",
             "hyperlink",
         ]
         for key in expected_keys:
@@ -178,6 +207,7 @@ class TestCreateFormats:
 
 
 # ── _write_overview_header ──
+
 
 class TestWriteOverviewHeader:
     """Overview 表头测试"""
@@ -199,19 +229,30 @@ class TestWriteOverviewHeader:
 
 # ── _write_result_columns ──
 
+
 class TestWriteResultColumns:
     """结果表列名测试"""
 
     def test_writes_battery_label(self, writer, fmts):
         ws = MagicMock()
         writer._write_result_columns(ws, fmts)
-        ws.write.assert_any_call(2, 0, "Battery", fmts['result_data'])
+        ws.write.assert_any_call(2, 0, "Battery", fmts["result_data"])
 
     def test_writes_stat_row_labels(self, writer, fmts):
         ws = MagicMock()
         writer._write_result_columns(ws, fmts)
         labels = [c[0][2] for c in ws.write.call_args_list]
-        for label in ("Mean(μ)", "Median", "Std. Var.(σ)", "μ-3σ", "μ-2σ", "μ+2σ", "μ+3σ", "Minimum", "Maximum"):
+        for label in (
+            "Mean(μ)",
+            "Median",
+            "Std. Var.(σ)",
+            "μ-3σ",
+            "μ-2σ",
+            "μ+2σ",
+            "μ+3σ",
+            "Minimum",
+            "Maximum",
+        ):
             assert label in labels, f"Missing stat label: {label}"
 
     def test_writes_current_level_headers(self, writer, fmts):
@@ -231,13 +272,18 @@ class TestWriteResultColumns:
 
 # ── _write_battery_data ──
 
+
 class TestWriteBatteryData:
     """电池数据写入测试"""
 
     def test_writes_all_battery_names(self, writer, fmts):
         ws = MagicMock()
         writer._write_battery_data(ws, fmts)
-        names_written = [c[0][2] for c in ws.write.call_args_list if isinstance(c[0][2], str) and c[0][2].startswith("BAT-")]
+        names_written = [
+            c[0][2]
+            for c in ws.write.call_args_list
+            if isinstance(c[0][2], str) and c[0][2].startswith("BAT-")
+        ]
         assert names_written == ["BAT-001", "BAT-002", "BAT-003"]
 
     def test_writes_charge_data(self, writer, fmts):
@@ -250,21 +296,22 @@ class TestWriteBatteryData:
 
 # ── _write_result_statistics ──
 
+
 class TestWriteResultStatistics:
     """统计值写入测试"""
 
     @pytest.fixture
     def stats(self):
         return {
-            'mean': [[1800]*4, [1600]*4, [1400]*4],
-            'med': [[1805]*4, [1605]*4, [1405]*4],
-            'std': [[10]*4, [8]*4, [9]*4],
-            'mm3s': [[1770]*4, [1576]*4, [1373]*4],
-            'mm2s': [[1780]*4, [1584]*4, [1382]*4],
-            'mp2s': [[1820]*4, [1616]*4, [1418]*4],
-            'mp3s': [[1830]*4, [1624]*4, [1427]*4],
-            'min': [[1790]*4, [1580]*4, [1390]*4],
-            'max': [[1810]*4, [1620]*4, [1410]*4],
+            "mean": [[1800] * 4, [1600] * 4, [1400] * 4],
+            "med": [[1805] * 4, [1605] * 4, [1405] * 4],
+            "std": [[10] * 4, [8] * 4, [9] * 4],
+            "mm3s": [[1770] * 4, [1576] * 4, [1373] * 4],
+            "mm2s": [[1780] * 4, [1584] * 4, [1382] * 4],
+            "mp2s": [[1820] * 4, [1616] * 4, [1418] * 4],
+            "mp3s": [[1830] * 4, [1624] * 4, [1427] * 4],
+            "min": [[1790] * 4, [1580] * 4, [1390] * 4],
+            "max": [[1810] * 4, [1620] * 4, [1410] * 4],
         }
 
     def test_writes_all_stat_rows(self, writer, stats, fmts):
@@ -276,47 +323,48 @@ class TestWriteResultStatistics:
 
 # ── _prepare_sample_content ──
 
+
 class TestPrepareSampleContent:
     """样本表内容准备测试"""
 
     @pytest.fixture
     def stats(self):
         return {
-            'mean': [[1800, 1790, 1750, 1700], [1620, 1580, 1520, 1480], [1350, 1300, 1250, 1200]],
-            'med': [[1800, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
-            'std': [[10, 10, 10, 10], [10, 10, 10, 10], [10, 10, 10, 10]],
-            'mm3s': [[1770, 1760, 1720, 1670], [1590, 1550, 1490, 1450], [1320, 1270, 1220, 1170]],
-            'mm2s': [[1780, 1770, 1730, 1680], [1600, 1560, 1500, 1460], [1330, 1280, 1230, 1180]],
-            'mp2s': [[1820, 1810, 1770, 1720], [1640, 1600, 1540, 1500], [1370, 1320, 1270, 1220]],
-            'mp3s': [[1830, 1820, 1780, 1730], [1650, 1610, 1550, 1510], [1380, 1330, 1280, 1230]],
-            'min': [[1790, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
-            'max': [[1810, 1800, 1760, 1710], [1630, 1590, 1530, 1490], [1360, 1310, 1260, 1210]],
+            "mean": [[1800, 1790, 1750, 1700], [1620, 1580, 1520, 1480], [1350, 1300, 1250, 1200]],
+            "med": [[1800, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
+            "std": [[10, 10, 10, 10], [10, 10, 10, 10], [10, 10, 10, 10]],
+            "mm3s": [[1770, 1760, 1720, 1670], [1590, 1550, 1490, 1450], [1320, 1270, 1220, 1170]],
+            "mm2s": [[1780, 1770, 1730, 1680], [1600, 1560, 1500, 1460], [1330, 1280, 1230, 1180]],
+            "mp2s": [[1820, 1810, 1770, 1720], [1640, 1600, 1540, 1500], [1370, 1320, 1270, 1220]],
+            "mp3s": [[1830, 1820, 1780, 1730], [1650, 1610, 1550, 1510], [1380, 1330, 1280, 1230]],
+            "min": [[1790, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
+            "max": [[1810, 1800, 1760, 1710], [1630, 1590, 1530, 1490], [1360, 1310, 1260, 1210]],
         }
 
     def test_identifies_max_current_position(self, writer, stats):
         sample = writer._prepare_sample_content(stats)
-        assert sample['intPosiMaxmA'] == 2  # 500mA is max
+        assert sample["intPosiMaxmA"] == 2  # 500mA is max
 
     def test_identifies_2_25v_position(self, writer, stats):
         sample = writer._prepare_sample_content(stats)
-        assert sample['intPosi2V25'] == 1  # 2.25V is index 1
+        assert sample["intPosi2V25"] == 1  # 2.25V is index 1
 
     def test_test_profile_start_line_for_coin_cell(self, writer_coin_cell, stats):
         sample = writer_coin_cell._prepare_sample_content(stats)
-        assert sample['intTestProfileStartLine'] == 3
+        assert sample["intTestProfileStartLine"] == 3
 
     def test_test_profile_start_line_for_pouch_cell(self, writer_pouch_cell, stats):
         sample = writer_pouch_cell._prepare_sample_content(stats)
-        assert sample['intTestProfileStartLine'] == 4
+        assert sample["intTestProfileStartLine"] == 4
 
     def test_actual_measured_capacity_length(self, writer, stats):
         sample = writer._prepare_sample_content(stats)
         # intVoltageLevelNum * 2
-        assert sample['intActualMeasuredCapacityLength'] == 8
+        assert sample["intActualMeasuredCapacityLength"] == 8
 
     def test_str_content_includes_test_info(self, writer, stats):
         sample = writer._prepare_sample_content(stats)
-        content = sample['listStrContent']
+        content = sample["listStrContent"]
         assert content[0] == "Coin Cell"
         assert content[1] == "LCO-ICR18650"
         assert content[2] == "Ewin"
@@ -326,7 +374,7 @@ class TestPrepareSampleContent:
         """Required 1575, mm2s at 500mA/2.25V = 1280, 1280/1750 = 73% < 1575/1750=90% => Fail"""
         sample = writer._prepare_sample_content(stats)
         # 1575/1750 = 90%, mm2s[2][1] = 1280, 1280/1750 ≈ 73.1%
-        assert sample['listStrContent'][17] == "Fail"
+        assert sample["listStrContent"][17] == "Fail"
 
     def test_result_pass_when_mm2s_meets_requirement(self, writer, stats):
         """修改 required capacity 很低，确保 pass"""
@@ -334,22 +382,23 @@ class TestPrepareSampleContent:
         info[17] = 100  # Required Usable Capacity = 100
         w = ExcelReportWriter("/tmp/r", info, copy.deepcopy(SAMPLE_BATTERY_INFO))
         sample = w._prepare_sample_content(stats)
-        assert sample['listStrContent'][17] == "Pass"
+        assert sample["listStrContent"][17] == "Pass"
 
     def test_str_content_includes_date_range(self, writer, stats):
         sample = writer._prepare_sample_content(stats)
-        date_str = sample['listStrContent'][14]
+        date_str = sample["listStrContent"][14]
         assert "15.01.2024" in date_str  # format: dd.mm.yyyy
 
     def test_str_items_contains_all_labels(self, writer, stats):
         sample = writer._prepare_sample_content(stats)
-        items = sample['listStrItems']
+        items = sample["listStrItems"]
         assert items[0] == "Battery Type"
         assert "Actual Measured Capacity" in items[13]
         assert items[19] == "Remarks"
 
 
 # ── _insert_images ──
+
 
 class TestInsertImages:
     """图像插入测试"""
@@ -366,11 +415,12 @@ class TestInsertImages:
             args = call_args[0]
             # insert_image(row, col, filename, options_dict)
             options = args[3] if len(args) >= 4 else {}
-            assert 'x_scale' in options
-            assert 'y_scale' in options
+            assert "x_scale" in options
+            assert "y_scale" in options
 
 
 # ── _write_overview_statistics ──
+
 
 class TestWriteOverviewStatistics:
     """Overview 统计表测试"""
@@ -378,21 +428,21 @@ class TestWriteOverviewStatistics:
     @pytest.fixture
     def stats(self):
         return {
-            'mean': [[1800, 1790, 1750, 1700], [1620, 1580, 1520, 1480], [1350, 1300, 1250, 1200]],
-            'med': [[1795, 1785, 1745, 1695], [1615, 1575, 1515, 1475], [1345, 1295, 1245, 1195]],
-            'std': [[10, 10, 10, 10], [10, 10, 10, 10], [10, 10, 10, 10]],
-            'mm3s': [[1770, 1760, 1720, 1670], [1590, 1550, 1490, 1450], [1320, 1270, 1220, 1170]],
-            'mm2s': [[1780, 1770, 1730, 1680], [1600, 1560, 1500, 1460], [1330, 1280, 1230, 1180]],
-            'mp2s': [[1820, 1810, 1770, 1720], [1640, 1600, 1540, 1500], [1370, 1320, 1270, 1220]],
-            'mp3s': [[1830, 1820, 1780, 1730], [1650, 1610, 1550, 1500], [1380, 1330, 1280, 1230]],
-            'min': [[1790, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
-            'max': [[1810, 1800, 1760, 1710], [1630, 1590, 1530, 1490], [1360, 1310, 1260, 1210]],
+            "mean": [[1800, 1790, 1750, 1700], [1620, 1580, 1520, 1480], [1350, 1300, 1250, 1200]],
+            "med": [[1795, 1785, 1745, 1695], [1615, 1575, 1515, 1475], [1345, 1295, 1245, 1195]],
+            "std": [[10, 10, 10, 10], [10, 10, 10, 10], [10, 10, 10, 10]],
+            "mm3s": [[1770, 1760, 1720, 1670], [1590, 1550, 1490, 1450], [1320, 1270, 1220, 1170]],
+            "mm2s": [[1780, 1770, 1730, 1680], [1600, 1560, 1500, 1460], [1330, 1280, 1230, 1180]],
+            "mp2s": [[1820, 1810, 1770, 1720], [1640, 1600, 1540, 1500], [1370, 1320, 1270, 1220]],
+            "mp3s": [[1830, 1820, 1780, 1730], [1650, 1610, 1550, 1500], [1380, 1330, 1280, 1230]],
+            "min": [[1790, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
+            "max": [[1810, 1800, 1760, 1710], [1630, 1590, 1530, 1490], [1360, 1310, 1260, 1210]],
         }
 
     def test_writes_statistical_results_title(self, writer, stats, fmts):
         ws = MagicMock()
         writer._write_overview_statistics(ws, stats, fmts)
-        ws.write.assert_any_call(13, 0, "Statisticals Results", fmts['overview_stat_dark'])
+        ws.write.assert_any_call(13, 0, "Statisticals Results", fmts["overview_stat_dark"])
 
     def test_writes_voltage_headers(self, writer, stats, fmts):
         ws = MagicMock()
@@ -402,10 +452,11 @@ class TestWriteOverviewStatistics:
     def test_uses_custom_start_line(self, writer, stats, fmts):
         ws = MagicMock()
         writer._write_overview_statistics(ws, stats, fmts, wsOverviewStatisticalStartLine=5)
-        ws.write.assert_any_call(5, 0, "Statisticals Results", fmts['overview_stat_dark'])
+        ws.write.assert_any_call(5, 0, "Statisticals Results", fmts["overview_stat_dark"])
 
 
 # ── _write_sample_excel ──
+
 
 class TestWriteSampleExcel:
     """Sample Excel 工作表写入测试"""
@@ -413,15 +464,15 @@ class TestWriteSampleExcel:
     @pytest.fixture
     def stats(self):
         return {
-            'mean': [[1800, 1790, 1750, 1700], [1620, 1580, 1520, 1480], [1350, 1300, 1250, 1200]],
-            'med': [[1795, 1785, 1745, 1695], [1615, 1575, 1515, 1475], [1345, 1295, 1245, 1195]],
-            'std': [[10, 10, 10, 10], [10, 10, 10, 10], [10, 10, 10, 10]],
-            'mm3s': [[1770, 1760, 1720, 1670], [1590, 1550, 1490, 1450], [1320, 1270, 1220, 1170]],
-            'mm2s': [[1780, 1770, 1730, 1680], [1600, 1560, 1500, 1460], [1330, 1280, 1230, 1180]],
-            'mp2s': [[1820, 1810, 1770, 1720], [1640, 1600, 1540, 1500], [1370, 1320, 1270, 1220]],
-            'mp3s': [[1830, 1820, 1780, 1730], [1650, 1610, 1550, 1500], [1380, 1330, 1280, 1230]],
-            'min': [[1790, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
-            'max': [[1810, 1800, 1760, 1710], [1630, 1590, 1530, 1490], [1360, 1310, 1260, 1210]],
+            "mean": [[1800, 1790, 1750, 1700], [1620, 1580, 1520, 1480], [1350, 1300, 1250, 1200]],
+            "med": [[1795, 1785, 1745, 1695], [1615, 1575, 1515, 1475], [1345, 1295, 1245, 1195]],
+            "std": [[10, 10, 10, 10], [10, 10, 10, 10], [10, 10, 10, 10]],
+            "mm3s": [[1770, 1760, 1720, 1670], [1590, 1550, 1490, 1450], [1320, 1270, 1220, 1170]],
+            "mm2s": [[1780, 1770, 1730, 1680], [1600, 1560, 1500, 1460], [1330, 1280, 1230, 1180]],
+            "mp2s": [[1820, 1810, 1770, 1720], [1640, 1600, 1540, 1500], [1370, 1320, 1270, 1220]],
+            "mp3s": [[1830, 1820, 1780, 1730], [1650, 1610, 1550, 1500], [1380, 1330, 1280, 1230]],
+            "min": [[1790, 1780, 1740, 1690], [1610, 1570, 1510, 1470], [1340, 1290, 1240, 1190]],
+            "max": [[1810, 1800, 1760, 1710], [1630, 1590, 1530, 1490], [1360, 1310, 1260, 1210]],
         }
 
     @pytest.fixture
@@ -437,7 +488,9 @@ class TestWriteSampleExcel:
     def test_includes_battery_info_in_content(self, writer, sample, stats, fmts):
         ws = MagicMock()
         writer._write_sample_excel(ws, sample, stats, fmts)
-        content_calls = [c[0][2] for c in ws.write.call_args_list if not isinstance(c[0][2], (int, float))]
+        content_calls = [
+            c[0][2] for c in ws.write.call_args_list if not isinstance(c[0][2], (int, float))
+        ]
         assert "LCO-ICR18650" in content_calls
         assert "Ewin" in content_calls  # Manufacturer
 
@@ -450,21 +503,22 @@ class TestWriteSampleExcel:
 
 # ── _write_sample_word ──
 
+
 class TestWriteSampleWord:
     """Sample Word 工作表写入测试"""
 
     @pytest.fixture
     def stats(self):
         return {
-            'mean': [[1800]*4, [1600]*4, [1400]*4],
-            'med': [[1795]*4, [1615]*4, [1345]*4],
-            'std': [[10]*4, [10]*4, [10]*4],
-            'mm3s': [[1770]*4, [1590]*4, [1320]*4],
-            'mm2s': [[1780]*4, [1600]*4, [1330]*4],
-            'mp2s': [[1820]*4, [1640]*4, [1370]*4],
-            'mp3s': [[1830]*4, [1650]*4, [1380]*4],
-            'min': [[1790]*4, [1610]*4, [1340]*4],
-            'max': [[1810]*4, [1630]*4, [1360]*4],
+            "mean": [[1800] * 4, [1600] * 4, [1400] * 4],
+            "med": [[1795] * 4, [1615] * 4, [1345] * 4],
+            "std": [[10] * 4, [10] * 4, [10] * 4],
+            "mm3s": [[1770] * 4, [1590] * 4, [1320] * 4],
+            "mm2s": [[1780] * 4, [1600] * 4, [1330] * 4],
+            "mp2s": [[1820] * 4, [1640] * 4, [1370] * 4],
+            "mp3s": [[1830] * 4, [1650] * 4, [1380] * 4],
+            "min": [[1790] * 4, [1610] * 4, [1340] * 4],
+            "max": [[1810] * 4, [1630] * 4, [1360] * 4],
         }
 
     @pytest.fixture
@@ -482,7 +536,9 @@ class TestWriteSampleWord:
         formulas = [c.args[1] for c in ws.write_formula.call_args_list]
         assert "=TRUNC(B13/B10, 2)" in formulas
 
+
 # ── write() 主入口 ──
+
 
 class TestWriteMain:
     """write() 主入口测试"""
@@ -516,28 +572,31 @@ class TestWriteMain:
         mock_wb_class.return_value = mock_wb
         # Match writer dimensions: 3 current × 4 voltage
         stats = {
-            'mean': [[1800]*4, [1600]*4, [1400]*4],
-            'med': [[1795]*4, [1595]*4, [1395]*4],
-            'std': [[10]*4, [8]*4, [9]*4],
-            'mm3s': [[1770]*4, [1576]*4, [1373]*4],
-            'mm2s': [[1780]*4, [1584]*4, [1382]*4],
-            'mp2s': [[1820]*4, [1616]*4, [1418]*4],
-            'mp3s': [[1830]*4, [1624]*4, [1427]*4],
-            'min': [[1790]*4, [1580]*4, [1390]*4],
-            'max': [[1810]*4, [1620]*4, [1410]*4],
+            "mean": [[1800] * 4, [1600] * 4, [1400] * 4],
+            "med": [[1795] * 4, [1595] * 4, [1395] * 4],
+            "std": [[10] * 4, [8] * 4, [9] * 4],
+            "mm3s": [[1770] * 4, [1576] * 4, [1373] * 4],
+            "mm2s": [[1780] * 4, [1584] * 4, [1382] * 4],
+            "mp2s": [[1820] * 4, [1616] * 4, [1418] * 4],
+            "mp3s": [[1830] * 4, [1624] * 4, [1427] * 4],
+            "min": [[1790] * 4, [1580] * 4, [1390] * 4],
+            "max": [[1810] * 4, [1620] * 4, [1410] * 4],
         }
         writer.write(list_cpt=None, stats=stats)
 
 
 # ── 向后兼容别名 ──
 
+
 class TestBackwardsCompatibilityAliases:
     """模块级 _compute_list_cpt / _compute_statistics 别名测试"""
 
     def test_compute_list_cpt_aliased(self):
         from battery_analysis.utils.writers.statistics_utils import compute_list_cpt
+
         assert _compute_list_cpt is compute_list_cpt
 
     def test_compute_statistics_aliased(self):
         from battery_analysis.utils.writers.statistics_utils import compute_statistics
+
         assert _compute_statistics is compute_statistics

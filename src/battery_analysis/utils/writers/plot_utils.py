@@ -5,13 +5,14 @@
 """
 
 import math
+
 import matplotlib.pyplot as plt
-from battery_analysis.utils.exceptions import BatteryAnalysisException
+
 from battery_analysis.utils.constants import CN_FONT_LIST
 
 # 配置matplotlib支持中文显示
-plt.rcParams['font.sans-serif'] = CN_FONT_LIST
-plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+plt.rcParams["font.sans-serif"] = CN_FONT_LIST
+plt.rcParams["axes.unicode_minus"] = False  # 解决负号显示问题
 
 
 def set_plt_axis(battery_type, max_xaxis):
@@ -28,7 +29,7 @@ def set_plt_axis(battery_type, max_xaxis):
         (2000, 200),
         (3000, 300),
         (4000, 400),
-        (float('inf'), 500),
+        (float("inf"), 500),
     ]
     step = 100
     for max_range, step_value in step_ranges:

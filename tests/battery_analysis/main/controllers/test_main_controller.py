@@ -1,4 +1,3 @@
-from unittest.mock import Mock, patch
 from battery_analysis.main.controllers.main_controller import MainController
 
 
@@ -8,9 +7,7 @@ class TestMainController:
 
     def test_set_project_context(self):
         self.controller.set_project_context(
-            project_path="/test/project",
-            input_path="/test/input",
-            output_path="/test/output"
+            project_path="/test/project", input_path="/test/input", output_path="/test/output"
         )
         assert self.controller.project_path == "/test/project"
         assert self.controller.input_path == "/test/input"

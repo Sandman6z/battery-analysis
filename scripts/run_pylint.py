@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 运行Pylint静态代码分析的脚本
 
@@ -11,40 +10,34 @@
 4. 生成JSON、HTML和Markdown格式的报告
 """
 
-import os
+import glob
+import json
+import logging
 import subprocess
 import sys
-import json
-import glob
-from pathlib import Path
-import logging
 from datetime import datetime
+from pathlib import Path
 
 # 配置日志记录
-logging.basicConfig(level=logging.WARNING,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
 def get_all_python_files():
     """获取所有Python文件"""
     logger.info("获取所有Python文件...")
-    patterns = [
-        "src/**/*.py",
-        "scripts/**/*.py",
-        "tests/**/*.py"
-    ]
-    
+    patterns = ["src/**/*.py", "scripts/**/*.py", "tests/**/*.py"]
+
     python_files = []
     for pattern in patterns:
         files = glob.glob(pattern, recursive=True)
         python_files.extend(files)
-    
+
     # 去重
     python_files = list(set(python_files))
     # 排序
     python_files.sort()
-    
+
     logger.info("找到 %d 个Python文件", len(python_files))
     return python_files
 
@@ -57,12 +50,14 @@ def run_pylint():
 
     # 确保Pylint已安装
     try:
-        subprocess.run(["uv", "run", "pylint", "--version"],
-                       check=True, capture_output=True, text=True)
+        subprocess.run(
+            ["uv", "run", "pylint", "--version"], check=True, capture_output=True, text=True
+        )
         logger.info("Pylint已安装，开始分析...")
     except (subprocess.CalledProcessError, FileNotFoundError):
         logger.error(
-            "错误：Pylint未安装！请运行 'uv sync --dev' 或者 'uv pip install -e '.[dev]'' 来安装开发依赖。")
+            "错误：Pylint未安装！请运行 'uv sync --dev' 或者 'uv pip install -e '.[dev]'' 来安装开发依赖。"
+        )
         sys.exit(1)
 
     # 获取所有Python文件
@@ -79,29 +74,26 @@ def run_pylint():
         "run",
         "pylint",
         # 使用pyproject.toml中的配置
-        "--enable=unused-import",       # 确保启用未使用导入检测
-        "--enable=unused-variable",     # 确保启用未使用变量检测
-        "--enable=unused-argument",     # 确保启用未使用参数检测
+        "--enable=unused-import",  # 确保启用未使用导入检测
+        "--enable=unused-variable",  # 确保启用未使用变量检测
+        "--enable=unused-argument",  # 确保启用未使用参数检测
         "--enable=unused-private-member",  # 确保启用未使用私有成员检测
-        "--enable=unused-function",     # 确保启用未使用函数检测
-    ] + python_files
+        "--enable=unused-function",  # 确保启用未使用函数检测
+        *python_files,
+    ]
 
     try:
         # 运行Pylint并实时显示输出
-        process = subprocess.Popen(
-            pylint_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
-        )
+        process = subprocess.Popen(pylint_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         # 实时记录输出，尝试多种编码处理
         for line in process.stdout:
             try:
                 # 优先尝试UTF-8编码
-                decoded_line = line.decode('utf-8')
+                decoded_line = line.decode("utf-8")
             except UnicodeDecodeError:
                 # 如果UTF-8失败，尝试GBK编码（适用于中文Windows系统）
-                decoded_line = line.decode('gbk', errors='replace')
+                decoded_line = line.decode("gbk", errors="replace")
             logger.info(decoded_line.rstrip())
 
         process.wait()
@@ -130,7 +122,7 @@ def run_pylint_on_files(files, output_format="text", output_file=None):
             "run",
             "pylint",
         ]
-        
+
         if output_format == "json":
             pylint_cmd.extend(["--output-format=json"])
             if output_file:
@@ -139,23 +131,18 @@ def run_pylint_on_files(files, output_format="text", output_file=None):
             pylint_cmd.extend(["--output-format=text"])
             if output_file:
                 pylint_cmd.extend(["--output", str(output_file)])
-        
+
         # 禁用可能导致生成报告失败的检查项
         pylint_cmd.extend(["--disable=line-too-long,trailing-whitespace"])
         # 确保即使有错误也返回0退出码
         pylint_cmd.extend(["--fail-under=0"])
-        
+
         # 添加要分析的文件
         pylint_cmd.extend(files)
-        
+
         # 运行命令
-        result = subprocess.run(
-            pylint_cmd,
-            capture_output=True,
-            text=True,
-            check=False
-        )
-        
+        result = subprocess.run(pylint_cmd, capture_output=True, text=True, check=False)
+
         return result.stdout
     except (subprocess.SubprocessError, OSError) as e:
         logger.error("运行pylint时出错: %s", e)
@@ -173,21 +160,21 @@ def generate_all_reports(project_root, python_files):
     # 生成JSON报告
     logger.info("正在生成JSON报告...")
     json_output = run_pylint_on_files(python_files, output_format="json", output_file=json_report)
-    
+
     if json_report.exists() and json_report.stat().st_size > 0:
         logger.info("JSON报告已保存到：%s", json_report)
-        
+
         # 读取JSON数据用于生成其他报告
         try:
-            with open(json_report, 'r', encoding='utf-8') as f:
+            with open(json_report, encoding="utf-8") as f:
                 pylint_data = json.load(f)
         except json.JSONDecodeError:
             logger.error("无法解析JSON报告")
             pylint_data = []
-            
+
         # 生成HTML报告
         generate_html_report(project_root, pylint_data, html_report)
-        
+
         # 生成Markdown报告
         generate_markdown_report(pylint_data, markdown_report)
     else:
@@ -208,14 +195,14 @@ def generate_html_report(project_root, pylint_data, html_report):
         if isinstance(pylint_data, list) and pylint_data:
             # 统计错误和警告数量
             for item in pylint_data:
-                if 'type' in item:
-                    if item['type'] == 'error':
+                if "type" in item:
+                    if item["type"] == "error":
                         error_count += 1
-                    elif item['type'] == 'warning':
+                    elif item["type"] == "warning":
                         warning_count += 1
 
         # 创建自定义HTML报告
-        with open(html_report, 'w', encoding='utf-8') as f:
+        with open(html_report, "w", encoding="utf-8") as f:
             f.write(f"""
             <!DOCTYPE html>
             <html>
@@ -278,26 +265,28 @@ def generate_html_report(project_root, pylint_data, html_report):
             </html>
             """)
         logger.info("已创建自定义HTML报告到：%s", html_report)
-    except (IOError, UnicodeEncodeError) as e:
+    except (OSError, UnicodeEncodeError) as e:
         logger.error("生成HTML报告时出错：%s", str(e))
 
 
 def generate_markdown_report(pylint_data, markdown_report):
     """生成Markdown格式的Pylint报告"""
     logger.info("正在生成Markdown报告...")
-    
+
     try:
         with open(markdown_report, "w", encoding="utf-8") as f:
             f.write("# 代码重构计划\n\n")
-            
+
             # 添加目录结构
             f.write("## 目录\n\n")
             f.write("### 错误(Error) - 需要立即修复\n")
             f.write("- **undefined-variable**: 使用了未定义的变量，可能导致运行时错误\n")
             f.write("- **access-member-before-definition**: 在定义前访问了成员变量\n\n")
-            
+
             f.write("### 警告(Warning) - 建议修复\n")
-            f.write("- **broad-exception-caught**: 捕获过于宽泛的 Exception，建议捕获更具体的异常类型\n")
+            f.write(
+                "- **broad-exception-caught**: 捕获过于宽泛的 Exception，建议捕获更具体的异常类型\n"
+            )
             f.write("- **unused-import**: 导入了但未使用的模块，增加了不必要的加载时间\n")
             f.write("- **unused-variable**: 声明了但未使用的变量，应该删除\n")
             f.write("- **unused-argument**: 函数参数未使用，可能是遗漏或设计问题\n")
@@ -308,25 +297,39 @@ def generate_markdown_report(pylint_data, markdown_report):
             f.write("- **raise-missing-from**: 重新抛出异常时未使用 from 子句，丢失异常链\n")
             f.write("- **unnecessary-pass**: 使用了不必要的 pass 语句，可以用 ... 替代或重构\n")
             f.write("- **redefined-builtin**: 重新定义了 Python 内置函数，可能导致问题\n")
-            f.write("- **attribute-defined-outside-init**: 属性在 __init__ 之外定义，应该在 __init__ 中初始化\n")
-            f.write("- **unnecessary-ellipsis**: 不必要的省略号常量，在非抽象方法中应使用 pass 或删除\n")
+            f.write(
+                "- **attribute-defined-outside-init**: 属性在 __init__ 之外定义，应该在 __init__ 中初始化\n"
+            )
+            f.write(
+                "- **unnecessary-ellipsis**: 不必要的省略号常量，在非抽象方法中应使用 pass 或删除\n"
+            )
             f.write("- **bare-except**: 使用了不带异常类型的 except，可能捕获意外异常\n")
             f.write("- **reimported**: 重复导入同一模块，应该避免\n")
-            f.write("- **f-string-without-interpolation**: f-string 没有插值变量，应该使用普通字符串\n")
+            f.write(
+                "- **f-string-without-interpolation**: f-string 没有插值变量，应该使用普通字符串\n"
+            )
             f.write("- **locally-disabled**: 在代码中禁用了某个检查项的警告\n")
             f.write("- **suppressed-message**: 被抑制的消息\n")
             f.write("- **protected-access**: 访问了受保护的成员\n\n")
-            
+
             f.write("### 规范(Convention) - 代码风格问题\n")
-            f.write("- **wrong-import-order**: 导入顺序不正确，标准库应在最前，其次是第三方库，最后是本地库\n")
+            f.write(
+                "- **wrong-import-order**: 导入顺序不正确，标准库应在最前，其次是第三方库，最后是本地库\n"
+            )
             f.write("- **wrong-import-position**: 导入语句位置不正确，应该放在模块顶部\n")
             f.write("- **import-outside-toplevel**: 在函数/方法内部进行导入，应该在模块顶部导入\n")
             f.write("- **missing-final-newline**: 文件末尾缺少换行符\n")
             f.write("- **trailing-newlines**: 文件末尾有多余的换行符\n")
-            f.write("- **mixed-line-endings**: 混合使用不同的行尾符（LF 和 CRLF），应统一使用一种\n")
+            f.write(
+                "- **mixed-line-endings**: 混合使用不同的行尾符（LF 和 CRLF），应统一使用一种\n"
+            )
             f.write("- **ungrouped-imports**: 来自同一包的导入没有分组\n")
-            f.write("- **use-implicit-booleaness-not-comparison-to-string**: 与空字符串比较应简化为隐式布尔值判断\n")
-            f.write("- **use-implicit-booleaness-not-comparison-to-zero**: 与零比较应简化为隐式布尔值判断\n")
+            f.write(
+                "- **use-implicit-booleaness-not-comparison-to-string**: 与空字符串比较应简化为隐式布尔值判断\n"
+            )
+            f.write(
+                "- **use-implicit-booleaness-not-comparison-to-zero**: 与零比较应简化为隐式布尔值判断\n"
+            )
             f.write("- **consider-using-f-string**: 可以使用 f-string 格式化字符串\n")
             f.write("- **unspecified-encoding**: 打开文件时未明确指定编码\n")
             f.write("- **missing-module-docstring**: 缺少模块文档字符串\n")
@@ -334,16 +337,20 @@ def generate_markdown_report(pylint_data, markdown_report):
             f.write("- **consider-using-in**: 可以使用 'in' 操作符替代循环判断\n")
             f.write("- **use-symbolic-message-instead**: 使用符号消息替代数字代码\n")
             f.write("- **consider-using-with**: 可以使用 with 语句管理资源\n\n")
-            
+
             f.write("### 重构(Refactor) - 代码结构优化\n")
             f.write("- **no-else-return**: return 语句后不必要的 else 块，可以简化\n")
-            f.write("- **too-many-positional-arguments**: 函数位置参数过多，考虑使用命名参数或对象\n")
+            f.write(
+                "- **too-many-positional-arguments**: 函数位置参数过多，考虑使用命名参数或对象\n"
+            )
             f.write("- **too-many-branches**: 分支过多（超过12个），应考虑重构\n")
             f.write("- **too-many-statements**: 函数语句过多（超过50条），应拆分\n")
             f.write("- **too-many-nested-blocks**: 嵌套层数过多，应重构以减少嵌套\n")
             f.write("- **too-many-instance-attributes**: 实例属性过多（超过7个），应考虑拆分\n")
             f.write("- **too-many-public-methods**: 公开方法过多，应考虑封装\n")
-            f.write("- **inconsistent-return-statements**: return 语句不一致，有些返回值有些不返回\n")
+            f.write(
+                "- **inconsistent-return-statements**: return 语句不一致，有些返回值有些不返回\n"
+            )
             f.write("- **consider-using-enumerate**: 迭代时可以使用 enumerate 替代 range(len())\n")
             f.write("- **use-dict-literal**: 可以使用字典字面量替代 dict() 调用\n")
             f.write("- **too-many-return-statements**: return 语句过多，应考虑简化\n")
@@ -351,36 +358,36 @@ def generate_markdown_report(pylint_data, markdown_report):
             f.write("- **duplicate-code**: 存在重复代码片段，应考虑提取为函数或类\n")
             f.write("- **no-else-break**: break 语句后不必要的 else 块，可以简化\n")
             f.write("- **no-else-continue**: continue 语句后不必要的 else 块，可以简化\n\n")
-            
+
             # 原有概述部分
-            f.write(f"## 概述\n")
+            f.write("## 概述\n")
             f.write(f"- 分析日期: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            total_files = len(set(item['path'] for item in pylint_data)) if pylint_data else 0
+            total_files = len(set(item["path"] for item in pylint_data)) if pylint_data else 0
             f.write(f"- 总文件数: {total_files}\n")
             f.write(f"- 存在问题的文件数: {total_files}\n\n")
-            
+
             # 按文件分类写入问题
             if pylint_data:
                 # 按文件分组
                 issues_by_file = {}
                 for issue in pylint_data:
-                    file_path = issue['path']
+                    file_path = issue["path"]
                     if file_path not in issues_by_file:
                         issues_by_file[file_path] = []
                     issues_by_file[file_path].append(issue)
-                
+
                 for file_path, issues in sorted(issues_by_file.items()):
                     f.write(f"## 文件: {file_path}\n\n")
-                    f.write(f"### 问题统计\n")
+                    f.write("### 问题统计\n")
                     f.write(f"- 问题总数: {len(issues)}\n")
-                    
+
                     # 统计不同类型的问题
-                    error_count = sum(1 for issue in issues if issue['type'] == 'error')
-                    warning_count = sum(1 for issue in issues if issue['type'] == 'warning')
-                    info_count = sum(1 for issue in issues if issue['type'] == 'info')
-                    convention_count = sum(1 for issue in issues if issue['type'] == 'convention')
-                    refactor_count = sum(1 for issue in issues if issue['type'] == 'refactor')
-                    
+                    error_count = sum(1 for issue in issues if issue["type"] == "error")
+                    warning_count = sum(1 for issue in issues if issue["type"] == "warning")
+                    info_count = sum(1 for issue in issues if issue["type"] == "info")
+                    convention_count = sum(1 for issue in issues if issue["type"] == "convention")
+                    refactor_count = sum(1 for issue in issues if issue["type"] == "refactor")
+
                     if error_count > 0:
                         f.write(f"- 错误(Error): {error_count}\n")
                     if warning_count > 0:
@@ -391,27 +398,27 @@ def generate_markdown_report(pylint_data, markdown_report):
                         f.write(f"- 规范(Convention): {convention_count}\n")
                     if refactor_count > 0:
                         f.write(f"- 重构(Refactor): {refactor_count}\n")
-                    
-                    f.write(f"\n### 详细问题\n")
-                    
+
+                    f.write("\n### 详细问题\n")
+
                     # 按行号排序问题
-                    sorted_issues = sorted(issues, key=lambda x: (x['line'], x['column']))
-                    
+                    sorted_issues = sorted(issues, key=lambda x: (x["line"], x["column"]))
+
                     for issue in sorted_issues:
                         f.write(f"#### 行 {issue['line']}, 列 {issue['column']}\n")
                         f.write(f"- 类型: {issue['type']}\n")
                         f.write(f"- 代码: {issue['message-id']}\n")
                         f.write(f"- 描述: {issue['message']}\n")
-                        if issue['symbol']:
+                        if issue["symbol"]:
                             f.write(f"- 符号: {issue['symbol']}\n")
                         f.write("\n")
             else:
                 f.write("## 分析结果\n\n")
                 f.write("✅ 代码分析完成，未发现问题！\n")
-    except (IOError, UnicodeEncodeError) as e:
+    except (OSError, UnicodeEncodeError) as e:
         logger.error("生成Markdown报告时出错: %s", e)
         return False
-    
+
     logger.info("Markdown报告已保存到：%s", markdown_report)
     return True
 

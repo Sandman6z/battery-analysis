@@ -1,5 +1,5 @@
-import pytest
 from unittest.mock import Mock, patch
+
 from battery_analysis.main.ui_components.theme_manager import ThemeManager
 
 
@@ -7,8 +7,10 @@ class TestThemeManager:
     def setup_method(self):
         self.manager = ThemeManager(Mock())
         # 模拟 QApplication.instance() 返回一个 Mock
-        self._patcher = patch('battery_analysis.main.ui_components.theme_manager.QW.QApplication.instance',
-                              return_value=Mock())
+        self._patcher = patch(
+            "battery_analysis.main.ui_components.theme_manager.QW.QApplication.instance",
+            return_value=Mock(),
+        )
         self._patcher.start()
 
     def teardown_method(self):
@@ -25,6 +27,8 @@ class TestThemeManager:
 
     def test_set_theme_does_not_process_events(self):
         """set_theme 不调用 processEvents（unpolish/polish 已触发重绘）"""
-        with patch('battery_analysis.main.ui_components.theme_manager.QW.QApplication.processEvents') as mock_pe:
+        with patch(
+            "battery_analysis.main.ui_components.theme_manager.QW.QApplication.processEvents"
+        ) as mock_pe:
             self.manager.set_theme("System Default")
             mock_pe.assert_not_called()

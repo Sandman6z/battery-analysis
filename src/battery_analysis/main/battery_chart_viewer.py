@@ -19,29 +19,30 @@
 
 # 标准库导入
 import logging
-from pathlib import Path
 import os
+from pathlib import Path
+
+import matplotlib
+import matplotlib.pyplot as plt
+from PyQt6.QtCore import Qt
 
 # 第三方库导入
 from PyQt6.QtWidgets import QMessageBox
-from PyQt6.QtCore import Qt
-import matplotlib
-import matplotlib.pyplot as plt
 
 # 使用QtAgg后端，自动检测可用的Qt绑定（包括PyQt6）
-matplotlib.use('QtAgg')
+matplotlib.use("QtAgg")
 
 from battery_analysis.utils.constants import CN_FONT_LIST
+
 # 配置matplotlib支持中文显示
-matplotlib.rcParams['font.sans-serif'] = CN_FONT_LIST
-matplotlib.rcParams['axes.unicode_minus'] = False
+matplotlib.rcParams["font.sans-serif"] = CN_FONT_LIST
+matplotlib.rcParams["axes.unicode_minus"] = False
 
 # 开启交互模式
 plt.ion()
 
 # 配置日志
-logging.basicConfig(level=logging.WARNING,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,7 @@ class BatteryChartViewer(
             axis_default: 默认坐标轴范围 [xmin, xmax, ymin, ymax]
             axis_special: 特殊规则下的坐标轴范围 [xmin, xmax, ymin, ymax]
         """
+
         def __init__(self):
             self.axis_default = [10, 600, 0, 5]
             self.axis_special = [10, 600, 1, 3]
@@ -107,8 +109,16 @@ class BatteryChartViewer(
 
         self.plot_config = self.PlotConfig()
 
-        self.listColor = ['#DF7040', '#0675BE', '#EDB120',
-                          '#7E2F8E', '#32CD32', '#FF4500', '#000000', '#000000']
+        self.listColor = [
+            "#DF7040",
+            "#0675BE",
+            "#EDB120",
+            "#7E2F8E",
+            "#32CD32",
+            "#FF4500",
+            "#000000",
+            "#000000",
+        ]
         self.maxXaxis = self.plot_config.axis_default[1]
         self.intBatteryNum = 0
         self.loaded_data = False
@@ -116,8 +126,12 @@ class BatteryChartViewer(
         self.last_data_path = None
         self.last_data_timestamp = None
 
-        self.listAxis = [self.plot_config.axis_default[0], self.maxXaxis,
-                         self.plot_config.axis_default[2], self.plot_config.axis_default[3]]
+        self.listAxis = [
+            self.plot_config.axis_default[0],
+            self.maxXaxis,
+            self.plot_config.axis_default[2],
+            self.plot_config.axis_default[3],
+        ]
         self.listXTicks = list(range(0, self.maxXaxis + 1, 100))
 
         self.listPlt = []
@@ -151,9 +165,11 @@ class BatteryChartViewer(
     def set_axis_default(self, xmin, xmax, ymin, ymax):
         """设置默认坐标轴范围"""
         self.plot_config.axis_default = [xmin, xmax, ymin, ymax]
-        if (self.listAxis[0] == self.plot_config.axis_default[0]
-                and self.listAxis[2] == self.plot_config.axis_default[2]
-                and self.listAxis[3] == self.plot_config.axis_default[3]):
+        if (
+            self.listAxis[0] == self.plot_config.axis_default[0]
+            and self.listAxis[2] == self.plot_config.axis_default[2]
+            and self.listAxis[3] == self.plot_config.axis_default[3]
+        ):
             self.listAxis = [xmin, self.maxXaxis, ymin, ymax]
 
     def get_axis_special(self):
@@ -174,21 +190,31 @@ class BatteryChartViewer(
             logger.info("Starting to draw chart")
 
             import matplotlib
-            if matplotlib.get_backend() != 'QtAgg':
-                logger.info("Current Matplotlib backend: %s, switching to QtAgg backend", matplotlib.get_backend())
-                matplotlib.use('QtAgg')
+
+            if matplotlib.get_backend() != "QtAgg":
+                logger.info(
+                    "Current Matplotlib backend: %s, switching to QtAgg backend",
+                    matplotlib.get_backend(),
+                )
+                matplotlib.use("QtAgg")
 
             import matplotlib.pyplot as plt
 
             if self.loaded_data and self.last_data_path and self.strInfoImageCsvPath:
                 import datetime
+
                 try:
                     if os.path.exists(self.strInfoImageCsvPath):
                         current_timestamp = os.path.getmtime(self.strInfoImageCsvPath)
-                        if self.last_data_timestamp and current_timestamp > self.last_data_timestamp:
-                            logger.info("Data update detected: last load %s, current file %s",
-                                        datetime.datetime.fromtimestamp(self.last_data_timestamp),
-                                        datetime.datetime.fromtimestamp(current_timestamp))
+                        if (
+                            self.last_data_timestamp
+                            and current_timestamp > self.last_data_timestamp
+                        ):
+                            logger.info(
+                                "Data update detected: last load %s, current file %s",
+                                datetime.datetime.fromtimestamp(self.last_data_timestamp),
+                                datetime.datetime.fromtimestamp(current_timestamp),
+                            )
 
                             try:
                                 reply = QMessageBox.question(
@@ -196,7 +222,7 @@ class BatteryChartViewer(
                                     "Data Updated",
                                     "The analysis results have been updated. Reload the latest charts?",
                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                    QMessageBox.StandardButton.Yes
+                                    QMessageBox.StandardButton.Yes,
                                 )
                                 if reply == QMessageBox.StandardButton.Yes:
                                     logger.info("User chose to reload the latest data")
@@ -216,12 +242,12 @@ class BatteryChartViewer(
                 self._show_error_plot()
                 return True
 
-            if not hasattr(self, 'listPlt') or not self.listPlt:
+            if not hasattr(self, "listPlt") or not self.listPlt:
                 logger.error("Error: battery data structure not initialized or empty")
                 self._show_error_plot()
                 return True
 
-            if hasattr(self, 'current_fig') and self.current_fig is not None:
+            if hasattr(self, "current_fig") and self.current_fig is not None:
                 try:
                     plt.close(self.current_fig)
                     self.current_fig = None
@@ -249,8 +275,11 @@ class BatteryChartViewer(
                 valid_data_found = bool(lines_filtered) or bool(lines_unfiltered)
 
                 if valid_data_found:
-                    logger.info("Successfully plotted %d filtered curves and %d raw curves",
-                                len(lines_filtered), len(lines_unfiltered))
+                    logger.info(
+                        "Successfully plotted %d filtered curves and %d raw curves",
+                        len(lines_filtered),
+                        len(lines_unfiltered),
+                    )
                     self._adjust_y_axis_range(ax)
             except (OSError, ValueError, TypeError, IndexError) as plot_error:
                 logger.error("Error plotting battery curves: %s", str(plot_error))
@@ -264,12 +293,14 @@ class BatteryChartViewer(
 
             try:
                 check_filter = self._add_filter_button(
-                    fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict)
+                    fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict
+                )
                 self._add_battery_selection_buttons(
                     fig, check_filter, lines_unfiltered, lines_filtered
                 )
                 self._add_hover_functionality(
-                    fig, ax, lines_filtered, lines_unfiltered, check_filter)
+                    fig, ax, lines_filtered, lines_unfiltered, check_filter
+                )
                 self._add_help_text(fig)
                 logger.info("Chart interaction controls added successfully")
             except (AttributeError, TypeError, ValueError) as ui_error:
@@ -281,7 +312,7 @@ class BatteryChartViewer(
             plt.show(block=False)
 
             try:
-                if hasattr(fig.canvas.manager, 'window'):
+                if hasattr(fig.canvas.manager, "window"):
                     window = fig.canvas.manager.window
                     window.activateWindow()
                     window.raise_()
@@ -299,12 +330,13 @@ class BatteryChartViewer(
             logger.error("Fatal error: unexpected exception while plotting chart: %s", str(e))
             logger.error("Error type: %s", type(e).__name__)
             import traceback
+
             traceback.print_exc()
             self._show_error_plot()
             return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     主程序入口
 
@@ -314,12 +346,14 @@ if __name__ == '__main__':
     - 第一个参数：可选，指定数据目录路径
     """
     import sys
+
     from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
 
     try:
         from battery_analysis.ui.styles.style_manager import StyleManager
+
         style_manager = StyleManager()
 
         unified_style_path = Path(__file__).parent.parent / "ui" / "styles" / "battery_analyzer.qss"
@@ -327,7 +361,7 @@ if __name__ == '__main__':
         logger.info("Attempting to load unified style file: %s", unified_style_path)
 
         if unified_style_path.exists():
-            with open(unified_style_path, 'r', encoding='utf-8') as f:
+            with open(unified_style_path, encoding="utf-8") as f:
                 unified_style = f.read()
                 app.setStyleSheet(unified_style)
                 # 移除 processEvents()（roadmap #12）：unpolish/polish 已触发完整重绘

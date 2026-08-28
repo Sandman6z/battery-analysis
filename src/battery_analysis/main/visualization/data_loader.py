@@ -4,10 +4,10 @@
 提供CSV文件读取、配置加载、数据解析和过滤方法
 """
 
-import logging
-import os
 import csv
 import json
+import logging
+import os
 import traceback
 from pathlib import Path
 
@@ -23,8 +23,7 @@ class DataLoaderMixin:
         """设置数据路径并更新CSV文件路径"""
         logger.info("Setting data path: %s", data_path)
         self.strPltPath = data_path
-        self.strInfoImageCsvPath = os.path.join(
-            self.strPltPath, "Info_Image.csv")
+        self.strInfoImageCsvPath = os.path.join(self.strPltPath, "Info_Image.csv")
         logger.info("Updated CSV file path: %s", self.strInfoImageCsvPath)
         # 当数据路径改变时，尝试加载元数据以更新动态标题
         self._try_load_metadata_title()
@@ -46,7 +45,7 @@ class DataLoaderMixin:
 
             self._read_rules_configuration()
             return True
-        except (IOError, ValueError, TypeError, OSError) as e:
+        except (ValueError, TypeError, OSError) as e:
             self.errorlog = str(e)
             logger.error("Error loading data: %s", e)
             traceback.print_exc()
@@ -56,6 +55,7 @@ class DataLoaderMixin:
         """通过 ConfigService 加载配置，存储服务引用供后续使用"""
         try:
             from battery_analysis.main.services.service_container import get_service_container
+
             container = get_service_container()
             config_service = container.get("config")
 
@@ -77,8 +77,7 @@ class DataLoaderMixin:
 
         self.strPltTitle = "Battery Test Results"
 
-        self.strInfoImageCsvPath = os.path.join(
-            self.strPltPath, "Info_Image.csv")
+        self.strInfoImageCsvPath = os.path.join(self.strPltPath, "Info_Image.csv")
 
         # 尝试从元数据文件读取动态标题（优先于配置中的静态标题）
         self._try_load_metadata_title()
@@ -86,7 +85,7 @@ class DataLoaderMixin:
         self.listPulseCurrentLevel = self._get_pulse_current_level()
         self.intCurrentLevelNum = len(self.listPulseCurrentLevel)
 
-        svc = getattr(self, '_config_service', None)
+        svc = getattr(self, "_config_service", None)
         if svc is not None:
             specs = svc.get_config_value("battery.specifications", {})
             self.listCoinCell = specs.get("Coin Cell", [])
@@ -104,7 +103,7 @@ class DataLoaderMixin:
             if not os.path.exists(meta_path):
                 return
 
-            with open(meta_path, 'r', encoding='utf-8') as f:
+            with open(meta_path, encoding="utf-8") as f:
                 meta = json.load(f)
 
             manufacturer = meta.get("manufacturer", "")
@@ -126,12 +125,12 @@ class DataLoaderMixin:
             if title_base.strip():
                 self.strPltTitle = title_base
                 logger.info("Loaded dynamic title from metadata file: %s", self.strPltTitle)
-        except (IOError, json.JSONDecodeError, TypeError, ValueError) as e:
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as e:
             logger.warning("Failed to read metadata file, using default title: %s", e)
 
     def _get_pulse_current_level(self):
         """获取脉冲电流级别配置"""
-        svc = getattr(self, '_config_service', None)
+        svc = getattr(self, "_config_service", None)
         if svc is not None:
             try:
                 levels = svc.get_config_value("battery.pulseCurrents", [10, 20, 50])
@@ -139,7 +138,9 @@ class DataLoaderMixin:
                     logger.info("Using configured pulse current levels: %s", levels)
                     return levels
             except (ValueError, TypeError, AttributeError) as e:
-                logger.error("Invalid pulse current configuration format: %s, using default value", e)
+                logger.error(
+                    "Invalid pulse current configuration format: %s, using default value", e
+                )
         default_value = [10, 20, 50]
         logger.warning("Using default pulse current levels: %s", default_value)
         return default_value
@@ -147,9 +148,11 @@ class DataLoaderMixin:
     def _set_plot_title(self):
         """设置图表标题，处理引号情况"""
         try:
-            if (len(self.strPltTitle) >= 2
+            if (
+                len(self.strPltTitle) >= 2
                 and self.strPltTitle[0] == '"'
-                    and self.strPltTitle[-1] == '"'):
+                and self.strPltTitle[-1] == '"'
+            ):
                 title_content = self.strPltTitle[1:-1]
             else:
                 title_content = self.strPltTitle
@@ -161,7 +164,7 @@ class DataLoaderMixin:
 
     def _read_rules_configuration(self):
         """读取并处理规则配置"""
-        svc = getattr(self, '_config_service', None)
+        svc = getattr(self, "_config_service", None)
         if svc is not None:
             try:
                 rules = svc.get_config_value("battery.rules", [])
@@ -183,15 +186,17 @@ class DataLoaderMixin:
                         if len(rule_parts) > 2:
                             try:
                                 self.maxXaxis = int(rule_parts[2])
-                                logger.info(
-                                    "Setting maxXaxis based on rule: %s", self.maxXaxis)
-                                self.listAxis = [self.plot_config.axis_special[0], self.maxXaxis, self.plot_config.axis_special[2], 5.0]
-                                self.listXTicks = list(
-                                    range(0, self.maxXaxis + 1, 100))
+                                logger.info("Setting maxXaxis based on rule: %s", self.maxXaxis)
+                                self.listAxis = [
+                                    self.plot_config.axis_special[0],
+                                    self.maxXaxis,
+                                    self.plot_config.axis_special[2],
+                                    5.0,
+                                ]
+                                self.listXTicks = list(range(0, self.maxXaxis + 1, 100))
                                 break
                             except ValueError:
-                                logger.warning(
-                                    "Invalid maxXaxis value in rule: %s", rule_parts[2])
+                                logger.warning("Invalid maxXaxis value in rule: %s", rule_parts[2])
         except (ValueError, IndexError, TypeError) as e:
             logger.error("Error processing rules: %s, keeping default maxXaxis", e)
 
@@ -214,13 +219,14 @@ class DataLoaderMixin:
 
             self._initialize_data_structures()
 
-            with open(csv_path, mode='r', encoding='utf-8') as f:
+            with open(csv_path, encoding="utf-8") as f:
                 csvreader = csv.reader(f)
                 # 流式计数替代 list() 全量读，避免大文件内存翻倍（all_rows 只用于行数检查）
                 row_count = sum(1 for _ in csvreader)
                 if row_count < 5:
                     logger.error(
-                        "Error: CSV file %s has insufficient data rows", self.strInfoImageCsvPath)
+                        "Error: CSV file %s has insufficient data rows", self.strInfoImageCsvPath
+                    )
                     self.intBatteryNum = 0
                     return
 
@@ -251,22 +257,29 @@ class DataLoaderMixin:
             self.last_data_path = self.strPltPath
             if self.strInfoImageCsvPath:
                 import datetime
+
                 try:
                     if os.path.exists(self.strInfoImageCsvPath):
                         timestamp = os.path.getmtime(self.strInfoImageCsvPath)
                         self.last_data_timestamp = timestamp
-                        logger.info("Updating data timestamp: %s", datetime.datetime.fromtimestamp(timestamp))
+                        logger.info(
+                            "Updating data timestamp: %s",
+                            datetime.datetime.fromtimestamp(timestamp),
+                        )
                 except Exception as e:
                     logger.warning("Error updating data timestamp: %s", e)
 
-            logger.info("Successfully read and processed CSV data with %d batteries of real test data", self.intBatteryNum)
+            logger.info(
+                "Successfully read and processed CSV data with %d batteries of real test data",
+                self.intBatteryNum,
+            )
         except FileNotFoundError:
             logger.error("Error: file not found: %s", self.strInfoImageCsvPath)
             self.intBatteryNum = 0
         except PermissionError:
             logger.error("Error: no permission to access file: %s", self.strInfoImageCsvPath)
             self.intBatteryNum = 0
-        except (IOError, ValueError, TypeError, UnicodeDecodeError) as e:
+        except (OSError, ValueError, TypeError, UnicodeDecodeError) as e:
             logger.error("Error: exception occurred while reading CSV file: %s", str(e))
             traceback.print_exc()
             self.intBatteryNum = 0
@@ -315,24 +328,28 @@ class DataLoaderMixin:
         for b in range(self.intBatteryNum):
             try:
                 if "BTS" in self.listBatteryName[b]:
-                    strBatteryNameSplit = self.listBatteryName[b].split("BTS")[
-                        1].split("_")
+                    strBatteryNameSplit = self.listBatteryName[b].split("BTS")[1].split("_")
                     if len(strBatteryNameSplit) >= 4:
                         strBatteryName = f"{strBatteryNameSplit[2]}-{strBatteryNameSplit[3]}"
                     else:
-                        strBatteryName = "-".join(strBatteryNameSplit[1:3]) if len(
-                            strBatteryNameSplit) >= 3 else f"Battery-{b}"
+                        strBatteryName = (
+                            "-".join(strBatteryNameSplit[1:3])
+                            if len(strBatteryNameSplit) >= 3
+                            else f"Battery-{b}"
+                        )
                 else:
                     name_parts = self.listBatteryName[b].split("_")
-                    strBatteryName = "-".join(
-                        name_parts[-2:]) if len(name_parts) >= 2 else f"Battery-{b}"
+                    strBatteryName = (
+                        "-".join(name_parts[-2:]) if len(name_parts) >= 2 else f"Battery-{b}"
+                    )
                 self.listBatteryNameSplit.append(strBatteryName)
             except (IndexError, TypeError, AttributeError, ValueError) as e:
                 logger.warning("Error parsing battery name: %s, using default name", e)
                 self.listBatteryNameSplit.append(f"Battery-{b}")
 
-    def filter_data(self, list_plt_charge, list_plt_voltage,
-                    times=5, slope_max=0.2, difference_max=0.05):
+    def filter_data(
+        self, list_plt_charge, list_plt_voltage, times=5, slope_max=0.2, difference_max=0.05
+    ):
         """过滤数据以去除异常值和噪声"""
         filtered_charge = []
         filtered_voltage = []
@@ -383,7 +400,8 @@ class DataLoaderMixin:
                 if c < len(self.listPlt) and len(self.listPlt[c]) >= 4:
                     if self.listPlt[c][0] and self.listPlt[c][1]:
                         self.listPlt[c][2], self.listPlt[c][3] = self.filter_data(
-                            self.listPlt[c][0], self.listPlt[c][1])
+                            self.listPlt[c][0], self.listPlt[c][1]
+                        )
             except (ValueError, TypeError, IndexError) as e:
                 logger.error("Error filtering data (current level %s): %s", c, e)
 
@@ -413,7 +431,9 @@ class DataLoaderMixin:
                     continue
                 if "Info_Image.csv" in files:
                     info_image_csv = os.path.join(root, "Info_Image.csv")
-                    logger.info("Found Info_Image.csv file in current directory: %s", info_image_csv)
+                    logger.info(
+                        "Found Info_Image.csv file in current directory: %s", info_image_csv
+                    )
                     self.set_data_path(os.path.dirname(info_image_csv))
                     success = self.load_data()
                     if success:

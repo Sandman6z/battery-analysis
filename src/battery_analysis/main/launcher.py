@@ -3,11 +3,11 @@
 
 仅在启动时才导入的轻量模块，负责在加载任何业务模块前尽早显示闪屏。
 """
+
+import multiprocessing
 import os
 import sys
-import multiprocessing
 import warnings
-from pathlib import Path
 
 # 电池测试设备生成的 xlsx 文件通常不包含 openpyxl 默认样式，
 # 每次读取都会触发 "Workbook contains no default style" 警告，这里统一静默
@@ -18,9 +18,9 @@ warnings.filterwarnings(
     category=UserWarning,
 )
 
-from PyQt6.QtWidgets import QApplication, QStyleFactory, QSplashScreen
-from PyQt6.QtGui import QPixmap, QFont, QColor, QPainter
-from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
+from PyQt6.QtCore import Qt, qInstallMessageHandler
+from PyQt6.QtGui import QColor, QFont, QPixmap
+from PyQt6.QtWidgets import QApplication, QSplashScreen, QStyleFactory
 
 
 def _create_splash(app):
@@ -34,11 +34,13 @@ def _create_splash(app):
         splash.showMessage(
             "Battery Analyzer",
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter,
-            QColor("#ecf0f1"))
+            QColor("#ecf0f1"),
+        )
         splash.showMessage(
             "Loading...",
             Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter,
-            QColor("white"))
+            QColor("white"),
+        )
         # 保留 processEvents()：启动时尚未进入事件循环，QSplashScreen 官方模式
         # 要求在此绘制 splash。roadmap #12 移除的是 progress_dialog/theme_manager/
         # battery_chart_viewer 的防重入调用，此处移除会导致启动 splash 空白。
@@ -62,9 +64,11 @@ def main():
 
     # 过滤 Qt 内部无害警告（QTableWidget auto-expand 时的 dataChanged 防护检查）
     _QT_FILTER_MSG = "dataChanged() called with an invalid index range"
+
     def _qt_msg_handler(mode, ctx, msg):
         if _QT_FILTER_MSG not in msg:
             sys.stderr.write(msg + "\n")
+
     qInstallMessageHandler(_qt_msg_handler)
 
     font = QFont()
@@ -80,5 +84,5 @@ def main():
     main_window_main(app=app, splash=splash)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

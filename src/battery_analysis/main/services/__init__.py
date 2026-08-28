@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 服务模块初始化文件
 """
@@ -18,6 +17,6 @@ __all__ = [
     "ProgressService",
     "ServiceContainer",
     "Services",
-    "get_service_container",
     "ValidationService",
+    "get_service_container",
 ]

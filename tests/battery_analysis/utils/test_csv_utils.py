@@ -1,5 +1,5 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+
 from battery_analysis.utils.writers.csv_utils import csv_write
 
 
@@ -11,11 +11,11 @@ class TestCsvUtils:
         buffer = []
         buffer_size = 0
         max_buffer_size = 10
-        
+
         # 测试字符串消息
         test_message = "Test message"
         result = csv_write(test_message, mock_csv_writer, buffer, buffer_size, max_buffer_size)
-        
+
         # 验证结果
         assert result == 1
         assert len(buffer) == 1
@@ -28,11 +28,11 @@ class TestCsvUtils:
         buffer = []
         buffer_size = 0
         max_buffer_size = 10
-        
+
         # 测试列表消息
         test_message = [1, 2, 0, 4]
         result = csv_write(test_message, mock_csv_writer, buffer, buffer_size, max_buffer_size)
-        
+
         # 验证结果
         assert result == 1
         assert len(buffer) == 1

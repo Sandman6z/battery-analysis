@@ -1,4 +1,5 @@
 """文件和路径工具类"""
+
 import hashlib
 import os
 from pathlib import Path
@@ -6,16 +7,16 @@ from pathlib import Path
 
 class FileUtils:
     """文件和路径处理工具类"""
-    
+
     @staticmethod
     def find_file(filename, search_paths):
         """
         在多个路径中查找文件
-        
+
         Args:
             filename: 要查找的文件名
             search_paths: 搜索路径列表
-            
+
         Returns:
             找到的文件路径，否则返回None
         """
@@ -24,15 +25,15 @@ class FileUtils:
             if file_path.exists():
                 return file_path
         return None
-    
+
     @staticmethod
     def get_manual_paths(current_directory):
         """
         获取用户手册的可能路径列表
-        
+
         Args:
             current_directory: 当前工作目录
-            
+
         Returns:
             用户手册的可能路径列表
         """
@@ -47,44 +48,54 @@ class FileUtils:
             Path(os.getcwd()) / "docs" / "user_manual.pdf",
             Path(os.getcwd()) / "user_manual.pdf",
         ]
-    
+
     @staticmethod
     def get_icon_paths(env_detector, current_directory):
         """
         获取应用图标的可能路径列表
-        
+
         Args:
             env_detector: 环境检测器
             current_directory: 当前工作目录
-            
+
         Returns:
             应用图标的可能路径列表
         """
         icon_paths = []
-        
+
         # 如果环境检测器可用，使用它来解析路径
         if env_detector:
-            icon_paths.extend([
-                env_detector.get_resource_path("config/resources/icons/Icon_BatteryTestGUI.ico"),
-                env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
-            ])
-        
+            icon_paths.extend(
+                [
+                    env_detector.get_resource_path(
+                        "config/resources/icons/Icon_BatteryTestGUI.ico"
+                    ),
+                    env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
+                ]
+            )
+
         # 始终尝试相对路径（工程中的图标）
-        icon_paths.extend([
-            Path(current_directory) / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-            Path(current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-        ])
-        
+        icon_paths.extend(
+            [
+                Path(current_directory)
+                / "config"
+                / "resources"
+                / "icons"
+                / "Icon_BatteryTestGUI.ico",
+                Path(current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
+            ]
+        )
+
         return icon_paths
-    
+
     @staticmethod
     def calc_checksum(file_list):
         """
         计算文件列表的SHA-256校验和
-        
+
         Args:
             file_list: 要计算校验和的文件路径列表
-            
+
         Returns:
             计算得到的SHA-256校验和字符串
         """
@@ -92,22 +103,23 @@ class FileUtils:
             # 确保file_list是列表
             if not isinstance(file_list, list):
                 file_list = [file_list]
-            
+
             # 创建SHA-256对象
             sha256 = hashlib.sha256()
-            
+
             # 遍历文件列表，计算SHA-256
             for file_path in file_list:
-                with open(file_path, 'rb') as f:
+                with open(file_path, "rb") as f:
                     # 分块读取文件，避免内存问题
-                    for chunk in iter(lambda: f.read(4096), b''):
+                    for chunk in iter(lambda: f.read(4096), b""):
                         sha256.update(chunk)
-            
+
             # 返回SHA-256校验和
             return sha256.hexdigest()
         except Exception as e:
             # 记录错误但不中断程序
             import logging
+
             logger = logging.getLogger(__name__)
             logger.error("Failed to compute SHA-256 checksum: %s", e)
             return ""

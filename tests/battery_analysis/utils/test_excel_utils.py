@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
 """
 excel_utils测试
 """
 
-import pytest
 from unittest.mock import Mock
-from battery_analysis.utils.writers.excel_utils import ws_set_col, ws_result_write_data, num2letter
+
+import pytest
+
+from battery_analysis.utils.writers.excel_utils import num2letter, ws_result_write_data, ws_set_col
 
 
 class TestExcelUtils:
@@ -15,10 +16,10 @@ class TestExcelUtils:
         """测试设置Excel工作表列宽"""
         # 创建模拟工作表对象
         mock_worksheet = Mock()
-        
+
         # 调用函数
         ws_set_col(mock_worksheet, 1, 3, 15)
-        
+
         # 验证结果
         mock_worksheet.set_column.assert_called_once_with(1, 3, 15)
 
@@ -27,10 +28,10 @@ class TestExcelUtils:
         # 创建模拟工作表对象和格式对象
         mock_ws_result = Mock()
         mock_format = Mock()
-        
+
         # 调用函数
         ws_result_write_data(1, 1, 100, mock_format, mock_ws_result)
-        
+
         # 验证结果
         mock_ws_result.write.assert_called_once_with(1, 1, 100, mock_format)
 
@@ -39,10 +40,10 @@ class TestExcelUtils:
         # 创建模拟工作表对象和格式对象
         mock_ws_result = Mock()
         mock_format = Mock()
-        
+
         # 调用函数
         ws_result_write_data(1, 1, 100.5, mock_format, mock_ws_result)
-        
+
         # 验证结果
         mock_ws_result.write.assert_called_once_with(1, 1, 100.5, mock_format)
 
@@ -51,10 +52,10 @@ class TestExcelUtils:
         # 创建模拟工作表对象和格式对象
         mock_ws_result = Mock()
         mock_format = Mock()
-        
+
         # 调用函数
         ws_result_write_data(1, 1, 0, mock_format, mock_ws_result)
-        
+
         # 验证结果
         mock_ws_result.write.assert_not_called()
 
@@ -63,10 +64,10 @@ class TestExcelUtils:
         # 创建模拟工作表对象和格式对象
         mock_ws_result = Mock()
         mock_format = Mock()
-        
+
         # 调用函数
         ws_result_write_data(1, 1, "Test String", mock_format, mock_ws_result)
-        
+
         # 验证结果
         mock_ws_result.write.assert_called_once_with(1, 1, "Test String", mock_format)
 

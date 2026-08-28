@@ -1,4 +1,5 @@
 """可视化管理器测试——当前仅验证 matplotlib 延迟导入"""
+
 import subprocess
 import sys
 

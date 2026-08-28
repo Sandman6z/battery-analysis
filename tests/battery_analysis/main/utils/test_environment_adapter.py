@@ -1,4 +1,5 @@
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+
 from battery_analysis.main.utils.environment_adapter import EnvironmentAdapter
 
 

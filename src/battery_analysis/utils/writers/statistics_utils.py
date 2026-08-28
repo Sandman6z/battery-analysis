@@ -17,7 +17,7 @@ def compute_list_cpt(listBatteryCharge, intBatteryNum, intCurrentLevelNum, intVo
     if arr.ndim == 2:
         # 批量非零收集（object 数组保持 None/str 的 Python 比较语义）
         # intBatteryNum 在此分支未使用：行数由 arr 自身 shape 决定
-        #（调用方传真实电池数，与逐元素回退分支的旧行为一致）
+        # （调用方传真实电池数，与逐元素回退分支的旧行为一致）
         i = 0
         for c in range(intCurrentLevelNum):
             for v in range(intVoltageLevelNum):
@@ -52,7 +52,7 @@ def compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
 
     if max_len == 0:
         # 每个 key 独立构建 zero 矩阵，避免共享同一对象被未来 in-place 修改污染
-        zero_keys = ('mean', 'med', 'std', 'mm3s', 'mm2s', 'mp2s', 'mp3s', 'min', 'max')
+        zero_keys = ("mean", "med", "std", "mm3s", "mm2s", "mp2s", "mp3s", "min", "max")
         return {
             key: [[0.0 for _ in range(intVoltageLevelNum)] for _ in range(intCurrentLevelNum)]
             for key in zero_keys
@@ -69,7 +69,7 @@ def compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
             counts[i] = int(np.count_nonzero(~np.isnan(vals)))
 
     # np.nan* 的“空切片/自由度<=0”警告走 warnings 模块，np.errstate 管不到，故双保险
-    with warnings.catch_warnings(), np.errstate(invalid='ignore', divide='ignore'):
+    with warnings.catch_warnings(), np.errstate(invalid="ignore", divide="ignore"):
         warnings.simplefilter("ignore", RuntimeWarning)
         means = np.nanmean(padded, axis=1)
         meds = np.nanmedian(padded, axis=1)
@@ -93,13 +93,13 @@ def compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
         return arr1d.reshape(intCurrentLevelNum, intVoltageLevelNum).tolist()
 
     return {
-        'mean': to_nested(means),
-        'med': to_nested(meds),
-        'std': to_nested(stds),
-        'mm3s': to_nested(mm3s),
-        'mm2s': to_nested(mm2s),
-        'mp2s': to_nested(mp2s),
-        'mp3s': to_nested(mp3s),
-        'min': to_nested(mins),
-        'max': to_nested(maxs),
+        "mean": to_nested(means),
+        "med": to_nested(meds),
+        "std": to_nested(stds),
+        "mm3s": to_nested(mm3s),
+        "mm2s": to_nested(mm2s),
+        "mp2s": to_nested(mp2s),
+        "mp3s": to_nested(mp3s),
+        "min": to_nested(mins),
+        "max": to_nested(maxs),
     }

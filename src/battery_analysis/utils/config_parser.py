@@ -10,6 +10,7 @@ import logging
 
 class ConfigParseError(Exception):
     """配置解析错误异常"""
+
     pass
 
 

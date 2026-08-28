@@ -4,28 +4,29 @@ Word报告写入器
 处理电池分析结果的Word（docx）文件写入
 """
 
-import os
-import math
-import logging
 import datetime
 import importlib.resources
+import logging
+import math
+import os
 from pathlib import Path
 
-from docx.shared import Pt, Cm
-from docx.enum.text import WD_LINE_SPACING
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx import Document
+from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_LINE_SPACING
+from docx.shared import Cm, Pt
 
-from battery_analysis.utils.writers import word_utils
-from battery_analysis.utils import numeric_utils
-from battery_analysis.utils.exceptions import BatteryAnalysisException
-from battery_analysis.utils.report_coordinator import compute_report_content_base, match_battery_type
-from battery_analysis.utils.processors.data_utils import generate_current_type_string
-from battery_analysis.utils.writers.statistics_utils import (
-    compute_list_cpt, compute_statistics,
-)
 from battery_analysis import __version__
-
+from battery_analysis.utils.processors.data_utils import generate_current_type_string
+from battery_analysis.utils.report_coordinator import (
+    compute_report_content_base,
+    match_battery_type,
+)
+from battery_analysis.utils.writers import word_utils
+from battery_analysis.utils.writers.statistics_utils import (
+    compute_list_cpt,
+    compute_statistics,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,13 @@ logger = logging.getLogger(__name__)
 class WordReportWriter:
     """Word报告写入器"""
 
-    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list,
-                 equipment_info: dict | None = None) -> None:
+    def __init__(
+        self,
+        strResultPath: str,
+        listTestInfo: list,
+        listBatteryInfo: list,
+        equipment_info: dict | None = None,
+    ) -> None:
         self._equipment_info = equipment_info or {}
         self.strResultPath = strResultPath
         self.listTestInfo = listTestInfo
@@ -65,14 +71,13 @@ class WordReportWriter:
         self.listPngPath = []
         for b in range(self.intCurrentLevelNum):
             self.listPngPath.append(
-                (f"{self.strResultPath}/Image_UseableCapacityOver"
-                 f"CutoffVoltage{self.listCurrentLevel[b]}mALoad.png"))
-        self.strFilteredPngPath = (
-            f"{self.strResultPath}/Image_FilteredLoadVoltageOverCharge.png"
-        )
+                f"{self.strResultPath}/Image_UseableCapacityOver"
+                f"CutoffVoltage{self.listCurrentLevel[b]}mALoad.png"
+            )
+        self.strFilteredPngPath = f"{self.strResultPath}/Image_FilteredLoadVoltageOverCharge.png"
 
         # Excel路径（用于相对链接）
-        safe_temperature = self.listTestInfo[7].replace(':', '_')
+        safe_temperature = self.listTestInfo[7].replace(":", "_")
         self.strResultXlsxPath = (
             f"{self.strResultPath}/{self.listTestInfo[4]}_{self.listTestInfo[2]}_{self.listTestInfo[3]}"
             f"_{self.strFileCurrentType}_{safe_temperature}.xlsx"
@@ -90,20 +95,24 @@ class WordReportWriter:
 
         try:
             pkg_template = (
-                importlib.resources.files('battery_analysis')
-                / 'templates'
-                / template_filename
+                importlib.resources.files("battery_analysis") / "templates" / template_filename
             )
             if pkg_template.is_file():
                 self.strSampleReportWordPath = str(pkg_template)
-                logging.info("Loading Word template from package template directory: %s", self.strSampleReportWordPath)
+                logging.info(
+                    "Loading Word template from package template directory: %s",
+                    self.strSampleReportWordPath,
+                )
             else:
                 raise FileNotFoundError
         except (TypeError, ModuleNotFoundError, FileNotFoundError):
             self.strSampleReportWordPath = str(
                 Path(self.strResultPath) / f"../../0_doc/{template_filename}"
             )
-            logging.info("Loading Word template from external 0_doc directory: %s", self.strSampleReportWordPath)
+            logging.info(
+                "Loading Word template from external 0_doc directory: %s",
+                self.strSampleReportWordPath,
+            )
 
         # Word输出路径
         report_name = (
@@ -115,31 +124,48 @@ class WordReportWriter:
 
         # 文本替换占位符
         self.listTextToReplace = [
-            "TypeA", "TypeB", "TypeC", "TypeD",
-            "TypeE", "TypeF", "TypeG", "StrA",
-            "StrB", "StrC", "StrD", "StrF"
+            "TypeA",
+            "TypeB",
+            "TypeC",
+            "TypeD",
+            "TypeE",
+            "TypeF",
+            "TypeG",
+            "StrA",
+            "StrB",
+            "StrC",
+            "StrD",
+            "StrF",
         ]
         self.listImageToReplace = ["<<Image_FilteredLoadVoltageOverCharge>>"]
         for i in range(10):
-            self.listImageToReplace.append(
-                f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
-            self.listImageToReplace.append(
-                f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
+            self.listImageToReplace.append(f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
+            self.listImageToReplace.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
 
         # 电池类型匹配
         strBatteryType = match_battery_type(self.listTestInfo[2])
 
         # strStrF（颜色/电流等级字符串）
         from battery_analysis.utils.constants import COLOR_NAME
+
         strStrF = ""
         for c in range(self.intCurrentLevelNum):
             strStrF += f"{COLOR_NAME[c]}{self.listCurrentLevel[c]}mA, "
         strStrF = strStrF[:-2]
 
         self.listTestInfoForReplace = [
-            self.listTestInfo[2], self.listTestInfo[3], self.listTestInfo[4],
-            self.listTestInfo[5], self.listTestInfo[7], self.listTestInfo[11],
-            strBatteryType, None, None, None, None, strStrF
+            self.listTestInfo[2],
+            self.listTestInfo[3],
+            self.listTestInfo[4],
+            self.listTestInfo[5],
+            self.listTestInfo[7],
+            self.listTestInfo[11],
+            strBatteryType,
+            None,
+            None,
+            None,
+            None,
+            strStrF,
         ]
 
     def _get_equip_value(self, dotted_key: str, fallback: str = "") -> str:
@@ -161,7 +187,7 @@ class WordReportWriter:
 
     def _write_version_history(self, doc):
         """在Word文档中写入版本历史表"""
-        table = doc.add_table(9, 4, style='Grid Table 4 Accent 3')
+        table = doc.add_table(9, 4, style="Grid Table 4 Accent 3")
         for r in range(9):
             table.rows[r].height = Cm(0.6)
             for c in range(4):
@@ -195,7 +221,7 @@ class WordReportWriter:
 
     def _write_test_information(self, doc):
         """在Word文档中写入测试信息表"""
-        table = doc.add_table(5, 2, style='Table Grid')
+        table = doc.add_table(5, 2, style="Table Grid")
         table.cell(0, 1).width = Cm(10)
         for r in range(5):
             for c in range(2):
@@ -217,23 +243,32 @@ class WordReportWriter:
 
         test_info_data = [
             (0, lambda: self._equipment_info.get("testEquipment", "")),
-            (1, lambda: (
-                f"BTS Server Version: {self._get_equip_value('softwareVersions.btsServer')}\n"
-                f"BTS Client Version: {self._get_equip_value('softwareVersions.btsClient')}\n"
-                f"BTSDA (Data Analysis) Version: {self._get_equip_value('softwareVersions.btsda')}"
-            )),
-            (2, lambda: (
-                f"Model: {self._get_equip_value('middleMachines.model')}\n"
-                f"Hardware Version: {self._get_equip_value('middleMachines.hardwareVersion')}\n"
-                f"Serial Number: {self._get_equip_value('middleMachines.serialNumber')}\n"
-                f"Firmware Version: {self._get_equip_value('middleMachines.firmwareVersion')}\n"
-                f"Device Type: {self._get_equip_value('middleMachines.deviceType')}"
-            )),
-            (3, lambda: (
-                f"Model: {self._get_equip_value('testUnits.model')}\n"
-                f"Hardware Version: {self._get_equip_value('testUnits.hardwareVersion')}\n"
-                f"Firmware Version: {self._get_equip_value('testUnits.firmwareVersion')}"
-            )),
+            (
+                1,
+                lambda: (
+                    f"BTS Server Version: {self._get_equip_value('softwareVersions.btsServer')}\n"
+                    f"BTS Client Version: {self._get_equip_value('softwareVersions.btsClient')}\n"
+                    f"BTSDA (Data Analysis) Version: {self._get_equip_value('softwareVersions.btsda')}"
+                ),
+            ),
+            (
+                2,
+                lambda: (
+                    f"Model: {self._get_equip_value('middleMachines.model')}\n"
+                    f"Hardware Version: {self._get_equip_value('middleMachines.hardwareVersion')}\n"
+                    f"Serial Number: {self._get_equip_value('middleMachines.serialNumber')}\n"
+                    f"Firmware Version: {self._get_equip_value('middleMachines.firmwareVersion')}\n"
+                    f"Device Type: {self._get_equip_value('middleMachines.deviceType')}"
+                ),
+            ),
+            (
+                3,
+                lambda: (
+                    f"Model: {self._get_equip_value('testUnits.model')}\n"
+                    f"Hardware Version: {self._get_equip_value('testUnits.hardwareVersion')}\n"
+                    f"Firmware Version: {self._get_equip_value('testUnits.firmwareVersion')}"
+                ),
+            ),
             (4, lambda: f"Battery Analyzer-v{__version__}"),
         ]
         for row, content_func in test_info_data:
@@ -247,7 +282,8 @@ class WordReportWriter:
     def _write_statistical_results(self, doc, stats):
         """在Word文档中写入统计结果表"""
         table = doc.add_table(
-            self.intCurrentLevelNum + 1, self.intVoltageLevelNum + 1, style='Table Grid')
+            self.intCurrentLevelNum + 1, self.intVoltageLevelNum + 1, style="Table Grid"
+        )
         for c in range(self.intCurrentLevelNum + 1):
             for v in range(self.intVoltageLevelNum + 1):
                 cell = table.cell(c, v)
@@ -261,25 +297,25 @@ class WordReportWriter:
                     text = cell.paragraphs[0].add_run("Statisticals\nResults")
                     text.font.size = Pt(12)
                     text.bold = True
-                    word_utils.table_set_bg_color(cell, '#BFBFBF')
+                    word_utils.table_set_bg_color(cell, "#BFBFBF")
                 elif c == 0 and v > 0:
                     table.cell(c, v).width = Cm(3.55)
-                    text1 = cell.paragraphs[0].add_run(f"Cut-off Voltage\n")
+                    text1 = cell.paragraphs[0].add_run("Cut-off Voltage\n")
                     text1.font.size = Pt(12)
                     text2 = cell.paragraphs[0].add_run(f"{self.listVoltageLevel[v - 1]}V")
                     text2.font.bold = True
                     text2.font.size = Pt(12)
-                    word_utils.table_set_bg_color(cell, '#F2F2F2')
+                    word_utils.table_set_bg_color(cell, "#F2F2F2")
                 elif c > 0 and v == 0:
                     table.rows[c].height = Cm(2.35)
-                    text1 = cell.paragraphs[0].add_run(f"Pulse Current\n")
+                    text1 = cell.paragraphs[0].add_run("Pulse Current\n")
                     text1.font.size = Pt(12)
                     text2 = cell.paragraphs[0].add_run(f"{self.listCurrentLevel[c - 1]}mA")
                     text2.font.bold = True
                     text2.font.size = Pt(12)
-                    word_utils.table_set_bg_color(cell, '#F2F2F2')
+                    word_utils.table_set_bg_color(cell, "#F2F2F2")
                 else:
-                    text = cell.paragraphs[0].add_run((
+                    text = cell.paragraphs[0].add_run(
                         f"μ: {round(stats['mean'][c - 1][v - 1])}mAh\n"
                         f"Median: {round(stats['med'][c - 1][v - 1])}mAh\n"
                         f"σ: {round(stats['std'][c - 1][v - 1])}mAh\n"
@@ -288,7 +324,8 @@ class WordReportWriter:
                         f"μ + 2σ: {round(stats['mp2s'][c - 1][v - 1])}mAh\n"
                         f"μ + 3σ: {round(stats['mp3s'][c - 1][v - 1])}mAh\n"
                         f"Minimum: {round(stats['min'][c - 1][v - 1])}mAh\n"
-                        f"Maximum: {round(stats['max'][c - 1][v - 1])}mAh"))
+                        f"Maximum: {round(stats['max'][c - 1][v - 1])}mAh"
+                    )
                     text.font.size = Pt(7)
                     cell.paragraphs[0].paragraph_format.line_spacing_rules = WD_LINE_SPACING.EXACTLY
                     cell.paragraphs[0].paragraph_format.line_spacing = Pt(10)
@@ -300,44 +337,52 @@ class WordReportWriter:
     def _prepare_overview_content(self, doc, stats):
         """计算Overview表所需的位置参数和内容列表"""
         base = compute_report_content_base(
-            self.listCurrentLevel, self.intCurrentLevelNum,
-            self.listVoltageLevel, self.intVoltageLevelNum,
-            self.listTestInfo, self.listBatteryInfo,
-            self.strSampleXlsxPath, self.strResultXlsxPath, self.strReportWordPath,
-            stats)
+            self.listCurrentLevel,
+            self.intCurrentLevelNum,
+            self.listVoltageLevel,
+            self.intVoltageLevelNum,
+            self.listTestInfo,
+            self.listBatteryInfo,
+            self.strSampleXlsxPath,
+            self.strResultXlsxPath,
+            self.strReportWordPath,
+            stats,
+        )
 
-        intTestDateStartRow = base['intTestProfileStartLine'] + 11
+        intTestDateStartRow = base["intTestProfileStartLine"] + 11
 
         # Word 特有的 listTestInfoForReplace 副作用
-        if base['strResult'] == "Pass":
+        if base["strResult"] == "Pass":
             self.listTestInfoForReplace[8] = "meets"
             self.listTestInfoForReplace[10] = "Pass"
         else:
             self.listTestInfoForReplace[8] = "doesn't meet"
             self.listTestInfoForReplace[10] = "Fail"
-        self.listTestInfoForReplace[9] = base['strRequiredUseableCapacityPercentage']
+        self.listTestInfoForReplace[9] = base["strRequiredUseableCapacityPercentage"]
         self.listTestInfoForReplace[7] = (
-            f"{math.floor(100 * stats['mm2s'][base['intPosiMaxmA']][base['intPosi2V25']] / int(self.listTestInfo[9]))}%")
+            f"{math.floor(100 * stats['mm2s'][base['intPosiMaxmA']][base['intPosi2V25']] / int(self.listTestInfo[9]))}%"
+        )
 
         return {
             **base,
-            'intTestDateStartRow': intTestDateStartRow,
+            "intTestDateStartRow": intTestDateStartRow,
         }
 
     # ── 写入Overview表（Word） ──
 
     def _write_overview_table(self, doc, content, stats):
         """在Word文档中写入Overview表"""
-        intPosiMaxmA = content['intPosiMaxmA']
-        intPosi2V25 = content['intPosi2V25']
-        intTestProfileStartLine = content['intTestProfileStartLine']
-        intTestDateStartRow = content['intTestDateStartRow']
-        intActualMeasuredCapacityLength = content['intActualMeasuredCapacityLength']
-        listStrItems = content['listStrItems']
-        listStrContent = content['listStrContent']
+        intPosiMaxmA = content["intPosiMaxmA"]
+        intPosi2V25 = content["intPosi2V25"]
+        intTestProfileStartLine = content["intTestProfileStartLine"]
+        intTestDateStartRow = content["intTestDateStartRow"]
+        intActualMeasuredCapacityLength = content["intActualMeasuredCapacityLength"]
+        listStrItems = content["listStrItems"]
+        listStrContent = content["listStrContent"]
 
         table = doc.add_table(
-            intTestDateStartRow + 6, 1 + self.intVoltageLevelNum * 2, style='Table Grid')
+            intTestDateStartRow + 6, 1 + self.intVoltageLevelNum * 2, style="Table Grid"
+        )
         for row in range(intTestDateStartRow + 6):
             table.rows[row].height = Cm(0.5)
             for col in range(1 + self.intVoltageLevelNum * 2):
@@ -347,7 +392,7 @@ class WordReportWriter:
                 cell.paragraphs[0].paragraph_format.line_spacing_rules = WD_LINE_SPACING.SINGLE
                 cell.paragraphs[0].paragraph_format.space_after = Pt(0)
                 if row == intTestDateStartRow + 3:
-                    word_utils.table_set_bg_color(cell, '#FFFF00')
+                    word_utils.table_set_bg_color(cell, "#FFFF00")
 
         # merge cells
         for row in range(intTestDateStartRow + 6):
@@ -382,44 +427,57 @@ class WordReportWriter:
         for i in range(4):
             table.cell(i, 0).paragraphs[0].add_run(listStrItems[i])
         if intTestProfileStartLine == 4:
-            table.cell(3, 0).paragraphs[0].text = table.cell(
-                3, 0).paragraphs[0].text.replace(listStrItems[3], "")
+            table.cell(3, 0).paragraphs[0].text = (
+                table.cell(3, 0).paragraphs[0].text.replace(listStrItems[3], "")
+            )
         for i in range(4, 12):
-            table.cell(intTestProfileStartLine + (i - 4),
-                       0).paragraphs[0].add_run(listStrItems[i])
-        table.cell(intTestProfileStartLine + 8,
-                   0).paragraphs[0].add_run(listStrItems[13])
+            table.cell(intTestProfileStartLine + (i - 4), 0).paragraphs[0].add_run(listStrItems[i])
+        table.cell(intTestProfileStartLine + 8, 0).paragraphs[0].add_run(listStrItems[13])
         for i in range(14, 20):
-            table.cell(intTestDateStartRow + (i - 14),
-                       0).paragraphs[0].add_run(listStrItems[i])
+            table.cell(intTestDateStartRow + (i - 14), 0).paragraphs[0].add_run(listStrItems[i])
 
         # 写入内容列
         for i in range(4):
             table.cell(i, 1).paragraphs[0].add_run(listStrContent[i])
         if intTestProfileStartLine == 4:
-            table.cell(3, 1).paragraphs[0].text = table.cell(
-                3, 1).paragraphs[0].text.replace(listStrContent[3], "")
+            table.cell(3, 1).paragraphs[0].text = (
+                table.cell(3, 1).paragraphs[0].text.replace(listStrContent[3], "")
+            )
         table.cell(intTestProfileStartLine, 1).paragraphs[0].text = ""
         if len(listStrContent[4].split("\\")) == 1:
-            table.cell(intTestProfileStartLine,
-                       1).paragraphs[0].add_run(listStrContent[4])
+            table.cell(intTestProfileStartLine, 1).paragraphs[0].add_run(listStrContent[4])
         else:
-            word_utils.add_hyperlink(table.cell(
-                intTestProfileStartLine, 1).paragraphs[0], listStrContent[4],
-                listStrContent[4].split("\\")[-1])
+            word_utils.add_hyperlink(
+                table.cell(intTestProfileStartLine, 1).paragraphs[0],
+                listStrContent[4],
+                listStrContent[4].split("\\")[-1],
+            )
         for i in range(5, 12):
-            table.cell(intTestProfileStartLine + (i - 4),
-                       1).paragraphs[0].add_run(listStrContent[i])
-        table.cell(intTestProfileStartLine + 7, 1 +
-                   self.intVoltageLevelNum).paragraphs[0].add_run(listStrContent[12])
+            table.cell(intTestProfileStartLine + (i - 4), 1).paragraphs[0].add_run(
+                listStrContent[i]
+            )
+        table.cell(intTestProfileStartLine + 7, 1 + self.intVoltageLevelNum).paragraphs[0].add_run(
+            listStrContent[12]
+        )
 
         for v in range(self.intVoltageLevelNum):
-            text1 = table.cell(
-                intTestProfileStartLine + 8, 1 + v * 2).paragraphs[0].add_run(f"{self.listVoltageLevel[v]}V")
-            text2 = table.cell(intTestProfileStartLine + 9, 1 + v * 2).paragraphs[0].add_run(
-                f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}")
-            text3 = table.cell(intTestProfileStartLine + 10, 1 + v * 2).paragraphs[0].add_run(
-                f"{math.floor(100 * stats['mm2s'][intPosiMaxmA][v] / int(listStrContent[10]))}%")
+            text1 = (
+                table.cell(intTestProfileStartLine + 8, 1 + v * 2)
+                .paragraphs[0]
+                .add_run(f"{self.listVoltageLevel[v]}V")
+            )
+            text2 = (
+                table.cell(intTestProfileStartLine + 9, 1 + v * 2)
+                .paragraphs[0]
+                .add_run(f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}")
+            )
+            text3 = (
+                table.cell(intTestProfileStartLine + 10, 1 + v * 2)
+                .paragraphs[0]
+                .add_run(
+                    f"{math.floor(100 * stats['mm2s'][intPosiMaxmA][v] / int(listStrContent[10]))}%"
+                )
+            )
             if v == intPosi2V25:
                 text1.font.bold = True
                 text2.font.bold = True
@@ -428,11 +486,15 @@ class WordReportWriter:
         for i in range(14, 20):
             if i == 18:
                 table.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0].text = ""
-                word_utils.add_hyperlink(table.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0],
-                                         listStrContent[i], listStrContent[i].split("\\")[-1])
+                word_utils.add_hyperlink(
+                    table.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0],
+                    listStrContent[i],
+                    listStrContent[i].split("\\")[-1],
+                )
             else:
-                table.cell(intTestDateStartRow + (i - 14),
-                           1).paragraphs[0].add_run(listStrContent[i])
+                table.cell(intTestDateStartRow + (i - 14), 1).paragraphs[0].add_run(
+                    listStrContent[i]
+                )
 
         for row in range(intTestDateStartRow + 6):
             for col in range(1 + self.intVoltageLevelNum * 2):
@@ -448,10 +510,10 @@ class WordReportWriter:
 
     def _replace_and_insert(self, doc, tables):
         """替换占位符文本、插入图片，并在指定位置插入表格"""
-        tableOverview = tables['overview']
-        tableVersionHistory = tables['version_history']
-        tableTestInformation = tables['test_information']
-        tableStatisticalsResults = tables['statistical_results']
+        tableOverview = tables["overview"]
+        tableVersionHistory = tables["version_history"]
+        tableTestInformation = tables["test_information"]
+        tableStatisticalsResults = tables["statistical_results"]
 
         bInsertOverview = False
         bInsertVersionHistory = False
@@ -467,48 +529,53 @@ class WordReportWriter:
                 if self.listTextToReplace[t] in paragraph.text:
                     modified = True
                     if self.listTextToReplace[t] == "StrD":
-                        paragraph.text = paragraph.text.replace(
-                            self.listTextToReplace[t], "")
+                        paragraph.text = paragraph.text.replace(self.listTextToReplace[t], "")
                         text = paragraph.add_run(f"{self.listTestInfoForReplace[t]}")
                         text.font.bold = True
                         paragraph.add_run(".")
                     else:
                         paragraph.text = paragraph.text.replace(
-                            self.listTextToReplace[t], f"{self.listTestInfoForReplace[t]}")
+                            self.listTextToReplace[t], f"{self.listTestInfoForReplace[t]}"
+                        )
 
             # 替换图片
             if not modified:
                 for i in range(len(self.listImageToReplace)):
                     if self.listImageToReplace[i] in paragraph.text:
-                        paragraph.text = paragraph.text.replace(
-                            self.listImageToReplace[i], "")
+                        paragraph.text = paragraph.text.replace(self.listImageToReplace[i], "")
                         if i < 2 * len(self.listPngPath) + 1:
                             if i == 0:
                                 paragraph.add_run("").add_picture(
-                                    self.strFilteredPngPath, width=Cm(15))
+                                    self.strFilteredPngPath, width=Cm(15)
+                                )
                             elif i % 2 == 1:
                                 paragraph.add_run("").add_picture(
-                                    self.listPngPath[int((i - 1) / 2)], width=Cm(7.2))
+                                    self.listPngPath[int((i - 1) / 2)], width=Cm(7.2)
+                                )
                             else:
                                 paragraph.add_run(
                                     f"Figure {int(i / 2 + 1)}  {self.listTestInfoForReplace[2]} "
                                     f"{self.listTestInfoForReplace[0]}-{self.listTestInfoForReplace[1]} "
-                                    f"Boxplot, {self.listCurrentLevel[int(i / 2 - 1)]}mA")
+                                    f"Boxplot, {self.listCurrentLevel[int(i / 2 - 1)]}mA"
+                                )
                         else:
                             paragraph._element.getparent().remove(paragraph._element)
                         continue
 
             # 识别插入点并插入表格
-            if "Battery Quality Test / Alternative Battery Test for ESL Batteries" in paragraph.text:
+            if (
+                "Battery Quality Test / Alternative Battery Test for ESL Batteries"
+                in paragraph.text
+            ):
                 bInsertOverview = True
                 intStepOut = 4
-            elif "Version history" in paragraph.text and "Heading 2" == paragraph.style.name:
+            elif "Version history" in paragraph.text and paragraph.style.name == "Heading 2":
                 bInsertVersionHistory = True
                 intStepOut = 0
-            elif "Test Information" in paragraph.text and "Heading 1" == paragraph.style.name:
+            elif "Test Information" in paragraph.text and paragraph.style.name == "Heading 1":
                 bInsertTestInformation = True
                 intStepOut = 0
-            elif "Test results" in paragraph.text and "Heading 1" == paragraph.style.name:
+            elif "Test results" in paragraph.text and paragraph.style.name == "Heading 1":
                 bInsertStatisticalsResults = True
                 intStepOut = 2
 
@@ -542,22 +609,24 @@ class WordReportWriter:
         # 计算统计值
         if list_cpt is None:
             list_cpt = compute_list_cpt(
-                self.listBatteryCharge, self.intBatteryNum,
-                self.intCurrentLevelNum, self.intVoltageLevelNum)
+                self.listBatteryCharge,
+                self.intBatteryNum,
+                self.intCurrentLevelNum,
+                self.intVoltageLevelNum,
+            )
         if stats is None:
-            stats = compute_statistics(
-                list_cpt, self.intCurrentLevelNum, self.intVoltageLevelNum)
+            stats = compute_statistics(list_cpt, self.intCurrentLevelNum, self.intVoltageLevelNum)
 
         # 逐个写入各章节的表格
         tables = {
-            'version_history': self._write_version_history(wdReport),
-            'test_information': self._write_test_information(wdReport),
-            'statistical_results': self._write_statistical_results(wdReport, stats),
+            "version_history": self._write_version_history(wdReport),
+            "test_information": self._write_test_information(wdReport),
+            "statistical_results": self._write_statistical_results(wdReport, stats),
         }
 
         # 准备Overview表内容（会修改 listTestInfoForReplace）
         overview_content = self._prepare_overview_content(wdReport, stats)
-        tables['overview'] = self._write_overview_table(wdReport, overview_content, stats)
+        tables["overview"] = self._write_overview_table(wdReport, overview_content, stats)
 
         # 文本替换、图片插入、表格插入
         self._replace_and_insert(wdReport, tables)
@@ -566,8 +635,9 @@ class WordReportWriter:
         body = wdReport.element.body
         while len(body) > 0:
             last_child = body[-1]
-            if last_child.tag.endswith('}p'):
+            if last_child.tag.endswith("}p"):
                 from docx.text.paragraph import Paragraph
+
                 p = Paragraph(last_child, wdReport.element.body)
                 if not p.text.strip():
                     body.remove(last_child)
@@ -576,4 +646,6 @@ class WordReportWriter:
             else:
                 break
         wdReport.save(self.strReportWordPath)
-        logging.info("Data analysis complete, generated docx report path: %s", self.strReportWordPath)
+        logging.info(
+            "Data analysis complete, generated docx report path: %s", self.strReportWordPath
+        )

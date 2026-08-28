@@ -3,12 +3,11 @@
 import locale
 import logging
 from pathlib import Path
-from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
 
-def get_available_locales(localedir: Path) -> List[str]:
+def get_available_locales(localedir: Path) -> list[str]:
     """Get list of available locales with translation files."""
     available = []
     if not localedir.exists():
@@ -22,7 +21,7 @@ def get_available_locales(localedir: Path) -> List[str]:
     return sorted(available)
 
 
-def detect_system_locale() -> Optional[str]:
+def detect_system_locale() -> str | None:
     """Detect the system locale. Returns locale code or None."""
     try:
         try:
@@ -42,24 +41,37 @@ def detect_system_locale() -> Optional[str]:
     return None
 
 
-def resolve_locale_code(locale_code: str, available_locales: List[str]) -> Optional[str]:
+def resolve_locale_code(locale_code: str, available_locales: list[str]) -> str | None:
     """Resolve a locale code or display name to an available locale code."""
     if locale_code in available_locales:
         return locale_code
 
     display_name_map = {
-        "English": "en", "中文(简体)": "zh_CN", "Chinese (Simplified)": "zh_CN",
-        "中文(繁體)": "zh_TW", "Chinese (Traditional)": "zh_TW",
-        "日本語": "ja", "Japanese": "ja",
-        "한국어": "ko", "Korean": "ko",
-        "Français": "fr", "French": "fr",
-        "Deutsch": "de", "German": "de",
-        "Español": "es", "Spanish": "es",
-        "Italiano": "it", "Italian": "it",
-        "Português": "pt", "Portuguese": "pt",
-        "Русский": "ru", "Russian": "ru",
-        "العربية": "ar", "Arabic": "ar",
-        "हिन्दी": "hi", "Hindi": "hi",
+        "English": "en",
+        "中文(简体)": "zh_CN",
+        "Chinese (Simplified)": "zh_CN",
+        "中文(繁體)": "zh_TW",
+        "Chinese (Traditional)": "zh_TW",
+        "日本語": "ja",
+        "Japanese": "ja",
+        "한국어": "ko",
+        "Korean": "ko",
+        "Français": "fr",
+        "French": "fr",
+        "Deutsch": "de",
+        "German": "de",
+        "Español": "es",
+        "Spanish": "es",
+        "Italiano": "it",
+        "Italian": "it",
+        "Português": "pt",
+        "Portuguese": "pt",
+        "Русский": "ru",
+        "Russian": "ru",
+        "العربية": "ar",
+        "Arabic": "ar",
+        "हिन्दी": "hi",
+        "Hindi": "hi",
     }
 
     mapped = display_name_map.get(locale_code)
@@ -68,15 +80,15 @@ def resolve_locale_code(locale_code: str, available_locales: List[str]) -> Optio
     return None
 
 
-def system_locale_to_code(system_locale: str, available_locales: List[str]) -> Optional[str]:
+def system_locale_to_code(system_locale: str, available_locales: list[str]) -> str | None:
     """Convert system locale string (e.g. 'zh_CN') to best matching available locale."""
-    lang_code = system_locale.split('_')[0]
+    lang_code = system_locale.split("_")[0]
 
     # Special case for Chinese variants
-    if lang_code == 'zh':
-        if 'TW' in system_locale or 'HK' in system_locale:
-            return 'zh_TW' if 'zh_TW' in available_locales else 'zh_CN'
-        return 'zh_CN' if 'zh_CN' in available_locales else 'zh_TW'
+    if lang_code == "zh":
+        if "TW" in system_locale or "HK" in system_locale:
+            return "zh_TW" if "zh_TW" in available_locales else "zh_CN"
+        return "zh_CN" if "zh_CN" in available_locales else "zh_TW"
 
     if system_locale in available_locales:
         return system_locale

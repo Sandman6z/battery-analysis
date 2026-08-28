@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 
 class TestProgressService:
@@ -6,11 +6,11 @@ class TestProgressService:
         # ProgressService extends QObject and requires QApplication.
         # We patch the pyqtSignal to avoid the Qt dependency.
         patcher = patch(
-            'battery_analysis.main.services.progress_service.pyqtSignal',
-            return_value=MagicMock()
+            "battery_analysis.main.services.progress_service.pyqtSignal", return_value=MagicMock()
         )
         patcher.start()
         from battery_analysis.main.services.progress_service import ProgressService
+
         self.service = ProgressService()
         patcher.stop()
         # Manually set initial state

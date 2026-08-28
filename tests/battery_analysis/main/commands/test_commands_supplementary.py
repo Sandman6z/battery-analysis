@@ -10,10 +10,10 @@ import pytest
 from battery_analysis.main.commands.base import Command
 from battery_analysis.main.managers.command_manager import CommandManager
 
-
 # ===========================================================================
 # TestCommandBase
 # ===========================================================================
+
 
 class TestCommandBase:
     """Command ABC — cannot be instantiated directly"""
@@ -71,11 +71,18 @@ PRESENTER_ATTR = "presenter"
 class TestAllCommands:
     """Parametrized tests over all concrete command classes"""
 
-    @pytest.fixture(params=[
-        "RunAnalysisCommand", "CalculateBatteryCommand", "AnalyzeDataCommand",
-        "ExportReportCommand", "GenerateReportCommand",
-        "BatchProcessingCommand", "SaveSettingsCommand",
-    ], ids=lambda x: x)
+    @pytest.fixture(
+        params=[
+            "RunAnalysisCommand",
+            "CalculateBatteryCommand",
+            "AnalyzeDataCommand",
+            "ExportReportCommand",
+            "GenerateReportCommand",
+            "BatchProcessingCommand",
+            "SaveSettingsCommand",
+        ],
+        ids=lambda x: x,
+    )
     def cmd_name(self, request):
         return request.param
 
@@ -99,14 +106,17 @@ class TestAllCommands:
     def _build(self, cmd_name):
         """Build (cmd_class, deps_dict, dep_name) for a command."""
         from battery_analysis.main.commands.analysis_commands import (
-            RunAnalysisCommand, CalculateBatteryCommand,
-        )
-        from battery_analysis.main.commands.report_commands import (
-            ExportReportCommand, GenerateReportCommand,
-            BatchProcessingCommand, SaveSettingsCommand,
+            CalculateBatteryCommand,
+            RunAnalysisCommand,
         )
         from battery_analysis.main.commands.data_commands import (
             AnalyzeDataCommand,
+        )
+        from battery_analysis.main.commands.report_commands import (
+            BatchProcessingCommand,
+            ExportReportCommand,
+            GenerateReportCommand,
+            SaveSettingsCommand,
         )
 
         classes = {
@@ -151,6 +161,7 @@ class TestAllCommands:
 # ===========================================================================
 # TestCommandManagerSupplementary
 # ===========================================================================
+
 
 class TestCommandManagerSupplementary:
     """CommandManager edge cases not in existing tests"""

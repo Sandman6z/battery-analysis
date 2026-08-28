@@ -10,7 +10,6 @@
 
 import logging
 import time
-from typing import Any
 
 import PyQt6.QtCore as QC
 import PyQt6.QtWidgets as QW
@@ -44,7 +43,7 @@ class SignalConnector:
     @property
     def task_duration_threshold(self):
         """获取任务时长阈值，优先使用主窗口的配置"""
-        if hasattr(self.main_window, 'task_duration_threshold'):
+        if hasattr(self.main_window, "task_duration_threshold"):
             return self.main_window.task_duration_threshold
         return self._task_duration_threshold
 
@@ -71,38 +70,38 @@ class SignalConnector:
         """连接主控制器信号"""
         main_controller = self._get_controller("main_controller")
         if main_controller:
-            if hasattr(main_controller, 'progress_updated'):
+            if hasattr(main_controller, "progress_updated"):
                 main_controller.progress_updated.connect(self._on_progress_updated)
-            if hasattr(main_controller, 'analysis_completed'):
+            if hasattr(main_controller, "analysis_completed"):
                 main_controller.analysis_completed.connect(self.main_window.set_version)
-            if hasattr(main_controller, 'path_renamed'):
+            if hasattr(main_controller, "path_renamed"):
                 main_controller.path_renamed.connect(self.main_window.rename_pltPath)
-            if hasattr(main_controller, 'start_visualizer'):
+            if hasattr(main_controller, "start_visualizer"):
                 main_controller.start_visualizer.connect(self.main_window.run_visualizer)
-            if hasattr(main_controller, 'status_changed'):
+            if hasattr(main_controller, "status_changed"):
                 main_controller.status_changed.connect(self._on_status_changed)
 
     def _connect_file_controller_signals(self):
         """连接文件控制器信号"""
         file_controller = self._get_controller("file_controller")
         if file_controller:
-            if hasattr(file_controller, 'config_loaded'):
+            if hasattr(file_controller, "config_loaded"):
                 file_controller.config_loaded.connect(self._on_config_loaded)
-            if hasattr(file_controller, 'error_occurred'):
+            if hasattr(file_controller, "error_occurred"):
                 file_controller.error_occurred.connect(self._on_controller_error)
 
     def _connect_validation_controller_signals(self):
         """连接验证控制器信号"""
         validation_controller = self._get_controller("validation_controller")
         if validation_controller:
-            if hasattr(validation_controller, 'validation_error'):
+            if hasattr(validation_controller, "validation_error"):
                 validation_controller.validation_error.connect(self._on_controller_error)
 
     def _on_progress_updated(self, progress, status_text):
         """进度更新处理（带平滑动画，消除百分比跳变）"""
-        if hasattr(self.main_window, 'progressBar'):
+        if hasattr(self.main_window, "progressBar"):
             self._animate_progress_bar(self.main_window.progressBar, progress)
-        if hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+        if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(f"Status: {status_text}")
 
         if self.progress_start_time is not None:
@@ -121,7 +120,7 @@ class SignalConnector:
         current = bar.value()
         if current == target_value:
             return
-        if hasattr(bar, '_anim') and bar._anim is not None:
+        if hasattr(bar, "_anim") and bar._anim is not None:
             bar._anim.stop()
         else:
             bar._anim = QC.QPropertyAnimation(bar, b"value")
@@ -152,34 +151,42 @@ class SignalConnector:
 
                 self.main_window.pushButton_Run.setText("Run")
                 self.main_window.pushButton_Run.setEnabled(True)
-                self.main_window.statusBar_BatteryAnalysis.showMessage("Battery analysis completed!")
+                self.main_window.statusBar_BatteryAnalysis.showMessage(
+                    "Battery analysis completed!"
+                )
 
                 # 显示成功提示，添加打开报告和打开路径按钮
                 msg_box = QW.QMessageBox()
                 msg_box.setWindowTitle("Analysis Completed")
-                msg_box.setText("Battery analysis completed successfully!\n\nThe report has been generated to the specified output path.")
+                msg_box.setText(
+                    "Battery analysis completed successfully!\n\nThe report has been generated to the specified output path."
+                )
                 msg_box.setIcon(QW.QMessageBox.Icon.Information)
 
                 # 添加打开报告按钮
-                open_report_button = msg_box.addButton("Open Report", QW.QMessageBox.ButtonRole.ActionRole)
+                open_report_button = msg_box.addButton(
+                    "Open Report", QW.QMessageBox.ButtonRole.ActionRole
+                )
 
                 # 添加打开路径按钮
-                open_path_button = msg_box.addButton("Open Path", QW.QMessageBox.ButtonRole.ActionRole)
-                
+                open_path_button = msg_box.addButton(
+                    "Open Path", QW.QMessageBox.ButtonRole.ActionRole
+                )
+
                 # 添加确定按钮
                 ok_button = msg_box.addButton(QW.QMessageBox.StandardButton.Ok)
-                
+
                 msg_box.exec()
-                
+
                 # 处理按钮点击
                 clicked_button = msg_box.clickedButton()
                 if clicked_button == open_report_button:
                     # 调用主窗口的_open_report方法
-                    if hasattr(self.main_window, '_open_report'):
+                    if hasattr(self.main_window, "_open_report"):
                         self.main_window._open_report()
                 elif clicked_button == open_path_button:
                     # 调用主窗口的_open_report_path方法
-                    if hasattr(self.main_window, '_open_report_path'):
+                    if hasattr(self.main_window, "_open_report_path"):
                         self.main_window._open_report_path()
             elif stateindex == 3:
                 # 日期不一致错误处理
@@ -197,7 +204,7 @@ class SignalConnector:
                 suggestions = [
                     "Please check whether the Test Date field in the Excel file is correct",
                     "Ensure the Test Date matches the actual test date",
-                    "Correct the date and re-run the analysis"
+                    "Correct the date and re-run the analysis",
                 ]
 
                 # 构建完整的错误消息
@@ -206,14 +213,10 @@ class SignalConnector:
 
                 # 显示专门的日期不一致错误对话框
                 QW.QMessageBox.critical(
-                    self.main_window,
-                    error_title,
-                    full_error_msg,
-                    QW.QMessageBox.StandardButton.Ok
+                    self.main_window, error_title, full_error_msg, QW.QMessageBox.StandardButton.Ok
                 )
 
-                self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[Error]: {error_title}")
+                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {error_title}")
             elif stateindex == 1:
                 # 电池分析错误处理
                 # 关闭进度条
@@ -227,7 +230,7 @@ class SignalConnector:
                     "Battery Analysis Error",
                     "An error occurred while analyzing battery data.",
                     threadinfo,
-                    True  # 需要关闭进度条
+                    True,  # 需要关闭进度条
                 )
             elif stateindex == 2:
                 # 文件写入错误处理
@@ -241,16 +244,16 @@ class SignalConnector:
                     "Report Generation Error",
                     "An error occurred while generating the analysis report.",
                     threadinfo,
-                    False  # 进度条已关闭
+                    False,  # 进度条已关闭
                 )
             else:
                 # 其他错误情况
                 # 关闭进度条
                 self._close_progress_dialog()
-                
+
                 self.main_window.pushButton_Run.setText("Rerun")
                 self.main_window.pushButton_Run.setEnabled(True)
-                
+
                 # 显示错误提示
                 msg_box = QW.QMessageBox()
                 msg_box.setWindowTitle("Analysis Error")
@@ -258,13 +261,12 @@ class SignalConnector:
                 msg_box.setIcon(QW.QMessageBox.Icon.Critical)
                 msg_box.exec()
 
-                self.main_window.statusBar_BatteryAnalysis.showMessage(
-                    f"[Error]: {threadinfo}")
-    
+                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {threadinfo}")
+
     def _handle_error(self, error_title, error_msg, error_details, need_close_progress=True):
         """
         通用错误处理方法
-        
+
         Args:
             error_title: 错误标题
             error_msg: 错误消息
@@ -275,12 +277,14 @@ class SignalConnector:
             self._close_progress_dialog()
             self.main_window.pushButton_Run.setText("Rerun")
             self.main_window.pushButton_Run.setEnabled(True)
-        
+
         # 根据错误内容提供更具体的建议
         suggestions = []
-        error_details_lower = error_details.lower() if isinstance(error_details, str) else str(error_details).lower()
+        error_details_lower = (
+            error_details.lower() if isinstance(error_details, str) else str(error_details).lower()
+        )
         error_details_str = error_details if isinstance(error_details, str) else str(error_details)
-        
+
         if "input path" in error_details_lower or "not found" in error_details_lower:
             suggestions.append("Check whether the input path is correct")
             suggestions.append("Ensure the necessary data files are included")
@@ -289,20 +293,24 @@ class SignalConnector:
         if "permission" in error_details_lower:
             suggestions.append("Ensure you have sufficient file operation permissions")
         if "output" in error_details_lower or "write" in error_details_lower:
-            suggestions.extend([
-                "Check whether the output path exists and is writable",
-                "Ensure there is enough disk space",
-                "Close other programs that may be using the output files",
-                "Try selecting a different output directory"
-            ])
+            suggestions.extend(
+                [
+                    "Check whether the output path exists and is writable",
+                    "Ensure there is enough disk space",
+                    "Close other programs that may be using the output files",
+                    "Try selecting a different output directory",
+                ]
+            )
 
         # 如果没有具体建议，提供通用建议
         if not suggestions:
-            suggestions.extend([
-                "Check the integrity of the input data",
-                "Ensure the file path does not contain special characters",
-                "Re-select valid input and output directories"
-            ])
+            suggestions.extend(
+                [
+                    "Check the integrity of the input data",
+                    "Ensure the file path does not contain special characters",
+                    "Re-select valid input and output directories",
+                ]
+            )
 
         # 构建完整的错误消息
         full_error_msg = f"{error_msg}:\n\n{error_details_str}\n\nSuggested steps:\n"
@@ -310,14 +318,10 @@ class SignalConnector:
 
         # 显示详细的错误对话框
         QW.QMessageBox.critical(
-            self.main_window,
-            error_title,
-            full_error_msg,
-            QW.QMessageBox.StandardButton.Ok
+            self.main_window, error_title, full_error_msg, QW.QMessageBox.StandardButton.Ok
         )
 
-        self.main_window.statusBar_BatteryAnalysis.showMessage(
-            f"[Error]: {error_title}")
+        self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {error_title}")
 
     def _on_config_loaded(self, config_dict):
         """配置加载完成处理"""
@@ -331,6 +335,7 @@ class SignalConnector:
     def _show_progress_dialog(self):
         """显示弹出式进度条对话框"""
         from battery_analysis.main.ui_components.progress_dialog import ProgressDialog
+
         if not self.progress_dialog:
             self.progress_dialog = ProgressDialog(self.main_window)
         self.progress_dialog.show()

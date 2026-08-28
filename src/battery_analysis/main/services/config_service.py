@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
 """
 配置服务实现模块
 
 提供配置文件读取、写入和管理功能的实现
 """
 
-from pathlib import Path
-from typing import Dict, Any, Optional, List
-from battery_analysis.utils.base_service import BaseService
-from battery_analysis.utils.json_config_manager import JsonConfigManager
-from battery_analysis.utils.config_utils import _get_custom_config_path
 import os
+from pathlib import Path
+from typing import Any
+
+from battery_analysis.utils.base_service import BaseService
+from battery_analysis.utils.config_utils import _get_custom_config_path
+from battery_analysis.utils.json_config_manager import JsonConfigManager
 
 
 class ConfigService(BaseService):
@@ -49,7 +49,7 @@ class ConfigService(BaseService):
             self.logger.error("Failed to get config value: %s", e)
             return default
 
-    def get_config_value_raw(self, key: str, default: Optional[str] = None) -> Optional[str]:
+    def get_config_value_raw(self, key: str, default: str | None = None) -> str | None:
         """
         获取配置值的原始字符串表示（不做类型推断）
 
@@ -88,7 +88,7 @@ class ConfigService(BaseService):
             self.logger.error("Failed to set config value: %s", e)
             return False
 
-    def replace_all_config(self, data: Dict[str, Any]) -> bool:
+    def replace_all_config(self, data: dict[str, Any]) -> bool:
         """
         用默认数据替换整个配置（不写文件，需调用 save_config）
 
@@ -120,13 +120,15 @@ class ConfigService(BaseService):
                     self.logger.info("Config saved to: %s", self._config_path)
                 return success
             else:
-                self.logger.warning("Unable to save config: no config path specified or config not loaded")
+                self.logger.warning(
+                    "Unable to save config: no config path specified or config not loaded"
+                )
                 return False
         except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("Failed to save config: %s", e)
             return False
 
-    def load_config(self, config_path: Optional[str] = None, use_cache: bool = True) -> bool:
+    def load_config(self, config_path: str | None = None, use_cache: bool = True) -> bool:
         """
         从文件加载配置
 
@@ -146,6 +148,7 @@ class ConfigService(BaseService):
             if not self._config_path or not self._config_path.exists():
                 # 首次运行：用默认数据创建
                 from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
+
                 self._config_manager.set_defaults(DEFAULT_CONFIG)
                 self._config_manager.write_config(str(self._config_path))
                 self._loaded = True
@@ -158,17 +161,22 @@ class ConfigService(BaseService):
                 # Schema 验证
                 try:
                     from battery_analysis.utils.config_schema import AppConfigSchema
+
                     all_data = self._config_manager.get_all()
                     schema = AppConfigSchema.from_dict(all_data)
                     warnings = schema.validate()
                     for w in warnings:
                         self.logger.warning("Config warning: %s", w)
                 except Exception as schema_err:
-                    self.logger.warning("Config schema validation failed (does not affect operation): %s", schema_err)
+                    self.logger.warning(
+                        "Config schema validation failed (does not affect operation): %s",
+                        schema_err,
+                    )
 
                 # 版本化迁移
                 try:
                     from battery_analysis.utils.config_migration import run_migrations
+
                     all_data = self._config_manager.get_all()
                     migrated = run_migrations(all_data)
                     if migrated.get("version", 0) > all_data.get("version", 0):
@@ -176,13 +184,15 @@ class ConfigService(BaseService):
                         self._config_manager.write_config(str(self._config_path))
                         self.logger.info("Config migrated to v%d", migrated["version"])
                 except Exception as migrate_err:
-                    self.logger.warning("Config migration failed (continuing with old config): %s", migrate_err)
+                    self.logger.warning(
+                        "Config migration failed (continuing with old config): %s", migrate_err
+                    )
 
                 self.logger.info("Config loaded: %s", self._config_path)
             else:
                 self.logger.warning("Config file load failed: %s", self._config_path)
             return success
-        except (OSError, IOError, PermissionError) as e:
+        except (OSError, PermissionError) as e:
             self.logger.error("I/O error loading config: %s", e)
             self._loaded = False
             return False
@@ -205,7 +215,7 @@ class ConfigService(BaseService):
         """
         self._config_manager.clear()
 
-    def get_config_sections(self) -> List[str]:
+    def get_config_sections(self) -> list[str]:
         """
         获取所有配置节名称
 
@@ -216,12 +226,12 @@ class ConfigService(BaseService):
             if not self._config_manager.is_loaded():
                 self.load_config()
             data = self._config_manager.get_all()
-            return [k for k in data.keys() if isinstance(data[k], dict)]
+            return [k for k in data if isinstance(data[k], dict)]
         except (KeyError, TypeError, ValueError, OSError) as e:
             self.logger.error("Failed to get config section: %s", e)
             return []
 
-    def get_all_values(self) -> Dict[str, Any]:
+    def get_all_values(self) -> dict[str, Any]:
         """
         获取所有配置节及其键值对
 
@@ -236,7 +246,7 @@ class ConfigService(BaseService):
             self.logger.error("Failed to get all config values: %s", e)
             return {}
 
-    def get_section_options(self, section: str) -> List[str]:
+    def get_section_options(self, section: str) -> list[str]:
         """
         获取指定配置节的所有选项名称
 
@@ -257,7 +267,7 @@ class ConfigService(BaseService):
             self.logger.error("Failed to get config section options: %s", e)
             return []
 
-    def get_section_config(self, section: str) -> Dict[str, Any]:
+    def get_section_config(self, section: str) -> dict[str, Any]:
         """
         获取指定配置节的所有键值对
 
@@ -305,7 +315,9 @@ class ConfigService(BaseService):
         appdata = os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming"))
         return Path(appdata) / "battery-analysis" / "config.json"
 
-    def find_config_file(self, file_name: str = "config.json", use_cache: bool = False) -> Optional[Path]:
+    def find_config_file(
+        self, file_name: str = "config.json", use_cache: bool = False
+    ) -> Path | None:
         """
         查找配置文件路径
 
@@ -317,6 +329,7 @@ class ConfigService(BaseService):
             Optional[Path]: 配置文件路径
         """
         resolved = self._resolve_config_path()
-        self.logger.debug("find_config_file(file_name=%s, use_cache=%s) → %s",
-                          file_name, use_cache, resolved)
+        self.logger.debug(
+            "find_config_file(file_name=%s, use_cache=%s) → %s", file_name, use_cache, resolved
+        )
         return resolved

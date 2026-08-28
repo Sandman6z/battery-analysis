@@ -1,7 +1,6 @@
 """测试 battery_analysis 核心解析功能（pandas 版本）"""
-import pytest
-import pandas as pd
 
+import pandas as pd
 
 PULSE_STEPS = {"脉冲", "Pulse", "pulse"}
 
@@ -11,9 +10,9 @@ class TestPandasParsing:
 
     def test_read_xlsx_sheets(self, sample_xlsx):
         """验证能正确读取三个工作表"""
-        cycle_df = pd.read_excel(sample_xlsx, sheet_name=0, engine='calamine')
-        step_df = pd.read_excel(sample_xlsx, sheet_name=1, engine='calamine')
-        record_df = pd.read_excel(sample_xlsx, sheet_name=2, engine='calamine')
+        cycle_df = pd.read_excel(sample_xlsx, sheet_name=0, engine="calamine")
+        step_df = pd.read_excel(sample_xlsx, sheet_name=1, engine="calamine")
+        record_df = pd.read_excel(sample_xlsx, sheet_name=2, engine="calamine")
 
         assert len(cycle_df) >= 2
         assert len(step_df) >= 4
@@ -21,7 +20,7 @@ class TestPandasParsing:
 
     def test_pulse_detection(self, sample_xlsx):
         """验证脉冲检测：筛选 Step# 为脉冲的行"""
-        record_df = pd.read_excel(sample_xlsx, sheet_name=2, engine='calamine')
+        record_df = pd.read_excel(sample_xlsx, sheet_name=2, engine="calamine")
 
         pulses = record_df[record_df.iloc[:, 1].astype(str).isin(PULSE_STEPS)]
         non_pulses = record_df[~record_df.iloc[:, 1].astype(str).isin(PULSE_STEPS)]
@@ -32,7 +31,7 @@ class TestPandasParsing:
     def test_current_matching(self, sample_xlsx):
         """验证电流等级匹配逻辑"""
         list_current = ["4000"]  # mA
-        record_df = pd.read_excel(sample_xlsx, sheet_name=2, engine='calamine')
+        record_df = pd.read_excel(sample_xlsx, sheet_name=2, engine="calamine")
         match_count = 0
 
         for row in record_df.itertuples():
@@ -49,10 +48,10 @@ class TestPandasParsing:
 
     def test_cumulative_charge(self, sample_xlsx):
         """验证累积电荷计算"""
-        cycle_df = pd.read_excel(sample_xlsx, sheet_name=0, engine='calamine')
+        cycle_df = pd.read_excel(sample_xlsx, sheet_name=0, engine="calamine")
 
         # 跳过前两行（行 0 = 表头，行 1 = 元数据）
         cycle_data = cycle_df.iloc[2:]
-        charges = pd.to_numeric(cycle_data.iloc[:, 3], errors='coerce').abs()
+        charges = pd.to_numeric(cycle_data.iloc[:, 3], errors="coerce").abs()
         cumulative = charges.cumsum()
         assert cumulative.iloc[-1] > 0

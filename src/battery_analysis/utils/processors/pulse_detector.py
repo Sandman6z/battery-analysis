@@ -1,7 +1,6 @@
 """脉冲检测逻辑"""
-import logging
 
-from battery_analysis.utils.processors.pulse_matcher import b_is_in_range
+import logging
 
 logger = logging.getLogger(__name__)
 

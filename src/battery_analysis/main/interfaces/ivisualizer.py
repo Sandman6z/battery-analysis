@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 可视化器接口定义
 
@@ -6,24 +5,23 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, Any
 
 
 class IVisualizer(ABC):
     """
     可视化器接口
-    
+
     定义了所有可视化器必须实现的方法
     """
 
     @abstractmethod
-    def show_figure(self, data_path: Optional[str] = None) -> bool:
+    def show_figure(self, data_path: str | None = None) -> bool:
         """
         显示图表
-        
+
         Args:
             data_path: 可选的数据路径
-            
+
         Returns:
             bool: 是否成功显示
         """
@@ -33,10 +31,10 @@ class IVisualizer(ABC):
     def load_data(self, data_path: str) -> bool:
         """
         加载数据
-        
+
         Args:
             data_path: 数据路径
-            
+
         Returns:
             bool: 是否成功加载数据
         """
@@ -53,7 +51,7 @@ class IVisualizer(ABC):
     def is_data_loaded(self) -> bool:
         """
         检查是否有数据已加载
-        
+
         Returns:
             bool: 是否已加载数据
         """
@@ -63,7 +61,7 @@ class IVisualizer(ABC):
     def get_status_info(self) -> dict:
         """
         获取状态信息
-        
+
         Returns:
             dict: 状态信息字典
         """
@@ -73,7 +71,7 @@ class IVisualizer(ABC):
     def set_config(self, config: dict) -> None:
         """
         设置配置
-        
+
         Args:
             config: 配置字典
         """
@@ -83,7 +81,7 @@ class IVisualizer(ABC):
     def get_config(self) -> dict:
         """
         获取当前配置
-        
+
         Returns:
             dict: 当前配置字典
         """

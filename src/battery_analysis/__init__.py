@@ -3,8 +3,7 @@
 import logging
 
 # 配置日志
-logging.basicConfig(level=logging.WARNING,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # 版本号单一来源见 _version.py，升级版本时只需修改该文件
 from ._version import __version__

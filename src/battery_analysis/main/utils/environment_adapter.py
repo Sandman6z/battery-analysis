@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 环境适配器模块
 
@@ -14,7 +13,7 @@ class EnvironmentAdapter:
     环境适配器类
     负责检测和适配不同的运行环境
     """
-    
+
     def __init__(self, main_window=None):
         """
         初始化环境适配器
@@ -26,11 +25,11 @@ class EnvironmentAdapter:
         self.logger = logging.getLogger(__name__)
         self.env_info = main_window.env_info if main_window else {}
         self.task_duration_threshold = 30  # 默认阈值
-    
+
     def initialize_environment_detector(self):
         """
         初始化环境检测器
-        
+
         Returns:
             环境检测器实例或None
         """
@@ -38,14 +37,14 @@ class EnvironmentAdapter:
             env_service = self.main_window._get_service("environment")
             if env_service:
                 self.env_service = env_service  # 缓存引用
-                if hasattr(env_service, 'initialize'):
+                if hasattr(env_service, "initialize"):
                     env_service.initialize()
-                if hasattr(env_service, 'get_environment_detector'):
+                if hasattr(env_service, "get_environment_detector"):
                     return env_service.get_environment_detector()
         except (AttributeError, TypeError, ImportError, OSError) as e:
             self.logger.warning("Failed to initialize environment service: %s", e)
         return None
-    
+
     def handle_environment_adaptation(self):
         """
         处理环境适配逻辑
@@ -53,7 +52,7 @@ class EnvironmentAdapter:
         # 通过环境服务获取 EnvironmentType
         try:
             env_service = self.main_window._get_service("environment")
-            if env_service and hasattr(env_service, 'EnvironmentType'):
+            if env_service and hasattr(env_service, "EnvironmentType"):
                 EnvironmentType = env_service.EnvironmentType
             else:
                 # 降级到直接导入
@@ -61,66 +60,72 @@ class EnvironmentAdapter:
         except (AttributeError, TypeError, ImportError) as e:
             self.logger.warning("Failed to get EnvironmentType: %s", e)
             from battery_analysis.utils.environment_utils import EnvironmentType
-        
+
         # 确保环境信息包含必要的键
-        if 'environment_type' not in self.env_info:
-            self.env_info['environment_type'] = EnvironmentType.IDE
+        if "environment_type" not in self.env_info:
+            self.env_info["environment_type"] = EnvironmentType.IDE
             self.logger.warning("environment_type not found in env_info, using IDE as default")
-        
-        if 'gui_available' not in self.env_info:
-            self.env_info['gui_available'] = True
-        
+
+        if "gui_available" not in self.env_info:
+            self.env_info["gui_available"] = True
+
         # 获取环境类型
-        env_type = self.env_info['environment_type']
-        
+        env_type = self.env_info["environment_type"]
+
         # 根据环境类型进行适配
         if env_type == EnvironmentType.IDE:
             self.logger.debug("IDE environment: adjusting UI behavior for development environment")
             self.adapt_for_ide_environment()
         elif env_type == EnvironmentType.CONTAINER:
-            self.logger.debug("Container environment: adjusting UI behavior for container environment")
+            self.logger.debug(
+                "Container environment: adjusting UI behavior for container environment"
+            )
             self.adapt_for_container_environment()
         elif env_type == EnvironmentType.PRODUCTION:
             self.logger.debug("Production environment: optimizing UI performance")
             self.adapt_for_production_environment()
-        
+
         # GUI可用性检查
-        if not self.env_info['gui_available']:
-            self.logger.warning("GUI environment is unavailable; the application may not display properly")
+        if not self.env_info["gui_available"]:
+            self.logger.warning(
+                "GUI environment is unavailable; the application may not display properly"
+            )
             self.handle_gui_unavailable()
-    
+
     def adapt_for_ide_environment(self):
         """
         IDE环境适配
         """
         # 在IDE中可能没有显示，添加调试信息
         self.logger.debug("Running in IDE environment; some features may be limited")
-        
+
         # 调整任务阈值，在IDE中通常任务较快
         self.task_duration_threshold = 15
         self.main_window.task_duration_threshold = self.task_duration_threshold
-    
+
     def adapt_for_container_environment(self):
         """
         容器环境适配
         """
-        self.logger.debug("Running in container environment; adjusting path and resource management")
-        
+        self.logger.debug(
+            "Running in container environment; adjusting path and resource management"
+        )
+
         # 容器环境中的资源路径可能不同
         # 禁用某些容器中可能不支持的功能
         self.task_duration_threshold = 45
         self.main_window.task_duration_threshold = self.task_duration_threshold
-    
+
     def adapt_for_production_environment(self):
         """
         生产环境适配
         """
         self.logger.debug("Running in production environment; optimizing performance and stability")
-        
+
         # 生产环境中启用更多优化
         self.task_duration_threshold = 30
         self.main_window.task_duration_threshold = self.task_duration_threshold
-    
+
     def handle_gui_unavailable(self):
         """
         处理GUI不可用的情况

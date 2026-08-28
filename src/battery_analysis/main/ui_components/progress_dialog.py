@@ -9,11 +9,9 @@
 """
 
 # 标准库导入
-import logging
 
 # 第三方库导入
 import PyQt6.QtCore as QC
-import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
@@ -64,10 +62,13 @@ class ProgressDialog(QW.QDialog):
         self.setWindowTitle(_("Battery Analysis Progress"))
         self.setModal(False)  # Non-modal window, allows user to operate main interface
         self.setFixedSize(450, 150)
-        self.setWindowFlags(QC.Qt.WindowType.Window | QC.Qt.WindowType.WindowTitleHint |
-                            QC.Qt.WindowType.WindowCloseButtonHint |
-                            QC.Qt.WindowType.WindowStaysOnTopHint |
-                            QC.Qt.WindowType.WindowMinimizeButtonHint)
+        self.setWindowFlags(
+            QC.Qt.WindowType.Window
+            | QC.Qt.WindowType.WindowTitleHint
+            | QC.Qt.WindowType.WindowCloseButtonHint
+            | QC.Qt.WindowType.WindowStaysOnTopHint
+            | QC.Qt.WindowType.WindowMinimizeButtonHint
+        )
 
         # 设置窗口样式
         self.setObjectName("progress_dialog")
@@ -91,12 +92,12 @@ class ProgressDialog(QW.QDialog):
         self.progress_bar.setObjectName("progress_bar")
         self.progress_bar.setTextVisible(True)
         layout.addWidget(self.progress_bar)
-        
+
         # 添加底部按钮布局
         button_layout = QW.QHBoxLayout()
         button_layout.setSpacing(10)
         button_layout.setAlignment(QC.Qt.AlignmentFlag.AlignCenter)
-        
+
         # 添加取消按钮
         self.cancel_button = QW.QPushButton(_("Cancel"))
         self.cancel_button.setObjectName("cancel_button")
@@ -104,12 +105,12 @@ class ProgressDialog(QW.QDialog):
         self.cancel_button.setMinimumWidth(100)
         self.cancel_button.clicked.connect(self._on_cancel)
         button_layout.addWidget(self.cancel_button)
-        
+
         layout.addLayout(button_layout)
 
         # 设置布局
         self.setLayout(layout)
-        
+
         # 取消标志
         self.is_canceled = False
 
@@ -123,9 +124,9 @@ class ProgressDialog(QW.QDialog):
         """
         self.progress_bar.setValue(progress)
         self.status_label.setText(status_text)
-        
+
         # 更新窗口标题，显示百分比
-        self.setWindowTitle(f"{_("Battery Analysis Progress")} - {progress}%")
+        self.setWindowTitle(f"{_('Battery Analysis Progress')} - {progress}%")
         # 移除 processEvents()（roadmap #12）：进度刷新走 Qt 事件循环自然调度，
         # 显式 processEvents 会深度重入事件循环，造成嵌套 dispatch 风险。
 

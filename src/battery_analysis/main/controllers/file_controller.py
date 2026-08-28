@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
 """
 文件控制器模块
 负责处理文件操作相关的业务逻辑
 """
+
+import logging
 import os
 import sys
-import logging
+
 from PyQt6 import QtCore as QC
 
 
@@ -14,6 +15,7 @@ class FileController(QC.QObject):
     文件控制器类
     负责文件路径管理、配置文件读取等文件操作
     """
+
     # 定义信号
     config_loaded = QC.pyqtSignal(dict)  # 配置加载完成信号
     error_occurred = QC.pyqtSignal(str)  # 错误发生信号
@@ -23,15 +25,16 @@ class FileController(QC.QObject):
         初始化文件控制器
         """
         super().__init__()
-        
+
         # 获取服务容器
         from battery_analysis.main.services.service_container import get_service_container
+
         self.service_container = get_service_container()
-        
+
         # 获取文件服务
         self.file_service = self.service_container.get("file")
         self.config_service = self.service_container.get("config")
-        
+
         self.project_path = self._get_project_path()
         self.config = None
 
@@ -43,13 +46,14 @@ class FileController(QC.QObject):
             str: 项目根目录路径
         """
         # 获取当前脚本所在目录的父目录作为项目路径
-        if getattr(sys, 'frozen', False):
+        if getattr(sys, "frozen", False):
             # 打包后的环境
             project_path = os.path.dirname(sys.executable)
         else:
             # 开发环境
-            project_path = os.path.dirname(os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            project_path = os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            )
         return project_path
 
     def get_project_path(self):
@@ -86,7 +90,7 @@ class FileController(QC.QObject):
 
             # 获取配置字典
             config_dict = {}
-            
+
             # 获取所有配置节
             config = self.config_service.get_config_sections()
             for section_name in config:
@@ -99,7 +103,7 @@ class FileController(QC.QObject):
 
             self.config_loaded.emit(config_dict)
             return config_dict
-        except (IOError, OSError, UnicodeDecodeError, TypeError, AttributeError) as e:
+        except (OSError, UnicodeDecodeError, TypeError, AttributeError) as e:
             error_msg = f"Failed to load config file: {e}"
             logging.error(error_msg)
             self.error_occurred.emit(error_msg)

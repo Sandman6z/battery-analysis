@@ -4,8 +4,8 @@
 提供箱线图和电压曲线绘制功能，用于电池数据可视化
 """
 
-import logging
 import csv
+import logging
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
@@ -59,11 +59,8 @@ def draw_boxplot_and_curves(
         list_cpt: 容量数据列表
         max_xaxis: X轴最大值
     """
-    fontdict_label = {
-        'fontsize': 9,
-        'fontweight': 'bold'
-    }
-    medianprofile = dict(linewidth=1, color='red')
+    fontdict_label = {"fontsize": 9, "fontweight": "bold"}
+    medianprofile = dict(linewidth=1, color="red")
 
     plt.figure()
 
@@ -74,8 +71,7 @@ def draw_boxplot_and_curves(
             list_box_plot.append(list_cpt[c][v])
             list_label.append(f"{list_voltage_level[v]}V")
         plt.cla()
-        plt.boxplot(list_box_plot, labels=list_label,
-                    medianprops=medianprofile)
+        plt.boxplot(list_box_plot, labels=list_label, medianprops=medianprofile)
         plt.title(list_boxplot_title[c], fontdict=fontdict_label)
         plt.xlabel("Cutoff Voltage [V]")
         plt.ylabel("Useable Capacity [mAh]")
@@ -90,29 +86,24 @@ def draw_boxplot_and_curves(
         for _ in range(4):
             list_plt[c].append([])
 
-    with open(str_info_image_csv_path, mode='r', encoding='utf-8') as f:
+    with open(str_info_image_csv_path, encoding="utf-8") as f:
         csvreader_info_image = csv.reader(f)
         int_per_battery_rows = 1 + int_current_level_num * 3
         index = 0
         for row in csvreader_info_image:
             loop = index % int_per_battery_rows
             if loop != 0 and (loop % 3) != 1:
-                list_plt[int((loop - 1) / 3)][((loop - 1) % 3) -
-                                               1].append([float(row[i]) for i in range(len(row))])
+                list_plt[int((loop - 1) / 3)][((loop - 1) % 3) - 1].append(
+                    [float(row[i]) for i in range(len(row))]
+                )
             index += 1
 
     # list_plt[c] 布局：[0]=原始 charge, [1]=原始 voltage, [2]=过滤 charge, [3]=过滤 voltage
     for c in range(int_current_level_num):
-        list_plt[c][2], list_plt[c][3] = data_utils.filter_data(
-            list_plt[c][0], list_plt[c][1])
+        list_plt[c][2], list_plt[c][3] = data_utils.filter_data(list_plt[c][0], list_plt[c][1])
 
-    title_fontdict = {
-        'fontsize': 15,
-        'fontweight': 'bold'
-    }
-    axis_fontdict = {
-        'fontsize': 15
-    }
+    title_fontdict = {"fontsize": 15, "fontweight": "bold"}
+    axis_fontdict = {"fontsize": 15}
 
     plt.figure(figsize=(15, 6))
 
@@ -126,8 +117,12 @@ def draw_boxplot_and_curves(
     plt.ylabel("Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
     for b in range(int_battery_num):
         for c in range(int_current_level_num):
-            plt.plot(list_plt[c][0][b], list_plt[c][1][b],
-                     color=f"{list_plt_color_type[c]}", linewidth=0.5)
+            plt.plot(
+                list_plt[c][0][b],
+                list_plt[c][1][b],
+                color=f"{list_plt_color_type[c]}",
+                linewidth=0.5,
+            )
     plt.grid(linestyle="--", alpha=0.3)
     plt.savefig(str_unfiltered_png_path)
     plt.savefig(str_unfiltered_svg_path, dpi=1200)
@@ -142,8 +137,12 @@ def draw_boxplot_and_curves(
     plt.ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
     for b in range(int_battery_num):
         for c in range(int_current_level_num):
-            plt.plot(list_plt[c][2][b], list_plt[c][3][b],
-                     color=f"{list_plt_color_type[c]}", linewidth=0.5)
+            plt.plot(
+                list_plt[c][2][b],
+                list_plt[c][3][b],
+                color=f"{list_plt_color_type[c]}",
+                linewidth=0.5,
+            )
     plt.grid(linestyle="--", alpha=0.3)
     plt.savefig(str_filtered_png_path)
     plt.savefig(str_filtered_svg_path, dpi=1200)

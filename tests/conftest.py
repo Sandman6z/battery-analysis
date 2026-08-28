@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import openpyxl
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture
@@ -38,7 +39,7 @@ def pytest_addoption(parser):
         "--run-manual",
         action="store_true",
         default=False,
-        help="run tests in tests/manual/ directory"
+        help="run tests in tests/manual/ directory",
     )
 
 

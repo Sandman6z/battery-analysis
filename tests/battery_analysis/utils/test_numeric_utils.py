@@ -1,6 +1,4 @@
-import pytest
-from unittest.mock import Mock, patch
-from battery_analysis.utils.numeric_utils import np_mean, np_std, np_max, np_min, np_med
+from battery_analysis.utils.numeric_utils import np_max, np_mean, np_med, np_min, np_std
 
 
 class TestNumericUtils:
@@ -10,7 +8,7 @@ class TestNumericUtils:
         result = np_mean(test_list)
         assert isinstance(result, float)
         assert result == 3.0
-        
+
         # 测试空列表
         empty_list = []
         result = np_mean(empty_list)
@@ -24,13 +22,13 @@ class TestNumericUtils:
         assert isinstance(result, float)
         # 验证结果是否在合理范围内（使用ddof=1的样本标准差，预期约为1.581）
         assert 1.58 < result < 1.59
-        
+
         # 测试只有一个元素的列表
         single_element_list = [5]
         result = np_std(single_element_list)
         assert isinstance(result, float)
         assert result == 0
-        
+
         # 测试空列表
         empty_list = []
         result = np_std(empty_list)
@@ -43,7 +41,7 @@ class TestNumericUtils:
         result = np_max(test_list)
         assert isinstance(result, float)
         assert result == 5.0
-        
+
         # 测试空列表
         empty_list = []
         result = np_max(empty_list)
@@ -56,7 +54,7 @@ class TestNumericUtils:
         result = np_min(test_list)
         assert isinstance(result, float)
         assert result == 1.0
-        
+
         # 测试空列表
         empty_list = []
         result = np_min(empty_list)
@@ -69,13 +67,13 @@ class TestNumericUtils:
         result_odd = np_med(test_list_odd)
         assert isinstance(result_odd, float)
         assert result_odd == 3.0
-        
+
         # 测试非空列表（偶数长度）
         test_list_even = [1, 2, 3, 4]
         result_even = np_med(test_list_even)
         assert isinstance(result_even, float)
         assert result_even == 2.5
-        
+
         # 测试空列表
         empty_list = []
         result_empty = np_med(empty_list)

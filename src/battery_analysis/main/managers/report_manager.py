@@ -1,7 +1,9 @@
 """报告管理类"""
+
+import logging
 import os
 from pathlib import Path
-import logging
+
 from PyQt6 import QtWidgets as QW
 
 
@@ -53,7 +55,9 @@ class ReportManager:
             docx_files = list(output_path.parent.rglob("*.docx"))
 
             if not docx_files:
-                self._info("Information", f"No docx report file found\nSearch path: {output_path.parent}")
+                self._info(
+                    "Information", f"No docx report file found\nSearch path: {output_path.parent}"
+                )
                 return
 
             # 找到与当前版本匹配的报告
@@ -74,13 +78,13 @@ class ReportManager:
                     os.startfile(target_path)
                 except Exception as popen_error:
                     self.logger.error("Failed to open report: %s", popen_error)
-                    self._critical("Error", f"Failed to open report: {str(popen_error)}")
+                    self._critical("Error", f"Failed to open report: {popen_error!s}")
 
                 # 关闭对话框（如果提供）
                 if dialog:
                     dialog.accept()
         except Exception as e:
-            self._critical("Error", f"Failed to open report: {str(e)}")
+            self._critical("Error", f"Failed to open report: {e!s}")
             self.logger.error("Failed to open report: %s", e)
 
     def open_report_path(self, dialog=None):
@@ -104,15 +108,15 @@ class ReportManager:
                 os.startfile(str(output_path))
             except Exception as popen_error:
                 self.logger.error("Failed to open report folder: %s", popen_error)
-                self._critical("Error", f"Failed to open folder: {str(popen_error)}")
+                self._critical("Error", f"Failed to open folder: {popen_error!s}")
 
             # 关闭对话框（如果提供）
             if dialog:
                 dialog.accept()
         except Exception as e:
-            self._critical("Error", f"Failed to open folder: {str(e)}")
+            self._critical("Error", f"Failed to open folder: {e!s}")
             self.logger.error("Failed to open report folder: %s", e)
-    
+
     # ── UI 助手 ──────────────────────────────────────────────────
 
     def _warn(self, title, msg):
@@ -135,47 +139,47 @@ class ReportManager:
         dialog.setWindowTitle("Analysis Complete")
         dialog.setFixedSize(450, 150)
         dialog.setWindowFlags(
-            QW.Qt.WindowType.Window | 
-            QW.Qt.WindowType.WindowTitleHint |
-            QW.Qt.WindowType.WindowCloseButtonHint
+            QW.Qt.WindowType.Window
+            | QW.Qt.WindowType.WindowTitleHint
+            | QW.Qt.WindowType.WindowCloseButtonHint
         )
-        
+
         layout = QW.QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
-        
+
         # 添加状态文本标签
         status_label = QW.QLabel("Battery analysis completed!")
         status_label.setAlignment(QW.Qt.AlignmentFlag.AlignCenter)
         status_label.setWordWrap(True)
         layout.addWidget(status_label)
-        
+
         # 添加底部按钮布局
         button_layout = QW.QHBoxLayout()
         button_layout.setSpacing(10)
         button_layout.setAlignment(QW.Qt.AlignmentFlag.AlignCenter)
-        
+
         # 添加打开报告按钮
         open_report_button = QW.QPushButton("Open Report")
         open_report_button.setMinimumHeight(32)
         open_report_button.setMinimumWidth(120)
         open_report_button.clicked.connect(lambda: self.open_report(dialog))
         button_layout.addWidget(open_report_button)
-        
+
         # 添加打开路径按钮
         open_path_button = QW.QPushButton("Open Path")
         open_path_button.setMinimumHeight(32)
         open_path_button.setMinimumWidth(120)
         open_path_button.clicked.connect(lambda: self.open_report_path(dialog))
         button_layout.addWidget(open_path_button)
-        
+
         # 添加确定按钮
         ok_button = QW.QPushButton("OK")
         ok_button.setMinimumHeight(32)
         ok_button.setMinimumWidth(120)
         ok_button.clicked.connect(dialog.accept)
         button_layout.addWidget(ok_button)
-        
+
         layout.addLayout(button_layout)
         dialog.setLayout(layout)
         dialog.exec()

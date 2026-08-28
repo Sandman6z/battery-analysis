@@ -31,12 +31,9 @@ jobs:
     - name: Sync dependencies from lockfile
       run: uv sync --all-extras --frozen
 
-    - name: Lint with flake8
+    - name: Lint with ruff
       run: |
-        # 停止构建如果有Python语法错误或未定义名称
-        uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.venv,__pycache__,build,dist
-        # 警告但不停止构建其他问题
-        uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=.venv,__pycache__,build,dist
+        uv run ruff check src/ tests/ scripts/ --output-format=github
     
     - name: Run tests with pytest
       env:

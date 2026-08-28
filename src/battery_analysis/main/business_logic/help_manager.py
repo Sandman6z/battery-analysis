@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 帮助管理器
 
@@ -7,11 +6,8 @@
 
 import logging
 import os
-import subprocess
-from pathlib import Path
 
 # 第三方库导入
-from PyQt6 import QtCore as QC
 from PyQt6 import QtWidgets as QW
 
 # 本地应用/库导入
@@ -23,7 +19,7 @@ class HelpManager:
     """
     帮助管理器类，负责处理应用程序的帮助功能
     """
-    
+
     def __init__(self, main_window=None):
         """
         初始化帮助管理器
@@ -33,16 +29,16 @@ class HelpManager:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-    
+
     def show_user_manual(self) -> None:
         """
         显示用户手册
         """
         try:
             # 使用FileUtils获取所有可能的手册路径
-            cur_dir = getattr(self.main_window, 'current_directory', '') or ''
+            cur_dir = getattr(self.main_window, "current_directory", "") or ""
             manual_paths = FileUtils.get_manual_paths(cur_dir)
-            
+
             manual_found = False
             for manual_path in manual_paths:
                 if manual_path.exists() and manual_path.is_file():
@@ -53,7 +49,9 @@ class HelpManager:
                         self.logger.info("Opened user manual: %s", manual_path)
                         break
                     except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning("Failed to open manual file %s: %s", manual_path, open_error)
+                        self.logger.warning(
+                            "Failed to open manual file %s: %s", manual_path, open_error
+                        )
                         continue
 
             if not manual_found:
@@ -61,12 +59,12 @@ class HelpManager:
                 QW.QMessageBox.information(
                     self.main_window,
                     "User Manual",
-                    "User manual file not found.\n\n" +
-                    "Please make sure one of the following files exists:\n" +
-                    "• docs/user_manual.pdf\n" +
-                    "• user_manual.pdf\n\n" +
-                    "For help, please contact technical support.",
-                    QW.QMessageBox.StandardButton.Ok
+                    "User manual file not found.\n\n"
+                    + "Please make sure one of the following files exists:\n"
+                    + "• docs/user_manual.pdf\n"
+                    + "• user_manual.pdf\n\n"
+                    + "For help, please contact technical support.",
+                    QW.QMessageBox.StandardButton.Ok,
                 )
 
         except (OSError, TypeError, ValueError, RuntimeError) as e:
@@ -74,17 +72,18 @@ class HelpManager:
             QW.QMessageBox.warning(
                 self.main_window,
                 _("Error"),
-                f"{_("Cannot open user manual")}: {str(e)}",
-                QW.QMessageBox.StandardButton.Ok
+                f"{_('Cannot open user manual')}: {e!s}",
+                QW.QMessageBox.StandardButton.Ok,
             )
-    
+
     def show_online_help(self) -> None:
         """
         显示在线帮助
         """
         try:
-            from PyQt6.QtGui import QDesktopServices
             from PyQt6.QtCore import QUrl
+            from PyQt6.QtGui import QDesktopServices
+
             QDesktopServices.openUrl(QUrl("https://example.com/battery-analyzer/help"))
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.error("Failed to open online help: %s", e)
@@ -92,5 +91,5 @@ class HelpManager:
                 self.main_window,
                 _("Warning"),
                 _("Failed to open online help."),
-                QW.QMessageBox.StandardButton.Ok
+                QW.QMessageBox.StandardButton.Ok,
             )

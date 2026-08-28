@@ -1,5 +1,7 @@
 """可视化管理器模块"""
+
 import logging
+
 from PyQt6 import QtWidgets as QW
 
 
@@ -17,16 +19,16 @@ class VisualizationManager:
         self.logger = logging.getLogger(__name__)
 
     def _get_test_profile(self) -> str:
-        if self.main_window and hasattr(self.main_window, 'lineEdit_TestProfile'):
+        if self.main_window and hasattr(self.main_window, "lineEdit_TestProfile"):
             return self.main_window.lineEdit_TestProfile.text()
         return ""
 
     def _status(self, msg: str):
-        if self.main_window and hasattr(self.main_window, 'statusBar_BatteryAnalysis'):
+        if self.main_window and hasattr(self.main_window, "statusBar_BatteryAnalysis"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(msg)
 
     def _get_visualizer_factory(self):
-        if self.main_window and hasattr(self.main_window, 'visualizer_factory'):
+        if self.main_window and hasattr(self.main_window, "visualizer_factory"):
             return self.main_window.visualizer_factory
         return None
 
@@ -78,29 +80,31 @@ class VisualizationManager:
         import matplotlib.pyplot as plt
 
         try:
-            plt.close('all')
+            plt.close("all")
         except (ImportError, RuntimeError) as e:
             self.logger.warning("Error cleaning up matplotlib resources: %s", e)
 
     def _handle_visualization_error(self, error_msg: str):
         """处理可视化错误"""
-        data_error_keywords = ['data', 'csv', 'load', 'file', 'path', 'config', 'info_image']
+        data_error_keywords = ["data", "csv", "load", "file", "path", "config", "info_image"]
         is_data_error = any(keyword in error_msg.lower() for keyword in data_error_keywords)
 
         if is_data_error:
             from battery_analysis.main.dialogs.data_error_dialog import DataErrorRecoveryDialog
+
             dialog = DataErrorRecoveryDialog(self.main_window)
             dialog.show(error_msg)
         else:
-            self._critical("Error",
-                           f"Error starting visualizer:\n\n{error_msg}\n\nPlease check the configuration file or contact technical support.")
+            self._critical(
+                "Error",
+                f"Error starting visualizer:\n\n{error_msg}\n\nPlease check the configuration file or contact technical support.",
+            )
 
         self._status("Status: Ready")
 
     def show_visualizer_error(self, error_msg: str):
         """显示可视化错误消息"""
-        self._critical("Error",
-                       f"Error starting visualizer: {error_msg}")
+        self._critical("Error", f"Error starting visualizer: {error_msg}")
         self._status("Status: Ready")
 
     # ── UI 助手 ──────────────────────────────────────────────────

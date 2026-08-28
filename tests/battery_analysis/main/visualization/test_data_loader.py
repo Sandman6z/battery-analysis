@@ -1,4 +1,5 @@
 """data_loader.csv_read 行为测试"""
+
 from battery_analysis.main.visualization.data_loader import DataLoaderMixin
 
 
@@ -31,8 +32,7 @@ class _StubDataLoader(DataLoaderMixin):
 class TestCsvRead:
     def test_processes_all_rows(self, tmp_path):
         csv_path = tmp_path / "Info_Image.csv"
-        csv_path.write_text(
-            "\n".join(f"{i},0,0,0,0" for i in range(20)), encoding="utf-8")
+        csv_path.write_text("\n".join(f"{i},0,0,0,0" for i in range(20)), encoding="utf-8")
         loader = _StubDataLoader(csv_path)
         loader.csv_read()
         assert loader.processed_rows == 20

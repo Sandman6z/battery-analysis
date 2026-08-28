@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
+
 from battery_analysis.main.ui_components.window_setup import WindowSetup
 
 
@@ -8,7 +10,7 @@ class TestWindowSetup:
         self.window_setup = WindowSetup(Mock())
 
     def test_init_window(self):
-        with patch.object(self.window_setup, '_load_application_icon', return_value=Mock()):
+        with patch.object(self.window_setup, "_load_application_icon", return_value=Mock()):
             self.window_setup.init_window()
 
     def test_toggle_toolbar_safe(self):

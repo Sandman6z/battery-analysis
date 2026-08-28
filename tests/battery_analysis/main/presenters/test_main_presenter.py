@@ -1,4 +1,5 @@
 from unittest.mock import Mock
+
 from battery_analysis.main.presenters.main_presenter import MainPresenter
 
 

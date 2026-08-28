@@ -1,5 +1,3 @@
-import pytest
-from unittest.mock import Mock, patch
 from battery_analysis.utils.error_report_generator import ErrorReportGenerator
 
 
@@ -15,4 +13,4 @@ class TestErrorReportGenerator:
     def test_get_report_info(self):
         result = self.generator.get_report_info()
         assert isinstance(result, dict)
-        assert 'log_directory' in result
+        assert "log_directory" in result

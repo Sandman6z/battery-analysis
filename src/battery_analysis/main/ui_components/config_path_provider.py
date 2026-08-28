@@ -28,6 +28,7 @@ class ConfigPathProvider(IConfigPathProvider):
             return custom
         # 回退到 ConfigService
         from battery_analysis.main.services.service_container import get_service_container
+
         container = get_service_container()
         svc = container.get("config")
         if svc is None:
