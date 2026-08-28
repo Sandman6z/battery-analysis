@@ -17,16 +17,14 @@ class TableManager:
     负责测试信息表格的设置和保存功能
     """
 
-    def __init__(self, main_window: Any = None, ctx=None) -> None:
+    def __init__(self, main_window: Any = None) -> None:
         """
         初始化表格管理器
 
         Args:
             main_window: 主窗口实例（旧接口）
-            ctx: AppContext（新接口）
         """
         self.main_window = main_window
-        self._ctx = ctx
         self.logger = main_window.logger if main_window else logging.getLogger(__name__)
 
     def _get_config_service(self):

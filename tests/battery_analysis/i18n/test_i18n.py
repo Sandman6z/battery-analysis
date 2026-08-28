@@ -15,6 +15,8 @@ from unittest.mock import Mock, patch, MagicMock, mock_open, PropertyMock
 import pytest
 from PyQt6.QtWidgets import QApplication
 
+from battery_analysis.i18n.translator import _compile_plural_formula
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -47,6 +49,60 @@ PO_HEADER_ONLY = r'''msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 '''
+
+
+# ---------------------------------------------------------------------------
+# _compile_plural_formula — 公式表（去 eval）行为锁
+# ---------------------------------------------------------------------------
+
+def test_compile_plural_formula_simple_no_parens():
+    fn = _compile_plural_formula("n != 1")
+    assert fn(1) == 0
+    assert fn(5) == 1
+
+
+def test_compile_plural_formula_simple_parens():
+    fn = _compile_plural_formula("(n != 1)")
+    assert fn(1) == 0
+    assert fn(5) == 1
+
+
+def test_compile_plural_formula_greater_than():
+    fn = _compile_plural_formula("n > 1")
+    assert fn(1) == 0
+    assert fn(2) == 1
+
+
+def test_compile_plural_formula_always_zero():
+    fn = _compile_plural_formula("0")
+    assert fn(0) == 0
+    assert fn(999) == 0
+
+
+def test_compile_plural_formula_russian_three_forms():
+    fn = _compile_plural_formula(
+        "n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2")
+    assert fn(1) == 0
+    assert fn(2) == 1
+    assert fn(5) == 2
+    assert fn(11) == 2
+    assert fn(21) == 0  # 21 落入 n%10==1 && n%100!=11 → 单数形式
+
+
+def test_compile_plural_formula_arabic_six_forms():
+    fn = _compile_plural_formula(
+        "n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5")
+    assert fn(0) == 0
+    assert fn(1) == 1
+    assert fn(3) == 3
+    assert fn(11) == 4
+    assert fn(100) == 5
+
+
+def test_compile_plural_formula_unknown_formula_returns_zero():
+    fn = _compile_plural_formula("n == 7")  # 不在表中
+    assert fn(0) == 0
+    assert fn(7) == 0  # 未知公式降级为单数形式（与旧 eval 失败 fallback 语义一致）
 
 
 # ---------------------------------------------------------------------------

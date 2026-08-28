@@ -23,16 +23,14 @@ class ValidationManager:
     验证管理器，负责处理所有输入验证逻辑
     """
 
-    def __init__(self, main_window=None, ctx=None):
+    def __init__(self, main_window=None):
         """
         初始化验证管理器
 
         Args:
             main_window: 主窗口实例（旧接口）
-            ctx: AppContext（新接口）
         """
         self.main_window = main_window
-        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def validate_version(self) -> None:

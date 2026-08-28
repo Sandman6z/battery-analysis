@@ -12,87 +12,50 @@ logger = logging.getLogger(__name__)
 # ── Plural-formula compiler ────────────────────────────────────────
 
 
+# 已知 Plural-Forms 公式表（键 = .po 头解析出的公式字符串，已 strip）。
+# 覆盖当前仓库实际使用的 en/zh_CN 公式，以及常见 gettext 公式变体
+# （含 GNU 规范括号形式，如 fr 的 (n > 1)、ru 首条件带括号的嵌套三元）。
+# 未知公式降级为单数形式（lambda _n: 0），与旧 eval 失败 fallback 语义一致。
+_PLURAL_FORMULA_TABLE: Dict[str, Callable[[int], int]] = {
+    # nplurals=1（zh_TW/ja/ko）
+    "0": lambda _n: 0,
+    # nplurals=2 常见形式（en/zh_CN/de/es/it/pt/hi 及带括号变体）
+    "n != 1": lambda n: 0 if n == 1 else 1,
+    "(n != 1)": lambda n: 0 if n == 1 else 1,
+    # nplurals=2, plural=(n > 1)（fr，含 GNU 规范括号变体）
+    "n > 1": lambda n: 0 if n <= 1 else 1,
+    "(n > 1)": lambda n: 0 if n <= 1 else 1,
+    # nplurals=3（ru）——俄语式嵌套三元（含 GNU 规范首条件带括号变体）
+    "n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2":
+        lambda n: (0 if n % 10 == 1 and n % 100 != 11
+                   else 1 if n % 10 >= 2 and n % 10 <= 4
+                   and (n % 100 < 10 or n % 100 >= 20) else 2),
+    "(n%10==1 && n%100!=11) ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2":
+        lambda n: (0 if n % 10 == 1 and n % 100 != 11
+                   else 1 if n % 10 >= 2 and n % 10 <= 4
+                   and (n % 100 < 10 or n % 100 >= 20) else 2),
+    # nplurals=6（ar）——阿拉伯语
+    "n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5":
+        lambda n: (0 if n == 0 else  # pylint: disable=use-implicit-booleaness-not-comparison-to-zero
+                   1 if n == 1 else
+                   2 if n == 2 else
+                   3 if n % 100 >= 3 and n % 100 <= 10 else
+                   4 if n % 100 >= 11 else 5),
+}
+
+
 def _compile_plural_formula(formula: str) -> Callable[[int], int]:
     """Compile a C-style ``Plural-Forms`` formula to a Python callable.
 
-    Handles formulas such as::
-
-        n != 1
-        (n != 1)
-        n > 1
-        n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2    # noqa: E501
-
-    The compiled callable accepts an integer *n* and returns the plural
-    category index (0, 1, …).
+    只支持已知公式表（_PLURAL_FORMULA_TABLE）。未知公式记录 warning 并
+    降级为单数形式（lambda _n: 0）——不再使用 eval 动态编译。
     """
     formula = formula.strip()
-
-    # ---- simple cases (no ternary) ---------------------------------
-    if "?" not in formula:
-        py = formula.replace("&&", " and ").replace("||", " or ")
-        try:
-            return eval(f"lambda n: int({py})", {"__builtins__": {}}, {})
-        except (SyntaxError, NameError, TypeError) as exc:
-            logger.warning("Cannot compile simple plural formula %r: %s", formula, exc)
-            return lambda _n: 0
-
-    # ---- C ternary → Python conditional expression -----------------
-    try:
-        py = _c_ternary_to_python(formula)
-        return eval(f"lambda n: int({py})", {"__builtins__": {}}, {})
-    except (SyntaxError, NameError, TypeError) as exc:
-        logger.warning("Cannot compile complex plural formula %r: %s", formula, exc)
+    fn = _PLURAL_FORMULA_TABLE.get(formula)
+    if fn is None:
+        logger.warning("Unknown plural formula %r — falling back to singular form", formula)
         return lambda _n: 0
-
-
-def _c_ternary_to_python(expr: str) -> str:
-    """Convert C-style ``cond ? a : b`` to Python ``a if cond else b``.
-
-    Handles right-associative nested ternaries.
-    """
-    # Replace C logical operators first
-    expr = expr.replace("&&", " and ").replace("||", " or ")
-
-    # Find the first ? at parenthesis-depth 0
-    depth = 0
-    q_pos = -1
-    for i, ch in enumerate(expr):
-        if ch == "(":
-            depth += 1
-        elif ch == ")":
-            depth -= 1
-        elif ch == "?" and depth == 0:
-            q_pos = i
-            break
-
-    if q_pos == -1:  # no ternary found
-        return expr
-
-    # Find the first : at depth 0 that matches our ?
-    depth = 0
-    colon_pos = -1
-    for i in range(q_pos + 1, len(expr)):
-        ch = expr[i]
-        if ch == "(":
-            depth += 1
-        elif ch == ")":
-            depth -= 1
-        elif ch == ":" and depth == 0:
-            colon_pos = i
-            break
-
-    if colon_pos == -1:
-        return expr
-
-    cond = expr[:q_pos].strip()
-    true_val = expr[q_pos + 1 : colon_pos].strip()
-    false_val = expr[colon_pos + 1 :].strip()
-
-    # Recurse — false_val may contain nested ternaries
-    true_val = _c_ternary_to_python(true_val)
-    false_val = _c_ternary_to_python(false_val)
-
-    return f"({true_val}) if ({cond}) else ({false_val})"
+    return fn
 
 
 # ── Translator class ───────────────────────────────────────────────

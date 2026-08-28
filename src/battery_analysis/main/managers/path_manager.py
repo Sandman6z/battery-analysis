@@ -8,16 +8,14 @@ from PyQt6 import QtWidgets as QW
 class PathManager:
     """路径管理类，负责处理文件和目录路径的选择、验证和管理"""
 
-    def __init__(self, main_window=None, ctx=None):
+    def __init__(self, main_window=None):
         """
         初始化路径管理器
 
         Args:
             main_window: 主窗口实例（旧接口）
-            ctx: AppContext（新接口）
         """
         self.main_window = main_window
-        self._ctx = ctx
         self.logger = logging.getLogger(__name__)
     
     def select_test_profile(self):

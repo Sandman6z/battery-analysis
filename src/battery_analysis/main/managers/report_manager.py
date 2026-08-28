@@ -3,47 +3,29 @@ import os
 from pathlib import Path
 import logging
 from PyQt6 import QtWidgets as QW
-from battery_analysis.main.app_context import AppContext, UIBridge
 
 
 class ReportManager:
     """报告管理类"""
 
-    def __init__(self, main_window=None, ctx: AppContext = None):
+    def __init__(self, main_window=None):
         """
         初始化报告管理器
 
         Args:
-            main_window: 主窗口实例（旧接口，过渡用）
-            ctx: 应用上下文（新接口）
+            main_window: 主窗口实例
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        # 优先使用 ctx，否则从 main_window 构造
-        self._ui: UIBridge = ctx.ui if ctx and ctx.ui else \
-            (self._make_bridge(main_window) if main_window else None)
-        self._parent_widget = main_window  # 对话框需要 parent
-
-    @staticmethod
-    def _make_bridge(mw) -> UIBridge:
-        from battery_analysis.main.app_context import UIBridgeImpl
-        return UIBridgeImpl(mw)
-
-    def _parent(self):
-        return self._parent_widget
 
     # ── 工具方法 ────────────────────────────────────────────────
 
     def _get_output_path(self) -> str:
-        if self._ui:
-            return self._ui.get_lineedit_text("OutputPath")
         if self.main_window:
             return self.main_window.lineEdit_OutputPath.text()
         return ""
 
     def _get_version(self) -> str:
-        if self._ui:
-            return self._ui.get_lineedit_text("Version")
         if self.main_window:
             return self.main_window.lineEdit_Version.text()
         return ""
@@ -134,21 +116,15 @@ class ReportManager:
     # ── UI 助手 ──────────────────────────────────────────────────
 
     def _warn(self, title, msg):
-        if self._ui:
-            self._ui.show_warning(title, msg)
-        elif self.main_window:
+        if self.main_window:
             QW.QMessageBox.warning(self.main_window, title, msg)
 
     def _info(self, title, msg):
-        if self._ui:
-            self._ui.show_message(title, msg)
-        elif self.main_window:
+        if self.main_window:
             QW.QMessageBox.information(self.main_window, title, msg)
 
     def _critical(self, title, msg):
-        if self._ui:
-            self._ui.show_critical(title, msg)
-        elif self.main_window:
+        if self.main_window:
             QW.QMessageBox.critical(self.main_window, title, msg)
 
     def show_analysis_complete_dialog(self):
