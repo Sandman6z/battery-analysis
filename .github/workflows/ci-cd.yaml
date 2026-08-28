@@ -11,11 +11,10 @@ jobs:
   build-and-test:
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: read
     env:
       PYTHONIOENCODING: utf-8
       PYTHONUTF8: 1
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
     - uses: actions/checkout@v4
     
@@ -26,25 +25,14 @@ jobs:
     
     - name: Install uv
       uses: astral-sh/setup-uv@v3
-    
-    - name: Create and activate virtual environment
-      run: |
-        # 创建虚拟环境
-        python -m venv .venv
-        # 激活虚拟环境（PowerShell命令）
-        .\.venv\Scripts\Activate.ps1
-        # 验证虚拟环境激活状态
-        Write-Host "虚拟环境已激活: $(Get-Command python).Source"
-    
-    - name: Install dependencies using uv
-      run: |
-        # 确保激活虚拟环境
-        .\.venv\Scripts\Activate.ps1
-        uv pip install -e '.[dev,build]'
-    
+      with:
+        enable-cache: true
+
+    - name: Sync dependencies from lockfile
+      run: uv sync --all-extras --frozen
+
     - name: Lint with flake8
       run: |
-        uv add flake8
         # 停止构建如果有Python语法错误或未定义名称
         uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.venv,__pycache__,build,dist
         # 警告但不停止构建其他问题
@@ -53,13 +41,10 @@ jobs:
     - name: Run tests with pytest
       env:
         QT_QPA_PLATFORM: offscreen
-      run: |
-        # 确保激活虚拟环境
-        .\.venv\Scripts\Activate.ps1
-        uv run pytest
+      run: uv run pytest
     
     - name: Install UPX (optional, for smaller exe)
-      run: choco install upx --version 5.0.0 -y --ignore-checksums
+      run: choco install upx --version 5.0.0 -y
       continue-on-error: true
     - name: Run build script
       run: |
@@ -76,13 +61,13 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    needs: build-and-test  # Release job depends on build-and-test to ensure build artifacts are available and can't run in parallel
+    needs: build-and-test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     steps:
     - uses: actions/checkout@v4
-      
+      with:
+        fetch-depth: 0
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
@@ -93,7 +78,6 @@ jobs:
       id: release_info
       run: |
         if ("${{ github.ref }}" -eq 'refs/heads/main') {
-          # main branch push: use version from toml + beta + 6-digit SHA
           $versionFile = Get-Content -Path src/battery_analysis/_version.py -Raw
           if ($versionFile -match '__version__\s*=\s*"([^"]+)"') {
             $version = $matches[1]
@@ -109,7 +93,6 @@ jobs:
             exit 1
           }
         } else {
-          # tag push: use tag name, push as official release
           $tagName = "${{ github.ref }}".Replace('refs/tags/', '')
           echo "release_name=$tagName" >> $env:GITHUB_OUTPUT
           echo "is_prerelease=False" >> $env:GITHUB_OUTPUT
@@ -119,54 +102,65 @@ jobs:
         }
       shell: powershell
 
-    - name: Create GitHub Release and Upload Assets
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const releaseName = '${{ steps.release_info.outputs.release_name }}';
-          const isPrerelease = ${{ steps.release_info.outputs.is_prerelease == 'True' }};
-          const isLatest = ${{ steps.release_info.outputs.is_latest == 'True' }};
-          const tagName = '${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || steps.release_info.outputs.release_name }}';
-          const releaseType = isPrerelease ? '预发布构建版本' : '正式构建版本';
-          
-          // 创建release
-          const release = await github.rest.repos.createRelease({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            tag_name: tagName,
-            name: releaseName,
-            body: `${releaseType} - Release模式\n构建编号: ${{ github.run_number }}\n版本号: ${releaseName}\n提交SHA: ${{ github.sha }}\n分支: ${{ github.ref_name }}`,
-            draft: false,
-            prerelease: isPrerelease,
-            make_latest: isLatest,
-            target_commitish: '${{ github.sha }}'
-          });
-          
-          console.log('Release created:', release.data.html_url);
-          
-          // 获取构建产物
-          const fs = require('fs');
-          const path = require('path');
-          
-          const exeFiles = await fs.promises.readdir('build/Release')
-            .then(files => files.filter(file => file.endsWith('.exe')).map(file => path.join('build/Release', file)));
-          
-          const allFiles = [...exeFiles];
-          console.log('Files to upload:', allFiles);
-          
-          // 上传文件
-          for (const file of allFiles) {
-            console.log(`Uploading ${file}...`);
-            await github.rest.repos.uploadReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: release.data.id,
-              name: path.basename(file),
-              data: await fs.promises.readFile(file)
-            });
-            console.log(`Uploaded ${file}`);
-          }
-          
-          console.log('All assets uploaded successfully');
+    - name: Generate changelog
+      id: changelog
+      run: |
+        $releaseName = "${{ steps.release_info.outputs.release_name }}"
+        $changelog = python scripts/generate_changelog.py --output --version $releaseName 2>&1
+        # 去掉脚本的 "Fetching..." / "Found ..." 前缀行，只保留 markdown 内容
+        $md = ($changelog | Where-Object { $_ -match '^###|^####|^- ' }) -join "`n"
+        # 写入多行 output（用 heredoc 语法）
+        echo "body<<CHANGELOG_EOF" >> $env:GITHUB_OUTPUT
+        echo "$md" >> $env:GITHUB_OUTPUT
+        echo "CHANGELOG_EOF" >> $env:GITHUB_OUTPUT
+      shell: powershell
+
+    - name: Create GitHub Release
+      id: create_release
+      run: |
+        $releaseName = "${{ steps.release_info.outputs.release_name }}"
+        $isPrerelease = "${{ steps.release_info.outputs.is_prerelease }}"
+        $releaseType = if ($isPrerelease -eq 'True') { '预发布构建版本' } else { '正式构建版本' }
+        $tagName = if ("${{ startsWith(github.ref, 'refs/tags/') }}" -eq 'True') { "${{ github.ref_name }}" } else { $releaseName }
+        $changelogBody = "${{ steps.changelog.outputs.body }}"
+
+        $body = @"
+        $releaseType - Release模式
+        构建编号: ${{ github.run_number }}
+        版本号: $releaseName
+        提交SHA: ${{ github.sha }}
+        分支: ${{ github.ref_name }}
+
+        $changelogBody
+        "@
+
+        # 写入临时文件（避免命令行转义问题）
+        $body | Out-File -FilePath release_body.md -Encoding utf8
+
+        $args = @('release', 'create', $tagName,
+          '--title', $releaseName,
+          '--notes-file', 'release_body.md',
+          '--target', '${{ github.sha }}')
+
+        if ($isPrerelease -eq 'True') {
+          $args += '--prerelease'
+        } else {
+          $args += '--latest'
+        }
+
+        gh @args
+      shell: powershell
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload release assets
+      run: |
+        $tagName = if ("${{ startsWith(github.ref, 'refs/tags/') }}" -eq 'True') { "${{ github.ref_name }}" } else { "${{ steps.release_info.outputs.release_name }}" }
+        $exeFiles = Get-ChildItem -Path build/Release -Filter *.exe | Select-Object -ExpandProperty FullName
+        foreach ($file in $exeFiles) {
+          Write-Host "Uploading $file..."
+          gh release upload $tagName $file --clobber
+        }
+      shell: powershell
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
