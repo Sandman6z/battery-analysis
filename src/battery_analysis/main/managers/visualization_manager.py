@@ -15,7 +15,6 @@ class VisualizationManager:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        self._parent_widget = main_window
 
     def _get_test_profile(self) -> str:
         if self.main_window and hasattr(self.main_window, 'lineEdit_TestProfile'):
@@ -90,7 +89,7 @@ class VisualizationManager:
 
         if is_data_error:
             from battery_analysis.main.dialogs.data_error_dialog import DataErrorRecoveryDialog
-            dialog = DataErrorRecoveryDialog(self._parent_widget or self.main_window)
+            dialog = DataErrorRecoveryDialog(self.main_window)
             dialog.show(error_msg)
         else:
             self._critical("Error",

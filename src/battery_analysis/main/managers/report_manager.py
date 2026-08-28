@@ -17,10 +17,6 @@ class ReportManager:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
-        self._parent_widget = main_window  # 对话框需要 parent
-
-    def _parent(self):
-        return self._parent_widget
 
     # ── 工具方法 ────────────────────────────────────────────────
 
