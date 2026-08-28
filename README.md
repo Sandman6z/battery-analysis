@@ -24,7 +24,6 @@
   - 安装位置：`%userprofile%\AppData\Roaming\Python\Python313\site-packages\PyQt6` 或 `PySide6`
 
 - **打包工具**：
-  - 使用nuitka进行打包：`uv pip install nuitka -i https://mirrors.aliyun.com/pypi/simple/`
   - 或使用pyinstaller：`uv pip install pyinstaller -i https://mirrors.aliyun.com/pypi/simple/`
 
 ## Qt 资源系统使用说明
@@ -115,17 +114,7 @@ python scripts/run_pylint.py
 - Release 构建：
   > python -m scripts.build Release
 
-### 手动使用 nuitka 命令
-
-> python -m nuitka --mingw64 --standalone --onefile --show-progress --show-memory --windows-console-mode=disable --plugin-enable=pyqt6 --include-data-dir=".venv/Lib/site-packages/PyQt6/Qt6/plugins=plugins" --noinclude-setuptools-mode=nofollow --noinclude-pytest-mode=nofollow --remove-output --output-dir=dist ./src/battery_analysis/main/main_window.py --include-data-file="./config/resources/icons=./config/resources/icons" --include-data-file="./src/battery_analysis/ui/resources/ui_battery_analysis.ui=./src/battery_analysis/ui/resources/ui_battery_analysis.ui"
-
-### 使用 pyinstaller 打包
-
-首先需要在虚拟环境中安装pyinstaller：
-> uv pip install pyinstaller
-
-然后使用以下命令进行打包：
-> .\.venv\Scripts\pyinstaller --onefile --windowed --collect-all=matplotlib --icon=".\config\resources\icons\Icon_BatteryTestGUI.ico" .\src\battery_analysis\main\main_window.py --add-data=".\config\resources\icons;config\resources\icons" --add-data=".\src\battery_analysis\ui\resources\ui_battery_analysis.ui;src\battery_analysis\ui\resources"
+脚本内部使用 PyInstaller 进行打包，包含完整的 `--exclude-module`、`--hidden-import` 和资源文件配置。如需自定义打包参数，参考 `scripts/build.py` 中的 `_build_pyinstaller_args()` 方法。
 
 ## 重要注意事项
 
@@ -134,7 +123,7 @@ python scripts/run_pylint.py
 - 模块入口与打包后的exe在资源定位上保持一致（基于`sys.executable`）
 - 已移除临时测试脚本：`test_config_read.py`、`test_exe.py`、`test_exe_start.py`、`test_ui_events.py`
 - 如需本地检查，请直接使用上述"开发运行"命令并验证界面与配置读取是否正常
-- 遇到task version问题，去修改`CHANGELOG.md`和`src/battery_analysis/utils/version.py`
+- 遇到task version问题，去修改`CHANGELOG.md`和`src/battery_analysis/_version.py`
 
 ## 已知问题
 1. 第五页存在空白页

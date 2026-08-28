@@ -142,10 +142,13 @@ class BuildManager(BuildConfig):
             self.build()
             self.move_programs()
 
-            # 构建完成后自动打开exe所在文件夹
+            # 构建完成后自动打开exe所在文件夹（CI 环境跳过）
             final_build_dir = self.project_root / 'build' / self.build_type
-            logger.info("正在打开构建文件夹: %s", final_build_dir)
-            os.startfile(final_build_dir)
+            if os.environ.get('CI'):
+                logger.info("CI 环境，跳过打开构建文件夹: %s", final_build_dir)
+            else:
+                logger.info("正在打开构建文件夹: %s", final_build_dir)
+                os.startfile(final_build_dir)
         except (OSError, IOError, FileNotFoundError, PermissionError) as e:
             logger.error("构建过程中出错: %s", e)
 
