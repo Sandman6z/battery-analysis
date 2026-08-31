@@ -7,7 +7,9 @@
 import csv
 import logging
 
-import matplotlib.pyplot as plt
+import matplotlib
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 from matplotlib.ticker import MultipleLocator
 
 from battery_analysis.utils.processors import data_utils
@@ -62,7 +64,10 @@ def draw_boxplot_and_curves(
     fontdict_label = {"fontsize": 9, "fontweight": "bold"}
     medianprofile = dict(linewidth=1, color="red")
 
-    plt.figure()
+    # 创建独立的 Figure（不使用全局 plt 状态）
+    fig_boxplot = Figure()
+    canvas_boxplot = FigureCanvasAgg(fig_boxplot)
+    ax_boxplot = fig_boxplot.add_subplot(111)
 
     for c in range(int_current_level_num):
         list_box_plot = []
@@ -70,14 +75,14 @@ def draw_boxplot_and_curves(
         for v in range(int_voltage_level_num):
             list_box_plot.append(list_cpt[c][v])
             list_label.append(f"{list_voltage_level[v]}V")
-        plt.cla()
-        plt.boxplot(list_box_plot, labels=list_label, medianprops=medianprofile)
-        plt.title(list_boxplot_title[c], fontdict=fontdict_label)
-        plt.xlabel("Cutoff Voltage [V]")
-        plt.ylabel("Useable Capacity [mAh]")
-        plt.grid(linestyle="--", alpha=0.3)
-        plt.savefig(list_png_path[c])
-        plt.savefig(list_svg_path[c], dpi=1200)
+        ax_boxplot.clear()
+        ax_boxplot.boxplot(list_box_plot, labels=list_label, medianprops=medianprofile)
+        ax_boxplot.set_title(list_boxplot_title[c], fontdict=fontdict_label)
+        ax_boxplot.set_xlabel("Cutoff Voltage [V]")
+        ax_boxplot.set_ylabel("Useable Capacity [mAh]")
+        ax_boxplot.grid(linestyle="--", alpha=0.3)
+        fig_boxplot.savefig(list_png_path[c])
+        fig_boxplot.savefig(list_svg_path[c], dpi=1200)
 
     # analysis Info_Image.csv
     list_plt = []
@@ -105,44 +110,46 @@ def draw_boxplot_and_curves(
     title_fontdict = {"fontsize": 15, "fontweight": "bold"}
     axis_fontdict = {"fontsize": 15}
 
-    plt.figure(figsize=(15, 6))
+    # 创建独立的 Figure（不使用全局 plt 状态）
+    fig_curve = Figure(figsize=(15, 6))
+    canvas_curve = FigureCanvasAgg(fig_curve)
+    ax_curve = fig_curve.add_subplot(111)
 
-    plt.clf()
+    # 绘制未过滤曲线
     plot_utils.set_plt_axis(list_test_info[0], max_xaxis)
     y_major_locator = MultipleLocator(0.2)
-    ax = plt.gca()
-    ax.yaxis.set_major_locator(y_major_locator)
-    plt.title(f"Unfiltered {str_plt_name}", fontdict=title_fontdict)
-    plt.xlabel("Charge [mAh]", fontdict=axis_fontdict)
-    plt.ylabel("Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
+    ax_curve.yaxis.set_major_locator(y_major_locator)
+    ax_curve.set_title(f"Unfiltered {str_plt_name}", fontdict=title_fontdict)
+    ax_curve.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
+    ax_curve.set_ylabel("Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
     for b in range(int_battery_num):
         for c in range(int_current_level_num):
-            plt.plot(
+            ax_curve.plot(
                 list_plt[c][0][b],
                 list_plt[c][1][b],
                 color=f"{list_plt_color_type[c]}",
                 linewidth=0.5,
             )
-    plt.grid(linestyle="--", alpha=0.3)
-    plt.savefig(str_unfiltered_png_path)
-    plt.savefig(str_unfiltered_svg_path, dpi=1200)
+    ax_curve.grid(linestyle="--", alpha=0.3)
+    fig_curve.savefig(str_unfiltered_png_path)
+    fig_curve.savefig(str_unfiltered_svg_path, dpi=1200)
 
-    plt.clf()
+    # 清除并绘制过滤后曲线
+    ax_curve.clear()
     plot_utils.set_plt_axis(list_test_info[0], max_xaxis)
     y_major_locator = MultipleLocator(0.2)
-    ax = plt.gca()
-    ax.yaxis.set_major_locator(y_major_locator)
-    plt.title(f"Filtered {str_plt_name}", fontdict=title_fontdict)
-    plt.xlabel("Charge [mAh]", fontdict=axis_fontdict)
-    plt.ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+    ax_curve.yaxis.set_major_locator(y_major_locator)
+    ax_curve.set_title(f"Filtered {str_plt_name}", fontdict=title_fontdict)
+    ax_curve.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
+    ax_curve.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
     for b in range(int_battery_num):
         for c in range(int_current_level_num):
-            plt.plot(
+            ax_curve.plot(
                 list_plt[c][2][b],
                 list_plt[c][3][b],
                 color=f"{list_plt_color_type[c]}",
                 linewidth=0.5,
             )
-    plt.grid(linestyle="--", alpha=0.3)
-    plt.savefig(str_filtered_png_path)
-    plt.savefig(str_filtered_svg_path, dpi=1200)
+    ax_curve.grid(linestyle="--", alpha=0.3)
+    fig_curve.savefig(str_filtered_png_path)
+    fig_curve.savefig(str_filtered_svg_path, dpi=1200)
