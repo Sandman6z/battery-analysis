@@ -126,7 +126,8 @@ class LanguageManager(QObject):
             self.logger.warning("Unsupported locale: %s", locale_code)
             return False
 
-        if not self._has_translation_file(locale_code):
+        # English is the source language and needs no translation file
+        if locale_code != "en" and not self._has_translation_file(locale_code):
             self.logger.warning("No translation file for locale: %s", locale_code)
             return False
 
