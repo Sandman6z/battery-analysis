@@ -5,7 +5,6 @@ from unittest.mock import patch
 import pandas as pd
 
 from battery_analysis.main.business_logic.excel_validator import validate_excel_file
-from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory
 
 
 class _FakeCache:
@@ -27,7 +26,7 @@ class TestValidateExcelFileEngine:
         with patch("pandas.read_excel") as mock_read:
             mock_read.return_value = pd.DataFrame({"Capacity": [1.0, 2.0]})
             is_valid, error_msg, df = validate_excel_file(
-                str(sample_xlsx), "DC1,mA2.xlsx", _FakeCache(), optimize_dataframe_memory
+                str(sample_xlsx), "DC1,mA2.xlsx", _FakeCache()
             )
         assert mock_read.call_args.kwargs["engine"] == "calamine"
         assert is_valid is True

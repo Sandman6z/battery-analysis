@@ -5,6 +5,7 @@ Excel文件验证模块
 import logging
 
 from battery_analysis.utils.file_validator import FileValidator
+from battery_analysis.utils.processors.excel_processor import is_metadata_header, read_excel_smart
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ def validate_excel_file_content(df, filename):
             except (ValueError, TypeError, KeyError):
                 continue
 
-    # ── 检查是否含有标准列名 ──────────────────────────────────
+    # ── 检查是否含有标准列名（子串匹配，兼容"放电容量(mAh)"等带单位的列名）──
     common_columns = [
         "Capacity",
         "容量",
@@ -62,7 +63,10 @@ def validate_excel_file_content(df, filename):
         "Time",
         "时间",
     ]
-    has_common_column = any(col in df.columns for col in common_columns)
+    col_strs = [str(c) for c in df.columns]
+    has_common_column = any(
+        keyword in col for col in col_strs for keyword in common_columns
+    )
 
     # ── 综合判断：列名不对 + 数据也无法识别 → 致命错误 ──────
     if not has_common_column and not has_numeric and not has_potential_numeric:
@@ -73,26 +77,35 @@ def validate_excel_file_content(df, filename):
         )
 
     # ── 非致命警告 ────────────────────────────────────────────
-    if not has_numeric and has_potential_numeric:
-        logger.warning(f"Sheet may contain numeric data but was not recognized: {filename}")
+    # 检测已知的表头格式问题：全部 Unnamed、或元数据独占首行（长描述 + Unnamed）
+    header_issue = is_metadata_header(df.columns) or all(
+        str(col).startswith("Unnamed") for col in df.columns
+    )
 
-    if not has_common_column:
-        logger.warning(
-            f"Sheet may be missing required columns: {filename}, found columns: {list(df.columns)}"
-        )
+    if header_issue and (has_numeric or has_potential_numeric):
+        # 表头格式问题但数据可读——单一简洁提示
+        logger.info("Sheet has non-standard headers but contains numeric data: %s", filename)
+    else:
+        if not has_numeric and has_potential_numeric:
+            logger.warning("Sheet may contain numeric data but was not recognized: %s", filename)
+
+        if not has_common_column:
+            logger.warning(
+                "Sheet may be missing required columns: %s, found columns: %s",
+                filename,
+                list(df.columns),
+            )
 
     return True, ""
 
 
-def validate_excel_file(file_path, filename, cache, optimize_dataframe_memory):
+def validate_excel_file(file_path, filename, cache):
     """
     验证Excel文件的有效性
 
     Returns:
         tuple: (是否有效, 错误消息, 数据框)
     """
-    import pandas as pd
-
     cache_key = f"{file_path}:{filename}"
     cached_result = cache.get(cache_key)
     if cached_result is not None:
@@ -114,8 +127,7 @@ def validate_excel_file(file_path, filename, cache, optimize_dataframe_memory):
         return result
 
     try:
-        df = pd.read_excel(file_path, sheet_name=0, engine="calamine", header=0)
-        df = optimize_dataframe_memory(df)
+        df = read_excel_smart(file_path)
 
         is_valid, error_msg = validate_excel_file_content(df, filename)
         if not is_valid:

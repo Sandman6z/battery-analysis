@@ -657,4 +657,19 @@ def main(app=None, splash=None) -> None:
 if __name__ == "__main__":
     # 这确保在multiprocessing子进程中不会执行UI初始化代码
     # 防止在Windows和PyInstaller环境下的递归启动问题
+    import warnings as _warnings
+
+    _warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
+
+    # 过滤 Qt 内部无害警告（QTableWidget auto-expand 时的 dataChanged 防护检查）
+    _QT_FILTER_MSG = "dataChanged() called with an invalid index range"
+
+    def _qt_msg_handler(mode, ctx, msg):
+        if _QT_FILTER_MSG not in msg:
+            sys.stderr.write(msg + "\n")
+
+    from PyQt6.QtCore import qInstallMessageHandler
+
+    qInstallMessageHandler(_qt_msg_handler)
+
     main()

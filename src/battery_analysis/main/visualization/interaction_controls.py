@@ -211,7 +211,7 @@ class InteractionControlsMixin:
                             and isinstance(button_state, dict)
                             and "text" in button_state
                         ):
-                            new_text = "🔍 Filtered" if is_filtered["value"] else "📊 All Data"
+                            new_text = "[Filtered]" if is_filtered["value"] else "[All Data]"
                             button_state["text"].set_text(new_text)
 
                     if is_filtered["value"]:
@@ -251,7 +251,7 @@ class InteractionControlsMixin:
                 except (AttributeError, TypeError, ValueError, IndexError) as e:
                     logger.error("Error toggling filter mode: %s", e)
 
-            button_text = "🔍 Filtered" if is_filtered["value"] else "📊 All Data"
+            button_text = "[Filtered]" if is_filtered["value"] else "[All Data]"
             button_state = self._create_modern_button(
                 ax_filter,
                 0.02,
@@ -553,8 +553,8 @@ class InteractionControlsMixin:
             ax_file.axis("off")
 
             buttons_config = [
-                {"text": "📁 Open", "callback": lambda: self._open_file_dialog(), "initial": False},
-                {"text": "❌ Exit", "callback": lambda: self._close_viewer(), "initial": False},
+                {"text": "Open", "callback": lambda: self._open_file_dialog(), "initial": False},
+                {"text": "Exit", "callback": lambda: self._close_viewer(), "initial": False},
             ]
 
             self.file_button_states = self._create_modern_toggle_group(

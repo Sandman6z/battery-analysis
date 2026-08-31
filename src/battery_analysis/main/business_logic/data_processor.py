@@ -13,7 +13,6 @@ from battery_analysis.i18n.language_manager import _
 from battery_analysis.main.business_logic import excel_validator, filename_parser
 from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
-from battery_analysis.utils.processors.excel_processor import optimize_dataframe_memory
 
 
 class DataProcessor:
@@ -197,7 +196,7 @@ class DataProcessor:
                 )
             file_path = os.path.join(input_dir, filename)
             is_valid, error_msg, df = excel_validator.validate_excel_file(
-                file_path, filename, self._cache["file_validation"], optimize_dataframe_memory
+                file_path, filename, self._cache["file_validation"]
             )
             if not is_valid:
                 self.logger.error(error_msg)
