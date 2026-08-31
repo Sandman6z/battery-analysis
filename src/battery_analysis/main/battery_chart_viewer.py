@@ -580,7 +580,9 @@ if __name__ == "__main__":
 
         style_manager = StyleManager()
 
-        unified_style_path = Path(__file__).parent.parent / "ui" / "styles" / "battery_analyzer.qss"
+        from battery_analysis.ui.styles.style_manager import _get_resource_dir
+
+        unified_style_path = _get_resource_dir() / "battery_analyzer.qss"
 
         logger.info("Attempting to load unified style file: %s", unified_style_path)
 

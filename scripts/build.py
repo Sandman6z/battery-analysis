@@ -242,19 +242,6 @@ class BuildManager(BuildConfig):
                 app_config["build_dir"], app_config["name"], app_config["main_file_path"]
             )
 
-    def _find_upx(self):
-        """检测系统中是否有 UPX
-
-        Returns:
-            str: UPX 可执行文件路径，未找到则返回 None
-        """
-        upx_candidates = ["upx.exe", "upx"]
-        for candidate in upx_candidates:
-            upx_path = shutil.which(candidate)
-            if upx_path:
-                return upx_path
-        return None
-
     def _execute_pyinstaller_command(self, app_dir, cmd_args):
         """执行PyInstaller命令"""
         try:
@@ -382,7 +369,7 @@ class BuildManager(BuildConfig):
             f"--icon={app_config['icon_name']}",
             f"--distpath={final_build_dir}",
             f"--workpath={temp_path}/{app_config['name']}",
-            "--onefile",
+            "--onedir",
         ]
 
         # ----- 隐藏导入 -----
@@ -428,16 +415,9 @@ class BuildManager(BuildConfig):
         else:
             cmd_args.append("--noconsole")
 
-        # Release 模式启用 strip 和 UPX 压缩
+        # Release 模式启用 strip（减小 .pyd/.dll 体积）
         if not debug_mode:
             cmd_args.append("--strip")
-
-            upx_path = self._find_upx()
-            if upx_path:
-                logger.info("检测到 UPX: %s，启用 UPX 压缩", upx_path)
-                cmd_args.append(f"--upx-dir={Path(upx_path).parent}")
-            else:
-                logger.info("未检测到 UPX，跳过 UPX 压缩（可手动安装 UPX 以进一步减小体积）")
 
         return cmd_args
 

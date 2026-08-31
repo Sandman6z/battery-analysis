@@ -6,12 +6,26 @@
 
 import logging
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication, QGroupBox, QPushButton, QVBoxLayout, QWidget
+
+
+def _get_resource_dir() -> Path:
+    """获取资源目录：兼容 PyInstaller --onedir 打包与开发环境。
+
+    --onedir 模式下 sys.executable 指向 dist/AppName/ 下的 exe，
+    资源文件（QSS/SVG 等）被打包到 exe 同级的 battery_analysis/ui/styles/。
+    开发环境下 __file__.parent 就是 styles 目录。
+    """
+    if getattr(sys, "frozen", False):
+        # PyInstaller --onedir: 资源在 exe 同级目录
+        return Path(sys.executable).parent / "battery_analysis" / "ui" / "styles"
+    return Path(__file__).parent
 
 
 class StyleManager(QObject):
@@ -28,8 +42,8 @@ class StyleManager(QObject):
         # 延迟初始化 QFontDatabase，只有在需要时才创建
         self._font_database = None
 
-        # 样式文件路径
-        self._style_dir = Path(__file__).parent
+        # 样式文件路径（兼容 PyInstaller 打包）
+        self._style_dir = _get_resource_dir()
         self._load_available_styles()
 
     def _load_available_styles(self):
