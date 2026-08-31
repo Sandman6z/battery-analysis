@@ -96,7 +96,7 @@ class BuildManager(BuildConfig):
                     "battery_analysis.main.battery_chart_viewer",
                     "battery_analysis.utils.version",
                     "battery_analysis.utils.file_writer",
-                    "battery_analysis.utils.battery_analysis",
+                    "battery_analysis.utils.processors.battery_analysis",
                     "battery_analysis.ui.ui_main_window",
                     # 第三方库
                     "openpyxl",
@@ -244,6 +244,9 @@ class BuildManager(BuildConfig):
 
         if not debug_mode:
             cmd_args.append("--strip")
+
+        # 确保 numpy 的 C 扩展 DLL 被正确收集
+        cmd_args.append("--collect-submodules=numpy")
 
         return cmd_args
 
