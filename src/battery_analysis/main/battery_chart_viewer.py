@@ -336,6 +336,96 @@ class BatteryChartViewer(
             self._show_error_plot()
             return True
 
+    def _show_error_chart_embedded(self, fig, canvas, parent_widget=None):
+        """在嵌入模式下显示错误信息图表
+
+        Args:
+            fig: matplotlib Figure 对象
+            canvas: FigureCanvasQTAgg 对象
+            parent_widget: 父 QWidget
+        """
+        try:
+            from battery_analysis.main.visualization.styling import MODERN_BUTTON_STYLE
+
+            ax = fig.add_subplot(111)
+            ax.set_facecolor("#ffffff")
+
+            # 设置标题
+            title_color = MODERN_BUTTON_STYLE["active_color"]
+            ax.set_title("Data Error", fontsize=18, fontweight="bold", color=title_color, pad=20)
+
+            ax.axis("off")
+
+            # 主要错误信息
+            main_message = "Unable to load or display battery data"
+            ax.text(
+                0.5,
+                0.75,
+                main_message,
+                fontsize=14,
+                ha="center",
+                va="center",
+                color=title_color,
+                weight="bold",
+                linespacing=1.4,
+            )
+
+            # 检查步骤
+            check_text = "Check steps:\n"
+            check_text += "1. Whether the CSV file exists and is formatted correctly\n"
+            check_text += "2. Whether the correct configuration file is selected\n"
+            check_text += "3. Whether the file path contains Chinese characters or special characters\n"
+            check_text += "4. Whether the CSV file contains valid battery test data"
+            ax.text(
+                0.5,
+                0.55,
+                check_text,
+                fontsize=11,
+                ha="center",
+                va="center",
+                color=MODERN_BUTTON_STYLE["inactive_text_color"],
+                linespacing=1.4,
+            )
+
+            # 解决方案
+            solution_text = (
+                "Solution:\n"
+                "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
+                "2. Or press Ctrl+O to open the file dialog\n"
+                "3. Select a directory containing the Info_Image.csv file"
+            )
+            ax.text(
+                0.5,
+                0.35,
+                solution_text,
+                fontsize=11,
+                ha="center",
+                va="center",
+                color=MODERN_BUTTON_STYLE["hover_color"],
+                weight="bold",
+                linespacing=1.4,
+            )
+
+            # 添加边框
+            for spine in ax.spines.values():
+                spine.set_color(MODERN_BUTTON_STYLE["border_color"])
+                spine.set_linewidth(1.5)
+                spine.set_alpha(0.8)
+
+            # 如果提供了父控件，将 canvas 嵌入其中
+            if parent_widget is not None:
+                from PyQt6.QtWidgets import QVBoxLayout
+
+                layout = QVBoxLayout(parent_widget)
+                layout.setContentsMargins(0, 0, 0, 0)
+                layout.addWidget(canvas)
+                parent_widget.setLayout(layout)
+
+            logger.info("Embedded error chart displayed")
+
+        except Exception as e:
+            logger.error("Error displaying embedded error chart: %s", e)
+
     def embed_to_widget(self, parent_widget=None):
         """创建图表并嵌入到指定的 QWidget 中（嵌入模式）
 
@@ -361,13 +451,20 @@ class BatteryChartViewer(
             from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
             from matplotlib.figure import Figure
 
+            # 创建 Figure 和 Canvas（不使用 pyplot 全局状态）
+            fig = Figure(figsize=(15, 6))
+            canvas = FigureCanvasQTAgg(fig)
+            canvas.setObjectName("FigureCanvasQTAgg")
+
             if self.intBatteryNum <= 0:
-                logger.error("Error: no valid battery data available to display")
-                return None
+                logger.warning("No valid battery data available, showing error chart")
+                self._show_error_chart_embedded(fig, canvas, parent_widget)
+                return fig, canvas, None, None, []
 
             if not hasattr(self, "listPlt") or not self.listPlt:
-                logger.error("Error: battery data structure not initialized or empty")
-                return None
+                logger.warning("Battery data structure not initialized or empty, showing error chart")
+                self._show_error_chart_embedded(fig, canvas, parent_widget)
+                return fig, canvas, None, None, []
 
             # 创建 Figure 和 Canvas（不使用 pyplot 全局状态）
             fig = Figure(figsize=(15, 6))
