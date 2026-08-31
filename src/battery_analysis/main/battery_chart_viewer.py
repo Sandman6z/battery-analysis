@@ -427,8 +427,8 @@ class BatteryChartViewer(
                     parent_widget, fig, lines_unfiltered, lines_filtered, check_filter
                 )
 
-                # 添加悬停功能（仍然使用 matplotlib 原生实现）
-                self._add_hover_functionality(
+                # 添加悬停功能（使用 KDTree 优化版本）
+                self._add_hover_functionality_kdtree(
                     fig, ax, lines_filtered, lines_unfiltered, check_filter
                 )
                 logger.info("Chart interaction controls added successfully")
