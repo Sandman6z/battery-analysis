@@ -1,6 +1,6 @@
 """
 构建脚本模块，用于构建BatteryAnalysis应用程序。
-支持Debug和Release两种构建类型，负责处理版本号管理、文件复制和PyInstaller构建流程。
+支持Debug和Release两种构建类型，负责处理版本号管理、PyInstaller构建流程。
 """
 
 import logging
@@ -10,23 +10,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-# 从tomllib导入TOMLDecodeError用于异常处理
 from tomllib import TOMLDecodeError
 
-# 配置日志记录
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# 添加sys.path以确保可以导入battery_analysis模块
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
 def _check_build_env():
-    """检查构建环境：PyInstaller 已安装（缺失时输出安装指引并退出）。
-
-    由 main() 在构建前调用，避免 import 本模块产生副作用——模块级 sys.exit
-    会让未安装 build 依赖的环境连 pytest 收集都无法完成。
-    """
+    """检查构建环境：PyInstaller 已安装（缺失时输出安装指引并退出）。"""
     try:
         import PyInstaller
 
@@ -34,19 +27,11 @@ def _check_build_env():
     except ImportError:
         logger.warning("警告: 未找到PyInstaller模块。请先安装build依赖组:")
         logger.warning("  uv pip install -e '.[build]'")
-        logger.warning("或")
-        logger.warning("  pip install -e '.[build]'")
         sys.exit(1)
 
 
-# 注：项目路径已在文件顶部添加（project_root/src），无需重复设置
-
-
 def _build_failed(result):
-    """PyInstaller 构建失败判定：返回码非零（或结果为 None）即失败。
-
-    修复：旧代码用 check=False 且忽略返回值，构建失败时脚本仍返回 0，导致 CI 假绿。
-    """
+    """PyInstaller 构建失败判定：返回码非零（或结果为 None）即失败。"""
     return result is None or result.returncode != 0
 
 
@@ -54,32 +39,22 @@ class BuildConfig:
     """构建配置基类"""
 
     def __init__(self, specified_build_type=None):
-        # 项目根目录是scripts的上一级目录
         self.project_root = Path(__file__).absolute().parent.parent
         self.temp_build_dir = self.project_root / "__temp__"
 
-        # 使用Version类获取版本号（版本号中心化管理）
         try:
             from battery_analysis.utils.version import Version
 
             self.version = Version().version
             logger.info("从Version类获取的版本号: %s", self.version)
         except (
-            OSError,
-            FileNotFoundError,
-            ImportError,
-            PermissionError,
-            KeyError,
-            TOMLDecodeError,
+            OSError, FileNotFoundError, ImportError,
+            PermissionError, KeyError, TOMLDecodeError,
         ) as e:
             logger.error("无法从Version类获取版本号: %s", e)
             sys.exit(1)
 
-        # 根据构建类型决定是否显示控制台窗口
-        # Debug构建默认显示控制台窗口，Release构建默认不显示控制台窗口
         self.console_mode = specified_build_type == "Debug"
-        # 补充说明：Release模式下，specified_build_type != "Debug"，因此self.console_mode也为False
-        # 这样就自动实现了Release模式不显示控制台的功能，无需额外编写Release模式的逻辑
 
 
 class BuildManager(BuildConfig):
@@ -87,40 +62,25 @@ class BuildManager(BuildConfig):
 
     def __init__(self, specified_build_type):
         super().__init__(specified_build_type)
-        # 只支持Debug和Release两种构建类型
         if specified_build_type not in ["Debug", "Release"]:
             raise ValueError(
-                f"不支持的构建类型: {specified_build_type}。只支持'Debug'和'Release'，或请检查大小写"
+                f"不支持的构建类型: {specified_build_type}。只支持'Debug'和'Release'"
             )
         self.build_type = specified_build_type
         self.build_path = self.temp_build_dir
-
         self.console = self.console_mode
 
-        # 定义共享的应用程序配置列表：统一管理BatteryAnalysis和BatteryChartViewer参数
         self.apps_config = self._get_apps_config()
-
-        # 清理构建目录和缓存
         self.clean_build_dirs()
 
     def _get_apps_config(self):
-        """获取应用程序配置列表
-
-        Returns:
-            list: 应用程序配置列表
-        """
-        build_path = Path(self.build_path)
-
+        """获取应用程序配置列表"""
         return [
             {
                 "name": "BatteryAnalysis",
-                "build_dir": build_path / "Build_BatteryAnalysis",
-                "main_file_path": self.project_root
-                / "src"
-                / "battery_analysis"
-                / "main"
-                / "main_window.py",
-                "main_file": "main_window.py",
+                "main_file_path": (
+                    self.project_root / "src" / "battery_analysis" / "main" / "main_window.py"
+                ),
                 "base_exe_name": "battery-analyzer",
                 "icon_name": "Icon_BatteryAnalysis.ico",
                 "hidden_imports": [
@@ -140,28 +100,21 @@ class BuildManager(BuildConfig):
                     "battery_analysis.ui.ui_main_window",
                     # 第三方库
                     "openpyxl",
-                    "python_calamine",  # P1: calamine 引擎，engine="calamine" 字符串参数 PyInstaller 无法自动发现
+                    "python_calamine",
                     "xlsxwriter",
                     "docx",
                     "matplotlib.backends.backend_svg",
-                    # pandas 内部模块（Cython 隐式导入，需显式声明以防遗漏）
                     "pandas._config.localization",
                 ],
             }
         ]
 
     def run_build(self):
-        """执行完整的构建流程
-
-        包括文件复制、构建和文件移动等步骤
-        """
+        """执行完整的构建流程"""
         try:
-            # 执行构建流程
-            self.copy2dir()
             self.build()
-            self.move_programs()
+            self._verify_and_clean()
 
-            # 构建完成后自动打开exe所在文件夹（CI 环境跳过）
             final_build_dir = self.project_root / "build" / self.build_type
             if os.environ.get("CI"):
                 logger.info("CI 环境，跳过打开构建文件夹: %s", final_build_dir)
@@ -175,27 +128,18 @@ class BuildManager(BuildConfig):
         """清理构建目录和缓存"""
         logger.info("开始清理构建目录和缓存...")
 
-        # 清理临时构建目录
         if self.temp_build_dir.exists():
-            logger.info("清理临时构建目录: %s", self.temp_build_dir)
             shutil.rmtree(self.temp_build_dir)
 
-        # 清理最终构建目录（对应当前构建类型）
         final_build_type_dir = self.project_root / "build" / self.build_type
         if final_build_type_dir.exists():
-            logger.info("清理最终构建目录: %s", final_build_type_dir)
             shutil.rmtree(final_build_type_dir)
 
-        # 创建必要的目录
         self.temp_build_dir.mkdir(parents=True, exist_ok=True)
         logger.info("构建目录清理完成")
 
-    def move_programs(self):
-        """验证构建产物并清理临时目录
-
-        PyInstaller --distpath 已将 exe 直接输出到最终目录，
-        此方法只做存在性验证和临时目录清理。
-        """
+    def _verify_and_clean(self):
+        """验证构建产物并清理临时目录"""
         build_dir = self.project_root / "build" / self.build_type
         for app_config in self.apps_config:
             exe_path = build_dir / f"{app_config['exe_name']}.exe"
@@ -204,171 +148,69 @@ class BuildManager(BuildConfig):
             else:
                 logger.warning("警告: %s 不存在", exe_path)
 
-        # 清理临时构建目录
-        build_path = Path(self.build_path)
-        if build_path.exists():
-            shutil.rmtree(build_path)
-            logger.info("已清理临时构建目录: %s", build_path)
-
-    def _copy_app_resources(self, build_dir, app_name, main_file_path):
-        """复制主程序文件到构建目录（PyInstaller 入口脚本所需）
-
-        Args:
-            build_dir: 构建目录路径
-            app_name: 应用名称
-            main_file_path: 主程序文件路径
-        """
-        # 复制主程序文件（PyInstaller 以它为入口分析依赖）
-        shutil.copy(main_file_path, build_dir)
-        logger.info("已复制主程序文件到%s: %s", app_name, main_file_path.name)
-
-    def copy2dir(self):
-        """复制源文件到构建目录"""
-        build_path = Path(self.build_path)
-        if build_path.exists():
-            shutil.rmtree(build_path)
-        build_path.mkdir(parents=True, exist_ok=True)
-
-        # 版本号随包内 _version.py 一起被打包，无需再复制 pyproject.toml
-
-        # 复制所有应用的资源
-        for app_config in self.apps_config:
-            # 创建构建目录
-            app_config["build_dir"].mkdir(parents=True, exist_ok=True)
-            logger.info("创建应用构建目录: %s", app_config["name"])
-
-            # 复制应用资源
-            self._copy_app_resources(
-                app_config["build_dir"], app_config["name"], app_config["main_file_path"]
-            )
-
-    def _execute_pyinstaller_command(self, app_dir, cmd_args):
-        """执行PyInstaller命令"""
-        try:
-            result = subprocess.run(
-                cmd_args, cwd=app_dir, check=False, capture_output=True, encoding="utf-8"
-            )
-            logger.info("构建结果: %s", result.returncode)
-            if result.stderr:
-                logger.error("错误输出: %s", result.stderr)
-            return result
-        except (FileNotFoundError, PermissionError, OSError, subprocess.SubprocessError) as e:
-            logger.error("执行命令时出错: %s", e)
-            return subprocess.CompletedProcess(cmd_args, 1)
+        if self.temp_build_dir.exists():
+            shutil.rmtree(self.temp_build_dir)
+            logger.info("已清理临时构建目录: %s", self.temp_build_dir)
 
     def _generate_exe_name(self, base_name, architecture):
-        """生成可执行文件名
-
-        Args:
-            base_name: 基础文件名
-            architecture: 系统架构
-
-        Returns:
-            完整的可执行文件名（不带.exe后缀）
-        """
+        """生成可执行文件名"""
         suffix = "_debug" if self.build_type != "Release" else ""
         return f"{base_name}_{self.version}_{architecture}{suffix}"
 
     def _build_pyinstaller_args(self, app_config, temp_path, src_path, final_build_dir):
         """构建PyInstaller命令参数
 
-        Args:
-            app_config: 应用程序配置
-            temp_path: 临时目录路径
-            src_path: 源代码目录路径
-            final_build_dir: 最终构建目录路径
-
-        Returns:
-            list: PyInstaller命令参数列表
+        PyInstaller 从 src/ 目录运行，入口文件用绝对路径，确保依赖追踪正确。
         """
-        # ----- 排除不必要模块（体积优化关键） -----
         excluded_modules = [
             # 开发/测试/构建工具
-            "pytest",
-            "pylint",
-            "black",
-            "astroid",
-            "pylint_json2html",
-            "setuptools",
-            "pip",
-            "pkg_resources",
-            "IPython",
-            "jupyter",
-            "jupyter_client",
-            "jupyter_core",
-            # pywin32 附带的无用包（pythonwin 是独立 IDE，9MB+）
-            "pythonwin",
-            "adodbapi",
-            "win32com",
-            "win32com.shell",
-            # matplotlib 测试/字体/不用的后端
-            "matplotlib.tests",
-            "matplotlib.testing",
-            "matplotlib.sphinxext",
-            "matplotlib.backends.backend_qt4",
-            "matplotlib.backends.backend_qt5",
-            "matplotlib.backends.backend_wx",
-            "matplotlib.backends.backend_gtk",
-            "matplotlib.backends.backend_gtk3",
-            "matplotlib.backends.backend_gtk4",
-            "matplotlib.backends.backend_webagg",
-            "matplotlib.backends.backend_nbagg",
+            "pytest", "pylint", "black", "astroid", "pylint_json2html",
+            "setuptools", "pip", "pkg_resources",
+            "IPython", "jupyter", "jupyter_client", "jupyter_core",
+            # pywin32 附带的无用包
+            "pythonwin", "adodbapi", "win32com", "win32com.shell",
+            # matplotlib 测试/不用的后端
+            "matplotlib.tests", "matplotlib.testing", "matplotlib.sphinxext",
+            "matplotlib.backends.backend_qt4", "matplotlib.backends.backend_qt5",
+            "matplotlib.backends.backend_wx", "matplotlib.backends.backend_gtk",
+            "matplotlib.backends.backend_gtk3", "matplotlib.backends.backend_gtk4",
+            "matplotlib.backends.backend_webagg", "matplotlib.backends.backend_nbagg",
             "matplotlib.backends.backend_pgf",
             # numpy 无用模块
-            "numpy.testing",
-            "numpy.distutils",
-            "numpy.f2py",
+            "numpy.testing", "numpy.distutils", "numpy.f2py",
             "numpy.random._examples",
-            # pandas 不需要的模块（注意：pandas.testing 和 pandas._testing 被核心代码导入）
+            # pandas 不需要的模块
             "pandas.tests",
             # 其他库测试
             "openpyxl.tests",
             # GUI 框架排除（只用 PyQt6）
-            "tkinter",
-            "PySide6",
-            "PySide2",
-            "PyQt5",
-            # 不使用的 PyQt6 子模块（每个对应约 1-3MB .pyd）
-            "PyQt6.QtMultimedia",
-            "PyQt6.QtMultimediaWidgets",
-            "PyQt6.QtPositioning",
-            "PyQt6.QtSensors",
-            "PyQt6.QtTextToSpeech",
-            "PyQt6.QtWebChannel",
-            "PyQt6.QtWebSockets",
-            "PyQt6.QtWebEngineWidgets",
-            "PyQt6.QtWebEngineCore",
-            "PyQt6.QtWebEngineQuick",
-            "PyQt6.QtHelp",
-            "PyQt6.QtSql",
-            "PyQt6.QtQml",
-            "PyQt6.QtQuick",
-            "PyQt6.QtQuick3D",
-            "PyQt6.QtQuickWidgets",
-            "PyQt6.QtDBus",
-            "PyQt6.QtBluetooth",
-            "PyQt6.QtNfc",
-            "PyQt6.QtXml",
-            "PyQt6.QtDesigner",
-            "PyQt6.QtSerialPort",
-            "PyQt6.QtStateMachine",
-            "PyQt6.QtPdf",
-            "PyQt6.QtPdfWidgets",
-            "PyQt6.QtRemoteObjects",
-            "PyQt6.QtSpatialAudio",
+            "tkinter", "PySide6", "PySide2", "PyQt5",
+            # 不使用的 PyQt6 子模块
+            "PyQt6.QtMultimedia", "PyQt6.QtMultimediaWidgets",
+            "PyQt6.QtPositioning", "PyQt6.QtSensors",
+            "PyQt6.QtTextToSpeech", "PyQt6.QtWebChannel",
+            "PyQt6.QtWebSockets", "PyQt6.QtWebEngineWidgets",
+            "PyQt6.QtWebEngineCore", "PyQt6.QtWebEngineQuick",
+            "PyQt6.QtHelp", "PyQt6.QtSql", "PyQt6.QtQml",
+            "PyQt6.QtQuick", "PyQt6.QtQuick3D", "PyQt6.QtQuickWidgets",
+            "PyQt6.QtDBus", "PyQt6.QtBluetooth", "PyQt6.QtNfc",
+            "PyQt6.QtXml", "PyQt6.QtDesigner", "PyQt6.QtSerialPort",
+            "PyQt6.QtStateMachine", "PyQt6.QtPdf", "PyQt6.QtPdfWidgets",
+            "PyQt6.QtRemoteObjects", "PyQt6.QtSpatialAudio",
         ]
 
-        # ----- 构建基础命令 -----
+        icon_path = self.project_root / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico"
+
+        # ----- 构建命令 -----
+        # 从 src/ 目录运行 PyInstaller，入口用绝对路径
         cmd_args = [
-            sys.executable,
-            "-m",
-            "PyInstaller",
+            sys.executable, "-m", "PyInstaller",
             "--log-level=INFO",
             "--hidden-import=pywintypes",
             f"--name={app_config['exe_name']}",
-            f"--icon={app_config['icon_name']}",
+            f"--icon={icon_path}",
             f"--distpath={final_build_dir}",
-            f"--workpath={temp_path}/{app_config['name']}",
+            f"--workpath={temp_path / app_config['name']}",
             "--onedir",
         ]
 
@@ -376,33 +218,18 @@ class BuildManager(BuildConfig):
         for hidden_import in app_config["hidden_imports"]:
             cmd_args.append(f"--hidden-import={hidden_import}")
 
-        # ----- 入口文件 -----
-        cmd_args.append(app_config["main_file"])
+        # ----- 入口文件（绝对路径，从 src/ 运行时能找到 battery_analysis 包） -----
+        cmd_args.append(str(app_config["main_file_path"]))
 
-        # ----- 数据文件（精确指定，避免打包整个 src/） -----
-        cmd_args.extend(
-            [
-                # Word 模板（通过 importlib.resources 加载）
-                "--add-data",
-                f"{src_path / 'battery_analysis' / 'templates'};battery_analysis/templates",
-                # QSS 样式文件（通过 Path(__file__).parent 相对路径加载）
-                "--add-data",
-                f"{src_path / 'battery_analysis' / 'ui' / 'styles'};battery_analysis/ui/styles",
-                # 国际化翻译文件（.po 文件在运行时解析）
-                "--add-data",
-                f"{self.project_root / 'locale'};locale",
-            ]
-        )
-
-        # ----- Python 搜索路径 -----
-        cmd_args.extend(
-            [
-                "--path",
-                f"{src_path}",
-                "--path",
-                f"{self.project_root}",
-            ]
-        )
+        # ----- 数据文件 -----
+        cmd_args.extend([
+            "--add-data",
+            f"{src_path / 'battery_analysis' / 'templates'};battery_analysis/templates",
+            "--add-data",
+            f"{src_path / 'battery_analysis' / 'ui' / 'styles'};battery_analysis/ui/styles",
+            "--add-data",
+            f"{self.project_root / 'locale'};locale",
+        ])
 
         # ----- 排除模块 -----
         for module in excluded_modules:
@@ -415,7 +242,6 @@ class BuildManager(BuildConfig):
         else:
             cmd_args.append("--noconsole")
 
-        # Release 模式启用 strip（减小 .pyd/.dll 体积）
         if not debug_mode:
             cmd_args.append("--strip")
 
@@ -424,42 +250,33 @@ class BuildManager(BuildConfig):
     def build(self):
         """构建应用程序"""
         logger.info("开始构建...")
-        # 确保临时目录存在
         temp_path = self.temp_build_dir
         temp_path.mkdir(parents=True, exist_ok=True)
 
-        # 确保构建目录存在
-        build_path = Path(self.build_path)
-        build_path.mkdir(parents=True, exist_ok=True)
-
-        # 确保最终构建目录存在
         final_build_dir = self.project_root / "build" / self.build_type
         final_build_dir.mkdir(parents=True, exist_ok=True)
 
         src_path = self.project_root / "src"
         architecture = "x64"
 
-        # 复制必要的图标
-        icon_path = self.project_root / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico"
-        if icon_path.exists():
-            for app in self.apps_config:
-                shutil.copy2(icon_path, app["build_dir"] / app["icon_name"])
-                logger.info("已复制图标文件到%s: %s", app["name"], app["icon_name"])
-
-        # 构建两个应用程序
         for app_config in self.apps_config:
-            # 生成可执行文件名
             app_config["exe_name"] = self._generate_exe_name(
                 app_config["base_exe_name"], architecture
             )
 
-            # 构建PyInstaller命令参数
             cmd_args = self._build_pyinstaller_args(
                 app_config, temp_path, src_path, final_build_dir
             )
 
-            # 执行PyInstaller命令
-            result = self._execute_pyinstaller_command(app_config["build_dir"], cmd_args)
+            # 从 src/ 目录运行 PyInstaller，确保依赖追踪正确
+            result = subprocess.run(
+                cmd_args, cwd=src_path, check=False,
+                capture_output=True, encoding="utf-8",
+            )
+            logger.info("构建结果: %s", result.returncode)
+            if result.stderr:
+                logger.error("错误输出: %s", result.stderr)
+
             if _build_failed(result):
                 logger.error(
                     "构建失败：%s（返回码 %s）",
@@ -468,39 +285,30 @@ class BuildManager(BuildConfig):
                 )
                 sys.exit(1)
 
-        # 清理临时文件
         if temp_path.exists():
             shutil.rmtree(temp_path)
         logger.info("构建完成，可执行文件位于: %s", final_build_dir)
 
 
 def main():
-    """
-    主函数，处理命令行参数并执行构建流程
-    """
+    """主函数，处理命令行参数并执行构建流程"""
     import argparse
 
-    # 创建命令行参数解析器
     parser = argparse.ArgumentParser(description="构建BatteryAnalysis应用程序")
     parser.add_argument(
         "build_type", choices=["Debug", "Release"], help="构建类型: Debug 或 Release"
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="显示详细日志信息")
 
-    # 解析命令行参数
     args = parser.parse_args()
-
-    # 构建前检查构建环境（PyInstaller 缺失时输出安装指引并退出）
     _check_build_env()
 
-    # 如果请求详细日志，将日志级别设置为DEBUG
     if args.verbose:
         logger.setLevel(logging.DEBUG)
 
     try:
-        # 创建BuildManager实例并执行构建
         build_manager = BuildManager(args.build_type)
-        build_manager.run_build()  # 调用run_build方法执行完整构建流程
+        build_manager.run_build()
         logger.info("%s 构建完成", args.build_type)
     except (OSError, FileNotFoundError, PermissionError, ValueError) as e:
         logger.error("构建失败: %s", e)
