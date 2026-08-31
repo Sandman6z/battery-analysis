@@ -39,10 +39,7 @@ def _check_build_env():
         sys.exit(1)
 
 
-# 添加项目根目录到Python路径，确保能正确导入模块
-script_dir = Path(__file__).absolute().parent
-project_root = script_dir.parent
-sys.path.insert(0, str(project_root))
+# 注：项目路径已在文件顶部添加（project_root/src），无需重复设置
 
 
 def _build_failed(result):
@@ -123,7 +120,7 @@ class BuildManager(BuildConfig):
                 / "battery_analysis"
                 / "main"
                 / "main_window.py",
-                "main_file": '["main_window.py"]',
+                "main_file": "main_window.py",
                 "base_exe_name": "battery-analyzer",
                 "icon_name": "Icon_BatteryAnalysis.ico",
                 "hidden_imports": [
@@ -143,6 +140,7 @@ class BuildManager(BuildConfig):
                     "battery_analysis.ui.ui_main_window",
                     # 第三方库
                     "openpyxl",
+                    "python_calamine",  # P1: calamine 引擎，engine="calamine" 字符串参数 PyInstaller 无法自动发现
                     "xlsxwriter",
                     "docx",
                     "matplotlib.backends.backend_svg",
@@ -193,27 +191,18 @@ class BuildManager(BuildConfig):
         logger.info("构建目录清理完成")
 
     def move_programs(self):
-        """移动构建好的程序到最终位置"""
-        logger.info("开始移动文件...")
-        # 使用项目根目录作为基础路径，添加构建类型子目录
+        """验证构建产物并清理临时目录
+
+        PyInstaller --distpath 已将 exe 直接输出到最终目录，
+        此方法只做存在性验证和临时目录清理。
+        """
         build_dir = self.project_root / "build" / self.build_type
-        build_dir.mkdir(parents=True, exist_ok=True)
-
-        # 使用build()中已生成的可执行文件名
-        exe_names = []
         for app_config in self.apps_config:
-            exe_name = f"{app_config['exe_name']}.exe"
-            exe_names.append(exe_name)
-
-        # 检查可执行文件是否存在于正确的位置（由于使用了--distpath，文件直接生成在build_dir）
-        for exe_name in exe_names:
-            exe_path = build_dir / exe_name
+            exe_path = build_dir / f"{app_config['exe_name']}.exe"
             if exe_path.exists():
                 logger.info("确认: %s 已在目标目录中", exe_path)
             else:
                 logger.warning("警告: %s 不存在", exe_path)
-
-        # 不再复制pyproject.toml到构建目录，版本号已直接在构建脚本中处理
 
         # 清理临时构建目录
         build_path = Path(self.build_path)
@@ -401,10 +390,7 @@ class BuildManager(BuildConfig):
             cmd_args.append(f"--hidden-import={hidden_import}")
 
         # ----- 入口文件 -----
-        import ast
-
-        main_files = ast.literal_eval(app_config["main_file"])
-        cmd_args.append(main_files[0])
+        cmd_args.append(app_config["main_file"])
 
         # ----- 数据文件（精确指定，避免打包整个 src/） -----
         cmd_args.extend(
