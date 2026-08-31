@@ -563,11 +563,12 @@ class WordReportWriter:
                         continue
 
             # 识别插入点并插入表格
-            # Overview 表插入到 "Overview" 标题后（内容区），而非封面页的
-            # "Battery Quality Test" 标题后——后者在分节符之前，大表会跨页产生空白。
-            if paragraph.text == "Overview" and paragraph.style.name == "Heading 1":
+            if (
+                "Battery Quality Test / Alternative Battery Test for ESL Batteries"
+                in paragraph.text
+            ):
                 bInsertOverview = True
-                intStepOut = 0
+                intStepOut = 4
             elif "Version history" in paragraph.text and paragraph.style.name == "Heading 2":
                 bInsertVersionHistory = True
                 intStepOut = 0
