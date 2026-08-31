@@ -33,6 +33,7 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self._services = {}
         self._controllers = {}
         self._lazy_init_done = False
+        self._resize_timer = None
 
         # 日志器在构造时即就绪，避免 on_preferences_applied 等方法的
         # except 分支在 _deferred_init 执行前访问 self.logger 时崩溃。
@@ -567,11 +568,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         super().resizeEvent(event)
         if hasattr(self, "tableWidget_TestInformation"):
             if self.tableWidget_TestInformation.rowCount() > 0:
-                # 去抖（roadmap #13）：resize 事件高频触发，逐帧同步
-                # resizeColumnsToContents 是 O(rows×cols) 重排。
-                # singleShot 150ms 合并快速连发；首次布局由 _deferred_init
-                # 同步执行一次。
-                QC.QTimer.singleShot(150, self._resize_table_columns)
+                # 真去抖（roadmap #13）：取消前一个待触发的定时器，只保留最后一次。
+                # resizeColumnsToContents 是 O(rows×cols) 重排，
+                # 连续 resize 期间只在停止150ms 后执行一次。
+                if self._resize_timer is not None:
+                    self._resize_timer.stop()
+                self._resize_timer = QC.QTimer.singleShot(150, self._resize_table_columns)
 
     def _resize_table_columns(self):
         """去抖后的列宽自适应（由 resizeEvent 的 QTimer.singleShot 触发）"""
