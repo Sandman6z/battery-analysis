@@ -413,20 +413,30 @@ class BatteryChartViewer(
                 logger.error("Fatal error: failed to plot any battery data curves")
                 return None
 
-            # 添加交互控件（嵌入模式下不添加菜单栏）
+            # 添加交互控件（嵌入模式下使用 Qt 控件）
+            check_filter = {"active": True}  # 默认过滤状态
             try:
-                check_filter = self._add_filter_button(
-                    fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict
+                # 创建 Qt 控件版本的过滤按钮
+                filter_checkbox = self.create_filter_checkbox(
+                    parent_widget, fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict
                 )
-                self._add_battery_selection_buttons(
-                    fig, check_filter, lines_unfiltered, lines_filtered
+                check_filter = self.filter_button_state
+
+                # 创建 Qt 控件版本的电池选择按钮
+                scroll_area, battery_checkboxes = self.create_battery_checkboxes(
+                    parent_widget, fig, lines_unfiltered, lines_filtered, check_filter
                 )
+
+                # 添加悬停功能（仍然使用 matplotlib 原生实现）
                 self._add_hover_functionality(
                     fig, ax, lines_filtered, lines_unfiltered, check_filter
                 )
                 logger.info("Chart interaction controls added successfully")
             except (AttributeError, TypeError, ValueError) as ui_error:
                 logger.warning("Error adding interaction controls: %s", str(ui_error))
+                filter_checkbox = None
+                scroll_area = None
+                battery_checkboxes = []
 
             # 保存引用
             self.current_fig = fig
@@ -442,7 +452,7 @@ class BatteryChartViewer(
                 parent_widget.setLayout(layout)
 
             logger.info("Embedded chart created successfully")
-            return fig, canvas
+            return fig, canvas, filter_checkbox, scroll_area, battery_checkboxes
 
         except (OSError, ValueError, TypeError, AttributeError, RuntimeError) as e:
             logger.error("Fatal error: unexpected exception while creating embedded chart: %s", str(e))

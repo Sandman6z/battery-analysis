@@ -734,6 +734,158 @@ Thank you for using Battery Analysis Tool!"""
         except (AttributeError, TypeError, RuntimeError) as e:
             logger.error("Error closing viewer window: %s", e)
 
+    def create_filter_checkbox(self, parent_widget, fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict):
+        """创建过滤切换 QCheckBox（Qt 控件版本）
+
+        Args:
+            parent_widget: 父 QWidget
+            fig: matplotlib Figure 对象
+            ax: matplotlib Axes 对象
+            lines_unfiltered: 未过滤曲线列表
+            lines_filtered: 过滤后曲线列表
+            title_fontdict: 标题字体配置
+            axis_fontdict: 坐标轴字体配置
+
+        Returns:
+            QCheckBox: 过滤切换复选框
+        """
+        from PyQt6.QtWidgets import QCheckBox
+
+        checkbox = QCheckBox("Show Filtered Data", parent_widget)
+        checkbox.setChecked(True)
+        checkbox.setObjectName("filter_checkbox")
+
+        def on_filter_toggled(checked):
+            try:
+                if checked:
+                    if hasattr(fig.canvas.manager, "window"):
+                        fig.canvas.manager.window.setWindowTitle(f"Filtered {self.strPltName}")
+                    ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
+                    ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+
+                    for i in range(min(len(lines_unfiltered), len(lines_filtered))):
+                        battery_index = i // self.intCurrentLevelNum
+                        battery_visible = any(
+                            lines_unfiltered[j].get_visible()
+                            for j in _battery_line_indices(battery_index, self.intCurrentLevelNum)
+                            if j < len(lines_unfiltered)
+                        )
+                        lines_filtered[i].set_visible(battery_visible)
+                        lines_unfiltered[i].set_visible(False)
+                else:
+                    if hasattr(fig.canvas.manager, "window"):
+                        fig.canvas.manager.window.setWindowTitle(f"Unfiltered {self.strPltName}")
+                    ax.set_title(f"Unfiltered {self.strPltName}", fontdict=title_fontdict)
+                    ax.set_ylabel("Unfiltered Battery Load Voltage [V]", fontdict=axis_fontdict)
+
+                    for i in range(min(len(lines_filtered), len(lines_unfiltered))):
+                        battery_index = i // self.intCurrentLevelNum
+                        battery_visible = any(
+                            lines_filtered[j].get_visible()
+                            for j in _battery_line_indices(battery_index, self.intCurrentLevelNum)
+                            if j < len(lines_filtered)
+                        )
+                        lines_unfiltered[i].set_visible(battery_visible)
+                        lines_filtered[i].set_visible(False)
+
+                fig.canvas.draw_idle()
+            except (AttributeError, TypeError, ValueError, IndexError) as e:
+                logger.error("Error toggling filter mode: %s", e)
+
+        checkbox.toggled.connect(on_filter_toggled)
+
+        # 保存引用以便后续访问
+        self.filter_checkbox = checkbox
+        self.filter_button_state = {"active": True}  # 兼容旧代码
+
+        logger.info("Filter checkbox created successfully")
+        return checkbox
+
+    def create_battery_checkboxes(self, parent_widget, fig, lines_unfiltered, lines_filtered, check_filter):
+        """创建电池选择 QCheckBox 列表（Qt 控件版本）
+
+        Args:
+            parent_widget: 父 QWidget
+            fig: matplotlib Figure 对象
+            lines_unfiltered: 未过滤曲线列表
+            lines_filtered: 过滤后曲线列表
+            check_filter: 过滤按钮状态（兼容旧代码）
+
+        Returns:
+            list: (battery_index, checkbox) 元组列表
+        """
+        from PyQt6.QtWidgets import QCheckBox, QVBoxLayout, QScrollArea, QWidget
+
+        # 创建滚动区域
+        scroll_area = QScrollArea(parent_widget)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QW.QFrame.Shape.NoFrame)
+
+        # 创建内容容器
+        content_widget = QWidget()
+        layout = QVBoxLayout(content_widget)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(2)
+
+        battery_checkboxes = []
+
+        # 获取电池信息并排序
+        battery_info = []
+        for i in range(self.intBatteryNum):
+            battery_info.append({
+                "name": self.listBatteryNameSplit[i],
+                "index": i,
+                "initial_state": True,
+            })
+
+        # 按电池名称数字正序排列
+        battery_info.sort(key=lambda x: self._battery_name_sort_key(x["name"]))
+
+        for battery in battery_info:
+            checkbox = QCheckBox(battery["name"][:12] + "..." if len(battery["name"]) > 12 else battery["name"], content_widget)
+            checkbox.setChecked(battery["initial_state"])
+            checkbox.setObjectName(f"battery_checkbox_{battery['index']}")
+
+            def on_battery_toggled(checked, idx=battery["index"]):
+                try:
+                    # 确定当前应该操作哪组曲线
+                    is_filtered = True
+                    if hasattr(self, "filter_checkbox"):
+                        is_filtered = self.filter_checkbox.isChecked()
+                    elif check_filter is not None and isinstance(check_filter, dict):
+                        is_filtered = check_filter.get("active", True)
+
+                    current_lines = lines_filtered if is_filtered else lines_unfiltered
+                    other_lines = lines_unfiltered if is_filtered else lines_filtered
+
+                    line_indices = _battery_line_indices(idx, self.intCurrentLevelNum)
+
+                    # 设置曲线可见性
+                    for i in line_indices:
+                        if i < len(current_lines):
+                            current_lines[i].set_visible(checked)
+                        if i < len(other_lines):
+                            other_lines[i].set_visible(checked)
+
+                    fig.canvas.draw_idle()
+                except (AttributeError, TypeError, ValueError, IndexError) as e:
+                    logger.error("Error selecting battery: %s", e)
+
+            checkbox.toggled.connect(on_battery_toggled)
+            layout.addWidget(checkbox)
+            battery_checkboxes.append((battery["index"], checkbox))
+
+        # 添加弹性空间
+        layout.addStretch()
+
+        scroll_area.setWidget(content_widget)
+
+        # 保存引用
+        self.battery_checkboxes = battery_checkboxes
+
+        logger.info("Battery checkboxes created successfully (%d batteries)", len(battery_checkboxes))
+        return scroll_area, battery_checkboxes
+
     def __del__(self):
         """析构函数，确保在对象销毁时释放所有资源"""
         try:

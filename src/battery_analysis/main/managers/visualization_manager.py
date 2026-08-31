@@ -155,8 +155,32 @@ class VisualizationManager:
             result = visualizer.embed_to_widget(embed_widget)
 
             if result is not None:
-                fig, canvas = result
+                fig, canvas, filter_checkbox, scroll_area, battery_checkboxes = result
                 self._current_canvas = canvas
+
+                # 将控制面板添加到主窗口的控制面板区域
+                if self.main_window and hasattr(self.main_window, "chart_control_panel"):
+                    control_panel = self.main_window.chart_control_panel
+                    from PyQt6.QtWidgets import QVBoxLayout
+
+                    layout = QVBoxLayout(control_panel)
+                    layout.setContentsMargins(5, 5, 5, 5)
+                    layout.setSpacing(5)
+
+                    if filter_checkbox:
+                        layout.addWidget(filter_checkbox)
+
+                    if scroll_area:
+                        layout.addWidget(scroll_area)
+
+                    layout.addStretch()
+
+                    control_panel.setLayout(layout)
+
+                # 显示图表区域
+                if self.main_window and hasattr(self.main_window, "show_chart_area"):
+                    self.main_window.show_chart_area()
+
                 self.logger.info("Embedded visualizer started")
                 self._status("Embedded visualizer started")
                 return True
