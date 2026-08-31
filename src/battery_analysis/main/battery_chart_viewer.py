@@ -191,7 +191,8 @@ class BatteryChartViewer(
 
             import matplotlib
 
-            if matplotlib.get_backend() != "QtAgg":
+            # 修复 matplotlib 3.10+ backend 大小写问题（返回 'qtagg' 而非 'QtAgg'）
+            if matplotlib.get_backend().lower() != "qtagg":
                 logger.info(
                     "Current Matplotlib backend: %s, switching to QtAgg backend",
                     matplotlib.get_backend(),
