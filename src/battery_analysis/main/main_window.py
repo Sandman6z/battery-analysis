@@ -123,14 +123,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             dummy.setLayout(old_layout)
             dummy.deleteLater()
 
-        layout = QW.QHBoxLayout(self.centralwidget)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(5)
-        layout.addWidget(left_scroll)
-        layout.addWidget(self.frame_RunButton)
-        layout.setStretch(0, 661)
-        layout.setStretch(1, 231)
-
         # 创建图表嵌入区域（默认隐藏）
         self.chart_container = QW.QWidget()
         self.chart_container.setObjectName("chart_container")
@@ -156,6 +148,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self.chart_area_layout.setStretch(1, 4)  # 图表容器
 
         self.chart_area_widget.setVisible(False)
+
+        # 主布局：左侧配置面板 + 右侧运行按钮 + 图表区域（默认隐藏）
+        layout = QW.QHBoxLayout(self.centralwidget)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(5)
+        layout.addWidget(left_scroll)
+        layout.addWidget(self.frame_RunButton)
+        layout.addWidget(self.chart_area_widget)
+        layout.setStretch(0, 3)  # 左侧配置面板
+        layout.setStretch(1, 1)  # 右侧运行按钮
+        layout.setStretch(2, 4)  # 图表区域（默认隐藏，显示时占据主要空间）
 
         # 6) 右侧面板不垂直拉伸，固定最小尺寸（原始 setGeometry 的尺寸）
         self.frame_RunButton.setSizePolicy(

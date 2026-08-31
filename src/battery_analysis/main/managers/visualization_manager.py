@@ -35,7 +35,10 @@ class VisualizationManager:
         return None
 
     def run_visualizer(self, xml_path=None) -> None:
-        """运行可视化工具"""
+        """运行可视化工具（默认嵌入模式）
+
+        优先尝试嵌入到主窗口，如果失败则回退到独立窗口模式。
+        """
         self.logger.info("Entering visualizer run method")
 
         # 检查xml_path是否为布尔值，如果是，则忽略（可能来自QAction的triggered信号）
@@ -53,6 +56,83 @@ class VisualizationManager:
 
         self._status("Starting visualizer...")
 
+        # 优先尝试嵌入模式
+        if self._try_embedded_mode(xml_path):
+            return
+
+        # 嵌入模式失败，回退到独立窗口模式
+        self.logger.info("Embedded mode not available, falling back to standalone window")
+        self._run_visualizer_standalone(xml_path)
+
+    def _try_embedded_mode(self, xml_path=None) -> bool:
+        """尝试嵌入模式
+
+        Returns:
+            bool: 是否成功嵌入
+        """
+        try:
+            # 检查主窗口是否有图表容器
+            if not self.main_window or not hasattr(self.main_window, "chart_container"):
+                self.logger.info("Main window does not have chart_container, skipping embedded mode")
+                return False
+
+            # 清理matplotlib资源
+            self._cleanup_matplotlib_resources()
+
+            # 使用工厂模式创建可视化器
+            factory = self._get_visualizer_factory()
+            visualizer = factory.create_visualizer("battery_chart") if factory else None
+
+            if visualizer is None:
+                self.logger.warning("Failed to create visualizer instance")
+                return False
+
+            # 获取嵌入区域
+            embed_widget = self.main_window.chart_container
+
+            # 嵌入图表
+            result = visualizer.embed_to_widget(embed_widget)
+
+            if result is not None:
+                fig, canvas, filter_checkbox, scroll_area, battery_checkboxes = result
+                self._current_canvas = canvas
+
+                # 将控制面板添加到主窗口的控制面板区域
+                if hasattr(self.main_window, "chart_control_panel"):
+                    control_panel = self.main_window.chart_control_panel
+                    from PyQt6.QtWidgets import QVBoxLayout
+
+                    layout = QVBoxLayout(control_panel)
+                    layout.setContentsMargins(5, 5, 5, 5)
+                    layout.setSpacing(5)
+
+                    if filter_checkbox:
+                        layout.addWidget(filter_checkbox)
+
+                    if scroll_area:
+                        layout.addWidget(scroll_area)
+
+                    layout.addStretch()
+
+                    control_panel.setLayout(layout)
+
+                # 显示图表区域
+                if hasattr(self.main_window, "show_chart_area"):
+                    self.main_window.show_chart_area()
+
+                self.logger.info("Embedded visualizer started")
+                self._status("Visualizer started (embedded)")
+                return True
+            else:
+                self.logger.warning("Failed to create embedded visualization")
+                return False
+
+        except Exception as e:
+            self.logger.warning("Embedded mode failed: %s", e)
+            return False
+
+    def _run_visualizer_standalone(self, xml_path=None) -> None:
+        """独立窗口模式（回退方案）"""
         try:
             # 清理matplotlib资源
             self._cleanup_matplotlib_resources()
@@ -68,7 +148,7 @@ class VisualizationManager:
             show_success = visualizer.show_figure(xml_path=xml_path)
 
             if show_success:
-                self.logger.info("Visualizer started")
+                self.logger.info("Visualizer started (standalone)")
                 self._status("Visualizer started")
             else:
                 raise RuntimeError("Failed to display visualization")
