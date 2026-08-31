@@ -17,9 +17,9 @@ from battery_analysis.i18n.translator import SimplePOTranslator
 logger = logging.getLogger(__name__)
 
 # Determine locale directory
-# PyInstaller --onedir: 资源在 exe 同级目录; 开发环境: 项目根目录/locale
-if getattr(sys, "frozen", False):
-    LOCALEDIR = Path(sys.executable).parent / "locale"
+# PyInstaller（--onefile/--onedir）通过 sys._MEIPASS 指向数据文件实际位置
+if hasattr(sys, "_MEIPASS"):
+    LOCALEDIR = Path(sys._MEIPASS) / "locale"
 else:
     LOCALEDIR = Path(__file__).parent.parent.parent.parent / "locale"
 
