@@ -35,10 +35,7 @@ class VisualizationManager:
         return None
 
     def run_visualizer(self, xml_path=None) -> None:
-        """运行可视化工具（默认嵌入模式）
-
-        优先尝试嵌入到主窗口，如果失败则回退到独立窗口模式。
-        """
+        """运行可视化工具（独立窗口模式）"""
         self.logger.info("Entering visualizer run method")
 
         # 检查xml_path是否为布尔值，如果是，则忽略（可能来自QAction的triggered信号）
@@ -56,12 +53,7 @@ class VisualizationManager:
 
         self._status("Starting visualizer...")
 
-        # 优先尝试嵌入模式
-        if self._try_embedded_mode(xml_path):
-            return
-
-        # 嵌入模式失败，回退到独立窗口模式
-        self.logger.info("Embedded mode not available, falling back to standalone window")
+        # 直接使用独立窗口模式
         self._run_visualizer_standalone(xml_path)
 
     def _try_embedded_mode(self, xml_path=None) -> bool:
