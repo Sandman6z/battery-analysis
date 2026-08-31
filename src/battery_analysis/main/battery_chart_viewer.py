@@ -336,6 +336,122 @@ class BatteryChartViewer(
             self._show_error_plot()
             return True
 
+    def embed_to_widget(self, parent_widget=None):
+        """创建图表并嵌入到指定的 QWidget 中（嵌入模式）
+
+        Args:
+            parent_widget: 父 QWidget，图表将嵌入到此控件中
+
+        Returns:
+            tuple: (fig, canvas, toolbar) 或 None（失败时）
+        """
+        try:
+            logger.info("Starting to create embedded chart")
+
+            import matplotlib
+
+            # 修复 matplotlib 3.10+ backend 大小写问题（返回 'qtagg' 而非 'QtAgg'）
+            if matplotlib.get_backend().lower() != "qtagg":
+                logger.info(
+                    "Current Matplotlib backend: %s, switching to QtAgg backend",
+                    matplotlib.get_backend(),
+                )
+                matplotlib.use("QtAgg")
+
+            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+            from matplotlib.figure import Figure
+
+            if self.intBatteryNum <= 0:
+                logger.error("Error: no valid battery data available to display")
+                return None
+
+            if not hasattr(self, "listPlt") or not self.listPlt:
+                logger.error("Error: battery data structure not initialized or empty")
+                return None
+
+            # 创建 Figure 和 Canvas（不使用 pyplot 全局状态）
+            fig = Figure(figsize=(15, 6))
+            canvas = FigureCanvasQTAgg(fig)
+
+            # 设置 canvas 属性
+            canvas.setObjectName("FigureCanvasQTAgg")
+
+            # 添加子图
+            gs = fig.add_gridspec(1, 40)
+            ax = fig.add_subplot(gs[:, 5:])
+
+            # 设置坐标轴
+            ax.axis(self.listAxis)
+            x_ticks = self.listXTicks
+            ax.set_xticks(x_ticks)
+
+            from matplotlib.ticker import MultipleLocator
+
+            y_major_locator = MultipleLocator(0.2)
+            ax.yaxis.set_major_locator(y_major_locator)
+
+            title_fontdict = {"fontsize": 15, "fontweight": "bold"}
+            axis_fontdict = {"fontsize": 15}
+
+            ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
+            ax.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
+            ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+            ax.grid(linestyle="--", alpha=0.3)
+
+            # 绘制曲线
+            lines_unfiltered, lines_filtered = self._plot_battery_curves(ax)
+            valid_data_found = bool(lines_filtered) or bool(lines_unfiltered)
+
+            if valid_data_found:
+                logger.info(
+                    "Successfully plotted %d filtered curves and %d raw curves",
+                    len(lines_filtered),
+                    len(lines_unfiltered),
+                )
+                self._adjust_y_axis_range(ax)
+            else:
+                logger.error("Fatal error: failed to plot any battery data curves")
+                return None
+
+            # 添加交互控件（嵌入模式下不添加菜单栏）
+            try:
+                check_filter = self._add_filter_button(
+                    fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict
+                )
+                self._add_battery_selection_buttons(
+                    fig, check_filter, lines_unfiltered, lines_filtered
+                )
+                self._add_hover_functionality(
+                    fig, ax, lines_filtered, lines_unfiltered, check_filter
+                )
+                logger.info("Chart interaction controls added successfully")
+            except (AttributeError, TypeError, ValueError) as ui_error:
+                logger.warning("Error adding interaction controls: %s", str(ui_error))
+
+            # 保存引用
+            self.current_fig = fig
+            self.current_canvas = canvas
+
+            # 如果提供了父控件，将 canvas 嵌入其中
+            if parent_widget is not None:
+                from PyQt6.QtWidgets import QVBoxLayout
+
+                layout = QVBoxLayout(parent_widget)
+                layout.setContentsMargins(0, 0, 0, 0)
+                layout.addWidget(canvas)
+                parent_widget.setLayout(layout)
+
+            logger.info("Embedded chart created successfully")
+            return fig, canvas
+
+        except (OSError, ValueError, TypeError, AttributeError, RuntimeError) as e:
+            logger.error("Fatal error: unexpected exception while creating embedded chart: %s", str(e))
+            logger.error("Error type: %s", type(e).__name__)
+            import traceback
+
+            traceback.print_exc()
+            return None
+
 
 if __name__ == "__main__":
     """

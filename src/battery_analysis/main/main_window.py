@@ -131,6 +131,32 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         layout.setStretch(0, 661)
         layout.setStretch(1, 231)
 
+        # 创建图表嵌入区域（默认隐藏）
+        self.chart_container = QW.QWidget()
+        self.chart_container.setObjectName("chart_container")
+        self.chart_container.setMinimumSize(600, 400)
+        self.chart_container.setVisible(False)
+
+        # 创建图表控制面板（左侧）
+        self.chart_control_panel = QW.QWidget()
+        self.chart_control_panel.setObjectName("chart_control_panel")
+        self.chart_control_panel.setMinimumWidth(150)
+        self.chart_control_panel.setMaximumWidth(200)
+        self.chart_control_panel.setVisible(False)
+
+        # 图表区域布局：左侧控制面板 + 右侧图表
+        self.chart_area_widget = QW.QWidget()
+        self.chart_area_widget.setObjectName("chart_area_widget")
+        self.chart_area_layout = QW.QHBoxLayout(self.chart_area_widget)
+        self.chart_area_layout.setContentsMargins(0, 0, 0, 0)
+        self.chart_area_layout.setSpacing(5)
+        self.chart_area_layout.addWidget(self.chart_control_panel)
+        self.chart_area_layout.addWidget(self.chart_container)
+        self.chart_area_layout.setStretch(0, 1)  # 控制面板
+        self.chart_area_layout.setStretch(1, 4)  # 图表容器
+
+        self.chart_area_widget.setVisible(False)
+
         # 6) 右侧面板不垂直拉伸，固定最小尺寸（原始 setGeometry 的尺寸）
         self.frame_RunButton.setSizePolicy(
             QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Preferred
@@ -446,6 +472,34 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def show_visualizer_error(self, error_msg: str):
         self.visualization_manager.show_visualizer_error(error_msg)
+
+    def show_chart_area(self):
+        """显示图表嵌入区域"""
+        if hasattr(self, "chart_area_widget"):
+            self.chart_area_widget.setVisible(True)
+            self.chart_control_panel.setVisible(True)
+            self.chart_container.setVisible(True)
+            self.logger.info("Chart area shown")
+
+    def hide_chart_area(self):
+        """隐藏图表嵌入区域"""
+        if hasattr(self, "chart_area_widget"):
+            self.chart_area_widget.setVisible(False)
+            self.chart_control_panel.setVisible(False)
+            self.chart_container.setVisible(False)
+            self.logger.info("Chart area hidden")
+
+    def get_chart_container(self):
+        """获取图表容器控件"""
+        if hasattr(self, "chart_container"):
+            return self.chart_container
+        return None
+
+    def get_chart_control_panel(self):
+        """获取图表控制面板控件"""
+        if hasattr(self, "chart_control_panel"):
+            return self.chart_control_panel
+        return None
 
     def batch_processing(self) -> None:
         self.batch_processing_command.execute()
