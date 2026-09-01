@@ -24,9 +24,6 @@ class TestMenuManager:
     def test_update_statusbar_messages(self):
         self.manager.update_statusbar_messages()
 
-    def test_toggle_toolbar_safe(self):
-        self.manager.toggle_toolbar_safe()
-
     def test_toggle_statusbar_safe(self):
         self.manager.toggle_statusbar_safe()
 

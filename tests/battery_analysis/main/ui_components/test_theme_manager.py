@@ -8,27 +8,36 @@ class TestThemeManager:
         self.manager = ThemeManager(Mock())
         # 模拟 QApplication.instance() 返回一个 Mock
         self._patcher = patch(
-            "battery_analysis.main.ui_components.theme_manager.QW.QApplication.instance",
+            "battery_analysis.ui.styles.style_manager.QApplication.instance",
             return_value=Mock(),
         )
         self._patcher.start()
+        # 重置为 light 主题（避免前一个测试的状态泄漏）
+        self.manager.set_theme("light")
 
     def teardown_method(self):
         self._patcher.stop()
 
-    def test_set_theme(self):
-        self.manager.set_theme("System Default")
+    def test_set_theme_light(self):
+        self.manager.set_theme("light")
+        assert self.manager.get_current_theme() == "light"
 
-    def test_toggle_statusbar(self):
-        self.manager.toggle_statusbar()
+    def test_set_theme_dark(self):
+        self.manager.set_theme("dark")
+        assert self.manager.get_current_theme() == "dark"
 
-    def test_initialize_theme_actions(self):
-        self.manager._initialize_theme_actions()
+    def test_get_current_theme(self):
+        assert self.manager.get_current_theme() == "light"
+
+    def test_get_available_themes(self):
+        themes = self.manager.get_available_themes()
+        assert "light" in themes
+        assert "dark" in themes
 
     def test_set_theme_does_not_process_events(self):
         """set_theme 不调用 processEvents（unpolish/polish 已触发重绘）"""
         with patch(
-            "battery_analysis.main.ui_components.theme_manager.QW.QApplication.processEvents"
+            "battery_analysis.ui.styles.style_manager.QApplication.processEvents"
         ) as mock_pe:
-            self.manager.set_theme("System Default")
+            self.manager.set_theme("light")
             mock_pe.assert_not_called()

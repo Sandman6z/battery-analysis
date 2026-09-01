@@ -47,6 +47,9 @@ class LanguageManager(QObject):
         # Connect to application instance
         self.app = QApplication.instance()
 
+        # 回调列表（用于 refresh_texts 机制）
+        self._listeners: list = []
+
         # Initialize locale settings
         self._initialize_settings()
 
@@ -210,12 +213,34 @@ class LanguageManager(QObject):
             self.logger.warning("Translation formatting error: %s", e)
             return translated
 
+    def register(self, callback) -> None:
+        """注册 refresh_texts 回调
+
+        Args:
+            callback: 无参函数，语言切换时被调用以刷新 UI 文本
+        """
+        if callback not in self._listeners:
+            self._listeners.append(callback)
+
+    def unregister(self, callback) -> None:
+        """注销 refresh_texts 回调
+
+        Args:
+            callback: 之前注册的回调函数
+        """
+        if callback in self._listeners:
+            self._listeners.remove(callback)
+
     def _on_language_changed(self, locale_code: str):
         """Handle language change signal"""
         self.logger.info("Language changed to: %s", locale_code)
 
-        # UI 语言更新（待实现）
-        pass
+        # 调用所有注册的 refresh_texts 回调
+        for cb in self._listeners:
+            try:
+                cb()
+            except Exception as e:
+                self.logger.warning("Error in language change callback: %s", e)
 
     def reload_translations(self) -> bool:
         """

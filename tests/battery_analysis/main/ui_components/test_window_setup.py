@@ -13,9 +13,6 @@ class TestWindowSetup:
         with patch.object(self.window_setup, "_load_application_icon", return_value=Mock()):
             self.window_setup.init_window()
 
-    def test_toggle_toolbar_safe(self):
-        self.window_setup.toggle_toolbar_safe()
-
     def test_toggle_statusbar_safe(self):
         self.window_setup.toggle_statusbar_safe()
 

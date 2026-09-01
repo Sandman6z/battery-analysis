@@ -83,13 +83,6 @@ class MenuManager:
                 self.main_window.actionZoom_Out.setToolTip(_("Zoom Out"))
             if hasattr(self.main_window, "actionReset_Zoom"):
                 self.main_window.actionReset_Zoom.setToolTip(_("Reset Zoom"))
-            if hasattr(self.main_window, "actionShow_Toolbar"):
-                self.main_window.actionShow_Toolbar.setCheckable(True)
-                self.main_window.actionShow_Toolbar.setChecked(False)
-                self.main_window.actionShow_Toolbar.setToolTip(_("Show/Hide Toolbar"))
-                # 确保toolbar的可见性与action状态一致
-                if hasattr(self.main_window, "toolBar"):
-                    self.main_window.toolBar.setVisible(False)
             if hasattr(self.main_window, "actionShow_Statusbar"):
                 self.main_window.actionShow_Statusbar.setCheckable(True)
                 self.main_window.actionShow_Statusbar.setChecked(True)
@@ -151,11 +144,7 @@ class MenuManager:
         # 首选项对话框连接
         self.main_window.actionPreferences.triggered.connect(self.main_window.show_preferences)
 
-        # 工具栏和状态栏显示/隐藏功能连接
-        if hasattr(self.main_window, "actionShow_Toolbar"):
-            self.main_window.actionShow_Toolbar.triggered.connect(
-                self.main_window.toggle_toolbar_safe
-            )
+        # 状态栏显示/隐藏功能连接
         if hasattr(self.main_window, "actionShow_Statusbar"):
             self.main_window.actionShow_Statusbar.triggered.connect(
                 self.main_window.toggle_statusbar_safe
@@ -192,37 +181,15 @@ class MenuManager:
         """
         连接主题相关的菜单动作
         """
-        # 主题菜单功能连接
-        if hasattr(self.main_window, "actionSystem_Default"):
-            self.main_window.actionSystem_Default.triggered.connect(
-                lambda: self.main_window.set_theme("System Default")
-            )
-        if hasattr(self.main_window, "actionWindows_11"):
-            self.main_window.actionWindows_11.triggered.connect(
-                lambda: self.main_window.set_theme("Windows 11")
-            )
-        if hasattr(self.main_window, "actionWindows_Vista"):
-            self.main_window.actionWindows_Vista.triggered.connect(
-                lambda: self.main_window.set_theme("Windows Vista")
-            )
-        if hasattr(self.main_window, "actionFusion"):
-            self.main_window.actionFusion.triggered.connect(
-                lambda: self.main_window.set_theme("Fusion")
+        # 主题菜单功能连接 — 映射旧菜单项名称到新的 light/dark 主题
+        if hasattr(self.main_window, "actionLight_Theme"):
+            self.main_window.actionLight_Theme.triggered.connect(
+                lambda: self.main_window.set_theme("light")
             )
         if hasattr(self.main_window, "actionDark_Theme"):
             self.main_window.actionDark_Theme.triggered.connect(
-                lambda: self.main_window.set_theme("Dark Theme")
+                lambda: self.main_window.set_theme("dark")
             )
-
-    def toggle_toolbar_safe(self):
-        """
-        安全地切换工具栏的显示/隐藏状态
-        """
-        if hasattr(self.main_window, "actionShow_Toolbar") and hasattr(self.main_window, "toolBar"):
-            self.main_window.toolBar.setVisible(self.main_window.actionShow_Toolbar.isChecked())
-        elif hasattr(self.main_window, "toolBar"):
-            # 如果没有actionShow_Toolbar，只是切换显示状态
-            self.main_window.toolBar.setVisible(not self.main_window.toolBar.isVisible())
 
     def toggle_statusbar_safe(self):
         """

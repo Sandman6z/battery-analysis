@@ -63,7 +63,6 @@ class TestMainWindow:
             self.main_window.menu_manager.connect_menu_actions = Mock()
             self.main_window.menu_manager.setup_menu_shortcuts = Mock()
             self.main_window.menu_manager.update_statusbar_messages = Mock()
-            self.main_window.menu_manager.toggle_toolbar_safe = Mock()
             self.main_window.menu_manager.toggle_statusbar_safe = Mock()
 
             self.main_window.dialog_manager = Mock()
@@ -193,7 +192,7 @@ class TestMainWindow:
             mock_gettext.side_effect = lambda x, y=None: y if y else x
 
             # 模拟需要被调用的方法
-            self.main_window._update_ui_texts = Mock()
+            self.main_window.refresh_texts = Mock()
             self.main_window._update_statusbar_messages = Mock()
             self.main_window._refresh_dialogs = Mock()
 
@@ -201,7 +200,7 @@ class TestMainWindow:
             self.main_window._on_language_changed("en")
 
             # 验证方法被调用
-            self.main_window._update_ui_texts.assert_called_once()
+            self.main_window.refresh_texts.assert_called_once()
             self.main_window._update_statusbar_messages.assert_called_once()
             self.main_window._refresh_dialogs.assert_called_once()
 
@@ -235,14 +234,6 @@ class TestMainWindow:
         self.main_window.on_preferences_applied()
         # 验证方法执行（无异常）
         assert True
-
-    def test_toggle_toolbar_safe(self):
-        """测试安全切换工具栏"""
-        # 调用方法
-        self.main_window.toggle_toolbar_safe()
-
-        # 验证menu_manager的toggle_toolbar_safe方法被调用
-        self.main_window.menu_manager.toggle_toolbar_safe.assert_called_once()
 
     def test_toggle_statusbar_safe(self):
         """测试安全切换状态栏"""
