@@ -816,12 +816,12 @@ Thank you for using Battery Analysis Tool!"""
         Returns:
             list: (battery_index, checkbox) 元组列表
         """
-        from PyQt6.QtWidgets import QCheckBox, QVBoxLayout, QScrollArea, QWidget
+        from PyQt6.QtWidgets import QCheckBox, QFrame, QScrollArea, QVBoxLayout, QWidget
 
         # 创建滚动区域
         scroll_area = QScrollArea(parent_widget)
         scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameShape(QW.QFrame.Shape.NoFrame)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
 
         # 创建内容容器
         content_widget = QWidget()

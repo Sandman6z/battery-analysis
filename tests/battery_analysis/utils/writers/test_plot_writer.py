@@ -1,6 +1,6 @@
 """测试 plot_writer 报告图生成的数据流向"""
 
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 

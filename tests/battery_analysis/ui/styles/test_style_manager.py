@@ -3,8 +3,8 @@ from unittest.mock import Mock, patch
 import pytest
 
 from battery_analysis.ui.styles.style_manager import (
-    _LIGHT_TOKENS,
     _DARK_TOKENS,
+    _LIGHT_TOKENS,
     StyleManager,
     ThemeEngine,
     get_theme_engine,

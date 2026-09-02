@@ -9,7 +9,6 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-
 from tomllib import TOMLDecodeError
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")

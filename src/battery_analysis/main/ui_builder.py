@@ -11,7 +11,6 @@ import PyQt6.QtWidgets as QW
 
 from battery_analysis.i18n import _
 
-
 # 通用字体：Microsoft JhengHei 9pt（与旧版 .ui 一致）
 _FONT = QG.QFont("Microsoft JhengHei", 9)
 

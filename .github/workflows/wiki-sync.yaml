@@ -23,13 +23,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Ensure GH PAT is provided
+      - name: Validate GH_PAT token
+        id: validate-token
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        if: env.GH_PAT == ''
+          TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          echo "Missing GH_PAT secret. Create a secret named GH_PAT with a PAT that has repo scope."
-          exit 1
+          set -euo pipefail
+
+          if [ -z "$TOKEN" ]; then
+            echo "::error::GH_PAT secret is not set. Create a secret named GH_PAT with a PAT that has 'repo' scope."
+            exit 1
+          fi
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }})
+
+          if [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "403" ]; then
+            echo "::error::GH_PAT is invalid or expired (HTTP $HTTP_CODE). Generate a new Personal Access Token with 'repo' scope and update the GH_PAT repository secret."
+            exit 1
+          fi
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::warning::Unexpected API response ($HTTP_CODE) when validating GH_PAT. Continuing anyway."
+          fi
+
+          echo "GH_PAT validated successfully."
 
       - name: Prepare and sync wiki
         env:
@@ -42,7 +62,7 @@ jobs:
             echo "Wiki repo exists and is accessible."
             CLONE=true
           else
-            echo "Wiki repo not found. Attempting to enable wiki via GitHub API..."
+            echo "Wiki repo not found or not accessible. Attempting to enable wiki via GitHub API..."
             # Try enabling wiki via API (requires token with admin/repo scope)
             ENABLE_RESP=$(curl -s -o /dev/null -w "%{http_code}" \
               -X PATCH \
@@ -88,12 +108,12 @@ jobs:
             git add Home.md
             git commit -m "Initialize Wiki"
             # Try pushing main then master
-            if git push -u origin main 2>/dev/null; then
+            if git push -u origin main; then
               echo "Pushed initial commit to main"
-            elif git push -u origin master 2>/dev/null; then
+            elif git push -u origin master; then
               echo "Pushed initial commit to master"
             else
-              echo "Initial push failed; the wiki remote may not accept pushes yet. Exiting."
+              echo "::error::Initial push failed. Check that GH_PAT has 'repo' scope and that wiki is enabled in repository settings."
               exit 1
             fi
           fi
@@ -127,12 +147,9 @@ jobs:
             git config user.email "$GIT_EMAIL"
             # Commit and push to whichever branch exists
             git commit -m "Update Wiki - ${{ github.sha }} - ${{ github.event.head_commit.message }}"
-            # Try pushing to current branch; fallback to main/master
-            if git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
-              CURRENT=$(git rev-parse --abbrev-ref HEAD)
-              git push origin "$CURRENT" || true
-            fi
-            git push origin main 2>/dev/null || git push origin master
+            CURRENT=$(git rev-parse --abbrev-ref HEAD)
+            echo "Pushing to wiki branch: $CURRENT"
+            git push origin "$CURRENT"
           fi
 
           cd ..
