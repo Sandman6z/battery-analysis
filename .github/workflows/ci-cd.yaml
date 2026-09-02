@@ -105,33 +105,23 @@ jobs:
         $releaseName = "${{ steps.release_info.outputs.release_name }}"
         $isPrerelease = "${{ steps.release_info.outputs.is_prerelease }}"
         $releaseType = if ($isPrerelease -eq 'True') { '预发布构建版本' } else { '正式构建版本' }
-        $tagName = if ("${{ startsWith(github.ref, 'refs/tags/') }}" -eq 'True') { "${{ github.ref_name }}" } else { $releaseName }
         $changelogBody = "${{ steps.changelog.outputs.body }}"
-
-        $body = @"
-$releaseType - Release模式
-构建编号: ${{ github.run_number }}
-版本号: $releaseName
-提交SHA: ${{ github.sha }}
-分支: ${{ github.ref_name }}
-
-$changelogBody
-"@
-
-        # 写入临时文件（避免命令行转义问题）
+        $body = "$releaseType - Release模式`n" +
+          "构建编号: ${{ github.run_number }}`n" +
+          "版本号: $releaseName`n" +
+          "提交SHA: ${{ github.sha }}`n" +
+          "分支: ${{ github.ref_name }}`n`n" +
+          $changelogBody
         $body | Out-File -FilePath release_body.md -Encoding utf8
-
-        $ghArgs = @('release', 'create', $tagName,
+        $ghArgs = @('release', 'create', $releaseName,
           '--title', $releaseName,
           '--notes-file', 'release_body.md',
           '--target', '${{ github.sha }}')
-
         if ($isPrerelease -eq 'True') {
           $ghArgs += '--prerelease'
         } else {
           $ghArgs += '--latest'
         }
-
         gh @ghArgs
       shell: pwsh
       env:
@@ -141,6 +131,7 @@ $changelogBody
       run: |
         $tagName = "${{ github.ref_name }}"
         $exeFiles = Get-ChildItem -Path build/Release -Filter *.exe | Select-Object -ExpandProperty FullName
+        if (-not $exeFiles) { Write-Host "No .exe files found"; exit 0 }
         foreach ($file in $exeFiles) {
           Write-Host "Uploading $file..."
           gh release upload $tagName $file --clobber
