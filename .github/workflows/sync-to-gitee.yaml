@@ -59,14 +59,11 @@ jobs:
         $ErrorActionPreference = 'Stop'
         Write-Output "No existing gitee remote to remove (or removed successfully)"
 
-        # remote URL 不含凭据（token 仅经 http.extraheader 传递，避免 git remote -v 泄漏）
-        $giteeRepoUrl = "https://gitee.com/${env:GITEE_USERNAME}/${repoName}.git"
+        # 凭据嵌入 remote URL（token 经 URL 传递，GitHub Actions 会自动 mask secrets）
+        $giteeRepoUrl = "https://${env:GITEE_USERNAME}:${env:GITEE_TOKEN}@gitee.com/${env:GITEE_USERNAME}/${repoName}.git"
         git remote add gitee $giteeRepoUrl
 
-        # 只展示 remote 名称，不打印 URL（URL 不含凭据，但为谨慎不输出完整地址）
-        $ErrorActionPreference = 'SilentlyContinue'
-        git remote show -n gitee | Select-Object -First 1 | ForEach-Object { "Gitee remote configured for $repoName" }
-        $ErrorActionPreference = 'Stop'
+        Write-Output "Gitee remote configured for $repoName"
       shell: pwsh
 
     - name: Push to Gitee
@@ -76,42 +73,31 @@ jobs:
         Write-Output "触发事件: $env:GITHUB_EVENT_NAME"
         Write-Output "引用: $env:GITHUB_REF"
 
-        # 凭据仅经 http.extraheader 传递，绝不进入 remote URL
-        $auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${env:GITEE_USERNAME}:${env:GITEE_TOKEN}"))
-
-        # 完全禁用 Git Credential Manager 和所有交互式提示
+        # 禁用 Git Credential Manager 干预
         $env:GIT_TERMINAL_PROMPT = '0'
         $env:GCM_INTERACTIVE = 'never'
-        $env:GCM_PROVIDER = 'generic'
-        $env:GIT_ASKPASS = ''
-        $env:GCM_CREDENTIAL_STORE = 'plaintext'
-
-        # 禁用所有 credential helper（系统级 + 全局级）
-        git config --system credential.helper '' 2>$null
-        git config --global credential.helper '' 2>$null
-        git config --local credential.helper '' 2>$null
 
         # 根据触发事件确定要推送的内容
         if ($env:GITHUB_EVENT_NAME -eq 'push') {
           if ($env:GITHUB_REF_TYPE -eq 'tag') {
             $tagName = $env:GITHUB_REF_NAME
             Write-Output "推送标签 $tagName 到 Gitee..."
-            git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" -c "core.askPass=" push gitee "refs/tags/$tagName"
+            git push gitee "refs/tags/$tagName"
           } else {
             $branchName = $env:GITHUB_REF_NAME
             Write-Output "推送分支 $branchName 到 Gitee..."
-            git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" -c "core.askPass=" push gitee "$branchName"
+            git push gitee "$branchName"
           }
         } elseif ($env:GITHUB_EVENT_NAME -eq 'release') {
           $releaseTag = $env:GITHUB_REF_NAME
           Write-Output "推送 Release 标签 $releaseTag 到 Gitee..."
-          git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" -c "core.askPass=" push gitee "refs/tags/$releaseTag"
+          git push gitee "refs/tags/$releaseTag"
 
           Write-Output "推送 main 分支到 Gitee..."
-          git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" -c "core.askPass=" push gitee main
+          git push gitee main
         } else {
           $currentBranch = git branch --show-current
           Write-Output "推送当前分支 $currentBranch 到 Gitee..."
-          git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" -c "core.askPass=" push gitee "$currentBranch"
+          git push gitee "$currentBranch"
         }
       shell: pwsh
