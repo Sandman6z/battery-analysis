@@ -82,28 +82,31 @@ jobs:
         # 禁用 Git Credential Manager 干预
         $env:GIT_TERMINAL_PROMPT = '0'
         $env:GCM_INTERACTIVE = 'never'
+        $env:GCM_PROVIDER = 'generic'
+        git config --global credential.helper ''
+        git config --global --unset-all credential.helper 2>$null
 
         # 根据触发事件确定要推送的内容
         if ($env:GITHUB_EVENT_NAME -eq 'push') {
           if ($env:GITHUB_REF_TYPE -eq 'tag') {
             $tagName = $env:GITHUB_REF_NAME
             Write-Output "推送标签 $tagName 到 Gitee..."
-            git -c "http.extraheader=AUTHORIZATION: basic $auth" push gitee "refs/tags/$tagName"
+            git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" push gitee "refs/tags/$tagName"
           } else {
             $branchName = $env:GITHUB_REF_NAME
             Write-Output "推送分支 $branchName 到 Gitee..."
-            git -c "http.extraheader=AUTHORIZATION: basic $auth" push gitee "$branchName"
+            git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" push gitee "$branchName"
           }
         } elseif ($env:GITHUB_EVENT_NAME -eq 'release') {
           $releaseTag = $env:GITHUB_REF_NAME
           Write-Output "推送 Release 标签 $releaseTag 到 Gitee..."
-          git -c "http.extraheader=AUTHORIZATION: basic $auth" push gitee "refs/tags/$releaseTag"
+          git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" push gitee "refs/tags/$releaseTag"
 
           Write-Output "推送 main 分支到 Gitee..."
-          git -c "http.extraheader=AUTHORIZATION: basic $auth" push gitee main
+          git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" push gitee main
         } else {
           $currentBranch = git branch --show-current
           Write-Output "推送当前分支 $currentBranch 到 Gitee..."
-          git -c "http.extraheader=AUTHORIZATION: basic $auth" push gitee "$currentBranch"
+          git -c "http.extraheader=AUTHORIZATION: basic $auth" -c "credential.helper=" push gitee "$currentBranch"
         }
       shell: pwsh
