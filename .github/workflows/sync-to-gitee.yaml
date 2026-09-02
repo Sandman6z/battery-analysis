@@ -54,15 +54,19 @@ jobs:
         $repoName = $env:GITHUB_REPOSITORY.Split('/')[1]
 
         # 移除现有的 gitee 远程仓库（如果存在），忽略不存在时的报错
-        git remote remove gitee 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) { Write-Output "No existing gitee remote to remove" }
+        $ErrorActionPreference = 'SilentlyContinue'
+        git remote remove gitee
+        $ErrorActionPreference = 'Stop'
+        Write-Output "No existing gitee remote to remove (or removed successfully)"
 
         # remote URL 不含凭据（token 仅经 http.extraheader 传递，避免 git remote -v 泄漏）
         $giteeRepoUrl = "https://gitee.com/${env:GITEE_USERNAME}/${repoName}.git"
         git remote add gitee $giteeRepoUrl
 
         # 只展示 remote 名称，不打印 URL（URL 不含凭据，但为谨慎不输出完整地址）
-        git remote show -n gitee 2>&1 | Select-Object -First 1 | ForEach-Object { "Gitee remote configured for $repoName" }
+        $ErrorActionPreference = 'SilentlyContinue'
+        git remote show -n gitee | Select-Object -First 1 | ForEach-Object { "Gitee remote configured for $repoName" }
+        $ErrorActionPreference = 'Stop'
       shell: powershell
 
     - name: Push to Gitee
