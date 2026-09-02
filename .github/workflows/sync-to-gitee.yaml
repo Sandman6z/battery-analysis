@@ -30,7 +30,7 @@ jobs:
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "zbnsandman@google.com"
-      shell: powershell
+      shell: pwsh
 
     - name: Check if Gitee secrets are configured
       id: check_secrets
@@ -45,7 +45,7 @@ jobs:
           "secrets_configured=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           Write-Output "Gitee secrets are configured"
         }
-      shell: powershell
+      shell: pwsh
 
     - name: Add Gitee remote repository
       if: steps.check_secrets.outputs.secrets_configured == 'true'
@@ -67,7 +67,7 @@ jobs:
         $ErrorActionPreference = 'SilentlyContinue'
         git remote show -n gitee | Select-Object -First 1 | ForEach-Object { "Gitee remote configured for $repoName" }
         $ErrorActionPreference = 'Stop'
-      shell: powershell
+      shell: pwsh
 
     - name: Push to Gitee
       if: steps.check_secrets.outputs.secrets_configured == 'true'
@@ -103,4 +103,4 @@ jobs:
           Write-Output "推送当前分支 $currentBranch 到 Gitee..."
           git @pushArgs "$currentBranch"
         }
-      shell: powershell
+      shell: pwsh
