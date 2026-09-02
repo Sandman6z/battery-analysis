@@ -1,3 +1,24 @@
+### v3.1.0
+
+#### 破坏性变更
+- **移除顶部 toolbar**：菜单栏已有相同功能，工具栏冗余；用户操作入口统一到菜单栏
+
+#### 功能增强
+- feat: 主题系统重构，style_manager / theme_manager / QSS 统一 token 化
+- feat: 纯代码构建主窗口 UI（新增 `ui_builder.py`），替代 Designer `.ui` 文件
+
+#### 修复和改进
+- fix: Pillow 12.0.0→12.3.0, lxml 6.0.2→6.1.2, setuptools 80.9.0→84.0.0, fonttools 4.60.1→4.64.0（修复 ~21 个 Dependabot 安全漏洞）
+- fix: 补 numpy DLL 收集 + 修正 hidden import 路径
+- fix: PyInstaller 从 `src/` 目录运行，修复依赖追踪失败
+- fix: 资源路径统一用 `sys._MEIPASS`，兼容 `--onefile` 和 `--onedir`
+- fix: `--onefile` 改 `--onedir` + 资源路径兼容打包模式
+- fix: 补 python-calamine hidden import + 清理打包脚本
+
+#### 架构收敛
+- refactor: 删除确认死代码——`ProgressService`、`ServiceContext`/`MultiServiceContext`、`ServiceLocator`、`SaveSettingsCommand`（净删 962 行）
+- refactor: 删除 `VisualizationManager` / `FileController` / `ValidationController` 中零调用的死方法
+
 ### v3.0.0
 
 #### 破破性变更
