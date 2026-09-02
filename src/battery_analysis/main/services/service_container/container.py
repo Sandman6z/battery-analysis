@@ -2,7 +2,7 @@
 服务容器 — 简单工厂模式
 
 替换原有的带拓扑排序/依赖图解析的复杂 DI 容器。
-服务实例通过 create_services() 显式创建，按名访问。
+服务实例在首次 get() 时懒创建，按名访问。
 """
 
 from __future__ import annotations
@@ -21,9 +21,7 @@ class Services:
     config: Any = None
     environment: Any = None
     file: Any = None
-    progress: Any = None
     validation: Any = None
-    application: Any = None
     main_controller: Any = None
     file_controller: Any = None
     validation_controller: Any = None
@@ -65,13 +63,11 @@ class ServiceContainer:
         from battery_analysis.main.services.config_service import ConfigService
         from battery_analysis.main.services.environment_service import EnvironmentService
         from battery_analysis.main.services.file_service import FileService
-        from battery_analysis.main.services.progress_service import ProgressService
         from battery_analysis.main.services.validation_service import ValidationService
 
         self._impl.config = ConfigService()
         self._impl.environment = EnvironmentService()
         self._impl.file = FileService()
-        self._impl.progress = ProgressService()
         self._impl.validation = ValidationService()
 
         # 3) 创建可能回调容器的服务（此时 _impl 已有叶子服务，get("file") 等正常返回）

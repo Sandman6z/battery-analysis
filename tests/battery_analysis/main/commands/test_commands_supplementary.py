@@ -61,7 +61,6 @@ PRESENTER_METHODS = {
 # Commands with unique patterns
 SPECIAL_CMDS = {
     "RunAnalysisCommand": ("analysis_runner", "run_analysis", True, False),
-    "SaveSettingsCommand": ("main_window", "save_settings", True, False),
 }
 
 # Presenter-based commands all follow: self.<attr> = presenter; self.presenter.on_*()
@@ -79,7 +78,6 @@ class TestAllCommands:
             "ExportReportCommand",
             "GenerateReportCommand",
             "BatchProcessingCommand",
-            "SaveSettingsCommand",
         ],
         ids=lambda x: x,
     )
@@ -116,7 +114,6 @@ class TestAllCommands:
             BatchProcessingCommand,
             ExportReportCommand,
             GenerateReportCommand,
-            SaveSettingsCommand,
         )
 
         classes = {
@@ -126,7 +123,6 @@ class TestAllCommands:
             "ExportReportCommand": ExportReportCommand,
             "GenerateReportCommand": GenerateReportCommand,
             "BatchProcessingCommand": BatchProcessingCommand,
-            "SaveSettingsCommand": SaveSettingsCommand,
         }
 
         cls = classes[cmd_name]
@@ -139,10 +135,6 @@ class TestAllCommands:
             dep = Mock()
             return cls, {"analysis_runner": dep}, "analysis_runner"
 
-        if cmd_name == "SaveSettingsCommand":
-            dep = Mock()
-            return cls, {"main_window": dep}, "main_window"
-
         raise ValueError(f"Unknown command: {cmd_name}")
 
     def _method_name(self, cmd_name):
@@ -154,7 +146,6 @@ class TestAllCommands:
             "ExportReportCommand": "on_export_report",
             "GenerateReportCommand": "on_generate_report",
             "BatchProcessingCommand": "on_batch_processing",
-            "SaveSettingsCommand": "save_settings",
         }[cmd_name]
 
 
@@ -180,7 +171,6 @@ class TestCommandManagerSupplementary:
         mw.ui_manager = Mock()
         mgr = CommandManager(mw)
         assert hasattr(mw, "run_analysis_command")
-        assert hasattr(mw, "save_settings_command")
         assert hasattr(mw, "export_report_command")
         assert hasattr(mw, "batch_processing_command")
         assert hasattr(mw, "generate_report_command")

@@ -13,7 +13,6 @@ from battery_analysis.main.commands import (
     ExportReportCommand,
     GenerateReportCommand,
     RunAnalysisCommand,
-    SaveSettingsCommand,
 )
 
 
@@ -44,9 +43,6 @@ class CommandManager:
         # 初始化各种命令并设置为Main类的属性
         self._commands["run_analysis"] = RunAnalysisCommand(self.main_window.analysis_runner)
         self.main_window.run_analysis_command = self._commands["run_analysis"]
-
-        self._commands["save_settings"] = SaveSettingsCommand(self.main_window)
-        self.main_window.save_settings_command = self._commands["save_settings"]
 
         self._commands["export_report"] = ExportReportCommand(self.main_window.presenter)
         self.main_window.export_report_command = self._commands["export_report"]
