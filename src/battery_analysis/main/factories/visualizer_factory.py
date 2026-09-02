@@ -104,6 +104,105 @@ class BatteryChartViewerWrapper(IVisualizer):
             self._viewer.set_data_path(data_path)
             # 不自动加载数据，由调用者决定何时加载
 
+    def embed_to_widget(self, parent_widget, data_path: str | None = None, xml_path: str | None = None):
+        """
+        将图表嵌入到指定的 QWidget 中
+
+        Args:
+            parent_widget: 父 QWidget
+            data_path: 可选的数据路径
+            xml_path: 可选的XML文件路径
+
+        Returns:
+            tuple: (fig, canvas, filter_checkbox, scroll_area, battery_checkboxes) 或 None
+        """
+        try:
+            # 重置viewer状态
+            self._viewer.loaded_data = False
+
+            # 只有当提供了XML路径或数据路径时才加载数据
+            if xml_path is not None and xml_path:
+                import os
+
+                # 确保XML路径是绝对路径
+                if not os.path.isabs(xml_path):
+                    xml_path = os.path.abspath(xml_path)
+
+                # 检查XML路径是否存在
+                if not os.path.exists(xml_path):
+                    self.logger.warning("XML file does not exist: %s", xml_path)
+
+                # 获取XML所在目录
+                test_profile_dir = os.path.dirname(xml_path)
+
+                # 获取XML所在目录的上一级目录
+                parent_dir = os.path.dirname(test_profile_dir)
+
+                # 定义可能的分析结果目录名称
+                analysis_dir_names = [
+                    "3_analysis results",
+                    "analysis results",
+                    "Analysis Results",
+                    "3_Analysis Results",
+                ]
+
+                # 尝试在XML上一级目录中寻找分析结果目录
+                analysis_results_dir = None
+                for dir_name in analysis_dir_names:
+                    analysis_dir = os.path.join(parent_dir, dir_name)
+                    if os.path.exists(analysis_dir):
+                        analysis_results_dir = analysis_dir
+                        break
+
+                # 如果找到分析结果目录，尝试获取最新的子目录
+                if analysis_results_dir:
+                    # 获取子目录列表
+                    try:
+                        subdirs = [
+                            d
+                            for d in os.listdir(analysis_results_dir)
+                            if os.path.isdir(os.path.join(analysis_results_dir, d))
+                        ]
+
+                        if subdirs:
+                            # 按修改时间排序，获取最新的子目录
+                            latest_dir = max(
+                                subdirs,
+                                key=lambda d: os.path.getmtime(
+                                    os.path.join(analysis_results_dir, d)
+                                ),
+                            )
+                            latest_dir_path = os.path.join(analysis_results_dir, latest_dir)
+
+                            # 检查最新目录中是否有Info_Image.csv文件
+                            info_image_csv = os.path.join(latest_dir_path, "Info_Image.csv")
+                            if os.path.exists(info_image_csv):
+                                self._viewer.set_data_path(latest_dir_path)
+                                if self._viewer.load_data():
+                                    self._viewer.loaded_data = True
+                                    self.logger.info("Successfully loaded data from XML path")
+                                else:
+                                    self.logger.warning("Data loading failed")
+                    except Exception as e:
+                        self.logger.error("Error processing analysis results directory: %s", e)
+
+            # 如果提供了数据路径，加载数据
+            elif data_path is not None:
+                self._viewer.set_data_path(data_path)
+                if self._viewer.load_data():
+                    self._viewer.loaded_data = True
+                    self.logger.info("Successfully loaded data from data path")
+                else:
+                    self.logger.warning("Data loading failed")
+
+            # 嵌入图表到父控件
+            result = self._viewer.embed_to_widget(parent_widget)
+            return result
+
+        except (ImportError, TypeError, ValueError, OSError) as e:
+            self.logger.error("Error embedding chart: %s", e)
+            return None
+
     def show_figure(self, data_path: str | None = None, xml_path: str | None = None) -> bool:
         """
         显示图表

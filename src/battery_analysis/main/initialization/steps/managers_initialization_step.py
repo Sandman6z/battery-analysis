@@ -92,4 +92,5 @@ class ManagersInitializationStep(InitializationStep):
         Returns:
             是否可以执行
         """
-        return hasattr(main_window, "setupUi")
+        # 检查主窗口是否已初始化（有 centralwidget 或 setupUi）
+        return hasattr(main_window, "centralwidget") or hasattr(main_window, "setupUi")

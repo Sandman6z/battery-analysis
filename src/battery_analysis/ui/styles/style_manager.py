@@ -1,11 +1,11 @@
-"""
-现代化UI样式管理器
+"""现代化 UI 样式管理器。
 
-提供统一的样式管理方案，支持QSS文件加载和动态样式应用
+提供统一的样式管理方案，支持设计令牌（Token）驱动的 QSS 主题切换。
 """
 
 import logging
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -13,335 +13,348 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication, QGroupBox, QPushButton, QVBoxLayout, QWidget
 
+logger = logging.getLogger(__name__)
 
-class StyleManager(QObject):
-    """现代化UI样式管理器"""
 
-    # 信号定义
-    style_loaded = pyqtSignal(str)  # 样式加载完成信号
-    theme_changed = pyqtSignal(str)  # 主题切换信号
+def _get_resource_dir() -> Path:
+    """获取资源目录：兼容 PyInstaller 打包与开发环境。"""
+    if hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS) / "battery_analysis" / "ui" / "styles"
+    return Path(__file__).parent
+
+
+# ──────────────────────────────────────────────────────────────
+# 设计令牌（Design Tokens）
+#
+# QSS 中出现的每个语义颜色都在此定义。主题切换时只替换令牌值，
+# QSS 结构不变。新增颜色只需在 LIGHT/DARK 各加一行。
+# ──────────────────────────────────────────────────────────────
+
+_LIGHT_TOKENS: dict[str, str] = {
+    # 背景
+    "bg_primary":       "#f5f0e8",
+    "bg_card":          "#faf7f2",
+    "bg_input":         "#ede9e3",
+    "bg_input_hover":   "#e5e0d8",
+    "bg_input_focus":   "#ffffff",
+    "bg_tooltip":       "#3d3229",
+    # 文字
+    "text_primary":     "#3d3229",
+    "text_secondary":   "#8a7a6a",
+    "text_inverse":     "#ffffff",
+    "text_placeholder": "#adb5bd",
+    # 强调色
+    "accent_green":     "#27ae60",
+    "accent_green_lt":  "#2ecc71",
+    "accent_green_dk":  "#1e8449",
+    "accent_blue":      "#3498db",
+    "accent_blue_lt":   "#5dade2",
+    "accent_blue_dk":   "#2980b9",
+    "accent_red":       "#e74c3c",
+    "accent_red_lt":    "#ec7063",
+    "accent_red_dk":    "#c0392b",
+    "accent_orange":    "#f39c12",
+    "accent_orange_lt": "#f1c40f",
+    "accent_teal":      "#1abc9c",
+    # 边框 / 分隔线
+    "border_default":   "#e0d8cc",
+    "border_focus":     "#27ae60",
+    "border_input":     "#d5cdc0",
+    "border_card":      "#f0ebe3",
+    # 进度条
+    "progress_bar":     "#27ae60",
+    "progress_bg":      "#e0d8cc",
+    # 滚动条
+    "scrollbar_bg":     "#e0d8cc",
+    "scrollbar_handle": "#c0b8a8",
+    # 按钮
+    "btn_run_bg":       "#27ae60",
+    "btn_run_hover":    "#2ecc71",
+    "btn_run_pressed":  "#1e8449",
+    "btn_cancel_bg":    "#e74c3c",
+    "btn_cancel_hover": "#ec7063",
+}
+
+_DARK_TOKENS: dict[str, str] = {
+    # 背景
+    "bg_primary":       "#1e1e1e",
+    "bg_card":          "#2a2a2a",
+    "bg_input":         "#333333",
+    "bg_input_hover":   "#3d3d3d",
+    "bg_input_focus":   "#404040",
+    "bg_tooltip":       "#3d3d3d",
+    # 文字
+    "text_primary":     "#e0e0e0",
+    "text_secondary":   "#a0a0a0",
+    "text_inverse":     "#1e1e1e",
+    "text_placeholder": "#666666",
+    # 强调色
+    "accent_green":     "#2ecc71",
+    "accent_green_lt":  "#58d68d",
+    "accent_green_dk":  "#27ae60",
+    "accent_blue":      "#5dade2",
+    "accent_blue_lt":   "#85c1e9",
+    "accent_blue_dk":   "#2980b9",
+    "accent_red":       "#ec7063",
+    "accent_red_lt":    "#f1948a",
+    "accent_red_dk":    "#e74c3c",
+    "accent_orange":    "#f4d03f",
+    "accent_orange_lt": "#f7dc6f",
+    "accent_teal":      "#48c9b0",
+    # 边框 / 分隔线
+    "border_default":   "#3a3a3a",
+    "border_focus":     "#2ecc71",
+    "border_input":     "#4a4a4a",
+    "border_card":      "#333333",
+    # 进度条
+    "progress_bar":     "#2ecc71",
+    "progress_bg":      "#3a3a3a",
+    # 滚动条
+    "scrollbar_bg":     "#2a2a2a",
+    "scrollbar_handle": "#4a4a4a",
+    # 按钮
+    "btn_run_bg":       "#2ecc71",
+    "btn_run_hover":    "#58d68d",
+    "btn_run_pressed":  "#27ae60",
+    "btn_cancel_bg":    "#ec7063",
+    "btn_cancel_hover": "#f1948a",
+}
+
+THEMES: dict[str, dict[str, str]] = {
+    "light": _LIGHT_TOKENS,
+    "dark": _DARK_TOKENS,
+}
+
+# QSS 中出现的所有硬编码颜色 → 令牌名的映射表。
+# 按长度降序排列，避免短色值误匹配长色值（如 #abc 匹配到 #abcdef）。
+_COLOR_TO_TOKEN: list[tuple[str, str]] = []
+
+
+def _build_color_map() -> list[tuple[str, str]]:
+    """从 LIGHT 令牌集构建颜色→令牌映射，按颜色长度降序排列。"""
+    mapping: list[tuple[str, str]] = []
+    for token, color in _LIGHT_TOKENS.items():
+        mapping.append((color.lower(), token))
+    # 暗色主题中与亮色不同的颜色也要映射（如 #2c3e50 不在 LIGHT 中但 DARK 中有）
+    # 这些颜色在 QSS 原文中不会出现，不需要映射
+    mapping.sort(key=lambda x: -len(x[0]))
+    return mapping
+
+
+_COLOR_TO_TOKEN = _build_color_map()
+
+
+def _resolve_qss_urls(qss: str, style_dir: Path) -> str:
+    """将 QSS 中 url() 的相对路径解析为绝对路径。"""
+
+    def _replace(match: re.Match) -> str:
+        url_path = match.group(1)
+        if url_path.startswith((":/", "/", "http")):
+            return match.group(0)
+        abs_path = (style_dir / url_path).resolve()
+        if abs_path.exists():
+            return f"url({abs_path.as_posix()})"
+        return match.group(0)
+
+    return re.sub(r"url\(([^)]+)\)", _replace, qss)
+
+
+class ThemeEngine(QObject):
+    """Token 驱动的主题引擎。
+
+    工作流程：
+    1. 加载原始 QSS（亮色主题的硬编码颜色）
+    2. 用正则将硬编码颜色替换为 `{token}` 占位符，得到 QSS 模板
+    3. 切换主题时，用对应令牌集渲染模板 → 应用到 app
+    """
+
+    theme_changed = pyqtSignal(str)
 
     def __init__(self, parent: QObject | None = None):
         super().__init__(parent)
-        self._current_theme = "modern"
-        self._style_cache = {}
-        # 延迟初始化 QFontDatabase，只有在需要时才创建
-        self._font_database = None
+        self._style_dir = _get_resource_dir()
+        self._qss_template: str = ""
+        self._current_theme: str = "light"
+        self._tokens: dict[str, str] = dict(_LIGHT_TOKENS)
 
-        # 样式文件路径
-        self._style_dir = Path(__file__).parent
-        self._load_available_styles()
+        self._load_and_tokenize_qss()
 
-    def _load_available_styles(self):
-        """加载可用的样式文件"""
+    def _load_and_tokenize_qss(self) -> None:
+        """加载 QSS 文件，将硬编码颜色替换为令牌占位符。"""
+        qss_path = self._style_dir / "battery_analyzer.qss"
+        if not qss_path.exists():
+            logger.error("QSS file not found: %s", qss_path)
+            return
 
-        # 主样式文件（所有主题共享）
-        main_style_file = "battery_analyzer.qss"
-        main_style_path = self._style_dir / main_style_file
+        try:
+            with open(qss_path, encoding="utf-8") as f:
+                qss = f.read()
+        except (OSError, UnicodeDecodeError) as e:
+            logger.error("Failed to load QSS: %s", e)
+            return
 
-        # 加载主样式文件 - QSS已启用
-        if main_style_path.exists():
-            try:
-                with open(main_style_path, encoding="utf-8") as f:
-                    main_style = f.read()
+        # 解析 url() 路径
+        qss = _resolve_qss_urls(qss, self._style_dir)
 
-                    # 解析 url() 中的相对路径为绝对路径（相对 QSS 文件所在目录）
-                    def _resolve_url(match):
-                        url_path = match.group(1)
-                        if url_path.startswith((":/", "/", "http")):
-                            return match.group(0)  # 保持资源路径、绝对路径、http 不变
-                        abs_path = (self._style_dir / url_path).resolve()
-                        if abs_path.exists():
-                            return f"url({abs_path.as_posix()})"
-                        return match.group(0)
+        # 将硬编码颜色替换为令牌占位符
+        # 按颜色长度降序处理，避免短色值误匹配
+        for color, token in _COLOR_TO_TOKEN:
+            # 只匹配完整色值（前面不是字母数字，后面也不是）
+            pattern = re.compile(r"(?<![0-9a-fA-F])" + re.escape(color) + r"(?![0-9a-fA-F])", re.IGNORECASE)
+            qss = pattern.sub(f"{{{token}}}", qss)
 
-                    main_style = re.sub(r"url\(([^)]+)\)", _resolve_url, main_style)
-                    # 所有主题默认使用主样式文件
-                    self._style_cache["battery_analyzer"] = main_style
-                    self._style_cache["modern"] = main_style
-                    self._style_cache["light"] = main_style
-                    logging.info("Main style file loaded: %s", main_style_file)
+        self._qss_template = qss
+        logger.info("QSS template created with %d tokens", len(_COLOR_TO_TOKEN))
 
-                    # 尝试加载深色主题（如果存在）
-                    dark_style_path = self._style_dir / "dark_theme.qss"
-                    if dark_style_path.exists():
-                        with open(dark_style_path, encoding="utf-8") as f:
-                            dark_style = f.read()
-                            self._style_cache["dark"] = dark_style
-                            logging.info("Dark theme style file loaded: dark_theme.qss")
-                    else:
-                        # 如果深色主题文件不存在，基于主样式创建
-                        dark_style = main_style
-                        # 替换颜色变量为深色主题颜色
-                        dark_style = dark_style.replace("#f5f0e8", "#2c3e50")  # main background
-                        dark_style = dark_style.replace("#faf7f2", "#34495e")  # card surface
-                        dark_style = dark_style.replace("#ede9e3", "#3a4a5e")  # input background
-                        dark_style = dark_style.replace("#e5e0d8", "#405060")  # input hover
-                        dark_style = dark_style.replace("#3d3229", "#ecf0f1")  # primary text
-                        dark_style = dark_style.replace("#8a7a6a", "#bdc3c7")  # secondary text
-                        dark_style = dark_style.replace("#e0d8cc", "#4a5f7a")  # border/divider
-                        self._style_cache["dark"] = dark_style
-                        logging.info("Created dark theme based on main style")
+    def set_theme(self, theme_name: str) -> None:
+        """切换主题并应用到 QApplication。"""
+        if theme_name not in THEMES:
+            logger.warning("Unknown theme: %s, falling back to light", theme_name)
+            theme_name = "light"
 
-                    # 尝试加载高对比度主题（如果存在）
-                    high_contrast_style_path = self._style_dir / "high_contrast.qss"
-                    if high_contrast_style_path.exists():
-                        with open(high_contrast_style_path, encoding="utf-8") as f:
-                            high_contrast_style = f.read()
-                            self._style_cache["high_contrast"] = high_contrast_style
-                            logging.info("High contrast theme style file loaded: high_contrast.qss")
-                    else:
-                        # 如果高对比度主题文件不存在，基于主样式创建
-                        high_contrast_style = main_style
-                        # 替换颜色变量为高对比度颜色
-                        high_contrast_style = high_contrast_style.replace("#f5f0e8", "#ffffff")
-                        high_contrast_style = high_contrast_style.replace("#faf7f2", "#ffffff")
-                        high_contrast_style = high_contrast_style.replace("#ede9e3", "#ffffff")
-                        high_contrast_style = high_contrast_style.replace("#3d3229", "#000000")
-                        high_contrast_style = high_contrast_style.replace("#e0d8cc", "#000000")
-                        high_contrast_style = high_contrast_style.replace("#27ae60", "#0000ff")
-                        self._style_cache["high_contrast"] = high_contrast_style
-                        logging.info("Created high contrast theme based on main style")
+        self._tokens = THEMES[theme_name]
+        self._current_theme = theme_name
 
-                    # 添加蓝色主题（基于主样式创建）
-                    blue_style = main_style
-                    blue_style = blue_style.replace("#f5f0e8", "#e3f2fd")
-                    blue_style = blue_style.replace("#faf7f2", "#ffffff")
-                    blue_style = blue_style.replace("#ede9e3", "#e8eaf6")
-                    blue_style = blue_style.replace("#3d3229", "#1565c0")
-                    blue_style = blue_style.replace("#8a7a6a", "#2196f3")
-                    blue_style = blue_style.replace("#e0d8cc", "#bbdefb")
-                    self._style_cache["blue"] = blue_style
-                    logging.info("Created blue theme based on main style")
+        app = QApplication.instance()
+        if app is not None:
+            qss = self._render()
+            app.setStyleSheet(qss)
+            self.theme_changed.emit(theme_name)
+            logger.info("Theme applied: %s", theme_name)
 
-                    # 添加绿色主题（基于主样式创建）
-                    green_style = main_style
-                    green_style = green_style.replace("#f5f0e8", "#e8f5e8")
-                    green_style = green_style.replace("#faf7f2", "#ffffff")
-                    green_style = green_style.replace("#ede9e3", "#e0f0e0")
-                    green_style = green_style.replace("#3d3229", "#2e7d32")
-                    green_style = green_style.replace("#8a7a6a", "#43a047")
-                    green_style = green_style.replace("#e0d8cc", "#c8e6c9")
-                    self._style_cache["green"] = green_style
-                    logging.info("Created green theme based on main style")
-            except (OSError, UnicodeDecodeError, TypeError, ValueError) as e:
-                logging.error("Failed to load main style file %s: %s", main_style_file, e)
-        else:
-            logging.error("Main style file not found: %s", main_style_file)
+    def _render(self) -> str:
+        """用当前令牌集渲染 QSS 模板。"""
+        qss = self._qss_template
+        for token, value in self._tokens.items():
+            qss = qss.replace(f"{{{token}}}", value)
+        return qss
+
+    def get_current_theme(self) -> str:
+        return self._current_theme
+
+    def get_token(self, name: str) -> str:
+        """获取当前主题的令牌值。"""
+        return self._tokens.get(name, "")
+
+    def get_available_themes(self) -> list[str]:
+        return list(THEMES.keys())
+
+
+# ──────────────────────────────────────────────────────────────
+# 全局实例（兼容旧 API）
+# ──────────────────────────────────────────────────────────────
+
+_theme_engine: ThemeEngine | None = None
+
+
+def get_theme_engine() -> ThemeEngine:
+    """获取全局 ThemeEngine 实例（延迟初始化）。"""
+    global _theme_engine
+    if _theme_engine is None:
+        _theme_engine = ThemeEngine()
+    return _theme_engine
+
+
+# ──────────────────────────────────────────────────────────────
+# 旧 StyleManager API 兼容层
+# ──────────────────────────────────────────────────────────────
+
+class StyleManager(QObject):
+    """兼容旧 API 的样式管理器，内部委托给 ThemeEngine。"""
+
+    style_loaded = pyqtSignal(str)
+    theme_changed = pyqtSignal(str)
+
+    def __init__(self, parent: QObject | None = None):
+        super().__init__(parent)
+        self._engine = get_theme_engine()
+        self._engine.theme_changed.connect(self.theme_changed.emit)
 
     def apply_style(self, widget: QWidget, theme: str | None = None):
-        """应用样式到指定控件"""
-
-        if theme is None:
-            theme = self._current_theme
-
-        if theme in self._style_cache:
-            widget.setStyleSheet(self._style_cache[theme])
-            logging.debug("Applied theme style: %s", theme)
-        else:
-            logging.warning("Theme style not found: %s", theme)
+        if theme:
+            self._engine.set_theme(theme)
+        qss = self._engine._render()
+        widget.setStyleSheet(qss)
 
     def apply_global_style(self, app: QApplication, theme: str | None = None):
-        """应用全局样式"""
-
-        if theme is None:
-            theme = self._current_theme
-
-        # 跳过已废弃的 battery_analyzer 分支，直接走主题缓存逻辑
-
-        if theme in self._style_cache:
-            app.setStyleSheet(self._style_cache[theme])
-            self._current_theme = theme
-            self.theme_changed.emit(theme)
-            logging.info("Applied global theme: %s", theme)
+        if theme:
+            self._engine.set_theme(theme)
         else:
-            logging.error("Theme style not found: %s", theme)
+            self._engine.set_theme(self._engine.get_current_theme())
 
-    def load_custom_style(self, file_path: str) -> bool:
-        """加载自定义样式文件"""
+    def get_current_theme(self) -> str:
+        return self._engine.get_current_theme()
 
-        try:
-            with open(file_path, encoding="utf-8") as f:
-                custom_style = f.read()
-                self._style_cache["custom"] = custom_style
-                logging.info("Custom style loaded: %s", file_path)
-                return True
-        except (OSError, UnicodeDecodeError, TypeError, ValueError) as e:
-            logging.error("Failed to load custom style: %s", e)
-            return False
+    def get_available_themes(self) -> list[str]:
+        return self._engine.get_available_themes()
 
     def get_style_variables(self, theme: str | None = None) -> dict[str, Any]:
-        """获取样式变量"""
-
-        if theme is None:
-            theme = self._current_theme
-
-        # 定义常用颜色变量
-        variables = {
-            "modern": {
-                "primary_color": "#27ae60",
-                "secondary_color": "#27ae60",
-                "warning_color": "#f39c12",
-                "error_color": "#e74c3c",
-                "background_color": "#f5f0e8",
-                "surface_color": "#faf7f2",
-                "text_color": "#3d3229",
-                "border_color": "#e0d8cc",
-            },
-            "dark": {
-                "primary_color": "#5dade2",
-                "secondary_color": "#58d68d",
-                "warning_color": "#f4d03f",
-                "error_color": "#ec7063",
-                "background_color": "#2c3e50",
-                "surface_color": "#34495e",
-                "text_color": "#ecf0f1",
-                "border_color": "#4a5f7a",
-            },
-            "light": {
-                "primary_color": "#27ae60",
-                "secondary_color": "#27ae60",
-                "warning_color": "#f39c12",
-                "error_color": "#e74c3c",
-                "background_color": "#f5f0e8",
-                "surface_color": "#faf7f2",
-                "text_color": "#3d3229",
-                "border_color": "#e0d8cc",
-            },
-            "blue": {
-                "primary_color": "#1e88e5",
-                "secondary_color": "#43a047",
-                "warning_color": "#f39c12",
-                "error_color": "#e53935",
-                "background_color": "#e3f2fd",
-                "surface_color": "#ffffff",
-                "text_color": "#1565c0",
-                "border_color": "#bbdefb",
-            },
-            "green": {
-                "primary_color": "#29b6f6",
-                "secondary_color": "#388e3c",
-                "warning_color": "#f39c12",
-                "error_color": "#e53935",
-                "background_color": "#e8f5e8",
-                "surface_color": "#ffffff",
-                "text_color": "#2e7d32",
-                "border_color": "#c8e6c9",
-            },
-            "high_contrast": {
-                "primary_color": "#0000ff",
-                "secondary_color": "#008000",
-                "warning_color": "#ff0000",
-                "error_color": "#ff0000",
-                "background_color": "#ffffff",
-                "surface_color": "#ffffff",
-                "text_color": "#000000",
-                "border_color": "#000000",
-            },
+        tokens = THEMES.get(theme or self._engine.get_current_theme(), _LIGHT_TOKENS)
+        return {
+            "primary_color": tokens.get("accent_green", "#27ae60"),
+            "secondary_color": tokens.get("accent_blue", "#3498db"),
+            "warning_color": tokens.get("accent_orange", "#f39c12"),
+            "error_color": tokens.get("accent_red", "#e74c3c"),
+            "background_color": tokens.get("bg_primary", "#f5f0e8"),
+            "surface_color": tokens.get("bg_card", "#faf7f2"),
+            "text_color": tokens.get("text_primary", "#3d3229"),
+            "border_color": tokens.get("border_default", "#e0d8cc"),
         }
 
-        return variables.get(theme, variables["modern"])
-
     def register_font(self, font_path: str, family_name: str | None = None) -> bool:
-        """
-        注册自定义字体
-        """
-
         try:
-            # 延迟初始化 QFontDatabase
-            if self._font_database is None:
-                from PyQt6.QtGui import QFontDatabase
+            from PyQt6.QtGui import QFontDatabase
 
-                self._font_database = QFontDatabase()
-
-            font_id = self._font_database.addApplicationFont(font_path)
+            db = QFontDatabase()
+            font_id = db.addApplicationFont(font_path)
             if font_id != -1:
-                font_families = self._font_database.applicationFontFamilies(font_id)
-                if font_families:
-                    family_name = family_name or font_families[0]
-                    logging.info("Font registered: %s", family_name)
+                families = db.applicationFontFamilies(font_id)
+                if families:
+                    logger.info("Font registered: %s", family_name or families[0])
                     return True
             return False
         except (ImportError, AttributeError, TypeError, OSError, RuntimeError) as e:
-            logging.error("Failed to register font: %s", e)
+            logger.error("Failed to register font: %s", e)
             return False
 
     def set_application_font(self, app: QApplication, font_family: str, size: int = 11):
-        """设置应用程序字体"""
-
         try:
-            font = QFont(font_family, size)
-            app.setFont(font)
-            logging.info("Application font set: %s %spt", font_family, size)
+            app.setFont(QFont(font_family, size))
         except (ImportError, TypeError, RuntimeError, AttributeError) as e:
-            logging.error("Failed to set font: %s", e)
+            logger.error("Failed to set font: %s", e)
 
     def create_themed_button(
         self, parent, text: str, action_type: str, callback=None, **kwargs
-    ) -> "QPushButton":
-        """创建主题化按钮"""
-
-        from PyQt6.QtWidgets import QPushButton
-
+    ) -> QPushButton:
         button = QPushButton(text, parent)
-
-        # 根据动作类型设置数据属性
         button.setProperty("data-action", action_type)
-
-        # 设置最小高度
-        if "min_height" in kwargs:
-            button.setMinimumHeight(kwargs["min_height"])
-        else:
-            button.setMinimumHeight(36)
-
-        # 连接回调
+        button.setMinimumHeight(kwargs.get("min_height", 36))
         if callback:
             button.clicked.connect(callback)
-
         return button
 
     def create_themed_groupbox(
         self, parent, title: str, theme: str, widget: QWidget | None = None
-    ) -> "QGroupBox":
-        """创建主题化分组框"""
-
-        from PyQt6.QtWidgets import QGroupBox
-
+    ) -> QGroupBox:
         groupbox = QGroupBox(title, parent)
-
-        # 设置主题属性
         groupbox.setProperty("data-theme", theme)
-
-        # 如果提供了控件，添加到分组框中
         if widget:
             layout = QVBoxLayout(groupbox)
             layout.addWidget(widget)
-
         return groupbox
 
-    def get_current_theme(self) -> str:
-        """获取当前主题"""
-        return self._current_theme
 
-    def get_available_themes(self) -> list:
-        """获取可用的主题列表"""
-        return list(self._style_cache.keys())
-
-
-# 全局样式管理器实例
+# 全局实例
 style_manager = StyleManager()
 
 
-def apply_modern_theme(app: QApplication, theme: str = "modern"):
-    """应用现代化主题的便捷函数"""
+def apply_modern_theme(app: QApplication, theme: str = "light"):
     style_manager.apply_global_style(app, theme)
 
 
 def create_styled_button(parent, text: str, action_type: str, callback=None):
-    """创建样式化按钮的便捷函数"""
     return style_manager.create_themed_button(parent, text, action_type, callback)
 
 
 def create_styled_groupbox(parent, title: str, theme: str, widget=None):
-    """创建样式化分组框的便捷函数"""
     return style_manager.create_themed_groupbox(parent, title, theme, widget)

@@ -45,7 +45,8 @@ QFrame[frameShadow="Sunken"] {
 
 QGroupBox {
     font-weight: bold;
-    border: none;
+    border: 1px solid #d6cec4;
+    border-radius: 4px;
     margin-top: 8px;
     padding-top: 6px;
 }
@@ -276,8 +277,8 @@ QPushButton[text="浏览"] {
     border: 1px solid #3498db;
     border-radius: 8px;
     color: white;
-    padding: 4px 8px;
-    font-size: 9px;
+    padding: 4px 16px;
+    font-size: 11px;
 }
 
 QPushButton[text="Open"]:hover,
@@ -503,22 +504,18 @@ QTableWidget::item:selected {
 
 QProgressBar {
     border: none;
-    border-radius: 8px;
+    border-radius: 0px;
     text-align: center;
     background-color: #e0d8cc;
-    height: 18px;
+    height: 14px;
     font-weight: 600;
     font-size: 11px;
     color: #8a7a6a;
 }
 
 QProgressBar::chunk {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 #3498db,
-        stop:0.4 #2ecc71,
-        stop:0.7 #27ae60,
-        stop:1 #1abc9c);
-    border-radius: 8px;
+    background-color: #27ae60;
+    border-radius: 0px;
 }
 
 
@@ -869,4 +866,44 @@ QScrollBar::sub-line:vertical {
 QScrollBar::add-page:vertical,
 QScrollBar::sub-page:vertical {
     background-color: transparent;
+}
+
+/* ── 水平滚动条 ── */
+
+QScrollBar:horizontal {
+    background-color: #e0d8cc;
+    height: 10px;
+    margin: 0px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #c0b8a8;
+    min-width: 30px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #d5cdc0;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background-color: transparent;
+}
+
+/* ── Tooltip ── */
+
+QToolTip {
+    background-color: #3d3229;
+    color: #ffffff;
+    border: 1px solid #27ae60;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
 }

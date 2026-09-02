@@ -17,6 +17,7 @@ from battery_analysis.i18n.translator import SimplePOTranslator
 logger = logging.getLogger(__name__)
 
 # Determine locale directory
+# PyInstaller（--onefile/--onedir）通过 sys._MEIPASS 指向数据文件实际位置
 if hasattr(sys, "_MEIPASS"):
     LOCALEDIR = Path(sys._MEIPASS) / "locale"
 else:

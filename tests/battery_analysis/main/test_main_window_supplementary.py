@@ -301,12 +301,12 @@ class TestSimpleDelegations:
 class TestLanguageMethods:
     """语言切换相关方法测试"""
 
-    def test_update_ui_texts(self, main_window):
+    def test_refresh_texts(self, main_window):
         from battery_analysis.main.main_window import Main
 
         with patch("battery_analysis.i18n.language_manager._") as mock_t:
             mock_t.side_effect = lambda x, y=None: y if y else x
-            Main._update_ui_texts(main_window)
+            Main.refresh_texts(main_window)
             # Should have accessed progress dialog title
             assert main_window.signal_connector.progress_dialog.setWindowTitle.called
 
@@ -315,11 +315,11 @@ class TestLanguageMethods:
 
         main_window.version = "1.0"
         # Patch at instance level since MagicMock auto-creates these attrs
-        main_window._update_ui_texts = Mock()
+        main_window.refresh_texts = Mock()
         main_window._update_statusbar_messages = Mock()
         main_window._refresh_dialogs = Mock()
         Main._on_language_changed(main_window, "zh_CN")
-        main_window._update_ui_texts.assert_called_once_with()
+        main_window.refresh_texts.assert_called_once_with()
         main_window._update_statusbar_messages.assert_called_once_with()
         main_window._refresh_dialogs.assert_called_once_with()
 

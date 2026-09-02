@@ -20,10 +20,10 @@ import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
-from battery_analysis.ui import ui_main_window
+from battery_analysis.i18n import _
 
 
-class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
+class Main(QW.QMainWindow):
     sigSetVersion = QC.pyqtSignal()
 
     def __init__(self, splash=None) -> None:
@@ -35,6 +35,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
         self._lazy_init_done = False
         self._resize_timer = None
 
+        # 主题管理器（延迟初始化，但需要在 on_preferences_applied 前就绪）
+        from battery_analysis.main.ui_components.theme_manager import ThemeManager
+        self.theme_manager = ThemeManager(self)
+
         # 日志器在构造时即就绪，避免 on_preferences_applied 等方法的
         # except 分支在 _deferred_init 执行前访问 self.logger 时崩溃。
         # （_deferred_init 会再次赋值同一 logger，幂等无副作用）
@@ -42,11 +46,12 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         self.logger = get_logger("main_window")
 
-        # 仅构建 UI 骨架（Qt 控件树 + 布局），不填充数据
-        self.setupUi(self)
-
-        # 将绝对定位转换为响应式布局（适配不同屏幕尺寸）
-        self._apply_responsive_layout()
+        # 使用 UIBuilder 构建 UI（替代 Designer 生成的 setupUi）
+        from battery_analysis.main.ui_builder import UIBuilder
+        ui_builder = UIBuilder(self)
+        ui_builder.build_ui()
+        ui_builder.create_actions()
+        ui_builder.create_menus()
 
         # 使用 Designer 默认尺寸显示窗口，不强制最大化
         self.show()
@@ -57,113 +62,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
         # 所有业务初始化延后到窗口显示后执行
         QC.QTimer.singleShot(0, self._deferred_init)
-
-    def _apply_responsive_layout(self) -> None:
-        """
-        将 setupUi 设置的绝对定位替换为响应式布局。
-        窗口大小改变时，各面板按比例自适应，支持不同屏幕尺寸和 DPI。
-
-        做法：保留 existing centralwidget（setupUi 已通过 setCentralWidget 注册），
-        直接在上面设布局 + 加子控件，避免 setCentralWidget 的 C++ 对象删除问题。
-        """
-        # 1) 左侧内容（4 个 group box）放到可滚动区域
-        left_content = QW.QWidget()
-        left_layout = QW.QVBoxLayout(left_content)
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.setSpacing(5)
-
-        for w in (
-            self.groupBox_TestConfig,
-            self.groupBox_Path,
-            self.groupBox_BatteryConfig,
-            self.groupBox_TestInformation,
-        ):
-            w.setParent(left_content)
-            left_layout.addWidget(w)
-
-        # 2) 最小高度（压缩到刚好能看清的程度）
-        self.groupBox_TestConfig.setMinimumHeight(110)
-        self.groupBox_Path.setMinimumHeight(110)
-        self.groupBox_BatteryConfig.setMinimumHeight(341)
-        self.groupBox_TestInformation.setMinimumHeight(131)
-
-        # 3) 大小策略
-        self.groupBox_TestConfig.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed
-        )
-        self.groupBox_Path.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed
-        )
-        self.groupBox_BatteryConfig.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding
-        )
-        self.groupBox_TestInformation.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding
-        )
-        # 给 TestInformation 设布局替换 setGeometry，让内部 scrollArea/table 随宽度自适应
-        info_lo = QW.QVBoxLayout(self.groupBox_TestInformation)
-        info_lo.setContentsMargins(5, 15, 5, 5)
-        info_lo.setSpacing(0)
-        info_lo.addWidget(self.scrollArea)
-
-        left_content.setMinimumSize(left_layout.minimumSize())
-
-        # 4) 可滚动区域（只包左边内容，右侧 Run 按钮固定不滚动）
-        left_scroll = QW.QScrollArea()
-        left_scroll.setWidgetResizable(True)
-        left_scroll.setFrameShape(QW.QFrame.Shape.NoFrame)
-        left_scroll.setWidget(left_content)
-
-        # 5) 直接用 existing centralwidget（setupUi 已注册好），在其上设水平布局
-        # 注意：group box 已被 reparent 到 left_content，frame_RunButton 还在 old centralwidget 下
-        old_layout = self.centralwidget.layout()
-        if old_layout:
-            # 清除旧 layout（如果有），避免干扰
-            dummy = QW.QWidget()
-            dummy.setLayout(old_layout)
-            dummy.deleteLater()
-
-        layout = QW.QHBoxLayout(self.centralwidget)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(5)
-        layout.addWidget(left_scroll)
-        layout.addWidget(self.frame_RunButton)
-        layout.setStretch(0, 661)
-        layout.setStretch(1, 231)
-
-        # 6) 右侧面板不垂直拉伸，固定最小尺寸（原始 setGeometry 的尺寸）
-        self.frame_RunButton.setSizePolicy(
-            QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Preferred
-        )
-        self.frame_RunButton.setMinimumSize(231, 301)
-
-        # 7) 窗口显示后调整大小并居中
-        QC.QTimer.singleShot(0, self._adjust_window_size)
-
-    def _adjust_window_size(self) -> None:
-        """调整窗口：最小完整显示，不超出屏幕，自动居中
-
-        参考尺寸足够展示所有内容，不最大化/全屏。
-        小屏幕自动缩放到可用空间，QScrollArea 自动出现滚动条。
-        """
-        screen = QW.QApplication.primaryScreen().availableGeometry()
-
-        ref_w = 920
-        ref_h = 750
-
-        w = max(min(ref_w, screen.width()), 800)
-        h = max(min(ref_h, screen.height()), 600)
-
-        self.resize(w, h)
-
-        # 居中，确保窗口不超出屏幕顶部/左侧
-        frame = self.frameGeometry()
-        frame.moveCenter(screen.center())
-        if frame.top() < screen.top():
-            frame.moveTop(screen.top())
-        if frame.left() < screen.left():
-            frame.moveLeft(screen.left())
-        self.move(frame.topLeft())
 
     def _deferred_init(self):
         """窗口显示后执行的全部初始化 — 不再阻塞启动
@@ -207,6 +105,10 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             init_manager = InitializationManager(self)
             init_manager.initialize()
 
+            # 注册 refresh_texts 回调（语言切换时自动调用）
+            if hasattr(self, "language_manager") and self.language_manager:
+                self.language_manager.register(self.refresh_texts)
+
             # ── 阶段 4: 启动完成 ────────────────────────────
             self.logger.info("")
             self.logger.info("▶ Phase [%s]", PHASE_LAUNCH)
@@ -220,7 +122,19 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
             # 4b) 版本号
             self.get_version()
 
-            # 4c) 非关键 UI 辅助功能／工具提示
+            # 4c) 应用保存的主题设置
+            try:
+                settings = QC.QSettings()
+                theme = settings.value("display/theme", "light")
+                if theme == "system":
+                    palette = QW.QApplication.palette()
+                    is_dark = palette.color(QG.QPalette.ColorRole.Window).lightness() < 128
+                    theme = "dark" if is_dark else "light"
+                self.theme_manager.set_theme(theme)
+            except Exception as e:
+                self.logger.warning("Failed to apply saved theme: %s", e)
+
+            # 4d) 非关键 UI 辅助功能／工具提示
             self._lazy_init()
 
             # 4d) 环境日志（包含 psutil/platform 调用，UI 已可见）
@@ -295,24 +209,101 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
     # ------------------------------
     def _on_language_changed(self, language_code):
         self.setWindowTitle(f"Battery Analyzer v{self.version}")
-        self._update_ui_texts()
+        self.refresh_texts()
         self._update_statusbar_messages()
         self._refresh_dialogs()
         logging.info("Interface language switched to: %s", language_code)
 
-    def _update_ui_texts(self):
-        from battery_analysis.i18n.language_manager import _
+    def refresh_texts(self):
+        """刷新所有 UI 文本（语言切换时调用）"""
+        # 窗口标题
+        self.setWindowTitle(f"Battery Analyzer v{self.version}")
 
+        # 右侧面板
+        if hasattr(self, "label_Version"):
+            self.label_Version.setText(_("Report Ver."))
+        if hasattr(self, "label_ReportedBy"):
+            self.label_ReportedBy.setText(_("Reported By"))
+        if hasattr(self, "pushButton_Run"):
+            self.pushButton_Run.setText(_("Run"))
+
+        # 测试配置区
+        if hasattr(self, "groupBox_TestConfig"):
+            self.groupBox_TestConfig.setTitle(_("Test Config"))
+        if hasattr(self, "label_TesterLocation"):
+            self.label_TesterLocation.setText(_("Tester Location"))
+        if hasattr(self, "label_TestedBy"):
+            self.label_TestedBy.setText(_("Tested By"))
+        if hasattr(self, "label_TestProfile"):
+            self.label_TestProfile.setText(_("Test Profile"))
+        if hasattr(self, "pushButton_TestProfile"):
+            self.pushButton_TestProfile.setText(_("Open"))
+
+        # 路径区
+        if hasattr(self, "groupBox_Path"):
+            self.groupBox_Path.setTitle(_("Path"))
+        if hasattr(self, "label_InputPath"):
+            self.label_InputPath.setText(_("Input Path "))
+        if hasattr(self, "label_OutputPath"):
+            self.label_OutputPath.setText(_("Output Path"))
+        if hasattr(self, "pushButton_InputPath"):
+            self.pushButton_InputPath.setText(_("Open"))
+        if hasattr(self, "pushButton_OutputPath"):
+            self.pushButton_OutputPath.setText(_("Open"))
+
+        # 电池参数区
+        if hasattr(self, "groupBox_BatteryConfig"):
+            self.groupBox_BatteryConfig.setTitle(_("Battery Config"))
+        if hasattr(self, "label_BatteryType"):
+            self.label_BatteryType.setText(_("Battery Type"))
+        if hasattr(self, "label_ConstructionMethod"):
+            self.label_ConstructionMethod.setText(_("Construction Method"))
+        if hasattr(self, "label_Specification"):
+            self.label_Specification.setText(_("Specification"))
+        if hasattr(self, "label_Manufacturer"):
+            self.label_Manufacturer.setText(_("Manufacturer"))
+        if hasattr(self, "label_BatchDateCode"):
+            self.label_BatchDateCode.setText(_("Batch/Date Code"))
+        if hasattr(self, "label_SamplesQty"):
+            self.label_SamplesQty.setText(_("Samples Qty"))
+        if hasattr(self, "label_TemperatureType"):
+            self.label_TemperatureType.setText(_("Temp. Type"))
+        if hasattr(self, "label_Temperature"):
+            self.label_Temperature.setText(_("Temperature(℃)"))
+        if hasattr(self, "label_AcceleratedAging"):
+            self.label_AcceleratedAging.setText(_("Accelerated Aging(Years)"))
+        if hasattr(self, "label_RequiredUseableCapacity"):
+            self.label_RequiredUseableCapacity.setText(_("Required Useable Capacity(mAh)"))
+        if hasattr(self, "label_CalculationNominalCapacity"):
+            self.label_CalculationNominalCapacity.setText(_("Calculation Nominal Capacity(mAh)"))
+        if hasattr(self, "label_DatasheetNominalCapacity"):
+            self.label_DatasheetNominalCapacity.setText(_("Datasheet Nominal Capacity(mAh)"))
+
+        # 设备信息区
+        if hasattr(self, "groupBox_TestInformation"):
+            self.groupBox_TestInformation.setTitle(_("Test Information"))
+
+        # 菜单和工具栏
+        if hasattr(self, "menu_manager"):
+            self.menu_manager.update_statusbar_messages()
+
+        # 进度对话框
         if hasattr(self, "signal_connector") and self.signal_connector.progress_dialog:
             self.signal_connector.progress_dialog.setWindowTitle(_("Battery Analysis Progress"))
             self.signal_connector.progress_dialog.status_label.setText(
                 _("Ready to start analysis...")
             )
 
+    def _update_ui_texts(self):
+        """兼容旧代码：调用 refresh_texts"""
+        self.refresh_texts()
+
     def _update_statusbar_messages(self):
         self.menu_manager.update_statusbar_messages()
 
     def _refresh_dialogs(self):
+        """刷新所有打开的对话框"""
+        # 刷新首选项对话框（如果打开的话）
         pass
 
     def init_widget(self) -> None:
@@ -352,6 +343,17 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                 self.config_manager.reload_config()
             if hasattr(self, "ui_manager"):
                 self.ui_manager.init_combobox()
+
+            # 应用主题设置
+            settings = QC.QSettings()
+            theme = settings.value("display/theme", "light")
+            if theme == "system":
+                # 跟随系统主题
+                palette = QW.QApplication.palette()
+                is_dark = palette.color(QG.QPalette.ColorRole.Window).lightness() < 128
+                theme = "dark" if is_dark else "light"
+            self.theme_manager.set_theme(theme)
+
             self.refresh_ui()
         except Exception as e:
             self.logger.error("Preferences apply post-processing failed: %s", e)
@@ -386,9 +388,6 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
                         self.comboBox_Specification_Type.setCurrentIndex(index)
         except Exception as e:
             self.logger.error("Error refreshing UI: %s", e)
-
-    def toggle_toolbar_safe(self) -> None:
-        self.menu_manager.toggle_toolbar_safe()
 
     def toggle_statusbar_safe(self) -> None:
         self.menu_manager.toggle_statusbar_safe()
@@ -446,6 +445,34 @@ class Main(QW.QMainWindow, ui_main_window.Ui_MainWindow):
 
     def show_visualizer_error(self, error_msg: str):
         self.visualization_manager.show_visualizer_error(error_msg)
+
+    def show_chart_area(self):
+        """显示图表嵌入区域"""
+        if hasattr(self, "chart_area_widget"):
+            self.chart_area_widget.setVisible(True)
+            self.chart_control_panel.setVisible(True)
+            self.chart_container.setVisible(True)
+            self.logger.info("Chart area shown")
+
+    def hide_chart_area(self):
+        """隐藏图表嵌入区域"""
+        if hasattr(self, "chart_area_widget"):
+            self.chart_area_widget.setVisible(False)
+            self.chart_control_panel.setVisible(False)
+            self.chart_container.setVisible(False)
+            self.logger.info("Chart area hidden")
+
+    def get_chart_container(self):
+        """获取图表容器控件"""
+        if hasattr(self, "chart_container"):
+            return self.chart_container
+        return None
+
+    def get_chart_control_panel(self):
+        """获取图表控制面板控件"""
+        if hasattr(self, "chart_control_panel"):
+            return self.chart_control_panel
+        return None
 
     def batch_processing(self) -> None:
         self.batch_processing_command.execute()

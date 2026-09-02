@@ -191,7 +191,8 @@ class BatteryChartViewer(
 
             import matplotlib
 
-            if matplotlib.get_backend() != "QtAgg":
+            # 修复 matplotlib 3.10+ backend 大小写问题（返回 'qtagg' 而非 'QtAgg'）
+            if matplotlib.get_backend().lower() != "qtagg":
                 logger.info(
                     "Current Matplotlib backend: %s, switching to QtAgg backend",
                     matplotlib.get_backend(),
@@ -335,6 +336,229 @@ class BatteryChartViewer(
             self._show_error_plot()
             return True
 
+    def _show_error_chart_embedded(self, fig, canvas, parent_widget=None):
+        """在嵌入模式下显示错误信息图表
+
+        Args:
+            fig: matplotlib Figure 对象
+            canvas: FigureCanvasQTAgg 对象
+            parent_widget: 父 QWidget
+        """
+        try:
+            from battery_analysis.main.visualization.styling import MODERN_BUTTON_STYLE
+
+            ax = fig.add_subplot(111)
+            ax.set_facecolor("#ffffff")
+
+            # 设置标题
+            title_color = MODERN_BUTTON_STYLE["active_color"]
+            ax.set_title("Data Error", fontsize=18, fontweight="bold", color=title_color, pad=20)
+
+            ax.axis("off")
+
+            # 主要错误信息
+            main_message = "Unable to load or display battery data"
+            ax.text(
+                0.5,
+                0.75,
+                main_message,
+                fontsize=14,
+                ha="center",
+                va="center",
+                color=title_color,
+                weight="bold",
+                linespacing=1.4,
+            )
+
+            # 检查步骤
+            check_text = "Check steps:\n"
+            check_text += "1. Whether the CSV file exists and is formatted correctly\n"
+            check_text += "2. Whether the correct configuration file is selected\n"
+            check_text += "3. Whether the file path contains Chinese characters or special characters\n"
+            check_text += "4. Whether the CSV file contains valid battery test data"
+            ax.text(
+                0.5,
+                0.55,
+                check_text,
+                fontsize=11,
+                ha="center",
+                va="center",
+                color=MODERN_BUTTON_STYLE["inactive_text_color"],
+                linespacing=1.4,
+            )
+
+            # 解决方案
+            solution_text = (
+                "Solution:\n"
+                "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
+                "2. Or press Ctrl+O to open the file dialog\n"
+                "3. Select a directory containing the Info_Image.csv file"
+            )
+            ax.text(
+                0.5,
+                0.35,
+                solution_text,
+                fontsize=11,
+                ha="center",
+                va="center",
+                color=MODERN_BUTTON_STYLE["hover_color"],
+                weight="bold",
+                linespacing=1.4,
+            )
+
+            # 添加边框
+            for spine in ax.spines.values():
+                spine.set_color(MODERN_BUTTON_STYLE["border_color"])
+                spine.set_linewidth(1.5)
+                spine.set_alpha(0.8)
+
+            # 如果提供了父控件，将 canvas 嵌入其中
+            if parent_widget is not None:
+                from PyQt6.QtWidgets import QVBoxLayout
+
+                layout = QVBoxLayout(parent_widget)
+                layout.setContentsMargins(0, 0, 0, 0)
+                layout.addWidget(canvas)
+                parent_widget.setLayout(layout)
+
+            logger.info("Embedded error chart displayed")
+
+        except Exception as e:
+            logger.error("Error displaying embedded error chart: %s", e)
+
+    def embed_to_widget(self, parent_widget=None):
+        """创建图表并嵌入到指定的 QWidget 中（嵌入模式）
+
+        Args:
+            parent_widget: 父 QWidget，图表将嵌入到此控件中
+
+        Returns:
+            tuple: (fig, canvas, toolbar) 或 None（失败时）
+        """
+        try:
+            logger.info("Starting to create embedded chart")
+
+            import matplotlib
+
+            # 修复 matplotlib 3.10+ backend 大小写问题（返回 'qtagg' 而非 'QtAgg'）
+            if matplotlib.get_backend().lower() != "qtagg":
+                logger.info(
+                    "Current Matplotlib backend: %s, switching to QtAgg backend",
+                    matplotlib.get_backend(),
+                )
+                matplotlib.use("QtAgg")
+
+            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+            from matplotlib.figure import Figure
+
+            # 创建 Figure 和 Canvas（不使用 pyplot 全局状态）
+            fig = Figure(figsize=(15, 6))
+            canvas = FigureCanvasQTAgg(fig)
+            canvas.setObjectName("FigureCanvasQTAgg")
+
+            if self.intBatteryNum <= 0:
+                logger.warning("No valid battery data available, showing error chart")
+                self._show_error_chart_embedded(fig, canvas, parent_widget)
+                return fig, canvas, None, None, []
+
+            if not hasattr(self, "listPlt") or not self.listPlt:
+                logger.warning("Battery data structure not initialized or empty, showing error chart")
+                self._show_error_chart_embedded(fig, canvas, parent_widget)
+                return fig, canvas, None, None, []
+
+            # 创建 Figure 和 Canvas（不使用 pyplot 全局状态）
+            fig = Figure(figsize=(15, 6))
+            canvas = FigureCanvasQTAgg(fig)
+
+            # 设置 canvas 属性
+            canvas.setObjectName("FigureCanvasQTAgg")
+
+            # 添加子图
+            gs = fig.add_gridspec(1, 40)
+            ax = fig.add_subplot(gs[:, 5:])
+
+            # 设置坐标轴
+            ax.axis(self.listAxis)
+            x_ticks = self.listXTicks
+            ax.set_xticks(x_ticks)
+
+            from matplotlib.ticker import MultipleLocator
+
+            y_major_locator = MultipleLocator(0.2)
+            ax.yaxis.set_major_locator(y_major_locator)
+
+            title_fontdict = {"fontsize": 15, "fontweight": "bold"}
+            axis_fontdict = {"fontsize": 15}
+
+            ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
+            ax.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
+            ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+            ax.grid(linestyle="--", alpha=0.3)
+
+            # 绘制曲线
+            lines_unfiltered, lines_filtered = self._plot_battery_curves(ax)
+            valid_data_found = bool(lines_filtered) or bool(lines_unfiltered)
+
+            if valid_data_found:
+                logger.info(
+                    "Successfully plotted %d filtered curves and %d raw curves",
+                    len(lines_filtered),
+                    len(lines_unfiltered),
+                )
+                self._adjust_y_axis_range(ax)
+            else:
+                logger.error("Fatal error: failed to plot any battery data curves")
+                return None
+
+            # 添加交互控件（嵌入模式下使用 Qt 控件）
+            check_filter = {"active": True}  # 默认过滤状态
+            try:
+                # 创建 Qt 控件版本的过滤按钮
+                filter_checkbox = self.create_filter_checkbox(
+                    parent_widget, fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict
+                )
+                check_filter = self.filter_button_state
+
+                # 创建 Qt 控件版本的电池选择按钮
+                scroll_area, battery_checkboxes = self.create_battery_checkboxes(
+                    parent_widget, fig, lines_unfiltered, lines_filtered, check_filter
+                )
+
+                # 添加悬停功能（使用 KDTree 优化版本）
+                self._add_hover_functionality_kdtree(
+                    fig, ax, lines_filtered, lines_unfiltered, check_filter
+                )
+                logger.info("Chart interaction controls added successfully")
+            except (AttributeError, TypeError, ValueError) as ui_error:
+                logger.warning("Error adding interaction controls: %s", str(ui_error))
+                filter_checkbox = None
+                scroll_area = None
+                battery_checkboxes = []
+
+            # 保存引用
+            self.current_fig = fig
+            self.current_canvas = canvas
+
+            # 如果提供了父控件，将 canvas 嵌入其中
+            if parent_widget is not None:
+                from PyQt6.QtWidgets import QVBoxLayout
+
+                layout = QVBoxLayout(parent_widget)
+                layout.setContentsMargins(0, 0, 0, 0)
+                layout.addWidget(canvas)
+                parent_widget.setLayout(layout)
+
+            logger.info("Embedded chart created successfully")
+            return fig, canvas, filter_checkbox, scroll_area, battery_checkboxes
+
+        except (OSError, ValueError, TypeError, AttributeError, RuntimeError) as e:
+            logger.error("Fatal error: unexpected exception while creating embedded chart: %s", str(e))
+            logger.error("Error type: %s", type(e).__name__)
+            import traceback
+
+            traceback.print_exc()
+            return None
+
 
 if __name__ == "__main__":
     """
@@ -356,7 +580,9 @@ if __name__ == "__main__":
 
         style_manager = StyleManager()
 
-        unified_style_path = Path(__file__).parent.parent / "ui" / "styles" / "battery_analyzer.qss"
+        from battery_analysis.ui.styles.style_manager import _get_resource_dir
+
+        unified_style_path = _get_resource_dir() / "battery_analyzer.qss"
 
         logger.info("Attempting to load unified style file: %s", unified_style_path)
 

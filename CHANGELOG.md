@@ -1,3 +1,58 @@
+### v3.0.0
+
+#### 破破性变更
+- **移除 `xlrd` 依赖**：Excel 读取全面迁移 calamine（Rust 引擎），xlsx 读取提速 8.7x
+- **移除 `BackgroundWorker`**：并发模型统一到 `TaskRunner` + `TaskManager`
+- **移除 `UIBridge` / `AppContext` / `PathContext`**：Manager 收敛直接 `main_window` 访问
+- **移除 `eval()` 复数公式编译**：替换为静态公式表，消除代码注入风险
+- **移除双事件总线**（`EventBus` + `DomainEventBus`）：均为死代码
+- **移除 7 个未注册 `data_commands`** 与 `CommandManager` 查询方法
+- **移除 `DataProcessor` 5 个死方法** 与 `orchestrator._execute_parallel`
+
+#### 性能提升
+- perf: xlsx 读取迁移 calamine 引擎，大文件读取提速 **8.7x**
+- perf: `pulse_matcher` 三重循环改 numpy 广播向量化，提速 **~19x**
+- perf: `charge_calculator` while 线性扫描改 `np.searchsorted` 批量定位，提速 **~11,600x**
+- perf: `statistics_utils` 逐 cell 统计改 2D numpy 批量归约
+- perf: `battery_analysis` 直传 numpy 数组，去除 `.tolist()` 降级
+- perf: `data_processor` 绑定方法不可 pickle 假并行改模块级 worker
+- perf: `data_loader.csv_read` 流式计数替代 `list()` 全量读，消除内存翻倍
+- perf: `cpu_percent` 非阻塞采样 `interval=None`，消除主线程 1 秒阻塞
+- perf: `resizeColumnsToContents` 150ms 去抖，降低窗口调整频率
+- perf: pandas/matplotlib 移入函数级延迟导入，加速启动路径
+
+#### 功能增强
+- feat: 图表嵌入主窗口（`FigureCanvasQTAgg`），假按钮替换为 Qt 控件
+- feat: KDTree hover 优化，实时更新
+- feat: 报告生成隔离（独立 `Figure` + `FigureCanvasAgg`），脱离全局 pyplot 状态
+- feat: `TaskRunner` 协作式取消（`progress_callback` 取消检查点），替代 `QThread.terminate()`
+- feat: `TaskSignals` 扩展 `info`/`thread_end`/`rename_path`/`start_visualizer` 4 信号
+- feat: 扫描后 Excel 解析、SHA-256 校验和计算移入后台线程，UI 不再冻结
+
+#### 修复和改进
+- fix: `QMessageBox.error` 改为 `critical`，修复 PyQt6 不存在的 API
+- fix: 电池按钮曲线映射统一为电池主序，修复多电流档切换错电池
+- fix: 悬停按过滤按钮 dict 状态选择曲线，修复 All Data 模式悬停仍显示 Filtered
+- fix: 报告 Filtered 图改用过滤后数据 `[2]/[3]`，修复与 Unfiltered 图完全相同
+- fix: `data_utils` 补 `import logging`，修复 fallback 分支 NameError
+- fix: Gitee 同步 token 改用 `http.extraheader`，消除 remote URL 凭据泄漏
+- fix: `build.py` 检查 PyInstaller returncode，失败 `sys.exit(1)`，堵住 CI 假绿
+- fix: 启动/初始化路径裸 except 记录完整回溯，消除静默吞错
+- fix: `data_processor` generation counter 替换启发式 stale guard，堵旧结果接受窗口
+- fix: `translator.py` 旧 `eval` 空命名空间无 `int` 的 latent bug
+
+#### 架构收敛
+- refactor: 并发模型统一到 `TaskRunner` + `TaskManager`，删除 `BackgroundWorker`
+- refactor: `AnalysisWorker` 迁移 `TaskRunner`，5 信号并入 `TaskSignals`
+- refactor: 删除 `ServiceContainer.register()` 与 `Services._name_map` 死代码
+- refactor: 删除双事件总线、7 个未注册 data_commands、5 个 DataProcessor 死方法
+- refactor: 回退 UIBridge，删除 `app_context.py`（149 行）
+- refactor: `translator.py` 去 eval，plural 公式表替换动态编译
+- refactor: 工具链现代化——ruff 替换 flake8+black、依赖版本修正、mypy 引入
+
+#### CI/CD
+- ci: `uv sync --frozen` 锁文件生效，`gh release` 替换 `readFile`，CHANGELOG 集成
+
 ### v2.14.0
 
 #### 功能增强

@@ -5,7 +5,8 @@
 """
 
 import logging
-import threading
+
+from PyQt6.QtCore import QTimer
 
 logger = logging.getLogger(__name__)
 
@@ -202,5 +203,4 @@ class ChartStylingMixin:
 
     def _reset_button_after_delay(self, state, delay=0.1):
         """延迟重置按钮状态"""
-        timer = threading.Timer(delay, lambda: self._update_button_style(state))
-        timer.start()
+        QTimer.singleShot(int(delay * 1000), lambda: self._update_button_style(state))

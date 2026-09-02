@@ -94,16 +94,6 @@ class WindowSetup:
             self.logger.error("Failed to load application icon: %s", e)
             return QG.QIcon()
 
-    def toggle_toolbar_safe(self) -> None:
-        """
-        安全地切换工具栏的显示/隐藏状态
-        """
-        if hasattr(self.main_window, "actionShow_Toolbar") and hasattr(self.main_window, "toolBar"):
-            self.main_window.toolBar.setVisible(self.main_window.actionShow_Toolbar.isChecked())
-        elif hasattr(self.main_window, "toolBar"):
-            # 如果没有actionShow_Toolbar，只是切换显示状态
-            self.main_window.toolBar.setVisible(not self.main_window.toolBar.isVisible())
-
     def toggle_statusbar_safe(self) -> None:
         """
         安全地切换状态栏的显示/隐藏状态
