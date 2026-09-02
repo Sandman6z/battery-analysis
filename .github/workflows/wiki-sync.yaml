@@ -23,37 +23,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate GH_PAT token
-        id: validate-token
-        env:
-          TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          set -euo pipefail
-
-          if [ -z "$TOKEN" ]; then
-            echo "::error::GH_PAT secret is not set. Create a secret named GH_PAT with a PAT that has 'repo' scope."
-            exit 1
-          fi
-
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: token $TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }})
-
-          if [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "403" ]; then
-            echo "::error::GH_PAT is invalid or expired (HTTP $HTTP_CODE). Generate a new Personal Access Token with 'repo' scope and update the GH_PAT repository secret."
-            exit 1
-          fi
-
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "::warning::Unexpected API response ($HTTP_CODE) when validating GH_PAT. Continuing anyway."
-          fi
-
-          echo "GH_PAT validated successfully."
-
       - name: Prepare and sync wiki
         env:
-          TOKEN: ${{ secrets.GH_PAT }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -63,7 +35,6 @@ jobs:
             CLONE=true
           else
             echo "Wiki repo not found or not accessible. Attempting to enable wiki via GitHub API..."
-            # Try enabling wiki via API (requires token with admin/repo scope)
             ENABLE_RESP=$(curl -s -o /dev/null -w "%{http_code}" \
               -X PATCH \
               -H "Authorization: token $TOKEN" \
@@ -72,7 +43,6 @@ jobs:
             echo "API response code: $ENABLE_RESP"
             sleep 1
 
-            # Re-check remote after attempting enable
             if git ls-remote --exit-code "$WIKI_URL" >/dev/null 2>&1; then
               echo "Wiki repo created and accessible."
               CLONE=true
@@ -84,10 +54,8 @@ jobs:
 
           if [ "$CLONE" = "true" ]; then
             echo "Cloning wiki..."
-            # Use x-access-token form to avoid exposing token in logs (still be careful)
             git clone https://x-access-token:$TOKEN@github.com/${{ github.repository }}.wiki.git temp_wiki
             cd temp_wiki
-            # Ensure we are on main if possible
             BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
             echo "Wiki HEAD branch: $BRANCH"
           else
@@ -99,7 +67,6 @@ jobs:
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
             git remote add origin https://x-access-token:$TOKEN@github.com/${{ github.repository }}.wiki.git
-            # Create an initial Home.md if none provided
             if [ -f ../docs/README.md ]; then
               cp ../docs/README.md Home.md
             else
@@ -107,31 +74,25 @@ jobs:
             fi
             git add Home.md
             git commit -m "Initialize Wiki"
-            # Try pushing main then master
             if git push -u origin main; then
               echo "Pushed initial commit to main"
             elif git push -u origin master; then
               echo "Pushed initial commit to master"
             else
-              echo "::error::Initial push failed. Check that GH_PAT has 'repo' scope and that wiki is enabled in repository settings."
+              echo "::error::Initial push failed. Check that wiki is enabled in repository settings."
               exit 1
             fi
           fi
 
-          # At this point we are in temp_wiki (if cloned or just created)
-          # Clean wiki contents (preserve .git)
           echo "Syncing docs/ into wiki..."
-          # Remove everything except .git
           find . -maxdepth 1 -mindepth 1 ! -name ".git" -exec rm -rf {} +
 
-          # Copy docs into wiki
           if [ -d ../docs ]; then
             cp -r ../docs/* .
           else
             echo "No docs/ directory found at root. Provide files under docs/ or modify the workflow."
           fi
 
-          # Convert README.md to Home.md (wiki home page)
           if [ -f "README.md" ]; then
             mv -f README.md Home.md
           fi
@@ -145,7 +106,6 @@ jobs:
             GIT_EMAIL="${{ github.event.head_commit.author.email || format('%s@users.noreply.github.com', github.actor) }}"
             git config user.name "$GIT_NAME"
             git config user.email "$GIT_EMAIL"
-            # Commit and push to whichever branch exists
             git commit -m "Update Wiki - ${{ github.sha }} - ${{ github.event.head_commit.message }}"
             CURRENT=$(git rev-parse --abbrev-ref HEAD)
             echo "Pushing to wiki branch: $CURRENT"
