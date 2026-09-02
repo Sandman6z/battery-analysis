@@ -32,17 +32,15 @@ class TestBuildFailurePropagation:
         # 避免 BuildManager.__init__ 清理/创建真实构建目录
         monkeypatch.setattr(BuildManager, "clean_build_dirs", lambda self: None)
         manager = BuildManager("Release")
-        # 直接调用 build() 不会执行 copy2dir()，需预创建各应用构建目录，否则图标复制失败
-        for app in manager.apps_config:
-            app["build_dir"].mkdir(parents=True, exist_ok=True)
         return manager, subprocess
 
     def test_pyinstaller_nonzero_exits(self, monkeypatch):
         manager, subprocess = self._make_manager(monkeypatch)
+        # build() 内部直接调用 subprocess.run，需 patch 到 subprocess 模块
         monkeypatch.setattr(
-            manager,
-            "_execute_pyinstaller_command",
-            lambda app_dir, cmd_args: subprocess.CompletedProcess(cmd_args, 1),
+            subprocess,
+            "run",
+            lambda *a, **kw: subprocess.CompletedProcess(a[0], 1),
         )
         with pytest.raises(SystemExit) as excinfo:
             manager.build()
@@ -51,8 +49,8 @@ class TestBuildFailurePropagation:
     def test_pyinstaller_zero_does_not_exit(self, monkeypatch):
         manager, subprocess = self._make_manager(monkeypatch)
         monkeypatch.setattr(
-            manager,
-            "_execute_pyinstaller_command",
-            lambda app_dir, cmd_args: subprocess.CompletedProcess(cmd_args, 0),
+            subprocess,
+            "run",
+            lambda *a, **kw: subprocess.CompletedProcess(a[0], 0),
         )
         manager.build()  # 不抛 SystemExit 即通过

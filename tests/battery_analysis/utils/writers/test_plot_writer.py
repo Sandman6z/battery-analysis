@@ -1,6 +1,6 @@
 """测试 plot_writer 报告图生成的数据流向"""
 
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 
 import pytest
 
@@ -22,18 +22,15 @@ def test_filtered_plot_uses_filtered_data(tmp_path, info_image_csv, monkeypatch)
 
     plot_calls = []
 
-    monkeypatch.setattr(plot_writer.plt, "figure", Mock())
-    monkeypatch.setattr(plot_writer.plt, "clf", Mock())
-    monkeypatch.setattr(plot_writer.plt, "cla", Mock())
-    monkeypatch.setattr(plot_writer.plt, "boxplot", Mock())
-    monkeypatch.setattr(plot_writer.plt, "title", Mock())
-    monkeypatch.setattr(plot_writer.plt, "xlabel", Mock())
-    monkeypatch.setattr(plot_writer.plt, "ylabel", Mock())
-    monkeypatch.setattr(plot_writer.plt, "grid", Mock())
-    monkeypatch.setattr(plot_writer.plt, "gca", Mock())
-    monkeypatch.setattr(plot_writer.plt, "savefig", Mock())
-    mock_plot = Mock(side_effect=lambda *a, **k: plot_calls.append(a))
-    monkeypatch.setattr(plot_writer.plt, "plot", mock_plot)
+    # 模拟 Figure 和 Axes（模块已从 pyplot 迁移到 Figure 直接创建）
+    mock_ax = MagicMock()
+    mock_ax.plot = Mock(side_effect=lambda *a, **k: plot_calls.append(a))
+
+    mock_fig = MagicMock()
+    mock_fig.add_subplot = Mock(return_value=mock_ax)
+
+    monkeypatch.setattr(plot_writer, "Figure", Mock(return_value=mock_fig))
+    monkeypatch.setattr(plot_writer, "FigureCanvasAgg", Mock())
     monkeypatch.setattr(plot_writer.plot_utils, "set_plt_axis", Mock())
     monkeypatch.setattr(plot_writer, "MultipleLocator", lambda v: Mock())
     # 过滤后数据固定为已知值，便于断言
@@ -63,10 +60,10 @@ def test_filtered_plot_uses_filtered_data(tmp_path, info_image_csv, monkeypatch)
         max_xaxis=5.0,
     )
 
-    # Unfiltered 图 + Filtered 图各一次 plt.plot
-    assert len(plot_calls) == 2, "应恰好有 unfiltered 图与 filtered 图两次 plt.plot 调用"
+    # Unfiltered 图 + Filtered 图各一次 ax.plot
+    assert len(plot_calls) == 2, "应恰好有 unfiltered 图与 filtered 图两次 ax.plot 调用"
 
-    # 第一次 plt.plot 调用即 Unfiltered 图：仍应使用原始数据 [0]/[1]
+    # 第一次 ax.plot 调用即 Unfiltered 图：仍应使用原始数据 [0]/[1]
     unfiltered_call = plot_calls[0]
     assert list(unfiltered_call[0]) == [1.0, 2.0, 3.0, 4.0], (
         "Unfiltered 图应使用原始 charge 数据 [0]"
@@ -75,7 +72,7 @@ def test_filtered_plot_uses_filtered_data(tmp_path, info_image_csv, monkeypatch)
         "Unfiltered 图应使用原始 voltage 数据 [1]"
     )
 
-    # 最后一次 plt.plot 调用即 Filtered 图：应使用过滤后数据 [2]/[3]
+    # 最后一次 ax.plot 调用即 Filtered 图：应使用过滤后数据 [2]/[3]
     last_call = plot_calls[-1]
     assert list(last_call[0]) == [9.0, 10.0], "Filtered 图应使用过滤后 charge 数据 [2]"
     assert list(last_call[1]) == [11.0, 12.0], "Filtered 图应使用过滤后 voltage 数据 [3]"
