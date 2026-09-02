@@ -23,9 +23,33 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate GH_PAT token
+        id: validate-token
+        env:
+          TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$TOKEN" ]; then
+            echo "::error::GH_PAT secret 未设置。请创建一个具有 'repo' 权限的 Personal Access Token，并在仓库 Settings → Secrets → Actions 中添加名为 GH_PAT 的 secret。"
+            exit 1
+          fi
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }})
+
+          if [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "403" ]; then
+            echo "::error::GH_PAT 已过期或无效 (HTTP $HTTP_CODE)。请生成新的 Personal Access Token (Settings → Developer settings → Personal access tokens → Tokens (classic)，勾选 'repo' 权限)，然后更新仓库的 GH_PAT secret。"
+            exit 1
+          fi
+
+          echo "GH_PAT 验证通过。"
+
       - name: Prepare and sync wiki
         env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN: ${{ secrets.GH_PAT }}
         run: |
           set -euo pipefail
 
@@ -79,7 +103,7 @@ jobs:
             elif git push -u origin master; then
               echo "Pushed initial commit to master"
             else
-              echo "::error::Initial push failed. Check that wiki is enabled in repository settings."
+              echo "::error::Initial push failed. Check that GH_PAT has 'repo' scope and that wiki is enabled in repository settings."
               exit 1
             fi
           fi
