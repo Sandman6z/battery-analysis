@@ -1,3 +1,11 @@
+### v3.1.1
+
+#### 修复和改进
+- fix(security): 移除遗留 `html-inline` 依赖，消除 4 个 minimist Prototype Pollution 漏洞（GHSA-xvch-5gv4-984h、GHSA-vh95-rmgr-6w4m）
+
+#### 架构收敛
+- refactor: 删除确认死代码——`ProgressService`、`ServiceContext`/`MultiServiceContext`、`ServiceLocator`、`SaveSettingsCommand` 及 manager/controller 死方法（净删 962 行）
+
 ### v3.1.0
 
 #### 破坏性变更
