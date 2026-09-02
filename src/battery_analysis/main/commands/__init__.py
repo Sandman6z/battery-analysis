@@ -14,7 +14,6 @@ from battery_analysis.main.commands.report_commands import (
     BatchProcessingCommand,
     ExportReportCommand,
     GenerateReportCommand,
-    SaveSettingsCommand,
 )
 
 __all__ = [
@@ -25,5 +24,4 @@ __all__ = [
     "ExportReportCommand",
     "GenerateReportCommand",
     "RunAnalysisCommand",
-    "SaveSettingsCommand",
 ]

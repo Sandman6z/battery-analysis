@@ -81,28 +81,3 @@ class BatchProcessingCommand(Command):
             return False
 
 
-class SaveSettingsCommand(Command):
-    """
-    保存设置命令
-    """
-
-    def __init__(self, main_window):
-        """
-        初始化保存设置命令
-
-        Args:
-            main_window: 主窗口实例
-        """
-        self.main_window = main_window
-
-    def execute(self):
-        """
-        执行保存设置命令
-        """
-        try:
-            # 直接调用Main类中的save_settings方法
-            self.main_window.save_settings()
-            return True
-        except Exception as e:
-            logging.error(f"Failed to save settings: {e!s}")
-            return False

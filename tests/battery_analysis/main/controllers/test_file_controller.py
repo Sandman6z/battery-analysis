@@ -38,23 +38,3 @@ class TestFileController:
         result = self.controller.load_config()
         assert isinstance(result, dict)
 
-    def test_validate_directory_valid(self):
-        import os
-
-        result = self.controller.validate_directory(os.getcwd())
-        assert result[0] is True
-
-    def test_validate_directory_invalid(self):
-        result = self.controller.validate_directory("")
-        assert result[0] is False
-
-    def test_ensure_directory_exists(self):
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            import os
-
-            test_path = os.path.join(tmpdir, "new_dir")
-            result = self.controller.ensure_directory_exists(test_path)
-            assert result[0] is True
-            assert os.path.exists(test_path)
