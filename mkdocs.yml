@@ -1,0 +1,72 @@
+site_name: Battery Analysis Tool
+site_description: 电池数据分析工具文档
+site_url: https://sandman6z.github.io/battery-analysis
+repo_url: https://github.com/Sandman6z/battery-analysis
+repo_name: Sandman6z/battery-analysis
+
+theme:
+  name: material
+  language: zh
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换到暗色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换到亮色模式
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - 首页: index.md
+  - 用户指南:
+      - 快速开始: QUICK_START.md
+      - 使用指南: USER_GUIDE.md
+  - 开发指南:
+      - 文档规范: DOCSTRING_GUIDE.md
+      - Pylint 指南: README_PYLINT.md
+      - 测试指南: TESTING_GUIDE.md
+      - 变更日志: CHANGELOG_GUIDE.md
+  - 高级主题:
+      - 国际化: INTERNATIONALIZATION.md
+      - Nuitka 构建: NUITKA_BUILD.md
+      - 优化总结: OPTIMIZATION_SUMMARY.md
+  - 问题修复:
+      - XML 自动填充修复: FIX_XML_AUTO_POPULATE.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+exclude_docs: |
+  superpowers/
+  *.pdf
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Sandman6z/battery-analysis
