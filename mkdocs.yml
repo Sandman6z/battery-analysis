@@ -34,20 +34,8 @@ theme:
 
 nav:
   - 首页: index.md
-  - 用户指南:
-      - 快速开始: QUICK_START.md
-      - 使用指南: USER_GUIDE.md
-  - 开发指南:
-      - 文档规范: DOCSTRING_GUIDE.md
-      - Pylint 指南: README_PYLINT.md
-      - 测试指南: TESTING_GUIDE.md
-      - 变更日志: CHANGELOG_GUIDE.md
-  - 高级主题:
-      - 国际化: INTERNATIONALIZATION.md
-      - Nuitka 构建: NUITKA_BUILD.md
-      - 优化总结: OPTIMIZATION_SUMMARY.md
-  - 问题修复:
-      - XML 自动填充修复: FIX_XML_AUTO_POPULATE.md
+  - 快速开始: QUICK_START.md
+  - 使用指南: USER_GUIDE.md
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -65,6 +53,15 @@ markdown_extensions:
 exclude_docs: |
   superpowers/
   *.pdf
+  CHANGELOG_GUIDE.md
+  DOCSTRING_GUIDE.md
+  FIX_XML_AUTO_POPULATE.md
+  INTERNATIONALIZATION.md
+  NUITKA_BUILD.md
+  OPTIMIZATION_SUMMARY.md
+  README_PYLINT.md
+  TESTING_GUIDE.md
+  QUICK_START_EN.md
 
 extra:
   social:
