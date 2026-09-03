@@ -136,6 +136,8 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 ---
 
+*Last updated: 2026-08-11 · If the documentation differs from the software, the software's actual behavior takes precedence*
+
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software.
 > However, due to insufficient testing time and samples, there are inevitably still many bugs.
 > If you have any questions, please let me know and I will fix them.

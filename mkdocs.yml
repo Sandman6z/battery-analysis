@@ -34,8 +34,9 @@ theme:
 
 nav:
   - 首页: index.md
-  - 快速开始: QUICK_START.md
-  - 使用指南: USER_GUIDE.md
+  - 快速开始:
+      - 中文: QUICK_START.md
+      - English: QUICK_START_EN.md
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -55,13 +56,10 @@ exclude_docs: |
   *.pdf
   CHANGELOG_GUIDE.md
   DOCSTRING_GUIDE.md
-  FIX_XML_AUTO_POPULATE.md
   INTERNATIONALIZATION.md
   NUITKA_BUILD.md
-  OPTIMIZATION_SUMMARY.md
   README_PYLINT.md
   TESTING_GUIDE.md
-  QUICK_START_EN.md
 
 extra:
   social:

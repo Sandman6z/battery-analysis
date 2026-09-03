@@ -11,8 +11,8 @@
 
 ## 文档导航
 
-- **[快速开始](QUICK_START.md)** - 三步上手，快速完成分析
-- **[使用指南](USER_GUIDE.md)** - 详细功能说明与快捷键
+- **[快速开始（中文）](QUICK_START.md)** - 三步上手，快速完成分析
+- **[Quick Start (English)](QUICK_START_EN.md)** - Get started in three steps
 
 ## 项目链接
 
