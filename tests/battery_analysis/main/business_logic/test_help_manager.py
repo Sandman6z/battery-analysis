@@ -19,58 +19,28 @@ class TestHelpManager:
         # 创建帮助管理器实例
         self.help_manager = HelpManager(self.mock_main_window)
 
-    def test_show_user_manual_with_valid_manual(self):
-        """测试显示用户手册（找到有效手册）"""
-        # 模拟FileUtils.get_manual_paths返回有效的手册路径
-        mock_manual_path = MagicMock()
-        mock_manual_path.exists.return_value = True
-        mock_manual_path.is_file.return_value = True
-        mock_manual_path.__str__.return_value = "test_manual.pdf"
-
-        # 模拟os.startfile
-        with patch(
-            "battery_analysis.main.business_logic.help_manager.FileUtils.get_manual_paths",
-            return_value=[mock_manual_path],
-        ), patch("os.startfile") as mock_startfile:
+    def test_show_user_manual(self):
+        """测试显示用户手册（在线文档）"""
+        # 模拟QDesktopServices.openUrl
+        with patch("PyQt6.QtGui.QDesktopServices.openUrl") as mock_open_url:
             # 调用方法
             self.help_manager.show_user_manual()
 
             # 验证结果
-            mock_startfile.assert_called_once_with("test_manual.pdf")
-
-    def test_show_user_manual_with_no_manual(self):
-        """测试显示用户手册（找不到手册）"""
-        # 模拟FileUtils.get_manual_paths返回无效的手册路径
-        mock_manual_path = Mock()
-        mock_manual_path.exists.return_value = False
-
-        # 模拟QW.QMessageBox.information
-        with patch(
-            "battery_analysis.main.business_logic.help_manager.FileUtils.get_manual_paths",
-            return_value=[mock_manual_path],
-        ), patch(
-            "battery_analysis.main.business_logic.help_manager.QW.QMessageBox.information"
-        ) as mock_information:
-            # 调用方法
-            self.help_manager.show_user_manual()
-
-            # 验证结果
-            mock_information.assert_called_once()
+            mock_open_url.assert_called_once()
 
     def test_show_user_manual_with_exception(self):
         """测试显示用户手册（发生异常）"""
-        # 模拟FileUtils.get_manual_paths抛出异常
-        with patch(
-            "battery_analysis.main.business_logic.help_manager.FileUtils.get_manual_paths",
-            side_effect=OSError("Test error"),
-        ), patch(
-            "battery_analysis.main.business_logic.help_manager.QW.QMessageBox.warning"
-        ) as mock_warning:
-            # 调用方法
-            self.help_manager.show_user_manual()
+        # 模拟QDesktopServices.openUrl抛出异常
+        with patch("PyQt6.QtGui.QDesktopServices.openUrl", side_effect=ImportError("Test error")):
+            with patch(
+                "battery_analysis.main.business_logic.help_manager.QW.QMessageBox.warning"
+            ) as mock_warning:
+                # 调用方法
+                self.help_manager.show_user_manual()
 
-            # 验证结果
-            mock_warning.assert_called_once()
+                # 验证结果
+                mock_warning.assert_called_once()
 
     def test_show_online_help(self):
         """测试显示在线帮助"""

@@ -32,42 +32,14 @@ class HelpManager:
 
     def show_user_manual(self) -> None:
         """
-        显示用户手册
+        显示用户手册（在线文档）
         """
         try:
-            # 使用FileUtils获取所有可能的手册路径
-            cur_dir = getattr(self.main_window, "current_directory", "") or ""
-            manual_paths = FileUtils.get_manual_paths(cur_dir)
+            from PyQt6.QtCore import QUrl
+            from PyQt6.QtGui import QDesktopServices
 
-            manual_found = False
-            for manual_path in manual_paths:
-                if manual_path.exists() and manual_path.is_file():
-                    try:
-                        # 使用安全的文件打开方式
-                        os.startfile(str(manual_path))
-                        manual_found = True
-                        self.logger.info("Opened user manual: %s", manual_path)
-                        break
-                    except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning(
-                            "Failed to open manual file %s: %s", manual_path, open_error
-                        )
-                        continue
-
-            if not manual_found:
-                # 如果找不到手册文件，显示提示并提供解决方案
-                QW.QMessageBox.information(
-                    self.main_window,
-                    "User Manual",
-                    "User manual file not found.\n\n"
-                    + "Please make sure one of the following files exists:\n"
-                    + "• docs/user_manual.pdf\n"
-                    + "• user_manual.pdf\n\n"
-                    + "For help, please contact technical support.",
-                    QW.QMessageBox.StandardButton.Ok,
-                )
-
-        except (OSError, TypeError, ValueError, RuntimeError) as e:
+            QDesktopServices.openUrl(QUrl("https://sandman6z.github.io/battery-analysis/QUICK_START/"))
+        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.error("Failed to open user manual: %s", e)
             QW.QMessageBox.warning(
                 self.main_window,
@@ -84,7 +56,7 @@ class HelpManager:
             from PyQt6.QtCore import QUrl
             from PyQt6.QtGui import QDesktopServices
 
-            QDesktopServices.openUrl(QUrl("https://example.com/battery-analyzer/help"))
+            QDesktopServices.openUrl(QUrl("https://sandman6z.github.io/battery-analysis/"))
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.error("Failed to open online help: %s", e)
             QW.QMessageBox.warning(

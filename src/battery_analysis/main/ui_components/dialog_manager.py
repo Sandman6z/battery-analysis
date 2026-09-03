@@ -164,14 +164,14 @@ class DialogManager:
         """
         try:
             # 打开在线帮助网页
-            help_url = "https://example.com/battery-analyzer-help"
+            help_url = "https://sandman6z.github.io/battery-analysis/"
             QG.QDesktopServices.openUrl(QC.QUrl(help_url))
         except (OSError, ValueError, RuntimeError, TypeError) as e:
             logging.error("Failed to open online help: %s", e)
             QW.QMessageBox.information(
                 self.main_window,
                 "Online Help",
-                "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: https://example.com/battery-analyzer-help",
+                "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: https://sandman6z.github.io/battery-analysis/",
                 QW.QMessageBox.StandardButton.Ok,
             )
 
