@@ -313,7 +313,7 @@ class Main(QW.QMainWindow):
 
     def connect_widget(self) -> None:
         self.ui_manager.connect_widget()
-        self.pushButton_Run.clicked.connect(self.run)
+        self.pushButton_Run.clicked.connect(self.run_analysis_command.execute)
         self.sigSetVersion.connect(self.version_manager.get_version)
         self.menu_manager.connect_menu_actions()
         self.setup_menu_shortcuts()
@@ -418,18 +418,6 @@ class Main(QW.QMainWindow):
             w.cut()
 
     # ------------------------------
-    # 电池分析功能方法
-    # ------------------------------
-    def calculate_battery(self) -> None:
-        self.calculate_battery_command.execute()
-
-    def analyze_data(self) -> None:
-        self.analyze_data_command.execute()
-
-    def generate_report(self) -> None:
-        self.generate_report_command.execute()
-
-    # ------------------------------
     # 环境和信息管理方法
     # ------------------------------
     def _initialize_environment_info(self):
@@ -437,9 +425,6 @@ class Main(QW.QMainWindow):
 
     def _ensure_env_info_keys(self):
         self.environment_manager.ensure_env_info_keys()
-
-    def batch_processing(self) -> None:
-        self.batch_processing_command.execute()
 
     def show_config_dialog(self):
         saved = {
@@ -467,9 +452,6 @@ class Main(QW.QMainWindow):
     # ------------------------------
     # 报告相关方法
     # ------------------------------
-    def export_report(self) -> None:
-        self.export_report_command.execute()
-
     def set_theme(self, theme_name) -> None:
         self.theme_manager.set_theme(theme_name)
 
@@ -506,9 +488,6 @@ class Main(QW.QMainWindow):
     def on_temperature_type_changed(self, index):
         self.temperature_handler.on_temperature_type_changed()
 
-
-    def run(self) -> None:
-        self.run_analysis_command.execute()
 
     def save_table(self) -> None:
         self.table_manager.save_table()
