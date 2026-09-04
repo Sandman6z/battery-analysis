@@ -136,6 +136,8 @@ class MainController(QC.QObject):
         分析完成回调
         """
         self.is_analysis_running = False
+        # 释放 worker 引用，允许 Python GC 回收 TaskRunner（setAutoDelete=False）
+        self.current_worker = None
         self.analysis_completed.emit()
 
     def _on_path_renamed(self, test_date):
