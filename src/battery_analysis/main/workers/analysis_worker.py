@@ -266,11 +266,16 @@ class AnalysisWorker(TaskRunner):
                     self.signals.info.emit(False, 2, self.str_error_xlsx)
                 else:
                     self.signals.info.emit(False, 0, "status:success")
-                    self.signals.thread_end.emit()
             except RuntimeError as e:
                 logging.warning(
                     "Signal object already deleted, cannot emit completion status: %s", e
                 )
+            # thread_end 必须无条件发射：_on_analysis_completed 依赖它来重置
+            # is_analysis_running，否则 UI 永远卡在 "Running" 状态
+            try:
+                self.signals.thread_end.emit()
+            except RuntimeError:
+                pass
 
     def _start_visualizer(self):
         """

@@ -49,4 +49,4 @@ class TestAnalysisWorker:
         worker.run()
         assert len(spy_info) > 0
         assert spy_info[-1] == [False, 0, "status:cancelled"]
-        assert len(spy_thread_end) == 0  # 取消不发 thread_end
+        assert len(spy_thread_end) == 1  # 取消也发 thread_end，确保 is_analysis_running 重置
