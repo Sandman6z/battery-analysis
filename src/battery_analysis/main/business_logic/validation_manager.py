@@ -205,8 +205,8 @@ class ValidationManager:
 
     def _get_all_specifications(self) -> list:
         """从配置中获取所有规格型号（不分电池类型）"""
-        coin = self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") or []
-        pouch = self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell") or []
+        coin = self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypeCoinCell") or []
+        pouch = self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypePouchCell") or []
         return coin + pouch
 
     def check_specification(self) -> None:
@@ -220,11 +220,11 @@ class ValidationManager:
         type_spec_pairs = [
             (
                 "Coin Cell",
-                self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell") or [],
+                self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypeCoinCell") or [],
             ),
             (
                 "Pouch Cell",
-                self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell") or [],
+                self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypePouchCell") or [],
             ),
         ]
 
@@ -257,7 +257,7 @@ class ValidationManager:
         if not self.main_window.specification_type or not specification_method:
             return
 
-        rules = self.main_window.get_config("BatteryConfig/Rules")
+        rules = self.main_window.config_manager.get_config("BatteryConfig/Rules")
         for rule in rules:
             rule_parts = rule.split("/")
             if rule_parts[0] == self.main_window.specification_type:

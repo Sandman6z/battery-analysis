@@ -358,11 +358,11 @@ class UIManager:
         self.main_window.lineEdit_Version.setValidator(validator)
 
         # 添加版本号实时验证
-        self.main_window.lineEdit_Version.textChanged.connect(self.main_window.validate_version)
+        self.main_window.lineEdit_Version.textChanged.connect(self.main_window.validation_manager.validate_version)
 
         # 为输入路径添加存在性验证
         self.main_window.lineEdit_InputPath.textChanged.connect(
-            self.main_window.validate_input_path
+            self.main_window.validation_manager.validate_input_path
         )
 
         # 为必填字段添加非空验证
@@ -373,7 +373,7 @@ class UIManager:
             self.main_window.lineEdit_RequiredUseableCapacity,
         ]
         for field in required_fields:
-            field.textChanged.connect(self.main_window.validate_required_fields)
+            field.textChanged.connect(self.main_window.validation_manager.validate_required_fields)
 
         self.main_window.lineEdit_TestProfile.setText("Not provided")
 
@@ -410,19 +410,19 @@ class UIManager:
         # 添加新项目（配置缺失时使用内置兜底值）
         self._add_items_with_fallback(
             self.main_window.comboBox_BatteryType,
-            self.main_window.get_config("BatteryConfig/BatteryType"),
+            self.main_window.config_manager.get_config("BatteryConfig/BatteryType"),
             ["Coin Cell", "Pouch Cell"],
         )
         self._add_items_with_fallback(
             self.main_window.comboBox_ConstructionMethod,
-            self.main_window.get_config("BatteryConfig/ConstructionMethod"),
+            self.main_window.config_manager.get_config("BatteryConfig/ConstructionMethod"),
             ["Spiral Type", "Laminate Type"],
         )
         self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell")
+            self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypeCoinCell")
         )
         self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell")
+            self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypePouchCell")
         )
         if self.main_window.comboBox_Specification_Type.count() == 0:
             self.main_window.comboBox_Specification_Type.addItems(
@@ -430,22 +430,22 @@ class UIManager:
             )
         self._add_items_with_fallback(
             self.main_window.comboBox_Specification_Method,
-            self.main_window.get_config("BatteryConfig/SpecificationMethod"),
+            self.main_window.config_manager.get_config("BatteryConfig/SpecificationMethod"),
             ["Standard", "High Rate"],
         )
         self._add_items_with_fallback(
             self.main_window.comboBox_Manufacturer,
-            self.main_window.get_config("BatteryConfig/Manufacturer"),
+            self.main_window.config_manager.get_config("BatteryConfig/Manufacturer"),
             ["Unknown"],
         )
         self._add_items_with_fallback(
             self.main_window.comboBox_TesterLocation,
-            self.main_window.get_config("TestConfig/TesterLocation"),
+            self.main_window.config_manager.get_config("TestConfig/TesterLocation"),
             ["Lab 1", "Lab 2"],
         )
 
         # 获取TestedBy列表并同时用于comboBox_TestedBy和comboBox_ReportedBy
-        tested_by_list = self.main_window.get_config("TestConfig/TestedBy")
+        tested_by_list = self.main_window.config_manager.get_config("TestConfig/TestedBy")
         if tested_by_list:
             self.main_window.comboBox_TestedBy.addItems(tested_by_list)
             self.main_window.comboBox_ReportedBy.addItems(tested_by_list)
@@ -579,7 +579,7 @@ class UIManager:
         self.main_window.pushButton_TestProfile.clicked.connect(self.main_window.test_profile_manager.select_testprofile)
         self.main_window.pushButton_InputPath.clicked.connect(self.main_window.path_manager.select_inputpath)
         self.main_window.pushButton_OutputPath.clicked.connect(self.main_window.path_manager.select_outputpath)
-        self.main_window.pushButton_Run.clicked.connect(self.main_window.run)
+        self.main_window.pushButton_Run.clicked.connect(self.main_window.run_analysis_command.execute)
         self.main_window.sigSetVersion.connect(self.main_window.version_manager.get_version)
 
     def update_ui_texts(self):

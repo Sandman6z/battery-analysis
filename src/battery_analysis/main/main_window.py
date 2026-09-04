@@ -306,6 +306,7 @@ class Main(QW.QMainWindow):
         self.sigSetVersion.connect(self.version_manager.get_version)
         self.menu_manager.connect_menu_actions()
         self.menu_manager.setup_menu_shortcuts()
+        self.signal_connector.connect_controllers()
 
     # ------------------------------
     # 用户交互方法

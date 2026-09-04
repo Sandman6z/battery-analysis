@@ -158,15 +158,15 @@ class DataProcessor:
         self.main_window.comboBox_BatteryType.setCurrentIndex(-1)
         self.main_window.comboBox_Specification_Type.clear()
         self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationTypeCoinCell")
+            self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypeCoinCell")
         )
         self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationTypePouchCell")
+            self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypePouchCell")
         )
         self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
         self.main_window.comboBox_Specification_Method.clear()
         self.main_window.comboBox_Specification_Method.addItems(
-            self.main_window.get_config("BatteryConfig/SpecificationMethod")
+            self.main_window.config_manager.get_config("BatteryConfig/SpecificationMethod")
         )
         self.main_window.comboBox_Specification_Method.setCurrentIndex(-1)
         self.main_window.comboBox_Manufacturer.setCurrentIndex(-1)
@@ -290,10 +290,10 @@ class DataProcessor:
                 mw.construction_method = mw.comboBox_ConstructionMethod.itemText(c)
                 break
 
-        all_spec_types = mw.get_config("BatteryConfig/SpecificationTypeCoinCell") + mw.get_config(
+        all_spec_types = mw.config_manager.get_config("BatteryConfig/SpecificationTypeCoinCell") + mw.config_manager.get_config(
             "BatteryConfig/SpecificationTypePouchCell"
         )
-        all_spec_methods = mw.get_config("BatteryConfig/SpecificationMethod")
+        all_spec_methods = mw.config_manager.get_config("BatteryConfig/SpecificationMethod")
 
         filename_parser.set_specification_type(
             filename, all_spec_types, mw.comboBox_Specification_Type

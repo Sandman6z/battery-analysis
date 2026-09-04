@@ -177,7 +177,7 @@ class ConfigManager:
             # 图表路径和标题将在需要时动态计算
 
             bSetTitle = False
-            rules = self.main_window.get_config("BatteryConfig/Rules")
+            rules = self.main_window.config_manager.get_config("BatteryConfig/Rules")
             specification_type = self.main_window.comboBox_Specification_Type.currentText()
             strPulseCurrent = "".join(
                 [f"{current_level}mA/" for current_level in self.main_window.listCurrentLevel]

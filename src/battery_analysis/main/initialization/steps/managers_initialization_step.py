@@ -67,14 +67,9 @@ class ManagersInitializationStep(InitializationStep):
             # 初始化信号连接器
             main_window.signal_connector = SignalConnector(main_window)
 
-            # 连接菜单动作
-            main_window.menu_manager.connect_menu_actions()
-
-            # 设置菜单快捷键
-            main_window.menu_manager.setup_menu_shortcuts()
-
-            # 连接控制器信号（在manager初始化之后）
-            main_window.signal_connector.connect_controllers()
+            # 注意：connect_controllers()、connect_menu_actions()、
+            # setup_menu_shortcuts() 已移至 connect_widget()，
+            # 在所有 manager/command 初始化之后调用
 
             self.logger.info("Manager initialization complete")
             return True

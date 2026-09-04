@@ -33,8 +33,8 @@ class BatteryConfigInitializationStep(InitializationStep):
             self.logger.info("Starting battery configuration initialization")
 
             # 获取配置
-            listPulseCurrent = main_window.get_config("BatteryConfig/PulseCurrent")
-            listCutoffVoltage = main_window.get_config("BatteryConfig/CutOffVoltage")
+            listPulseCurrent = main_window.config_manager.get_config("BatteryConfig/PulseCurrent")
+            listCutoffVoltage = main_window.config_manager.get_config("BatteryConfig/CutOffVoltage")
 
             # 处理可能包含浮点数的电流值
             try:
