@@ -209,7 +209,13 @@ class BatteryAnalysis:
                     progress_callback(15, "Analyzing battery data in parallel...")
                 with multiprocessing.Pool(processes=cpu_count) as pool:
                     try:
-                        results = pool.map(self._parallel_process_file, process_args)
+                        results = pool.map(self._parallel_process_file, process_args, timeout=300)
+                    except multiprocessing.TimeoutError:
+                        logging.error("Parallel processing timed out after 300 seconds")
+                        pool.terminate()
+                        raise BatteryAnalysisException(
+                            "Parallel processing timed out after 300 seconds"
+                        )
                     except (
                         FileNotFoundError,
                         PermissionError,
