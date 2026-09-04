@@ -178,7 +178,7 @@ class AnalysisRunner:
             main_controller.set_test_info(test_info)
 
             # 更新配置
-            self.main_window.update_config(test_info)
+            self.main_window.config_manager.update_config(test_info)
             self.main_window.sha256_checksum_run = self.main_window.sha256_checksum
             self.main_window.statusBar_BatteryAnalysis.showMessage("status:ok")
 
