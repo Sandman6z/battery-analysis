@@ -437,43 +437,6 @@ class Main(QW.QMainWindow):
     def _ensure_env_info_keys(self):
         self.environment_manager.ensure_env_info_keys()
 
-    # ------------------------------
-    # 可视化相关方法
-    # ------------------------------
-    def run_visualizer(self, xml_path=None) -> None:
-        self.visualization_manager.run_visualizer(xml_path)
-
-    def show_visualizer_error(self, error_msg: str):
-        self.visualization_manager.show_visualizer_error(error_msg)
-
-    def show_chart_area(self):
-        """显示图表嵌入区域"""
-        if hasattr(self, "chart_area_widget"):
-            self.chart_area_widget.setVisible(True)
-            self.chart_control_panel.setVisible(True)
-            self.chart_container.setVisible(True)
-            self.logger.info("Chart area shown")
-
-    def hide_chart_area(self):
-        """隐藏图表嵌入区域"""
-        if hasattr(self, "chart_area_widget"):
-            self.chart_area_widget.setVisible(False)
-            self.chart_control_panel.setVisible(False)
-            self.chart_container.setVisible(False)
-            self.logger.info("Chart area hidden")
-
-    def get_chart_container(self):
-        """获取图表容器控件"""
-        if hasattr(self, "chart_container"):
-            return self.chart_container
-        return None
-
-    def get_chart_control_panel(self):
-        """获取图表控制面板控件"""
-        if hasattr(self, "chart_control_panel"):
-            return self.chart_control_panel
-        return None
-
     def batch_processing(self) -> None:
         self.batch_processing_command.execute()
 

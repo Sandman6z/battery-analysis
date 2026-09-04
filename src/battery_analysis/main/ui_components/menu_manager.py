@@ -155,7 +155,7 @@ class MenuManager:
             self.main_window.calculate_battery
         )
         self.main_window.actionAnalyze_Data.triggered.connect(self.main_window.analyze_data)
-        self.main_window.actionBatteryChartViewer.triggered.connect(self.main_window.run_visualizer)
+        self.main_window.actionBatteryChartViewer.triggered.connect(self.main_window.visualization_manager.run_visualizer)
         self.main_window.actionGenerate_Report.triggered.connect(self.main_window.generate_report)
         self.main_window.actionBatch_Processing.triggered.connect(self.main_window.batch_processing)
 

@@ -77,7 +77,7 @@ class SignalConnector:
             if hasattr(main_controller, "path_renamed"):
                 main_controller.path_renamed.connect(self.main_window.rename_pltPath)
             if hasattr(main_controller, "start_visualizer"):
-                main_controller.start_visualizer.connect(self.main_window.run_visualizer)
+                main_controller.start_visualizer.connect(self.main_window.visualization_manager.run_visualizer)
             if hasattr(main_controller, "status_changed"):
                 main_controller.status_changed.connect(self._on_status_changed)
 
