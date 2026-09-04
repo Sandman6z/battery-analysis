@@ -544,18 +544,6 @@ class Main(QW.QMainWindow):
         self.temperature_handler.on_temperature_type_changed()
 
 
-    # ------------------------------
-    # 路径选择方法
-    # ------------------------------
-    def select_testprofile(self) -> None:
-        self.test_profile_manager.select_testprofile()
-
-    def select_inputpath(self) -> None:
-        self.path_manager.select_inputpath()
-
-    def select_outputpath(self) -> None:
-        self.path_manager.select_outputpath()
-
     def run(self) -> None:
         self.run_analysis_command.execute()
 

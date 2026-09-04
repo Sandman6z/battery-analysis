@@ -134,13 +134,13 @@ class TestEndToEnd:
     def test_full_analysis_workflow(self):
         """测试完整的电池分析工作流程"""
         # 1. 选择输入路径
-        self.main_window.select_inputpath()
+        self.main_window.path_manager.select_inputpath()
 
         # 验证输入路径设置
         self.main_window.path_manager.select_inputpath.assert_called_once()
 
         # 2. 选择输出路径
-        self.main_window.select_outputpath()
+        self.main_window.path_manager.select_outputpath()
 
         # 验证输出路径设置
         self.main_window.path_manager.select_outputpath.assert_called_once()
