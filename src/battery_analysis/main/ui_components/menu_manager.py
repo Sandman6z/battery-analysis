@@ -131,10 +131,10 @@ class MenuManager:
         连接菜单动作
         """
         # 菜单动作连接
-        self.main_window.actionExit.triggered.connect(self.main_window.handle_exit)
-        self.main_window.actionAbout.triggered.connect(self.main_window.handle_about)
-        self.main_window.actionUser_Mannual.triggered.connect(self.main_window.show_user_manual)
-        self.main_window.actionOnline_Help.triggered.connect(self.main_window.show_online_help)
+        self.main_window.actionExit.triggered.connect(self.main_window.dialog_manager.handle_exit)
+        self.main_window.actionAbout.triggered.connect(self.main_window.dialog_manager.handle_about)
+        self.main_window.actionUser_Mannual.triggered.connect(self.main_window.help_manager.show_user_manual)
+        self.main_window.actionOnline_Help.triggered.connect(self.main_window.dialog_manager.show_online_help)
 
         # 常用编辑功能连接
         self.main_window.actionCopy.triggered.connect(self.main_window.copy_selected_text)
@@ -142,12 +142,12 @@ class MenuManager:
         self.main_window.actionCut.triggered.connect(self.main_window.cut_selected_text)
 
         # 首选项对话框连接
-        self.main_window.actionPreferences.triggered.connect(self.main_window.show_preferences)
+        self.main_window.actionPreferences.triggered.connect(self.main_window.dialog_manager.show_preferences)
 
         # 状态栏显示/隐藏功能连接
         if hasattr(self.main_window, "actionShow_Statusbar"):
             self.main_window.actionShow_Statusbar.triggered.connect(
-                self.main_window.toggle_statusbar_safe
+                self.main_window.menu_manager.toggle_statusbar_safe
             )
 
         # 工具菜单功能连接
@@ -174,7 +174,6 @@ class MenuManager:
         self._connect_theme_actions()
 
         # 文件操作连接
-        self.main_window.actionSave.triggered.connect(self.main_window.save_settings)
         self.main_window.actionExport_Report.triggered.connect(self.main_window.export_report_command.execute)
 
     def _connect_theme_actions(self):
@@ -184,11 +183,11 @@ class MenuManager:
         # 主题菜单功能连接 — 映射旧菜单项名称到新的 light/dark 主题
         if hasattr(self.main_window, "actionLight_Theme"):
             self.main_window.actionLight_Theme.triggered.connect(
-                lambda: self.main_window.set_theme("light")
+                lambda: self.main_window.theme_manager.set_theme("light")
             )
         if hasattr(self.main_window, "actionDark_Theme"):
             self.main_window.actionDark_Theme.triggered.connect(
-                lambda: self.main_window.set_theme("dark")
+                lambda: self.main_window.theme_manager.set_theme("dark")
             )
 
     def toggle_statusbar_safe(self):

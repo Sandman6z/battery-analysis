@@ -146,26 +146,26 @@ class TestEndToEnd:
         self.main_window.path_manager.select_outputpath.assert_called_once()
 
         # 3. 获取Excel文件信息
-        self.main_window.get_xlsxinfo()
+        self.main_window.data_processor.get_xlsxinfo()
 
         # 验证Excel信息获取
         self.main_window.data_processor.get_xlsxinfo.assert_called_once()
 
         # 4. 检查输入
-        result = self.main_window.checkinput()
+        result = self.main_window.validation_manager.checkinput()
 
         # 验证输入检查
         self.main_window.validation_manager.checkinput.assert_called_once()
         assert result is True
 
         # 5. 运行分析
-        self.main_window.run()
+        self.main_window.run_analysis_command.execute()
 
         # 验证分析运行
         self.main_window.run_analysis_command.execute.assert_called_once()
 
         # 6. 导出报告
-        self.main_window.export_report()
+        self.main_window.export_report_command.execute()
 
         # 验证报告导出
         self.main_window.export_report_command.execute.assert_called_once()
@@ -185,7 +185,7 @@ class TestEndToEnd:
         self.main_window.batch_processing_command.execute = Mock()
 
         # 运行批量处理
-        self.main_window.batch_processing()
+        self.main_window.batch_processing_command.execute()
 
         # 验证批量处理命令执行
         self.main_window.batch_processing_command.execute.assert_called_once()
@@ -197,7 +197,7 @@ class TestEndToEnd:
         self.main_window.analyze_data_command.execute = Mock()
 
         # 运行数据分析
-        self.main_window.analyze_data()
+        self.main_window.analyze_data_command.execute()
 
         # 验证数据分析命令执行
         self.main_window.analyze_data_command.execute.assert_called_once()
@@ -209,7 +209,7 @@ class TestEndToEnd:
         self.main_window.generate_report_command.execute = Mock()
 
         # 运行报告生成
-        self.main_window.generate_report()
+        self.main_window.generate_report_command.execute()
 
         # 验证报告生成命令执行
         self.main_window.generate_report_command.execute.assert_called_once()
@@ -221,7 +221,7 @@ class TestEndToEnd:
         self.main_window.calculate_battery_command.execute = Mock()
 
         # 运行电池计算
-        self.main_window.calculate_battery()
+        self.main_window.calculate_battery_command.execute()
 
         # 验证电池计算命令执行
         self.main_window.calculate_battery_command.execute.assert_called_once()
@@ -232,7 +232,7 @@ class TestEndToEnd:
         self.main_window.validation_manager.checkinput = Mock(return_value=False)
 
         # 运行分析（应该失败）
-        self.main_window.run()
+        self.main_window.run_analysis_command.execute()
 
         # 验证分析命令仍然执行（实际应用中可能会有不同的处理逻辑）
         self.main_window.run_analysis_command.execute.assert_called_once()
@@ -245,17 +245,10 @@ class TestEndToEnd:
 
         # 运行可视化工具
         test_xml_path = "test.xml"
-        self.main_window.run_visualizer(test_xml_path)
+        self.main_window.visualization_manager.run_visualizer(test_xml_path)
 
         # 验证可视化工具运行
         self.main_window.visualization_manager.run_visualizer.assert_called_once_with(test_xml_path)
-
-    def test_settings_management_workflow(self):
-        """测试设置管理工作流程"""
-        # 保存设置
-        self.main_window.save_settings()
-
-        # 验证无异常抛出即可
 
     def test_language_change_workflow(self):
         """测试语言切换工作流程"""

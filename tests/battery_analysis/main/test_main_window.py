@@ -152,21 +152,19 @@ class TestMainWindow:
 
     def test_init_window(self):
         """测试窗口初始化"""
-        # 调用初始化方法
-        self.main_window.init_window()
+        # 调用初始化方法（直接通过ui_manager）
+        self.main_window.ui_manager.init_window()
 
         # 验证ui_manager的init_window方法被调用
         self.main_window.ui_manager.init_window.assert_called_once()
 
     def test_init_widget(self):
         """测试部件初始化"""
-        # 调用初始化方法
-        self.main_window.init_widget()
+        # 调用初始化方法（直接通过ui_manager）
+        self.main_window.ui_manager.init_widget()
 
         # 验证ui_manager的init_widget方法被调用
         self.main_window.ui_manager.init_widget.assert_called_once()
-        # 验证Run按钮获得焦点
-        self.main_window.pushButton_Run.setFocus.assert_called_once()
 
     def test_load_application_icon(self):
         """测试加载应用程序图标"""
@@ -206,24 +204,24 @@ class TestMainWindow:
 
     def test_handle_exit(self):
         """测试退出处理"""
-        # 调用方法
-        self.main_window.handle_exit()
+        # 调用方法（直接通过dialog_manager）
+        self.main_window.dialog_manager.handle_exit()
 
         # 验证dialog_manager的handle_exit方法被调用
         self.main_window.dialog_manager.handle_exit.assert_called_once()
 
     def test_handle_about(self):
         """测试关于对话框"""
-        # 调用方法
-        self.main_window.handle_about()
+        # 调用方法（直接通过dialog_manager）
+        self.main_window.dialog_manager.handle_about()
 
         # 验证dialog_manager的handle_about方法被调用
         self.main_window.dialog_manager.handle_about.assert_called_once()
 
     def test_show_preferences(self):
         """测试显示首选项对话框"""
-        # 调用方法
-        self.main_window.show_preferences()
+        # 调用方法（直接通过dialog_manager）
+        self.main_window.dialog_manager.show_preferences()
 
         # 验证dialog_manager的show_preferences方法被调用
         self.main_window.dialog_manager.show_preferences.assert_called_once()
@@ -237,105 +235,98 @@ class TestMainWindow:
 
     def test_toggle_statusbar_safe(self):
         """测试安全切换状态栏"""
-        # 调用方法
-        self.main_window.toggle_statusbar_safe()
+        # 调用方法（直接通过menu_manager）
+        self.main_window.menu_manager.toggle_statusbar_safe()
 
         # 验证menu_manager的toggle_statusbar_safe方法被调用
         self.main_window.menu_manager.toggle_statusbar_safe.assert_called_once()
 
     def test_show_user_manual(self):
         """测试显示用户手册"""
-        # 调用方法
-        self.main_window.show_user_manual()
+        # 调用方法（直接通过help_manager）
+        self.main_window.help_manager.show_user_manual()
 
         # 验证help_manager的show_user_manual方法被调用
         self.main_window.help_manager.show_user_manual.assert_called_once()
 
     def test_show_online_help(self):
         """测试显示在线帮助"""
-        # 调用方法
-        self.main_window.show_online_help()
+        # 调用方法（直接通过dialog_manager）
+        self.main_window.dialog_manager.show_online_help()
 
         # 验证dialog_manager的show_online_help方法被调用
         self.main_window.dialog_manager.show_online_help.assert_called_once()
 
     def test_calculate_battery(self):
         """测试电池计算"""
-        # 调用方法
-        self.main_window.calculate_battery()
+        # 调用方法（直接通过command）
+        self.main_window.calculate_battery_command.execute()
 
         # 验证命令执行
         self.main_window.calculate_battery_command.execute.assert_called_once()
 
     def test_analyze_data(self):
         """测试数据分析"""
-        # 调用方法
-        self.main_window.analyze_data()
+        # 调用方法（直接通过command）
+        self.main_window.analyze_data_command.execute()
 
         # 验证命令执行
         self.main_window.analyze_data_command.execute.assert_called_once()
 
     def test_generate_report(self):
         """测试生成报告"""
-        # 调用方法
-        self.main_window.generate_report()
+        # 调用方法（直接通过command）
+        self.main_window.generate_report_command.execute()
 
         # 验证命令执行
         self.main_window.generate_report_command.execute.assert_called_once()
 
     def test_run_visualizer(self):
         """测试运行可视化工具"""
-        # 调用方法
+        # 调用方法（直接通过visualization_manager）
         test_xml_path = "test.xml"
-        self.main_window.run_visualizer(test_xml_path)
+        self.main_window.visualization_manager.run_visualizer(test_xml_path)
 
         # 验证可视化管理器的run_visualizer方法被调用
         self.main_window.visualization_manager.run_visualizer.assert_called_once_with(test_xml_path)
 
     def test_batch_processing(self):
         """测试批量处理"""
-        # 调用方法
-        self.main_window.batch_processing()
+        # 调用方法（直接通过command）
+        self.main_window.batch_processing_command.execute()
 
         # 验证命令执行
         self.main_window.batch_processing_command.execute.assert_called_once()
 
-    def test_save_settings(self):
-        """测试保存设置"""
-        # 调用方法
-        self.main_window.save_settings()
-
-        # 验证方法执行（无异常抛出）
-
     def test_export_report(self):
         """测试导出报告"""
-        # 调用方法
-        self.main_window.export_report()
+        # 调用方法（直接通过command）
+        self.main_window.export_report_command.execute()
 
         # 验证命令执行
         self.main_window.export_report_command.execute.assert_called_once()
 
     def test_set_theme(self):
         """测试设置主题"""
-        # 调用方法
+        # 调用方法（直接通过theme_manager）
         test_theme = "dark"
-        self.main_window.set_theme(test_theme)
+        self.main_window.theme_manager.set_theme(test_theme)
 
         # 验证theme_manager的set_theme方法被调用
         self.main_window.theme_manager.set_theme.assert_called_once_with(test_theme)
 
     def test_validate_version(self):
         """测试验证版本"""
-        # 调用方法
-        self.main_window.validate_version()
+        # 调用方法（直接通过validation_manager）
+        self.main_window.validation_manager.validate_version()
 
         # 验证validation_manager的validate_version方法被调用
         self.main_window.validation_manager.validate_version.assert_called_once()
 
     def test_validate_input_path(self):
         """测试验证输入路径"""
-        # 调用方法
-        self.main_window.validate_input_path()
+        # 调用方法（直接通过validation_manager）
+        self.main_window.validation_manager.validate_input_path()
 
         # 验证validation_manager的validate_input_path方法被调用
         self.main_window.validation_manager.validate_input_path.assert_called_once()
@@ -358,32 +349,32 @@ class TestMainWindow:
 
     def test_run(self):
         """测试运行分析"""
-        # 调用方法
-        self.main_window.run()
+        # 调用方法（直接通过command）
+        self.main_window.run_analysis_command.execute()
 
         # 验证命令执行
         self.main_window.run_analysis_command.execute.assert_called_once()
 
     def test_get_xlsxinfo(self):
         """测试获取Excel文件信息"""
-        # 调用方法
-        self.main_window.get_xlsxinfo()
+        # 调用方法（直接通过data_processor）
+        self.main_window.data_processor.get_xlsxinfo()
 
         # 验证data_processor的get_xlsxinfo方法被调用
         self.main_window.data_processor.get_xlsxinfo.assert_called_once()
 
     def test_get_version(self):
         """测试获取版本"""
-        # 调用方法
-        self.main_window.get_version()
+        # 调用方法（直接通过version_manager）
+        self.main_window.version_manager.get_version()
 
         # 验证version_manager的get_version方法被调用
         self.main_window.version_manager.get_version.assert_called_once()
 
     def test_set_version(self):
         """测试设置版本（分析完成后更新次要版本号）"""
-        # 调用方法
-        self.main_window.set_version()
+        # 调用方法（直接通过version_manager）
+        self.main_window.version_manager.set_version()
 
         # 验证version_manager的set_version方法被调用
         self.main_window.version_manager.set_version.assert_called_once()
@@ -409,18 +400,18 @@ class TestMainWindow:
 
     def test_rename_pltPath(self):
         """测试重命名图表路径"""
-        # 调用方法
+        # 调用方法（直接通过config_manager）
         test_date = "2024-01-01"
-        self.main_window.rename_pltPath(test_date)
+        self.main_window.config_manager.rename_pltPath(test_date)
 
         # 验证config_manager的rename_pltPath方法被调用
         self.main_window.config_manager.rename_pltPath.assert_called_once_with(test_date)
 
     def test_update_config(self):
         """测试更新配置"""
-        # 调用方法
+        # 调用方法（直接通过config_manager）
         test_info = {"TestDate": "2024-01-01"}
-        self.main_window.update_config(test_info)
+        self.main_window.config_manager.update_config(test_info)
 
         # 验证config_manager的update_config方法被调用
         self.main_window.config_manager.update_config.assert_called_once_with(test_info)

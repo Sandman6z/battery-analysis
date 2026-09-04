@@ -208,64 +208,14 @@ class TestClipboardOperations:
         le.cut.assert_called_once()
 
 
-class TestReportDelegation:
-    """报告管理器委托测试"""
-
-    def test_open_report(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        dialog = Mock()
-        Main._open_report(main_window, dialog)
-        main_window.report_manager.open_report.assert_called_once_with(dialog)
-
-    def test_open_report_path(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        dialog = Mock()
-        Main._open_report_path(main_window, dialog)
-        main_window.report_manager.open_report_path.assert_called_once_with(dialog)
-
-    def test_show_analysis_complete(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        Main._show_analysis_complete_dialog(main_window)
-        main_window.report_manager.show_analysis_complete_dialog.assert_called_once()
-
-
 class TestSimpleDelegations:
-    """简单委托方法测试（各 manager 的单方法委托）"""
-
-    def test_get_config(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        main_window.config_manager.get_config.return_value = ["a", "b"]
-        result = Main.get_config(main_window, "battery.types")
-        assert result == ["a", "b"]
-        main_window.config_manager.get_config.assert_called_once_with("battery.types")
-
-    def test_init_window(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        Main.init_window(main_window)
-        main_window.ui_manager.init_window.assert_called_once()
-
-    def test_init_widgetcolor(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        Main.init_widgetcolor(main_window)
-        main_window.ui_manager.init_widgetcolor.assert_called_once()
+    """保留的委托方法测试（仍在 Main 上的方法）"""
 
     def test_set_table(self, main_window):
         from battery_analysis.main.main_window import Main
 
         Main.set_table(main_window)
         main_window.table_manager.set_table.assert_called_once()
-
-    def test_save_table(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        Main.save_table(main_window)
-        main_window.table_manager.save_table.assert_called_once()
 
     def test_toggle_statusbar(self, main_window):
         from battery_analysis.main.main_window import Main
@@ -284,18 +234,6 @@ class TestSimpleDelegations:
 
         Main._ensure_env_info_keys(main_window)
         main_window.environment_manager.ensure_env_info_keys.assert_called_once()
-
-    def test_show_visualizer_error(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        Main.show_visualizer_error(main_window, "err")
-        main_window.visualization_manager.show_visualizer_error.assert_called_once_with("err")
-
-    def test_validate_required_fields(self, main_window):
-        from battery_analysis.main.main_window import Main
-
-        Main.validate_required_fields(main_window)
-        main_window.validation_manager.validate_required_fields.assert_called_once()
 
 
 class TestLanguageMethods:
