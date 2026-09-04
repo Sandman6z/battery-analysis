@@ -36,8 +36,11 @@ class LanguageInitializationStep(InitializationStep):
 
             self.logger.info("Language initialization complete")
             return True
+        except (ImportError, AttributeError, TypeError) as e:
+            self.logger.warning("Language initialization partially failed: %s", e)
+            return True  # 非关键步骤允许降级
         except Exception:
-            self.logger.exception("Language initialization failed")
+            self.logger.exception("Language initialization failed unexpectedly")
             return False
 
     def _connect_language_signals(self, main_window) -> None:

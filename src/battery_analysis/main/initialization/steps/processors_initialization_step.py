@@ -28,8 +28,11 @@ class ProcessorsInitializationStep(InitializationStep):
             main_window.data_processor = DataProcessor(main_window)
             self.logger.info("Data processor initialization complete")
             return True
+        except (ImportError, AttributeError, TypeError) as e:
+            self.logger.warning("Data processor initialization partially failed: %s", e)
+            return True  # 非关键步骤允许降级
         except Exception:
-            self.logger.exception("Data processor initialization failed")
+            self.logger.exception("Data processor initialization failed unexpectedly")
             return False
 
     def can_execute(self, main_window) -> bool:

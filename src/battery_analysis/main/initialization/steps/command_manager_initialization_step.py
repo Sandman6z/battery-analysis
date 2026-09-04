@@ -28,8 +28,11 @@ class CommandManagerInitializationStep(InitializationStep):
             main_window.command_manager = CommandManager(main_window)
             self.logger.info("Command manager initialization complete")
             return True
+        except (ImportError, AttributeError, TypeError) as e:
+            self.logger.warning("Command manager initialization partially failed: %s", e)
+            return True  # 非关键步骤允许降级
         except Exception:
-            self.logger.exception("Command manager initialization failed")
+            self.logger.exception("Command manager initialization failed unexpectedly")
             return False
 
     def can_execute(self, main_window) -> bool:

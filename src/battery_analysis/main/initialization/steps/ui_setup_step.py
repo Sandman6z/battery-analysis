@@ -41,8 +41,11 @@ class UISetupStep(InitializationStep):
                 "UI setup complete (skipped setupUi, already called during initialization)"
             )
             return True
+        except (ImportError, AttributeError, TypeError) as e:
+            self.logger.warning("UI setup partially failed: %s", e)
+            return True  # 非关键步骤允许降级
         except Exception:
-            self.logger.exception("UI setup failed")
+            self.logger.exception("UI setup failed unexpectedly")
             return False
 
     def can_execute(self, main_window) -> bool:
