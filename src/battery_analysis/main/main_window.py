@@ -120,7 +120,7 @@ class Main(QW.QMainWindow):
                 self.tableWidget_TestInformation.resizeColumnsToContents()
 
             # 4b) 版本号
-            self.get_version()
+            self.version_manager.get_version()
 
             # 4c) 应用保存的主题设置
             try:
@@ -314,7 +314,7 @@ class Main(QW.QMainWindow):
     def connect_widget(self) -> None:
         self.ui_manager.connect_widget()
         self.pushButton_Run.clicked.connect(self.run)
-        self.sigSetVersion.connect(self.get_version)
+        self.sigSetVersion.connect(self.version_manager.get_version)
         self.menu_manager.connect_menu_actions()
         self.setup_menu_shortcuts()
 
@@ -543,14 +543,6 @@ class Main(QW.QMainWindow):
     def on_temperature_type_changed(self, index):
         self.temperature_handler.on_temperature_type_changed()
 
-    def get_xlsxinfo(self) -> None:
-        self.data_processor.get_xlsxinfo()
-
-    def get_version(self) -> None:
-        self.version_manager.get_version()
-
-    def set_version(self) -> None:
-        self.version_manager.set_version()
 
     # ------------------------------
     # 路径选择方法
