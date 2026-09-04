@@ -302,8 +302,6 @@ class Main(QW.QMainWindow):
 
     def connect_widget(self) -> None:
         self.ui_manager.connect_widget()
-        self.pushButton_Run.clicked.connect(self.run_analysis_command.execute)
-        self.sigSetVersion.connect(self.version_manager.get_version)
         self.menu_manager.connect_menu_actions()
         self.menu_manager.setup_menu_shortcuts()
         self.signal_connector.connect_controllers()
