@@ -111,7 +111,7 @@ class DataErrorRecoveryDialog:
                 if hasattr(self.main_window, "lineEdit_TestProfile"):
                     self.main_window.lineEdit_TestProfile.clear()
                 # 递归调用，但使用默认配置
-                self.main_window.run_visualizer(xml_path=None)
+                self.main_window.visualization_manager.run_visualizer(xml_path=None)
 
             else:
                 # 取消操作
@@ -158,7 +158,7 @@ class DataErrorRecoveryDialog:
                         self.main_window.lineEdit_TestProfile.setText(directory)
 
                     # 重新运行可视化工具
-                    self.main_window.run_visualizer(xml_path=directory)
+                    self.main_window.visualization_manager.run_visualizer(xml_path=directory)
                 else:
                     QW.QMessageBox.warning(
                         self.main_window,
