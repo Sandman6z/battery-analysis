@@ -114,8 +114,10 @@ class Main(QW.QMainWindow):
             self.logger.info("▶ Phase [%s]", PHASE_LAUNCH)
 
             # 4a) UI 后处理（窗口属性、控件填充）
-            self.init_window()
-            self.init_widget()
+            self.ui_manager.init_window()
+            self.ui_manager.init_widget()
+            if hasattr(self, "pushButton_Run"):
+                self.pushButton_Run.setFocus()
             if hasattr(self, "tableWidget_TestInformation"):
                 self.tableWidget_TestInformation.resizeColumnsToContents()
 
@@ -172,15 +174,6 @@ class Main(QW.QMainWindow):
 
     def _get_controller(self, controller_name):
         return self._get_component(controller_name, "controller")
-
-    # ------------------------------
-    # 配置相关方法
-    # ------------------------------
-    def get_config(self, config_key):
-        return self.config_manager.get_config(config_key)
-
-    def init_window(self) -> None:
-        self.ui_manager.init_window()
 
     # ------------------------------
     # 窗口和UI管理方法
@@ -306,29 +299,16 @@ class Main(QW.QMainWindow):
         # 刷新首选项对话框（如果打开的话）
         pass
 
-    def init_widget(self) -> None:
-        self.ui_manager.init_widget()
-        self.pushButton_Run.setFocus()
-
     def connect_widget(self) -> None:
         self.ui_manager.connect_widget()
         self.pushButton_Run.clicked.connect(self.run)
         self.sigSetVersion.connect(self.get_version)
         self.menu_manager.connect_menu_actions()
-        self.setup_menu_shortcuts()
+        self.menu_manager.setup_menu_shortcuts()
 
     # ------------------------------
     # 用户交互方法
     # ------------------------------
-    def handle_exit(self) -> None:
-        self.dialog_manager.handle_exit()
-
-    def handle_about(self) -> None:
-        self.dialog_manager.handle_about()
-
-    def show_preferences(self) -> None:
-        self.dialog_manager.show_preferences()
-
     def on_preferences_applied(self) -> None:
         try:
             # 配置路径/重载统一经 ConfigService；仅需丢弃 config_utils 的路径缓存，
@@ -389,18 +369,6 @@ class Main(QW.QMainWindow):
         except Exception as e:
             self.logger.error("Error refreshing UI: %s", e)
 
-    def toggle_statusbar_safe(self) -> None:
-        self.menu_manager.toggle_statusbar_safe()
-
-    def setup_menu_shortcuts(self) -> None:
-        self.menu_manager.setup_menu_shortcuts()
-
-    def show_user_manual(self) -> None:
-        self.help_manager.show_user_manual()
-
-    def show_online_help(self) -> None:
-        self.dialog_manager.show_online_help()
-
     def copy_selected_text(self) -> None:
         w = self.focusWidget()
         if isinstance(w, (QW.QLineEdit, QW.QTextEdit)):
@@ -429,15 +397,6 @@ class Main(QW.QMainWindow):
         self.generate_report_command.execute()
 
     # ------------------------------
-    # 环境和信息管理方法
-    # ------------------------------
-    def _initialize_environment_info(self):
-        self.environment_manager.initialize_environment_info()
-
-    def _ensure_env_info_keys(self):
-        self.environment_manager.ensure_env_info_keys()
-
-    # ------------------------------
     # 可视化相关方法
     # ------------------------------
     def run_visualizer(self, xml_path=None) -> None:
@@ -445,34 +404,6 @@ class Main(QW.QMainWindow):
 
     def show_visualizer_error(self, error_msg: str):
         self.visualization_manager.show_visualizer_error(error_msg)
-
-    def show_chart_area(self):
-        """显示图表嵌入区域"""
-        if hasattr(self, "chart_area_widget"):
-            self.chart_area_widget.setVisible(True)
-            self.chart_control_panel.setVisible(True)
-            self.chart_container.setVisible(True)
-            self.logger.info("Chart area shown")
-
-    def hide_chart_area(self):
-        """隐藏图表嵌入区域"""
-        if hasattr(self, "chart_area_widget"):
-            self.chart_area_widget.setVisible(False)
-            self.chart_control_panel.setVisible(False)
-            self.chart_container.setVisible(False)
-            self.logger.info("Chart area hidden")
-
-    def get_chart_container(self):
-        """获取图表容器控件"""
-        if hasattr(self, "chart_container"):
-            return self.chart_container
-        return None
-
-    def get_chart_control_panel(self):
-        """获取图表控制面板控件"""
-        if hasattr(self, "chart_control_panel"):
-            return self.chart_control_panel
-        return None
 
     def batch_processing(self) -> None:
         self.batch_processing_command.execute()
@@ -497,33 +428,15 @@ class Main(QW.QMainWindow):
                 if text:
                     combo.setCurrentText(text)
 
-    def save_settings(self) -> None:
-        self.statusBar_BatteryAnalysis.showMessage("Settings saved")
-
     # ------------------------------
     # 报告相关方法
     # ------------------------------
     def export_report(self) -> None:
         self.export_report_command.execute()
 
-    def set_theme(self, theme_name) -> None:
-        self.theme_manager.set_theme(theme_name)
-
-    def toggle_statusbar(self) -> None:
-        self.menu_manager.toggle_statusbar()
-
     # ------------------------------
     # 验证相关方法
     # ------------------------------
-    def validate_version(self) -> None:
-        self.validation_manager.validate_version()
-
-    def validate_input_path(self) -> None:
-        self.validation_manager.validate_input_path()
-
-    def validate_required_fields(self) -> None:
-        self.validation_manager.validate_required_fields()
-
     def check_batterytype(self) -> None:
         self.validation_manager.check_batterytype()
 
@@ -533,15 +446,6 @@ class Main(QW.QMainWindow):
     # ------------------------------
     # 表格相关方法
     # ------------------------------
-    def set_table(self) -> None:
-        self.table_manager.set_table()
-
-    # ------------------------------
-    # 温度相关方法
-    # ------------------------------
-    def on_temperature_type_changed(self, index):
-        self.temperature_handler.on_temperature_type_changed()
-
     def get_xlsxinfo(self) -> None:
         self.data_processor.get_xlsxinfo()
 
@@ -566,29 +470,8 @@ class Main(QW.QMainWindow):
     def run(self) -> None:
         self.run_analysis_command.execute()
 
-    def save_table(self) -> None:
-        self.table_manager.save_table()
-
-    def init_widgetcolor(self) -> None:
-        self.ui_manager.init_widgetcolor()
-
     def checkinput(self) -> bool:
         return self.validation_manager.checkinput()
-
-    def _open_report(self, dialog=None):
-        self.report_manager.open_report(dialog)
-
-    def _open_report_path(self, dialog=None):
-        self.report_manager.open_report_path(dialog)
-
-    def _show_analysis_complete_dialog(self):
-        self.report_manager.show_analysis_complete_dialog()
-
-    def rename_pltPath(self, strTestDate):
-        self.config_manager.rename_pltPath(strTestDate)
-
-    def update_config(self, test_info) -> None:
-        self.config_manager.update_config(test_info)
 
     def resizeEvent(self, event):
         """窗口大小改变时的事件处理函数"""

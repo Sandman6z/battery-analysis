@@ -567,12 +567,12 @@ class UIManager:
             self.main_window.check_specification
         )
         self.main_window.comboBox_TesterLocation.currentIndexChanged.connect(
-            self.main_window.set_table
+            self.main_window.table_manager.set_table
         )
 
         # 添加温度类型变化的信号连接
         self.main_window.comboBox_Temperature.currentIndexChanged.connect(
-            self.main_window.on_temperature_type_changed
+            self.main_window.temperature_handler.on_temperature_type_changed
         )
 
         self.main_window.lineEdit_InputPath.textChanged.connect(self.main_window.get_xlsxinfo)

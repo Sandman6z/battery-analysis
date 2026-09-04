@@ -41,8 +41,8 @@ class AnalysisRunner:
         执行分析运行逻辑
         """
         # 保存表格数据
-        self.main_window.save_table()
-        self.main_window.init_widgetcolor()
+        self.main_window.table_manager.save_table()
+        self.main_window.ui_manager.init_widgetcolor()
 
         # 检查输入是否完整，包括reportedby
         if not self._check_inputs():
