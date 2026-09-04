@@ -303,7 +303,8 @@ class Main(QW.QMainWindow):
 
     def _refresh_dialogs(self):
         """刷新所有打开的对话框"""
-        # 刷新首选项对话框（如果打开的话）
+        # TODO: 实现对话框刷新逻辑，语言切换时应更新已打开对话框的文本
+        # 当前为空实现，待首选项对话框等功能完成后补充
         pass
 
     def init_widget(self) -> None:

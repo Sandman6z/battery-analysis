@@ -112,25 +112,26 @@ class FigureBuilderMixin:
 
             ax.axis("off")
 
-            full_text = f"{main_message}\n\n"
-            full_text += "Check steps:\n"
-            full_text += details
+            # 构建各段文本，避免重复
+            main_text = f"{main_message}\n\n"
+            check_text = "Check steps:\n" + details
+            solution_text = (
+                "\n\nSolution:\n"
+                "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
+                "2. Or press Ctrl+O to open the file dialog\n"
+                "3. Select a directory containing the Info_Image.csv file"
+            )
 
+            # 组合完整文本用于日志/调试
+            full_text = main_text + check_text
             if allow_file_selection:
-                full_text += "\n\nSolution:\n"
-                full_text += (
-                    "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
-                )
-                full_text += "2. Or press Ctrl+O to open the file dialog\n"
-                full_text += "3. Select a directory containing the Info_Image.csv file"
-
+                full_text += solution_text
             if hasattr(self, "errorlog") and self.errorlog:
                 full_text += f"\n\nError details: {self.errorlog!s}"
 
             text_color = MODERN_BUTTON_STYLE["inactive_text_color"]
             main_text_color = MODERN_BUTTON_STYLE["active_color"]
 
-            main_text = f"{main_message}\n\n"
             ax.text(
                 0.5,
                 0.75,
@@ -143,7 +144,6 @@ class FigureBuilderMixin:
                 linespacing=1.4,
             )
 
-            check_text = "Check steps:\n" + details
             ax.text(
                 0.5,
                 0.55,
@@ -156,12 +156,6 @@ class FigureBuilderMixin:
             )
 
             if allow_file_selection:
-                solution_text = (
-                    "\n\nSolution:\n"
-                    + "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
-                    + "2. Or press Ctrl+O to open the file dialog\n"
-                    + "3. Select a directory containing the Info_Image.csv file"
-                )
                 ax.text(
                     0.5,
                     0.35,
@@ -220,6 +214,12 @@ class FigureBuilderMixin:
 
             fig.canvas.draw()
             fig.canvas.flush_events()
+
+            # 确保 figure 关闭后引用被清除，防止内存泄漏
+            if not fig.canvas.manager:
+                plt.close(fig)
+                if self.current_fig is fig:
+                    self.current_fig = None
 
         except (OSError, ValueError) as e:
             logger.critical("Exception while displaying error chart: %s", str(e))

@@ -99,11 +99,10 @@ class VersionManager:
 
             if os.path.exists(strCsvPath) and os.path.getsize(strCsvPath) != 0:
                 listSHA256Reader = []
-                f = open(strCsvPath, encoding="utf-8")
-                csvSHA256Reader = csv.reader(f)
-                for row in csvSHA256Reader:
-                    listSHA256Reader.append(row)
-                f.close()
+                with open(strCsvPath, encoding="utf-8") as f:
+                    csvSHA256Reader = csv.reader(f)
+                    for row in csvSHA256Reader:
+                        listSHA256Reader.append(row)
                 # 确保列表长度足够，正确访问CSV行数据
                 if len(listSHA256Reader) >= 4:
                     listChecksum = listSHA256Reader[1] if len(listSHA256Reader) > 1 else []
@@ -121,60 +120,58 @@ class VersionManager:
                         break
 
                 os.remove(strCsvPath)
-                f = open(strCsvPath, mode="w", newline="", encoding="utf-8")
-                csvSHA256Writer = csv.writer(f)
+                with open(strCsvPath, mode="w", newline="", encoding="utf-8") as f:
+                    csvSHA256Writer = csv.writer(f)
 
-                if not listChecksum:
-                    # 第一次运行，主版本号从1开始
-                    csvSHA256Writer.writerow(["Checksums:"])
-                    csvSHA256Writer.writerow([current_checksum])
-                    csvSHA256Writer.writerow(["Times:"])
-                    csvSHA256Writer.writerow(["0"])
-                    self.main_window.lineEdit_Version.setText("1.0")
-                elif existing_index >= 0:
-                    # 校验和已存在，使用现有的版本号和运行次数
-                    intVersionMajor = existing_index + 1
-                    try:
-                        intVersionMinor = (
-                            int(listTimes[existing_index])
-                            if existing_index < len(listTimes) and listTimes[existing_index]
-                            else 0
+                    if not listChecksum:
+                        # 第一次运行，主版本号从1开始
+                        csvSHA256Writer.writerow(["Checksums:"])
+                        csvSHA256Writer.writerow([current_checksum])
+                        csvSHA256Writer.writerow(["Times:"])
+                        csvSHA256Writer.writerow(["0"])
+                        self.main_window.lineEdit_Version.setText("1.0")
+                    elif existing_index >= 0:
+                        # 校验和已存在，使用现有的版本号和运行次数
+                        intVersionMajor = existing_index + 1
+                        try:
+                            intVersionMinor = (
+                                int(listTimes[existing_index])
+                                if existing_index < len(listTimes) and listTimes[existing_index]
+                                else 0
+                            )
+                        except (ValueError, IndexError):
+                            intVersionMinor = 0
+
+                        csvSHA256Writer.writerow(["Checksums:"])
+                        csvSHA256Writer.writerow(listChecksum)
+                        csvSHA256Writer.writerow(["Times:"])
+                        csvSHA256Writer.writerow(listTimes)
+                        self.main_window.lineEdit_Version.setText(
+                            f"{intVersionMajor}.{intVersionMinor}"
                         )
-                    except (ValueError, IndexError):
+                    else:
+                        # 校验和不存在，增加主版本号
+                        intVersionMajor = len(listChecksum) + 1
                         intVersionMinor = 0
 
-                    csvSHA256Writer.writerow(["Checksums:"])
-                    csvSHA256Writer.writerow(listChecksum)
-                    csvSHA256Writer.writerow(["Times:"])
-                    csvSHA256Writer.writerow(listTimes)
-                    self.main_window.lineEdit_Version.setText(
-                        f"{intVersionMajor}.{intVersionMinor}"
-                    )
-                else:
-                    # 校验和不存在，增加主版本号
-                    intVersionMajor = len(listChecksum) + 1
-                    intVersionMinor = 0
+                        # 将当前校验和添加到列表，作为新的主版本
+                        listChecksum.append(current_checksum)
+                        listTimes.append("0")
 
-                    # 将当前校验和添加到列表，作为新的主版本
-                    listChecksum.append(current_checksum)
-                    listTimes.append("0")
-
-                    csvSHA256Writer.writerow(["Checksums:"])
-                    csvSHA256Writer.writerow(listChecksum)
-                    csvSHA256Writer.writerow(["Times:"])
-                    csvSHA256Writer.writerow(listTimes)
-                    self.main_window.lineEdit_Version.setText(
-                        f"{intVersionMajor}.{intVersionMinor}"
-                    )
-                f.close()
+                        csvSHA256Writer.writerow(["Checksums:"])
+                        csvSHA256Writer.writerow(listChecksum)
+                        csvSHA256Writer.writerow(["Times:"])
+                        csvSHA256Writer.writerow(listTimes)
+                        self.main_window.lineEdit_Version.setText(
+                            f"{intVersionMajor}.{intVersionMinor}"
+                        )
             else:
-                f = open(strCsvPath, mode="w", newline="", encoding="utf-8")
-                csvSHA256Writer = csv.writer(f)
-                csvSHA256Writer.writerow(["Checksums:"])
-                csvSHA256Writer.writerow([checksum])
-                csvSHA256Writer.writerow(["Times:"])
-                csvSHA256Writer.writerow(["0"])
-                f.close()
+                with open(strCsvPath, mode="w", newline="", encoding="utf-8") as f:
+                    csvSHA256Writer = csv.writer(f)
+                    csvSHA256Writer.writerow(["Checksums:"])
+                    csvSHA256Writer.writerow([checksum])
+                    csvSHA256Writer.writerow(["Times:"])
+                    csvSHA256Writer.writerow(["0"])
                 self.main_window.lineEdit_Version.setText("1.0")
 
             # 使用文件服务设置文件隐藏属性
@@ -347,7 +344,7 @@ class VersionManager:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Permission denied writing to {output_path}"
                     )
-                except (UnicodeEncodeError, csv.Error, OSError, PermissionError) as write_error:
+                except (UnicodeEncodeError, csv.Error, OSError) as write_error:
                     self.main_window.statusBar_BatteryAnalysis.showMessage(
                         f"[Warning]: Failed to write SHA256 file: {write_error!s}"
                     )
