@@ -576,9 +576,9 @@ class UIManager:
         )
 
         self.main_window.lineEdit_InputPath.textChanged.connect(self.main_window.get_xlsxinfo)
-        self.main_window.pushButton_TestProfile.clicked.connect(self.main_window.select_testprofile)
-        self.main_window.pushButton_InputPath.clicked.connect(self.main_window.select_inputpath)
-        self.main_window.pushButton_OutputPath.clicked.connect(self.main_window.select_outputpath)
+        self.main_window.pushButton_TestProfile.clicked.connect(self.main_window.test_profile_manager.select_testprofile)
+        self.main_window.pushButton_InputPath.clicked.connect(self.main_window.path_manager.select_inputpath)
+        self.main_window.pushButton_OutputPath.clicked.connect(self.main_window.path_manager.select_outputpath)
         self.main_window.pushButton_Run.clicked.connect(self.main_window.run)
         self.main_window.sigSetVersion.connect(self.main_window.get_version)
 

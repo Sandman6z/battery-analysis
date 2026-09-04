@@ -356,30 +356,6 @@ class TestMainWindow:
         # 验证validation_manager的check_specification方法被调用
         self.main_window.validation_manager.check_specification.assert_called_once()
 
-    def test_select_testprofile(self):
-        """测试选择测试配置文件"""
-        # 调用方法
-        self.main_window.select_testprofile()
-
-        # 验证test_profile_manager的select_testprofile方法被调用
-        self.main_window.test_profile_manager.select_testprofile.assert_called_once()
-
-    def test_select_inputpath(self):
-        """测试选择输入路径"""
-        # 调用方法
-        self.main_window.select_inputpath()
-
-        # 验证path_manager的select_inputpath方法被调用
-        self.main_window.path_manager.select_inputpath.assert_called_once()
-
-    def test_select_outputpath(self):
-        """测试选择输出路径"""
-        # 调用方法
-        self.main_window.select_outputpath()
-
-        # 验证path_manager的select_outputpath方法被调用
-        self.main_window.path_manager.select_outputpath.assert_called_once()
-
     def test_run(self):
         """测试运行分析"""
         # 调用方法
