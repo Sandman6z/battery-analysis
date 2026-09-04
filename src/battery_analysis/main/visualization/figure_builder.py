@@ -30,26 +30,28 @@ class FigureBuilderMixin:
         try:
             if hasattr(fig.canvas.manager, "window"):
                 fig.canvas.manager.window.setWindowTitle(f"Filtered {self.strPltName}")
+
+            gs = fig.add_gridspec(1, 40)
+            ax = fig.add_subplot(gs[:, 5:])
+
+            ax.axis(self.listAxis)
+            x_ticks = self.listXTicks
+            ax.set_xticks(x_ticks)
+
+            y_major_locator = MultipleLocator(0.2)
+            ax.yaxis.set_major_locator(y_major_locator)
+
+            ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
+            ax.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
+            ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
+
+            ax.grid(linestyle="--", alpha=0.3)
+
+            return fig, ax, title_fontdict, axis_fontdict
         except (AttributeError, TypeError, RuntimeError) as e:
-            logger.warning("Unable to set chart window title: %s", str(e))
-
-        gs = fig.add_gridspec(1, 40)
-        ax = fig.add_subplot(gs[:, 5:])
-
-        ax.axis(self.listAxis)
-        x_ticks = self.listXTicks
-        ax.set_xticks(x_ticks)
-
-        y_major_locator = MultipleLocator(0.2)
-        ax.yaxis.set_major_locator(y_major_locator)
-
-        ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
-        ax.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
-        ax.set_ylabel("Filtered Battery Load Voltage [V]", fontdict=axis_fontdict)
-
-        ax.grid(linestyle="--", alpha=0.3)
-
-        return fig, ax, title_fontdict, axis_fontdict
+            plt.close(fig)
+            logger.warning("Unable to initialize figure: %s", str(e))
+            raise
 
     def _plot_battery_curves(self, ax):
         """绘制所有电池的原始和过滤后的曲线"""
@@ -89,6 +91,7 @@ class FigureBuilderMixin:
         self, title=None, main_message=None, details=None, allow_file_selection=True
     ):
         """显示详细的错误信息图表"""
+        fig = None
         try:
             if title is None:
                 title = "Data Error"
@@ -102,6 +105,14 @@ class FigureBuilderMixin:
                 )
                 details += "4. Whether the CSV file contains valid battery test data"
 
+            # 提取共享文本，避免重复构建
+            solution_text = (
+                "\n\nSolution:\n"
+                "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
+                "2. Or press Ctrl+O to open the file dialog\n"
+                "3. Select a directory containing the Info_Image.csv file"
+            )
+
             fig, ax = plt.subplots(figsize=(12, 8))
             self.current_fig = fig
 
@@ -111,21 +122,6 @@ class FigureBuilderMixin:
             ax.set_title(title, fontsize=18, fontweight="bold", color=title_color, pad=20)
 
             ax.axis("off")
-
-            full_text = f"{main_message}\n\n"
-            full_text += "Check steps:\n"
-            full_text += details
-
-            if allow_file_selection:
-                full_text += "\n\nSolution:\n"
-                full_text += (
-                    "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
-                )
-                full_text += "2. Or press Ctrl+O to open the file dialog\n"
-                full_text += "3. Select a directory containing the Info_Image.csv file"
-
-            if hasattr(self, "errorlog") and self.errorlog:
-                full_text += f"\n\nError details: {self.errorlog!s}"
 
             text_color = MODERN_BUTTON_STYLE["inactive_text_color"]
             main_text_color = MODERN_BUTTON_STYLE["active_color"]
@@ -156,12 +152,6 @@ class FigureBuilderMixin:
             )
 
             if allow_file_selection:
-                solution_text = (
-                    "\n\nSolution:\n"
-                    + "1. Click 'File' -> 'Open Data' in the menu bar to select a data directory\n"
-                    + "2. Or press Ctrl+O to open the file dialog\n"
-                    + "3. Select a directory containing the Info_Image.csv file"
-                )
                 ax.text(
                     0.5,
                     0.35,
@@ -222,6 +212,8 @@ class FigureBuilderMixin:
             fig.canvas.flush_events()
 
         except (OSError, ValueError) as e:
+            if fig is not None:
+                plt.close(fig)
             logger.critical("Exception while displaying error chart: %s", str(e))
             traceback.print_exc()
             logger.error(
@@ -254,31 +246,29 @@ class FigureBuilderMixin:
     def _adjust_y_axis_range(self, ax):
         """动态调整纵轴范围，确保所有数据都能显示"""
         try:
-            y_min = float("inf")
-            y_max = float("-inf")
-
+            # 一次遍历收集所有电压数据点，避免嵌套循环中重复 min/max
+            all_values = []
             for b in range(self.intBatteryNum):
                 for c in range(self.intCurrentLevelNum):
                     try:
                         if c < len(self.listPlt) and b < len(self.listPlt[c][1]):
                             voltage_data = self.listPlt[c][1][b]
                             if voltage_data:
-                                current_min = min(voltage_data)
-                                current_max = max(voltage_data)
-                                y_min = min(y_min, current_min)
-                                y_max = max(y_max, current_max)
-
+                                all_values.extend(voltage_data)
+                    except (IndexError, ValueError, TypeError):
+                        pass
+                    try:
                         if c < len(self.listPlt) and b < len(self.listPlt[c][3]):
                             filtered_voltage_data = self.listPlt[c][3][b]
                             if filtered_voltage_data:
-                                current_min = min(filtered_voltage_data)
-                                current_max = max(filtered_voltage_data)
-                                y_min = min(y_min, current_min)
-                                y_max = max(y_max, current_max)
+                                all_values.extend(filtered_voltage_data)
                     except (IndexError, ValueError, TypeError):
-                        continue
+                        pass
 
-            if y_min != float("inf") and y_max != float("-inf"):
+            if all_values:
+                y_min = min(all_values)
+                y_max = max(all_values)
+
                 y_range = y_max - y_min
                 y_min = y_min - 0.1 * y_range
                 y_max = y_max + 0.1 * y_range
