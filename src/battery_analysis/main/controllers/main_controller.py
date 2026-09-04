@@ -8,6 +8,7 @@ import logging
 from PyQt6 import QtCore as QC
 
 from battery_analysis.main.workers.analysis_worker import AnalysisWorker
+from battery_analysis.main.workers.task_runner import TaskSignals
 
 
 class MainController(QC.QObject):
@@ -73,8 +74,10 @@ class MainController(QC.QObject):
             self.status_changed.emit(False, 1, "Error: missing required analysis parameters")
             return False
 
-        # 创建工作线程
-        self.current_worker = AnalysisWorker()
+        # 创建工作线程 — TaskSignals 以 controller（QObject）为 parent，
+        # 确保 C++ 侧生命周期由 Qt 管理，不会被 Python GC 提前销毁。
+        signals = TaskSignals(self)
+        self.current_worker = AnalysisWorker(signals=signals)
         self.current_worker.set_info(
             self.project_path, self.input_path, self.output_path, self.test_info
         )

@@ -47,18 +47,23 @@ class TaskRunner(QC.QRunnable):
     （finished 被抑制）。
     """
 
-    def __init__(self, task_func: Callable, *args, progress_callback=None, **kwargs):
+    def __init__(
+        self,
+        task_func: Callable,
+        *args,
+        signals: TaskSignals | None = None,
+        progress_callback=None,
+        **kwargs,
+    ):
         super().__init__()
-        # 禁止线程池自动删除 QRunnable：默认 autoDelete=True 会在 run() 返回后
-        # 立即销毁 C++ 对象，导致 TaskSignals（无 Qt parent 的 QObject）的 Python
-        # 包装变成悬空引用，finally 块中 emit() 触发 RuntimeError。
-        # 设为 False 后，Python GC 通过控制器持有的 current_worker 引用管理生命周期。
         self.setAutoDelete(False)
         self._task_func = task_func
         self._args = args
         self._kwargs = kwargs
         self._cancelled = False
-        self.signals = TaskSignals()
+        # 外部传入的 signals 由调用方（通常是 QObject controller）持有生命周期；
+        # 内部创建的 signals 无 parent，依赖 self 引用链防止 GC。
+        self.signals = signals if signals is not None else TaskSignals()
         self._progress_cb = progress_callback
         self.logger = logging.getLogger(__name__)
 

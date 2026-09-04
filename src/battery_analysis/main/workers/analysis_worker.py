@@ -15,11 +15,15 @@ class AnalysisWorker(TaskRunner):
     负责执行后台分析任务
     """
 
-    def __init__(self):
+    def __init__(self, signals=None):
         """
         初始化工作线程
+
+        Args:
+            signals: 可选的 TaskSignals 实例，由调用方（QObject controller）持有
+                     生命周期；不传则内部创建（无 parent，依赖引用链）。
         """
-        super().__init__(self._run_placeholder)
+        super().__init__(self._run_placeholder, signals=signals)
         self.str_path = ""
         self.str_input_path = ""
         self.str_output_path = ""
