@@ -99,5 +99,5 @@ class JsonWriter:
 
         # 确保目标目录存在
         os.makedirs(os.path.dirname(self.strResultJsonPath), exist_ok=True)
-        with open(self.strResultJsonPath, "w") as file:
+        with open(self.strResultJsonPath, "w", encoding="utf-8") as file:
             json.dump(self.dictJson, file, indent=4)
