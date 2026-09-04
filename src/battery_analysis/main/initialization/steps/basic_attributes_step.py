@@ -55,8 +55,11 @@ class BasicAttributesInitializationStep(InitializationStep):
 
             self.logger.info("Basic attributes initialization complete")
             return True
+        except (ImportError, AttributeError, TypeError) as e:
+            self.logger.warning("Basic attributes initialization partially failed: %s", e)
+            return True  # 非关键步骤允许降级
         except Exception:
-            self.logger.exception("Basic attributes initialization failed")
+            self.logger.exception("Basic attributes initialization failed unexpectedly")
             return False
 
     def can_execute(self, main_window) -> bool:

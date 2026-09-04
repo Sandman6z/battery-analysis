@@ -28,8 +28,11 @@ class ServicesInitializationStep(InitializationStep):
             main_window._service_container = get_service_container()
             self.logger.info("Service container initialization complete")
             return True
+        except (ImportError, AttributeError, TypeError) as e:
+            self.logger.warning("Service container initialization partially failed: %s", e)
+            return True  # 非关键步骤允许降级
         except Exception:
-            self.logger.exception("Service container initialization failed")
+            self.logger.exception("Service container initialization failed unexpectedly")
             return False
 
     def can_execute(self, main_window) -> bool:
