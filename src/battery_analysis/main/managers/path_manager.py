@@ -231,6 +231,8 @@ class PathManager:
                 self.main_window.lineEdit_InputPath.setText(selected_dir)
                 self.main_window.sigSetVersion.emit()
                 self.main_window.current_directory = os.path.join(selected_dir, "../../")
+                # 重置标志，允许容量检测重新设置温度
+                self.main_window.validation_manager._temperature_set_from_xml = False
                 self.logger.info("Input path set manually: %s", selected_dir)
             else:
                 self.logger.warning("Input directory validation failed: %s", error_msg)

@@ -33,6 +33,7 @@ class ValidationManager:
         """
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
+        self._temperature_set_from_xml = False  # 标志：温度是否已从XML文件名设置
 
     def validate_version(self) -> None:
         """
@@ -311,13 +312,15 @@ class ValidationManager:
                 pass
 
         # 根据 required useable capacity 自动判定温度类型
-        capacity_text = self.main_window.lineEdit_RequiredUseableCapacity.text()
-        if capacity_text:
-            try:
-                capacity_value = int(capacity_text)
-                self.main_window.temperature_handler.set_temperature_by_capacity(capacity_value)
-            except ValueError:
-                pass
+        # 但如果温度已从XML文件名设置，则跳过容量检测，避免覆盖
+        if not self._temperature_set_from_xml:
+            capacity_text = self.main_window.lineEdit_RequiredUseableCapacity.text()
+            if capacity_text:
+                try:
+                    capacity_value = int(capacity_text)
+                    self.main_window.temperature_handler.set_temperature_by_capacity(capacity_value)
+                except ValueError:
+                    pass
 
     def _get_types_requiring_construction(self) -> list:
         """返回需要填写构造方法的电池类型名称列表。
