@@ -32,19 +32,15 @@ class TestProfileManager:
         """
         选择测试配置文件并处理相关逻辑
         """
-        self.logger.info("[select_testprofile] 方法被调用")
         try:
             # 1. 选择测试配置文件
             selected_file = self.main_window.path_manager.select_test_profile()
-            self.logger.info("[select_testprofile] 步骤1: 选择文件 = %s", selected_file)
 
             if not selected_file:
-                self.logger.info("[select_testprofile] 用户取消选择")
                 return
 
             # 2. 验证测试配置文件
             if not self.main_window.path_manager.validate_test_profile(selected_file):
-                self.logger.info("[select_testprofile] 步骤2: 验证失败")
                 return
 
             # 3. 显示选中的文件路径
@@ -52,7 +48,6 @@ class TestProfileManager:
 
             # 4. 获取父目录
             parent_dir = self.main_window.path_manager.get_parent_directory(selected_file)
-            self.logger.info("[select_testprofile] 步骤4: 父目录 = %s", parent_dir)
             if not parent_dir:
                 return
 
@@ -71,9 +66,7 @@ class TestProfileManager:
             self.logger.info("Setting current directory to project root: %s", parent_dir)
 
             # 9. 根据XML文件名自动检测温度类型
-            self.logger.info("[select_testprofile] 步骤9: 开始检测温度类型")
             self._detect_temperature_type_from_xml(selected_file)
-            self.logger.info("[select_testprofile] 步骤9: 温度类型检测完成")
 
         except (
             OSError,

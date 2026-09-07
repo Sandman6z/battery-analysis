@@ -40,16 +40,10 @@ class TemperatureHandler:
             检测到的温度类型枚举值
         """
         try:
-            # 获取文件名
             file_name = os.path.basename(xml_path)
-            self.logger.info("[detect_temperature_type_from_xml] 检测文件: %s", file_name)
-
-            # 根据文件名检测温度类型
             if "freezer" in file_name.lower():
-                self.logger.info("[detect_temperature_type_from_xml] 检测到 Freezer，返回 FREEZER")
                 return TemperatureType.FREEZER
             else:
-                self.logger.info("[detect_temperature_type_from_xml] 未检测到 Freezer，返回 ROOM")
                 return TemperatureType.ROOM
         except Exception as e:
             self.logger.warning("Error detecting temperature type: %s", e)
@@ -75,20 +69,14 @@ class TemperatureHandler:
         Args:
             temperature_type: 温度类型枚举值
         """
-        self.logger.info("[update_temperature_ui] 更新UI，类型: %s", temperature_type.value)
-
-        # 设置组合框选中项
         self.main_window.comboBox_Temperature.setCurrentText(temperature_type.value)
 
-        # 启用或禁用spinBox，并设置默认温度值
         if temperature_type == TemperatureType.FREEZER:
             self.main_window.spinBox_Temperature.setEnabled(True)
             self.main_window.spinBox_Temperature.setValue(-20)
-            self.logger.info("[update_temperature_ui] 设置为 Freezer -20°C")
         else:
             self.main_window.spinBox_Temperature.setEnabled(False)
             self.main_window.spinBox_Temperature.setValue(0)
-            self.logger.info("[update_temperature_ui] 设置为 Room 0°C")
 
     def set_temperature_by_capacity(self, capacity_value: int):
         """
@@ -102,19 +90,14 @@ class TemperatureHandler:
         Args:
             capacity_value: 从规则中解析出的 required useable capacity 值
         """
-        self.logger.info("[set_temperature_by_capacity] 容量值: %d", capacity_value)
         if capacity_value == 280:
             self.main_window.comboBox_Temperature.setCurrentText(TemperatureType.FREEZER.value)
             self.main_window.spinBox_Temperature.setValue(-20)
             self.main_window.spinBox_Temperature.setEnabled(True)
-            self.logger.info("[set_temperature_by_capacity] 容量280 -> Freezer -20°C")
         elif capacity_value == 380:
             self.main_window.comboBox_Temperature.setCurrentText(TemperatureType.ROOM.value)
             self.main_window.spinBox_Temperature.setValue(0)
             self.main_window.spinBox_Temperature.setEnabled(False)
-            self.logger.info("[set_temperature_by_capacity] 容量380 -> Room 0°C")
-        else:
-            self.logger.info("[set_temperature_by_capacity] 容量%d -> 不改变温度", capacity_value)
 
     def on_temperature_type_changed(self):
         """
