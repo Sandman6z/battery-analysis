@@ -200,33 +200,15 @@ class PathManager:
         if os.path.exists(output_path) and os.path.isdir(output_path):
             self.main_window.lineEdit_OutputPath.setText(output_path)
         else:
-            # 如果输出目录不存在，询问用户是否创建
-            reply = QW.QMessageBox.question(
-                self.main_window,
-                "Create Output Directory",
-                f"The output directory does not exist. Create it?\n\nPath: {output_path}",
-                QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-                QW.QMessageBox.StandardButton.Yes,
-            )
-
-            if reply == QW.QMessageBox.StandardButton.Yes:
-                try:
-                    os.makedirs(output_path, exist_ok=True)
-                    self.main_window.lineEdit_OutputPath.setText(output_path)
-                    self.logger.info("Output directory created and set: %s", output_path)
-                except (OSError, PermissionError, FileNotFoundError) as e:
-                    self.logger.error("Failed to create output directory: %s", e)
-                    QW.QMessageBox.critical(
-                        self.main_window,
-                        "Creation Failed",
-                        f"Unable to create output directory:\n{e!s}",
-                        QW.QMessageBox.StandardButton.Ok,
-                    )
-                    return False
-            else:
-                # 用户选择不创建，手动设置路径但不创建目录
+            # 自动创建输出目录，不弹框
+            try:
+                os.makedirs(output_path, exist_ok=True)
                 self.main_window.lineEdit_OutputPath.setText(output_path)
-                self.logger.info("Output directory set manually (not created): %s", output_path)
+                self.logger.info("Output directory created and set: %s", output_path)
+            except (OSError, PermissionError, FileNotFoundError) as e:
+                self.logger.error("Failed to create output directory: %s", e)
+                # 创建失败仍然设置路径，让用户手动处理
+                self.main_window.lineEdit_OutputPath.setText(output_path)
 
         return True
 

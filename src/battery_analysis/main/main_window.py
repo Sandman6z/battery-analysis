@@ -116,6 +116,8 @@ class Main(QW.QMainWindow):
             # 4a) UI 后处理（窗口属性、控件填充）
             self.ui_manager.init_window()
             self.ui_manager.init_widget()
+            # 连接控制器信号（ui_manager.connect_widget 已在 init_widget 中调用）
+            self.signal_connector.connect_controllers()
             if hasattr(self, "pushButton_Run"):
                 self.pushButton_Run.setFocus()
             if hasattr(self, "tableWidget_TestInformation"):

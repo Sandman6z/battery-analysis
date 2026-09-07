@@ -232,14 +232,8 @@ class DataProcessor:
             if hasattr(self.main_window, "checker_input_xlsx"):
                 self.main_window.checker_input_xlsx.set_error(error_message)
             try:
-                msg = QW.QMessageBox(self.main_window)
-                msg.setIcon(QW.QMessageBox.Icon.Warning)
-                msg.setWindowTitle("File Validation Error")
-                msg.setText(f"Found {len(error_files)} problematic files that cannot be analyzed")
-                msg.setInformativeText("Please check the file format and content, then retry")
-                msg.setDetailedText(error_message)
-                msg.setStandardButtons(QW.QMessageBox.StandardButton.Ok)
-                msg.exec()
+                # 只在状态栏和 checker 显示错误，不弹框
+                pass
             except Exception as e:  # pylint: disable=broad-exception-caught
                 self.logger.warning("Error showing error dialog: %s", e)
 

@@ -186,7 +186,11 @@ class AnalysisRunner:
             success = main_controller.start_analysis()
 
         if not success:
-            self.main_window.pushButton_Run.setEnabled(True)
-            QW.QMessageBox.warning(
-                self.main_window, _("Start Failed"), _("Cannot start the analysis task")
-            )
+            # 如果分析已在运行，不显示错误（可能是重复点击）
+            if main_controller and main_controller.is_analysis_running:
+                self.logger.info("Analysis already running, ignoring duplicate start request")
+            else:
+                self.main_window.pushButton_Run.setEnabled(True)
+                QW.QMessageBox.warning(
+                    self.main_window, _("Start Failed"), _("Cannot start the analysis task")
+                )

@@ -74,12 +74,16 @@ class SignalConnector:
                 main_controller.progress_updated.connect(self._on_progress_updated)
             if hasattr(main_controller, "analysis_completed"):
                 main_controller.analysis_completed.connect(self.main_window.version_manager.set_version)
+                # 修复：analysis_completed 连接到按钮重置，解决按钮失灵问题
+                main_controller.analysis_completed.connect(self._reset_run_button)
+                self.logger.info("Connected analysis_completed -> _reset_run_button")
             if hasattr(main_controller, "path_renamed"):
                 main_controller.path_renamed.connect(self.main_window.config_manager.rename_pltPath)
             if hasattr(main_controller, "start_visualizer"):
                 main_controller.start_visualizer.connect(self.main_window.visualization_manager.run_visualizer)
             if hasattr(main_controller, "status_changed"):
                 main_controller.status_changed.connect(self._on_status_changed)
+                self.logger.info("Connected status_changed -> _on_status_changed")
 
     def _connect_file_controller_signals(self):
         """连接文件控制器信号"""
@@ -132,6 +136,7 @@ class SignalConnector:
 
     def _on_status_changed(self, is_running, stateindex, threadinfo):
         """处理主控制器的状态变化信号，更新UI元素"""
+        self.logger.info(f"_on_status_changed: is_running={is_running}, stateindex={stateindex}, threadinfo={threadinfo}")
         # 正常运行状态处理
         if is_running:
             # 处理取消状态
@@ -181,13 +186,11 @@ class SignalConnector:
                 # 处理按钮点击
                 clicked_button = msg_box.clickedButton()
                 if clicked_button == open_report_button:
-                    # 调用主窗口的_open_report方法
-                    if hasattr(self.main_window, "_open_report"):
-                        self.main_window._open_report()
+                    if hasattr(self.main_window, "report_manager"):
+                        self.main_window.report_manager.open_report()
                 elif clicked_button == open_path_button:
-                    # 调用主窗口的_open_report_path方法
-                    if hasattr(self.main_window, "_open_report_path"):
-                        self.main_window._open_report_path()
+                    if hasattr(self.main_window, "report_manager"):
+                        self.main_window.report_manager.open_report_path()
             elif stateindex == 3:
                 # 日期不一致错误处理
                 # 关闭进度条
@@ -359,3 +362,17 @@ class SignalConnector:
         """停止进度跟踪"""
         self.progress_start_time = None
         self._close_progress_dialog()
+
+    def _reset_run_button(self):
+        """重置Run按钮状态（由 analysis_completed 信号触发）"""
+        print(f"[DEBUG] _reset_run_button called")
+        self.logger.info(f"_reset_run_button called")
+        try:
+            self.main_window.pushButton_Run.setEnabled(True)
+            self.main_window.pushButton_Run.setText("Run")
+            self.main_window.pushButton_Run.repaint()  # 强制重绘
+            self.logger.info("Run button reset to idle state")
+            print(f"[DEBUG] Run button reset to idle state")
+        except Exception as e:
+            self.logger.error(f"Failed to reset run button: {e}")
+            print(f"[DEBUG] Failed to reset run button: {e}")
