@@ -221,7 +221,7 @@ class BuildManager(BuildConfig):
             f"--icon={icon_path}",
             f"--distpath={final_build_dir}",
             f"--workpath={temp_path / app_config['name']}",
-            "--onedir",
+            "--onefile",
         ]
 
         # ----- 隐藏导入 -----
