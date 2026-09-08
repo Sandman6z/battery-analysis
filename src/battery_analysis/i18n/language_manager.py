@@ -100,9 +100,10 @@ class LanguageManager(QObject):
 
     def _has_translation_file(self, locale_code: str) -> bool:
         """Check if translation file exists for locale"""
-        locale_dir = (
-            Path(__file__).parent.parent.parent.parent / "locale" / locale_code / "LC_MESSAGES"
-        )
+        # 使用 i18n 模块中已计算好的 LOCALEDIR（兼容 PyInstaller / Nuitka / 普通模式）
+        from battery_analysis.i18n import LOCALEDIR
+
+        locale_dir = LOCALEDIR / locale_code / "LC_MESSAGES"
         mo_file = locale_dir / "messages.mo"
         return mo_file.exists()
 

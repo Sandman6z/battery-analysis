@@ -17,10 +17,19 @@ logger = logging.getLogger(__name__)
 
 
 def _get_resource_dir() -> Path:
-    """获取资源目录：兼容 PyInstaller 打包与开发环境。"""
+    """获取资源目录：兼容 PyInstaller / Nuitka 打包与开发环境。"""
     if hasattr(sys, "_MEIPASS"):
+        # PyInstaller
         return Path(sys._MEIPASS) / "battery_analysis" / "ui" / "styles"
-    return Path(__file__).parent
+    # 尝试多个候选路径，选第一个存在的
+    _candidates = [
+        Path(__file__).parent,                                                    # 开发环境
+        Path(sys.executable).parent / "battery_analysis" / "ui" / "styles",      # Nuitka/冻结环境
+    ]
+    for _cand in _candidates:
+        if _cand.is_dir():
+            return _cand
+    return _candidates[-1]  # fallback
 
 
 # ──────────────────────────────────────────────────────────────

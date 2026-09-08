@@ -49,6 +49,11 @@ dev = [
 build = [
     "pyinstaller>=6.10.0,<7.0.0"
 ]
+build-nuitka = [
+    "nuitka>=2.5.0,<3.0.0",
+    "ordered-set>=4.0.0",
+    "zstandard>=0.23.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/Sandman6z/battery-analysis"

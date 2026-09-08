@@ -2,7 +2,7 @@
 # 用法: make <target>
 # 需要: uv (https://docs.astral.sh/uv/)
 
-.PHONY: help install sync test test-cov lint format check build clean
+.PHONY: help install sync test test-cov lint format check build build-nuitka build-nuitka-debug clean
 
 help: ## 显示帮助信息
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -36,9 +36,16 @@ build: ## 构建 Release 版本
 build-debug: ## 构建 Debug 版本
 	uv run python scripts/build.py Debug
 
+build-nuitka: ## Nuitka 构建 Release 版本
+	uv run python scripts/build_nuitka.py Release
+
+build-nuitka-debug: ## Nuitka 构建 Debug 版本
+	uv run python scripts/build_nuitka.py Debug
+
 clean: ## 清理构建产物
 	@if exist build rmdir /s /q build
 	@if exist __temp__ rmdir /s /q __temp__
+	@if exist __nuitka_temp__ rmdir /s /q __nuitka_temp__
 	@if exist .ruff_cache rmdir /s /q .ruff_cache
 	@if exist .mypy_cache rmdir /s /q .mypy_cache
 	@if exist htmlcov rmdir /s /q htmlcov

@@ -21,7 +21,18 @@ logger = logging.getLogger(__name__)
 if hasattr(sys, "_MEIPASS"):
     LOCALEDIR = Path(sys._MEIPASS) / "locale"
 else:
-    LOCALEDIR = Path(__file__).parent.parent.parent.parent / "locale"
+    # 开发环境 / Nuitka / 其他冻结环境
+    # 优先从 __file__ 向上查找 locale 目录，找不到再从 exe 目录找
+    _candidates = [
+        Path(__file__).parent.parent.parent.parent / "locale",  # 开发环境
+        Path(sys.executable).parent / "locale",                  # Nuitka standalone / 冻结环境
+    ]
+    # 运行时自动选择第一个存在的目录
+    LOCALEDIR = _candidates[-1]  # 默认 fallback
+    for _cand in _candidates:
+        if _cand.is_dir():
+            LOCALEDIR = _cand
+            break
 
 logger.info("Using locale directory: %s", LOCALEDIR)
 
