@@ -1,3 +1,35 @@
+### v3.2.0
+
+#### 性能提升
+- perf: 切换为 `--onefile` 模式，exe 体积从 183MB 降至 **78MB**（-57%）
+- perf: 优化 PyInstaller 构建脚本
+
+#### 修复和改进
+- fix: 修复低温 XML 文件选择后温度 UI 未正确更新的问题
+- fix: 移除多余弹窗、修复 Run 按钮状态重置、忽略重复分析请求
+- fix: TaskSignals 以 controller（QObject）为 parent，彻底解决 C++ 对象被提前销毁
+- fix: thread_end 必须无条件 emit，error/cancel 不再导致 UI 卡在 Running 状态
+- fix: TaskSignals lifecycle — setAutoDelete(False) 防止过早 C++ 析构
+- fix: 移除 pushButton_Run 和 sigSetVersion 的重复信号连接
+- fix: analysis_runner.update_config → config_manager.update_config
+- fix: 修复 Main 类瘦身后的初始化顺序和遗留引用
+- chore: 移除调试用的日志语句
+
+#### 架构收敛
+- refactor: 删除 Main 类版本/数据处理委托方法
+- refactor: 删除 Main 类路径选择委托方法
+- refactor: 删除 Main 类可视化委托方法
+- refactor: 删除 Main 类验证委托方法
+- refactor: 删除 Main 类命令执行委托方法
+- refactor: 删除 Main 类杂项委托和死代码
+
+#### CI/CD
+- ci: Wiki sync 恢复 GH_PAT 认证，改进中文错误提示
+- ci: 修复全部 CI/CD workflow 失败
+- ci: Gitee sync 改用 pwsh 避免 Windows PowerShell 5.1 的 UTF-8 解析错误
+
+---
+
 ### v3.1.1
 
 #### 修复和改进
