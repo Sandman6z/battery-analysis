@@ -28,6 +28,12 @@ def _check_build_env():
         logger.warning("  uv pip install -e '.[build]'")
         sys.exit(1)
 
+    # 检查 UPX 是否可用
+    if shutil.which("upx"):
+        logger.info("UPX 已可用，将用于压缩")
+    else:
+        logger.info("UPX 未找到，跳过压缩（不影响功能）")
+
 
 def _build_failed(result):
     """PyInstaller 构建失败判定：返回码非零（或结果为 None）即失败。"""
@@ -59,7 +65,7 @@ class BuildConfig:
 class BuildManager(BuildConfig):
     """构建管理器"""
 
-    def __init__(self, specified_build_type):
+    def __init__(self, specified_build_type, no_clean=False):
         super().__init__(specified_build_type)
         if specified_build_type not in ["Debug", "Release"]:
             raise ValueError(
@@ -68,9 +74,14 @@ class BuildManager(BuildConfig):
         self.build_type = specified_build_type
         self.build_path = self.temp_build_dir
         self.console = self.console_mode
+        self.no_clean = no_clean
 
         self.apps_config = self._get_apps_config()
-        self.clean_build_dirs()
+        if not no_clean:
+            self.clean_build_dirs()
+        else:
+            logger.info("--no-clean 模式，跳过清理构建目录")
+            self.temp_build_dir.mkdir(parents=True, exist_ok=True)
 
     def _get_apps_config(self):
         """获取应用程序配置列表"""
@@ -244,8 +255,18 @@ class BuildManager(BuildConfig):
         if not debug_mode:
             cmd_args.append("--strip")
 
+        # Python 字节码优化：去除 docstrings 和 assert 语句，减小体积并略微提速
+        cmd_args.append("--optimize=1")
+
+        # UPX 压缩：仅在 UPX 可用时启用
+        if not shutil.which("upx"):
+            cmd_args.append("--noupx")
+
         # 确保 numpy 的 C 扩展 DLL 被正确收集
-        cmd_args.append("--collect-submodules=numpy")
+        # 注意：不能用 --collect-submodules=numpy，因为它会覆盖 --exclude-module，
+        # 把 numpy.testing、numpy.f2py 等已排除的模块又拉回来。
+        # 改用 --copy-metadata 确保 numpy 元数据可用，C 扩展 DLL 由 PyInstaller 自动追踪。
+        cmd_args.append("--copy-metadata=numpy")
 
         return cmd_args
 
@@ -271,9 +292,10 @@ class BuildManager(BuildConfig):
             )
 
             # 从 src/ 目录运行 PyInstaller，确保依赖追踪正确
+            # 中文 Windows 的 subprocess 输出用 GBK，不能用 UTF-8 解码
             result = subprocess.run(
                 cmd_args, cwd=src_path, check=False,
-                capture_output=True, encoding="utf-8",
+                capture_output=True, encoding="utf-8", errors="replace",
             )
             logger.info("构建结果: %s", result.returncode)
             if result.stderr:
@@ -301,6 +323,10 @@ def main():
         "build_type", choices=["Debug", "Release"], help="构建类型: Debug 或 Release"
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="显示详细日志信息")
+    parser.add_argument(
+        "--no-clean", action="store_true",
+        help="跳过清理构建目录（加速重复构建）",
+    )
 
     args = parser.parse_args()
     _check_build_env()
@@ -309,7 +335,7 @@ def main():
         logger.setLevel(logging.DEBUG)
 
     try:
-        build_manager = BuildManager(args.build_type)
+        build_manager = BuildManager(args.build_type, no_clean=args.no_clean)
         build_manager.run_build()
         logger.info("%s 构建完成", args.build_type)
     except (OSError, FileNotFoundError, PermissionError, ValueError) as e:
