@@ -60,37 +60,10 @@ class UIBuilder:
         battery_tab = BatteryAnalysisTab(main_window=mw)
         tab_widget.addTab(battery_tab, _("🔋 电池分析"))
 
-        # 连接跨 Tab 信号：找到 test profile XML → 自动填入电池分析
-        ndax_tab.test_profile_found.connect(
-            lambda xml_path: self._on_test_profile_found(xml_path)
-        )
-
         mw.setCentralWidget(tab_widget)
         mw.centralwidget = tab_widget  # 兼容初始化管理器的 can_execute 检查
         mw._tab_widget = tab_widget
         mw._ndax_tab = ndax_tab
-
-    def _on_test_profile_found(self, xml_path: str) -> None:
-        """找到 test profile XML 后，统一走 path_manager 填入所有相关字段
-
-        填入顺序：
-          1. Test Profile (lineEdit_TestProfile)
-          2. Input Path  -> path_manager.set_input_path -> 触发 sigSetVersion -> 自动获取 Report Ver.
-          3. Output Path -> path_manager.set_output_path
-        """
-        mw = self.main_window
-        if not hasattr(mw, "path_manager"):
-            return
-
-        # 1. 填入 Test Profile
-        if hasattr(mw, "lineEdit_TestProfile"):
-            mw.lineEdit_TestProfile.setText(xml_path)
-
-        # 2 & 3. 走 path_manager 统一逻辑（含版本号自动获取）
-        profile_dir = Path(xml_path).parent
-        parent_dir = str(profile_dir.parent)
-        mw.path_manager.set_input_path(parent_dir)
-        mw.path_manager.set_output_path(parent_dir)
 
     def _build_status_bar(self) -> None:
         """构建状态栏"""

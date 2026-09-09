@@ -6,6 +6,7 @@ No GUI dependencies — pure data processing module.
 
 from __future__ import annotations
 
+import logging
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -85,7 +86,7 @@ def _build_step_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) 
     ws.write_row(1, 0, STEP_HEADERS)
 
     row = 2
-    for (cycle, _step, status), grp in df.groupby(["Cycle", "Step", "Status"], sort=False):
+    for (cycle, _step, status), grp in df.groupby(["Cycle", "Step", "Status"], sort=False, observed=False):
         first = grp.iloc[0]
         last = grp.iloc[-1]
         dchg_delta = last["Discharge_Capacity(mAh)"] - first["Discharge_Capacity(mAh)"]
@@ -96,7 +97,8 @@ def _build_step_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) 
             chg_delta = last["Charge_Capacity(mAh)"] - first["Charge_Capacity(mAh)"]
             cap = chg_delta - dchg_delta
 
-        ws.write_row(row, 0, [cycle, STATUS_MAP[status], round(float(cap), 3)])
+        label = STATUS_MAP.get(status, status)
+        ws.write_row(row, 0, [cycle, label, round(float(cap), 3)])
         row += 1
 
 
@@ -151,7 +153,14 @@ def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> s
         xlsx_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        df = nda.read(str(ndax_path), software_cycle_number=False)
+        # Suppress NewareNDA's per-file version info logs (logged once per file, very noisy in batch)
+        nda_logger = logging.getLogger('newarenda')
+        old_level = nda_logger.level
+        nda_logger.setLevel(logging.WARNING)
+        try:
+            df = nda.read(str(ndax_path), software_cycle_number=False)
+        finally:
+            nda_logger.setLevel(old_level)
     except Exception as e:
         raise ValueError(f"Failed to parse {ndax_path}: {e}") from e
 

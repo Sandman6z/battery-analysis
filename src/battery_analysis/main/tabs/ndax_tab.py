@@ -29,9 +29,6 @@ class NdaxConverterTab(QW.QWidget):
     COL_NAME = 0
     COL_STATUS = 1
 
-    # Signal emitted when test profile XML is found, carrying the XML path
-    test_profile_found = QC.pyqtSignal(str)
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.input_dir: Path | None = None
@@ -164,6 +161,10 @@ class NdaxConverterTab(QW.QWidget):
         # 按钮始终可用
         self.btn_start.setEnabled(True)
 
+        # xlsx 已存在时自动查找 test profile，带出 analysis 页面信息
+        if self.out_dir.exists():
+            self._find_and_fill_test_profile()
+
     def _check_existing_xlsx(self) -> bool:
         """Check if 2_xlsx directory already has xlsx files."""
         if not self.out_dir or not self.out_dir.exists():
@@ -175,7 +176,7 @@ class NdaxConverterTab(QW.QWidget):
     # ─────────────────────────────────────────────────────
 
     def _find_and_fill_test_profile(self) -> None:
-        """查找 4_test profile 目录中的 XML 文件并填入电池分析。
+        """查找 4_test profile 目录中的 XML 文件，走和手动选 XML 一样的流程。
 
         目录结构约定：
             parent_dir/
@@ -187,28 +188,12 @@ class NdaxConverterTab(QW.QWidget):
             return
 
         profile_dir = self.input_dir.parent / "4_test profile"
-
         if not profile_dir.exists():
-            QW.QMessageBox.warning(
-                self,
-                _("未找到测试配置"),
-                _("未找到 4_test profile 目录：\n{path}\n\n请手动选择测试配置文件。").format(
-                    path=profile_dir
-                ),
-            )
             self.log_area.append(f"[{_now()}] ✘ 未找到 4_test profile 目录")
             return
 
-        # 查找 XML 文件
         xml_files = sorted(profile_dir.glob("*.xml"))
         if not xml_files:
-            QW.QMessageBox.warning(
-                self,
-                _("未找到配置文件"),
-                _("4_test profile 目录中未找到 XML 文件：\n{path}").format(
-                    path=profile_dir
-                ),
-            )
             self.log_area.append(f"[{_now()}] ✘ 4_test profile 目录中无 XML 文件")
             return
 
@@ -219,7 +204,17 @@ class NdaxConverterTab(QW.QWidget):
             )
 
         self.log_area.append(f"[{_now()}] ✔ 找到测试配置: {xml_path}")
-        self.test_profile_found.emit(str(xml_path))
+
+        # 走和手动选 XML 一样的流程：设 TestProfile → 设输入路径 → 设输出路径 → 触发版本号
+        mw = self.window()  # 获取 MainWindow
+        if hasattr(mw, 'lineEdit_TestProfile'):
+            mw.lineEdit_TestProfile.setText(str(xml_path))
+        parent_dir = str(profile_dir.parent)
+        if hasattr(mw, 'path_manager'):
+            mw.path_manager.set_output_path(parent_dir)
+            mw.path_manager.set_input_path(parent_dir)
+        if hasattr(mw, 'sigSetVersion'):
+            mw.sigSetVersion.emit()
 
     # ─────────────────────────────────────────────────────
     #  转换流程
