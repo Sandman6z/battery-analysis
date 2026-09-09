@@ -365,14 +365,11 @@ class SignalConnector:
 
     def _reset_run_button(self):
         """重置Run按钮状态（由 analysis_completed 信号触发）"""
-        print(f"[DEBUG] _reset_run_button called")
-        self.logger.info(f"_reset_run_button called")
+        self.logger.info("_reset_run_button called")
         try:
             self.main_window.pushButton_Run.setEnabled(True)
             self.main_window.pushButton_Run.setText("Run")
             self.main_window.pushButton_Run.repaint()  # 强制重绘
             self.logger.info("Run button reset to idle state")
-            print(f"[DEBUG] Run button reset to idle state")
         except Exception as e:
-            self.logger.error(f"Failed to reset run button: {e}")
-            print(f"[DEBUG] Failed to reset run button: {e}")
+            self.logger.error("Failed to reset run button: %s", e)

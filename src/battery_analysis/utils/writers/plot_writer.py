@@ -76,7 +76,7 @@ def draw_boxplot_and_curves(
             list_box_plot.append(list_cpt[c][v])
             list_label.append(f"{list_voltage_level[v]}V")
         ax_boxplot.clear()
-        ax_boxplot.boxplot(list_box_plot, labels=list_label, medianprops=medianprofile)
+        ax_boxplot.boxplot(list_box_plot, tick_labels=list_label, medianprops=medianprofile)
         ax_boxplot.set_title(list_boxplot_title[c], fontdict=fontdict_label)
         ax_boxplot.set_xlabel("Cutoff Voltage [V]")
         ax_boxplot.set_ylabel("Useable Capacity [mAh]")
