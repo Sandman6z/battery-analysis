@@ -10,11 +10,11 @@ authors = [
   { name = "Ewin Hardware Group", email = "zhangbaoning@ewin-tech.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 license = { file = "LICENSE" }
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Development Status :: 4 - Beta",
@@ -25,6 +25,7 @@ classifiers = [
 ]
 keywords = ["battery", "analysis", "GUI", "PyQt6", "data-visualization"]
 dependencies = [
+    "NewareNDA>=2026.2.2",
     "matplotlib>=3.8.0,<4.0.0",
     "numpy>=1.24.0,<3.0.0",
     "openpyxl>=3.1.0,<4.0.0",
