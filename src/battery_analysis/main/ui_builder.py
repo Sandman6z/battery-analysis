@@ -13,7 +13,6 @@
 import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
-from pathlib import Path
 
 from battery_analysis.i18n import _
 

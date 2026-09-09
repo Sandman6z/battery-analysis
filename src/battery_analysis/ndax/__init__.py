@@ -2,4 +2,4 @@
 
 from battery_analysis.ndax.converter import convert_batch, convert_one, get_ndax_files
 
-__all__ = ["convert_one", "convert_batch", "get_ndax_files"]
+__all__ = ["convert_batch", "convert_one", "get_ndax_files"]
