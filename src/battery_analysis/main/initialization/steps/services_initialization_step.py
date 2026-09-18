@@ -29,8 +29,11 @@ class ServicesInitializationStep(InitializationStep):
             self.logger.info("Service container initialization complete")
             return True
         except (ImportError, AttributeError, TypeError) as e:
-            self.logger.warning("Service container initialization partially failed: %s", e)
-            return True  # 非关键步骤允许降级
+            self.logger.warning("Service container initialization partially failed: %s", e, exc_info=True)
+            # 创建空容器作为降级，防止 _service_container 未定义导致 AttributeError
+            from battery_analysis.main.services.service_container import ServiceContainer
+            main_window._service_container = ServiceContainer()
+            return True
         except Exception:
             self.logger.exception("Service container initialization failed unexpectedly")
             return False

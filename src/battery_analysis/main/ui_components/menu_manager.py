@@ -164,6 +164,8 @@ class MenuManager:
             self.main_window.actionConfiguration.triggered.connect(
                 self.main_window.show_config_dialog
             )
+            # 初始化期间禁用配置菜单，防止服务未就绪时点击
+            self.main_window.actionConfiguration.setEnabled(False)
 
         # 缩放功能连接
         self.main_window.actionZoom_In.triggered.connect(self.zoom_in)
