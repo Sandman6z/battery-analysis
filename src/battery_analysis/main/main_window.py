@@ -116,7 +116,8 @@ class Main(QW.QMainWindow):
             # 4a) UI 后处理（窗口属性、控件填充）
             self.ui_manager.init_window()
             self.ui_manager.init_widget()
-            # 连接控制器信号（ui_manager.connect_widget 已在 init_widget 中调用）
+            # 连接菜单动作和控制器信号
+            self.connect_widget()
             self.signal_connector.connect_controllers()
             if hasattr(self, "pushButton_Run"):
                 self.pushButton_Run.setFocus()
@@ -153,6 +154,12 @@ class Main(QW.QMainWindow):
 
             self.logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
 
+            # 启用配置菜单（服务已就绪）
+            if hasattr(self, "actionConfiguration"):
+                self.logger.debug("Enabling actionConfiguration menu")
+                self.actionConfiguration.setEnabled(True)
+                self.logger.debug("actionConfiguration menu enabled: %s", self.actionConfiguration.isEnabled())
+
             elapsed = (time.time() - t0) * 1000
             self.logger.info("Background initialization completed in %dms", elapsed)
         except Exception as e:
@@ -162,13 +169,18 @@ class Main(QW.QMainWindow):
     # 服务和控制器获取方法
     # ------------------------------
     def _get_component(self, component_name, component_type="service"):
+        self.logger.debug("_get_component called: %s %s", component_type, component_name)
         cache_dict = self._services if component_type == "service" else self._controllers
         if component_name not in cache_dict:
+            self.logger.debug("%s %s not in cache, fetching...", component_type, component_name)
             try:
                 cache_dict[component_name] = self._service_container.get(component_name)
+                self.logger.debug("Successfully fetched %s %s: %s", component_type, component_name, cache_dict[component_name])
             except Exception as e:
-                self.logger.warning("Failed to get %s %s: %s", component_type, component_name, e)
+                self.logger.warning("Failed to get %s %s: %s", component_type, component_name, e, exc_info=True)
                 cache_dict[component_name] = None
+        else:
+            self.logger.debug("%s %s found in cache: %s", component_type, component_name, cache_dict[component_name])
         return cache_dict[component_name]
 
     def _get_service(self, service_name):
@@ -303,10 +315,15 @@ class Main(QW.QMainWindow):
         pass
 
     def connect_widget(self) -> None:
+        self.logger.debug("connect_widget called")
         self.ui_manager.connect_widget()
+        self.logger.debug("ui_manager.connect_widget completed")
         self.menu_manager.connect_menu_actions()
+        self.logger.debug("menu_manager.connect_menu_actions completed")
         self.menu_manager.setup_menu_shortcuts()
+        self.logger.debug("menu_manager.setup_menu_shortcuts completed")
         self.signal_connector.connect_controllers()
+        self.logger.debug("signal_connector.connect_controllers completed")
 
     # ------------------------------
     # 用户交互方法
@@ -396,6 +413,7 @@ class Main(QW.QMainWindow):
         self.environment_manager.ensure_env_info_keys()
 
     def show_config_dialog(self):
+        self.logger.info("Attempting to open Configuration dialog")
         saved = {
             "BatteryType": self.comboBox_BatteryType.currentText(),
             "Manufacturer": self.comboBox_Manufacturer.currentText(),
@@ -405,7 +423,27 @@ class Main(QW.QMainWindow):
         }
         from battery_analysis.main.ui_components.config_dialog import ConfigDialog
 
-        dialog = ConfigDialog(self)
+        try:
+            self.logger.info("Creating ConfigDialog instance")
+            dialog = ConfigDialog(self)
+            self.logger.info("ConfigDialog created successfully")
+        except RuntimeError as e:
+            self.logger.warning("Configuration service not ready: %s", e)
+            QW.QMessageBox.warning(
+                self,
+                "Configuration",
+                "Configuration service is not ready. Please restart the application.",
+            )
+            return
+        except Exception as e:
+            self.logger.exception("Failed to open configuration dialog")
+            QW.QMessageBox.critical(
+                self,
+                "Error",
+                f"Unexpected error opening configuration: {e}",
+            )
+            return
+
         if dialog.exec() == QW.QDialog.DialogCode.Accepted:
             self.statusBar_BatteryAnalysis.showMessage("Configuration saved")
             self.config_manager.reload_config()

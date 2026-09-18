@@ -48,27 +48,17 @@ class ConfigDialog(QW.QDialog):
     def _setup_ui(self):
         layout = QW.QVBoxLayout(self)
 
-        # 左导航 + 右堆叠（master-detail）
-        splitter = QW.QSplitter(QC.Qt.Orientation.Horizontal)
-        self._nav = QW.QListWidget()
-        self._nav.setFixedWidth(150)
-        for name in self._CATEGORIES:
-            QW.QListWidgetItem(_(name), self._nav)
-        self._nav.setCurrentRow(0)
-
-        self._stack = QW.QStackedWidget()
+        # 顶部选项卡（master-detail）
+        self._tab_widget = QW.QTabWidget()
         self._page_battery = _BatteryConfigPage(self)
         self._page_test = _TestConfigPage(self)
         self._page_equipment = _EquipmentPage(self)
-        self._stack.addWidget(self._page_battery)
-        self._stack.addWidget(self._page_test)
-        self._stack.addWidget(self._page_equipment)
-        self._nav.currentRowChanged.connect(self._stack.setCurrentIndex)
-
-        splitter.addWidget(self._nav)
-        splitter.addWidget(self._stack)
-        splitter.setStretchFactor(1, 1)
-        layout.addWidget(splitter, 1)
+        self._tab_widget.addTab(self._page_battery, _("Battery"))
+        self._tab_widget.addTab(self._page_test, _("Test"))
+        self._tab_widget.addTab(self._page_equipment, _("Equipment"))
+        # 缩短选项卡高度
+        self._tab_widget.setStyleSheet("QTabWidget::pane { border: 1px solid #c0c0c0; } QTabBar::tab { padding: 4px 12px; min-height: 20px; }")
+        layout.addWidget(self._tab_widget, 1)
 
         # 底部按钮栏
         btn_layout = QW.QHBoxLayout()
@@ -130,9 +120,9 @@ class _ListEditor(QW.QGroupBox):
         if editable:
             btn_row = QW.QHBoxLayout()
             btn_add = QW.QPushButton("+")
-            btn_add.setFixedSize(22, 22)
+            btn_add.setFixedSize(32, 32)
             btn_remove = QW.QPushButton("×")
-            btn_remove.setFixedSize(22, 22)
+            btn_remove.setFixedSize(32, 32)
             btn_row.addWidget(btn_add)
             btn_row.addWidget(btn_remove)
             btn_row.addStretch()
@@ -177,6 +167,8 @@ class _RulesEditor(QW.QGroupBox):
         self._table.horizontalHeader().setStretchLastSection(True)
         self._table.setSelectionBehavior(QW.QAbstractItemView.SelectionBehavior.SelectRows)
         self._table.setMinimumHeight(150)
+        # 设置表头背景颜色，避免黑色看不清
+        self._table.setStyleSheet("QTableWidget::item { padding: 4px; } QHeaderView::section { background-color: #4a90d9; color: white; padding: 4px; border: 1px solid #357abd; }")
         vbox.addWidget(self._table)
 
         btn_row = QW.QHBoxLayout()
@@ -267,10 +259,10 @@ class _BatteryConfigPage(QW.QWidget):
         spec_vbox.addWidget(self._spec_page)
         dict_layout.addWidget(spec_group)
 
-        self._list_construction = _ListEditor(_("Construction Methods"))
+        self._list_construction = _ListEditor(_("Construction Methods"), editable=False)
         dict_layout.addWidget(self._list_construction)
 
-        self._list_spec_method = _ListEditor(_("Specification Methods"))
+        self._list_spec_method = _ListEditor(_("Specification Methods"), editable=False)
         dict_layout.addWidget(self._list_spec_method)
 
         self._list_mfrs = _ListEditor(_("Manufacturers"))
@@ -410,6 +402,8 @@ class _EquipmentPage(QW.QWidget):
         self._table.horizontalHeader().setStretchLastSection(True)
         self._table.setSelectionBehavior(QW.QAbstractItemView.SelectionBehavior.SelectRows)
         self._table.doubleClicked.connect(self._on_edit_row)
+        # 设置表头背景颜色，避免黑色看不清
+        self._table.setStyleSheet("QTableWidget::item { padding: 4px; } QHeaderView::section { background-color: #4a90d9; color: white; padding: 4px; border: 1px solid #357abd; }")
 
         btn_row = QW.QHBoxLayout()
         btn_add = QW.QPushButton("+ Add Location")
