@@ -169,7 +169,7 @@ class TestMainWindow:
     def test_load_application_icon(self):
         """测试加载应用程序图标"""
         with (
-            patch("battery_analysis.main.utils.FileUtils") as mock_file_utils,
+            patch("battery_analysis.main.window_init.FileUtils") as mock_file_utils,
             patch("battery_analysis.main.main_window.QG.QIcon") as mock_qicon,
         ):
             # 设置模拟返回值

@@ -10,6 +10,16 @@ import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 from battery_analysis.i18n import _
+from battery_analysis.main.application_initializer import ApplicationInitializer
+from battery_analysis.main.managers.initialization_manager import (
+    PHASE_CORE_SVC,
+    PHASE_ENV_PREP,
+    PHASE_LAUNCH,
+    PHASE_UI_BUILD,
+    InitializationManager,
+)
+from battery_analysis.main.utils import FileUtils
+from battery_analysis.utils.log_manager import get_log_manager, get_logger
 
 
 class WindowInitMixin:
@@ -43,11 +53,7 @@ class WindowInitMixin:
         Returns:
             bool: False 表示全局初始化失败，后续阶段应跳过
         """
-        from battery_analysis.utils.log_manager import get_logger
-
         self.logger = get_logger("main_window")
-
-        from battery_analysis.main.application_initializer import ApplicationInitializer
 
         initializer = ApplicationInitializer()
         if not initializer.initialize():
@@ -57,13 +63,6 @@ class WindowInitMixin:
 
     def _run_initialization_pipeline(self):
         """阶段 1-3：环境准备 → 核心服务 → UI 构建，并注册语言切换回调"""
-        from battery_analysis.main.managers.initialization_manager import (
-            PHASE_CORE_SVC,
-            PHASE_ENV_PREP,
-            PHASE_UI_BUILD,
-            InitializationManager,
-        )
-
         self.logger.info("─" * 40)
         self.logger.info(
             "Initialization pipeline: %s → %s → %s",
@@ -80,8 +79,6 @@ class WindowInitMixin:
 
     def _complete_launch_phase(self):
         """阶段 4：UI 后处理、版本号、主题、辅助功能与菜单启用"""
-        from battery_analysis.main.managers.initialization_manager import PHASE_LAUNCH
-
         self.logger.info("")
         self.logger.info("▶ Phase [%s]", PHASE_LAUNCH)
 
@@ -116,8 +113,6 @@ class WindowInitMixin:
 
         # 4d) 环境日志（包含 psutil/platform 调用，UI 已可见）
         try:
-            from battery_analysis.utils.log_manager import get_log_manager
-
             lm = get_log_manager()
             if lm:
                 lm.log_environment_info()
@@ -176,9 +171,6 @@ class WindowInitMixin:
     def _load_application_icon(self) -> QG.QIcon:
         logger = getattr(self, "logger", logging.getLogger(__name__))
         try:
-            from battery_analysis.i18n.language_manager import _
-            from battery_analysis.main.utils import FileUtils
-
             env_detector = getattr(self, "env_detector", None)
             icon_paths = FileUtils.get_icon_paths(
                 env_detector, getattr(self, "current_directory", None)

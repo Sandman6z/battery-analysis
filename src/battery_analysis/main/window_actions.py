@@ -6,6 +6,9 @@ import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
+from battery_analysis.main.ui_components.config_dialog import ConfigDialog
+from battery_analysis.utils.config_utils import clear_config_cache
+
 
 class WindowActionsMixin:
     """信号连接、偏好应用、配置重载、剪贴板、配置对话框、主题与状态栏"""
@@ -28,8 +31,6 @@ class WindowActionsMixin:
         try:
             # 配置路径/重载统一经 ConfigService；仅需丢弃 config_utils 的路径缓存，
             # 让 ConfigService 重新解析（含 QSettings 里的自定义路径）
-            from battery_analysis.utils.config_utils import clear_config_cache
-
             clear_config_cache()
             svc = self._get_service("config")
             if svc is not None:
@@ -59,8 +60,6 @@ class WindowActionsMixin:
 
     def reload_configuration(self) -> None:
         try:
-            from battery_analysis.utils.config_utils import clear_config_cache
-
             clear_config_cache()
             svc = self._get_service("config")
             if svc is not None:
@@ -126,7 +125,6 @@ class WindowActionsMixin:
             "TestedBy": self.comboBox_TestedBy.currentText(),
             "ReportedBy": self.comboBox_ReportedBy.currentText(),
         }
-        from battery_analysis.main.ui_components.config_dialog import ConfigDialog
 
         try:
             self.logger.info("Creating ConfigDialog instance")
