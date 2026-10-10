@@ -15,7 +15,7 @@
 | 4 | `main/factories/visualizer_factory.py` `create_visualizer` | 捕获 `ImportError` 等但 `visualizer_class(**kwargs)` 抛出的其它异常（如 KeyError）会直接穿透，错误处理不完整 | 低 | open |
 | 5 | `main/visualization/viewer_controls.py` `_add_menu_bar` | 第一个 `except ImportError as e: raise ImportError(...)` 之后紧跟 `except (ImportError, AttributeError, ...) as e:` —— 后者的 `ImportError` 分支**永远不可达**（dead code），异常分类自相矛盾 | 中 | fixed |
 | 6 | `main/visualization/hover_controls.py` `_add_hover_functionality`（线性 O(n) 扫描）vs `_add_hover_functionality_kdtree`（KDTree 加速） | 同一悬停功能两套并行实现，约 67 行 + 144 行；kdtree 版失败时回退到线性版。长期只应保留一套（KDTree 版），或抽出共享的坐标换算/标注更新逻辑（已抽出 4 个模块级共享函数） | 中 | fixed |
-| 7 | `main/visualization/filter_controls.py` `_add_filter_button` 与 `create_filter_checkbox` | 「过滤/未过滤切换」的可见性联动逻辑两份（matplotlib 按钮形态 86 行 + QCheckBox 形态 66 行），切换规则若改动需同步改两处，易漂移 | 中 | open |
+| 7 | `main/visualization/filter_controls.py` `_add_filter_button` 与 `create_filter_checkbox` | 「过滤/未过滤切换」的可见性联动逻辑两份（matplotlib 按钮形态 86 行 + QCheckBox 形态 66 行），切换规则若改动需同步改两处，易漂移 | 中 | fixed（抽出共享 `_apply_filter_mode`；并修复 checkbox 路径漏更新 `filter_button_state["active"]` 导致悬停永远扫 Filtered 曲线） |
 | 8 | `main/visualization/viewer_controls.py` `_open_file_dialog` | 日志与异常处理过度（方法内 10+ 条 logger 调试日志），Qt 对话框失败后仅打日志、`data_dir` 为 None 时无用户可见提示 | 低 | open |
 | 9 | `main/visualization/*.py`（本次拆分产物） | 拆分后 `ButtonFactoryMixin`/`FilterControlsMixin` 等子 Mixin 之间通过 `self` 隐式耦合（子 Mixin 单独使用会 AttributeError），且各文件无 `TYPE_CHECKING` 依赖声明，IDE 无法静态看出依赖关系 | 低 | open |
 | 10 | `utils/writers/excel_report_writer.py` `write` | 两个 workbook（`wbResult`/`wbSample`）创建后无 `try/finally` 保护，中间任一步抛异常都会**不关闭工作簿**，产生损坏/空的 xlsx 文件；应改用 with 语句或 try/finally | 中 | fixed |
