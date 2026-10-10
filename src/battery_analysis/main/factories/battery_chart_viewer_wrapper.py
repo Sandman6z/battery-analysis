@@ -38,7 +38,130 @@ class BatteryChartViewerWrapper(IVisualizer):
             self._viewer.set_data_path(data_path)
             # 不自动加载数据，由调用者决定何时加载
 
-    def embed_to_widget(self, parent_widget, data_path: str | None = None, xml_path: str | None = None):
+    def _load_data_at(self, data_path: str, success_msg: str) -> None:
+        """在指定目录上加载数据，并按统一话术记录日志。"""
+        self._viewer.set_data_path(data_path)
+        if self._viewer.load_data():
+            self._viewer.loaded_data = True
+            self.logger.info(success_msg)
+        else:
+            self.logger.warning("Data loading failed")
+
+    def _load_data_from_xml_path(self, xml_path: str) -> None:
+        """按 XML 路径定位分析结果目录并加载数据。
+
+        embed_to_widget 与 show_figure 原本各有一份几乎相同、但兜底分支
+        不一致的实现（见 docs/refactor-findings.md #1），现统一为此实现。
+
+        流程：XML 转绝对路径 → 上一级目录（回退 XML 所在目录）中找分析结果
+        目录 → 最新子目录的 Info_Image.csv → 兜底遍历其他子目录 → 兜底直接
+        在分析结果目录根下找 csv。
+        """
+        # 确保XML路径是绝对路径
+        if not os.path.isabs(xml_path):
+            xml_path = os.path.abspath(xml_path)
+
+        # 检查XML路径是否存在
+        if not os.path.exists(xml_path):
+            self.logger.warning("XML file does not exist: %s", xml_path)
+
+        # 获取XML所在目录
+        test_profile_dir = os.path.dirname(xml_path)
+
+        # 检查XML所在目录是否存在
+        if not os.path.exists(test_profile_dir):
+            self.logger.warning("XML directory does not exist: %s", test_profile_dir)
+
+        # 获取XML所在目录的上一级目录
+        parent_dir = os.path.dirname(test_profile_dir)
+
+        # 检查XML上一级目录是否存在
+        if not os.path.exists(parent_dir):
+            self.logger.warning("XML parent directory does not exist: %s", parent_dir)
+
+        # 定义可能的分析结果目录名称
+        analysis_dir_names = [
+            "3_analysis results",
+            "analysis results",
+            "Analysis Results",
+            "3_Analysis Results",
+        ]
+
+        # 尝试在XML上一级目录中寻找分析结果目录
+        analysis_results_dir = None
+        for dir_name in analysis_dir_names:
+            analysis_dir = os.path.join(parent_dir, dir_name)
+            if os.path.exists(analysis_dir):
+                analysis_results_dir = analysis_dir
+                break
+
+        # 如果在XML上一级目录中没有找到，尝试在XML所在目录中寻找
+        if not analysis_results_dir:
+            for dir_name in analysis_dir_names:
+                analysis_dir = os.path.join(test_profile_dir, dir_name)
+                if os.path.exists(analysis_dir):
+                    analysis_results_dir = analysis_dir
+                    break
+
+        if not analysis_results_dir:
+            self.logger.warning("Analysis results directory not found")
+            return
+
+        # 检查分析结果目录是否存在
+        if not os.path.exists(analysis_results_dir):
+            self.logger.warning(
+                "Analysis results directory does not exist: %s", analysis_results_dir
+            )
+            return
+
+        # 获取子目录列表
+        try:
+            subdirs = [
+                d
+                for d in os.listdir(analysis_results_dir)
+                if os.path.isdir(os.path.join(analysis_results_dir, d))
+            ]
+
+            if not subdirs:
+                self.logger.warning("No subdirectories in the analysis results directory")
+                # 尝试直接在分析结果目录中寻找Info_Image.csv文件
+                info_image_csv = os.path.join(analysis_results_dir, "Info_Image.csv")
+                if os.path.exists(info_image_csv):
+                    self._load_data_at(
+                        analysis_results_dir,
+                        "Successfully loaded data from analysis results directory",
+                    )
+                return
+
+            # 按修改时间排序，获取最新的子目录
+            latest_dir = max(
+                subdirs,
+                key=lambda d: os.path.getmtime(os.path.join(analysis_results_dir, d)),
+            )
+            latest_dir_path = os.path.join(analysis_results_dir, latest_dir)
+
+            # 检查最新目录中是否有Info_Image.csv文件
+            info_image_csv = os.path.join(latest_dir_path, "Info_Image.csv")
+            if os.path.exists(info_image_csv):
+                self._load_data_at(latest_dir_path, "Successfully loaded data from XML path")
+                return
+
+            self.logger.warning("Info_Image.csv file not found in the latest version directory")
+            # 尝试在分析结果目录的其他子目录中寻找Info_Image.csv文件
+            for subdir in subdirs:
+                subdir_path = os.path.join(analysis_results_dir, subdir)
+                info_image_csv = os.path.join(subdir_path, "Info_Image.csv")
+                if os.path.exists(info_image_csv):
+                    self._load_data_at(
+                        subdir_path, "Successfully loaded data from another subdirectory"
+                    )
+                    break
+        except Exception as e:
+            self.logger.error("Error processing analysis results directory: %s", e)
+
+    def embed_to_widget(
+        self, parent_widget, data_path: str | None = None, xml_path: str | None = None
+    ):
         """
         将图表嵌入到指定的 QWidget 中
 
@@ -56,79 +179,11 @@ class BatteryChartViewerWrapper(IVisualizer):
 
             # 只有当提供了XML路径或数据路径时才加载数据
             if xml_path is not None and xml_path:
-                import os
-
-                # 确保XML路径是绝对路径
-                if not os.path.isabs(xml_path):
-                    xml_path = os.path.abspath(xml_path)
-
-                # 检查XML路径是否存在
-                if not os.path.exists(xml_path):
-                    self.logger.warning("XML file does not exist: %s", xml_path)
-
-                # 获取XML所在目录
-                test_profile_dir = os.path.dirname(xml_path)
-
-                # 获取XML所在目录的上一级目录
-                parent_dir = os.path.dirname(test_profile_dir)
-
-                # 定义可能的分析结果目录名称
-                analysis_dir_names = [
-                    "3_analysis results",
-                    "analysis results",
-                    "Analysis Results",
-                    "3_Analysis Results",
-                ]
-
-                # 尝试在XML上一级目录中寻找分析结果目录
-                analysis_results_dir = None
-                for dir_name in analysis_dir_names:
-                    analysis_dir = os.path.join(parent_dir, dir_name)
-                    if os.path.exists(analysis_dir):
-                        analysis_results_dir = analysis_dir
-                        break
-
-                # 如果找到分析结果目录，尝试获取最新的子目录
-                if analysis_results_dir:
-                    # 获取子目录列表
-                    try:
-                        subdirs = [
-                            d
-                            for d in os.listdir(analysis_results_dir)
-                            if os.path.isdir(os.path.join(analysis_results_dir, d))
-                        ]
-
-                        if subdirs:
-                            # 按修改时间排序，获取最新的子目录
-                            latest_dir = max(
-                                subdirs,
-                                key=lambda d: os.path.getmtime(
-                                    os.path.join(analysis_results_dir, d)
-                                ),
-                            )
-                            latest_dir_path = os.path.join(analysis_results_dir, latest_dir)
-
-                            # 检查最新目录中是否有Info_Image.csv文件
-                            info_image_csv = os.path.join(latest_dir_path, "Info_Image.csv")
-                            if os.path.exists(info_image_csv):
-                                self._viewer.set_data_path(latest_dir_path)
-                                if self._viewer.load_data():
-                                    self._viewer.loaded_data = True
-                                    self.logger.info("Successfully loaded data from XML path")
-                                else:
-                                    self.logger.warning("Data loading failed")
-                    except Exception as e:
-                        self.logger.error("Error processing analysis results directory: %s", e)
+                self._load_data_from_xml_path(xml_path)
 
             # 如果提供了数据路径，加载数据
             elif data_path is not None:
-                self._viewer.set_data_path(data_path)
-                if self._viewer.load_data():
-                    self._viewer.loaded_data = True
-                    self.logger.info("Successfully loaded data from data path")
-                else:
-                    self.logger.warning("Data loading failed")
-
+                self._load_data_at(data_path, "Successfully loaded data from data path")
             # 嵌入图表到父控件
             result = self._viewer.embed_to_widget(parent_widget)
             return result
@@ -154,137 +209,11 @@ class BatteryChartViewerWrapper(IVisualizer):
 
             # 只有当提供了XML路径或数据路径时才加载数据
             if xml_path is not None and xml_path:
-                import os
-
-                # 确保XML路径是绝对路径
-                if not os.path.isabs(xml_path):
-                    xml_path = os.path.abspath(xml_path)
-
-                # 检查XML路径是否存在
-                if not os.path.exists(xml_path):
-                    self.logger.warning("XML file does not exist: %s", xml_path)
-
-                # 获取XML所在目录
-                test_profile_dir = os.path.dirname(xml_path)
-
-                # 检查XML所在目录是否存在
-                if not os.path.exists(test_profile_dir):
-                    self.logger.warning("XML directory does not exist: %s", test_profile_dir)
-
-                # 获取XML所在目录的上一级目录
-                parent_dir = os.path.dirname(test_profile_dir)
-
-                # 检查XML上一级目录是否存在
-                if not os.path.exists(parent_dir):
-                    self.logger.warning("XML parent directory does not exist: %s", parent_dir)
-
-                # 定义可能的分析结果目录名称
-                analysis_dir_names = [
-                    "3_analysis results",
-                    "analysis results",
-                    "Analysis Results",
-                    "3_Analysis Results",
-                ]
-
-                # 尝试在XML上一级目录中寻找分析结果目录
-                analysis_results_dir = None
-                for dir_name in analysis_dir_names:
-                    analysis_dir = os.path.join(parent_dir, dir_name)
-                    if os.path.exists(analysis_dir):
-                        analysis_results_dir = analysis_dir
-                        break
-
-                # 如果在XML上一级目录中没有找到，尝试在XML所在目录中寻找
-                if not analysis_results_dir:
-                    for dir_name in analysis_dir_names:
-                        analysis_dir = os.path.join(test_profile_dir, dir_name)
-                        if os.path.exists(analysis_dir):
-                            analysis_results_dir = analysis_dir
-                            break
-
-                # 如果找到分析结果目录，尝试获取最新的子目录
-                if analysis_results_dir:
-                    # 检查分析结果目录是否存在
-                    if not os.path.exists(analysis_results_dir):
-                        self.logger.warning(
-                            "Analysis results directory does not exist: %s", analysis_results_dir
-                        )
-                    else:
-                        # 获取子目录列表
-                        try:
-                            subdirs = [
-                                d
-                                for d in os.listdir(analysis_results_dir)
-                                if os.path.isdir(os.path.join(analysis_results_dir, d))
-                            ]
-
-                            if subdirs:
-                                # 按修改时间排序，获取最新的子目录
-                                latest_dir = max(
-                                    subdirs,
-                                    key=lambda d: os.path.getmtime(
-                                        os.path.join(analysis_results_dir, d)
-                                    ),
-                                )
-                                latest_dir_path = os.path.join(analysis_results_dir, latest_dir)
-
-                                # 检查最新目录中是否有Info_Image.csv文件
-                                info_image_csv = os.path.join(latest_dir_path, "Info_Image.csv")
-                                if os.path.exists(info_image_csv):
-                                    self._viewer.set_data_path(latest_dir_path)
-                                    if self._viewer.load_data():
-                                        self._viewer.loaded_data = True
-                                        self.logger.info("Successfully loaded data from XML path")
-                                    else:
-                                        self.logger.warning("Data loading failed")
-                                else:
-                                    self.logger.warning(
-                                        "Info_Image.csv file not found in the latest version directory"
-                                    )
-                                    # 尝试在分析结果目录的其他子目录中寻找Info_Image.csv文件
-                                    for subdir in subdirs:
-                                        subdir_path = os.path.join(analysis_results_dir, subdir)
-                                        info_image_csv = os.path.join(subdir_path, "Info_Image.csv")
-                                        if os.path.exists(info_image_csv):
-                                            self._viewer.set_data_path(subdir_path)
-                                            if self._viewer.load_data():
-                                                self._viewer.loaded_data = True
-                                                self.logger.info(
-                                                    "Successfully loaded data from another subdirectory"
-                                                )
-                                            else:
-                                                self.logger.warning("Data loading failed")
-                                            break
-                            else:
-                                self.logger.warning(
-                                    "No subdirectories in the analysis results directory"
-                                )
-                                # 尝试直接在分析结果目录中寻找Info_Image.csv文件
-                                info_image_csv = os.path.join(
-                                    analysis_results_dir, "Info_Image.csv"
-                                )
-                                if os.path.exists(info_image_csv):
-                                    self._viewer.set_data_path(analysis_results_dir)
-                                    if self._viewer.load_data():
-                                        self._viewer.loaded_data = True
-                                        self.logger.info(
-                                            "Successfully loaded data from analysis results directory"
-                                        )
-                                    else:
-                                        self.logger.warning("Data loading failed")
-                        except Exception as e:
-                            self.logger.error("Error processing analysis results directory: %s", e)
-                else:
-                    self.logger.warning("Analysis results directory not found")
+                self._load_data_from_xml_path(xml_path)
 
             # 如果提供了数据路径，加载数据
             elif data_path is not None:
-                self._viewer.set_data_path(data_path)
-                if self._viewer.load_data():
-                    self._viewer.loaded_data = True
-                    self.logger.info("Successfully loaded data from data path")
-                else:
-                    self.logger.warning("Data loading failed")
+                self._load_data_at(data_path, "Successfully loaded data from data path")
 
             # 其他情况（没有提供XML路径或数据路径），不加载任何数据，直接显示无数据
             # 不设置loaded_data，让_viewer在plt_figure时显示无数据

@@ -9,8 +9,8 @@
 
 | # | 位置 | 问题 | 严重度 | 状态 |
 |---|------|------|--------|------|
-| 1 | `main/factories/battery_chart_viewer_wrapper.py` `embed_to_widget` 与 `show_figure` | 两方法中「XML路径 → 定位 analysis results 目录 → 找最新子目录 → 找 Info_Image.csv → load_data」这一整段约 80 行逻辑**几乎完全重复**，且 `embed_to_widget` 版本缺少 `show_figure` 里的几处兜底（父目录不存在检查、无子目录时直接在根目录找 csv、找不到时遍历其他子目录）。两份实现已经**行为不一致** | 高 | open |
-| 2 | `main/factories/battery_chart_viewer_wrapper.py` 两方法内 | 方法体内 `import os`（模块顶部已 import os），冗余 import | 低 | open |
+| 1 | `main/factories/battery_chart_viewer_wrapper.py` `embed_to_widget` 与 `show_figure` | 两方法中「XML路径 → 定位 analysis results 目录 → 找最新子目录 → 找 Info_Image.csv → load_data」这一整段约 80 行逻辑**几乎完全重复**，且 `embed_to_widget` 版本缺少 `show_figure` 里的几处兜底（父目录不存在检查、无子目录时直接在根目录找 csv、找不到时遍历其他子目录）。两份实现已经**行为不一致** | 高 | fixed |
+| 2 | `main/factories/battery_chart_viewer_wrapper.py` 两方法内 | 方法体内 `import os`（模块顶部已 import os），冗余 import | 低 | fixed |
 | 3 | `main/factories/battery_chart_viewer_wrapper.py` `embed_to_widget` / `show_figure` | 捕获 `(ImportError, TypeError, ValueError, OSError)` 而内部对 analysis results 的处理用了宽泛 `except Exception`，异常策略不统一；且导入错误被当成运行时错误吞掉 | 低 | open |
 | 4 | `main/factories/visualizer_factory.py` `create_visualizer` | 捕获 `ImportError` 等但 `visualizer_class(**kwargs)` 抛出的其它异常（如 KeyError）会直接穿透，错误处理不完整 | 低 | open |
 | 5 | `main/visualization/viewer_controls.py` `_add_menu_bar` | 第一个 `except ImportError as e: raise ImportError(...)` 之后紧跟 `except (ImportError, AttributeError, ...) as e:` —— 后者的 `ImportError` 分支**永远不可达**（dead code），异常分类自相矛盾 | 中 | open |
@@ -32,3 +32,14 @@
 | 21 | `main/business_logic/validation_manager.py` `self.logger = logging.getLogger(__name__)` | logger 名硬编码为当前模块名，拆分后 mixin 方法的日志全部记在 `validation_manager` 名下，无法从日志区分具体子模块（同理适用于此前拆出的 window_*/interaction_*） | 低 | open |
 
 ## 详细记录
+
+### #1 + #2 — battery_chart_viewer_wrapper 加载逻辑去重（已修复）
+
+**改动**：抽出两个私有方法，两处调用共用一套实现。
+
+- `_load_data_at(data_path, success_msg)` — 统一的「set_data_path → load_data → 置 loaded_data → 打日志」四步，替代原来 4 份重复的内联代码。
+- `_load_data_from_xml_path(xml_path)` — 完整的 XML → analysis results → 最新子目录 → Info_Image.csv 定位链，以原本更完整的 `show_figure` 版本为准（含三处兜底：父目录不存在检查、无子目录时直接在根目录找 csv、最新目录没有 csv 时遍历其他子目录）。
+
+**行为差异说明**：`embed_to_widget` 现在获得了 `show_figure` 的全部兜底分支（此前缺失），即行为向更完整的一方**对齐**；`show_figure` 行为不变。两者日志话术保持原样，便于与历史日志比对。`_load_data_at` 的 `success_msg` 参数沿用原三条不同文案，未合并文案。
+
+**连带**：方法体内的重复 `import os` 随替换一并消失（#2），模块顶部的 `import os` 保留。
