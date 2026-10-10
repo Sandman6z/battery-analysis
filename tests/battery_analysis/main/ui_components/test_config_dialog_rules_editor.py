@@ -2,7 +2,11 @@
 
 from PyQt6.QtWidgets import QApplication, QComboBox
 
-from battery_analysis.main.ui_components.config_dialog import RULE_COLUMNS, SPEC_METHOD_COL, _RulesEditor
+from battery_analysis.main.ui_components.config_dialog import (
+    RULE_COLUMNS,
+    SPEC_METHOD_COL,
+    _RulesEditor,
+)
 
 METHODS = ["1S1P", "1S2P", "2S1P"]
 

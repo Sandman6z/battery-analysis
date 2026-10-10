@@ -19,7 +19,11 @@ from __future__ import annotations
 
 import re
 
-from battery_analysis.utils.battery_classifier import classify_spec, extract_capacity, extract_spec_name
+from battery_analysis.utils.battery_classifier import (
+    classify_spec,
+    extract_capacity,
+    extract_spec_name,
+)
 
 # Coin Cell CR2450 标准型档位（Freezer 型 1S2P Pack 同此档）
 COIN_STANDARD_PULSE_CURRENTS = [30, 26, 15, 6]

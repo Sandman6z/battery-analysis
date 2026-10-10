@@ -140,7 +140,6 @@ class FigureBuilderMixin:
             if hasattr(self, "errorlog") and self.errorlog:
                 full_text += f"\n\nError details: {self.errorlog!s}"
 
-
             text_color = MODERN_BUTTON_STYLE["inactive_text_color"]
             main_text_color = MODERN_BUTTON_STYLE["active_color"]
 
