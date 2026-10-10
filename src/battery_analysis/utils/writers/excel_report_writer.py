@@ -96,48 +96,50 @@ class ExcelReportWriter(ExcelFormatMixin, ExcelOverviewMixin, ExcelSampleMixin):
         wbSample = xwt.Workbook(self.strSampleXlsxPath)
         wsWord = wbSample.add_worksheet("word")
         wsExcel = wbSample.add_worksheet("excel")
+        try:
+            # 创建格式
+            fmts = self._create_formats(wbResult, wbSample)
 
-        # 创建格式
-        fmts = self._create_formats(wbResult, wbSample)
+            # 写入Overview表头
+            if wsOverview is None:
+                raise BatteryAnalysisException(
+                    f"{self.strResultXlsxPath} sheet[overview] creation failed"
+                )
+            self._write_overview_header(wsOverview)
 
-        # 写入Overview表头
-        if wsOverview is None:
-            raise BatteryAnalysisException(
-                f"{self.strResultXlsxPath} sheet[overview] creation failed"
-            )
-        self._write_overview_header(wsOverview)
+            # 写入result表列名
+            if wsResult is None:
+                raise BatteryAnalysisException(
+                    f"{self.strResultXlsxPath} sheet[result] creation failed"
+                )
+            self._write_result_columns(wsResult, fmts)
 
-        # 写入result表列名
-        if wsResult is None:
-            raise BatteryAnalysisException(
-                f"{self.strResultXlsxPath} sheet[result] creation failed"
-            )
-        self._write_result_columns(wsResult, fmts)
+            # 写入电池数据
+            self._write_battery_data(wsResult, fmts)
 
-        # 写入电池数据
-        self._write_battery_data(wsResult, fmts)
+            # 计算统计值
+            if list_cpt is None:
+                list_cpt = _compute_list_cpt(
+                    self.listBatteryCharge,
+                    self.intBatteryNum,
+                    self.intCurrentLevelNum,
+                    self.intVoltageLevelNum,
+                )
+            if stats is None:
+                stats = _compute_statistics(
+                    list_cpt, self.intCurrentLevelNum, self.intVoltageLevelNum
+                )
 
-        # 计算统计值
-        if list_cpt is None:
-            list_cpt = _compute_list_cpt(
-                self.listBatteryCharge,
-                self.intBatteryNum,
-                self.intCurrentLevelNum,
-                self.intVoltageLevelNum,
-            )
-        if stats is None:
-            stats = _compute_statistics(list_cpt, self.intCurrentLevelNum, self.intVoltageLevelNum)
+            # 写入统计值、图像、Overview统计表
+            self._write_result_statistics(wsResult, stats, fmts)
+            self._insert_images(wsResult)
+            self._write_overview_statistics(wsOverview, stats, fmts)
 
-        # 写入统计值、图像、Overview统计表
-        self._write_result_statistics(wsResult, stats, fmts)
-        self._insert_images(wsResult)
-        self._write_overview_statistics(wsOverview, stats, fmts)
-
-        # 准备样本表内容并写入
-        sample = self._prepare_sample_content(stats)
-        self._write_sample_excel(wsExcel, sample, stats, fmts)
-        self._write_sample_word(wsWord, sample, stats, fmts)
-
-        # 关闭工作簿
-        wbResult.close()
-        wbSample.close()
+            # 准备样本表内容并写入
+            sample = self._prepare_sample_content(stats)
+            self._write_sample_excel(wsExcel, sample, stats, fmts)
+            self._write_sample_word(wsWord, sample, stats, fmts)
+        finally:
+            # 关闭工作簿：无论写入是否失败都必须关闭，避免留下损坏/未写出的 xlsx
+            wbResult.close()
+            wbSample.close()
