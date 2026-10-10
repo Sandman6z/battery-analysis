@@ -20,104 +20,119 @@ class WindowInitMixin:
 
         4 阶段流程：
           环境准备 → 核心服务 → UI 构建 → 启动完成
+
+        每阶段由 `_prepare_application` / `_run_initialization_pipeline` /
+        `_complete_launch_phase` 各自承担，本方法只负责时序与错误兜底。
         """
         t0 = time.time()
         try:
-            # ── 前置准备（日志、异常钩子）────────────────────
-            from battery_analysis.utils.log_manager import get_logger
-
-            self.logger = get_logger("main_window")
-
-            from battery_analysis.main.application_initializer import ApplicationInitializer
-
-            initializer = ApplicationInitializer()
-            if not initializer.initialize():
-                self.logger.error(
-                    "Application initialization failed; some features may be unavailable"
-                )
+            if not self._prepare_application():
                 return
 
-            # ── 阶段 1-3: 初始化管线 ───────────────────────
-            # 环境准备 → 核心服务 → UI 构建
-            from battery_analysis.main.managers.initialization_manager import (
-                PHASE_CORE_SVC,
-                PHASE_ENV_PREP,
-                PHASE_LAUNCH,
-                PHASE_UI_BUILD,
-                InitializationManager,
-            )
-
-            self.logger.info("─" * 40)
-            self.logger.info(
-                "Initialization pipeline: %s → %s → %s",
-                PHASE_ENV_PREP,
-                PHASE_CORE_SVC,
-                PHASE_UI_BUILD,
-            )
-            init_manager = InitializationManager(self)
-            init_manager.initialize()
-
-            # 注册 refresh_texts 回调（语言切换时自动调用）
-            if hasattr(self, "language_manager") and self.language_manager:
-                self.language_manager.register(self.refresh_texts)
-
-            # ── 阶段 4: 启动完成 ────────────────────────────
-            self.logger.info("")
-            self.logger.info("▶ Phase [%s]", PHASE_LAUNCH)
-
-            # 4a) UI 后处理（窗口属性、控件填充）
-            self.ui_manager.init_window()
-            self.ui_manager.init_widget()
-            # 连接菜单动作和控制器信号
-            self.connect_widget()
-            self.signal_connector.connect_controllers()
-            if hasattr(self, "pushButton_Run"):
-                self.pushButton_Run.setFocus()
-            if hasattr(self, "tableWidget_TestInformation"):
-                self.tableWidget_TestInformation.resizeColumnsToContents()
-
-            # 4b) 版本号
-            self.version_manager.get_version()
-
-            # 4c) 应用保存的主题设置
-            try:
-                settings = QC.QSettings()
-                theme = settings.value("display/theme", "light")
-                if theme == "system":
-                    palette = QW.QApplication.palette()
-                    is_dark = palette.color(QG.QPalette.ColorRole.Window).lightness() < 128
-                    theme = "dark" if is_dark else "light"
-                self.theme_manager.set_theme(theme)
-            except Exception as e:
-                self.logger.warning("Failed to apply saved theme: %s", e)
-
-            # 4d) 非关键 UI 辅助功能／工具提示
-            self._lazy_init()
-
-            # 4d) 环境日志（包含 psutil/platform 调用，UI 已可见）
-            try:
-                from battery_analysis.utils.log_manager import get_log_manager
-
-                lm = get_log_manager()
-                if lm:
-                    lm.log_environment_info()
-            except Exception:
-                logging.getLogger(__name__).exception("Failed to log environment info")
-
-            self.logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
-
-            # 启用配置菜单（服务已就绪）
-            if hasattr(self, "actionConfiguration"):
-                self.logger.debug("Enabling actionConfiguration menu")
-                self.actionConfiguration.setEnabled(True)
-                self.logger.debug(
-                    "actionConfiguration menu enabled: %s", self.actionConfiguration.isEnabled()
-                )
+            self._run_initialization_pipeline()
+            self._complete_launch_phase()
 
             elapsed = (time.time() - t0) * 1000
             self.logger.info("Background initialization completed in %dms", elapsed)
         except Exception as e:
             logging.getLogger(__name__).exception("Background initialization error: %s", e)
+
+    def _prepare_application(self) -> bool:
+        """前置准备：日志记录器与全局应用初始化
+
+        Returns:
+            bool: False 表示全局初始化失败，后续阶段应跳过
+        """
+        from battery_analysis.utils.log_manager import get_logger
+
+        self.logger = get_logger("main_window")
+
+        from battery_analysis.main.application_initializer import ApplicationInitializer
+
+        initializer = ApplicationInitializer()
+        if not initializer.initialize():
+            self.logger.error("Application initialization failed; some features may be unavailable")
+            return False
+        return True
+
+    def _run_initialization_pipeline(self):
+        """阶段 1-3：环境准备 → 核心服务 → UI 构建，并注册语言切换回调"""
+        from battery_analysis.main.managers.initialization_manager import (
+            PHASE_CORE_SVC,
+            PHASE_ENV_PREP,
+            PHASE_UI_BUILD,
+            InitializationManager,
+        )
+
+        self.logger.info("─" * 40)
+        self.logger.info(
+            "Initialization pipeline: %s → %s → %s",
+            PHASE_ENV_PREP,
+            PHASE_CORE_SVC,
+            PHASE_UI_BUILD,
+        )
+        init_manager = InitializationManager(self)
+        init_manager.initialize()
+
+        # 注册 refresh_texts 回调（语言切换时自动调用）
+        if hasattr(self, "language_manager") and self.language_manager:
+            self.language_manager.register(self.refresh_texts)
+
+    def _complete_launch_phase(self):
+        """阶段 4：UI 后处理、版本号、主题、辅助功能与菜单启用"""
+        from battery_analysis.main.managers.initialization_manager import PHASE_LAUNCH
+
+        self.logger.info("")
+        self.logger.info("▶ Phase [%s]", PHASE_LAUNCH)
+
+        # 4a) UI 后处理（窗口属性、控件填充）
+        self.ui_manager.init_window()
+        self.ui_manager.init_widget()
+        # 连接菜单动作和控制器信号
+        self.connect_widget()
+        self.signal_connector.connect_controllers()
+        if hasattr(self, "pushButton_Run"):
+            self.pushButton_Run.setFocus()
+        if hasattr(self, "tableWidget_TestInformation"):
+            self.tableWidget_TestInformation.resizeColumnsToContents()
+
+        # 4b) 版本号
+        self.version_manager.get_version()
+
+        # 4c) 应用保存的主题设置
+        try:
+            settings = QC.QSettings()
+            theme = settings.value("display/theme", "light")
+            if theme == "system":
+                palette = QW.QApplication.palette()
+                is_dark = palette.color(QG.QPalette.ColorRole.Window).lightness() < 128
+                theme = "dark" if is_dark else "light"
+            self.theme_manager.set_theme(theme)
+        except Exception as e:
+            self.logger.warning("Failed to apply saved theme: %s", e)
+
+        # 4d) 非关键 UI 辅助功能／工具提示
+        self._lazy_init()
+
+        # 4d) 环境日志（包含 psutil/platform 调用，UI 已可见）
+        try:
+            from battery_analysis.utils.log_manager import get_log_manager
+
+            lm = get_log_manager()
+            if lm:
+                lm.log_environment_info()
+        except Exception:
+            logging.getLogger(__name__).exception("Failed to log environment info")
+
+        self.logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
+
+        # 启用配置菜单（服务已就绪）
+        if hasattr(self, "actionConfiguration"):
+            self.logger.debug("Enabling actionConfiguration menu")
+            self.actionConfiguration.setEnabled(True)
+            self.logger.debug(
+                "actionConfiguration menu enabled: %s", self.actionConfiguration.isEnabled()
+            )
 
     # ------------------------------
     # 服务和控制器获取方法

@@ -6,6 +6,45 @@ import logging
 
 from battery_analysis.i18n import _
 
+# 分组框标题：(属性名, 翻译键)
+_GROUP_TITLE_TEXTS = [
+    ("groupBox_TestConfig", "Test Config"),
+    ("groupBox_Path", "Path"),
+    ("groupBox_BatteryConfig", "Battery Config"),
+    ("groupBox_TestInformation", "Test Information"),
+]
+
+# 普通文本控件：(属性名, 翻译键)，顺序不影响结果（每项独立赋值）
+_WIDGET_TEXTS = [
+    # 右侧面板
+    ("label_Version", "Report Ver."),
+    ("label_ReportedBy", "Reported By"),
+    ("pushButton_Run", "Run"),
+    # 测试配置区
+    ("label_TesterLocation", "Tester Location"),
+    ("label_TestedBy", "Tested By"),
+    ("label_TestProfile", "Test Profile"),
+    ("pushButton_TestProfile", "Open"),
+    # 路径区
+    ("label_InputPath", "Input Path "),  # 原文尾部带空格
+    ("label_OutputPath", "Output Path"),
+    ("pushButton_InputPath", "Open"),
+    ("pushButton_OutputPath", "Open"),
+    # 电池参数区
+    ("label_BatteryType", "Battery Type"),
+    ("label_ConstructionMethod", "Construction Method"),
+    ("label_Specification", "Specification"),
+    ("label_Manufacturer", "Manufacturer"),
+    ("label_BatchDateCode", "Batch/Date Code"),
+    ("label_SamplesQty", "Samples Qty"),
+    ("label_TemperatureType", "Temp. Type"),
+    ("label_Temperature", "Temperature(℃)"),
+    ("label_AcceleratedAging", "Accelerated Aging(Years)"),
+    ("label_RequiredUseableCapacity", "Required Useable Capacity(mAh)"),
+    ("label_CalculationNominalCapacity", "Calculation Nominal Capacity(mAh)"),
+    ("label_DatasheetNominalCapacity", "Datasheet Nominal Capacity(mAh)"),
+]
+
 
 class WindowTextsMixin:
     """语言切换回调与 refresh_texts 文本刷新管线"""
@@ -25,75 +64,19 @@ class WindowTextsMixin:
         # 窗口标题
         self.setWindowTitle(f"Battery Analyzer v{self.version}")
 
-        # 右侧面板
-        if hasattr(self, "label_Version"):
-            self.label_Version.setText(_("Report Ver."))
-        if hasattr(self, "label_ReportedBy"):
-            self.label_ReportedBy.setText(_("Reported By"))
-        if hasattr(self, "pushButton_Run"):
-            self.pushButton_Run.setText(_("Run"))
-
-        # 测试配置区
-        if hasattr(self, "groupBox_TestConfig"):
-            self.groupBox_TestConfig.setTitle(_("Test Config"))
-        if hasattr(self, "label_TesterLocation"):
-            self.label_TesterLocation.setText(_("Tester Location"))
-        if hasattr(self, "label_TestedBy"):
-            self.label_TestedBy.setText(_("Tested By"))
-        if hasattr(self, "label_TestProfile"):
-            self.label_TestProfile.setText(_("Test Profile"))
-        if hasattr(self, "pushButton_TestProfile"):
-            self.pushButton_TestProfile.setText(_("Open"))
-
-        # 路径区
-        if hasattr(self, "groupBox_Path"):
-            self.groupBox_Path.setTitle(_("Path"))
-        if hasattr(self, "label_InputPath"):
-            self.label_InputPath.setText(_("Input Path "))
-        if hasattr(self, "label_OutputPath"):
-            self.label_OutputPath.setText(_("Output Path"))
-        if hasattr(self, "pushButton_InputPath"):
-            self.pushButton_InputPath.setText(_("Open"))
-        if hasattr(self, "pushButton_OutputPath"):
-            self.pushButton_OutputPath.setText(_("Open"))
-
-        # 电池参数区
-        if hasattr(self, "groupBox_BatteryConfig"):
-            self.groupBox_BatteryConfig.setTitle(_("Battery Config"))
-        if hasattr(self, "label_BatteryType"):
-            self.label_BatteryType.setText(_("Battery Type"))
-        if hasattr(self, "label_ConstructionMethod"):
-            self.label_ConstructionMethod.setText(_("Construction Method"))
-        if hasattr(self, "label_Specification"):
-            self.label_Specification.setText(_("Specification"))
-        if hasattr(self, "label_Manufacturer"):
-            self.label_Manufacturer.setText(_("Manufacturer"))
-        if hasattr(self, "label_BatchDateCode"):
-            self.label_BatchDateCode.setText(_("Batch/Date Code"))
-        if hasattr(self, "label_SamplesQty"):
-            self.label_SamplesQty.setText(_("Samples Qty"))
-        if hasattr(self, "label_TemperatureType"):
-            self.label_TemperatureType.setText(_("Temp. Type"))
-        if hasattr(self, "label_Temperature"):
-            self.label_Temperature.setText(_("Temperature(℃)"))
-        if hasattr(self, "label_AcceleratedAging"):
-            self.label_AcceleratedAging.setText(_("Accelerated Aging(Years)"))
-        if hasattr(self, "label_RequiredUseableCapacity"):
-            self.label_RequiredUseableCapacity.setText(_("Required Useable Capacity(mAh)"))
-        if hasattr(self, "label_CalculationNominalCapacity"):
-            self.label_CalculationNominalCapacity.setText(_("Calculation Nominal Capacity(mAh)"))
-        if hasattr(self, "label_DatasheetNominalCapacity"):
-            self.label_DatasheetNominalCapacity.setText(_("Datasheet Nominal Capacity(mAh)"))
-
-        # 设备信息区
-        if hasattr(self, "groupBox_TestInformation"):
-            self.groupBox_TestInformation.setTitle(_("Test Information"))
+        # 分组框标题与控件文本（数据表驱动，缺失控件跳过）
+        for attr, title in _GROUP_TITLE_TEXTS:
+            if hasattr(self, attr):
+                getattr(self, attr).setTitle(_(title))
+        for attr, text in _WIDGET_TEXTS:
+            if hasattr(self, attr):
+                getattr(self, attr).setText(_(text))
 
         # 菜单和工具栏
         if hasattr(self, "menu_manager"):
             self.menu_manager.update_statusbar_messages()
 
-        # 进度对话框
+        # 进度对话框（内联于本方法：测试夹具为 MagicMock，经 self 调子方法会落到自动生成的 Mock 上）
         if hasattr(self, "signal_connector") and self.signal_connector.progress_dialog:
             self.signal_connector.progress_dialog.setWindowTitle(_("Battery Analysis Progress"))
             self.signal_connector.progress_dialog.status_label.setText(
