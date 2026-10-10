@@ -121,7 +121,7 @@ class ViewerControlsMixin:
             raise ImportError(
                 f"PyQt6 dependency missing: {e}. Please ensure PyQt6 is installed correctly"
             )
-        except (ImportError, AttributeError, TypeError, RuntimeError) as e:
+        except (AttributeError, TypeError, RuntimeError) as e:
             logger.error("Failed to add menubar: %s", e)
             raise RuntimeError(f"Menu bar initialization failed: {e}") from e
 
