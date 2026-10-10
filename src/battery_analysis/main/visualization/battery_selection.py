@@ -10,10 +10,22 @@ from battery_analysis.main.visualization.interaction_utils import _battery_line_
 logger = logging.getLogger(__name__)
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # 本 Mixin 通过 self 隐式使用兄弟 Mixin 与汇总类的方法/属性；
+    # 将 self 标注为汇总类 InteractionControlsMixin，IDE 才能静态看出这些依赖。
+    from battery_analysis.main.visualization.interaction_controls import (
+        InteractionControlsMixin,
+    )
+
+
 class BatterySelectionMixin:
     """电池选择控件（依赖 ButtonFactoryMixin 的 _create_modern_button / _battery_name_sort_key）"""
 
-    def _add_battery_selection_buttons(self, fig, check_filter, lines_unfiltered, lines_filtered):
+    def _add_battery_selection_buttons(
+        self: "InteractionControlsMixin", fig, check_filter, lines_unfiltered, lines_filtered
+    ):
         """添加电池选择现代化按钮"""
         button_states_line1 = None
         button_states_line2 = None
@@ -70,7 +82,14 @@ class BatterySelectionMixin:
         return button_states_line1, button_states_line2
 
     def _create_battery_check_buttons(
-        self, fig, rect, start_idx, end_idx, check_filter, lines_unfiltered, lines_filtered
+        self: "InteractionControlsMixin",
+        fig,
+        rect,
+        start_idx,
+        end_idx,
+        check_filter,
+        lines_unfiltered,
+        lines_filtered,
     ):
         """创建电池选择现代化按钮"""
         ax_buttons = fig.add_axes(rect)
@@ -199,7 +218,12 @@ class BatterySelectionMixin:
         return button_states
 
     def create_battery_checkboxes(
-        self, parent_widget, fig, lines_unfiltered, lines_filtered, check_filter
+        self: "InteractionControlsMixin",
+        parent_widget,
+        fig,
+        lines_unfiltered,
+        lines_filtered,
+        check_filter,
     ):
         """创建电池选择 QCheckBox 列表（Qt 控件版本）
 

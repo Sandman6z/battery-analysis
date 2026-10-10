@@ -73,10 +73,22 @@ def _hide_hover_annotation(annot, fig):
         fig.canvas.draw_idle()
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # 本 Mixin 通过 self 隐式使用兄弟 Mixin 与汇总类的方法/属性；
+    # 将 self 标注为汇总类 InteractionControlsMixin，IDE 才能静态看出这些依赖。
+    from battery_analysis.main.visualization.interaction_controls import (
+        InteractionControlsMixin,
+    )
+
+
 class HoverControlsMixin:
     """悬停提示控件"""
 
-    def _add_hover_functionality(self, fig, ax, lines_filtered, lines_unfiltered, check_filter):
+    def _add_hover_functionality(
+        self: "InteractionControlsMixin", fig, ax, lines_filtered, lines_unfiltered, check_filter
+    ):
         """添加鼠标悬停功能，显示数据点信息"""
         try:
             annot = ax.annotate(
@@ -113,7 +125,7 @@ class HoverControlsMixin:
         except (AttributeError, TypeError, ValueError) as e:
             logger.warning("Error adding hover functionality: %s", e)
 
-    def _build_kdtree_index(self, lines):
+    def _build_kdtree_index(self: "InteractionControlsMixin", lines):
         """为可见曲线构建 KDTree 索引
 
         Args:
@@ -160,7 +172,9 @@ class HoverControlsMixin:
             logger.error("Error building KDTree index: %s", e)
             return None, None
 
-    def _find_nearest_point_kdtree(self, kdtree, points_data, x, y, max_dist):
+    def _find_nearest_point_kdtree(
+        self: "InteractionControlsMixin", kdtree, points_data, x, y, max_dist
+    ):
         """使用 KDTree 查找最近点
 
         Args:
@@ -191,7 +205,7 @@ class HoverControlsMixin:
             return None
 
     def _add_hover_functionality_kdtree(
-        self, fig, ax, lines_filtered, lines_unfiltered, check_filter
+        self: "InteractionControlsMixin", fig, ax, lines_filtered, lines_unfiltered, check_filter
     ):
         """添加鼠标悬停功能（KDTree 优化版本）
 

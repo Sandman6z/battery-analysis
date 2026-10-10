@@ -10,11 +10,21 @@ from battery_analysis.main.visualization.interaction_utils import _battery_line_
 logger = logging.getLogger(__name__)
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # 本 Mixin 通过 self 隐式使用兄弟 Mixin 与汇总类的方法/属性；
+    # 将 self 标注为汇总类 InteractionControlsMixin，IDE 才能静态看出这些依赖。
+    from battery_analysis.main.visualization.interaction_controls import (
+        InteractionControlsMixin,
+    )
+
+
 class FilterControlsMixin:
     """过滤切换控件（依赖 ButtonFactoryMixin 的 _create_modern_button）"""
 
     def _apply_filter_mode(
-        self,
+        self: "InteractionControlsMixin",
         fig,
         ax,
         show_filtered,
@@ -51,7 +61,13 @@ class FilterControlsMixin:
         fig.canvas.draw_idle()
 
     def _add_filter_button(
-        self, fig, ax, lines_unfiltered, lines_filtered, title_fontdict, axis_fontdict
+        self: "InteractionControlsMixin",
+        fig,
+        ax,
+        lines_unfiltered,
+        lines_filtered,
+        title_fontdict,
+        axis_fontdict,
     ):
         """添加过滤/未过滤数据切换按钮"""
         try:
@@ -113,7 +129,7 @@ class FilterControlsMixin:
         return button_state_ref["button_state"]
 
     def create_filter_checkbox(
-        self,
+        self: "InteractionControlsMixin",
         parent_widget,
         fig,
         ax,
