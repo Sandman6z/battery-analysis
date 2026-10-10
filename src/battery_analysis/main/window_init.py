@@ -21,6 +21,8 @@ from battery_analysis.main.managers.initialization_manager import (
 from battery_analysis.main.utils import FileUtils
 from battery_analysis.utils.log_manager import get_log_manager, get_logger
 
+logger = logging.getLogger(__name__)
+
 
 class WindowInitMixin:
     """延迟初始化、组件获取、图标加载、环境信息、窗口尺寸事件"""
@@ -43,9 +45,9 @@ class WindowInitMixin:
             self._complete_launch_phase()
 
             elapsed = (time.time() - t0) * 1000
-            self.logger.info("Background initialization completed in %dms", elapsed)
+            logger.info("Background initialization completed in %dms", elapsed)
         except Exception as e:
-            logging.getLogger(__name__).exception("Background initialization error: %s", e)
+            logger.exception("Background initialization error: %s", e)
 
     def _prepare_application(self) -> bool:
         """前置准备：日志记录器与全局应用初始化
@@ -57,14 +59,14 @@ class WindowInitMixin:
 
         initializer = ApplicationInitializer()
         if not initializer.initialize():
-            self.logger.error("Application initialization failed; some features may be unavailable")
+            logger.error("Application initialization failed; some features may be unavailable")
             return False
         return True
 
     def _run_initialization_pipeline(self):
         """阶段 1-3：环境准备 → 核心服务 → UI 构建，并注册语言切换回调"""
-        self.logger.info("─" * 40)
-        self.logger.info(
+        logger.info("─" * 40)
+        logger.info(
             "Initialization pipeline: %s → %s → %s",
             PHASE_ENV_PREP,
             PHASE_CORE_SVC,
@@ -79,8 +81,8 @@ class WindowInitMixin:
 
     def _complete_launch_phase(self):
         """阶段 4：UI 后处理、版本号、主题、辅助功能与菜单启用"""
-        self.logger.info("")
-        self.logger.info("▶ Phase [%s]", PHASE_LAUNCH)
+        logger.info("")
+        logger.info("▶ Phase [%s]", PHASE_LAUNCH)
 
         # 4a) UI 后处理（窗口属性、控件填充）
         self.ui_manager.init_window()
@@ -106,7 +108,7 @@ class WindowInitMixin:
                 theme = "dark" if is_dark else "light"
             self.theme_manager.set_theme(theme)
         except Exception as e:
-            self.logger.warning("Failed to apply saved theme: %s", e)
+            logger.warning("Failed to apply saved theme: %s", e)
 
         # 4d) 非关键 UI 辅助功能／工具提示
         self._lazy_init()
@@ -117,15 +119,15 @@ class WindowInitMixin:
             if lm:
                 lm.log_environment_info()
         except Exception:
-            logging.getLogger(__name__).exception("Failed to log environment info")
+            logger.exception("Failed to log environment info")
 
-        self.logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
+        logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
 
         # 启用配置菜单（服务已就绪）
         if hasattr(self, "actionConfiguration"):
-            self.logger.debug("Enabling actionConfiguration menu")
+            logger.debug("Enabling actionConfiguration menu")
             self.actionConfiguration.setEnabled(True)
-            self.logger.debug(
+            logger.debug(
                 "actionConfiguration menu enabled: %s", self.actionConfiguration.isEnabled()
             )
 
@@ -133,25 +135,25 @@ class WindowInitMixin:
     # 服务和控制器获取方法
     # ------------------------------
     def _get_component(self, component_name, component_type="service"):
-        self.logger.debug("_get_component called: %s %s", component_type, component_name)
+        logger.debug("_get_component called: %s %s", component_type, component_name)
         cache_dict = self._services if component_type == "service" else self._controllers
         if component_name not in cache_dict:
-            self.logger.debug("%s %s not in cache, fetching...", component_type, component_name)
+            logger.debug("%s %s not in cache, fetching...", component_type, component_name)
             try:
                 cache_dict[component_name] = self._service_container.get(component_name)
-                self.logger.debug(
+                logger.debug(
                     "Successfully fetched %s %s: %s",
                     component_type,
                     component_name,
                     cache_dict[component_name],
                 )
             except Exception as e:
-                self.logger.warning(
+                logger.warning(
                     "Failed to get %s %s: %s", component_type, component_name, e, exc_info=True
                 )
                 cache_dict[component_name] = None
         else:
-            self.logger.debug(
+            logger.debug(
                 "%s %s found in cache: %s",
                 component_type,
                 component_name,
@@ -169,7 +171,6 @@ class WindowInitMixin:
     # 窗口和UI管理方法
     # ------------------------------
     def _load_application_icon(self) -> QG.QIcon:
-        logger = getattr(self, "logger", logging.getLogger(__name__))
         try:
             env_detector = getattr(self, "env_detector", None)
             icon_paths = FileUtils.get_icon_paths(
@@ -222,8 +223,6 @@ class WindowInitMixin:
             if hasattr(self, "ui_manager"):
                 self.ui_manager.setup_accessibility()
                 self.ui_manager.setup_tooltips()
-            self.logger.debug(
-                "Deferred initialization completed in %dms", (time.time() - t0) * 1000
-            )
+            logger.debug("Deferred initialization completed in %dms", (time.time() - t0) * 1000)
         except Exception as e:
-            self.logger.warning("Deferred initialization failed: %s", e)
+            logger.warning("Deferred initialization failed: %s", e)

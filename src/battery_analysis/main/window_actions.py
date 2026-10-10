@@ -2,9 +2,13 @@
 
 从 main_window.py 拆出（大文件拆分重构）。"""
 
+import logging
+
 import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
+
+logger = logging.getLogger(__name__)
 
 from battery_analysis.main.ui_components.config_dialog import ConfigDialog
 from battery_analysis.utils.config_utils import clear_config_cache
@@ -14,15 +18,15 @@ class WindowActionsMixin:
     """信号连接、偏好应用、配置重载、剪贴板、配置对话框、主题与状态栏"""
 
     def connect_widget(self) -> None:
-        self.logger.debug("connect_widget called")
+        logger.debug("connect_widget called")
         self.ui_manager.connect_widget()
-        self.logger.debug("ui_manager.connect_widget completed")
+        logger.debug("ui_manager.connect_widget completed")
         self.menu_manager.connect_menu_actions()
-        self.logger.debug("menu_manager.connect_menu_actions completed")
+        logger.debug("menu_manager.connect_menu_actions completed")
         self.menu_manager.setup_menu_shortcuts()
-        self.logger.debug("menu_manager.setup_menu_shortcuts completed")
+        logger.debug("menu_manager.setup_menu_shortcuts completed")
         self.signal_connector.connect_controllers()
-        self.logger.debug("signal_connector.connect_controllers completed")
+        logger.debug("signal_connector.connect_controllers completed")
 
     # ------------------------------
     # 用户交互方法
@@ -38,11 +42,11 @@ class WindowActionsMixin:
             if hasattr(self, "config_manager"):
                 self.config_manager.reload_config()
             else:
-                self.logger.warning("config_manager missing, skip reload in preferences apply")
+                logger.warning("config_manager missing, skip reload in preferences apply")
             if hasattr(self, "ui_manager"):
                 self.ui_manager.init_combobox()
             else:
-                self.logger.warning("ui_manager missing, skip combobox init in preferences apply")
+                logger.warning("ui_manager missing, skip combobox init in preferences apply")
 
             # 应用主题设置
             settings = QC.QSettings()
@@ -56,7 +60,7 @@ class WindowActionsMixin:
 
             self.refresh_ui()
         except Exception as e:
-            self.logger.error("Preferences apply post-processing failed: %s", e)
+            logger.error("Preferences apply post-processing failed: %s", e)
 
     def reload_configuration(self) -> None:
         try:
@@ -67,20 +71,18 @@ class WindowActionsMixin:
             if hasattr(self, "config_manager"):
                 self.config_manager.reload_config()
             else:
-                self.logger.warning("config_manager missing, skip reload in reload_configuration")
+                logger.warning("config_manager missing, skip reload in reload_configuration")
             if hasattr(self, "ui_manager"):
                 self.ui_manager.init_combobox()
             else:
-                self.logger.warning(
-                    "ui_manager missing, skip combobox init in reload_configuration"
-                )
+                logger.warning("ui_manager missing, skip combobox init in reload_configuration")
             self.refresh_ui()
         except Exception as e:
-            self.logger.error("Failed to reload configuration: %s", e)
+            logger.error("Failed to reload configuration: %s", e)
             if hasattr(self, "statusBar_BatteryAnalysis"):
                 self.statusBar_BatteryAnalysis.showMessage(f"Configuration reload failed: {e!s}")
             else:
-                self.logger.warning(
+                logger.warning(
                     "statusBar_BatteryAnalysis missing, cannot show reload failure message"
                 )
 
@@ -89,7 +91,7 @@ class WindowActionsMixin:
             if hasattr(self, "statusBar_BatteryAnalysis"):
                 self.statusBar_BatteryAnalysis.showMessage("Configuration reloaded successfully")
             else:
-                self.logger.warning("statusBar_BatteryAnalysis missing, skip status message")
+                logger.warning("statusBar_BatteryAnalysis missing, skip status message")
             if hasattr(self, "comboBox_Specification_Type"):
                 current_text = self.comboBox_Specification_Type.currentText()
                 if current_text:
@@ -97,9 +99,9 @@ class WindowActionsMixin:
                     if index >= 0:
                         self.comboBox_Specification_Type.setCurrentIndex(index)
             else:
-                self.logger.warning("comboBox_Specification_Type missing, skip combobox refresh")
+                logger.warning("comboBox_Specification_Type missing, skip combobox refresh")
         except Exception as e:
-            self.logger.error("Error refreshing UI: %s", e)
+            logger.error("Error refreshing UI: %s", e)
 
     def copy_selected_text(self) -> None:
         w = self.focusWidget()
@@ -117,7 +119,7 @@ class WindowActionsMixin:
             w.cut()
 
     def show_config_dialog(self):
-        self.logger.info("Attempting to open Configuration dialog")
+        logger.info("Attempting to open Configuration dialog")
         saved = {
             "BatteryType": self.comboBox_BatteryType.currentText(),
             "Manufacturer": self.comboBox_Manufacturer.currentText(),
@@ -127,11 +129,11 @@ class WindowActionsMixin:
         }
 
         try:
-            self.logger.info("Creating ConfigDialog instance")
+            logger.info("Creating ConfigDialog instance")
             dialog = ConfigDialog(self)
-            self.logger.info("ConfigDialog created successfully")
+            logger.info("ConfigDialog created successfully")
         except RuntimeError as e:
-            self.logger.warning("Configuration service not ready: %s", e)
+            logger.warning("Configuration service not ready: %s", e)
             QW.QMessageBox.warning(
                 self,
                 "Configuration",
@@ -139,7 +141,7 @@ class WindowActionsMixin:
             )
             return
         except Exception as e:
-            self.logger.exception("Failed to open configuration dialog")
+            logger.exception("Failed to open configuration dialog")
             QW.QMessageBox.critical(
                 self,
                 "Error",
@@ -155,7 +157,7 @@ class WindowActionsMixin:
                 # 控件可能因配置变化被移除/重建；此时只记录，不中断后续恢复
                 combo = getattr(self, f"comboBox_{name}", None)
                 if combo is None:
-                    self.logger.warning("Widget comboBox_%s not found, skipping restore", name)
+                    logger.warning("Widget comboBox_%s not found, skipping restore", name)
                     continue
                 if text:
                     combo.setCurrentText(text)
