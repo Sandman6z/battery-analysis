@@ -136,7 +136,11 @@ class WindowActionsMixin:
             self.config_manager.reload_config()
             self.ui_manager.init_combobox()
             for name, text in saved.items():
-                combo = getattr(self, f"comboBox_{name}")
+                # 控件可能因配置变化被移除/重建；此时只记录，不中断后续恢复
+                combo = getattr(self, f"comboBox_{name}", None)
+                if combo is None:
+                    self.logger.warning("Widget comboBox_%s not found, skipping restore", name)
+                    continue
                 if text:
                     combo.setCurrentText(text)
 

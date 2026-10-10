@@ -22,7 +22,7 @@
 | 11 | `utils/writers/excel_report_writer.py` `write` | `wsOverview is None` / `wsResult is None` 检查：`xlsxwriter.Workbook.add_worksheet` 失败时抛的是 `WorksheetNameContainsInvalidCharsException` 等异常，几乎不会返回 None，这两段防御代码实际不可达 | 低 | open |
 | 12 | `utils/writers/word_report_writer.py` `write` | 结尾用 `logging.info(...)`（root logger）而非模块级 `logger`，与全文件其他日志调用不一致 | 低 | open |
 | 13 | `utils/writers/word_report_writer.py` `__init__` | `__init__` 133 行，承担了过多职责（路径计算、图片占位符列表生成、电池类型匹配、替换字符串数组构造）；且函数内局部 import `from battery_analysis.utils.constants import COLOR_NAME` | 低 | open |
-| 14 | `main/window_actions.py` `show_config_dialog` | 对话框接受后 `combo = getattr(self, f"comboBox_{name}")` **无默认值**：控件名与 `saved` 字典键不一致或控件未创建时直接 AttributeError，且发生在配置已保存之后（保存成功但恢复现场崩溃） | 中 | open |
+| 14 | `main/window_actions.py` `show_config_dialog` | 对话框接受后 `combo = getattr(self, f"comboBox_{name}")` **无默认值**：控件名与 `saved` 字典键不一致或控件未创建时直接 AttributeError，且发生在配置已保存之后（保存成功但恢复现场崩溃） | 中 | fixed |
 | 15 | `main/window_init.py` `_deferred_init`（103 行）、`main/window_texts.py` `refresh_texts`（79 行） | 两个长函数：前者含阶段 1-4 初始化管线 + 内联阶段注释，后者为集中式文本刷新，均未拆子步骤；改动任一阶段都需整体阅读 | 中 | open |
 | 16 | `main/window_init.py` / `main/window_actions.py` | 函数内局部 import 共 9 处（`_deferred_init` 内 6 处、`show_config_dialog`/`reload_configuration` 内 3 处），用于规避循环导入；拆分后本可上移到模块顶，属拆分遗留的可清理项 | 低 | open |
 | 17 | `main/window_actions.py` `set_theme`/`toggle_statusbar` 前 | 分节注释写着「报告相关方法」，但其下方法实际是主题/状态栏开关（原文件沿袭下来的错标注释，搬移时一并带过来） | 低 | open |
