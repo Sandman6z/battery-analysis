@@ -130,7 +130,7 @@ requires-dist = [
     { name = "pyinstaller", marker = "extra == 'build'", specifier = ">=6.10.0,<7.0.0" },
     { name = "pylint", marker = "extra == 'dev'", specifier = ">=3.2.0,<4.0.0" },
     { name = "pylint-json2html", marker = "extra == 'dev'", specifier = ">=0.3.0,<1.0.0" },
-    { name = "pyqt6", specifier = ">=6.6.0,<7.0.0" },
+    { name = "pyqt6", specifier = ">=6.8.0,<7.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "python-calamine", specifier = ">=0.3.0,<1.0.0" },

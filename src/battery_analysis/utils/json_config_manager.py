@@ -5,6 +5,7 @@ JSON 配置管理器
 键访问使用点号路径格式，如 "battery.types"。
 """
 
+import copy
 import json
 import logging
 import os
@@ -104,8 +105,12 @@ class JsonConfigManager:
         self._loaded = True
 
     def set_defaults(self, defaults: dict[str, Any]):
-        """用默认数据填充（仅当文件初次创建时调用）"""
-        self._data = defaults
+        """用默认数据填充（仅当文件初次创建时调用）
+
+        深拷贝：避免内部数据与调用方的模块级默认值（如 DEFAULT_CONFIG）
+        共享引用，导致后续 set() 意外污染全局默认值。
+        """
+        self._data = copy.deepcopy(defaults)
         self._loaded = True
 
     def is_loaded(self) -> bool:

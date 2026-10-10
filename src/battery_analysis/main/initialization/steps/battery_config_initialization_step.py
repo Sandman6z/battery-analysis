@@ -5,7 +5,9 @@
 """
 
 from battery_analysis.main.initialization.initialization_step import InitializationStep
-from battery_analysis.utils.config_parser import safe_float_convert, safe_int_convert
+from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
+from battery_analysis.utils.config_parser import safe_float_convert
+from battery_analysis.utils.pulse_currents import normalize_current_levels
 
 
 class BatteryConfigInitializationStep(InitializationStep):
@@ -36,12 +38,16 @@ class BatteryConfigInitializationStep(InitializationStep):
             listPulseCurrent = main_window.config_manager.get_config("BatteryConfig/PulseCurrent")
             listCutoffVoltage = main_window.config_manager.get_config("BatteryConfig/CutOffVoltage")
 
-            # 处理可能包含浮点数的电流值
+            # 脉冲电流配置为空时使用默认档位
+            if not listPulseCurrent:
+                listPulseCurrent = [str(v) for v in DEFAULT_CONFIG["battery"]["pulseCurrents"]]
+                self.logger.warning("Pulse current config is empty, using default: %s", listPulseCurrent)
+
+            # 处理可能包含浮点数的电流值（如 Freezer 档 7.5mA，需保留小数，整数档规整为 int）
             try:
-                main_window.listCurrentLevel = [
-                    safe_int_convert(listPulseCurrent[c].strip())
-                    for c in range(len(listPulseCurrent))
-                ]
+                main_window.listCurrentLevel = normalize_current_levels(
+                    safe_float_convert(listPulseCurrent[c]) for c in range(len(listPulseCurrent))
+                )
             except (ValueError, TypeError):
                 # 如果转换失败，使用默认值
                 main_window.listCurrentLevel = [0] * len(listPulseCurrent)

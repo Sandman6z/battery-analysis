@@ -13,6 +13,12 @@ from battery_analysis.i18n.language_manager import _
 from battery_analysis.main.business_logic import excel_validator, filename_parser
 from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
+from battery_analysis.utils.pulse_currents import (
+    capacity_from_rules,
+    is_freezer_from_rules,
+    lookup_pulse_currents,
+    normalize_current_levels,
+)
 
 
 class DataProcessor:
@@ -298,15 +304,68 @@ class DataProcessor:
         filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
         filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
 
+        # 脉冲电流档位：文件名解析优先，容量档位查表兜底（BatteryQualityRequirements_v2.3 §7.1.1）
         pulse_values = filename_parser.extract_pulse_current(filename)
+        table_values = self._lookup_pulse_currents_from_table(filename)
+        if pulse_values and table_values:
+            # 双重验证：文件名档位 vs 型号/容量查表档位，不一致则告警（以文件名为准）
+            self._verify_pulse_currents(filename, pulse_values, table_values)
+        if not pulse_values:
+            pulse_values = table_values
         if pulse_values:
+            pulse_values = normalize_current_levels(pulse_values)
             mw.listCurrentLevel = pulse_values
             cs = mw._get_service("config")
             if cs:
-                cs.set_config_value("BatteryConfig/PulseCurrent", ", ".join(map(str, pulse_values)))
+                cs.set_config_value("battery.pulseCurrents", pulse_values)
                 cs.save_config()
 
         mw.cc_current = filename_parser.extract_cc_current(filename)
+
+    def _lookup_pulse_currents_from_table(self, filename) -> list:
+        """文件名未携带脉冲电流时，按型号/容量查表兜底获取脉冲电流档位
+
+        Args:
+            filename: Excel 文件名（用于识别冷冻型）
+
+        Returns:
+            脉冲电流档位列表，无法确定时返回空列表
+        """
+        mw = self.main_window
+        try:
+            spec_name = mw.comboBox_Specification_Type.currentText().strip()
+            spec_method = mw.comboBox_Specification_Method.currentText().strip()
+            rules = mw.config_manager.get_config("BatteryConfig/Rules")
+            capacity = capacity_from_rules(rules, spec_name)
+            # 冷冻型识别（优先级与 temperature_handler 一致）：
+            # 1. 文件名含 freezer（对应 _temperature_set_from_xml，优先于容量判定）
+            # 2. 规则第 5 段「要求可用容量」280 → 冷冻 / 380 → 常温（最直观、唯一的型号级依据）
+            # 不按型号名判定：CR2450 后缀各厂商不同，型号不可靠
+            is_freezer = "freezer" in filename.lower() or is_freezer_from_rules(rules, spec_name)
+            return lookup_pulse_currents(spec_name, capacity, spec_method, is_freezer)
+        except Exception as e:
+            self.logger.warning("Failed to lookup pulse currents from table: %s", e)
+            return []
+
+    def _verify_pulse_currents(self, filename, pulse_values, table_values) -> None:
+        """双重验证：文件名解析的脉冲档位与容量查表档位不一致时告警（BatteryQualityRequirements_v2.3 §7.1.1）
+
+        不一致时仍以文件名解析值为准，仅提示用户核对文件名或规则容量。
+        """
+        try:
+            file_levels = normalize_current_levels(pulse_values)
+            std_levels = normalize_current_levels(table_values)
+            if file_levels == std_levels:
+                return
+            msg = _(
+                "Pulse currents mismatch: filename {filename} gives {file_levels}, "
+                "but capacity table gives {std_levels}. Using filename values."
+            ).format(filename=filename, file_levels=file_levels, std_levels=std_levels)
+            self.logger.warning(msg)
+            if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
+                self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Warning]: {msg}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning("Failed to verify pulse currents: %s", e)
 
     def _reconnect_specification_signals(self):
         try:

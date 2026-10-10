@@ -10,7 +10,11 @@ from PyQt6 import QtCore as QC
 from PyQt6 import QtWidgets as QW
 
 from battery_analysis.i18n.language_manager import _
-from battery_analysis.utils.battery_classifier import derive_specifications
+from battery_analysis.utils.battery_classifier import (
+    classify_spec,
+    extract_capacity,
+    extract_spec_name,
+)
 from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
 
 RULE_COLUMNS = [
@@ -19,8 +23,11 @@ RULE_COLUMNS = [
     "Datasheet Capacity",
     "Calculation Capacity",
     "Required Useable Capacity",
-    "Coefficient",
+    "CC Current (mA)",
 ]
+
+# Rules 表格中 Spec Method 列的下拉框（可选项来自 battery.specificationMethods）
+SPEC_METHOD_COL = RULE_COLUMNS.index("Spec Method")
 
 
 class ConfigDialog(QW.QDialog):
@@ -156,20 +163,23 @@ class _ListEditor(QW.QGroupBox):
 
 
 class _RulesEditor(QW.QGroupBox):
-    """Rules 表格编辑器——每一行一条规则，6 列与 rule_parts[0..5] 对应"""
+    """Rules 表格编辑器——按电池类型分成 Coin Cell / Pouch Cell 两个分栏，
+    每一行一条规则，6 列与 rule_parts[0..5] 对应"""
 
     def __init__(self, title: str = "Rules"):
         super().__init__(title)
+        self._methods: list[str] = []
         vbox = QW.QVBoxLayout(self)
-        self._table = QW.QTableWidget(0, len(RULE_COLUMNS))
-        self._table.setHorizontalHeaderLabels(RULE_COLUMNS)
-        self._table.verticalHeader().hide()
-        self._table.horizontalHeader().setStretchLastSection(True)
-        self._table.setSelectionBehavior(QW.QAbstractItemView.SelectionBehavior.SelectRows)
-        self._table.setMinimumHeight(150)
-        # 设置表头背景颜色，避免黑色看不清
-        self._table.setStyleSheet("QTableWidget::item { padding: 4px; } QHeaderView::section { background-color: #4a90d9; color: white; padding: 4px; border: 1px solid #357abd; }")
-        vbox.addWidget(self._table)
+
+        # 分栏形式与 Specifications 一致：Coin Cell / Pouch Cell
+        self._tabs = QW.QTabWidget()
+        self._table_coin = self._make_table()
+        self._table_pouch = self._make_table()
+        self._tabs.addTab(self._table_coin, "Coin Cell")
+        self._tabs.addTab(self._table_pouch, "Pouch Cell")
+        self._tabs.setMinimumHeight(180)
+        vbox.addWidget(self._tabs)
+        self._tables = [self._table_coin, self._table_pouch]
 
         btn_row = QW.QHBoxLayout()
         btn_add = QW.QPushButton("+ Add Rule")
@@ -181,45 +191,122 @@ class _RulesEditor(QW.QGroupBox):
         btn_add.clicked.connect(self._add_row)
         btn_remove.clicked.connect(self._remove_rows)
 
+    @staticmethod
+    def _make_table() -> QW.QTableWidget:
+        table = QW.QTableWidget(0, len(RULE_COLUMNS))
+        table.setHorizontalHeaderLabels(RULE_COLUMNS)
+        table.verticalHeader().hide()
+        table.horizontalHeader().setStretchLastSection(True)
+        table.setSelectionBehavior(QW.QAbstractItemView.SelectionBehavior.SelectRows)
+        table.setMinimumHeight(150)
+        # 设置表头背景颜色，避免黑色看不清
+        table.setStyleSheet("QTableWidget::item { padding: 4px; } QHeaderView::section { background-color: #4a90d9; color: white; padding: 4px; border: 1px solid #357abd; }")
+        return table
+
+    def table_models(self) -> list:
+        """两个表格的 model，供上层连接变更信号"""
+        return [table.model() for table in self._tables]
+
+    def set_methods(self, methods: list) -> None:
+        """设置 Spec Method 列下拉框的可选项（来自 battery.specificationMethods，
+        该列不可手输，只能从已有 method 中选择）"""
+        self._methods = [str(m).strip() for m in methods if str(m).strip()]
+        for table in self._tables:
+            for row in range(table.rowCount()):
+                widget = table.cellWidget(row, SPEC_METHOD_COL)
+                if isinstance(widget, QW.QComboBox):
+                    value = widget.currentText().strip()
+                else:
+                    item = table.item(row, SPEC_METHOD_COL)
+                    value = item.text().strip() if item else ""
+                self._set_method_combo(table, row, value)
+
+    def _make_method_combo(self, value: str) -> QW.QComboBox:
+        combo = QW.QComboBox()
+        combo.setEditable(False)
+        combo.addItems(self._methods)
+        if value:
+            idx = combo.findText(value)
+            if idx < 0:
+                # 规则里已有但方法列表缺失的值：保留显示，避免静默丢数据
+                combo.addItem(value)
+                idx = combo.findText(value)
+            combo.setCurrentIndex(idx)
+        else:
+            combo.setCurrentIndex(-1)
+        return combo
+
+    def _set_method_combo(self, table: QW.QTableWidget, row: int, value: str = "") -> None:
+        table.setItem(row, SPEC_METHOD_COL, None)
+        table.setCellWidget(row, SPEC_METHOD_COL, self._make_method_combo(value))
+
+    @staticmethod
+    def _cell_type(rule: str) -> str:
+        """按型号名/容量判定规则归属的分栏（与 derive_specifications 同源）"""
+        return classify_spec(extract_spec_name(rule), extract_capacity(rule))
+
+    def _active_table(self) -> QW.QTableWidget:
+        return self._tables[self._tabs.currentIndex()]
+
     def _add_row(self):
-        row = self._table.rowCount()
-        self._table.insertRow(row)
+        table = self._active_table()
+        row = table.rowCount()
+        table.insertRow(row)
         for col in range(len(RULE_COLUMNS)):
-            self._table.setItem(row, col, QW.QTableWidgetItem(""))
-        self._table.setCurrentCell(row, 0)
-        self._table.editItem(self._table.item(row, 0))
+            table.setItem(row, col, QW.QTableWidgetItem(""))
+        self._set_method_combo(table, row)
+        table.setCurrentCell(row, 0)
+        table.editItem(table.item(row, 0))
 
     def _remove_rows(self):
+        table = self._active_table()
         rows = sorted(
-            {idx.row() for idx in self._table.selectionModel().selectedRows()}, reverse=True
+            {idx.row() for idx in table.selectionModel().selectedRows()}, reverse=True
         )
         for row in rows:
-            self._table.removeRow(row)
+            table.removeRow(row)
 
-    def set_rules(self, rules: list) -> None:
-        self._table.setRowCount(0)
+    def _fill_table(self, table: QW.QTableWidget, rules: list) -> None:
+        table.setRowCount(0)
         for rule in rules:
             parts = rule.split("/")
-            row = self._table.rowCount()
-            self._table.insertRow(row)
+            row = table.rowCount()
+            table.insertRow(row)
             for col in range(len(RULE_COLUMNS)):
                 value = parts[col] if col < len(parts) else ""
-                self._table.setItem(row, col, QW.QTableWidgetItem(value))
+                table.setItem(row, col, QW.QTableWidgetItem(value))
+            self._set_method_combo(table, row, table.item(row, SPEC_METHOD_COL).text())
 
-    def rules(self) -> list:
+    @staticmethod
+    def _read_table(table: QW.QTableWidget) -> list:
         result = []
-        for row in range(self._table.rowCount()):
+        for row in range(table.rowCount()):
             parts = []
             for col in range(len(RULE_COLUMNS)):
-                item = self._table.item(row, col)
+                widget = table.cellWidget(row, col)
+                if isinstance(widget, QW.QComboBox):
+                    parts.append(widget.currentText().strip())
+                    continue
+                item = table.item(row, col)
                 parts.append(item.text().strip() if item else "")
             if any(parts):
                 result.append("/".join(parts))
         return result
 
+    def set_rules(self, rules: list) -> None:
+        coin, pouch = [], []
+        for rule in rules:
+            (pouch if self._cell_type(rule) == "Pouch Cell" else coin).append(rule)
+        self._fill_table(self._table_coin, coin)
+        self._fill_table(self._table_pouch, pouch)
+
+    def rules(self) -> list:
+        """合并两个分栏的规则（Coin Cell 在前，Pouch Cell 在后）"""
+        return self._read_table(self._table_coin) + self._read_table(self._table_pouch)
+
 
 class _BatteryConfigPage(QW.QWidget):
-    """电池配置编辑页面（逐条化 + Specifications 派生只读）"""
+    """电池配置编辑页面（逐条化编辑，唯一数据源：battery.rules）"""
 
     def __init__(self, parent_dialog):
         super().__init__()
@@ -245,20 +332,6 @@ class _BatteryConfigPage(QW.QWidget):
         self._rules_editor = _RulesEditor(_("Rules"))
         dict_layout.addWidget(self._rules_editor)
 
-        # Specifications（从 Rules 派生，只读展示，无增删按钮）
-        self._spec_page = QW.QTabWidget()
-        self._spec_coin = QW.QListWidget()
-        self._spec_coin.setSelectionMode(QW.QAbstractItemView.SelectionMode.NoSelection)
-        self._spec_pouch = QW.QListWidget()
-        self._spec_pouch.setSelectionMode(QW.QAbstractItemView.SelectionMode.NoSelection)
-        self._spec_page.addTab(self._spec_coin, "Coin Cell")
-        self._spec_page.addTab(self._spec_pouch, "Pouch Cell")
-        self._spec_page.setMinimumHeight(140)
-        spec_group = QW.QGroupBox(_("Specifications"))
-        spec_vbox = QW.QVBoxLayout(spec_group)
-        spec_vbox.addWidget(self._spec_page)
-        dict_layout.addWidget(spec_group)
-
         self._list_construction = _ListEditor(_("Construction Methods"), editable=False)
         dict_layout.addWidget(self._list_construction)
 
@@ -274,7 +347,12 @@ class _BatteryConfigPage(QW.QWidget):
         params_group = QW.QGroupBox(_("Test Parameters"))
         params_layout = QW.QVBoxLayout(params_group)
 
-        self._list_pulse = _ListEditor(_("Pulse Currents"))
+        # 脉冲电流档位由 BatteryQualityRequirements_v2.3 §7.1.1 查表自动匹配
+        # （文件名 (x-x-xmA) 优先，型号/容量查表兜底），此处只读展示
+        self._list_pulse = _ListEditor(_("Pulse Currents"), editable=False)
+        self._list_pulse.setToolTip(
+            _("Auto-matched from battery rules (BatteryQualityRequirements_v2.3 §7.1.1) — not editable here")
+        )
         params_layout.addWidget(self._list_pulse)
 
         self._list_voltage = _ListEditor(_("Cut-off Voltages"))
@@ -286,31 +364,15 @@ class _BatteryConfigPage(QW.QWidget):
         scroll.setWidget(content)
         main_layout.addWidget(scroll)
 
-        # Rules 变更时自动刷新 Specifications
-        model = self._rules_editor._table.model()
-        model.rowsInserted.connect(self._on_rules_changed)
-        model.rowsRemoved.connect(self._on_rules_changed)
-        model.dataChanged.connect(self._on_rules_changed)
-
-    def _on_rules_changed(self):
-        self._refresh_specs_from_rules(self._rules_editor.rules())
-
-    def _refresh_specs_from_rules(self, rules: list) -> None:
-        self._spec_coin.clear()
-        self._spec_pouch.clear()
-        specs = derive_specifications(rules)
-        for spec in specs.get("Coin Cell", []):
-            self._spec_coin.addItem(spec)
-        for spec in specs.get("Pouch Cell", []):
-            self._spec_pouch.addItem(spec)
-
     def load_data(self, data: dict) -> None:
         rules = data.get("rules", [])
+        methods = data.get("specificationMethods", [])
         self._list_types.set_items(data.get("types", []))
         self._list_construction.set_items(data.get("constructionMethods", []))
+        # 先灌 method 列表再填规则，Spec Method 列的下拉框才能拿到可选项
+        self._list_spec_method.set_items(methods)
+        self._rules_editor.set_methods(methods)
         self._rules_editor.set_rules(rules)
-        self._refresh_specs_from_rules(rules)
-        self._list_spec_method.set_items(data.get("specificationMethods", []))
         self._list_mfrs.set_items(data.get("manufacturers", []))
         self._list_pulse.set_items([str(v) for v in data.get("pulseCurrents", [])])
         self._list_voltage.set_items([str(v) for v in data.get("cutOffVoltages", [])])
@@ -321,11 +383,10 @@ class _BatteryConfigPage(QW.QWidget):
         battery["constructionMethods"] = self._list_construction.items()
         rules = self._rules_editor.rules()
         battery["rules"] = rules
-        # Specifications 从 Rules 自动派生，不直接读取 UI
-        battery["specifications"] = derive_specifications(rules)
         battery["specificationMethods"] = self._list_spec_method.items()
         battery["manufacturers"] = self._list_mfrs.items()
-        battery["pulseCurrents"] = self._parse_float_list(self._list_pulse.items())
+        # pulseCurrents 不再从 UI 写回：保持 _working_data 中的既有值
+        #（由文件名解析/容量查表自动更新，见 data_processor）
         battery["cutOffVoltages"] = self._parse_float_list(self._list_voltage.items())
 
     @staticmethod

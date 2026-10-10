@@ -46,10 +46,40 @@ def _migrate_v2(config: dict[str, Any]) -> dict[str, Any]:
     return config
 
 
-# ── 执行引擎 ──────────────────────────────────────────────────
+@register_migration(3, "Remove orphan top-level INI-style keys")
+def _migrate_v3(config: dict[str, Any]) -> dict[str, Any]:
+    """移除旧版代码误写的字面顶级键（如 "BatteryConfig/PulseCurrent"）。
+
+    旧版 data_processor 用 INI 路径写 JSON 顶级键，读取方
+    （battery.pulseCurrents）永远读不到，属无害孤儿数据，此处统一清理。
+    """
+    orphan_keys = [k for k in list(config.keys()) if isinstance(k, str) and "/" in k]
+    for key in orphan_keys:
+        config.pop(key, None)
+    if orphan_keys:
+        logger.info("Migration v3: removed orphan keys: %s", orphan_keys)
+    return config
 
 
-CURRENT_CONFIG_VERSION = 2  # 代码期望的配置版本
+# ── 执行引擎 ──────────────────────────────────────────────
+
+
+@register_migration(4, "Drop battery.specifications (spec lists derive from battery.rules)")
+def _migrate_v4(config: dict[str, Any]) -> dict[str, Any]:
+    """移除 battery.specifications 存储副本。
+
+    specifications 不再是配置项：规格列表由各读取方（ConfigManager 的规格键、
+    data_loader 等）直接从 battery.rules 派生（battery_classifier.derive_specifications），
+    存储副本只会造成不同步。
+    """
+    battery = config.get("battery")
+    if isinstance(battery, dict) and "specifications" in battery:
+        battery.pop("specifications")
+        logger.info("Migration v4: removed battery.specifications (specs derive from rules)")
+    return config
+
+
+CURRENT_CONFIG_VERSION = 4  # 代码期望的配置版本
 
 
 def run_migrations(config: dict[str, Any]) -> dict[str, Any]:

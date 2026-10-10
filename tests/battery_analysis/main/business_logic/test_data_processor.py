@@ -264,18 +264,27 @@ class TestDataProcessor:
         self.mock_main_window.checker_input_xlsx.set_error.assert_called()
         self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
 
-    def test_on_excel_files_processed_shows_error_dialog(self):
-        """存在错误文件 → 主线程弹 QMessageBox 明细"""
+    def test_on_excel_files_processed_shows_error_in_checker_not_dialog(self):
+        """存在错误文件 → 只在状态栏/checker 显示，不弹 QMessageBox（c0227fa 刻意移除弹窗）"""
         from battery_analysis.main.business_logic import data_processor as dp
 
         self.processor._scan_generation = 5
+        self.mock_main_window.checker_input_xlsx = Mock()
         mock_msgbox = Mock()
-        with patch.object(dp.QW, "QMessageBox", return_value=mock_msgbox):
+        # excel_data 需非空：否则会落入 `if not excel_data` 通用分支覆盖 set_error
+        valid_entry = {"filename": "b.xlsx"}
+        with (
+            patch.object(dp.QW, "QMessageBox", return_value=mock_msgbox),
+            patch.object(self.processor, "_process_first_excel_file"),
+            patch.object(self.processor, "_reconnect_specification_signals"),
+        ):
             self.processor._on_excel_files_processed(
-                (["a.xlsx"], [], [("a.xlsx", "bad format")]), generation=5
+                (["a.xlsx"], [valid_entry], [("a.xlsx", "bad format")]), generation=5
             )
-        mock_msgbox.exec.assert_called_once()
-        mock_msgbox.setDetailedText.assert_called_once()
+        mock_msgbox.exec.assert_not_called()
+        err = self.mock_main_window.checker_input_xlsx.set_error.call_args[0][0]
+        assert "a.xlsx" in err and "bad format" in err
+        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
 
     def test_stale_generation_result_is_discarded(self):
         """旧代次结果被丢弃（守卫拦截，UI 零访问）"""
@@ -324,7 +333,7 @@ class TestDataProcessor:
         mock_reconnect.assert_called_once()
 
     def test_on_excel_files_processed_mixed_valid_and_invalid(self):
-        """部分成功部分失败 → 既弹错误框，也用有效文件更新 UI"""
+        """部分成功部分失败 → 错误进 checker/状态栏（不弹框），仍用有效文件更新 UI"""
         from battery_analysis.main.business_logic import data_processor as dp
 
         mock_msgbox = Mock()
@@ -339,7 +348,117 @@ class TestDataProcessor:
             self.processor._on_excel_files_processed(
                 (["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx"}], [("b.xlsx", "bad")]), generation=5
             )
-        mock_msgbox.exec.assert_called_once()
+        mock_msgbox.exec.assert_not_called()
+        self.mock_main_window.checker_input_xlsx.set_error.assert_called()
         mock_ui.assert_called_once_with(["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx"}])
         mock_first.assert_called_once_with("a.xlsx")  # Fix 4 生效后是 excel_data[0]['filename']
         mock_reconnect.assert_called_once()
+
+
+class TestLookupPulseCurrentsFromTable:
+    """_lookup_pulse_currents_from_table 容量查表兜底（BatteryQualityRequirements_v2.3 §7.1.1）"""
+
+    RULES = ["CR2450/1S1P/600/550/380/1.0", "CP305050/1S1P/2000/2000/80%/1.0"]
+
+    def setup_method(self):
+        self.mock_main_window = Mock()
+        self.mock_main_window.comboBox_Specification_Type = Mock()
+        self.mock_main_window.comboBox_Specification_Method = Mock()
+        self.mock_main_window.config_manager = Mock()
+        self.processor = DataProcessor(self.mock_main_window)
+        self.mock_main_window.comboBox_Specification_Type.currentText.return_value = "CR2450"
+        self.mock_main_window.comboBox_Specification_Method.currentText.return_value = "1S1P"
+        self.mock_main_window.config_manager.get_config.return_value = self.RULES
+
+    def test_coin_standard(self):
+        result = self.processor._lookup_pulse_currents_from_table("Test_Battery.xlsx")
+        assert result == [30, 26, 15, 6]
+
+    def test_coin_freezer_single_cell(self):
+        result = self.processor._lookup_pulse_currents_from_table("Test_Freezer.xlsx")
+        assert result == [15, 13, 7.5, 3]
+
+    def test_coin_freezer_1s2p_uses_standard(self):
+        self.mock_main_window.comboBox_Specification_Method.currentText.return_value = "1S2P"
+        result = self.processor._lookup_pulse_currents_from_table("Test_Freezer.xlsx")
+        assert result == [30, 26, 15, 6]
+
+    def test_pouch_capacity_band(self):
+        self.mock_main_window.comboBox_Specification_Type.currentText.return_value = "CP305050"
+        result = self.processor._lookup_pulse_currents_from_table("Test.xlsx")
+        assert result == [100, 60, 30, 15, 6]
+
+    def test_error_returns_empty(self):
+        self.mock_main_window.config_manager.get_config.side_effect = Exception("boom")
+        assert self.processor._lookup_pulse_currents_from_table("Test.xlsx") == []
+
+
+class TestProcessFirstExcelFilePulse:
+    """_process_first_excel_file 脉冲电流：文件名优先，查表兜底，写回正确配置键"""
+
+    RULES = ["CR2450/1S1P/600/550/380/1.0"]
+
+    def setup_method(self):
+        self.mock_main_window = Mock()
+        for name in (
+            "comboBox_ConstructionMethod",
+            "comboBox_Specification_Type",
+            "comboBox_Specification_Method",
+            "comboBox_Manufacturer",
+        ):
+            combo = Mock()
+            combo.count.return_value = 0
+            setattr(self.mock_main_window, name, combo)
+        self.mock_main_window.lineEdit_BatchDateCode = Mock()
+        self.mock_main_window.config_manager = Mock()
+        self.mock_cs = Mock()
+        self.mock_main_window._get_service.return_value = self.mock_cs
+
+        def get_config(key):
+            return {
+                "BatteryConfig/SpecificationTypeCoinCell": ["CR2450"],
+                "BatteryConfig/SpecificationTypePouchCell": [],
+                "BatteryConfig/SpecificationMethod": ["1S1P"],
+                "BatteryConfig/Rules": self.RULES,
+            }.get(key, [])
+
+        self.mock_main_window.config_manager.get_config.side_effect = get_config
+        self.mock_main_window.comboBox_Specification_Type.currentText.return_value = "CR2450"
+        self.mock_main_window.comboBox_Specification_Method.currentText.return_value = "1S1P"
+        self.processor = DataProcessor(self.mock_main_window)
+
+    def test_filename_values_take_priority(self):
+        self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).xlsx")
+        assert self.mock_main_window.listCurrentLevel == [30, 26, 15, 6]
+        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [30, 26, 15, 6])
+        self.mock_cs.save_config.assert_called_once()
+
+    def test_table_fallback_when_filename_has_no_pulse(self):
+        self.processor._process_first_excel_file("Test_CR2450_Freezer.xlsx")
+        assert self.mock_main_window.listCurrentLevel == [15, 13, 7.5, 3]
+        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [15, 13, 7.5, 3])
+
+    def test_no_filename_no_table_leaves_config_untouched(self):
+        self.mock_main_window.comboBox_Specification_Type.currentText.return_value = ""
+        self.processor._process_first_excel_file("Test_Battery.xlsx")
+        assert not hasattr(self.mock_main_window, "listCurrentLevel") or not isinstance(
+            self.mock_main_window.listCurrentLevel, list
+        )
+        self.mock_cs.set_config_value.assert_not_called()
+
+    def test_mismatch_filename_vs_table_warns_and_keeps_filename(self):
+        """双重验证：文件名档位与容量查表不一致 → 告警，且以文件名为准"""
+        self.processor._process_first_excel_file("Test_CR2450_(60-30-15-6mA).xlsx")
+        # 文件名优先
+        assert self.mock_main_window.listCurrentLevel == [60, 30, 15, 6]
+        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [60, 30, 15, 6])
+        # 状态栏收到不一致告警
+        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called_once()
+        warn = self.mock_main_window.statusBar_BatteryAnalysis.showMessage.call_args[0][0]
+        assert "mismatch" in warn
+        assert "[Warning]" in warn
+
+    def test_match_filename_vs_table_no_warning(self):
+        """双重验证：一致时不告警"""
+        self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).xlsx")
+        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_not_called()

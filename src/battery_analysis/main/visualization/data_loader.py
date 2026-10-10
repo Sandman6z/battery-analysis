@@ -11,6 +11,8 @@ import os
 import traceback
 from pathlib import Path
 
+from battery_analysis.utils.battery_classifier import derive_specifications
+from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
 from battery_analysis.utils.processors.data_utils import build_plot_title
 
 logger = logging.getLogger(__name__)
@@ -87,7 +89,8 @@ class DataLoaderMixin:
 
         svc = getattr(self, "_config_service", None)
         if svc is not None:
-            specs = svc.get_config_value("battery.specifications", {})
+            rules = svc.get_config_value("battery.rules", []) or []
+            specs = derive_specifications(rules if isinstance(rules, list) else [])
             self.listCoinCell = specs.get("Coin Cell", [])
             self.listPouchCell = specs.get("Pouch Cell", [])
         else:
@@ -133,7 +136,9 @@ class DataLoaderMixin:
         svc = getattr(self, "_config_service", None)
         if svc is not None:
             try:
-                levels = svc.get_config_value("battery.pulseCurrents", [10, 20, 50])
+                levels = svc.get_config_value(
+                    "battery.pulseCurrents", list(DEFAULT_CONFIG["battery"]["pulseCurrents"])
+                )
                 if levels:
                     logger.info("Using configured pulse current levels: %s", levels)
                     return levels
@@ -141,7 +146,7 @@ class DataLoaderMixin:
                 logger.error(
                     "Invalid pulse current configuration format: %s, using default value", e
                 )
-        default_value = [10, 20, 50]
+        default_value = list(DEFAULT_CONFIG["battery"]["pulseCurrents"])
         logger.warning("Using default pulse current levels: %s", default_value)
         return default_value
 
