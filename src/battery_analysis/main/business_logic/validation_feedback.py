@@ -2,6 +2,52 @@
 
 checkinput 主流程与标签/输入框高亮、警告汇总。"""
 
+_ERROR_WIDGET_STYLE = "background-color: #FFDDDD; border: 1px solid #FF6666;"
+_ERROR_LABEL_STYLE = "background-color:red"
+
+# 向后兼容的 UI 级字段检查表：(类型, 字段名, 控件属性, 标签属性)
+# 顺序即 warning_info 中缺失项的出现顺序（决定状态栏警告文案），不要随意调换。
+_LEGACY_FIELD_CHECKS = [
+    ("combo", "Battery Type", "comboBox_BatteryType", "label_BatteryType"),
+    (
+        "construction",
+        "Construction Method",
+        "comboBox_ConstructionMethod",
+        "label_ConstructionMethod",
+    ),
+    ("spec", "Specification", "comboBox_Specification_Type", "label_Specification"),
+    ("combo", "Manufacturer", "comboBox_Manufacturer", "label_Manufacturer"),
+    ("line", "Batch/Date Code", "lineEdit_BatchDateCode", "label_BatchDateCode"),
+    ("line", "SamplesQty", "lineEdit_SamplesQty", "label_SamplesQty"),
+    ("combo", "Temperature", "comboBox_Temperature", "label_Temperature"),
+    (
+        "line",
+        "Datasheet Nominal Capacity",
+        "lineEdit_DatasheetNominalCapacity",
+        "label_DatasheetNominalCapacity",
+    ),
+    (
+        "line",
+        "Calculation Nominal Capacity",
+        "lineEdit_CalculationNominalCapacity",
+        "label_CalculationNominalCapacity",
+    ),
+    ("aging", "Accelerated Aging", "spinBox_AcceleratedAging", "label_AcceleratedAging"),
+    (
+        "line",
+        "Required Useable Capacity",
+        "lineEdit_RequiredUseableCapacity",
+        "label_RequiredUseableCapacity",
+    ),
+    ("combo", "Test Location", "comboBox_TesterLocation", "label_TesterLocation"),
+    ("combo", "Test By", "comboBox_TestedBy", "label_TestedBy"),
+    ("combo", "Reported By", "comboBox_ReportedBy", None),
+    ("line", "Test Profile", "lineEdit_TestProfile", "label_TestProfile"),
+    ("line", "Input Path", "lineEdit_InputPath", "label_InputPath"),
+    ("line", "Output Path", "lineEdit_OutputPath", "label_OutputPath"),
+    ("line", "Version", "lineEdit_Version", "label_Version"),
+]
+
 
 class ValidationFeedbackMixin:
     """checkinput 主流程与字段级 UI 高亮/警告反馈"""
@@ -13,166 +59,73 @@ class ValidationFeedbackMixin:
         Returns:
             bool: 输入是否通过验证
         """
-        # 使用纯验证器
+        # 纯验证器先跑，失败则直接按字段高亮并短路
         result = self.validate_fields()
         if not result.is_valid:
-            self._apply_field_errors(result.field_errors)
-            self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "; ".join(result.errors) if result.errors else "Validation failed"
-            )
-            self.main_window.pushButton_Run.setText("Rerun")
-            self.main_window.pushButton_Run.setFocus()
-            return False
+            return self._report_field_validation_failure(result)
 
         # 向后兼容：继续执行原有 UI 级检查
-        check_pass_flag = True
         warning_info = ["Unknown: "]
+        check_pass_flag = self._check_legacy_fields(warning_info)
+        return self._finalize_check_result(check_pass_flag, warning_info)
 
-        # 重置所有标签样式
+    def _report_field_validation_failure(self, result) -> bool:
+        """把纯验证器的失败结果反映到 UI，并返回 False"""
+        self._apply_field_errors(result.field_errors)
+        self.main_window.statusBar_BatteryAnalysis.showMessage(
+            "; ".join(result.errors) if result.errors else "Validation failed"
+        )
+        self.main_window.pushButton_Run.setText("Rerun")
+        self.main_window.pushButton_Run.setFocus()
+        return False
+
+    def _check_legacy_fields(self, warning_info) -> bool:
+        """按 `_LEGACY_FIELD_CHECKS` 逐字段检查并高亮缺失项
+
+        Returns:
+            bool: 全部字段是否通过
+        """
+        mw = self.main_window
+        check_pass_flag = True
         self._reset_all_label_styles()
 
-        # 检查必填字段
-        check_pass_flag &= self._check_combobox(
-            "Battery Type",
-            self.main_window.comboBox_BatteryType,
-            self.main_window.label_BatteryType,
-            warning_info,
-        )
+        for kind, name, widget_attr, label_attr in _LEGACY_FIELD_CHECKS:
+            widget = getattr(mw, widget_attr)
+            label = getattr(mw, label_attr) if label_attr else None
 
-        # 检查构造方法（仅需要的电池类型，如 Pouch Cell；Coin Cell 不需要且下拉框禁用）
-        if (
-            self.main_window.comboBox_BatteryType.currentText()
-            in self._get_types_requiring_construction()
-        ):
-            check_pass_flag &= self._check_combobox(
-                "Construction Method",
-                self.main_window.comboBox_ConstructionMethod,
-                self.main_window.label_ConstructionMethod,
-                warning_info,
-            )
+            if kind == "combo":
+                check_pass_flag &= self._check_combobox(name, widget, label, warning_info)
+            elif kind == "line":
+                check_pass_flag &= self._check_line_edit(name, widget, label, warning_info)
+            elif kind == "construction":
+                # 仅需要构造方法的电池类型（如 Pouch Cell）才检查；Coin Cell 下拉框禁用
+                if (
+                    mw.comboBox_BatteryType.currentText()
+                    in self._get_types_requiring_construction()
+                ):
+                    check_pass_flag &= self._check_combobox(name, widget, label, warning_info)
+            elif kind == "spec":
+                if not (
+                    mw.comboBox_Specification_Type.currentText()
+                    and mw.comboBox_Specification_Method.currentText()
+                ):
+                    check_pass_flag = False
+                    warning_info.append(name)
+                    label.setStyleSheet(_ERROR_LABEL_STYLE)
+            elif kind == "aging":
+                if not 0 <= widget.value() <= 10:
+                    check_pass_flag = False
+                    warning_info.append(name)
+                    label.setStyleSheet(_ERROR_LABEL_STYLE)
 
-        # 检查规格
-        spec_valid = (
-            self.main_window.comboBox_Specification_Type.currentText()
-            and self.main_window.comboBox_Specification_Method.currentText()
-        )
-        if not spec_valid:
-            check_pass_flag = False
-            warning_info.append("Specification")
-            self.main_window.label_Specification.setStyleSheet("background-color:red")
+        return check_pass_flag
 
-        # 检查其他必填字段
-        check_pass_flag &= self._check_combobox(
-            "Manufacturer",
-            self.main_window.comboBox_Manufacturer,
-            self.main_window.label_Manufacturer,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "Batch/Date Code",
-            self.main_window.lineEdit_BatchDateCode,
-            self.main_window.label_BatchDateCode,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "SamplesQty",
-            self.main_window.lineEdit_SamplesQty,
-            self.main_window.label_SamplesQty,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_combobox(
-            "Temperature",
-            self.main_window.comboBox_Temperature,
-            self.main_window.label_Temperature,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "Datasheet Nominal Capacity",
-            self.main_window.lineEdit_DatasheetNominalCapacity,
-            self.main_window.label_DatasheetNominalCapacity,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "Calculation Nominal Capacity",
-            self.main_window.lineEdit_CalculationNominalCapacity,
-            self.main_window.label_CalculationNominalCapacity,
-            warning_info,
-        )
-
-        # 检查加速老化值
-        aging_value = self.main_window.spinBox_AcceleratedAging.value()
-        if aging_value < 0 or aging_value > 10:
-            check_pass_flag = False
-            warning_info.append("Accelerated Aging")
-            self.main_window.label_AcceleratedAging.setStyleSheet("background-color:red")
-
-        check_pass_flag &= self._check_line_edit(
-            "Required Useable Capacity",
-            self.main_window.lineEdit_RequiredUseableCapacity,
-            self.main_window.label_RequiredUseableCapacity,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_combobox(
-            "Test Location",
-            self.main_window.comboBox_TesterLocation,
-            self.main_window.label_TesterLocation,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_combobox(
-            "Test By",
-            self.main_window.comboBox_TestedBy,
-            self.main_window.label_TestedBy,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_combobox(
-            "Reported By",
-            self.main_window.comboBox_ReportedBy,
-            None,  # Reported By没有对应的label
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "Test Profile",
-            self.main_window.lineEdit_TestProfile,
-            self.main_window.label_TestProfile,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "Input Path",
-            self.main_window.lineEdit_InputPath,
-            self.main_window.label_InputPath,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "Output Path",
-            self.main_window.lineEdit_OutputPath,
-            self.main_window.label_OutputPath,
-            warning_info,
-        )
-
-        check_pass_flag &= self._check_line_edit(
-            "Version",
-            self.main_window.lineEdit_Version,
-            self.main_window.label_Version,
-            warning_info,
-        )
-
-        # 更新UI状态
+    def _finalize_check_result(self, check_pass_flag: bool, warning_info: list) -> bool:
+        """根据逐字段检查结果更新运行按钮与状态栏"""
         if check_pass_flag:
             self.main_window.pushButton_Run.setEnabled(False)
             self.main_window.pushButton_Run.setFocus()
         else:
-            # 构建警告信息字符串
             warning_info_str = self._build_warning_message(warning_info)
             self.main_window.statusBar_BatteryAnalysis.showMessage(warning_info_str)
             self.main_window.pushButton_Run.setText("Rerun")
