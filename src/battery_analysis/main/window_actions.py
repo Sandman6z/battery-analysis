@@ -36,8 +36,12 @@ class WindowActionsMixin:
                 svc.reload_config()
             if hasattr(self, "config_manager"):
                 self.config_manager.reload_config()
+            else:
+                self.logger.warning("config_manager missing, skip reload in preferences apply")
             if hasattr(self, "ui_manager"):
                 self.ui_manager.init_combobox()
+            else:
+                self.logger.warning("ui_manager missing, skip combobox init in preferences apply")
 
             # 应用主题设置
             settings = QC.QSettings()
@@ -63,24 +67,38 @@ class WindowActionsMixin:
                 svc.reload_config()
             if hasattr(self, "config_manager"):
                 self.config_manager.reload_config()
+            else:
+                self.logger.warning("config_manager missing, skip reload in reload_configuration")
             if hasattr(self, "ui_manager"):
                 self.ui_manager.init_combobox()
+            else:
+                self.logger.warning(
+                    "ui_manager missing, skip combobox init in reload_configuration"
+                )
             self.refresh_ui()
         except Exception as e:
             self.logger.error("Failed to reload configuration: %s", e)
             if hasattr(self, "statusBar_BatteryAnalysis"):
                 self.statusBar_BatteryAnalysis.showMessage(f"Configuration reload failed: {e!s}")
+            else:
+                self.logger.warning(
+                    "statusBar_BatteryAnalysis missing, cannot show reload failure message"
+                )
 
     def refresh_ui(self) -> None:
         try:
             if hasattr(self, "statusBar_BatteryAnalysis"):
                 self.statusBar_BatteryAnalysis.showMessage("Configuration reloaded successfully")
+            else:
+                self.logger.warning("statusBar_BatteryAnalysis missing, skip status message")
             if hasattr(self, "comboBox_Specification_Type"):
                 current_text = self.comboBox_Specification_Type.currentText()
                 if current_text:
                     index = self.comboBox_Specification_Type.findText(current_text)
                     if index >= 0:
                         self.comboBox_Specification_Type.setCurrentIndex(index)
+            else:
+                self.logger.warning("comboBox_Specification_Type missing, skip combobox refresh")
         except Exception as e:
             self.logger.error("Error refreshing UI: %s", e)
 
@@ -145,7 +163,7 @@ class WindowActionsMixin:
                     combo.setCurrentText(text)
 
     # ------------------------------
-    # 报告相关方法
+    # 主题/状态栏开关
     # ------------------------------
     def set_theme(self, theme_name) -> None:
         self.theme_manager.set_theme(theme_name)
