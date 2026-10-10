@@ -27,7 +27,7 @@
 | 16 | `main/window_init.py` / `main/window_actions.py` | 函数内局部 import 共 9 处（`_deferred_init` 内 6 处、`show_config_dialog`/`reload_configuration` 内 3 处），用于规避循环导入；拆分后本可上移到模块顶，属拆分遗留的可清理项 | 低 | open |
 | 17 | `main/window_actions.py` `set_theme`/`toggle_statusbar` 前 | 分节注释写着「报告相关方法」，但其下方法实际是主题/状态栏开关（原文件沿袭下来的错标注释，搬移时一并带过来） | 低 | open |
 | 18 | `main/window_actions.py` `reload_configuration` / `on_preferences_applied` 等 | 多处 `hasattr(self, "config_manager")` 形式的守卫：依赖缺失时**静默跳过**初始化/刷新，无任何日志，故障表现为“配置没生效”但日志无痕 | 低 | open |
-| 19 | `main/business_logic/validation_manager.py` `__init__` | `main_window=None` 有默认值，但几乎所有方法（`validate_version`、`checkinput`…）都直接 `self.main_window.xxx` —— 传 None 时不会在构造期报错，而是到第一次校验时 AttributeError；应去掉默认值或在构造期断言 | 中 | open |
+| 19 | `main/business_logic/validation_manager.py` `__init__` | `main_window=None` 有默认值，但几乎所有方法（`validate_version`、`checkinput`…）都直接 `self.main_window.xxx` —— 传 None 时不会在构造期报错，而是到第一次校验时 AttributeError；应去掉默认值或在构造期断言 | 中 | fixed |
 | 20 | `main/business_logic/validation_feedback.py` `checkinput`（173 行）、`_apply_field_errors`（79 行） | 本次拆出的两个最长函数：checkinput 内含完整的“取值→逐字段校验→高亮→汇总”线性流程，未拆子步骤；_apply_field_errors 里字段类型分支（单选/文本/表格）重复着色代码 | 中 | open |
 | 21 | `main/business_logic/validation_manager.py` `self.logger = logging.getLogger(__name__)` | logger 名硬编码为当前模块名，拆分后 mixin 方法的日志全部记在 `validation_manager` 名下，无法从日志区分具体子模块（同理适用于此前拆出的 window_*/interaction_*） | 低 | open |
 

@@ -31,13 +31,16 @@ class ValidationManager(ValidationFieldsMixin, ValidationSpecRulesMixin, Validat
     - validation_feedback    checkinput 主流程与字段级 UI 反馈
     """
 
-    def __init__(self, main_window=None):
+    def __init__(self, main_window):
         """
         初始化验证管理器
 
         Args:
-            main_window: 主窗口实例（旧接口）
+            main_window: 主窗口实例。所有校验方法都会直接访问
+                ``self.main_window`` 上的控件与服务，因此不允许缺省。
         """
+        if main_window is None:
+            raise ValueError("ValidationManager requires a main_window instance")
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
         self._temperature_set_from_xml = False  # 标志：温度是否已从XML文件名设置
