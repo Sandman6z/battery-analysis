@@ -12,6 +12,66 @@ from battery_analysis.main.visualization.interaction_utils import _select_hover_
 
 logger = logging.getLogger(__name__)
 
+_kdtree_unavailable_warned = False
+
+
+def _find_nearest_point_linear(lines, x, y, max_dist):
+    """线性扫描查找最近点（KDTree 不可用时的回退实现）
+
+    Args:
+        lines: 曲线列表
+        x: 查询点 x 坐标
+        y: 查询点 y 坐标
+        max_dist: 最大距离阈值（数据坐标）
+
+    Returns:
+        tuple: (line_idx, point_idx, x, y, label) 或 None（未找到时）
+    """
+    min_dist = float("inf")
+    best = None
+    for line_idx, line in enumerate(lines):
+        if not line.get_visible():
+            continue
+        try:
+            x_data = line.get_xdata()
+            y_data = line.get_ydata()
+            line_label = line.get_label()
+            for i, (px, py) in enumerate(zip(x_data, y_data)):
+                dist = ((px - x) ** 2 + (py - y) ** 2) ** 0.5
+                if dist < min_dist and dist < max_dist:
+                    min_dist = dist
+                    best = (line_idx, i, px, py, line_label)
+        except (AttributeError, TypeError, ValueError, IndexError):
+            continue
+    return best
+
+
+def _format_hover_label(label):
+    """把曲线 label（字符串或 [名称, 编号] 列表）渲染成标注首行文案"""
+    if isinstance(label, list) and len(label) > 0:
+        text = f"{label[0]}"
+        if len(label) > 1:
+            text += f" ({label[1]})"
+        return text
+    return str(label)
+
+
+def _update_hover_annotation(annot, fig, x, y, point_idx, label):
+    """把最近点写入标注并刷新画布"""
+    annot.xy = (x, y)
+    annot.set_text(
+        f"{_format_hover_label(label)}\nPoint {point_idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V"
+    )
+    annot.set_visible(True)
+    fig.canvas.draw_idle()
+
+
+def _hide_hover_annotation(annot, fig):
+    """隐藏标注（若可见）并刷新画布"""
+    if annot.get_visible():
+        annot.set_visible(False)
+        fig.canvas.draw_idle()
+
 
 class HoverControlsMixin:
     """悬停提示控件"""
@@ -35,49 +95,18 @@ class HoverControlsMixin:
                         check_filter, lines_filtered, lines_unfiltered
                     )
 
-                    min_dist = float("inf")
-                    closest_point = None
-                    closest_line_label = None
+                    result = _find_nearest_point_linear(
+                        current_lines,
+                        event.xdata,
+                        event.ydata,
+                        0.05 * (self.maxXaxis - self.listAxis[0]),
+                    )
 
-                    for line in current_lines:
-                        if line.get_visible():
-                            try:
-                                x_data = line.get_xdata()
-                                y_data = line.get_ydata()
-                                line_label = line.get_label()
-
-                                for i, (x, y) in enumerate(zip(x_data, y_data)):
-                                    dist = ((x - event.xdata) ** 2 + (y - event.ydata) ** 2) ** 0.5
-                                    if dist < min_dist and dist < 0.05 * (
-                                        self.maxXaxis - self.listAxis[0]
-                                    ):
-                                        min_dist = dist
-                                        closest_point = (x, y, i)
-                                        closest_line_label = line_label
-                            except (AttributeError, TypeError, ValueError, IndexError):
-                                continue
-
-                    if closest_point:
-                        x, y, idx = closest_point
-                        annot.xy = (x, y)
-
-                        label_text = ""
-                        if isinstance(closest_line_label, list) and len(closest_line_label) > 0:
-                            label_text = f"{closest_line_label[0]}"
-                            if len(closest_line_label) > 1:
-                                label_text += f" ({closest_line_label[1]})"
-                        else:
-                            label_text = str(closest_line_label)
-
-                        annot.set_text(
-                            f"{label_text}\nPoint {idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V"
-                        )
-                        annot.set_visible(True)
-                        fig.canvas.draw_idle()
+                    if result:
+                        _line_idx, idx, x, y, label = result
+                        _update_hover_annotation(annot, fig, x, y, idx, label)
                     else:
-                        if annot.get_visible():
-                            annot.set_visible(False)
-                            fig.canvas.draw_idle()
+                        _hide_hover_annotation(annot, fig)
 
             fig.canvas.mpl_connect("motion_notify_event", on_hover)
 
@@ -122,7 +151,10 @@ class HoverControlsMixin:
             return kdtree, points_data
 
         except ImportError:
-            logger.warning("scipy not available, falling back to linear search")
+            global _kdtree_unavailable_warned
+            if not _kdtree_unavailable_warned:
+                logger.warning("scipy not available, hover lookup will use linear scan")
+                _kdtree_unavailable_warned = True
             return None, None
         except Exception as e:
             logger.error("Error building KDTree index: %s", e)
@@ -178,10 +210,11 @@ class HoverControlsMixin:
             )
             annot.set_visible(False)
 
-            # KDTree 索引缓存
+            # KDTree 索引缓存；"unavailable" 表示已确定无法构建（如未装 scipy），
+            # 避免每次悬停都重复尝试
             kdtree_cache = {
-                "filtered": {"kdtree": None, "points_data": None},
-                "unfiltered": {"kdtree": None, "points_data": None},
+                "filtered": {"kdtree": None, "points_data": None, "unavailable": False},
+                "unfiltered": {"kdtree": None, "points_data": None, "unavailable": False},
             }
 
             # 节流控制
@@ -204,7 +237,11 @@ class HoverControlsMixin:
 
                 # 重建 KDTree
                 kdtree, points_data = self._build_kdtree_index(current_lines)
-                kdtree_cache[cache_key] = {"kdtree": kdtree, "points_data": points_data}
+                kdtree_cache[cache_key] = {
+                    "kdtree": kdtree,
+                    "points_data": points_data,
+                    "unavailable": kdtree is None,
+                }
 
                 return kdtree, points_data
 
@@ -253,7 +290,9 @@ class HoverControlsMixin:
 
                 # 获取或重建 KDTree
                 cache = kdtree_cache[cache_key]
-                if cache["kdtree"] is None:
+                if cache["unavailable"]:
+                    kdtree, points_data = None, None
+                elif cache["kdtree"] is None:
                     kdtree, points_data = rebuild_kdtree_if_needed()
                 else:
                     kdtree = cache["kdtree"]
@@ -262,32 +301,25 @@ class HoverControlsMixin:
                 # 计算最大距离阈值（相对于坐标轴范围）
                 max_dist = 0.05 * (self.maxXaxis - self.listAxis[0])
 
-                # 使用 KDTree 查找最近点
-                result = self._find_nearest_point_kdtree(
-                    kdtree, points_data, event.xdata, event.ydata, max_dist
-                )
+                # KDTree 查询；索引不可用（如未安装 scipy）时线性扫描
+                result = None
+                if kdtree is not None:
+                    result = self._find_nearest_point_kdtree(
+                        kdtree, points_data, event.xdata, event.ydata, max_dist
+                    )
+                if result is None:
+                    result = _find_nearest_point_linear(
+                        _select_hover_lines(check_filter, lines_filtered, lines_unfiltered),
+                        event.xdata,
+                        event.ydata,
+                        max_dist,
+                    )
 
                 if result:
-                    line_idx, point_idx, x, y, label = result
-                    annot.xy = (x, y)
-
-                    label_text = ""
-                    if isinstance(label, list) and len(label) > 0:
-                        label_text = f"{label[0]}"
-                        if len(label) > 1:
-                            label_text += f" ({label[1]})"
-                    else:
-                        label_text = str(label)
-
-                    annot.set_text(
-                        f"{label_text}\nPoint {point_idx}:\nCharge: {x:.2f} mAh\nVoltage: {y:.4f} V"
-                    )
-                    annot.set_visible(True)
-                    fig.canvas.draw_idle()
+                    _line_idx, point_idx, x, y, label = result
+                    _update_hover_annotation(annot, fig, x, y, point_idx, label)
                 else:
-                    if annot.get_visible():
-                        annot.set_visible(False)
-                        fig.canvas.draw_idle()
+                    _hide_hover_annotation(annot, fig)
 
             # 连接事件
             fig.canvas.mpl_connect("motion_notify_event", on_hover)
