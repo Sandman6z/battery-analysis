@@ -16,6 +16,7 @@ from pathlib import Path
 
 from docx import Document
 
+from battery_analysis.utils.constants import COLOR_NAME
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.report_coordinator import match_battery_type
 from battery_analysis.utils.writers.statistics_utils import (
@@ -57,6 +58,14 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
         self.listBatteryName = self.listBatteryInfo[1]
         self.intBatteryNum = len(self.listBatteryName)
 
+        # 路径推导（图像 / Excel / Word 模板 / Word 输出）
+        self._init_report_paths(strResultPath)
+
+        # 替换占位符与电池类型匹配
+        self._init_replace_placeholders()
+
+    def _init_report_paths(self, strResultPath: str) -> None:
+        """由结果目录推导图像、Excel、Word 模板与输出路径"""
         # 从strResultPath提取td（日期部分）
         basename = os.path.basename(strResultPath)
         if "_v" in basename:
@@ -96,7 +105,7 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
             )
             if pkg_template.is_file():
                 self.strSampleReportWordPath = str(pkg_template)
-                logging.info(
+                logger.info(
                     "Loading Word template from package template directory: %s",
                     self.strSampleReportWordPath,
                 )
@@ -106,7 +115,7 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
             self.strSampleReportWordPath = str(
                 Path(self.strResultPath) / f"../../0_doc/{template_filename}"
             )
-            logging.info(
+            logger.info(
                 "Loading Word template from external 0_doc directory: %s",
                 self.strSampleReportWordPath,
             )
@@ -119,6 +128,8 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
         result_dir = Path(self.strResultPath).parent
         self.strReportWordPath = str(result_dir / report_name)
 
+    def _init_replace_placeholders(self) -> None:
+        """构建文本/图片替换占位符与 listTestInfoForReplace"""
         # 文本替换占位符
         self.listTextToReplace = [
             "TypeA",
@@ -143,8 +154,6 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
         strBatteryType = match_battery_type(self.listTestInfo[2])
 
         # strStrF（颜色/电流等级字符串）
-        from battery_analysis.utils.constants import COLOR_NAME
-
         strStrF = ""
         for c in range(self.intCurrentLevelNum):
             strStrF += f"{COLOR_NAME[c]}{self.listCurrentLevel[c]}mA, "
@@ -212,6 +221,6 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
             else:
                 break
         wdReport.save(self.strReportWordPath)
-        logging.info(
+        logger.info(
             "Data analysis complete, generated docx report path: %s", self.strReportWordPath
         )

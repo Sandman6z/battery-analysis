@@ -126,14 +126,12 @@ class ViewerControlsMixin:
             raise RuntimeError(f"Menu bar initialization failed: {e}") from e
 
     def _open_file_dialog(self):
-        """打开文件对话框，允许用户选择数据文件"""
-        logger.info("=== _open_file_dialog method started ===")
+        """打开文件对话框，允许用户选择数据文件
+
+        失败场景（对话框打不开、数据加载失败）给用户可见提示，
+        用户主动取消只记 debug 日志不打扰。
+        """
         try:
-            logger.info("Attempting to open file dialog to select data directory")
-
-            data_dir = None
-
-            logger.info("Attempting to use Qt file dialog")
             try:
                 data_dir = QFileDialog.getExistingDirectory(
                     None,
@@ -141,25 +139,31 @@ class ViewerControlsMixin:
                     self.strPltPath or ".",
                     QFileDialog.Option.ShowDirsOnly,
                 )
-                logger.info("Qt file dialog succeeded, return value: %s", data_dir)
             except (ImportError, AttributeError, TypeError, RuntimeError) as qt_error:
                 logger.error("Qt file dialog failed: %s", qt_error)
+                QMessageBox.warning(None, "Open Data", "Failed to open the file dialog.")
+                return
 
-            if data_dir:
-                logger.info("User selected data directory: %s", data_dir)
-                self.set_data_path(data_dir)
-                success = self.load_data()
-                if success:
-                    logger.info("Data loaded successfully, redrawing chart")
-                    self._cleanup_matplotlib_state()
-                    if self.current_fig is not None:
-                        plt.close(self.current_fig)
-                        self.current_fig = None
-                    self.plt_figure()
-                else:
-                    logger.error("Data loading failed, cannot display chart")
+            if not data_dir:
+                # 用户主动取消选择：正常操作，不弹提示
+                logger.debug("File dialog cancelled by user")
+                return
+
+            logger.info("User selected data directory: %s", data_dir)
+            self.set_data_path(data_dir)
+            if self.load_data():
+                self._cleanup_matplotlib_state()
+                if self.current_fig is not None:
+                    plt.close(self.current_fig)
+                    self.current_fig = None
+                self.plt_figure()
+            else:
+                logger.error("Data loading failed, cannot display chart")
+                QMessageBox.warning(
+                    None, "Load Data", "Failed to load data from the selected directory."
+                )
         except (AttributeError, TypeError, ValueError, OSError, RuntimeError) as e:
-            logger.error("Error opening file dialog: %s", str(e))
+            logger.error("Error opening file dialog: %s", e)
             traceback.print_exc()
 
     def _show_about_dialog(self):

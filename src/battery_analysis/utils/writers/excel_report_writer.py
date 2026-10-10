@@ -16,7 +16,6 @@ from pathlib import Path
 
 import xlsxwriter as xwt
 
-from battery_analysis.utils.exceptions import BatteryAnalysisException
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.writers.excel_formats import ExcelFormatMixin
 from battery_analysis.utils.writers.excel_overview import ExcelOverviewMixin
@@ -101,17 +100,11 @@ class ExcelReportWriter(ExcelFormatMixin, ExcelOverviewMixin, ExcelSampleMixin):
             fmts = self._create_formats(wbResult, wbSample)
 
             # 写入Overview表头
-            if wsOverview is None:
-                raise BatteryAnalysisException(
-                    f"{self.strResultXlsxPath} sheet[overview] creation failed"
-                )
+            # 注：xlsxwriter.add_worksheet 失败时抛异常而非返回 None，
+            # 故不再做 `wsOverview is None` / `wsResult is None` 判断（不可达）
             self._write_overview_header(wsOverview)
 
             # 写入result表列名
-            if wsResult is None:
-                raise BatteryAnalysisException(
-                    f"{self.strResultXlsxPath} sheet[result] creation failed"
-                )
             self._write_result_columns(wsResult, fmts)
 
             # 写入电池数据
