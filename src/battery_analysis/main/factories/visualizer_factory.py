@@ -68,8 +68,13 @@ class VisualizerFactory:
             instance = visualizer_class(**kwargs)
             self.logger.debug("Creating visualizer instance: %s", name)
             return instance
-        except (ImportError, TypeError, ValueError, OSError) as e:
-            self.logger.error("Failed to create visualizer %s: %s", name, e)
+        except ImportError as e:
+            # 依赖缺失单独分类（与 wrapper 的异常策略一致）
+            self.logger.error("Missing dependency for visualizer %s: %s", name, e)
+            return None
+        except Exception as e:
+            # 构造函数可能抛任意异常（如 kwargs 不匹配的 KeyError），不能穿透到调用方
+            self.logger.exception("Failed to create visualizer %s: %s", name, e)
             return None
 
     def get_available_visualizers(self) -> list:

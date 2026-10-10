@@ -156,7 +156,8 @@ class BatteryChartViewerWrapper(IVisualizer):
                         subdir_path, "Successfully loaded data from another subdirectory"
                     )
                     break
-        except Exception as e:
+        except OSError as e:
+            # 内层只管文件系统/路径层面的错误；其它异常冒泡到公共入口统一处理
             self.logger.error("Error processing analysis results directory: %s", e)
 
     def embed_to_widget(
@@ -188,7 +189,13 @@ class BatteryChartViewerWrapper(IVisualizer):
             result = self._viewer.embed_to_widget(parent_widget)
             return result
 
-        except (ImportError, TypeError, ValueError, OSError) as e:
+        except ImportError as e:
+            # 依赖缺失与运行时数据错误分开分类，不混为一谈
+            self.logger.error("Missing dependency while embedding chart: %s", e)
+            return None
+        except Exception as e:
+            # 公共入口：任何异常都不向 UI 冒泡（调用方只兜 ImportError/OSError/
+            # ValueError/RuntimeError，KeyError 等会直接穿透）
             self.logger.error("Error embedding chart: %s", e)
             return None
 
@@ -224,7 +231,12 @@ class BatteryChartViewerWrapper(IVisualizer):
                 self.logger.warning("Chart display failed")
 
             return success
-        except (ImportError, TypeError, ValueError, OSError) as e:
+        except ImportError as e:
+            # 依赖缺失与运行时数据错误分开分类，不混为一谈
+            self.logger.error("Missing dependency while showing chart: %s", e)
+            return False
+        except Exception as e:
+            # 公共入口：任何异常都不向 UI 冒泡（同 embed_to_widget）
             self.logger.error("Error displaying chart: %s", e)
             return False
 
