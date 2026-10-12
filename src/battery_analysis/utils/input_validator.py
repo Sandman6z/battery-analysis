@@ -88,6 +88,7 @@ class InputValidator:
         """
         result = ValidationResult()
         result.merge(InputValidator._validate_required_fields(values))
+        result.merge(InputValidator._validate_capacity_fields(values))
         result.merge(InputValidator._validate_paths(values))
         result.merge(InputValidator._validate_version(values))
         result.merge(InputValidator._validate_aging(values))
@@ -133,6 +134,32 @@ class InputValidator:
             if not val:
                 result.is_valid = False
                 result.field_errors[field_name] = f"{label} cannot be empty"
+        return result
+
+    @staticmethod
+    def _validate_capacity_fields(values: FieldValues) -> ValidationResult:
+        """容量字段须为正整数（空值由必填检查负责）。
+
+        计算容量与要求可用容量参与报告合格判定的除法运算，"0" 或非法值
+        会在运行期触发异常；提前在运行前校验并给出字段级提示。
+        """
+        result = ValidationResult()
+        for field_name, label in [
+            ("calculation_nominal_capacity", "Calculated Capacity"),
+            ("required_usable_capacity", "Required Useable Capacity"),
+        ]:
+            val = getattr(values, field_name, "")
+            if not val:
+                continue
+            try:
+                positive = int(str(val).strip()) > 0
+            except (TypeError, ValueError):
+                positive = False
+            if not positive:
+                msg = f"{label} must be a positive integer"
+                result.is_valid = False
+                result.field_errors[field_name] = msg
+                result.errors.append(msg)
         return result
 
     @staticmethod

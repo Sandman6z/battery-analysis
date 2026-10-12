@@ -5,6 +5,10 @@
 import logging
 
 from battery_analysis import __version__
+from battery_analysis.utils.quality_requirements import (
+    expected_requirement_text,
+    verdict_map,
+)
 from battery_analysis.utils.writers import excel_utils
 
 logger = logging.getLogger(__name__)
@@ -127,9 +131,21 @@ class ExcelOverviewMixin:
             )
 
     def _write_overview_statistics(
-        self, wsOverview, stats, fmts, wsOverviewStatisticalStartLine=13
+        self,
+        wsOverview,
+        stats,
+        fmts,
+        wsOverviewStatisticalStartLine=13,
+        verdicts=None,
     ):
-        """写入Overview工作表中的统计结果"""
+        """写入Overview工作表中的统计结果
+
+        Args:
+            verdicts: §6.2.11 合格判定结果（可为 None）；命中的
+                (脉冲电流, 截止电压) 格在统计文本后追加期望值与 Pass/Fail
+                标注，仅文本追加、不改变表格布局。
+        """
+        vmap = verdict_map(verdicts)
         wsOverview.write(
             wsOverviewStatisticalStartLine, 0, "Statisticals Results", fmts["overview_stat_dark"]
         )
@@ -147,7 +163,8 @@ class ExcelOverviewMixin:
                 fmts["overview_stat_light"],
             )
         for c in range(1, self.intCurrentLevelNum + 1):
-            wsOverview.set_row(wsOverviewStatisticalStartLine + c, 120)
+            row_has_verdict = any(verdict.current_index == c - 1 for verdict in vmap.values())
+            wsOverview.set_row(wsOverviewStatisticalStartLine + c, 140 if row_has_verdict else 120)
             wsOverview.write_rich_string(
                 wsOverviewStatisticalStartLine + c,
                 0,
@@ -158,19 +175,24 @@ class ExcelOverviewMixin:
                 fmts["overview_stat_light"],
             )
             for v in range(1, self.intVoltageLevelNum + 1):
+                cell_text = (
+                    f"μ: {round(stats['mean'][c - 1][v - 1])}mAh\n"
+                    f"Median: {round(stats['med'][c - 1][v - 1])}mAh\n"
+                    f"σ: {round(stats['std'][c - 1][v - 1])}mAh\n"
+                    f"μ - 3σ: {round(stats['mm3s'][c - 1][v - 1])}mAh\n"
+                    f"μ - 2σ: {round(stats['mm2s'][c - 1][v - 1])}mAh\n"
+                    f"μ + 2σ: {round(stats['mp2s'][c - 1][v - 1])}mAh\n"
+                    f"μ + 3σ: {round(stats['mp3s'][c - 1][v - 1])}mAh\n"
+                    f"Minimum: {round(stats['min'][c - 1][v - 1])}mAh\n"
+                    f"Maximum: {round(stats['max'][c - 1][v - 1])}mAh"
+                )
+                cell_verdict = vmap.get((c - 1, v - 1))
+                if cell_verdict is not None:
+                    # §6.2.11：该格为 PDF 指定的判定格，追加期望与结论
+                    cell_text += "\n" + expected_requirement_text(cell_verdict)
                 wsOverview.write(
                     wsOverviewStatisticalStartLine + c,
                     v,
-                    (
-                        f"μ: {round(stats['mean'][c - 1][v - 1])}mAh\n"
-                        f"Median: {round(stats['med'][c - 1][v - 1])}mAh\n"
-                        f"σ: {round(stats['std'][c - 1][v - 1])}mAh\n"
-                        f"μ - 3σ: {round(stats['mm3s'][c - 1][v - 1])}mAh\n"
-                        f"μ - 2σ: {round(stats['mm2s'][c - 1][v - 1])}mAh\n"
-                        f"μ + 2σ: {round(stats['mp2s'][c - 1][v - 1])}mAh\n"
-                        f"μ + 3σ: {round(stats['mp3s'][c - 1][v - 1])}mAh\n"
-                        f"Minimum: {round(stats['min'][c - 1][v - 1])}mAh\n"
-                        f"Maximum: {round(stats['max'][c - 1][v - 1])}mAh"
-                    ),
+                    cell_text,
                     fmts["overview_stat"],
                 )

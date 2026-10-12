@@ -61,7 +61,7 @@ After setting the input path, the app scans all `.xlsx` files in the directory *
 
 After selecting "Specification Type + Specification Method", the app matches the **Rules** in the configuration and auto-fills:
 
-- **Datasheet Nominal Capacity**, **Calculation Nominal Capacity**, **Required Useable Capacity** (= calculation capacity × required percentage, e.g. 80%)
+- **Datasheet Nominal Capacity**, **Calculation Nominal Capacity**, **Required Useable Capacity** (absolute value such as `380`; or percentage such as `80%` = calculation capacity × 80%; or construction-aware dual percentage `85%|75%` = spiral/laminate, resolved by the selected construction method, aligned with BatteryQualityRequirements_v2.3 §7.1.1)
 - Automatically matches the **Battery Type** (e.g. selecting CR2450 → Coin Cell)
 - Automatically determines the **temperature** based on required useable capacity:
   - `280` → switches to **Freezer -20°C**

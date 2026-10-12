@@ -17,6 +17,10 @@ from pathlib import Path
 import xlsxwriter as xwt
 
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
+from battery_analysis.utils.quality_requirements import (
+    build_expectations,
+    evaluate_expectations,
+)
 from battery_analysis.utils.writers.excel_formats import ExcelFormatMixin
 from battery_analysis.utils.writers.excel_overview import ExcelOverviewMixin
 from battery_analysis.utils.writers.excel_sample import ExcelSampleMixin
@@ -126,7 +130,15 @@ class ExcelReportWriter(ExcelFormatMixin, ExcelOverviewMixin, ExcelSampleMixin):
             # 写入统计值、图像、Overview统计表
             self._write_result_statistics(wsResult, stats, fmts)
             self._insert_images(wsResult)
-            self._write_overview_statistics(wsOverview, stats, fmts)
+            # §6.2.11 合格判定：仅对 PDF 指定的 (脉冲电流, 截止电压) 格标注
+            expectations = build_expectations(self.listTestInfo)
+            verdicts = evaluate_expectations(
+                stats,
+                self.listCurrentLevel,
+                self.listVoltageLevel,
+                expectations,
+            )
+            self._write_overview_statistics(wsOverview, stats, fmts, verdicts=verdicts)
 
             # 准备样本表内容并写入
             sample = self._prepare_sample_content(stats)

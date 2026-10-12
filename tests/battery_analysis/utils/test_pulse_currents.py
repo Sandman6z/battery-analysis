@@ -37,6 +37,15 @@ class TestFreezerFromRules:
     def test_required_capacity_percentage_form(self):
         assert required_useable_capacity_from_rule("CP305050/1S1P/2000/2000/80%/1.0") == 1600
 
+    def test_required_capacity_dual_percent_by_construction(self):
+        # 85%|75% = 螺旋/叠片（§7.1.1.3–.10）；construction 未识别时默认螺旋
+        rule = "CP224642A/1S1P/920/920/85%|75%/2"
+        assert required_useable_capacity_from_rule(rule, "Spiral Type") == 782
+        assert required_useable_capacity_from_rule(rule, "Laminate Type") == 690
+        assert required_useable_capacity_from_rule(rule) == 782
+        # 双百分比规则不能被误判为冷冻（280/380 绝对值判定）
+        assert required_useable_capacity_from_rule("CP305050/1S1P/2000/2000/85%|75%/5") == 1700
+
     def test_required_capacity_malformed_returns_none(self):
         assert required_useable_capacity_from_rule("bad") is None
         assert required_useable_capacity_from_rule("a/b/c/d/notanumber/1.0") is None

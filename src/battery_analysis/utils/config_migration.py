@@ -79,7 +79,41 @@ def _migrate_v4(config: dict[str, Any]) -> dict[str, Any]:
     return config
 
 
-CURRENT_CONFIG_VERSION = 4  # 代码期望的配置版本
+# ── 迁移 v5：默认规则对齐 BatteryQualityRequirements_v2.3 ──────
+
+# 旧默认规则 → 新默认规则（§7.1.1）。仅当规则行与旧默认完全一致时才替换，
+# 用户改过的规则不动：
+# - CP224642A（Pouch <1200，§7.1.1.3/.4）：期望 85%|75%（螺旋/叠片），CC 段流 2mA/10h(20mAh)
+# - CF583083（"Hermes"，§7.1.1.11）：主期望 >3000mAh@2.25V/500mA，CC 段流 50mA/1h(50mAh)
+# - CP305050（Pouch 2000-3000，§7.1.1.7/.8）：期望 85%|75%，CC 段流 5mA/4h
+# CR2450 系列四条默认规则与 PDF 一致，不迁移。
+_PDF_RULE_REPLACEMENTS = {
+    "CP224642A/1S1P/920/920/80%/5.0": "CP224642A/1S1P/920/920/85%|75%/2",
+    "CF583083/1S1P/4000/4000/80%/5.0": "CF583083/1S1P/4000/4000/3000/50",
+    "CP305050/1S1P/2000/2000/80%/1.0": "CP305050/1S1P/2000/2000/85%|75%/5",
+}
+
+
+@register_migration(5, "Align default rules with BatteryQualityRequirements_v2.3")
+def _migrate_v5(config: dict[str, Any]) -> dict[str, Any]:
+    """默认规则对齐 BatteryQualityRequirements_v2.3 §7.1.1。
+
+    - 要求可用容量：Pouch 80% → 85%|75%（螺旋/叠片，按构造方法换算）；
+      Hermes 80% → 绝对值 3000（>3000mAh@2.25V/500mA）；
+    - CC 段流电流：2mA（<1200）/ 50mA（Hermes）/ 5mA（2000-3000）。
+    只替换与旧默认完全一致的规则行；用户自定义修改过的规则保持不变。
+    """
+    battery = config.get("battery")
+    rules = battery.get("rules") if isinstance(battery, dict) else None
+    if isinstance(rules, list):
+        new_rules = [_PDF_RULE_REPLACEMENTS.get(str(rule), rule) for rule in rules]
+        if new_rules != rules:
+            battery["rules"] = new_rules
+            logger.info("Migration v5: default rules aligned to BatteryQualityRequirements_v2.3")
+    return config
+
+
+CURRENT_CONFIG_VERSION = 5  # 代码期望的配置版本
 
 
 def run_migrations(config: dict[str, Any]) -> dict[str, Any]:

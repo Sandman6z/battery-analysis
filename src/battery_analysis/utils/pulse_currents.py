@@ -72,13 +72,21 @@ def normalize_current_levels(values) -> list:
 FREEZER_REQUIRED_CAPACITY_MAH = 280
 
 
-def required_useable_capacity_from_rule(rule: str) -> int | None:
+def required_useable_capacity_from_rule(rule: str, construction: str = "") -> int | None:
     """从单条规则解析「要求可用容量」（第 5 段，规则格式 "型号/成组方式/容量/计算容量/要求可用容量/CC电流"）
 
-    支持百分比形式（如 "80%"，按计算标称容量换算）与绝对值形式（如 "280"、"380"）。
+    支持三种形式（BatteryQualityRequirements_v2.3 对齐）：
+
+    - 绝对值（如 "380"、"280"、"3000"）；
+    - 单百分比（如 "80%"，按计算标称容量换算）；
+    - 构造相关双百分比（如 "85%|75%"，螺旋/叠片两档，依 construction
+      选取；Pouch §7.1.1.3–.10 期望 = QNOM × 85%（螺旋）/ 75%（叠片）；
+      construction 为空或未识别时默认取第一个（螺旋 85%））。
 
     Args:
         rule: 规则字符串
+        construction: 构造方法（如 "Spiral Type" / "Laminate Type"），
+            用于双百分比规则选取；空串时取第一个百分比
 
     Returns:
         要求可用容量（mAh），无法解析返回 None
@@ -88,11 +96,18 @@ def required_useable_capacity_from_rule(rule: str) -> int | None:
         return None
     segment = parts[4].strip()
     if "%" in segment:
-        match = re.search(r"(\d+(?:\.\d+)?)%", segment)
-        if not match or len(parts) < 4:
+        dual = re.fullmatch(r"(\d+(?:\.\d+)?)%\s*\|\s*(\d+(?:\.\d+)?)%", segment)
+        if dual:
+            pct_text = dual.group(2) if "laminate" in str(construction or "").lower() else dual.group(1)
+        else:
+            match = re.search(r"(\d+(?:\.\d+)?)%", segment)
+            if not match:
+                return None
+            pct_text = match.group(1)
+        if len(parts) < 4:
             return None
         try:
-            return int(float(parts[3]) * float(match.group(1)) / 100)
+            return int(float(parts[3]) * float(pct_text) / 100)
         except ValueError:
             return None
     try:

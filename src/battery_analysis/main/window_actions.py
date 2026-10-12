@@ -180,6 +180,10 @@ class WindowActionsMixin:
     def check_specification(self) -> None:
         self.validation_manager.check_specification()
 
+    def check_construction(self) -> None:
+        """构造方法变化 → 重算「要求可用容量」（85%|75% 规则按构造取值）"""
+        self.validation_manager.check_construction()
+
     # ------------------------------
     # 表格相关方法
     # ------------------------------

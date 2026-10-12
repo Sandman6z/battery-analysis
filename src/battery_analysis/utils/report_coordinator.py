@@ -23,6 +23,12 @@ from battery_analysis.utils.processors.data_utils import (
     build_plot_title,
     generate_current_type_string,
 )
+from battery_analysis.utils.quality_requirements import (
+    Expectation,
+    build_expectations,
+    evaluate_expectations,
+    format_failure_remarks,
+)
 from battery_analysis.utils.readers.date_parser import parse_test_date
 from battery_analysis.utils.writers import plot_writer
 
@@ -52,6 +58,21 @@ def match_battery_type(test_info_type: str) -> str:
 # ExcelReportWriter._prepare_sample_content 与
 # WordReportWriter._prepare_overview_content 约 90% 相同，
 # 本函数提取公共部分，差异由各调用方自行处理。
+
+
+def _require_positive_int(value, label: str) -> int:
+    """解析正整数报告字段；空值/非法值时抛带字段名的 ValueError。
+
+    错误信息由 analysis_worker 捕获，经 "Report Generation Error" 弹窗展示，
+    字段名帮助用户定位到对应输入框（如 Required Useable Capacity）。
+    """
+    try:
+        parsed = int(str(value).strip())
+    except (TypeError, ValueError):
+        raise ValueError(f"{label} must be a positive integer, got {value!r}") from None
+    if parsed <= 0:
+        raise ValueError(f"{label} must be a positive integer, got {value!r}")
+    return parsed
 
 
 def compute_report_content_base(
@@ -124,7 +145,10 @@ def compute_report_content_base(
         strRelProfilePath = listTestInfo[13]
 
     strBatchDateCode = listTestInfo[5] if listTestInfo[5] else "n.a."
-    intPassRate = float(int(listTestInfo[17]) / int(listTestInfo[9]))
+    # 空值/非正整数 → 抛带字段名的 ValueError，由 Report Generation Error 弹窗定位
+    intRequiredCapacity = _require_positive_int(listTestInfo[17], "Required Useable Capacity")
+    intQnomCapacity = _require_positive_int(listTestInfo[9], "Calculated Capacity")
+    intPassRate = float(intRequiredCapacity / intQnomCapacity)
     strRequiredUseableCapacityPercentage = f"{int(100 * intPassRate)}%"
 
     [sy, sm, sd] = listBatteryInfo[2][0].split(" ")[0].split("-")
@@ -133,17 +157,40 @@ def compute_report_content_base(
     strRelResultPath = os.path.relpath(strResultXlsxPath, os.path.dirname(strReportWordPath))
 
     listMM2S = stats["mm2s"]
-    if listMM2S[intPosiMaxmA][intPosi2V25] / int(listTestInfo[9]) >= intPassRate:
-        strResult = "Pass"
-        strRemarks = "OK"
+
+    # ── §6.2.11 合格判定（BatteryQualityRequirements_v2.3）──────
+    # 仅对 PDF 指定的 (脉冲电流, 截止电压) 格判定：
+    #   ① 所有单样本 ≥ 期望可用容量；② µ-2σ > 期望（严格）。
+    # 配置的 9 档超集（2.6V/2.1V 等非 PDF 列）不参与判定。
+    # 期望格派生失败时回退到历史判定位置（最高脉冲电流 × 2.25V）。
+    expectations = build_expectations(listTestInfo)
+    if not expectations:
+        expectations = [
+            Expectation(
+                current_ma=float(listCurrentLevel[intPosiMaxmA]),
+                cutoff_v=float(listVoltageLevel[intPosi2V25]),
+                threshold_mah=float(intRequiredCapacity),
+                source="legacy",
+            )
+        ]
+    verdicts = evaluate_expectations(stats, listCurrentLevel, listVoltageLevel, expectations)
+
+    if verdicts:
+        strResult = "Pass" if all(v.passed for v in verdicts) else "Fail"
+        strRemarks = "OK" if strResult == "Pass" else format_failure_remarks(verdicts)
     else:
-        strResult = "Fail"
-        strRemarks = (
-            f"The expected usable Q(stat) should be more than "
-            f"{strRequiredUseableCapacityPercentage}, "
-            f"while the actual measured minimum capacity to 2.25V is "
-            f"{math.floor(100 * listMM2S[intPosiMaxmA][intPosi2V25] / int(listTestInfo[9]))}%."
-        )
+        # 期望格不在实测档位中：保留原有单点判定（安全网，行为与历史一致）
+        if listMM2S[intPosiMaxmA][intPosi2V25] / intQnomCapacity >= intPassRate:
+            strResult = "Pass"
+            strRemarks = "OK"
+        else:
+            strResult = "Fail"
+            strRemarks = (
+                f"The expected usable Q(stat) should be more than "
+                f"{strRequiredUseableCapacityPercentage}, "
+                f"while the actual measured minimum capacity to 2.25V is "
+                f"{math.floor(100 * listMM2S[intPosiMaxmA][intPosi2V25] / intQnomCapacity)}%."
+            )
 
     listStrContent = [
         listTestInfo[0],  # 0

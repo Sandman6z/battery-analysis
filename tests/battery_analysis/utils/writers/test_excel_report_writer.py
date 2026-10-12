@@ -585,6 +585,80 @@ class TestWriteMain:
         writer.write(list_cpt=None, stats=stats)
 
 
+# ── §6.2.11 合格判定标注 ──
+
+
+class TestOverviewVerdictAnnotation:
+    """_write_overview_statistics 对 PDF 判定格追加期望/结论标注"""
+
+    STATS = {
+        "mean": [[1800] * 4, [1600] * 4, [1400] * 4],
+        "med": [[1795] * 4, [1595] * 4, [1395] * 4],
+        "std": [[10] * 4, [8] * 4, [9] * 4],
+        "mm3s": [[1770] * 4, [1576] * 4, [1373] * 4],
+        "mm2s": [[1780] * 4, [1584] * 4, [1382] * 4],
+        "mp2s": [[1820] * 4, [1616] * 4, [1418] * 4],
+        "mp3s": [[1830] * 4, [1624] * 4, [1427] * 4],
+        "min": [[1790] * 4, [1580] * 4, [1390] * 4],
+        "max": [[1810] * 4, [1620] * 4, [1410] * 4],
+    }
+
+    @staticmethod
+    def _pouch_writer(tmp_path):
+        """Pouch 螺旋 2500mAh（期望 2125mAh@100mA/2.25V，档位 100mA ✓）"""
+        info = copy.deepcopy(SAMPLE_TEST_INFO)
+        info[1] = "Spiral Type"
+        info[2] = "TESTMODEL"
+        info[9] = "2500"
+        info[17] = "2125"
+        return ExcelReportWriter(
+            str(tmp_path / "results"), info, copy.deepcopy(SAMPLE_BATTERY_INFO)
+        )
+
+    def test_verdict_cell_appended_and_row_taller(self, tmp_path, fmts):
+        from battery_analysis.utils.quality_requirements import (
+            build_expectations,
+            evaluate_expectations,
+        )
+
+        w = self._pouch_writer(tmp_path)
+        expectations = build_expectations(w.listTestInfo)
+        verdicts = evaluate_expectations(
+            self.STATS, w.listCurrentLevel, w.listVoltageLevel, expectations
+        )
+        assert len(verdicts) == 1
+        assert verdicts[0].expectation.threshold_mah == 2125  # 2500 × 85%
+
+        ws = MagicMock()
+        w._write_overview_statistics(ws, self.STATS, fmts, verdicts=verdicts)
+        cell_texts = [
+            call.args[2]
+            for call in ws.write.call_args_list
+            if len(call.args) >= 3 and isinstance(call.args[2], str)
+        ]
+        annotated = [t for t in cell_texts if "Verdict:" in t]
+        assert len(annotated) == 1
+        assert "Expected: 2125mAh" in annotated[0]
+        assert "100mA → 2.25V" in annotated[0]
+        assert "Verdict: Fail" in annotated[0]  # min 1790 < 2125
+        # 判定行行高加高（13 起始 + c=1 → 行 14，140px）
+        assert any(call.args == (14, 140) for call in ws.set_row.call_args_list)
+
+    def test_no_verdict_no_annotation_and_rows_unchanged(self, writer, fmts):
+        # 默认样本（构造未知）→ 无判定格 → 布局与历史一致（120px、无 Verdict 文本）
+        ws = MagicMock()
+        writer._write_overview_statistics(ws, self.STATS, fmts, verdicts=[])
+        cell_texts = [
+            call.args[2]
+            for call in ws.write.call_args_list
+            if len(call.args) >= 3 and isinstance(call.args[2], str)
+        ]
+        assert not any("Verdict:" in t for t in cell_texts)
+        row_heights = [call.args[1] for call in ws.set_row.call_args_list if call.args]
+        assert 140 not in row_heights
+        assert 120 in row_heights
+
+
 # ── 向后兼容别名 ──
 
 
