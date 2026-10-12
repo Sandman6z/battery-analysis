@@ -51,13 +51,9 @@ class _BatteryConfigPage(QW.QWidget):
         params_group = QW.QGroupBox(_("Test Parameters"))
         params_layout = QW.QVBoxLayout(params_group)
 
-        # 脉冲电流档位由 BatteryQualityRequirements_v2.3 §7.1.1 查表自动匹配
-        # （文件名 (x-x-xmA) 优先，型号/容量查表兜底），此处只读展示
-        self._list_pulse = _ListEditor(_("Pulse Currents"), editable=False)
-        self._list_pulse.setToolTip(
-            _("Auto-matched from battery rules (BatteryQualityRequirements_v2.3 §7.1.1) — not editable here")
-        )
-        params_layout.addWidget(self._list_pulse)
+        # 脉冲电流档位（pulseCurrents）不再在 UI 展示：
+        # 由 BatteryQualityRequirements_v2.3 §7.1.1 查表自动匹配
+        # （文件名 (x-x-xmA) 优先，型号/容量查表兜底），后台逻辑保留
 
         self._list_voltage = _ListEditor(_("Cut-off Voltages"))
         params_layout.addWidget(self._list_voltage)
@@ -78,7 +74,6 @@ class _BatteryConfigPage(QW.QWidget):
         self._rules_editor.set_methods(methods)
         self._rules_editor.set_rules(rules)
         self._list_mfrs.set_items(data.get("manufacturers", []))
-        self._list_pulse.set_items([str(v) for v in data.get("pulseCurrents", [])])
         self._list_voltage.set_items([str(v) for v in data.get("cutOffVoltages", [])])
 
     def collect_data(self) -> None:
