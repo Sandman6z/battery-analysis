@@ -68,6 +68,11 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
@@ -90,7 +95,11 @@ jobs:
       id: changelog
       run: |
         $releaseName = "${{ steps.release_info.outputs.release_name }}"
-        $changelog = uv run python scripts/generate_changelog.py --output --version $releaseName 2>&1
+        # 上一个 tag 作为 changelog 范围起点（HEAD 就是当前 tag，不传会得到空范围）
+        $prevTag = git describe --tags --abbrev=0 "$releaseName^" 2>$null
+        $scriptArgs = @('scripts/generate_changelog.py', '--output', '--version', $releaseName)
+        if ($prevTag) { $scriptArgs += @('--from-tag', $prevTag.Trim()) }
+        $changelog = python @scriptArgs 2>&1
         # 去掉脚本的 "Fetching..." / "Found ..." 前缀行，只保留 markdown 内容
         $md = ($changelog | Where-Object { $_ -match '^###|^####|^- ' }) -join "`n"
         # 写入多行 output（用 heredoc 语法）
