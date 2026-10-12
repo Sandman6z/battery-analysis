@@ -131,6 +131,12 @@ jobs:
         } else {
           $ghArgs += '--latest'
         }
+        # 重打 tag 重跑时 release 可能已存在，先删掉重建保证幂等
+        gh release view $releaseName 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "Release $releaseName already exists, deleting before recreate..."
+          gh release delete $releaseName -y
+        }
         gh @ghArgs
       shell: pwsh
       env:

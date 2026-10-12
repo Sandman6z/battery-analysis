@@ -82,7 +82,7 @@ jobs:
           if ($env:GITHUB_REF_TYPE -eq 'tag') {
             $tagName = $env:GITHUB_REF_NAME
             Write-Output "推送标签 $tagName 到 Gitee..."
-            git push gitee "refs/tags/$tagName"
+            git push --force gitee "refs/tags/$tagName"
           } else {
             $branchName = $env:GITHUB_REF_NAME
             Write-Output "推送分支 $branchName 到 Gitee..."
@@ -91,7 +91,7 @@ jobs:
         } elseif ($env:GITHUB_EVENT_NAME -eq 'release') {
           $releaseTag = $env:GITHUB_REF_NAME
           Write-Output "推送 Release 标签 $releaseTag 到 Gitee..."
-          git push gitee "refs/tags/$releaseTag"
+          git push --force gitee "refs/tags/$releaseTag"
 
           Write-Output "推送 main 分支到 Gitee..."
           git push gitee main
