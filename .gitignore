@@ -23,6 +23,8 @@ downloads/
 eggs/
 .eggs/
 lib/
+# 前端 shadcn 源码目录（src/lib/）不要被上面的 Python `lib/` 规则吞掉
+!battery-analysis-roadmap/src/lib/
 lib64/
 parts/
 sdist/
