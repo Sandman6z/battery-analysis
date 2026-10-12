@@ -1,3 +1,36 @@
+### v4.1.0
+
+#### 新功能
+- feat: 对齐 BatteryQualityRequirements_v2.3 的规则与合格判定
+- feat: 脉冲电流档位改为查表自动匹配，配置对话框不再展示 Pulse Currents（后台逻辑保留）
+
+#### 修复和改进
+- fix: 悬停提示抽出共享的最近点扫描与标注逻辑，KDTree 版真正回退线性扫描（#6/#22）
+- fix: 抽出过滤切换共享逻辑并修复 checkbox 漏更新过滤状态（#7）
+- fix: checkinput 拆为三段并以数据表驱动字段检查（#20）
+- fix: _deferred_init 拆为三阶段子步骤，refresh_texts 改数据表驱动（#15）
+- fix: 统一 factories 异常策略，ImportError 单独分类且不放任其它异常穿透（#3/#4）
+- fix: 删除 excel 不可达 None 检查、word 日志统一用模块 logger、__init__ 拆出两个辅助方法（#11/#12/#13）
+- fix: 修正 window_actions 分节注释并给 hasattr 守卫补日志（#17/#18）
+- fix: window_init/window_actions 9 处局部 import 上移模块顶（#16）
+- fix: 5 个 visualization 子 Mixin 补 TYPE_CHECKING 声明与 self 标注（#9）
+- fix: window_* 日志改用模块级 logger，删除 validation_manager 死 logger（#21）
+- fix: ValidationManager 不再接受空 main_window（#19）
+- fix: show_config_dialog 恢复下拉框时 getattr 加默认值与日志（#14）
+- fix: Excel 报告写入用 try/finally 保证工作簿关闭（#10）
+- fix: 移除 viewer_controls 不可达的 ImportError 分支（#5）
+- fix: 去重 battery_chart_viewer_wrapper 的 XML 数据定位逻辑（#1/#2）
+
+#### 架构收敛
+- refactor: 拆分 validation_manager 为字段/规格/反馈三模块
+- refactor: 拆分 main_window 为初始化/文本/动作三模块
+- refactor: 拆分 word_report_writer 为页眉内容与总览表两模块
+- refactor: 拆分 excel_report_writer 为格式/主表/样本三模块
+- refactor: 拆分 interaction_controls 为 6 个子模块
+- refactor: 拆分 visualizer_factory 与 config_dialog 为多文件
+
+---
+
 ### v3.2.0
 
 #### 性能提升
