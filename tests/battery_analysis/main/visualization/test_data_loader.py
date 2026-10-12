@@ -1,5 +1,7 @@
 """data_loader.csv_read 行为测试"""
 
+from unittest.mock import Mock
+
 from battery_analysis.main.visualization.data_loader import DataLoaderMixin
 
 
@@ -44,3 +46,65 @@ class TestCsvRead:
         loader = _StubDataLoader(csv_path)
         loader.csv_read()
         assert loader.intBatteryNum == 0
+
+
+class TestGetPulseCurrentLevel:
+    """_get_pulse_current_level 兜底行为（默认值来自 config_defaults）"""
+
+    def test_falls_back_to_config_defaults(self, tmp_path):
+        from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
+
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        result = loader._get_pulse_current_level()
+        assert result == list(DEFAULT_CONFIG["battery"]["pulseCurrents"])
+        assert result == [30, 26, 15, 6]  # 30.0 == 30，档位一致
+
+    def test_uses_configured_values(self, tmp_path):
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        svc = Mock()
+        svc.get_config_value.return_value = [7, 12]
+        loader._config_service = svc
+        assert loader._get_pulse_current_level() == [7, 12]
+        svc.get_config_value.assert_called_once_with("battery.pulseCurrents", [30, 26, 15, 6])
+
+    def test_invalid_config_falls_back(self, tmp_path):
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        svc = Mock()
+        svc.get_config_value.side_effect = ValueError("bad")
+        loader._config_service = svc
+        assert loader._get_pulse_current_level() == [30, 26, 15, 6]
+
+    def test_empty_config_falls_back(self, tmp_path):
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        svc = Mock()
+        svc.get_config_value.return_value = []
+        loader._config_service = svc
+        assert loader._get_pulse_current_level() == [30, 26, 15, 6]
+
+
+class TestSpecListsDeriveFromRules:
+    """listCoinCell/listPouchCell 由 battery.rules 派生，不再读 battery.specifications"""
+
+    def test_derived_from_rules(self, tmp_path):
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        svc = Mock()
+
+        def _fake_get(key, default=None):
+            if key == "battery.rules":
+                return [
+                    "CR2450/1S1P/600/550/380/1.0",
+                    "CF583083/1S1P/4000/4000/80%/5.0",
+                ]
+            return default
+
+        svc.get_config_value.side_effect = _fake_get
+        loader._config_service = svc
+        loader._read_configurations()
+        assert loader.listCoinCell == ["CR2450"]
+        assert loader.listPouchCell == ["CF583083"]
+
+    def test_no_service_gives_empty_lists(self, tmp_path):
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        loader._read_configurations()
+        assert loader.listCoinCell == []
+        assert loader.listPouchCell == []

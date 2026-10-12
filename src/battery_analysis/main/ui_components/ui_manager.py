@@ -566,6 +566,10 @@ class UIManager:
         self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
             self.main_window.check_specification
         )
+        # 构造方法（Spiral/Laminate）→ 重算 85%|75% 构造相关的要求可用容量
+        self.main_window.comboBox_ConstructionMethod.currentIndexChanged.connect(
+            self.main_window.check_construction
+        )
         self.main_window.comboBox_TesterLocation.currentIndexChanged.connect(
             self.main_window.table_manager.set_table
         )

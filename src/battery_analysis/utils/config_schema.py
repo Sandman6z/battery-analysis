@@ -37,7 +37,7 @@ class BatterySchema:
     construction_methods: list[str] = field(
         default_factory=lambda: ["Spiral Type", "Laminate Type"]
     )
-    specifications: dict[str, list[str]] = field(default_factory=dict)
+    # specifications 不再是存储字段：读取时由 ConfigService 从 rules 派生
     specification_methods: list[str] = field(default_factory=lambda: ["1S1P", "1S2P", "2S1P"])
     manufacturers: list[str] = field(default_factory=list)
     rules: list[str] = field(default_factory=list)
@@ -80,6 +80,9 @@ class AppConfigSchema:
 
         if errors:
             raise ConfigException("Configuration validation failed: " + "; ".join(errors))
+
+        # 旧配置残留的存储副本（battery.specifications）静默剥离，其余未知字段仍报错
+        battery_data.pop("specifications", None)
 
         return cls(
             version=version,

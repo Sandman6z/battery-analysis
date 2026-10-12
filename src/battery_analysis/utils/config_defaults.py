@@ -4,14 +4,12 @@
 首次运行时，如果 %APPDATA% 下没有 config.json，则从此模块创建初始数据。
 """
 
-from battery_analysis.utils.battery_classifier import derive_specifications
-
 DEFAULT_CONFIG = {
     "version": 1,
     "battery": {
         "types": ["Coin Cell", "Pouch Cell"],
         "constructionMethods": ["Spiral Type", "Laminate Type"],
-        "specifications": {},  # 从 rules 自动派生，启动时由配置对话框填充
+        # specifications 不落盘：规格列表由读取方从 rules 派生
         "specificationMethods": ["1S1P", "1S2P", "2S1P"],
         "manufacturers": ["ATMT", "EVE", "Omnergy", "Nanfu", "Huiderui", "GP&LB", "HCB"],
         "rules": [
@@ -19,9 +17,9 @@ DEFAULT_CONFIG = {
             "CR2450D/1S1P/600/550/280/1.0",
             "CR2450HE1/1S1P/600/550/380/1.0",
             "CR2450HE4/1S1P/600/550/280/1.0",
-            "CP224642A/1S1P/920/920/80%/5.0",
-            "CF583083/1S1P/4000/4000/80%/5.0",
-            "CP305050/1S1P/2000/2000/80%/1.0",
+            "CP224642A/1S1P/920/920/85%|75%/2",
+            "CF583083/1S1P/4000/4000/3000/50",
+            "CP305050/1S1P/2000/2000/85%|75%/5",
         ],
         "pulseCurrents": [30.0, 26.0, 15.0, 6.0],
         "cutOffVoltages": [2.6, 2.5, 2.4, 2.3, 2.25, 2.2, 2.1, 2.0, 1.8],
@@ -195,7 +193,5 @@ DEFAULT_CONFIG = {
     "window": {"width": 1200, "height": 800, "maximized": True},
 }
 
-# Specifications 从 rules 自动派生（单一来源：battery_classifier.derive_specifications）
-DEFAULT_CONFIG["battery"]["specifications"] = derive_specifications(
-    DEFAULT_CONFIG["battery"]["rules"]
-)
+# specifications 不存储在 DEFAULT_CONFIG 中：规格列表不是配置项，
+# 由各读取方从 battery.rules 派生（battery_classifier.derive_specifications）

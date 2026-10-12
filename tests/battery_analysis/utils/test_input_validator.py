@@ -144,9 +144,7 @@ class TestValidatePaths:
 
     def test_valid_paths(self, tmp_path):
         """存在的路径不应触发路径错误。"""
-        values = _make_valid_values(
-            input_path=str(tmp_path), output_path=str(tmp_path)
-        )
+        values = _make_valid_values(input_path=str(tmp_path), output_path=str(tmp_path))
         result = InputValidator.validate_all(values)
         assert result.is_valid is True
 
@@ -204,28 +202,68 @@ class TestConstructionMethodValidation:
 
     def test_pouch_cell_requires_construction_method(self):
         """Pouch Cell 类型需要填写 construction_method。"""
-        values = _make_valid_values(
-            battery_type="Pouch Cell", construction_method=""
-        )
+        values = _make_valid_values(battery_type="Pouch Cell", construction_method="")
         result = InputValidator.validate_all(values)
         assert result.is_valid is False
         assert "construction_method" in result.field_errors
 
     def test_custom_types_requiring_construction(self):
         """可通过参数自定义需要构造方法的类型列表。"""
-        values = _make_valid_values(
-            battery_type="CustomType", construction_method=""
-        )
-        result = InputValidator.validate_all(
-            values, types_requiring_construction=["CustomType"]
-        )
+        values = _make_valid_values(battery_type="CustomType", construction_method="")
+        result = InputValidator.validate_all(values, types_requiring_construction=["CustomType"])
         assert result.is_valid is False
         assert "construction_method" in result.field_errors
 
     def test_non_pouch_no_construction_required(self):
         """非 Pouch Cell 类型不需要 construction_method。"""
-        values = _make_valid_values(
-            battery_type="Coin Cell", construction_method=""
-        )
+        values = _make_valid_values(battery_type="Coin Cell", construction_method="")
         result = InputValidator.validate_all(values)
         assert result.is_valid is True
+
+
+class TestCapacityFields:
+    """计算容量 / 要求可用容量的正整数校验（报告合格判定的除数/阈值）。"""
+
+    def test_valid_capacities_pass(self):
+        result = InputValidator.validate_all(
+            _make_valid_values(calculation_nominal_capacity="600", required_usable_capacity="380")
+        )
+        assert result.is_valid is True
+        assert not any(
+            k in result.field_errors
+            for k in ("calculation_nominal_capacity", "required_usable_capacity")
+        )
+
+    def test_zero_calculated_capacity(self):
+        """计算容量为 0 → 运行期会 ZeroDivisionError，必须提前拦截。"""
+        result = InputValidator.validate_all(_make_valid_values(calculation_nominal_capacity="0"))
+        assert result.is_valid is False
+        assert result.field_errors["calculation_nominal_capacity"] == (
+            "Calculated Capacity must be a positive integer"
+        )
+
+    def test_zero_required_capacity(self):
+        result = InputValidator.validate_all(_make_valid_values(required_usable_capacity="0"))
+        assert result.is_valid is False
+        assert result.field_errors["required_usable_capacity"] == (
+            "Required Useable Capacity must be a positive integer"
+        )
+
+    def test_empty_capacity_left_to_required_check(self):
+        """空值仍由必填检查报 "cannot be empty"，本检查不重复报错。"""
+        result = InputValidator.validate_all(
+            _make_valid_values(calculation_nominal_capacity="", required_usable_capacity="")
+        )
+        assert result.field_errors["calculation_nominal_capacity"] == (
+            "Calculated Capacity cannot be empty"
+        )
+        assert result.field_errors["required_usable_capacity"] == (
+            "Required Useable Capacity cannot be empty"
+        )
+
+    def test_non_numeric_capacity(self):
+        result = InputValidator.validate_all(_make_valid_values(required_usable_capacity="12a"))
+        assert result.is_valid is False
+        assert result.field_errors["required_usable_capacity"] == (
+            "Required Useable Capacity must be a positive integer"
+        )

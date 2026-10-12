@@ -15,6 +15,7 @@ import logging
 from pathlib import Path
 
 # 本地应用/库导入
+from battery_analysis.utils.battery_classifier import derive_specifications
 
 
 class ConfigManager:
@@ -27,8 +28,6 @@ class ConfigManager:
     _INI_TO_JSON_KEY = {
         "BatteryConfig/BatteryType": "battery.types",
         "BatteryConfig/ConstructionMethod": "battery.constructionMethods",
-        "BatteryConfig/SpecificationTypeCoinCell": "battery.specifications.Coin Cell",
-        "BatteryConfig/SpecificationTypePouchCell": "battery.specifications.Pouch Cell",
         "BatteryConfig/SpecificationMethod": "battery.specificationMethods",
         "BatteryConfig/Manufacturer": "battery.manufacturers",
         "BatteryConfig/Rules": "battery.rules",
@@ -36,6 +35,12 @@ class ConfigManager:
         "BatteryConfig/CutOffVoltage": "battery.cutOffVoltages",
         "TestConfig/TesterLocation": "test.locations",
         "TestConfig/TestedBy": "test.testedBy",
+    }
+
+    # 规格型号键不再存储：读取时由 battery.rules 派生（单一数据源）
+    _SPECIFICATION_KEYS = {
+        "BatteryConfig/SpecificationTypeCoinCell": "Coin Cell",
+        "BatteryConfig/SpecificationTypePouchCell": "Pouch Cell",
     }
 
     def __init__(self, main_window=None):
@@ -102,6 +107,10 @@ class ConfigManager:
             return []
 
         try:
+            if config_key in self._SPECIFICATION_KEYS:
+                rules = self._config_service.get_config_value("battery.rules", []) or []
+                specs = derive_specifications(rules if isinstance(rules, list) else [])
+                return [str(v) for v in specs.get(self._SPECIFICATION_KEYS[config_key], [])]
             json_key = self._INI_TO_JSON_KEY.get(config_key, config_key)
             value = self._config_service.get_config_value(json_key)
             if value is None:
@@ -185,9 +194,11 @@ class ConfigManager:
 
             for rule in rules:
                 rule_parts = rule.split("/")
-                if not self.main_window.cc_current:
-                    self.main_window.cc_current = rule_parts[5]
                 if rule_parts[0] == specification_type or rule_parts[0] in specification_type:
+                    # CC 电流只从当前规格匹配的规则取（rule_parts[5]，单位 mA），
+                    # 且仅在文件名未解析到时兜底，避免拿到其他型号的值
+                    if len(rule_parts) > 5 and not self.main_window.cc_current:
+                        self.main_window.cc_current = rule_parts[5]
                     # 标题信息将在需要时动态生成
                     bSetTitle = True
                     break

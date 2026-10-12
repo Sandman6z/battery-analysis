@@ -89,7 +89,11 @@ class CsvWriter:
                 for v in range(self.intVoltageLevelNum):
                     listCsvLine.append("")
             csv_buffer_size = csv_utils.csv_write(
-                listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size
+                listCsvLine,
+                csvwriterResultCsvFile,
+                csv_buffer,
+                csv_buffer_size,
+                max_csv_buffer_size,
             )
             listCsvLine = []
             for c in range(self.intCurrentLevelNum):
@@ -99,7 +103,11 @@ class CsvWriter:
                     listCsvLine.append(f"{self.listVoltageLevel[v]}V")
             listCsvLine[0] = "Battery"
             csv_buffer_size = csv_utils.csv_write(
-                listCsvLine, csvwriterResultCsvFile, csv_buffer, csv_buffer_size, max_csv_buffer_size
+                listCsvLine,
+                csvwriterResultCsvFile,
+                csv_buffer,
+                csv_buffer_size,
+                max_csv_buffer_size,
             )
 
             # Write analytical battery statistic
