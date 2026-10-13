@@ -39,12 +39,11 @@ from tests.fixtures.pdf_golden import (
     GOLDEN_HERMES_PULSE_CURRENTS,
     GOLDEN_HERMES_SPEC_KEYWORD,
     GOLDEN_JUDGMENT_CURRENT,
-    GOLDEN_POUCH_BANDS,
     GOLDEN_POUCH_BAND_PROBES,
+    GOLDEN_POUCH_BANDS,
     GOLDEN_POUCH_LARGE_BAND,
     GOLDEN_RULE_PERCENT_SAMPLES,
 )
-
 
 # ── helpers（与 e2e test_new_model_analysis 同口径的 19 位 TestInfo）──
 
