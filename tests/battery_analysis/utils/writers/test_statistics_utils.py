@@ -94,3 +94,26 @@ class TestComputeStatistics:
         assert stats["std"][1][1] == pytest.approx(np.std([5.0, 6.0], ddof=1))
         assert stats["min"] == [[1.0, 0.0], [4.0, 5.0]]
         assert stats["max"] == [[3.0, 0.0], [4.0, 6.0]]
+
+
+class TestCountsOutput:
+    """P3：counts 随统计一并输出（三态判定输入）"""
+
+    def test_counts_in_normal_branch(self):
+        data, b, c, v = _sample_data()
+        stats = compute_statistics(compute_list_cpt(data, b, c, v), c, v)
+        # [100,110,120]=3; [90,95]=2; [200,210]=2; [50,60]=2
+        assert stats["counts"][0][0] == 3
+        assert stats["counts"][0][1] == 2
+        assert stats["counts"][1][0] == 2
+        assert stats["counts"][1][1] == 2
+
+    def test_counts_in_empty_branch(self):
+        stats = compute_statistics([[[ ] for _ in range(2)] for _ in range(2)], 2, 2)
+        assert stats["counts"] == [[0, 0], [0, 0]]
+
+    def test_counts_excludes_zero_filtered_samples(self):
+        # compute_list_cpt 已剔除 0 值；counts 只反映有效样本
+        list_cpt = compute_list_cpt([[100, 0, 200, 50]], 1, 2, 2)
+        stats = compute_statistics(list_cpt, 2, 2)
+        assert stats["counts"][0][0] == 1

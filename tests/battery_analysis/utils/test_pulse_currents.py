@@ -148,3 +148,38 @@ class TestLookupPulseCurrents:
         result = lookup_pulse_currents("CR2450", 600)
         result.append(999)
         assert lookup_pulse_currents("CR2450", 600) == [30, 26, 15, 6]
+
+
+class TestIsFreezerContext:
+    """P2b：三入口共享冷冻判定 helper（OR 语义）"""
+
+    def test_filename_signal(self):
+        from battery_analysis.utils.pulse_currents import is_freezer_context
+
+        assert is_freezer_context(filename="ABC_freezer_2026.xlsx") is True
+        assert is_freezer_context(filename="ABC_room_2026.xlsx") is False
+
+    def test_rules_signal(self):
+        from battery_analysis.utils.pulse_currents import is_freezer_context
+
+        assert is_freezer_context(rules=RULES, spec_name="CR2450D") is True
+        assert is_freezer_context(rules=RULES, spec_name="CR2450") is False
+
+    def test_required_signal(self):
+        from battery_analysis.utils.pulse_currents import is_freezer_context
+
+        assert is_freezer_context(required=280) is True
+        assert is_freezer_context(required=380) is False
+        assert is_freezer_context(required="280") is True
+        assert is_freezer_context(required="abc") is False
+
+    def test_temperature_signal(self):
+        from battery_analysis.utils.pulse_currents import is_freezer_context
+
+        assert is_freezer_context(temperature="Freezer Temperature:-20") is True
+        assert is_freezer_context(temperature="Room Temperature") is False
+
+    def test_no_signals_false(self):
+        from battery_analysis.utils.pulse_currents import is_freezer_context
+
+        assert is_freezer_context() is False

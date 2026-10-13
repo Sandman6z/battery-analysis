@@ -53,10 +53,15 @@ def compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
     if max_len == 0:
         # 每个 key 独立构建 zero 矩阵，避免共享同一对象被未来 in-place 修改污染
         zero_keys = ("mean", "med", "std", "mm3s", "mm2s", "mp2s", "mp3s", "min", "max")
-        return {
+        result = {
             key: [[0.0 for _ in range(intVoltageLevelNum)] for _ in range(intCurrentLevelNum)]
             for key in zero_keys
         }
+        # P3：counts 随统计一并输出，空矩阵分支全 0（判定层识别为 Incomplete）
+        result["counts"] = [
+            [0 for _ in range(intVoltageLevelNum)] for _ in range(intCurrentLevelNum)
+        ]
+        return result
 
     padded = np.full((n_cells, max_len), np.nan, dtype=float)
     counts = np.zeros(n_cells, dtype=np.int64)
@@ -102,4 +107,6 @@ def compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
         "mp3s": to_nested(mp3s),
         "min": to_nested(mins),
         "max": to_nested(maxs),
+        # P3：每格有效样本数（int），供三态判定识别无数据格
+        "counts": counts.reshape(intCurrentLevelNum, intVoltageLevelNum).tolist(),
     }

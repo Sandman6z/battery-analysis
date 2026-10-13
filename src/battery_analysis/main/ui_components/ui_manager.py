@@ -67,7 +67,9 @@ class UIManager:
         self.init_table()
         self.setup_accessibility()
         self.setup_tooltips()
-        self.connect_widget()
+        # 注意：此处不再调用 connect_widget()——控件信号统一由
+        # WindowActionsMixin.connect_widget()（UI 后处理阶段）连接一次，
+        # 重复连接会导致槽函数执行两遍（弹窗出现两次）
 
     def setup_accessibility(self):
         """

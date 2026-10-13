@@ -7,6 +7,7 @@
 import logging
 import os
 
+from PyQt6 import QtCore as QC
 from PyQt6 import QtWidgets as QW
 
 from battery_analysis.i18n.language_manager import _
@@ -15,7 +16,7 @@ from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
 from battery_analysis.utils.pulse_currents import (
     capacity_from_rules,
-    is_freezer_from_rules,
+    is_freezer_context,
     lookup_pulse_currents,
     normalize_current_levels,
 )
@@ -30,6 +31,10 @@ class DataProcessor:
     MAX_DIRECTORY_CACHE_SIZE = 20
     MAX_VALIDATION_CACHE_SIZE = 100
 
+    # 文件名未识别到规格方法时的默认值（用户确认提示，5 秒自动关闭）
+    SPEC_METHOD_DEFAULT = "1S1P"
+    SPEC_METHOD_NOTICE_TIMEOUT_MS = 5000
+
     def __init__(self, main_window=None):
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
@@ -40,6 +45,7 @@ class DataProcessor:
         }
         self._scan_generation = 0
         self._task_manager = TaskManager()
+        self._spec_method_defaulted = False
 
     def _invalidate_cache(self, path=None):
         if path:
@@ -129,6 +135,9 @@ class DataProcessor:
                 self.main_window.statusBar_BatteryAnalysis.showMessage(
                     f"[Error]: {error_msg.split(':')[0]}"
                 )
+            # 信号在 get_xlsxinfo 入口已断开，提前返回也需重连，
+            # 否则后续手动选择规格不会触发规则填充。
+            self._reconnect_specification_signals()
             return
 
         # 新扫描请求会切换 UI 目标：请求时即推进 generation，使任何在途/已入队的旧
@@ -186,6 +195,8 @@ class DataProcessor:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
                 _("[Error]: Input path has no data")
             )
+        # 无文件路径同样重连规格信号（修复：此前仅成功/异常路径重连）
+        self._reconnect_specification_signals()
 
     def _process_excel_files_task(self, input_dir, excel_files, progress_callback=None, **kwargs):
         """后台线程：逐文件验证并提取 Excel 元信息（不触碰任何 UI）。
@@ -259,6 +270,9 @@ class DataProcessor:
         if excel_data:
             self._process_first_excel_file(excel_data[0]["filename"])
         self._reconnect_specification_signals()
+        if self._spec_method_defaulted:
+            self._spec_method_defaulted = False
+            self._show_spec_method_default_notice()
 
     def _on_excel_files_process_error(self, error_msg, generation):
         """主线程：后台任务异常兜底"""
@@ -298,9 +312,21 @@ class DataProcessor:
         filename_parser.set_specification_type(
             filename, all_spec_types, mw.comboBox_Specification_Type
         )
-        filename_parser.set_specification_method(
+        method_matched = filename_parser.set_specification_method(
             filename, all_spec_methods, mw.comboBox_Specification_Method
         )
+        # 文件名未提到规格方法（如 1S1P）→ 默认选 1S1P，识别带出后弹框请用户确认
+        self._spec_method_defaulted = False
+        if not method_matched and self.SPEC_METHOD_DEFAULT in (all_spec_methods or []):
+            mw.comboBox_Specification_Method.setCurrentIndex(
+                all_spec_methods.index(self.SPEC_METHOD_DEFAULT)
+            )
+            self._spec_method_defaulted = True
+            self.logger.info(
+                "Specification method not found in filename %s; defaulting to %s",
+                filename,
+                self.SPEC_METHOD_DEFAULT,
+            )
         filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
         filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
 
@@ -337,11 +363,9 @@ class DataProcessor:
             spec_method = mw.comboBox_Specification_Method.currentText().strip()
             rules = mw.config_manager.get_config("BatteryConfig/Rules")
             capacity = capacity_from_rules(rules, spec_name)
-            # 冷冻型识别（优先级与 temperature_handler 一致）：
-            # 1. 文件名含 freezer（对应 _temperature_set_from_xml，优先于容量判定）
-            # 2. 规则第 5 段「要求可用容量」280 → 冷冻 / 380 → 常温（最直观、唯一的型号级依据）
-            # 不按型号名判定：CR2450 后缀各厂商不同，型号不可靠
-            is_freezer = "freezer" in filename.lower() or is_freezer_from_rules(rules, spec_name)
+            # 冷冻型识别：统一入口 is_freezer_context（文件名/规则/required OR 语义，
+            # 与 quality_requirements 报告侧、temperature_handler 口径同步）
+            is_freezer = is_freezer_context(filename=filename, rules=rules, spec_name=spec_name)
             return lookup_pulse_currents(spec_name, capacity, spec_method, is_freezer)
         except Exception as e:
             self.logger.warning("Failed to lookup pulse currents from table: %s", e)
@@ -378,3 +402,33 @@ class DataProcessor:
             self.main_window.check_specification()
         except (TypeError, AttributeError):
             pass
+
+    def _show_spec_method_default_notice(self) -> None:
+        """文件名未识别到规格方法、已默认 1S1P 时的确认提示
+
+        仅一个 OK 按钮，居中于主窗口，5 秒未点击自动关闭。
+        """
+        box = QW.QMessageBox(self.main_window)
+        box.setWindowTitle(_("Default Specification Method"))
+        box.setText(
+            _(
+                "The specification method was not found for this battery. "
+                "{method} has been selected by default. Please confirm."
+            ).format(method=self.SPEC_METHOD_DEFAULT)
+        )
+        box.setStandardButtons(QW.QMessageBox.StandardButton.Ok)
+        box.setDefaultButton(QW.QMessageBox.StandardButton.Ok)
+
+        def _center() -> None:
+            if self.main_window is None:
+                return
+            frame = box.frameGeometry()
+            frame.moveCenter(self.main_window.geometry().center())
+            box.move(frame.topLeft())
+
+        # QMessageBox 无 aboutToShow 信号（PyQt6 中该信号属于 QMenu）；
+        # 在 exec() 前用 adjustSize() 让布局确定尺寸，随后直接居中。
+        box.adjustSize()
+        _center()
+        QC.QTimer.singleShot(self.SPEC_METHOD_NOTICE_TIMEOUT_MS, box.accept)
+        box.exec()

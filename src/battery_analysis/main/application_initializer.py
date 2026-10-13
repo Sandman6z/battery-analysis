@@ -8,6 +8,7 @@
 import logging
 import sys
 
+from PyQt6.QtCore import QtMsgType
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication, QMessageBox, QStyleFactory
 
@@ -58,7 +59,7 @@ class ApplicationInitializer:
 
                 # 创建错误对话框
                 msg_box = QMessageBox()
-                msg_box.setIcon(QMessageBox.Critical)
+                msg_box.setIcon(QMessageBox.Icon.Critical)
                 msg_box.setWindowTitle("Application Error")
 
                 # 构建错误信息
@@ -89,18 +90,18 @@ class ApplicationInitializer:
 
         def qt_message_handler(mode, context, message):
             """处理Qt的未处理异常"""
-            if mode == QApplication.qtHandlerType.CriticalMsg:
+            if mode == QtMsgType.QtCriticalMsg:
                 logger.critical(
                     "Qt critical error: %s (file: %s, line: %d)",
                     message,
                     context.file,
                     context.line,
                 )
-            elif mode == QApplication.qtHandlerType.WarningMsg:
+            elif mode == QtMsgType.QtWarningMsg:
                 logger.warning(
                     "Qt warning: %s (file: %s, line: %d)", message, context.file, context.line
                 )
-            elif mode == QApplication.qtHandlerType.InfoMsg:
+            elif mode == QtMsgType.QtInfoMsg:
                 logger.debug(
                     "Qt info: %s (file: %s, line: %d)", message, context.file, context.line
                 )
@@ -137,7 +138,7 @@ class ApplicationInitializer:
         # 显示错误对话框
         try:
             msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Critical)
+            msg_box.setIcon(QMessageBox.Icon.Critical)
             msg_box.setWindowTitle("Application Error")
             error_msg = f"Sorry, the application encountered a problem.\n\nError: {e!s}\n\n"
             error_msg += "Details have been logged to the log file.\n\n"
@@ -161,7 +162,7 @@ class ApplicationInitializer:
                 app.setStyle(QStyleFactory.create("Fusion"))
 
             msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Critical)
+            msg_box.setIcon(QMessageBox.Icon.Critical)
             msg_box.setWindowTitle("Application Failed to Start")
             error_msg = f"Sorry, the application could not start.\n\nError: {e!s}\n\n"
             error_msg += "Details have been logged to the log file.\n\n"

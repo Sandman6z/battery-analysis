@@ -87,9 +87,9 @@ class WindowInitMixin:
         # 4a) UI 后处理（窗口属性、控件填充）
         self.ui_manager.init_window()
         self.ui_manager.init_widget()
-        # 连接菜单动作和控制器信号
+        # 连接菜单动作和控制器信号（connect_widget 内部已调用
+        # signal_connector.connect_controllers，勿重复调用——重复连接导致弹窗出现两次）
         self.connect_widget()
-        self.signal_connector.connect_controllers()
         if hasattr(self, "pushButton_Run"):
             self.pushButton_Run.setFocus()
         if hasattr(self, "tableWidget_TestInformation"):

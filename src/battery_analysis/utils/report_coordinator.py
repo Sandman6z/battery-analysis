@@ -24,6 +24,8 @@ from battery_analysis.utils.processors.data_utils import (
     generate_current_type_string,
 )
 from battery_analysis.utils.quality_requirements import (
+    _EXPECTATION_CUTOFF_V,
+    _MIN_EPSILON,
     Expectation,
     build_expectations,
     evaluate_expectations,
@@ -100,12 +102,26 @@ def compute_report_content_base(
         if listCurrentLevel[c] > listCurrentLevel[intPosiMaxmA]:
             intPosiMaxmA = c
 
-    # 2.25V 电压位置
+    # 2.25V 电压位置（P1：容差匹配，避免 float == 2.25 精确比较静默失配；
+    # 未命中时回退 index 0 并在 Remarks 标注，不再无声降级）
     intPosi2V25 = 0
+    found_225v = False
     for v in range(intVoltageLevelNum):
-        if listVoltageLevel[v] == 2.25:
-            intPosi2V25 = v
-            break
+        try:
+            if abs(float(listVoltageLevel[v]) - _EXPECTATION_CUTOFF_V) < 1e-6:
+                intPosi2V25 = v
+                found_225v = True
+                break
+        except (TypeError, ValueError):
+            continue
+    if not found_225v:
+        logger.warning(
+            "2.25V cutoff level not found in voltage levels %s; "
+            "falling back to index %d (%s V) for legacy positioning",
+            listVoltageLevel,
+            intPosi2V25,
+            listVoltageLevel[intPosi2V25] if intVoltageLevelNum else "n/a",
+        )
 
     # 测试配置起始行：基础 3 行（Battery Type / Specification / Manufacturer）
     # 如果构造方法（listTestInfo[1]）有值，则增加一行
@@ -168,7 +184,9 @@ def compute_report_content_base(
         expectations = [
             Expectation(
                 current_ma=float(listCurrentLevel[intPosiMaxmA]),
-                cutoff_v=float(listVoltageLevel[intPosi2V25]),
+                # P1：固定 2.25V，不用 intPosi2V25 对应的实际电压——
+                # 若 2.25V 不在档位中，这里会取到 2.6V 并在错误格上执行双条件
+                cutoff_v=_EXPECTATION_CUTOFF_V,
                 threshold_mah=float(intRequiredCapacity),
                 source="legacy",
             )
@@ -176,13 +194,47 @@ def compute_report_content_base(
     verdicts = evaluate_expectations(stats, listCurrentLevel, listVoltageLevel, expectations)
 
     if verdicts:
-        strResult = "Pass" if all(v.passed for v in verdicts) else "Fail"
-        strRemarks = "OK" if strResult == "Pass" else format_failure_remarks(verdicts)
-    else:
-        # 期望格不在实测档位中：保留原有单点判定（安全网，行为与历史一致）
-        if listMM2S[intPosiMaxmA][intPosi2V25] / intQnomCapacity >= intPassRate:
+        # P3 三态聚合：failed → Fail；仅 no_data → Incomplete（绝不聚合 Pass）；否则 Pass
+        no_data = [v for v in verdicts if v.no_data]
+        failed = [v for v in verdicts if not v.passed and not v.no_data]
+        if failed:
+            strResult = "Fail"
+            strRemarks = format_failure_remarks(verdicts)
+        elif no_data:
+            strResult = "Incomplete"
+            strRemarks = format_failure_remarks(verdicts)
+        else:
             strResult = "Pass"
             strRemarks = "OK"
+        # P3：单样本格 σ=0（ddof=1），µ-2σ 退化为均值，判定保留但需标注
+        single_samples = [v for v in verdicts if v.sample_count == 1]
+        if single_samples:
+            labels = ", ".join(v.expectation.label for v in single_samples)
+            strRemarks = (
+                f"{strRemarks} (single sample at {labels}: σ=0, "
+                f"µ-2σ equals mean)"
+            )
+    else:
+        # 期望格不在实测档位中：保留原有单点判定（安全网，行为与历史一致）。
+        # P2：补最小值判据 + 告警 + legacy 标注，避免静默绕过 §6.2.11 双条件
+        legacy_min = float(stats["min"][intPosiMaxmA][intPosi2V25])
+        legacy_stat_ok = (
+            listMM2S[intPosiMaxmA][intPosi2V25] / intQnomCapacity >= intPassRate
+        )
+        legacy_sample_ok = legacy_min >= intRequiredCapacity - _MIN_EPSILON
+        logger.warning(
+            "PDF expectation cell(s) %s not present in measured levels "
+            "(currents=%s, voltages=%s); using legacy single-point verdict "
+            "at %s mA / %s V",
+            [e.label for e in expectations],
+            listCurrentLevel,
+            listVoltageLevel,
+            listCurrentLevel[intPosiMaxmA],
+            listVoltageLevel[intPosi2V25],
+        )
+        if legacy_stat_ok and legacy_sample_ok:
+            strResult = "Pass"
+            strRemarks = "OK (legacy single-point verdict)"
         else:
             strResult = "Fail"
             strRemarks = (
@@ -191,6 +243,19 @@ def compute_report_content_base(
                 f"while the actual measured minimum capacity to 2.25V is "
                 f"{math.floor(100 * listMM2S[intPosiMaxmA][intPosi2V25] / intQnomCapacity)}%."
             )
+            if not legacy_sample_ok:
+                strRemarks = (
+                    f"No single sample below expected usable Q "
+                    f"{intRequiredCapacity}mAh: minimum {round(legacy_min)}mAh. "
+                    f"{strRemarks}"
+                )
+            strRemarks = f"{strRemarks} (legacy single-point verdict)"
+
+    if not found_225v:
+        strRemarks = (
+            f"{strRemarks} [note: 2.25V cutoff level not found in voltage table; "
+            f"fallback position used]"
+        )
 
     listStrContent = [
         listTestInfo[0],  # 0

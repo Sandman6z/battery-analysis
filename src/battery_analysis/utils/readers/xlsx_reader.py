@@ -10,9 +10,28 @@ logger = logging.getLogger(__name__)
 
 
 def read_xlsx_sheets(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """用 calamine 引擎一次性读取 xlsx 的三个工作表，返回 (cycle_df, step_df, record_df)"""
-    sheets = pd.read_excel(filepath, sheet_name=[0, 1, 2], header=None, engine="calamine")
-    return sheets[0], sheets[1], sheets[2]
+    """用 calamine 引擎读取 xlsx，返回 (cycle_df, step_df, record_df)。
+
+    Record 表可能因超过 Excel 行上限被转换端拆分为 Record、Record_2... 多张表，
+    此处按名称识别并拼接（每张表都带文件名行+表头行，续表跳过前 2 行）。
+    """
+    sheets = pd.read_excel(filepath, sheet_name=None, header=None, engine="calamine")
+    names = list(sheets)
+    if len(names) < 3:
+        raise ValueError(f"xlsx 缺少工作表（需 Cycle/Step/Record），实际只有 {len(names)} 张: {names}")
+
+    record_parts = [
+        df for name, df in sheets.items()
+        if name == "Record" or name.startswith("Record_")
+    ]
+    if not record_parts:
+        raise ValueError(f"未找到 Record 工作表: {names}")
+
+    record_df = record_parts[0] if len(record_parts) == 1 else pd.concat(
+        [record_parts[0]] + [df.iloc[2:] for df in record_parts[1:]],
+        ignore_index=True,
+    )
+    return sheets[names[0]], sheets[names[1]], record_df
 
 
 def extract_test_date_from_xls(filepath: str) -> str:

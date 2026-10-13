@@ -496,3 +496,9 @@ msgstr "输入版本号"
 
 msgid "Test information table - contains test equipment and software version information"
 msgstr "测试信息表格 - 包含测试设备和软件版本信息"
+
+msgid "Default Specification Method"
+msgstr "默认规格方法"
+
+msgid "The specification method was not found for this battery. {method} has been selected by default. Please confirm."
+msgstr "此电池未找到类型（规格方法），已默认选择 {method}，请确认。"

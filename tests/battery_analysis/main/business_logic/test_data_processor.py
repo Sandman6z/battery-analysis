@@ -462,3 +462,100 @@ class TestProcessFirstExcelFilePulse:
         """双重验证：一致时不告警"""
         self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).xlsx")
         self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_not_called()
+
+
+class TestSpecMethodDefault1S1P:
+    """文件名未提到规格方法时默认 1S1P + 确认提示（用户需求 m00254）"""
+
+    def setup_method(self):
+        self.mock_main_window = Mock()
+        for name in (
+            "comboBox_ConstructionMethod",
+            "comboBox_Specification_Type",
+            "comboBox_Specification_Method",
+            "comboBox_Manufacturer",
+        ):
+            combo = Mock()
+            combo.count.return_value = 0
+            setattr(self.mock_main_window, name, combo)
+        self.mock_main_window.lineEdit_BatchDateCode = Mock()
+        self.mock_main_window.config_manager = Mock()
+        self.mock_cs = Mock()
+        self.mock_main_window._get_service.return_value = self.mock_cs
+
+        def get_config(key):
+            return {
+                "BatteryConfig/SpecificationTypeCoinCell": ["CR2450"],
+                "BatteryConfig/SpecificationTypePouchCell": ["CP5022121"],
+                "BatteryConfig/SpecificationMethod": ["1S1P", "1S2P"],
+                "BatteryConfig/Rules": ["CP5022121/1S1P/3500/3500/85%/10"],
+            }.get(key, [])
+
+        self.mock_main_window.config_manager.get_config.side_effect = get_config
+        self.processor = DataProcessor(self.mock_main_window)
+
+    def test_filename_without_method_defaults_to_1s1p(self):
+        """文件名未提到 1S1P/1S2P → 默认选 1S1P 并置提示标志"""
+        self.processor._process_first_excel_file(
+            "BTS83_CP5022121 (Spiral Type), DC (2608), QA Test (150-100-60-30-15-6mA).xlsx"
+        )
+        self.mock_main_window.comboBox_Specification_Method.setCurrentIndex.assert_called_with(0)
+        assert self.processor._spec_method_defaulted is True
+
+    def test_filename_with_method_no_default(self):
+        """文件名已提到 1S2P → 正常匹配，不置提示标志"""
+        self.processor._process_first_excel_file(
+            "BTS83_CP5022121_1S2P, DC (2608), QA Test (150-100-60-30-15-6mA).xlsx"
+        )
+        assert self.processor._spec_method_defaulted is False
+
+    def test_notice_shown_after_processed_when_defaulted(self):
+        """识别带出后（_spec_method_defaulted=True）→ 弹确认提示"""
+        self.processor._scan_generation = 5
+        self.processor._spec_method_defaulted = True
+        with (
+            patch.object(self.processor, "_update_ui_with_excel_info"),
+            patch.object(self.processor, "_reconnect_specification_signals"),
+            patch.object(self.processor, "_show_spec_method_default_notice") as mock_notice,
+        ):
+            self.processor._on_excel_files_processed(
+                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=5
+            )
+        mock_notice.assert_called_once()
+        assert self.processor._spec_method_defaulted is False
+
+    def test_no_notice_when_method_matched(self):
+        """规格方法已识别 → 不弹提示"""
+        self.processor._scan_generation = 5
+        with (
+            patch.object(self.processor, "_update_ui_with_excel_info"),
+            patch.object(self.processor, "_process_first_excel_file"),
+            patch.object(self.processor, "_reconnect_specification_signals"),
+            patch.object(self.processor, "_show_spec_method_default_notice") as mock_notice,
+        ):
+            self.processor._on_excel_files_processed(
+                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=5
+            )
+        mock_notice.assert_not_called()
+
+    def test_notice_single_ok_button_and_auto_close(self):
+        """提示框：仅一个 OK 按钮 + 5 秒自动关闭"""
+        from battery_analysis.main.business_logic import data_processor as dp
+
+        mock_box = Mock()
+        with (
+            patch.object(dp.QW, "QMessageBox", return_value=mock_box, autospec=True),
+            patch.object(dp.QC.QTimer, "singleShot") as mock_timer,
+        ):
+            self.processor._show_spec_method_default_notice()
+            mock_box.setStandardButtons.assert_called_once_with(
+                dp.QW.QMessageBox.StandardButton.Ok
+            )
+        mock_timer.assert_called_once_with(5000, mock_box.accept)
+        mock_box.exec.assert_called_once()
+
+    def test_no_excel_files_reconnects_signals(self):
+        """无文件路径也重连规格信号（修复：此前手动选择规格不会触发规则填充）"""
+        with patch.object(self.processor, "_reconnect_specification_signals") as mock_reconnect:
+            self.processor._handle_no_excel_files("dir/2_xlsx")
+        mock_reconnect.assert_called_once()
