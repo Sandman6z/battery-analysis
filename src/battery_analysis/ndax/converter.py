@@ -28,6 +28,11 @@ RECORD_HEADERS = ["循环序号", "工步类型", "电流(A)", "电压(V)", "容
 STEP_HEADERS = ["循环序号", "工步类型", "容量(mAh)"]
 CYCLE_HEADERS = ["循环序号", "起始绝对时间(hh:mm:ss)", "结束绝对时间(hh:mm:ss)", "放电容量(mAh)"]
 
+# Excel 工作表行数硬上限（xlsxwriter 超出部分会被静默丢弃，必须拆表）
+# 前 2 行分别是文件名行和表头行，因此每张 Record 表可容纳的最多数据行数为该值减 2。
+XLSX_MAX_ROWS = 1_048_576
+HEADER_ROWS = 2
+
 
 def _ts_str(ts: Any) -> str:
     """Format a timestamp without microseconds and timezone offset.
@@ -57,10 +62,19 @@ def _get_ndax_files(input_dir: Path) -> list[Path]:
 
 
 def _build_record_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) -> None:
-    """Build the Record sheet with all individual data points."""
-    ws = wb.add_worksheet(name="Record")
-    ws.write_row(0, 0, [filename])
-    ws.write_row(1, 0, RECORD_HEADERS)
+    """Build the Record sheet(s) with all individual data points.
+
+    数据行数超过单张工作表上限时，自动拆分为 Record、Record_2、Record_3... 多张表，
+    每张表都重复写入文件名行和表头行。读取端 read_xlsx_sheets 会按名称识别并拼接。
+    """
+    max_data_rows = XLSX_MAX_ROWS - HEADER_ROWS
+    total = len(df)
+    n_parts = (total + max_data_rows - 1) // max_data_rows
+    if n_parts > 1:
+        logging.warning(
+            "Record data %d rows exceeds single-sheet limit %d; splitting into %d sheets",
+            total, max_data_rows, n_parts,
+        )
 
     cycles = df["Cycle"].values
     steps = df["Status"].map(STATUS_MAP).values
@@ -75,8 +89,19 @@ def _build_record_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str
         np.where(statuses == "Pulse", chg - dchg, 0.0)
     ).round(6)
 
-    for i, row_data in enumerate(zip(cycles, steps, currents, voltages, capacities), start=2):
-        ws.write_row(i, 0, row_data)
+    for part in range(n_parts):
+        name = "Record" if part == 0 else f"Record_{part + 1}"
+        ws = wb.add_worksheet(name=name)
+        ws.write_row(0, 0, [filename])
+        ws.write_row(1, 0, RECORD_HEADERS)
+
+        lo = part * max_data_rows
+        hi = min(lo + max_data_rows, total)
+        for i, row_data in enumerate(
+            zip(cycles[lo:hi], steps[lo:hi], currents[lo:hi], voltages[lo:hi], capacities[lo:hi]),
+            start=2,
+        ):
+            ws.write_row(i, 0, row_data)
 
 
 def _build_step_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) -> None:

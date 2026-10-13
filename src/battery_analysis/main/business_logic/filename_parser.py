@@ -20,12 +20,13 @@ def set_specification_type(filename, all_spec_types, combo_box):
 
 
 def set_specification_method(filename, all_spec_methods, combo_box):
-    """从文件名匹配规格方法"""
+    """从文件名匹配规格方法；返回是否匹配到（未匹配时不改动下拉框）"""
     sorted_methods = sorted(enumerate(all_spec_methods), key=lambda x: len(x[1]), reverse=True)
     for m, method in sorted_methods:
         if method in filename:
             combo_box.setCurrentIndex(m)
-            return
+            return True
+    return False
 
 
 def set_manufacturer(filename, combo_box):

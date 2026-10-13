@@ -41,6 +41,10 @@ class WordOverviewMixin:
         if base["strResult"] == "Pass":
             self.listTestInfoForReplace[8] = "meets"
             self.listTestInfoForReplace[10] = "Pass"
+        elif base["strResult"] == "Incomplete":
+            # P3 第三态：无数据格 → 不足以下 Pass/Fail 结论（产线需复测）
+            self.listTestInfoForReplace[8] = "has not been verified against"
+            self.listTestInfoForReplace[10] = "Incomplete"
         else:
             self.listTestInfoForReplace[8] = "doesn't meet"
             self.listTestInfoForReplace[10] = "Fail"
@@ -112,7 +116,8 @@ class WordOverviewMixin:
         # 写入标签列
         for i in range(4):
             table.cell(i, 0).paragraphs[0].add_run(listStrItems[i])
-        if intTestProfileStartLine == 4:
+        if intTestProfileStartLine == 3:
+            # 构造方法为空：第 3 行标签无意义，清除后由 Test Profile 占用
             table.cell(3, 0).paragraphs[0].text = (
                 table.cell(3, 0).paragraphs[0].text.replace(listStrItems[3], "")
             )
@@ -125,7 +130,8 @@ class WordOverviewMixin:
         # 写入内容列
         for i in range(4):
             table.cell(i, 1).paragraphs[0].add_run(listStrContent[i])
-        if intTestProfileStartLine == 4:
+        if intTestProfileStartLine == 3:
+            # 构造方法为空：清除第 3 行内容占位
             table.cell(3, 1).paragraphs[0].text = (
                 table.cell(3, 1).paragraphs[0].text.replace(listStrContent[3], "")
             )

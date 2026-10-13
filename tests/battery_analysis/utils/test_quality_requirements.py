@@ -230,3 +230,24 @@ class TestEvaluateExpectations:
         text = expected_requirement_text(verdicts[0])
         assert "Verdict: Fail" in text
         assert "min 700" in text
+
+
+class TestP4Defensive:
+    """P4：中文构造关键词与 Coin 阈值防御"""
+
+    def test_chinese_laminate_keyword(self):
+        # 规则/界面回填 "叠片" 时按 75% 派生，不再静默返回 []
+        expectations = build_expectations(make_test_info(construction="叠片 Type"))
+        assert len(expectations) == 1
+        assert expectations[0].threshold_mah == 690  # 920 × 75%
+
+    def test_chinese_spiral_keyword(self):
+        expectations = build_expectations(make_test_info(construction="螺旋 Type"))
+        assert expectations[0].threshold_mah == 782  # 920 × 85%
+
+    def test_freezer_temperature_field_flips_coin_current(self):
+        # 报告侧无文件名：temperature 字段（ti[7]）含 freezer → 15mA（§7.1.1.2.4）
+        items = make_test_info(construction="", spec="CR2450", qnom=600, required=380)
+        items[7] = "Freezer Temperature:-20"
+        expectations = build_expectations(items)
+        assert expectations[0].current_ma == 15.0

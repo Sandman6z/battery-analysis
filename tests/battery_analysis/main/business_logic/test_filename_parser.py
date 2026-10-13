@@ -50,15 +50,17 @@ class TestSetSpecificationMethod:
         """应正确匹配规格方法。"""
         combo = MagicMock()
         methods = ["MethodA", "MethodB", "LongMethodC"]
-        set_specification_method("file_LongMethodC_test", methods, combo)
+        result = set_specification_method("file_LongMethodC_test", methods, combo)
         combo.setCurrentIndex.assert_called_once_with(2)
+        assert result is True
 
     def test_no_match_method(self):
-        """无匹配时不应调用 setCurrentIndex。"""
+        """无匹配时不应调用 setCurrentIndex，且返回 False。"""
         combo = MagicMock()
         methods = ["MethodA"]
-        set_specification_method("file_other", methods, combo)
+        result = set_specification_method("file_other", methods, combo)
         combo.setCurrentIndex.assert_not_called()
+        assert result is False
 
 
 class TestSetManufacturer:

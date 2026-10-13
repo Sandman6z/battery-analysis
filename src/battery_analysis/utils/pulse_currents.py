@@ -98,7 +98,11 @@ def required_useable_capacity_from_rule(rule: str, construction: str = "") -> in
     if "%" in segment:
         dual = re.fullmatch(r"(\d+(?:\.\d+)?)%\s*\|\s*(\d+(?:\.\d+)?)%", segment)
         if dual:
-            pct_text = dual.group(2) if "laminate" in str(construction or "").lower() else dual.group(1)
+            pct_text = (
+                dual.group(2)
+                if ("laminate" in str(construction or "").lower() or "叠片" in str(construction or ""))
+                else dual.group(1)
+            )
         else:
             match = re.search(r"(\d+(?:\.\d+)?)%", segment)
             if not match:
@@ -142,6 +146,43 @@ def is_freezer_from_rules(rules, spec_name: str) -> bool:
         required = required_useable_capacity_from_rule(rule)
         if required is not None:
             return required == FREEZER_REQUIRED_CAPACITY_MAH
+    return False
+
+
+def is_freezer_context(
+    filename: str | None = None,
+    rules=None,
+    spec_name: str | None = None,
+    required: int | float | str | None = None,
+    temperature: str | None = None,
+) -> bool:
+    """冷冻型统一判定入口（三入口共用，OR 语义）
+
+    此前冷冻判定分散在三处且口径不同步：
+    - data_processor.py：文件名含 freezer 或规则第 5 段 280
+    - quality_requirements.py：required == 280（仅规则侧，无文件名信号）
+    - temperature_handler.py：按文件名/XML 名含 freezer
+
+    本 helper 把所有可用信号归一（任一命中即为冷冻）：
+    1. filename 含 "freezer"（与 temperature_handler 口径一致，不按型号名）
+    2. rules+spec_name 侧 required == 280（is_freezer_from_rules）
+    3. 报告侧 required == 280（build_expectations 可拿到的唯一规则信号）
+    4. temperature 字段（listTestInfo[7]）含 "freezer"（XML 设定后回写）
+
+    所有参数均可选，调用方按可得信号传入；全部缺省时返回 False。
+    """
+    if filename and "freezer" in str(filename).lower():
+        return True
+    if rules is not None and spec_name and is_freezer_from_rules(rules, spec_name):
+        return True
+    if required is not None:
+        try:
+            if int(str(required).strip()) == FREEZER_REQUIRED_CAPACITY_MAH:
+                return True
+        except (TypeError, ValueError):
+            pass
+    if temperature and "freezer" in str(temperature).lower():
+        return True
     return False
 
 

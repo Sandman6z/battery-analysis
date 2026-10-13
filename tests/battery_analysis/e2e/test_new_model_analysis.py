@@ -312,7 +312,8 @@ class TestFullReport:
         bi = make_battery_info(make_charge([1300, 1300, 1300]))
         out = run_report(ti, bi)
         assert out["strResult"] == "Pass"
-        assert out["strRemarks"] == "OK"
+        # P2：legacy 单点判定加标注，避免与 PDF 双条件路径的 "OK" 混淆
+        assert out["strRemarks"] == "OK (legacy single-point verdict)"
 
     def test_legacy_fallback_fail_keeps_historical_remarks(self):
         levels = [30, 26, 15, 6]

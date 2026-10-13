@@ -254,3 +254,99 @@ class TestValueGuard:
         stats = make_stats(4, 9)
         with pytest.raises(ValueError, match="Required Useable Capacity must be a positive"):
             run(make_test_info(required="0"), stats)
+
+
+class TestP1VoltageMatch:
+    """P1：2.25V 档位容差匹配 + 未命中告警标注"""
+
+    def test_string_voltage_levels_still_match_225(self):
+        # 档位为字符串 "2.25" 时旧代码 == 比较失败 → 静默落 index 0（2.6V）
+        stats = make_stats(4, 9)
+        stats["min"][0][V225_IDX] = 800
+        stats["mm2s"][0][V225_IDX] = 800
+        stats["min"][0][0] = 0
+        stats["mm2s"][0][0] = 0
+        voltages = [str(v) for v in VOLTAGES]
+        result = run(make_test_info(), stats, voltages=voltages)
+        # 容差匹配命中 2.25V（index 4）→ 期望格 min=800 ≥ 782 且 µ-2σ=800 > 782 → Pass
+        assert result["strResult"] == "Pass"
+        assert "2.25V cutoff level not found" not in result["strRemarks"]
+
+    def test_missing_225_level_appends_note(self):
+        voltages = [2.6, 2.5, 2.4, 2.3, 2.2, 2.1]  # 无 2.25V
+        stats = make_stats(4, len(voltages))
+        stats["min"][0][0] = 800
+        stats["mm2s"][0][0] = 800
+        result = run(make_test_info(), stats, voltages=voltages)
+        assert "2.25V cutoff level not found in voltage table" in result["strRemarks"]
+
+
+class TestP2LegacyMinCheck:
+    """P2：legacy 单点分支补最小值判据 + 标注"""
+
+    def test_legacy_pass_with_min_check_annotated(self):
+        # Hermes 期望格不在档位 → legacy 分支；min=800 < 3000 → 补 min 判据后 Fail
+        stats = make_stats(4, 9)
+        stats["min"][0][V225_IDX] = 800
+        stats["mm2s"][0][V225_IDX] = 3200  # 3200/4000 = 80% ≥ 75%（旧逻辑会 Pass）
+        result = run(make_test_info(spec="CF583083", qnom=4000, required=3000), stats)
+        assert result["strResult"] == "Fail"
+        assert "No single sample below expected usable Q 3000mAh" in result["strRemarks"]
+        assert "(legacy single-point verdict)" in result["strRemarks"]
+
+    def test_legacy_pass_min_and_stat_ok(self):
+        stats = make_stats(4, 9)
+        stats["min"][0][V225_IDX] = 3100
+        stats["mm2s"][0][V225_IDX] = 3200
+        result = run(make_test_info(spec="CF583083", qnom=4000, required=3000), stats)
+        assert result["strResult"] == "Pass"
+        assert result["strRemarks"] == "OK (legacy single-point verdict)"
+
+
+class TestP3ThreeState:
+    """P3：counts 驱动的三态判定（Incomplete 绝不聚合 Pass）"""
+
+    def _stats_with_counts(self, n=4, v=9):
+        stats = make_stats(n, v)
+        stats["counts"] = [[3] * v for _ in range(n)]
+        return stats
+
+    def test_no_data_cell_yields_incomplete_not_pass(self):
+        # 期望格 30mA/2.25V 无样本：min/mm2s 为 0 但 counts=0 → Incomplete
+        stats = self._stats_with_counts()
+        stats["counts"][0][V225_IDX] = 0
+        stats["min"][0][V225_IDX] = 0
+        stats["mm2s"][0][V225_IDX] = 0
+        result = run(make_test_info(), stats)
+        assert result["strResult"] == "Incomplete"
+        assert "no measured samples at 30mA → 2.25V" in result["strRemarks"]
+        assert "retest required" in result["strRemarks"]
+
+    def test_real_failure_dominates_incomplete(self):
+        # 有数据的格真失败 + 另一格无数据 → Fail（failed 优先）
+        stats = self._stats_with_counts()
+        stats["counts"][0][V225_IDX] = 3
+        stats["min"][0][V225_IDX] = 100
+        stats["mm2s"][0][V225_IDX] = 100
+        result = run(make_test_info(), stats)
+        assert result["strResult"] == "Fail"
+
+    def test_single_sample_keeps_verdict_with_sigma_note(self):
+        # n=1：保留判定但标注 σ=0 退化
+        stats = self._stats_with_counts()
+        stats["counts"][0][V225_IDX] = 1
+        stats["min"][0][V225_IDX] = 800
+        stats["mm2s"][0][V225_IDX] = 800
+        result = run(make_test_info(), stats)
+        assert result["strResult"] == "Pass"
+        assert "single sample at 30mA → 2.25V" in result["strRemarks"]
+        assert "σ=0" in result["strRemarks"]
+
+    def test_missing_counts_key_behaves_like_old_stats(self):
+        # 旧 stats 桩无 counts → sample_count=None，行为与旧版一致
+        stats = make_stats(4, 9)
+        stats["min"][0][V225_IDX] = 800
+        stats["mm2s"][0][V225_IDX] = 800
+        result = run(make_test_info(), stats)
+        assert result["strResult"] == "Pass"
+        assert result["strRemarks"] == "OK"

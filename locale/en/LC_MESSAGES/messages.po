@@ -496,3 +496,9 @@ msgstr "Enter version number"
 
 msgid "Test information table - contains test equipment and software version information"
 msgstr "Test information table - contains test equipment and software version information"
+
+msgid "Default Specification Method"
+msgstr "Default Specification Method"
+
+msgid "The specification method was not found for this battery. {method} has been selected by default. Please confirm."
+msgstr "The specification method was not found for this battery. {method} has been selected by default. Please confirm."
