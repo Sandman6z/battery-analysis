@@ -1,7 +1,5 @@
 from unittest.mock import Mock, patch
 
-import pytest
-
 from battery_analysis.ui.styles.style_manager import (
     _DARK_TOKENS,
     _LIGHT_TOKENS,
@@ -88,20 +86,9 @@ class TestStyleManager:
     def setup_method(self):
         self.manager = StyleManager()
 
-    @pytest.mark.skip(reason="需要 Qt 运行环境")
-    def test_load_style(self):
-        style_name = "battery_analyzer"
-        result = self.manager.load_style(style_name)
-        assert isinstance(result, str)
-
-    @pytest.mark.skip(reason="需要 Qt 运行环境")
-    def test_apply_style(self):
+    def test_apply_style_sets_stylesheet(self):
         widget = Mock()
-        style = "QWidget { background-color: white; }"
-        result = self.manager.apply_style(widget, style)
-        assert result is True
-
-    @pytest.mark.skip(reason="需要 Qt 运行环境")
-    def test_get_available_styles(self):
-        result = self.manager.get_available_styles()
-        assert isinstance(result, list)
+        self.manager.apply_style(widget, theme="light")
+        widget.setStyleSheet.assert_called_once()
+        qss = widget.setStyleSheet.call_args[0][0]
+        assert isinstance(qss, str) and qss
