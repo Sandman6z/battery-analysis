@@ -1,7 +1,5 @@
 from unittest.mock import Mock, patch
 
-import pytest
-
 from battery_analysis.main.ui_components.window_setup import WindowSetup
 
 
@@ -15,7 +13,3 @@ class TestWindowSetup:
 
     def test_toggle_statusbar_safe(self):
         self.window_setup.toggle_statusbar_safe()
-
-    @pytest.mark.skip(reason="需要 Qt 运行环境")
-    def test_setup_menu_shortcuts(self):
-        self.window_setup.setup_menu_shortcuts()

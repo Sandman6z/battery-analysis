@@ -305,10 +305,10 @@ class StyleManager(QObject):
         try:
             from PyQt6.QtGui import QFontDatabase
 
-            db = QFontDatabase()
-            font_id = db.addApplicationFont(font_path)
+            # PyQt6 移除了 QFontDatabase 默认构造函数，只能用静态方法
+            font_id = QFontDatabase.addApplicationFont(font_path)
             if font_id != -1:
-                families = db.applicationFontFamilies(font_id)
+                families = QFontDatabase.applicationFontFamilies(font_id)
                 if families:
                     logger.info("Font registered: %s", family_name or families[0])
                     return True

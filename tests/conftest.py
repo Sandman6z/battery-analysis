@@ -1,7 +1,11 @@
+import os
 from pathlib import Path
 
 import openpyxl
 import pytest
+
+# GUI 测试统一使用 offscreen 平台，无需真实显示器即可创建 QApplication
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 
 @pytest.fixture
