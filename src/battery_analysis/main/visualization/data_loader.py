@@ -362,6 +362,13 @@ class DataLoaderMixin:
         for p in range(len(list_plt_charge)):
             charge_single = list_plt_charge[p]
             voltage_single = list_plt_voltage[p]
+
+            # 空档位防御：无数据的电池行直接返回空列表，保持索引对齐
+            if len(charge_single) == 0 or len(voltage_single) == 0:
+                filtered_charge.append([])
+                filtered_voltage.append([])
+                continue
+
             current_times = times
 
             while current_times > 0:

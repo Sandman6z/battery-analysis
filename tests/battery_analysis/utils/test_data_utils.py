@@ -65,3 +65,28 @@ class TestDataUtils:
 
         assert isinstance(result_charge, list)
         assert result_charge[0][0] == 1.0  # fallback 保留第一个点
+
+    def test_filter_data_empty_level_rows(self):
+        """空档位（某脉冲档无测试数据）不崩溃，返回对齐的空列表"""
+        # 模拟 Info_Image.csv 中空档位行：level1 无数据，level0/2 有数据
+        plt_charge_list = [[1, 2, 3], [], [4, 5, 6]]
+        plt_voltage_list = [[4.2, 4.1, 4.0], [], [3.9, 3.8, 3.7]]
+
+        result_charge, result_voltage = filter_data(plt_charge_list, plt_voltage_list)
+
+        assert len(result_charge) == 3
+        assert len(result_voltage) == 3
+        assert result_charge[1] == []
+        assert result_voltage[1] == []
+        assert len(result_charge[0]) > 0
+        assert len(result_charge[2]) > 0
+
+    def test_filter_data_all_rows_empty(self):
+        """全部档位均无数据（整体空行）不崩溃"""
+        plt_charge_list = [[], []]
+        plt_voltage_list = [[], []]
+
+        result_charge, result_voltage = filter_data(plt_charge_list, plt_voltage_list)
+
+        assert result_charge == [[], []]
+        assert result_voltage == [[], []]

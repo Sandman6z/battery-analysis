@@ -108,3 +108,26 @@ class TestSpecListsDeriveFromRules:
         loader._read_configurations()
         assert loader.listCoinCell == []
         assert loader.listPouchCell == []
+
+
+class TestFilterDataEmptyLevel:
+    """filter_data 空档位防御：某电池行无数据时返回空列表，不崩溃且索引对齐"""
+
+    def test_empty_row_returns_empty_and_aligned(self, tmp_path):
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        charge = [[1, 2, 3], [], [4, 5, 6]]
+        voltage = [[4.2, 4.1, 4.0], [], [3.9, 3.8, 3.7]]
+
+        filtered_charge, filtered_voltage = loader.filter_data(charge, voltage)
+
+        assert len(filtered_charge) == 3
+        assert filtered_charge[1] == []
+        assert filtered_voltage[1] == []
+        assert len(filtered_charge[0]) > 0
+        assert len(filtered_charge[2]) > 0
+
+    def test_all_rows_empty(self, tmp_path):
+        loader = _StubDataLoader(tmp_path / "Info_Image.csv")
+        filtered_charge, filtered_voltage = loader.filter_data([[], []], [[], []])
+        assert filtered_charge == [[], []]
+        assert filtered_voltage == [[], []]

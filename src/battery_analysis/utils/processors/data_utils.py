@@ -15,6 +15,12 @@ def filter_data(
         import numpy as np
 
         for charge_data, voltage_data in zip(plt_charge_list, plt_voltage_list):
+            # 空档位防御：无数据的行直接返回空列表，保持电池索引对齐
+            # （报告阶段某档位无测试数据时，np.zeros(0) 会使 filtered_mask[0] 越界崩溃）
+            if len(charge_data) == 0 or len(voltage_data) == 0:
+                plt_charge_filtered.append([])
+                plt_voltage_filtered.append([])
+                continue
             try:
                 # 直接转换为numpy数组，避免重复转换
                 charge_np = np.asarray(charge_data, dtype=float)
