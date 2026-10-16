@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import xlsxwriter
 
+from battery_analysis.utils.data_bundle import DataBundle, bundle_cache
 from battery_analysis.utils.ndax_meta import (
     ensure_sidecar,
     observed_pulse_currents,
@@ -68,21 +69,13 @@ def _get_ndax_files(input_dir: Path) -> list[Path]:
     return sorted(input_dir.glob("*.ndax"))
 
 
-def _build_record_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) -> None:
-    """Build the Record sheet(s) with all individual data points.
+def _sheets_data(df: pd.DataFrame) -> tuple[list, list, list]:
+    """从 NewareNDA df 计算三表数据行——xlsx 写盘与内存 bundle 的唯一数据源。
 
-    数据行数超过单张工作表上限时，自动拆分为 Record、Record_2、Record_3... 多张表，
-    每张表都重复写入文件名行和表头行。读取端 read_xlsx_sheets 会按名称识别并拼接。
+    返回 (cycle_rows, step_rows, record_rows)，行形态与原写盘逻辑完全一致
+    （不含文件名行/表头行），供 xlsxwriter 写盘与内存 DataFrame 共用。
     """
-    max_data_rows = XLSX_MAX_ROWS - HEADER_ROWS
-    total = len(df)
-    n_parts = (total + max_data_rows - 1) // max_data_rows
-    if n_parts > 1:
-        logging.warning(
-            "Record data %d rows exceeds single-sheet limit %d; splitting into %d sheets",
-            total, max_data_rows, n_parts,
-        )
-
+    # ---- Record（逐数据点）----
     cycles = df["Cycle"].values
     steps = df["Status"].map(STATUS_MAP).values
     currents = (df["Current(mA)"].values / 1000.0).round(9)
@@ -95,29 +88,10 @@ def _build_record_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str
         statuses == "CC_DChg", dchg,
         np.where(statuses == "Pulse", chg - dchg, 0.0)
     ).round(6)
+    record_rows = list(zip(cycles, steps, currents, voltages, capacities))
 
-    for part in range(n_parts):
-        name = "Record" if part == 0 else f"Record_{part + 1}"
-        ws = wb.add_worksheet(name=name)
-        ws.write_row(0, 0, [filename])
-        ws.write_row(1, 0, RECORD_HEADERS)
-
-        lo = part * max_data_rows
-        hi = min(lo + max_data_rows, total)
-        for i, row_data in enumerate(
-            zip(cycles[lo:hi], steps[lo:hi], currents[lo:hi], voltages[lo:hi], capacities[lo:hi]),
-            start=2,
-        ):
-            ws.write_row(i, 0, row_data)
-
-
-def _build_step_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) -> None:
-    """Build the Step sheet with aggregated data per cycle+step."""
-    ws = wb.add_worksheet(name="Step")
-    ws.write_row(0, 0, [filename])
-    ws.write_row(1, 0, STEP_HEADERS)
-
-    row = 2
+    # ---- Step（按 cycle+step 聚合）----
+    step_rows = []
     for (cycle, _step, status), grp in df.groupby(["Cycle", "Step", "Status"], sort=False, observed=False):
         first = grp.iloc[0]
         last = grp.iloc[-1]
@@ -130,17 +104,10 @@ def _build_step_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) 
             cap = chg_delta - dchg_delta
 
         label = STATUS_MAP.get(status, status)
-        ws.write_row(row, 0, [cycle, label, round(float(cap), 3)])
-        row += 1
+        step_rows.append((cycle, label, round(float(cap), 3)))
 
-
-def _build_cycle_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) -> None:
-    """Build the Cycle sheet with aggregated data per cycle."""
-    ws = wb.add_worksheet(name="Cycle")
-    ws.write_row(0, 0, [filename])
-    ws.write_row(1, 0, CYCLE_HEADERS)
-
-    row = 2
+    # ---- Cycle（按 cycle 聚合）----
+    cycle_rows = []
     for cycle, grp in df.groupby("Cycle", sort=True):
         total_dchg = 0.0
         for _, step_grp in grp.groupby("Step", sort=True):
@@ -148,16 +115,80 @@ def _build_cycle_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str)
                 step_grp["Discharge_Capacity(mAh)"].iloc[-1]
                 - step_grp["Discharge_Capacity(mAh)"].iloc[0]
             )
-        ws.write_row(row, 0, [
+        cycle_rows.append((
             cycle,
             _ts_str(grp["Timestamp"].iloc[0]),
             _ts_str(grp["Timestamp"].iloc[-1]),
             round(total_dchg, 3),
-        ])
-        row += 1
+        ))
+
+    return cycle_rows, step_rows, record_rows
 
 
-def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> str:
+def _sheet_df(rows: list, headers: list, filename: str, numeric_cols: tuple[int, ...]) -> pd.DataFrame:
+    """内存三表形态：文件名行 + 表头行 + 数据行（与 calamine 读盘形状一致）。
+
+    数值列只对数据行 to_numeric（float64）；前两行保留原文
+    （文件名/表头字符串），与磁盘读取后逐单元格语义一致：
+    battery_name 取自行0、标题行/数值转换由消费端从 start_row=2 跳过。
+    """
+    sheet_df = pd.DataFrame([list(row) for row in rows])
+    for idx in numeric_cols:
+        sheet_df[idx] = pd.to_numeric(sheet_df[idx], errors="coerce")
+    header_rows = pd.DataFrame(
+        [[filename] + [None] * (len(headers) - 1), list(headers)]
+    )
+    return pd.concat([header_rows, sheet_df], ignore_index=True)
+
+
+def _build_record_sheet(wb: xlsxwriter.Workbook, rows: list, filename: str) -> None:
+    """Build the Record sheet(s) with all individual data points.
+
+    数据行数超过单张工作表上限时，自动拆分为 Record、Record_2、Record_3... 多张表，
+    每张表都重复写入文件名行和表头行。读取端 read_xlsx_sheets 会按名称识别并拼接。
+    """
+    max_data_rows = XLSX_MAX_ROWS - HEADER_ROWS
+    total = len(rows)
+    n_parts = (total + max_data_rows - 1) // max_data_rows
+    if n_parts > 1:
+        logging.warning(
+            "Record data %d rows exceeds single-sheet limit %d; splitting into %d sheets",
+            total, max_data_rows, n_parts,
+        )
+
+    for part in range(n_parts):
+        name = "Record" if part == 0 else f"Record_{part + 1}"
+        ws = wb.add_worksheet(name=name)
+        ws.write_row(0, 0, [filename])
+        ws.write_row(1, 0, RECORD_HEADERS)
+
+        lo = part * max_data_rows
+        hi = min(lo + max_data_rows, total)
+        for i, row_data in enumerate(rows[lo:hi], start=2):
+            ws.write_row(i, 0, row_data)
+
+
+def _build_step_sheet(wb: xlsxwriter.Workbook, step_rows: list, filename: str) -> None:
+    """Build the Step sheet with aggregated data per cycle+step."""
+    ws = wb.add_worksheet(name="Step")
+    ws.write_row(0, 0, [filename])
+    ws.write_row(1, 0, STEP_HEADERS)
+
+    for i, row_data in enumerate(step_rows, start=2):
+        ws.write_row(i, 0, row_data)
+
+
+def _build_cycle_sheet(wb: xlsxwriter.Workbook, cycle_rows: list, filename: str) -> None:
+    """Build the Cycle sheet with aggregated data per cycle."""
+    ws = wb.add_worksheet(name="Cycle")
+    ws.write_row(0, 0, [filename])
+    ws.write_row(1, 0, CYCLE_HEADERS)
+
+    for i, row_data in enumerate(cycle_rows, start=2):
+        ws.write_row(i, 0, row_data)
+
+
+def _convert_full(ndax_path: str | Path, xlsx_path: str | Path | None = None, register: bool = True) -> tuple[str, DataBundle]:
     """Convert a single .ndax file to .xlsx.
 
     Args:
@@ -197,13 +228,22 @@ def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> s
         raise ValueError(f"Failed to parse {ndax_path}: {e}") from e
 
     filename = ndax_path.name
+    cycle_rows, step_rows, record_rows = _sheets_data(df)
+    bundle = DataBundle(
+        cycle=_sheet_df(cycle_rows, CYCLE_HEADERS, filename, (0, 3)),
+        step=_sheet_df(step_rows, STEP_HEADERS, filename, (0, 2)),
+        record=_sheet_df(record_rows, RECORD_HEADERS, filename, (0, 2, 3, 4)),
+    )
     wb = xlsxwriter.Workbook(str(xlsx_path))
 
-    _build_cycle_sheet(wb, df, filename)
-    _build_step_sheet(wb, df, filename)
-    _build_record_sheet(wb, df, filename)
+    _build_cycle_sheet(wb, cycle_rows, filename)
+    _build_step_sheet(wb, step_rows, filename)
+    _build_record_sheet(wb, record_rows, filename)
 
     wb.close()
+
+    if register:
+        bundle_cache.register(xlsx_path, bundle)
 
     # Sidecar：从 ndax 内嵌 Step.xml 提取权威档位元数据（失败不阻断转换）
     try:
@@ -224,7 +264,21 @@ def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> s
             "Sidecar extraction failed for %s", ndax_path, exc_info=True
         )
 
-    return str(xlsx_path)
+    return str(xlsx_path), bundle
+
+
+def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> str:
+    """单文件转换（公共 API）：写 xlsx + 注册内存 bundle + sidecar 元数据。
+
+    Returns: 生成的 xlsx 路径。
+    """
+    path, _bundle = _convert_full(ndax_path, xlsx_path, register=True)
+    return path
+
+
+def _convert_pool_task(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> tuple[str, DataBundle]:
+    """进程池任务：子进程内不注册（对父进程不可见），bundle 随返回值 pickle 回父进程。"""
+    return _convert_full(ndax_path, xlsx_path, register=False)
 
 
 def convert_batch(input_dir: str | Path, max_workers: int | None = None) -> dict:
@@ -265,13 +319,15 @@ def convert_batch(input_dir: str | Path, max_workers: int | None = None) -> dict
     max_workers = max_workers or os.cpu_count()
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         fut_map = {
-            executor.submit(convert_one, ndax_path, xlsx_path): ndax_path
+            executor.submit(_convert_pool_task, ndax_path, xlsx_path): ndax_path
             for ndax_path, xlsx_path in pending
         }
         for future in as_completed(fut_map):
             ndax_path = fut_map[future]
             try:
-                future.result()
+                # 子进程内 register 对父进程无效 → 回收结果时在本进程注册
+                xlsx_out, bundle = future.result()
+                bundle_cache.register(xlsx_out, bundle)
                 result["success"].append(ndax_path.name)
             except Exception as e:
                 result["failed"].append((ndax_path.name, str(e)))

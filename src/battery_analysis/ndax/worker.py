@@ -9,7 +9,8 @@ from pathlib import Path
 
 from PyQt6.QtCore import QThread, pyqtSignal
 
-from battery_analysis.ndax.converter import convert_one, get_ndax_files
+from battery_analysis.ndax.converter import _convert_pool_task, get_ndax_files
+from battery_analysis.utils.data_bundle import bundle_cache
 from battery_analysis.utils.ndax_meta import ensure_sidecar
 
 
@@ -81,7 +82,7 @@ class ConvertWorker(QThread):
         try:
             with ProcessPoolExecutor(max_workers=max_workers) as executor:
                 fut_map = {
-                    executor.submit(convert_one, ndax_path, xlsx_path): (i, ndax_path.name)
+                    executor.submit(_convert_pool_task, ndax_path, xlsx_path): (i, ndax_path.name)
                     for i, ndax_path, xlsx_path in pending
                 }
 
@@ -91,7 +92,9 @@ class ConvertWorker(QThread):
 
                     i, name = fut_map[future]
                     try:
-                        future.result()
+                        # 子进程内 register 对父进程无效 → 回收结果时在本进程注册
+                        xlsx_out, bundle = future.result()
+                        bundle_cache.register(xlsx_out, bundle)
                         result["success"].append(name)
                         self.file_status.emit(i, "成功")
                         self.log.emit(f"✔ {name} 转换成功")

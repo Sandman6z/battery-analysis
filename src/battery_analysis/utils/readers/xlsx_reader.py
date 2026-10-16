@@ -6,6 +6,8 @@ import re
 
 import pandas as pd
 
+from battery_analysis.utils.data_bundle import bundle_cache
+
 logger = logging.getLogger(__name__)
 
 
@@ -14,7 +16,14 @@ def read_xlsx_sheets(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame, pd.Data
 
     Record 表可能因超过 Excel 行上限被转换端拆分为 Record、Record_2... 多张表，
     此处按名称识别并拼接（每张表都带文件名行+表头行，续表跳过前 2 行）。
+
+    裁决⑥：同会话内由 ndax 转换产出的文件优先命中内存 bundle 直传（跳过
+    磁盘往返）；未命中（纯 xlsx 工作流/进程重启后）回落磁盘读取。
     """
+    bundle = bundle_cache.get(filepath)
+    if bundle is not None:
+        return bundle.cycle, bundle.step, bundle.record
+
     sheets = pd.read_excel(filepath, sheet_name=None, header=None, engine="calamine")
     names = list(sheets)
     if len(names) < 3:
