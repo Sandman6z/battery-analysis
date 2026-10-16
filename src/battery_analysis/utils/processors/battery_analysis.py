@@ -19,6 +19,7 @@ import sys
 import traceback
 
 from battery_analysis.utils.exceptions import BatteryAnalysisException
+from battery_analysis.utils.data_bundle import bundle_cache
 from battery_analysis.utils.file_finder import scan_sorted_xlsx
 from battery_analysis.utils.processors.charge_calculator import ChargeCalculator
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
@@ -155,7 +156,13 @@ class BatteryAnalysis:
             if progress_callback:
                 progress_callback(12, "Reading Excel file...")
 
-            if is_frozen or sys.platform.startswith("win"):
+            # 裁决⑥进程内直传：全部文件命中父进程内存 bundle 时直接吃 DataFrame，
+            # 免读盘、免子进程 pickle。任一文件未命中则回退下面的子进程读盘路径
+            # （子进程 bundle_cache 必空，天然回落磁盘，行为与旧版一致）。
+            bundles = [bundle_cache.get(fp) for fp in self.listAllInXlsx]
+            if all(b is not None for b in bundles):
+                results = self._process_bundles_in_process(bundles)
+            elif is_frozen or sys.platform.startswith("win"):
                 from battery_analysis.utils.resource_manager import ResourceManager
 
                 max_processes = ResourceManager.get_optimal_process_count()
@@ -280,6 +287,47 @@ class BatteryAnalysis:
     # ────────────────────────────────────────────────────────────
     #  文件级处理（pandas 主路径）
     # ────────────────────────────────────────────────────────────
+    def _process_bundles_in_process(self, bundles):
+        """进程内直传：逐个分析内存 bundle，复用 _analyze_frames（裁决⑥）。
+
+        与子进程路径等价：跳过磁盘读取与 pickle，直接消费父进程内存 DataFrame。
+        单文件失败跳过并记日志，全部失败抛分析异常，与子进程分支语义一致。
+        """
+        results = []
+        total = len(bundles)
+        for idx, bundle in enumerate(bundles):
+            strPath = self.listAllInXlsx[idx]
+            try:
+                results.append(
+                    self._analyze_frames(
+                        strPath,
+                        bundle.cycle,
+                        bundle.step,
+                        bundle.record,
+                        self.listCurrentLevel,
+                        self.listVoltageLevel,
+                    )
+                )
+            except (
+                FileNotFoundError,
+                PermissionError,
+                ValueError,
+                KeyError,
+                IndexError,
+                BatteryAnalysisException,
+            ) as e:
+                logging.error("Error processing file (skipped): %s - %s", strPath, e)
+            if self._progress_callback and total > 1:
+                pct = 15 + int(((idx + 1) / total) * 35)
+                self._progress_callback(
+                    pct, f"Analyzing battery data... ({idx + 1}/{total})"
+                )
+        if not results:
+            raise BatteryAnalysisException(
+                "[Analysis Error]: All files failed to process, please check the data format"
+            )
+        return results
+
     @staticmethod
     def _parallel_process_file(args):
         """pandas 主路径：读取并分析单个 xlsx 文件"""
@@ -292,6 +340,17 @@ class BatteryAnalysis:
             # 由 worker 层的异常处理跳过该文件
             raise BatteryAnalysisException(f"Failed to read Excel file: {strPath}: {e}") from e
 
+        return BatteryAnalysis._analyze_frames(
+            strPath, cycle_df, step_df, record_df, listCurrentLevel, listVoltageLevel
+        )
+
+    @staticmethod
+    def _analyze_frames(strPath, cycle_df, step_df, record_df, listCurrentLevel, listVoltageLevel):
+        """分析单块电池的三表 DataFrame（纯计算，不碰磁盘）。
+
+        裁决⑥直传：磁盘读取（_parallel_process_file 子进程路径）与内存 bundle
+        （进程内直传路径）复用本方法，保证两条路径计算完全一致。
+        """
         if len(cycle_df) < 3 or len(step_df) < 3 or len(record_df) < 3:
             raise BatteryAnalysisException(
                 f"Excel file format error: {strPath} has insufficient data rows"
