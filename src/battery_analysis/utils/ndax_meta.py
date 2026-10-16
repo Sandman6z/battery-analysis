@@ -197,3 +197,40 @@ def observed_pulse_currents(currents, declared_levels) -> list[float]:
         if any(abs(sample - level) <= tolerance for sample in samples):
             observed.append(level)
     return observed
+
+
+def observed_pulse_medians(
+    currents, declared_levels, select_ratio: float = 0.05
+) -> dict[str, float]:
+    """每档实测电流中位数（裁决② 实测层漂移判定的输入）。
+
+    选择窗 ±select_ratio（仓内惯例 ±5%，与 pulse_matcher 对齐）——
+    窗宽于告警阈值 max(1%, 0.5mA)，恒定偏差超阈值才能被黄警捕获。
+    返回 {档位(str): 中位数}；无样本档位不出现。
+    """
+    declared = [float(x) for x in (declared_levels or [])]
+    if not declared:
+        return {}
+    samples: list[float] = []
+    for value in currents:
+        try:
+            number = abs(float(value))
+        except (TypeError, ValueError):
+            continue
+        if number == number:  # NaN 跳过
+            samples.append(number)
+    medians: dict[str, float] = {}
+    for level in declared:
+        if level <= 0:
+            continue
+        window = abs(level) * select_ratio
+        selected = sorted(s for s in samples if abs(s - level) <= window)
+        if not selected:
+            continue
+        mid = len(selected) // 2
+        if len(selected) % 2:
+            median = selected[mid]
+        else:
+            median = (selected[mid - 1] + selected[mid]) / 2.0
+        medians[str(level)] = round(median, 6)
+    return medians

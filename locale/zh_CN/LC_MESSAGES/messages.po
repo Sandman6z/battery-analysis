@@ -547,3 +547,9 @@ msgstr "中止"
 
 msgid "Continue with ndax levels"
 msgstr "以 ndax 档位为准继续"
+
+msgid "Measured Current Drift"
+msgstr "实测电流偏差"
+
+msgid "Measured pulse current medians exceed the tolerance (max 1%%, 0.5mA): %s. The analysis will continue."
+msgstr "实测脉冲电流中位数超出容差（max 1%%, 0.5mA）：%s。分析将继续。"

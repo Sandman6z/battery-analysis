@@ -20,6 +20,7 @@ import xlsxwriter
 from battery_analysis.utils.ndax_meta import (
     ensure_sidecar,
     observed_pulse_currents,
+    observed_pulse_medians,
     write_sidecar,
 )
 
@@ -211,6 +212,10 @@ def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> s
             # 实测档位（裁决④ 完成性证据）：转换时顺带从全量实测数据算出，
             # 写回 sidecar 供闸门纯 JSON 比对（零额外读取）
             metadata["observed_pulse_currents"] = observed_pulse_currents(
+                df["Current(mA)"].values, metadata.get("pulse_currents") or []
+            )
+            # 实测中位数（裁决② 黄警留痕输入）：±5% 选择窗
+            metadata["observed_pulse_medians"] = observed_pulse_medians(
                 df["Current(mA)"].values, metadata.get("pulse_currents") or []
             )
             write_sidecar(xlsx_path, metadata)

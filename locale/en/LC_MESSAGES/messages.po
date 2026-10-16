@@ -547,3 +547,9 @@ msgstr "Abort"
 
 msgid "Continue with ndax levels"
 msgstr "Continue with ndax levels"
+
+msgid "Measured Current Drift"
+msgstr "Measured Current Drift"
+
+msgid "Measured pulse current medians exceed the tolerance (max 1%%, 0.5mA): %s. The analysis will continue."
+msgstr "Measured pulse current medians exceed the tolerance (max 1%%, 0.5mA): %s. The analysis will continue."

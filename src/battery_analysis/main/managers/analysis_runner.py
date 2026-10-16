@@ -23,6 +23,7 @@ from battery_analysis.utils.ndax_meta import read_sidecar
 from battery_analysis.utils.profile_validation import (
     DECISION_BLOCK,
     DECISION_OFFER_OVERRIDE,
+    DECISION_PROCEED,
     check_batch_consistency,
     decide_profile_validation,
     extract_profile_levels,
@@ -204,8 +205,25 @@ class AnalysisRunner:
             profile_levels,
             first.get("pulse_currents"),
             first.get("observed_pulse_currents"),
+            first.get("observed_pulse_medians"),
         )
         decision = record.get("decision")
+
+        # 裁决②：实测层漂移超阈值 → 黄警放行（阻断/弹窗路径另有交互）
+        if record.get("measured_drift") and decision == DECISION_PROCEED:
+            drift_str = ", ".join(
+                f"{level} mA (+/-{deviation:.3f})"
+                for level, deviation in record["measured_drift"].items()
+            )
+            QW.QMessageBox.warning(
+                self.main_window,
+                _("Measured Current Drift"),
+                _(
+                    "Measured pulse current medians exceed the tolerance "
+                    "(max 1%%, 0.5mA): %s. The analysis will continue."
+                )
+                % drift_str,
+            )
 
         if decision == DECISION_BLOCK:
             if record.get("mismatch_type") == "level_count_mismatch_truncated":
@@ -258,9 +276,14 @@ class AnalysisRunner:
             summary = _("The number of pulse current levels does not match the profile.")
         box.setText(summary)
         box.setInformativeText(_("Continue the analysis with the ndax levels?"))
-        box.setDetailedText(
-            "Profile: [%s] mA\nndax:   [%s] mA" % (profile_text, ndax_text)
-        )
+        details = "Profile: [%s] mA\nndax:   [%s] mA" % (profile_text, ndax_text)
+        if record.get("measured_drift"):
+            drift_text = ", ".join(
+                "%s (+/-%.3f)" % (level, deviation)
+                for level, deviation in record["measured_drift"].items()
+            )
+            details += "\nMeasured drift: %s mA" % drift_text
+        box.setDetailedText(details)
 
         # Qt6 ButtonRole 无 DefaultRole：中止用 RejectRole，
         # 默认焦点由 setDefaultButton 控制

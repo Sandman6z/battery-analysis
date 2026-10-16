@@ -139,3 +139,45 @@ class TestCheckBatchConsistency:
     def test_order_insensitive(self):
         # 档位顺序差异不算不一致（集合语义）
         assert check_batch_consistency({"a": [30, 15], "b": [15, 30]}) is None
+
+
+class TestMeasuredDrift:
+    """裁决②：实测中位数偏差 > max(1%, 0.5mA) → 黄警放行留痕。"""
+
+    def test_drift_recorded_on_match(self):
+        record = decide_profile_validation(
+            [30, 26, 15, 6],
+            [30, 26, 15, 6],
+            [30, 26, 15, 6],
+            medians={"30.0": 30.8, "26.0": 26.1, "15.0": 15.3, "6.0": 6.2},
+        )
+        # 30 偏 0.8 > 0.5；26 偏 0.1 < 0.52；15 偏 0.3 < 0.5；6 偏 0.2 < 0.5
+        assert record["result"] == "match"
+        assert record["decision"] == DECISION_PROCEED
+        assert record["measured_drift"] == {"30": 0.8}
+
+    def test_no_drift_within_tolerance(self):
+        record = decide_profile_validation(
+            [30, 26], [30, 26], [30, 26], medians={"30.0": 30.4, "26.0": 25.5}
+        )
+        # 30 偏 0.4 < 0.5；26 偏 0.5 不大于 0.5（严格大于才告警）
+        assert "measured_drift" not in record
+
+    def test_missing_medians_key_ok(self):
+        record = decide_profile_validation([30], [30], [30])
+        assert "measured_drift" not in record
+        assert record["decision"] == DECISION_PROCEED
+
+    def test_drift_survives_value_mismatch_path(self):
+        record = decide_profile_validation(
+            [30, 26], [60, 30], [60, 30], medians={"60.0": 61.2}
+        )
+        assert record["decision"] == DECISION_OFFER_OVERRIDE
+        assert record["measured_drift"] == {"60": 1.2}
+
+    def test_invalid_median_entries_ignored(self):
+        record = decide_profile_validation(
+            [30], [30], [30], medians={"bad": "worse", "30.0": "nan-ish"}
+        )
+        # 无法转 float 的项被忽略（ValueError/TypeError 路径）；"nan-ish" 转不成
+        assert "measured_drift" not in record

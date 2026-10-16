@@ -93,8 +93,23 @@ def check_step_completeness(declared_levels, observed_levels) -> str:
     return COMPLETENESS_COMPLETE
 
 
+def _measured_drift(medians) -> dict:
+    """裁决②：|中位数-档位| > max(1%, 0.5mA) 的档位 → {档位(str): 偏差}。"""
+    drift: dict = {}
+    for key, median in (medians or {}).items():
+        try:
+            level = float(key)
+            value = float(median)
+        except (TypeError, ValueError):
+            continue
+        deviation = abs(value - level)
+        if deviation > _level_tolerance(level):
+            drift[f"{level:g}"] = round(deviation, 6)
+    return drift
+
+
 def decide_profile_validation(
-    profile_levels, ndax_levels, observed_levels=None
+    profile_levels, ndax_levels, observed_levels=None, medians=None
 ) -> dict:
     """完整决策树（裁决①③④），返回 Info_Plot.json.profile_validation 记录。
 
@@ -104,9 +119,12 @@ def decide_profile_validation(
         ndax_levels: ndax sidecar 档位（Step.xml 权威）。
         observed_levels: sidecar 实测档位（observed_pulse_currents，
             旧版 sidecar 缺字段 → None）。
+        medians: sidecar 实测中位数 {档位(str): 中位数}
+            （observed_pulse_medians，裁决② 输入，可缺）。
 
     Returns:
-        dict: {result, mismatch_type, decision, policy_version}。
+        dict: {result, mismatch_type, decision, policy_version}；
+        实测漂移超阈值时附 measured_drift {档位: 偏差}（裁决② 留痕）。
     """
     record = {
         "result": RESULT_MATCH,
@@ -121,6 +139,11 @@ def decide_profile_validation(
 
     profile = [float(x) for x in profile_levels]
     ndax = [float(x) for x in ndax_levels]
+
+    # 裁决② 实测层：中位数偏差 > max(1%, 0.5mA) → 黄警放行留痕
+    drift = _measured_drift(medians)
+    if drift:
+        record["measured_drift"] = drift
 
     if len(ndax) != len(profile):
         record["result"] = RESULT_COUNT_MISMATCH

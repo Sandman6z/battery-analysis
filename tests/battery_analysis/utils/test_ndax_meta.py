@@ -3,12 +3,15 @@
 import json
 import zipfile
 
+import pytest
+
 from battery_analysis.utils.ndax_meta import (
     SCHEMA_VERSION,
     SIDECAR_SUFFIX,
     ensure_sidecar,
     extract_ndax_metadata,
     observed_pulse_currents,
+    observed_pulse_medians,
     read_sidecar,
     sidecar_path_for,
     write_sidecar,
@@ -206,3 +209,28 @@ class TestObservedPulseCurrents:
     def test_no_valid_samples_returns_empty(self):
         assert observed_pulse_currents([], [30]) == []
         assert observed_pulse_currents([float("nan")], [30]) == []
+
+class TestObservedPulseMedians:
+    def test_median_within_window(self):
+        # 30 档平台恒定 30.2 → 中位数 30.2
+        currents = [-30.2] * 11 + [-15.1] * 5 + [-5.0] * 10
+        medians = observed_pulse_medians(currents, [30, 26, 15, 6])
+        assert medians["30.0"] == pytest.approx(30.2, abs=1e-6)
+        assert medians["15.0"] == pytest.approx(15.1, abs=1e-6)
+        assert "26.0" not in medians  # 无样本档不出现
+
+    def test_constant_bias_exceeding_tol_is_visible(self):
+        # 恒定偏差 0.8 > max(1% of 30, 0.5)=0.5 → 黄警判定输入
+        medians = observed_pulse_medians([-30.8] * 7, [30])
+        assert medians["30.0"] == pytest.approx(30.8)
+
+    def test_median_even_count(self):
+        medians = observed_pulse_medians([-30.0, -30.2], [30])
+        assert medians["30.0"] == pytest.approx(30.1)
+
+    def test_invalid_values_skipped(self):
+        medians = observed_pulse_medians(["x", None, float("nan"), -30.5], [30])
+        assert medians["30.0"] == pytest.approx(30.5)
+
+    def test_empty_declared(self):
+        assert observed_pulse_medians([-30.0], []) == {}

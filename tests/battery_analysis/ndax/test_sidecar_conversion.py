@@ -88,6 +88,8 @@ class TestConvertOneSidecar:
         assert sidecar["pulse_currents"] == [30.0, 26.0, 15.0, 6.0]
         # 实测档位（裁决④ 完成性证据）：fake_df 电流仅 -30 触及声明档
         assert sidecar["observed_pulse_currents"] == [30.0]
+        # 实测中位数（裁决② 输入）：fake_df 仅 -30 落在 30 的 ±5% 窗内
+        assert sidecar["observed_pulse_medians"] == {"30.0": 30.0}
         assert sidecar["cc_current"] == 1.0
         assert sidecar["spec_type"] == "CR2450"
         assert sidecar["test_id"] == "2818580619"

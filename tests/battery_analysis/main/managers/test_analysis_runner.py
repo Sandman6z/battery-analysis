@@ -49,7 +49,9 @@ PROFILE_XML = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
-def _make_env(tmp_path, levels_per_file, profile_levels=(30, 26, 15, 6), observed=None):
+def _make_env(
+    tmp_path, levels_per_file, profile_levels=(30, 26, 15, 6), observed=None, medians=None
+):
     """构造 input_dir（xlsx+sidecar）与 profile xml；返回 (runner, mw, profile_path)。"""
     input_dir = tmp_path / "2_xlsx"
     input_dir.mkdir(exist_ok=True)
@@ -60,6 +62,8 @@ def _make_env(tmp_path, levels_per_file, profile_levels=(30, 26, 15, 6), observe
             payload = {"schema_version": 1, "pulse_currents": list(levels)}
             if observed is not None:
                 payload["observed_pulse_currents"] = list(observed)
+            if medians is not None:
+                payload["observed_pulse_medians"] = dict(medians)
             sidecar_path_for(xlsx).write_text(json.dumps(payload), encoding="utf-8")
     profile_path = tmp_path / "profile.xml"
     if profile_levels is not None:
@@ -88,6 +92,41 @@ class _FakeCriticalBox:
 class TestProfileValidationGate:
     def setup_method(self):
         _FakeCriticalBox.calls = []
+
+    def test_drift_shows_yellow_warning_and_passes(self, tmp_path, monkeypatch):
+        """裁决②：match 但实测漂移超阈值 → 黄警 + 放行留痕。"""
+        runner, mw, _ = _make_env(
+            tmp_path,
+            levels_per_file=[[30, 26, 15, 6]],
+            medians={"30.0": 30.8, "26.0": 26.1},
+        )
+        warnings = []
+        monkeypatch.setattr(
+            ar.QW.QMessageBox,
+            "warning",
+            lambda *a: warnings.append(a),
+        )
+        assert runner._run_profile_validation() is True
+        assert len(warnings) == 1
+        assert "30 mA" in warnings[0][2]  # 漂移档位出现在文案
+        assert mw.profile_validation["measured_drift"] == {"30": 0.8}
+        assert mw.profile_validation["decision"] == "proceed"
+
+    def test_no_drift_no_warning(self, tmp_path, monkeypatch):
+        runner, mw, _ = _make_env(
+            tmp_path,
+            levels_per_file=[[30, 26, 15, 6]],
+            medians={"30.0": 30.4},
+        )
+        warnings = []
+        monkeypatch.setattr(
+            ar.QW.QMessageBox,
+            "warning",
+            lambda *a: warnings.append(a),
+        )
+        assert runner._run_profile_validation() is True
+        assert warnings == []
+        assert "measured_drift" not in mw.profile_validation
 
     def test_no_sidecar_passes_old_chain(self, tmp_path):
         runner, mw, _ = _make_env(tmp_path, levels_per_file=[None])
