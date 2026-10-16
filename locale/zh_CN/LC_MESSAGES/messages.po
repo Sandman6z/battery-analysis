@@ -511,3 +511,39 @@ msgstr "系统中没有该电池的配置信息（文件：{filename}）。请�
 
 msgid "Go to Configuration"
 msgstr "前往配置"
+
+msgid "ndax data inconsistent"
+msgstr "ndax 数据不一致"
+
+msgid "Pulse current levels differ between ndax files in this batch. Please check the test data."
+msgstr "本批次 ndax 文件之间的脉冲电流档位不一致，请检查测试数据。"
+
+msgid "Test may be incomplete"
+msgstr "测试可能未完成"
+
+msgid "Some pulse current levels declared in the profile were not executed in the test data. The test may not have finished. Please check the test data."
+msgstr "profile 声明的部分脉冲档位未在测试数据中执行，测试可能未跑完，请检查测试数据。"
+
+msgid "Missing completion evidence"
+msgstr "缺少完成性证据"
+
+msgid "No completion evidence for the declared pulse levels (sidecar has no observed levels). Please re-convert the ndax files."
+msgstr "缺少声明档位的完成性证据（sidecar 无实测档位），请重新转换 ndax 文件。"
+
+msgid "Profile Mismatch"
+msgstr "Profile 不匹配"
+
+msgid "Pulse current levels do not match the profile."
+msgstr "脉冲电流档位与 profile 不一致。"
+
+msgid "The number of pulse current levels does not match the profile."
+msgstr "脉冲电流档位数与 profile 不一致。"
+
+msgid "Continue the analysis with the ndax levels?"
+msgstr "是否按 ndax 档位继续分析？"
+
+msgid "Abort"
+msgstr "中止"
+
+msgid "Continue with ndax levels"
+msgstr "以 ndax 档位为准继续"

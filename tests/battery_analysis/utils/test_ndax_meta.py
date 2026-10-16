@@ -8,6 +8,7 @@ from battery_analysis.utils.ndax_meta import (
     SIDECAR_SUFFIX,
     ensure_sidecar,
     extract_ndax_metadata,
+    observed_pulse_currents,
     read_sidecar,
     sidecar_path_for,
     write_sidecar,
@@ -175,3 +176,33 @@ class TestEnsureSidecar:
         xlsx.write_bytes(b"")
         assert ensure_sidecar(ndax, xlsx) is None
         assert not sidecar_path_for(xlsx).exists()
+
+
+class TestObservedPulseCurrents:
+    """转换时实测算档（裁决④ 完成性证据）。"""
+
+    def test_all_declared_levels_observed(self):
+        samples = [-30.0, -26.1, -15.0, -6.0, 0.0]
+        assert observed_pulse_currents(samples, [30, 26, 15, 6]) == [30.0, 26.0, 15.0, 6.0]
+
+    def test_missing_level_excluded_preserves_declared_order(self):
+        # 26 档未执行（CF224642T 事故场景：声明 4 实测 3）
+        samples = [-60.0, -30.0, -15.0, -6.0]
+        assert observed_pulse_currents(samples, [30, 26, 15, 6]) == [30.0, 15.0, 6.0]
+
+    def test_within_one_percent_tolerance(self):
+        assert observed_pulse_currents([-30.2], [30]) == [30.0]
+
+    def test_nan_and_invalid_skipped(self):
+        import math
+
+        samples = [float("nan"), None, "junk", -15.0]
+        assert observed_pulse_currents(samples, [15, 6]) == [15.0]
+
+    def test_empty_declared_returns_empty(self):
+        assert observed_pulse_currents([-30.0], []) == []
+        assert observed_pulse_currents([-30.0], None) == []
+
+    def test_no_valid_samples_returns_empty(self):
+        assert observed_pulse_currents([], [30]) == []
+        assert observed_pulse_currents([float("nan")], [30]) == []

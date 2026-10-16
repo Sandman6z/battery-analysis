@@ -86,6 +86,8 @@ class TestConvertOneSidecar:
         sidecar = read_sidecar(xlsx)
         assert sidecar is not None
         assert sidecar["pulse_currents"] == [30.0, 26.0, 15.0, 6.0]
+        # 实测档位（裁决④ 完成性证据）：fake_df 电流仅 -30 触及声明档
+        assert sidecar["observed_pulse_currents"] == [30.0]
         assert sidecar["cc_current"] == 1.0
         assert sidecar["spec_type"] == "CR2450"
         assert sidecar["test_id"] == "2818580619"

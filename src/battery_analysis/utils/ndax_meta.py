@@ -169,3 +169,31 @@ def ensure_sidecar(ndax_path, xlsx_path) -> dict | None:
     if metadata is not None:
         write_sidecar(xlsx_path, metadata)
     return metadata
+
+
+def observed_pulse_currents(currents, declared_levels) -> list[float]:
+    """实测出现的脉冲档位（转换时计算，供裁决④ 完成性判定）。
+
+    对每个声明档位，数据中存在 |电流采样| 在容差 max(1%, 0.5mA) 内的
+    样本即认为该档位已执行；按声明顺序返回子集。声明为空或无有效
+    样本返回 []。
+    """
+    declared = [float(x) for x in (declared_levels or [])]
+    if not declared:
+        return []
+    samples: list[float] = []
+    for value in currents:
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            continue
+        if number == number:  # NaN 跳过
+            samples.append(abs(number))
+    if not samples:
+        return []
+    observed: list[float] = []
+    for level in declared:
+        tolerance = max(abs(level) * 0.01, 0.5)
+        if any(abs(sample - level) <= tolerance for sample in samples):
+            observed.append(level)
+    return observed

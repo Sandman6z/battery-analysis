@@ -511,3 +511,39 @@ msgstr "The system has no configuration for the battery model (file: {filename})
 
 msgid "Go to Configuration"
 msgstr "Go to Configuration"
+
+msgid "ndax data inconsistent"
+msgstr "ndax data inconsistent"
+
+msgid "Pulse current levels differ between ndax files in this batch. Please check the test data."
+msgstr "Pulse current levels differ between ndax files in this batch. Please check the test data."
+
+msgid "Test may be incomplete"
+msgstr "Test may be incomplete"
+
+msgid "Some pulse current levels declared in the profile were not executed in the test data. The test may not have finished. Please check the test data."
+msgstr "Some pulse current levels declared in the profile were not executed in the test data. The test may not have finished. Please check the test data."
+
+msgid "Missing completion evidence"
+msgstr "Missing completion evidence"
+
+msgid "No completion evidence for the declared pulse levels (sidecar has no observed levels). Please re-convert the ndax files."
+msgstr "No completion evidence for the declared pulse levels (sidecar has no observed levels). Please re-convert the ndax files."
+
+msgid "Profile Mismatch"
+msgstr "Profile Mismatch"
+
+msgid "Pulse current levels do not match the profile."
+msgstr "Pulse current levels do not match the profile."
+
+msgid "The number of pulse current levels does not match the profile."
+msgstr "The number of pulse current levels does not match the profile."
+
+msgid "Continue the analysis with the ndax levels?"
+msgstr "Continue the analysis with the ndax levels?"
+
+msgid "Abort"
+msgstr "Abort"
+
+msgid "Continue with ndax levels"
+msgstr "Continue with ndax levels"

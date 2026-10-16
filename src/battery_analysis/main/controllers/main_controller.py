@@ -36,6 +36,7 @@ class MainController(QC.QObject):
         self.input_path = ""
         self.output_path = ""
         self.test_info = []
+        self.profile_validation = None
 
     def set_project_context(self, project_path=None, input_path=None, output_path=None):
         """
@@ -79,7 +80,11 @@ class MainController(QC.QObject):
         signals = TaskSignals(self)
         self.current_worker = AnalysisWorker(signals=signals)
         self.current_worker.set_info(
-            self.project_path, self.input_path, self.output_path, self.test_info
+            self.project_path,
+            self.input_path,
+            self.output_path,
+            self.test_info,
+            profile_validation=self.profile_validation,
         )
 
         # 连接信号

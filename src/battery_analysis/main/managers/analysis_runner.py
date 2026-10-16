@@ -10,6 +10,7 @@
 
 # 标准库导入
 import logging
+import os
 
 # 第三方库导入
 import PyQt6.QtWidgets as QW
@@ -18,6 +19,14 @@ from battery_analysis.domain.entities.test_info import TestInfo
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.utils.ndax_meta import read_sidecar
+from battery_analysis.utils.profile_validation import (
+    DECISION_BLOCK,
+    DECISION_OFFER_OVERRIDE,
+    check_batch_consistency,
+    decide_profile_validation,
+    extract_profile_levels,
+)
 
 
 class AnalysisRunner:
@@ -46,6 +55,10 @@ class AnalysisRunner:
 
         # 检查输入是否完整，包括reportedby
         if not self._check_inputs():
+            return
+
+        # profile 与 ndax 档位校验闸门（会议裁决①③④）
+        if not self._run_profile_validation():
             return
 
         # 准备测试信息
@@ -127,6 +140,136 @@ class AnalysisRunner:
 
         return True
 
+    def _run_profile_validation(self):
+        """profile 与 ndax 档位校验闸门（会议裁决①③④）。
+
+        扫描输入目录 xlsx 的 sidecar，先做批内一致性（裁决③，硬阻断），
+        再与 profile 声明档位走决策树。放行时留痕记录存
+        main_window.profile_validation，后续随分析写入
+        Info_Plot.json.profile_validation（裁决⑤）。
+
+        Returns:
+            bool: True 放行；False 阻断（已弹框并恢复 Run 按钮）。
+        """
+        mw = self.main_window
+        # 每次运行重置，防止上次放行记录泄漏进本次
+        mw.profile_validation = None
+
+        input_dir = mw.lineEdit_InputPath.text()
+        if not input_dir or not os.path.isdir(str(input_dir)):
+            return True
+
+        # 收集全批次 sidecar 档位
+        sidecars: list[dict] = []
+        levels_by_file: dict[str, list[float]] = {}
+        try:
+            names = sorted(os.listdir(input_dir))
+        except OSError:
+            return True
+        for name in names:
+            if not name.lower().endswith(".xlsx") or name.startswith("~$"):
+                continue
+            meta = read_sidecar(os.path.join(input_dir, name))
+            if meta and meta.get("pulse_currents"):
+                levels_by_file[name] = meta["pulse_currents"]
+                sidecars.append(meta)
+
+        # 裁决③：批内多 ndax 档位不一致 → 硬阻断，无放行选项
+        batch_record = check_batch_consistency(levels_by_file)
+        if batch_record is not None:
+            self._show_validation_block(
+                _("ndax data inconsistent"),
+                _(
+                    "Pulse current levels differ between ndax files in this batch. "
+                    "Please check the test data."
+                ),
+            )
+            return False
+
+        if not sidecars:
+            # 旧链路（无 sidecar）：不校验，维持文件名解析行为
+            return True
+
+        # profile 侧：无 profile / 解析不出脉冲 → 放行
+        # （无 profile 的声明弹框属后续 "profile 验证接线" 步）
+        profile_path = mw.lineEdit_TestProfile.text()
+        if not profile_path:
+            return True
+        profile_levels = extract_profile_levels(profile_path)
+        if not profile_levels:
+            return True
+
+        first = sidecars[0]
+        record = decide_profile_validation(
+            profile_levels,
+            first.get("pulse_currents"),
+            first.get("observed_pulse_currents"),
+        )
+        decision = record.get("decision")
+
+        if decision == DECISION_BLOCK:
+            if record.get("mismatch_type") == "level_count_mismatch_truncated":
+                title = _("Test may be incomplete")
+                body = _(
+                    "Some pulse current levels declared in the profile were not "
+                    "executed in the test data. The test may not have finished. "
+                    "Please check the test data."
+                )
+            else:  # level_count_missing_evidence
+                title = _("Missing completion evidence")
+                body = _(
+                    "No completion evidence for the declared pulse levels "
+                    "(sidecar has no observed levels). Please re-convert the "
+                    "ndax files."
+                )
+            self._show_validation_block(title, body)
+            return False
+
+        if decision == DECISION_OFFER_OVERRIDE:
+            if not self._ask_override(profile_levels, first.get("pulse_currents"), record):
+                return False  # 用户选中止：不写留痕，不启动分析
+            record["decision"] = "override_accepted"
+
+        # match / 无档值差异 / 放行：留痕
+        mw.profile_validation = record
+        self.logger.info("Profile validation: %s", record)
+        return True
+
+    def _show_validation_block(self, title, body):
+        """硬阻断弹框（无放行按钮），并恢复 Run 按钮可点击。"""
+        QW.QMessageBox.critical(self.main_window, title, body)
+        self.main_window.pushButton_Run.setEnabled(True)
+
+    def _ask_override(self, profile_levels, ndax_levels, record) -> bool:
+        """裁决① 两按钮弹窗：[中止]（默认焦点）+[以 ndax 档位为准继续]。
+
+        Returns:
+            bool: 用户点继续 → True；中止/Esc → False。
+        """
+        box = QW.QMessageBox(self.main_window)
+        box.setIcon(QW.QMessageBox.Icon.Warning)
+        box.setWindowTitle(_("Profile Mismatch"))
+
+        profile_text = ", ".join(str(x) for x in profile_levels)
+        ndax_text = ", ".join(str(x) for x in (ndax_levels or []))
+        if record.get("result") == "value_mismatch":
+            summary = _("Pulse current levels do not match the profile.")
+        else:
+            summary = _("The number of pulse current levels does not match the profile.")
+        box.setText(summary)
+        box.setInformativeText(_("Continue the analysis with the ndax levels?"))
+        box.setDetailedText(
+            "Profile: [%s] mA\nndax:   [%s] mA" % (profile_text, ndax_text)
+        )
+
+        # Qt6 ButtonRole 无 DefaultRole：中止用 RejectRole，
+        # 默认焦点由 setDefaultButton 控制
+        btn_abort = box.addButton(_("Abort"), QW.QMessageBox.ButtonRole.RejectRole)
+        box.addButton(_("Continue with ndax levels"), QW.QMessageBox.ButtonRole.AcceptRole)
+        box.setDefaultButton(btn_abort)
+        box.exec()
+        return box.clickedButton() is not None and box.clickedButton() is not btn_abort
+
     def _prepare_test_info(self):
         """
         准备测试信息
@@ -176,6 +319,9 @@ class AnalysisRunner:
                 output_path=self.main_window.lineEdit_OutputPath.text(),
             )
             main_controller.set_test_info(test_info)
+            main_controller.profile_validation = getattr(
+                self.main_window, "profile_validation", None
+            )
 
             # 更新配置
             self.main_window.config_manager.update_config(test_info)

@@ -17,7 +17,11 @@ import numpy as np
 import pandas as pd
 import xlsxwriter
 
-from battery_analysis.utils.ndax_meta import ensure_sidecar
+from battery_analysis.utils.ndax_meta import (
+    ensure_sidecar,
+    observed_pulse_currents,
+    write_sidecar,
+)
 
 # Status mapping from NewareNDA to Chinese display names
 STATUS_MAP: dict[str, str] = {
@@ -202,7 +206,14 @@ def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> s
 
     # Sidecar：从 ndax 内嵌 Step.xml 提取权威档位元数据（失败不阻断转换）
     try:
-        ensure_sidecar(ndax_path, xlsx_path)
+        metadata = ensure_sidecar(ndax_path, xlsx_path)
+        if metadata is not None:
+            # 实测档位（裁决④ 完成性证据）：转换时顺带从全量实测数据算出，
+            # 写回 sidecar 供闸门纯 JSON 比对（零额外读取）
+            metadata["observed_pulse_currents"] = observed_pulse_currents(
+                df["Current(mA)"].values, metadata.get("pulse_currents") or []
+            )
+            write_sidecar(xlsx_path, metadata)
     except Exception:
         logging.getLogger(__name__).warning(
             "Sidecar extraction failed for %s", ndax_path, exc_info=True

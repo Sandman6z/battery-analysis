@@ -47,7 +47,14 @@ class AnalysisWorker(TaskRunner):
         self.cancel()  # TaskRunner.cancel()：设 _cancelled + 发 cancelled 信号
         self.signals.progress.emit(self.progress_value, "Canceling task...")
 
-    def set_info(self, str_path, str_input_path, str_output_path, test_info):
+    def set_info(
+        self,
+        str_path,
+        str_input_path,
+        str_output_path,
+        test_info,
+        profile_validation=None,
+    ):
         """
         设置分析所需的信息
 
@@ -56,11 +63,13 @@ class AnalysisWorker(TaskRunner):
             str_input_path: 输入数据路径
             str_output_path: 输出结果路径
             test_info: TestInfo 实例（或向后兼容的 list）
+            profile_validation: profile 校验留痕记录（裁决⑤，随分析写入 Info_Plot.json）
         """
         self.str_path = str_path
         self.str_input_path = str_input_path
         self.str_output_path = str_output_path
         self.list_test_info = test_info
+        self.profile_validation = profile_validation
 
     def _emit_progress(self, value, status):
         """
@@ -131,6 +140,7 @@ class AnalysisWorker(TaskRunner):
                 strResultPath=self.str_output_path,
                 listTestInfo=self.list_test_info,
                 progress_callback=lambda v, s: self._emit_progress(v, s),
+                profile_validation=getattr(self, "profile_validation", None),
             )
 
             # BatteryAnalysis.__init__ 内部已报告进度至约55%，继续后续步骤

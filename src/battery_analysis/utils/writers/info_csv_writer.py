@@ -60,6 +60,7 @@ def write_info_json(
     capacity: str = "",
     temperature: str = "",
     current_levels: list | None = None,
+    profile_validation: dict | None = None,
 ) -> None:
     """写入 Info_Plot.json（供 BatteryChartViewer 读取动态标题）
 
@@ -73,6 +74,8 @@ def write_info_json(
         capacity: 容量
         temperature: 温度
         current_levels: 电流等级列表
+        profile_validation: profile 校验留痕记录（裁决⑤，非 None 时
+            写入 meta_data["profile_validation"]）
     """
     file_path = os.path.join(result_path, "Info_Plot.json")
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -87,6 +90,8 @@ def write_info_json(
         "current_levels": current_levels
         or (list_test_info[14] if len(list_test_info) > 14 else []),
     }
+    if profile_validation is not None:
+        meta_data["profile_validation"] = profile_validation
 
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(meta_data, f, ensure_ascii=False, indent=2)

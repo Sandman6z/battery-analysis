@@ -47,7 +47,12 @@ class BatteryAnalysis:
     """
 
     def __init__(
-        self, strInDataXlsxDir: str, strResultPath: str, listTestInfo: list, progress_callback=None
+        self,
+        strInDataXlsxDir: str,
+        strResultPath: str,
+        listTestInfo: list,
+        progress_callback=None,
+        profile_validation: dict | None = None,
     ) -> None:
         # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
         from battery_analysis.domain.entities.test_info import TestInfo
@@ -83,6 +88,8 @@ class BatteryAnalysis:
         # ── 路径设置 ──────────────────────────────────────────────
         self.strInDataXlsxDir = f"{strInDataXlsxDir}/"
         self.strResultPath = strResultPath
+        # profile 校验留痕记录（裁决⑤，非 None 时随 Info_Plot.json 落盘）
+        self.profile_validation = profile_validation
         safe_temperature = listTestInfo[7].replace(":", "_")
         self.strResultLogTxt = (
             f"{strResultPath}/V{listTestInfo[16]}/"
@@ -494,6 +501,7 @@ class BatteryAnalysis:
             _strResultPath,
             self.listTestInfo,
             current_levels=self.listCurrentLevel,
+            profile_validation=self.profile_validation,
         )
 
     # ────────────────────────────────────────────────────────────
