@@ -530,6 +530,12 @@ msgstr "Missing completion evidence"
 msgid "No completion evidence for the declared pulse levels (sidecar has no observed levels). Please re-convert the ndax files."
 msgstr "No completion evidence for the declared pulse levels (sidecar has no observed levels). Please re-convert the ndax files."
 
+msgid "No Test Profile"
+msgstr "No Test Profile"
+
+msgid "No test profile provided. The analysis will continue using only the ndax pulse current levels."
+msgstr "No test profile provided. The analysis will continue using only the ndax pulse current levels."
+
 msgid "Profile Mismatch"
 msgstr "Profile Mismatch"
 

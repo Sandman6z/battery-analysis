@@ -13,6 +13,7 @@ import logging
 import os
 
 # 第三方库导入
+import PyQt6.QtCore as QC
 import PyQt6.QtWidgets as QW
 
 from battery_analysis.domain.entities.test_info import TestInfo
@@ -24,6 +25,7 @@ from battery_analysis.utils.profile_validation import (
     DECISION_BLOCK,
     DECISION_OFFER_OVERRIDE,
     DECISION_PROCEED,
+    POLICY_VERSION,
     check_batch_consistency,
     decide_profile_validation,
     extract_profile_levels,
@@ -191,11 +193,12 @@ class AnalysisRunner:
             # 旧链路（无 sidecar）：不校验，维持文件名解析行为
             return True
 
-        # profile 侧：无 profile / 解析不出脉冲 → 放行
-        # （无 profile 的声明弹框属后续 "profile 验证接线" 步）
+        # profile 侧：无 profile → 声明一次后放行（只靠 ndax 分析）
         profile_path = mw.lineEdit_TestProfile.text()
         if not profile_path:
+            self._show_no_profile_disclaimer()
             return True
+        # 有 profile 但解析不出脉冲档位 → 静默放行（沿旧链路行为）
         profile_levels = extract_profile_levels(profile_path)
         if not profile_levels:
             return True
@@ -252,6 +255,26 @@ class AnalysisRunner:
         mw.profile_validation = record
         self.logger.info("Profile validation: %s", record)
         return True
+
+    def _show_no_profile_disclaimer(self):
+        """无 profile 声明弹框：提示将只靠 ndax 分析，按政策版本记忆仅弹一次。
+
+        裁决⑤：QSettings validation/profile_disclaimer_version 记忆已声明的
+        政策版本；版本一致则不再弹（"声明一次"）。
+        """
+        settings = QC.QSettings()
+        key = "validation/profile_disclaimer_version"
+        if settings.value(key) == POLICY_VERSION:
+            return
+        QW.QMessageBox.information(
+            self.main_window,
+            _("No Test Profile"),
+            _(
+                "No test profile provided. The analysis will continue using "
+                "only the ndax pulse current levels."
+            ),
+        )
+        settings.setValue(key, POLICY_VERSION)
 
     def _show_validation_block(self, title, body):
         """硬阻断弹框（无放行按钮），并恢复 Run 按钮可点击。"""

@@ -89,6 +89,25 @@ class _FakeCriticalBox:
         cls.calls.append((title, body))
 
 
+class _FakeSettings:
+    """QSettings 替身：内存字典模拟 validation/profile_disclaimer_version 记忆。"""
+
+    store: dict = {}
+
+    def value(self, key):
+        return self.store.get(key)
+
+    def setValue(self, key, value):
+        self.store[key] = value
+
+
+def _patch_disclaimer(monkeypatch, infos):
+    """拦截声明弹框的信息框与 QSettings，返回 (infos, settings_store)。"""
+    monkeypatch.setattr(ar.QC, "QSettings", lambda: _FakeSettings())
+    monkeypatch.setattr(ar.QW.QMessageBox, "information", lambda *a: infos.append(a))
+    return _FakeSettings.store
+
+
 class TestProfileValidationGate:
     def setup_method(self):
         _FakeCriticalBox.calls = []
@@ -133,12 +152,14 @@ class TestProfileValidationGate:
         assert runner._run_profile_validation() is True
         assert mw.profile_validation is None
 
-    def test_no_profile_passes_without_record(self, tmp_path):
+    def test_no_profile_passes_without_record(self, tmp_path, monkeypatch):
         runner, mw, _ = _make_env(
             tmp_path, levels_per_file=[[30, 26, 15, 6]], profile_levels=None
         )
+        store = _patch_disclaimer(monkeypatch, [])
         assert runner._run_profile_validation() is True
         assert mw.profile_validation is None
+        assert store["validation/profile_disclaimer_version"] == "2026.10"
 
     def test_match_passes_with_record(self, tmp_path):
         runner, mw, _ = _make_env(tmp_path, levels_per_file=[[30, 26, 15, 6]])
@@ -226,6 +247,55 @@ class TestProfileValidationGate:
         runner, mw, _ = _make_env(tmp_path, levels_per_file=[None])
         del mw.lineEdit_TestProfile  # 无 sidecar 时不需要 profile 字段
         assert runner._run_profile_validation() is True
+
+
+class TestNoProfileDisclaimer:
+    """无 profile 声明弹框：只提示一次，按政策版本记忆（裁决⑤）。"""
+
+    def setup_method(self):
+        _FakeSettings.store = {}
+
+    def test_first_run_shows_disclaimer_and_remembers(self, tmp_path, monkeypatch):
+        runner, mw, _ = _make_env(
+            tmp_path, levels_per_file=[[30, 26, 15, 6]], profile_levels=None
+        )
+        infos = []
+        store = _patch_disclaimer(monkeypatch, infos)
+        assert runner._run_profile_validation() is True
+        assert len(infos) == 1
+        assert store["validation/profile_disclaimer_version"] == "2026.10"
+        assert mw.profile_validation is None  # 声明放行不写决策留痕
+
+    def test_second_run_skips_disclaimer(self, tmp_path, monkeypatch):
+        # 已声明过（版本一致）→ 不再弹
+        _FakeSettings.store = {"validation/profile_disclaimer_version": "2026.10"}
+        runner, mw, _ = _make_env(
+            tmp_path, levels_per_file=[[30, 26, 15, 6]], profile_levels=None
+        )
+        infos = []
+        _patch_disclaimer(monkeypatch, infos)
+        assert runner._run_profile_validation() is True
+        assert infos == []
+
+    def test_stale_version_shows_disclaimer_again(self, tmp_path, monkeypatch):
+        # 政策版本升级 → 重新声明一次
+        _FakeSettings.store = {"validation/profile_disclaimer_version": "2025.01"}
+        runner, mw, _ = _make_env(
+            tmp_path, levels_per_file=[[30, 26, 15, 6]], profile_levels=None
+        )
+        infos = []
+        store = _patch_disclaimer(monkeypatch, infos)
+        assert runner._run_profile_validation() is True
+        assert len(infos) == 1
+        assert store["validation/profile_disclaimer_version"] == "2026.10"
+
+    def test_profile_present_never_shows_disclaimer(self, tmp_path, monkeypatch):
+        runner, mw, _ = _make_env(tmp_path, levels_per_file=[[30, 26, 15, 6]])
+        infos = []
+        _patch_disclaimer(monkeypatch, infos)
+        assert runner._run_profile_validation() is True
+        assert infos == []
+        assert mw.profile_validation["result"] == "match"
 
 
 class TestAskOverrideDialog:
