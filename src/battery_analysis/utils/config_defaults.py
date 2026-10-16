@@ -23,6 +23,8 @@ DEFAULT_CONFIG = {
         ],
         "pulseCurrents": [30.0, 26.0, 15.0, 6.0],
         "cutOffVoltages": [2.6, 2.5, 2.4, 2.3, 2.25, 2.2, 2.1, 2.0, 1.8],
+        # 型号未配置时的提示弹框（NDAX 转换 / 导入 XML 识别后触发）
+        "missingRulesNotice": {"enabled": True, "timeoutSeconds": 3},
     },
     "test": {
         "locations": [

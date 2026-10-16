@@ -11,12 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 def set_specification_type(filename, all_spec_types, combo_box):
-    """从文件名匹配规格类型"""
+    """从文件名匹配规格类型；返回匹配到的类型（未匹配时返回 None，不改动下拉框）"""
     sorted_types = sorted(enumerate(all_spec_types), key=lambda x: len(x[1]), reverse=True)
     for t, spec_type in sorted_types:
         if spec_type in filename:
             combo_box.setCurrentIndex(t)
-            return
+            return spec_type
+    return None
 
 
 def set_specification_method(filename, all_spec_methods, combo_box):

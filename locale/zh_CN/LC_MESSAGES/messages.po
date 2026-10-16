@@ -502,3 +502,12 @@ msgstr "默认规格方法"
 
 msgid "The specification method was not found for this battery. {method} has been selected by default. Please confirm."
 msgstr "此电池未找到类型（规格方法），已默认选择 {method}，请确认。"
+
+msgid "Missing Battery Configuration"
+msgstr "电池配置缺失"
+
+msgid "The system has no configuration for the battery model (file: {filename}). Please add it via Tools → Configuration → Battery → Rules."
+msgstr "系统中没有该电池的配置信息（文件：{filename}）。请通过 Tools → Configuration → Battery → Rules 补充。"
+
+msgid "Go to Configuration"
+msgstr "前往配置"

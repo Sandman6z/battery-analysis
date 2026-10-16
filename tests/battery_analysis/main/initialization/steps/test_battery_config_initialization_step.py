@@ -3,6 +3,7 @@ from unittest.mock import Mock
 from battery_analysis.main.initialization.steps.battery_config_initialization_step import (
     BatteryConfigInitializationStep,
 )
+from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
 
 
 def _make_main_window(pulse_current, cutoff_voltage):
@@ -58,3 +59,9 @@ class TestBatteryConfigInitializationStep:
         main_window = _make_main_window([], ["2.6"])
         assert self.step.execute(main_window) is True
         assert main_window.listCurrentLevel == [30, 26, 15, 6]
+
+    def test_execute_empty_cutoff_voltage_uses_default(self):
+        """截止电压配置为空时回退默认档位，避免分析阶段空列表报错"""
+        main_window = _make_main_window(["30"], [])
+        assert self.step.execute(main_window) is True
+        assert main_window.listVoltageLevel == DEFAULT_CONFIG["battery"]["cutOffVoltages"]
