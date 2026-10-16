@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pandas as pd
 
 from battery_analysis.main.business_logic.data_processor import DataProcessor
+from battery_analysis.utils.ndax_meta import SIDECAR_SUFFIX, write_sidecar
 
 
 class TestDataProcessor:
@@ -657,3 +658,112 @@ class TestMissingRulesNotice:
             self.processor._show_missing_rules_notice("a.xlsx")
         mock_show.assert_called_once()
         assert mock_show.call_args.kwargs["timeout_seconds"] == 3
+
+
+class TestProcessFirstExcelFileSidecar:
+    """ndax sidecar（Step.xml 权威档位）优先于文件名解析；缺失/损坏回落旧链路。
+
+    复刻 TestProcessFirstExcelFilePulse 的 Mock 骨架，另把 lineEdit_InputPath
+    指向 tmp 目录，使 _read_sidecar 走真实文件读取。
+    """
+
+    RULES = ["CR2450/1S1P/600/550/380/1.0"]
+
+    def _make(self, input_dir):
+        mw = Mock()
+        for name in (
+            "comboBox_ConstructionMethod",
+            "comboBox_Specification_Type",
+            "comboBox_Specification_Method",
+            "comboBox_Manufacturer",
+        ):
+            combo = Mock()
+            combo.count.return_value = 0
+            setattr(mw, name, combo)
+        mw.lineEdit_BatchDateCode = Mock()
+        mw.statusBar_BatteryAnalysis = Mock()
+        mw.config_manager = Mock()
+        self.mock_cs = Mock()
+        mw._get_service.return_value = self.mock_cs
+
+        def get_config(key):
+            return {
+                "BatteryConfig/SpecificationTypeCoinCell": ["CR2450"],
+                "BatteryConfig/SpecificationTypePouchCell": [],
+                "BatteryConfig/SpecificationMethod": ["1S1P"],
+                "BatteryConfig/Rules": self.RULES,
+            }.get(key, [])
+
+        mw.config_manager.get_config.side_effect = get_config
+        mw.comboBox_Specification_Type.currentText.return_value = "CR2450"
+        mw.comboBox_Specification_Method.currentText.return_value = "1S1P"
+        mw.lineEdit_InputPath.text.return_value = str(input_dir)
+        return DataProcessor(mw), mw
+
+    def _write_sidecar(self, input_dir, filename, **overrides):
+        meta = {
+            "schema_version": 1,
+            "pulse_currents": [60.0, 30.0, 15.0, 6.0],
+            "cc_current": 5.0,
+        }
+        meta.update(overrides)
+        write_sidecar(input_dir / filename, meta)
+
+    def test_sidecar_levels_beat_filename(self, tmp_path):
+        """CF224642T 场景：文件名写 30-26-15-6，sidecar 实为 60-30-15-6 → 以 sidecar 为准"""
+        filename = "Test_CR2450_(30-26-15-6mA).xlsx"
+        self._write_sidecar(tmp_path, filename)
+        processor, mw = self._make(tmp_path)
+        processor._process_first_excel_file(filename)
+        assert mw.listCurrentLevel == [60, 30, 15, 6]
+        self.mock_cs.set_config_value.assert_called_once_with(
+            "battery.pulseCurrents", [60, 30, 15, 6]
+        )
+        self.mock_cs.save_config.assert_called_once()
+
+    def test_sidecar_mode_skips_filename_table_verify(self, tmp_path):
+        """sidecar 权威模式下不再做 文件名 vs 查表 复核（陈旧文件名不产生噪音告警）"""
+        filename = "Test_CR2450_(60-30-15-6mA).xlsx"
+        self._write_sidecar(tmp_path, filename)
+        processor, mw = self._make(tmp_path)
+        processor._process_first_excel_file(filename)
+        mw.statusBar_BatteryAnalysis.showMessage.assert_not_called()
+
+    def test_sidecar_cc_beats_filename(self, tmp_path):
+        filename = "Test_CR2450_(30-26-15-6mA, CC 10mAh 1mA).xlsx"
+        self._write_sidecar(tmp_path, filename)
+        processor, mw = self._make(tmp_path)
+        processor._process_first_excel_file(filename)
+        assert mw.cc_current == "5"  # sidecar 5.0 → 规整为 "5"（与 extract_cc_current 同构）
+
+    def test_empty_sidecar_pulse_falls_back_to_filename(self, tmp_path):
+        """无脉冲工步的 sidecar（pulse_currents=[]）→ 回落文件名解析"""
+        filename = "Test_CR2450_(30-26-15-6mA).xlsx"
+        self._write_sidecar(tmp_path, filename, pulse_currents=[])
+        processor, mw = self._make(tmp_path)
+        processor._process_first_excel_file(filename)
+        assert mw.listCurrentLevel == [30, 26, 15, 6]
+
+    def test_missing_sidecar_keeps_filename_path(self, tmp_path):
+        filename = "Test_CR2450_(30-26-15-6mA, CC 10mAh 1mA).xlsx"
+        processor, mw = self._make(tmp_path)
+        processor._process_first_excel_file(filename)
+        assert mw.listCurrentLevel == [30, 26, 15, 6]
+        assert mw.cc_current == "1"
+
+    def test_corrupt_sidecar_falls_back_to_filename(self, tmp_path):
+        filename = "Test_CR2450_(30-26-15-6mA).xlsx"
+        (tmp_path / filename).with_suffix(SIDECAR_SUFFIX).write_text(
+            "{broken json", encoding="utf-8"
+        )
+        processor, mw = self._make(tmp_path)
+        processor._process_first_excel_file(filename)
+        assert mw.listCurrentLevel == [30, 26, 15, 6]
+
+    def test_non_string_input_path_falls_back(self, tmp_path):
+        """lineEdit 未初始化（Mock/非 str）→ 不读 sidecar，旧链路不受影响"""
+        filename = "Test_CR2450_(30-26-15-6mA).xlsx"
+        processor, mw = self._make(tmp_path)
+        mw.lineEdit_InputPath.text.return_value = Mock()  # 非 str
+        processor._process_first_excel_file(filename)
+        assert mw.listCurrentLevel == [30, 26, 15, 6]

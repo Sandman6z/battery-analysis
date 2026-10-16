@@ -17,6 +17,8 @@ import numpy as np
 import pandas as pd
 import xlsxwriter
 
+from battery_analysis.utils.ndax_meta import ensure_sidecar
+
 # Status mapping from NewareNDA to Chinese display names
 STATUS_MAP: dict[str, str] = {
     "Rest": "搁置",
@@ -197,6 +199,15 @@ def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> s
     _build_record_sheet(wb, df, filename)
 
     wb.close()
+
+    # Sidecar：从 ndax 内嵌 Step.xml 提取权威档位元数据（失败不阻断转换）
+    try:
+        ensure_sidecar(ndax_path, xlsx_path)
+    except Exception:
+        logging.getLogger(__name__).warning(
+            "Sidecar extraction failed for %s", ndax_path, exc_info=True
+        )
+
     return str(xlsx_path)
 
 
@@ -221,6 +232,13 @@ def convert_batch(input_dir: str | Path, max_workers: int | None = None) -> dict
     for ndax_path in ndax_files:
         xlsx_path = out_dir / f"{ndax_path.stem}.xlsx"
         if xlsx_path.exists():
+            # 旧转换产物回填 sidecar（已有则秒回，不重转）
+            try:
+                ensure_sidecar(ndax_path, xlsx_path)
+            except Exception:
+                logging.getLogger(__name__).warning(
+                    "Sidecar backfill failed for %s", ndax_path, exc_info=True
+                )
             result["skipped"].append(ndax_path.name)
         else:
             pending.append((ndax_path, xlsx_path))

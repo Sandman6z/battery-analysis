@@ -12,6 +12,7 @@ from battery_analysis.main.business_logic import excel_validator, filename_parse
 from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.ui_components.countdown_message_box import show_countdown_notice
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
+from battery_analysis.utils.ndax_meta import read_sidecar
 from battery_analysis.utils.pulse_currents import (
     capacity_from_rules,
     is_freezer_context,
@@ -336,14 +337,23 @@ class DataProcessor:
         filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
         filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
 
-        # 脉冲电流档位：文件名解析优先，容量档位查表兜底（BatteryQualityRequirements_v2.3 §7.1.1）
-        pulse_values = filename_parser.extract_pulse_current(filename)
-        table_values = self._lookup_pulse_currents_from_table(filename)
-        if pulse_values and table_values:
-            # 双重验证：文件名档位 vs 型号/容量查表档位，不一致则告警（以文件名为准）
-            self._verify_pulse_currents(filename, pulse_values, table_values)
-        if not pulse_values:
-            pulse_values = table_values
+        # 脉冲电流档位：ndax sidecar（Step.xml 权威，单一事实来源）优先；
+        # 无 sidecar 时回落文件名解析优先、容量档位查表兜底（旧链路不变）
+        sidecar = self._read_sidecar(filename)
+        sidecar_levels = (sidecar or {}).get("pulse_currents") or []
+        if sidecar_levels:
+            self.logger.info(
+                "Pulse levels from ndax sidecar for %s: %s", filename, sidecar_levels
+            )
+            pulse_values = sidecar_levels
+        else:
+            pulse_values = filename_parser.extract_pulse_current(filename)
+            table_values = self._lookup_pulse_currents_from_table(filename)
+            if pulse_values and table_values:
+                # 双重验证：文件名档位 vs 型号/容量查表档位，不一致则告警（以文件名为准）
+                self._verify_pulse_currents(filename, pulse_values, table_values)
+            if not pulse_values:
+                pulse_values = table_values
         if pulse_values:
             pulse_values = normalize_current_levels(pulse_values)
             mw.listCurrentLevel = pulse_values
@@ -352,7 +362,32 @@ class DataProcessor:
                 cs.set_config_value("battery.pulseCurrents", pulse_values)
                 cs.save_config()
 
-        mw.cc_current = filename_parser.extract_cc_current(filename)
+        # CC 电流：sidecar（放电工步 Limit Curr）优先，文件名解析兜底
+        sidecar_cc = (sidecar or {}).get("cc_current")
+        if sidecar_cc is not None:
+            mw.cc_current = self._format_cc_current(sidecar_cc)
+        else:
+            mw.cc_current = filename_parser.extract_cc_current(filename)
+
+    def _read_sidecar(self, filename):
+        """读取输入目录下与 xlsx 同名的 ndax sidecar；任何异常返回 None（不阻断分析）。"""
+        try:
+            input_dir = self.main_window.lineEdit_InputPath.text()
+            if not isinstance(input_dir, str) or not input_dir:
+                return None
+            return read_sidecar(os.path.join(input_dir, filename))
+        except Exception:  # sidecar 是增值信息，读取失败一律回落旧链路
+            self.logger.debug("Sidecar read failed for %s", filename, exc_info=True)
+            return None
+
+    @staticmethod
+    def _format_cc_current(value) -> str:
+        """sidecar 数值 → 与 extract_cc_current 一致的字符串（1.0 → "1"）。"""
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return ""
+        return str(int(number)) if number.is_integer() else str(number)
 
     def _lookup_pulse_currents_from_table(self, filename) -> list:
         """文件名未携带脉冲电流时，按型号/容量查表兜底获取脉冲电流档位

@@ -10,6 +10,7 @@ from pathlib import Path
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from battery_analysis.ndax.converter import convert_one, get_ndax_files
+from battery_analysis.utils.ndax_meta import ensure_sidecar
 
 
 def _now() -> str:
@@ -52,6 +53,11 @@ class ConvertWorker(QThread):
 
             xlsx_path = self.out_dir / f"{ndax_path.stem}.xlsx"
             if xlsx_path.exists() and not self.force:
+                # 旧转换产物回填 sidecar（已有则秒回，不重转）
+                try:
+                    ensure_sidecar(ndax_path, xlsx_path)
+                except Exception:
+                    self.log.emit(f"⚠ sidecar 回填失败: {ndax_path.name}")
                 result["skipped"].append(ndax_path.name)
                 self.file_status.emit(i, "已跳过")
                 self.log.emit(f"⏭ {ndax_path.name} 已存在，跳过")
