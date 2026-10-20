@@ -23,6 +23,13 @@ class TestDataUtils:
         assert len(result_charge) == 1
         assert len(result_voltage) == 1
 
+    def test_filter_data_keeps_empty_slot(self):
+        from battery_analysis.utils.processors.data_utils import filter_data
+
+        charges, voltages = filter_data([[], [0, 1]], [[], [3.0, 2.9]])
+        assert charges[0] == voltages[0] == []
+        assert len(charges) == len(voltages) == 2
+
     def test_generate_current_type_string(self):
         """测试生成电流类型字符串函数"""
         # 测试数据

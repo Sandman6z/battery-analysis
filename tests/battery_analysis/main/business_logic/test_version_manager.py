@@ -160,6 +160,24 @@ class TestSetVersion:
         assert reader[3] == ["1"]
 
 
+def test_manual_version_survives_success_count_and_refresh(tmp_path):
+    create_sha256_csv(tmp_path, ["old1", "old2", "old3", "current"], ["1", "1", "1", "0"])
+    window = MagicMock()
+    window.lineEdit_OutputPath.text.return_value = str(tmp_path)
+    window.lineEdit_Version.text.return_value = "5.0"
+    window.sha256_checksum_run = "current"
+    window._get_service.return_value = None
+    vm = VersionManager(window)
+    vm.set_version()
+    with (tmp_path / "SHA256.csv").open(encoding="utf-8") as f:
+        assert list(csv.reader(f))[3] == ["1", "1", "1", "1"]
+    window.lineEdit_Version.setText.assert_called_with("5.1")
+    (tmp_path / "20250610_v5.0").mkdir()
+    vm._checksum_generation = 1
+    vm._on_checksum_ready("current", 1)
+    window.lineEdit_Version.setText.assert_called_with("5.1")
+
+
 class TestGetVersion:
     """get_version()方法测试（P3 改为后台派发后，直接测 task+callback 两个阶段）"""
 
@@ -170,9 +188,9 @@ class TestGetVersion:
         input_dir = tmp_path / "input"
         input_dir.mkdir()
 
-        # 创建一个空xlsx文件作为输入
-        xlsx_file = input_dir / "test.xlsx"
-        xlsx_file.write_bytes(b"dummy excel content")
+        # 创建一个 ndax 文件作为校验和输入
+        xlsx_file = input_dir / "test.ndax"
+        xlsx_file.write_bytes(b"dummy ndax content")
 
         create_sha256_csv(output_dir, ["dummy_checksum"], ["3"])
 
@@ -205,8 +223,8 @@ class TestGetVersion:
         input_dir = tmp_path / "input"
         input_dir.mkdir()
 
-        xlsx_file = input_dir / "test.xlsx"
-        xlsx_file.write_bytes(b"dummy excel content")
+        xlsx_file = input_dir / "test.ndax"
+        xlsx_file.write_bytes(b"dummy ndax content")
 
         # Times为空字符串
         create_sha256_csv(output_dir, ["dummy_checksum"], [""])
@@ -255,7 +273,7 @@ class TestGetVersion:
 
     def test_calc_checksum_task_absorbs_progress_callback_kwarg(self, tmp_path):
         """TaskRunner 注入的 progress_callback 经 **kwargs 吸收，不影响计算"""
-        (tmp_path / "a.xlsx").write_bytes(b"dummy")
+        (tmp_path / "a.ndax").write_bytes(b"dummy")
         vm = VersionManager(MagicMock())
         with patch(
             "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum", return_value="abc123"
@@ -334,8 +352,8 @@ class TestGetVersion:
         assert vm._calc_checksum_task(str(tmp_path)) is None
 
     def test_calc_checksum_task_returns_checksum(self, tmp_path):
-        """有 xlsx → 返回 FileUtils.calc_checksum 结果"""
-        (tmp_path / "a.xlsx").write_bytes(b"dummy")
+        """有 ndax → 返回 FileUtils.calc_checksum 结果"""
+        (tmp_path / "a.ndax").write_bytes(b"dummy")
         vm = VersionManager(MagicMock())
         with patch(
             "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum", return_value="abc123"

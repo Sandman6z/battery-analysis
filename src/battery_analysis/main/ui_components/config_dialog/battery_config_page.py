@@ -1,7 +1,5 @@
 """电池配置编辑页面"""
 
-import logging
-
 from PyQt6 import QtWidgets as QW
 
 from battery_analysis.i18n.language_manager import _
@@ -27,20 +25,18 @@ class _BatteryConfigPage(QW.QWidget):
         layout = QW.QVBoxLayout(content)
 
         # ── Test Data Dictionary ──
+        # Battery Types / Construction Methods 不再在 UI 展示：
+        # 值固定（Coin Cell/Pouch Cell、Spiral/Laminate），由主窗口下拉框
+        # 代码兜底 + 规格自动匹配控制（check_specification），
+        # 数据保留在 config.json 中继续生效
+        # Specification Methods 同样移出 UI（只读词表）：仅作文件名
+        # 匹配与 Rules 表格 Spec Method 列的下拉选项，由
+        # load_data 从配置读入后直接喂给 _rules_editor
         dict_group = QW.QGroupBox(_("Test Data Dictionary"))
         dict_layout = QW.QVBoxLayout(dict_group)
 
-        self._list_types = _ListEditor(_("Battery Types"), editable=False)
-        dict_layout.addWidget(self._list_types)
-
         self._rules_editor = _RulesEditor(_("Rules"))
         dict_layout.addWidget(self._rules_editor)
-
-        self._list_construction = _ListEditor(_("Construction Methods"), editable=False)
-        dict_layout.addWidget(self._list_construction)
-
-        self._list_spec_method = _ListEditor(_("Specification Methods"), editable=False)
-        dict_layout.addWidget(self._list_spec_method)
 
         self._list_mfrs = _ListEditor(_("Manufacturers"))
         dict_layout.addWidget(self._list_mfrs)
@@ -48,17 +44,12 @@ class _BatteryConfigPage(QW.QWidget):
         layout.addWidget(dict_group)
 
         # ── Test Parameters ──
-        params_group = QW.QGroupBox(_("Test Parameters"))
-        params_layout = QW.QVBoxLayout(params_group)
-
-        # 脉冲电流档位（pulseCurrents）不再在 UI 展示：
-        # 由 BatteryQualityRequirements_v2.3 §7.1.1 查表自动匹配
-        # （文件名 (x-x-xmA) 优先，型号/容量查表兜底），后台逻辑保留
-
-        self._list_voltage = _ListEditor(_("Cut-off Voltages"))
-        params_layout.addWidget(self._list_voltage)
-
-        layout.addWidget(params_group)
+        # 原 "Test Parameters" 组已整体移出 UI（数据保留在 config.json 生效）：
+        # - 脉冲电流档位（pulseCurrents）：由 BatteryQualityRequirements_v2.3
+        #   §7.1.1 查表自动匹配（文件名 (x-x-xmA) 优先，型号/容量查表兜底）
+        # - 截止电压档位（cutOffVoltages）：分析网格由测试协议固定
+        #   （标准 6 档 + Hermes 2.5V + 超集档），无需手动调整；
+        #   配置为空时初始化步骤回退 DEFAULT_CONFIG（见 battery_config_initialization_step）
         layout.addStretch()
 
         scroll.setWidget(content)
@@ -67,33 +58,19 @@ class _BatteryConfigPage(QW.QWidget):
     def load_data(self, data: dict) -> None:
         rules = data.get("rules", [])
         methods = data.get("specificationMethods", [])
-        self._list_types.set_items(data.get("types", []))
-        self._list_construction.set_items(data.get("constructionMethods", []))
-        # 先灌 method 列表再填规则，Spec Method 列的下拉框才能拿到可选项
-        self._list_spec_method.set_items(methods)
+        # 方法词表不展示 UI，直接灌给规则编辑器，
+        # Spec Method 列的下拉框才能拿到可选项
         self._rules_editor.set_methods(methods)
         self._rules_editor.set_rules(rules)
         self._list_mfrs.set_items(data.get("manufacturers", []))
-        self._list_voltage.set_items([str(v) for v in data.get("cutOffVoltages", [])])
 
     def collect_data(self) -> None:
         battery = self._dialog._working_data.setdefault("battery", {})
-        battery["types"] = self._list_types.items()
-        battery["constructionMethods"] = self._list_construction.items()
+        # types / constructionMethods 不从 UI 写回：保持 _working_data 中的
+        # 既有值（固定值，由代码兜底控制，见 ui_manager.init_combobox）
         rules = self._rules_editor.rules()
         battery["rules"] = rules
-        battery["specificationMethods"] = self._list_spec_method.items()
+        # specificationMethods / types / constructionMethods / pulseCurrents /
+        # cutOffVoltages 均不从 UI 写回：保持 _working_data 中的既有值
+        #（词表/固定档位，见上方注释及 data_processor、初始化步骤）
         battery["manufacturers"] = self._list_mfrs.items()
-        # pulseCurrents 不再从 UI 写回：保持 _working_data 中的既有值
-        #（由文件名解析/容量查表自动更新，见 data_processor）
-        battery["cutOffVoltages"] = self._parse_float_list(self._list_voltage.items())
-
-    @staticmethod
-    def _parse_float_list(raw: list) -> list:
-        result = []
-        for v in raw:
-            try:
-                result.append(float(v))
-            except ValueError:
-                logging.getLogger(__name__).warning("Ignoring non-float value: %s", v)
-        return result

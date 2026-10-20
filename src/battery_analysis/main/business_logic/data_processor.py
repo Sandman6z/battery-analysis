@@ -6,13 +6,12 @@
 
 import logging
 import os
-
-from PyQt6 import QtCore as QC
-from PyQt6 import QtWidgets as QW
+import zipfile
 
 from battery_analysis.i18n.language_manager import _
-from battery_analysis.main.business_logic import excel_validator, filename_parser
+from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.main.business_logic.cache import LRUCache
+from battery_analysis.main.ui_components.countdown_message_box import show_countdown_notice
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
 from battery_analysis.utils.pulse_currents import (
     capacity_from_rules,
@@ -33,7 +32,9 @@ class DataProcessor:
 
     # 文件名未识别到规格方法时的默认值（用户确认提示，5 秒自动关闭）
     SPEC_METHOD_DEFAULT = "1S1P"
-    SPEC_METHOD_NOTICE_TIMEOUT_MS = 5000
+    SPEC_METHOD_NOTICE_TIMEOUT_SECONDS = 5
+    # 型号未配置时提示的默认秒数（battery.missingRulesNotice.timeoutSeconds 可配）
+    MISSING_RULES_NOTICE_DEFAULT_TIMEOUT_SECONDS = 3
 
     def __init__(self, main_window=None):
         self.main_window = main_window
@@ -46,6 +47,7 @@ class DataProcessor:
         self._scan_generation = 0
         self._task_manager = TaskManager()
         self._spec_method_defaulted = False
+        self._spec_missing_rules = False
 
     def _invalidate_cache(self, path=None):
         if path:
@@ -82,7 +84,9 @@ class DataProcessor:
         }
 
     def _scan_excel_files_task(self, input_dir, **kwargs):
-        return [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        from battery_analysis.utils.file_finder import scan_sorted_ndax
+
+        return [os.path.basename(f) for f in scan_sorted_ndax(input_dir)]
 
     def _on_scan_finished(self, excel_files):
         input_dir = self.main_window.lineEdit_InputPath.text()
@@ -212,20 +216,14 @@ class DataProcessor:
                     int((index + 1) / len(excel_files) * 100), f"Validating {filename}..."
                 )
             file_path = os.path.join(input_dir, filename)
-            is_valid, error_msg, df = excel_validator.validate_excel_file(
-                file_path, filename, self._cache["file_validation"]
-            )
-            if not is_valid:
-                self.logger.error(error_msg)
-                error_files.append((filename, error_msg))
+            from battery_analysis.ndax.reader import recipe_levels
+
+            try:
+                levels = recipe_levels(file_path)
+            except (OSError, ValueError, KeyError, zipfile.BadZipFile) as e:
+                error_files.append((filename, str(e)))
                 continue
-            file_info = {
-                "filename": filename,
-                "sheet_name": df.columns.tolist(),
-                "row_count": len(df),
-                "column_count": len(df.columns),
-                "first_five_rows": df.head().to_dict("records"),
-            }
+            file_info = {"filename": filename, "current_levels": levels}
             excel_data.append(file_info)
         return excel_files, excel_data, error_files
 
@@ -270,9 +268,12 @@ class DataProcessor:
         if excel_data:
             self._process_first_excel_file(excel_data[0]["filename"])
         self._reconnect_specification_signals()
-        if self._spec_method_defaulted:
+        if self._spec_missing_rules or self._spec_method_defaulted:
+            missing_rules = self._spec_missing_rules
+            method_defaulted = self._spec_method_defaulted
+            self._spec_missing_rules = False
             self._spec_method_defaulted = False
-            self._show_spec_method_default_notice()
+            self._show_spec_notices(missing_rules, method_defaulted, excel_data[0]["filename"])
 
     def _on_excel_files_process_error(self, error_msg, generation):
         """主线程：后台任务异常兜底"""
@@ -309,9 +310,11 @@ class DataProcessor:
         )
         all_spec_methods = mw.config_manager.get_config("BatteryConfig/SpecificationMethod")
 
-        filename_parser.set_specification_type(
+        matched_type = filename_parser.set_specification_type(
             filename, all_spec_types, mw.comboBox_Specification_Type
         )
+        # 未匹配到已配置的规格型号（NDAX 转换 / 导入 XML 两条链路均汇合于此）→ 置标志，由统一弹框提示补充配置
+        self._spec_missing_rules = matched_type is None
         method_matched = filename_parser.set_specification_method(
             filename, all_spec_methods, mw.comboBox_Specification_Method
         )
@@ -330,21 +333,10 @@ class DataProcessor:
         filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
         filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
 
-        # 脉冲电流档位：文件名解析优先，容量档位查表兜底（BatteryQualityRequirements_v2.3 §7.1.1）
-        pulse_values = filename_parser.extract_pulse_current(filename)
-        table_values = self._lookup_pulse_currents_from_table(filename)
-        if pulse_values and table_values:
-            # 双重验证：文件名档位 vs 型号/容量查表档位，不一致则告警（以文件名为准）
-            self._verify_pulse_currents(filename, pulse_values, table_values)
-        if not pulse_values:
-            pulse_values = table_values
-        if pulse_values:
-            pulse_values = normalize_current_levels(pulse_values)
-            mw.listCurrentLevel = pulse_values
-            cs = mw._get_service("config")
-            if cs:
-                cs.set_config_value("battery.pulseCurrents", pulse_values)
-                cs.save_config()
+        # 配方是唯一的分析档位权威；文件名与配置表仅用于非档位 UI 信息。
+        from battery_analysis.ndax.reader import recipe_levels
+
+        mw.listCurrentLevel = recipe_levels(os.path.join(mw.lineEdit_InputPath.text(), filename))
 
         mw.cc_current = filename_parser.extract_cc_current(filename)
 
@@ -403,32 +395,78 @@ class DataProcessor:
         except (TypeError, AttributeError):
             pass
 
-    def _show_spec_method_default_notice(self) -> None:
-        """文件名未识别到规格方法、已默认 1S1P 时的确认提示
+    def _show_spec_notices(
+        self, missing_rules: bool, method_defaulted: bool, filename: str
+    ) -> None:
+        """识别结果提示的统一入口（型号未配置 / 规格方法默认）
 
-        仅一个 OK 按钮，居中于主窗口，5 秒未点击自动关闭。
+        两者同时发生时合并为一个弹框（型号未配置提示为主，附带默认方法说明）。
         """
-        box = QW.QMessageBox(self.main_window)
-        box.setWindowTitle(_("Default Specification Method"))
-        box.setText(
-            _(
+        if missing_rules:
+            self._show_missing_rules_notice(filename, method_defaulted)
+        elif method_defaulted:
+            self._show_spec_method_default_notice()
+
+    def _missing_rules_notice_settings(self) -> tuple[bool, int]:
+        """读取 battery.missingRulesNotice 配置（enabled / timeoutSeconds），失败回退默认值"""
+        enabled, timeout = True, self.MISSING_RULES_NOTICE_DEFAULT_TIMEOUT_SECONDS
+        try:
+            cs = self.main_window._get_service("config")
+            cfg = cs.get_config_value("battery.missingRulesNotice") if cs else None
+            if isinstance(cfg, dict):
+                enabled = bool(cfg.get("enabled", True))
+                timeout = int(cfg.get("timeoutSeconds", self.MISSING_RULES_NOTICE_DEFAULT_TIMEOUT_SECONDS))
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning("Failed to read missingRulesNotice config: %s", e)
+        return enabled, timeout
+
+    def _show_missing_rules_notice(
+        self, filename: str, method_defaulted: bool = False
+    ) -> None:
+        """识别到的规格型号不在系统 rules 配置中时的提示
+
+        倒计时自动关闭（默认 3 秒，可在 battery.missingRulesNotice.timeoutSeconds 配置），
+        OK 按钮旁显示剩余秒数；"前往配置"按钮跳转到配置对话框的 Battery 页补充规则。
+        """
+        enabled, timeout_seconds = self._missing_rules_notice_settings()
+        if not enabled:
+            self.logger.info("missingRulesNotice disabled; skipping for %s", filename)
+            return
+        text = _(
+            "The system has no configuration for the battery model "
+            "(file: {filename}). Please add it via Tools → Configuration → Battery → Rules."
+        ).format(filename=filename)
+        if method_defaulted:
+            text += "\n\n" + _(
                 "The specification method was not found for this battery. "
                 "{method} has been selected by default. Please confirm."
             ).format(method=self.SPEC_METHOD_DEFAULT)
+        show_countdown_notice(
+            self.main_window,
+            title=_("Missing Battery Configuration"),
+            text=text,
+            timeout_seconds=timeout_seconds,
+            extra_button=(_("Go to Configuration"), self._open_config_dialog),
         )
-        box.setStandardButtons(QW.QMessageBox.StandardButton.Ok)
-        box.setDefaultButton(QW.QMessageBox.StandardButton.Ok)
 
-        def _center() -> None:
-            if self.main_window is None:
-                return
-            frame = box.frameGeometry()
-            frame.moveCenter(self.main_window.geometry().center())
-            box.move(frame.topLeft())
+    def _open_config_dialog(self) -> None:
+        """跳转到配置对话框（Battery 页可编辑 Rules）"""
+        try:
+            self.main_window.show_config_dialog()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning("Failed to open configuration dialog: %s", e)
 
-        # QMessageBox 无 aboutToShow 信号（PyQt6 中该信号属于 QMenu）；
-        # 在 exec() 前用 adjustSize() 让布局确定尺寸，随后直接居中。
-        box.adjustSize()
-        _center()
-        QC.QTimer.singleShot(self.SPEC_METHOD_NOTICE_TIMEOUT_MS, box.accept)
-        box.exec()
+    def _show_spec_method_default_notice(self) -> None:
+        """文件名未识别到规格方法、已默认 1S1P 时的确认提示
+
+        仅一个 OK 按钮（旁显剩余秒数），居中于主窗口，5 秒未点击自动关闭。
+        """
+        show_countdown_notice(
+            self.main_window,
+            title=_("Default Specification Method"),
+            text=_(
+                "The specification method was not found for this battery. "
+                "{method} has been selected by default. Please confirm."
+            ).format(method=self.SPEC_METHOD_DEFAULT),
+            timeout_seconds=self.SPEC_METHOD_NOTICE_TIMEOUT_SECONDS,
+        )

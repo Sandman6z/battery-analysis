@@ -34,6 +34,9 @@ theme:
 
 nav:
   - 首页: index.md
+  - v5.0.0 发布与迁移: RELEASE_NOTES_v5.0.0.md
+  - 数据口径与异常策略: pdf_recheck_and_anomaly_policy.md
+  - 改造风险及后续验证: ndax_rework_risk_report.md
   - 快速开始:
       - 中文: QUICK_START.md
       - English: QUICK_START_EN.md

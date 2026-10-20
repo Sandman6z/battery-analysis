@@ -2,7 +2,28 @@
 
 ## 概述
 
-本项目采用 pytest 框架进行自动测试，主要用于验证核心功能的正确性，特别是确保 ReportedBy 与 TesterLocation 的匹配逻辑符合预期。
+本项目采用 pytest 验证 NDAX 读取/配方、报告判定、版本与输出安全、GUI 信号和配置等功能。v5.0.0 的完整功能、真实数据验证与未验边界见 [发布说明](RELEASE_NOTES_v5.0.0.md)。
+
+## v5.0.0 发布验证基线
+
+- 自动回归：891 passed；`uv run ruff check src/ tests/ scripts/` 和 `git diff --check` 通过。
+- 核心回归覆盖：Step.xml 配方、Profile 对照、输出路径占用、失败/取消清理、成功计次、手动版本及规范化重复、普通/必需缺失、无有效时间戳拒绝、类型同源和异常审计。
+- GUI 测试通过 `QT_QPA_PLATFORM=offscreen` 运行，不等于人工完成所有界面分支验收。
+- 真实 9 文件曾与旧 Excel 读取链逐槽对照；另用 CP5022121 16 文件临时输出重跑，保留全部 29 条原始异常，0 次普通缺失阻断、1 次成功信号，绘图 CSV 与历史报告逐字节相同。
+- 禁止为了回归而覆盖用户既有报告或增加真实项目的成功次数。比较脚本应使用临时输出目录及隔离账本，结束后清理本次测试产物。
+- 待验：全空容量报告（区别于无时间戳失败）、真实电流偏差、超大文件内存、多版本 BTS、完整人工 GUI 路径。未承诺 PNG/Word 二进制相同或完整 PDF 合规。
+
+推荐发布前运行：
+
+```bash
+uv sync --all-extras
+uv run python -m pytest -q --tb=short
+uv run ruff check src/ tests/ scripts/
+git diff --check
+uv run python -c "from battery_analysis import __version__; assert __version__ == '5.0.0'; print(__version__)"
+```
+
+测试运行和打包不是同一项验收；通过测试并不表示已生成或发布新版安装包。
 
 ## 测试环境搭建
 
@@ -15,7 +36,7 @@
 pip install -e "[dev]"
 
 # 或使用 uv 安装（推荐）
-uv install
+uv sync --all-extras
 ```
 
 ## 运行测试

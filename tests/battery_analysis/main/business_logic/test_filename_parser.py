@@ -22,18 +22,20 @@ class TestSetSpecificationType:
     """set_specification_type 测试。"""
 
     def test_match_longest_first(self):
-        """应优先匹配最长的规格类型。"""
+        """应优先匹配最长的规格类型，并返回匹配到的类型。"""
         combo = MagicMock()
         types = ["Coin", "Coin Cell", "Pouch"]
-        set_specification_type("Test Coin Cell DC2501", types, combo)
+        result = set_specification_type("Test Coin Cell DC2501", types, combo)
         combo.setCurrentIndex.assert_called_once_with(1)  # "Coin Cell" 的索引
+        assert result == "Coin Cell"
 
     def test_no_match(self):
-        """无匹配时不应调用 setCurrentIndex。"""
+        """无匹配时不应调用 setCurrentIndex，返回 None（→ 触发缺失配置弹框）。"""
         combo = MagicMock()
         types = ["Pouch", "Prismatic"]
-        set_specification_type("SomeOtherFile", types, combo)
+        result = set_specification_type("SomeOtherFile", types, combo)
         combo.setCurrentIndex.assert_not_called()
+        assert result is None
 
     def test_match_first_type(self):
         """匹配第一个类型时应设置正确索引。"""

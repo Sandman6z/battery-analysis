@@ -1,11 +1,13 @@
 # Battery Analysis Tool · Quick Start Guide
 
-> For BOEDT Battery Analysis Tool
+> For BOEDT Battery Analysis Tool **v5.0.0**.
 >
-> This tool analyzes **Excel data** exported from the NEWARE battery test system and automatically generates box plots, Excel result sheets, Word reports, and CSV summaries.
+> This tool analyzes original NEWARE **NDAX data directly** and generates plots, Excel result sheets, Word reports, CSV and JSON. Intermediate Excel conversion is no longer required.
+>
+> See the [complete v5.0.0 release and migration notes (Chinese)](RELEASE_NOTES_v5.0.0.md).
 
 > Compared to previous versions, the `setting.ini` file has been removed. All configuration is now done within the app (**Tools → Configuration**).
-> A batch conversion tool, `ndaxConverter`, ships alongside this release and is available at the same download page as the main software.
+> The standalone `ndaxConverter` remains available. Exporting to `2_xlsx` is optional and is no longer a prerequisite for main analysis.
 
 ---
 
@@ -17,7 +19,7 @@
 | 2 | Click the green **Run** | Validation → calculation → plotting → report generation, fully automatic |
 | 3 | When done, click **"Open Report"** / **"Open Path"** | One-click access to your results |
 
-- In most cases you only need to **select one XML file and click Run once** — the rest is fully automatic.
+- Select a profile, check the original files in `1_ndax`, review the form and report version, then click Run. You can also select an NDAX directory directly; without a profile, acknowledge the embedded-recipe notice.
 - **To add new options (e.g. a new battery type or manufacturer), open Configuration and add a new entry or row there.**
 
 ---
@@ -29,10 +31,10 @@
 After selecting a **Test Profile (XML)**, the app automatically:
 
 - Validates the XML (file name, content; encoding auto-compatible with UTF-8/GBK)
-- **Sets the input path** to the sibling `2_xlsx` folder
+- **Sets the input path** to the sibling `1_ndax` folder; main analysis no longer reads `2_xlsx`
 - **Sets the output path** to the sibling `3_analysis results` folder (asks whether to create it if it doesn't exist)
 - **Detects temperature automatically**: `Freezer` in the file name → Freezer temperature; otherwise → Room temperature
-- Calculates and fills in the version number
+- Suggests a report version from the NDAX checksum; manual unused versions at or above the highest applicable version are allowed (Tips 9)
 - If you are a new team member, just type your name directly into the name field.
 
 > 💡 If the output folder doesn't exist, a dialog will ask whether to create it — click "Yes" and you won't need to create folders manually.
@@ -41,19 +43,19 @@ After selecting a **Test Profile (XML)**, the app automatically:
 
 ### Tips 2. Select a Directory, and the Form Is Auto-Filled
 
-After setting the input path, the app scans all `.xlsx` files in the directory **in a background thread** (the UI stays responsive) and auto-fills:
+After setting the input path, the app scans `.ndax` files and validates their recipes **in a background thread**, then auto-fills:
 
-- **Samples Qty** = number of Excel files in the directory
+- **Samples Qty** = number of input NDAX files, not necessarily the valid count for every capacity cell
 - Parsed from the **first file name**:
   - Construction Method
   - Specification Type (automatically matches the longest one)
   - Specification Method
   - Manufacturer
   - **Batch/Date Code** (supports `DC2604`, `DC(2604)`, and `DC (2604)` formats)
-  - **Pulse Current** (extracted from patterns like `(15-6mA)`)
   - **CC Current** (extracted from patterns like `mA,xxmA`)
+- **Analysis pulse currents** come from embedded NDAX `Step.xml`, not file-name patterns or a configuration lookup. All files in a batch must have the same levels in the same order.
 
-> 💡 Put the specification/batch/current info clearly in your file names — after selecting the directory, the form is almost fully filled in, and you just confirm.
+> 💡 File names populate non-level metadata only. An unconfigured model prompts you to add rules. An unrecognized construction arrangement may default to `1S1P` with a countdown notice: check it rather than assuming the file declared it.
 
 ---
 
@@ -68,6 +70,8 @@ After selecting "Specification Type + Specification Method", the app matches the
   - `380` → switches to **Room temperature**
 
 > 💡 If the freezer temperature is set to 0°C when you click Run, a confirmation dialog appears to prevent mistakes.
+>
+> Both nominal capacities are independent editable configuration inputs, not automatically measured values or values read from a datasheet PDF. Existing CR2450 rules use 600/550mAh; CP5022121 uses 3500/3500mAh. Calculations retain the Calculation-capacity basis and record differences. Report output uses the submitted Battery Type consistently; an empty or unknown type raises an explicit error, never a default Coin Cell.
 
 ---
 
@@ -76,7 +80,7 @@ After selecting "Specification Type + Specification Method", the app matches the
 - On first run, a default configuration is created automatically at `%APPDATA%\battery-analysis\config.json`
 - Battery types, specifications, manufacturers, specification methods, pulse currents, cut-off voltages, tester locations, testers, equipment models and firmware versions are **all pre-set**
 - Old configurations are migrated automatically, with automatic integrity validation
-- Missing/empty configuration values fall back to **built-in defaults**, so the UI never goes blank due to a broken config
+- General UI settings have defaults and migration support. **Report data is not guessed**: unknown battery types, unreliable recipes or a batch with no valid timestamps must fail explicitly
 - Loaded automatically on every launch — no need to re-set up
 
 ---
@@ -97,7 +101,8 @@ After selecting "Specification Type + Specification Method", the app matches the
 - Automatically matches the current version of the Word report; if not found, the **latest** one is opened
 - Report files are named automatically: `Manufacturer_Specification_DCBatch_TDDate_vVersion.docx`
 - **Word template is chosen automatically** based on the number of current levels (≤4 or >4)
-- Output directory is created automatically (`Date_vVersion` subfolder) and contains: box plots (PNG/SVG), Excel result sheets, Word report, CSV summary
+- Output directory is created automatically (`Date_vVersion` subfolder), containing box plots and load-voltage curves (PNG/SVG), Result/Sample Excel, Word, CSV and JSON with anomaly/audit details
+- Reports support Pass / Fail / Incomplete. Missing cells show `No data`; empty statistics show `No data (n=0)`. Successful generation does not mean a battery passed or the test was complete
 
 ---
 
@@ -117,6 +122,36 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 ---
 
+### Tips 9. Manual Report Versions Without Overwriting Deliveries
+
+- Software `5.0.0` and report numbers such as `4.0/4.1` are independent.
+- A manual report version must be at least the automatic baseline and the highest existing delivered version, and must be unused. If the minimum is `4.0`, `1.08` is invalid.
+- Numeric components are compared: `4.01` and `4.1` denote the same version. Duplicate checking applies across test dates.
+- The manually selected version is retained after success. Success counts increase only after required outputs pass checks; failed/cancelled runs are not counted.
+- Refresh the NDAX checksum after input changes or migration. Do not delete `SHA256.csv` to bypass checks.
+
+### Tips 10. Missing Data Is Classified
+
+- Ordinary non-judgment missing cells continue automatically, with a summary in the completion dialog; no zero-filling, interpolation or extrapolation.
+- Missing required judgment cells or per-file analysis failures require reviewing scrollable details and explicit two-step release, with Stop as the default.
+- Invalid recipes or inconsistent batch levels fail preflight; a batch without any valid measured timestamp fails outright.
+- After release, partially missing required samples may still produce Pass from the remaining samples. This existing judgment policy is unchanged.
+
+### Tips 11. Trace Nonblocking Warnings
+
+- `Info_Plot.json` retains raw anomalies and file/cell states, and adds `analysis_audit`: input provenance, capacity basis, classifications, confirmation status, required cells and valid/expected counts.
+- Application logs: `%LOCALAPPDATA%\BatteryAnalysis\logs`, including nonblocking anomalies and stage failures.
+- Dates use the earliest valid measured sampling time; cross-day tests are recorded. Measured current deviations do not silently change recipe levels.
+
+### Tips 12. Existing Results Are Protected
+
+- An occupied temporary directory, final report directory or Word path is rejected, not overwritten. Inspect old files and choose an unused version.
+- Normal failure/cancellation cleans up only outputs created by that run. Hard-crash remnants are not automatically recovered or deleted.
+- Back up reports and the ledger before upgrading, and restart the app. Old XLSX checksum rows are retained but do not match the new NDAX input hash.
+- Report cutoff voltages retain the software-configured superset; NDAX stop/protection voltages do not replace them.
+
+---
+
 ## 3. Menus
 
 - **Tools → Configuration**: manage battery config, test config, and equipment info (add/remove specifications, manufacturers, testers, etc.)
@@ -129,14 +164,14 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 | Problem | Solution |
 |---------|----------|
-| "Input path has no data" | Make sure `.xlsx` files exist in the `2_xlsx` folder (files starting with `~$` are ignored as temp files) |
+| "Input path has no data" | Make sure original `.ndax` files exist in `1_ndax` or the selected input directory. Excel-only input is not supported by the new main workflow |
 | "Output directory does not exist" | Click "Yes" in the dialog to create it automatically, or pick an existing directory manually |
-| Version number is wrong | The version is determined automatically by the data content — don't edit it manually; check that the input/output paths are correct |
+| Version/checksum problem | Wait for or refresh the NDAX checksum; a manual unused version at or above the minimum is allowed. Do not delete the ledger |
 | UI appears incomplete | The window can be freely resized/maximized; a scroll bar appears automatically on small screens |
 
 ---
 
-*Last updated: 2026-08-11 · If the documentation differs from the software, the software's actual behavior takes precedence*
+*Applicable version: v5.0.0 · See the release notes for rules and verification limits; include logs when reporting discrepancies.*
 
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software.
 > However, due to insufficient testing time and samples, there are inevitably still many bugs.

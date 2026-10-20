@@ -2,12 +2,15 @@ import datetime
 import json
 import os
 
-from battery_analysis.utils.processors.data_utils import generate_current_type_string
+from battery_analysis.utils.processors.data_utils import (
+    generate_current_type_string,
+    missing_reason,
+)
 from battery_analysis.utils.report_coordinator import match_battery_type
 
 
 class JsonWriter:
-    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
+    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list, result_dir: str | None = None) -> None:
         # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
         from battery_analysis.domain.entities.test_info import TestInfo
 
@@ -21,7 +24,7 @@ class JsonWriter:
             td = f"{sy}{sm}{sd}"
         except ValueError:
             td = "00000000"
-        self.strResultPath = f"{strResultPath}/{td}_v{listTestInfo[16]}"
+        self.strResultPath = result_dir or f"{strResultPath}/{td}_v{listTestInfo[16]}"
         self.dictJson = {}
         self.listTestRun = []
         self.dictMeasurements = {}
@@ -61,7 +64,7 @@ class JsonWriter:
             for j, value in enumerate(self.listBatteryInfo[0][i]):
                 if j % (len(self.listVoltageLevel)) == 0:
                     index += 1
-                if value != 0 and self.listBatteryVoltage[j % len(self.listBatteryVoltage)] != "":
+                if value is not None and value != 0 and self.listBatteryVoltage[j % len(self.listBatteryVoltage)] != "":
                     voltage_key = self.listBatteryVoltage[j % len(self.listBatteryVoltage)]
                     dictMeasurements[index][voltage_key] = value
 
@@ -78,13 +81,21 @@ class JsonWriter:
                 for c, current in enumerate(self.listCurrentLevel)
             ]
 
+            missing_slots = [
+                j for j, value in enumerate(self.listBatteryInfo[0][i]) if value is None
+            ]
+            if missing_slots:
+                # JSON 中以原因标记缺失，绝不把 None 写成 0
+                dictTestRun["missing"] = missing_reason(self.listBatteryInfo, i)
+                dictTestRun["missingIndices"] = missing_slots
+
             # 更新测试运行字典并添加到列表
             dictTestRun.update({"slot": battery_name, "results": listResults})
             self.listTestRun.append(dictTestRun)
 
         strBatteryModel = self.listTestInfo[2]
         # 电池类型匹配
-        strBatteryType = match_battery_type(self.listTestInfo[2])
+        strBatteryType = match_battery_type(self.listTestInfo[0])
 
         self.dictJson.update(
             {

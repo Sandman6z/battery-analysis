@@ -8,7 +8,10 @@ import csv
 import logging
 
 from battery_analysis import __version__
-from battery_analysis.utils.processors.data_utils import generate_current_type_string
+from battery_analysis.utils.processors.data_utils import (
+    generate_current_type_string,
+    missing_reason,
+)
 from battery_analysis.utils.writers import csv_utils
 from battery_analysis.utils.writers.statistics_utils import (
     compute_list_cpt,
@@ -118,7 +121,7 @@ class CsvWriter:
                     listCsvLine.append("")
                     listCsvLine.append("")
                     for v in range(self.intVoltageLevelNum):
-                        listCsvLine.append(self.listBatteryCharge[b][i])
+                        listCsvLine.append(self.listBatteryCharge[b][i] if self.listBatteryCharge[b][i] is not None else missing_reason(self.listBatteryInfo, b))
                         i += 1
                 listCsvLine[0] = f"{self.listBatteryName[b]}"
                 csv_buffer_size = csv_utils.csv_write(
@@ -175,7 +178,7 @@ class CsvWriter:
                     listCsvLine.append("")
                     listCsvLine.append("")
                     for v in range(self.intVoltageLevelNum):
-                        listCsvLine.append(round(listCsvList[n][c][v], 5))
+                        listCsvLine.append(round(listCsvList[n][c][v], 5) if stats["counts"][c][v] else "No data (n=0)")
                 listCsvLine[0] = f"{listCsvName[n]}"
                 csv_buffer_size = csv_utils.csv_write(
                     listCsvLine,

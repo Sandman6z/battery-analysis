@@ -19,6 +19,7 @@ _CAMEL_TO_SNAKE = {
     "specificationMethods": "specification_methods",
     "pulseCurrents": "pulse_currents",
     "cutOffVoltages": "cut_off_voltages",
+    "missingRulesNotice": "missing_rules_notice",
     "testedBy": "tested_by",
 }
 
@@ -43,6 +44,10 @@ class BatterySchema:
     rules: list[str] = field(default_factory=list)
     pulse_currents: list[float] = field(default_factory=list)
     cut_off_voltages: list[float] = field(default_factory=list)
+    # 型号未配置时的提示弹框：enabled 开关 + timeoutSeconds 倒计时秒数
+    missing_rules_notice: dict[str, Any] = field(
+        default_factory=lambda: {"enabled": True, "timeoutSeconds": 3}
+    )
 
 
 @dataclass

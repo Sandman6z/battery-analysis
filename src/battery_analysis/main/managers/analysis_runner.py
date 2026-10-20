@@ -9,15 +9,18 @@
 """
 
 # 标准库导入
+import csv
 import logging
+from pathlib import Path
 
 # 第三方库导入
 import PyQt6.QtWidgets as QW
-
-from battery_analysis.domain.entities.test_info import TestInfo
+from PyQt6 import QtCore as QC
 
 # 本地应用/库导入
+from battery_analysis.domain.entities.test_info import TestInfo
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.main.business_logic.version_manager import delivered_versions, parse_version
 
 
 class AnalysisRunner:
@@ -34,7 +37,7 @@ class AnalysisRunner:
             main_window: 主窗口实例（旧接口）
         """
         self.main_window = main_window
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("battery_analysis.analysis_runner")
 
     def run_analysis(self):
         """
@@ -48,13 +51,96 @@ class AnalysisRunner:
         if not self._check_inputs():
             return
 
+        # Run-before-read recipe validation on the GUI thread; NDA time series stays in worker.
+        try:
+            files, profile_decision = self._preflight_recipe()
+        except (OSError, ValueError, KeyError) as e:
+            self.logger.warning("NDAX preflight rejected: %s", e)
+            QW.QMessageBox.critical(self.main_window, "NDAX recipe validation", str(e))
+            self.main_window.pushButton_Run.setEnabled(True)
+            return
+        if files is None:
+            self.logger.info("NDAX preflight aborted by user: %s", profile_decision)
+            self.main_window.pushButton_Run.setEnabled(True)
+            return
+
         # 准备测试信息
         test_info = self._prepare_test_info()
         if not test_info:
             return
 
         # 更新控制器的上下文和测试信息
-        self._update_controller_context(test_info)
+        self._update_controller_context(test_info, files, profile_decision)
+
+    def _preflight_recipe(self):
+        from battery_analysis.ndax.reader import profile_levels, recipe_levels
+
+        input_dir = Path(self.main_window.lineEdit_InputPath.text())
+        from battery_analysis.utils.file_finder import scan_sorted_ndax
+
+        files = scan_sorted_ndax(str(input_dir))
+        if not files:
+            raise ValueError(f"No .ndax files in {input_dir}")
+        levels = recipe_levels(files[0])
+        for path in files[1:]:
+            other = recipe_levels(path)
+            if other != levels:
+                raise ValueError(f"Different Step.xml pulse levels: {Path(files[0]).name}: {levels}; {Path(path).name}: {other}")
+        from battery_analysis.main.utils.file_utils import FileUtils
+
+        checksum = FileUtils.calc_checksum([str(path) for path in files])
+        if not checksum or checksum != getattr(self.main_window, "sha256_checksum", None):
+            raise ValueError("NDAX checksum is not ready or inputs changed; refresh the version before analysis")
+        csv_path = Path(self.main_window.lineEdit_OutputPath.text()) / "SHA256.csv"
+        with csv_path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.reader(handle))
+        checksums = rows[1] if len(rows) > 1 else []
+        times = rows[3] if len(rows) > 3 else []
+        if checksum not in checksums:
+            raise ValueError("Current NDAX checksum is absent from SHA256.csv; refresh the version")
+        index = checksums.index(checksum)
+        if index >= len(times) or not times[index].isdigit():
+            raise ValueError(f"Invalid SHA256.csv success count: {csv_path}")
+        expected_version = f"{index + 1}.{times[index]}"
+        requested_version = self.main_window.lineEdit_Version.text().strip()
+        requested = parse_version(requested_version)
+        used = delivered_versions(csv_path.parent)
+        highest = max({parse_version(expected_version), *used})
+        if requested < highest:
+            raise ValueError(f"Version {requested_version} is below the highest version {'.'.join(map(str, highest[:2]))}; choose a version not lower than it")
+        if requested in used:
+            raise ValueError(f"Version {requested_version} already has a report; choose an unused version")
+        self.logger.info("NDAX preflight passed: files=%d levels=%s version=%s", len(files), levels, requested_version)
+        self.main_window.listCurrentLevel = levels
+        decision = {"result": "no_profile", "mismatch_type": None, "decision": "continue", "policy_version": "2026.10"}
+        profile_path = self.main_window.lineEdit_TestProfile.text().strip()
+        if profile_path:
+            profile = profile_levels(profile_path)
+            mismatch = "count" if len(profile) != len(levels) else "value" if profile != levels else None
+            decision.update(result="match" if mismatch is None else "mismatch", mismatch_type=mismatch)
+            if mismatch:
+                answer = QW.QMessageBox.question(
+                    self.main_window, "Profile differs from Step.xml",
+                    f"Step.xml: {levels}\nProfile: {profile}\nContinue using Step.xml?",
+                    QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
+                    QW.QMessageBox.StandardButton.No,
+                )
+                decision["decision"] = "continue_ndax" if answer == QW.QMessageBox.StandardButton.Yes else "abort"
+                if answer != QW.QMessageBox.StandardButton.Yes:
+                    return None, decision
+        else:
+            settings = QC.QSettings()
+            if settings.value("validation/profile_disclaimer_version") != "2026.10":
+                answer = QW.QMessageBox.question(
+                    self.main_window, "No test profile",
+                    "No profile was selected. Analysis will use Step.xml recipe levels. Continue?",
+                    QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
+                    QW.QMessageBox.StandardButton.No,
+                )
+                if answer != QW.QMessageBox.StandardButton.Yes:
+                    return None, decision
+                settings.setValue("validation/profile_disclaimer_version", "2026.10")
+        return [str(path) for path in files], decision
 
     def _check_inputs(self):
         """
@@ -159,7 +245,7 @@ class AnalysisRunner:
             reported_by=self.main_window.comboBox_ReportedBy.currentText(),
         )
 
-    def _update_controller_context(self, test_info):
+    def _update_controller_context(self, test_info, files=None, profile_decision=None):
         """
         更新控制器的上下文和测试信息
 
@@ -176,10 +262,13 @@ class AnalysisRunner:
                 output_path=self.main_window.lineEdit_OutputPath.text(),
             )
             main_controller.set_test_info(test_info)
+            main_controller.input_files = files
+            main_controller.profile_validation = profile_decision
 
             # 更新配置
             self.main_window.config_manager.update_config(test_info)
             self.main_window.sha256_checksum_run = self.main_window.sha256_checksum
+            self.main_window.version_run = test_info.version
             self.main_window.statusBar_BatteryAnalysis.showMessage("status:ok")
 
             # 启动分析

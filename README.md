@@ -1,5 +1,16 @@
 # BOEDT Battery test GUI Tool
 
+**当前软件版本：v5.0.0 — NDAX 原生分析与数据质量追溯**
+
+主分析直接读取 `1_ndax` 中的原始 NDAX，不再依赖先转出的 `2_xlsx`；电流档位以 NDAX 内嵌 Step.xml 为准。Excel 继续作为报告输出，独立转换功能保留。
+
+- **[v5.0.0 完整功能变更、迁移与验证说明](docs/RELEASE_NOTES_v5.0.0.md)**
+- **[版本变更记录](CHANGELOG.md)**
+- **[中文操作指南](docs/QUICK_START.md)** / **[English quick start](docs/QUICK_START_EN.md)**
+- **[PDF 复查、容量来源与异常策略](docs/pdf_recheck_and_anomaly_policy.md)**
+
+升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.0.0` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
+
 ## 项目文档
 
 本项目提供了以下专项文档，位于`docs/`目录下：
@@ -12,8 +23,8 @@
 ### 环境配置流程
 > uv init
 > rm .\main.py #删除自动创建的无用文件
-> uv venv --python 3.11
-> .\venv\Scripts\activate
+> uv venv --python 3.14
+> .\.venv\Scripts\activate
 > uv sync --all-extras -i https://mirrors.aliyun.com/pypi/simple/
 
 **注意：** 必须带 `--all-extras`。pytest/pylint/pyinstaller 等开发与打包工具声明在 `[project.optional-dependencies]`（dev/build extras），裸 `uv sync` 会跳过它们，得到的 venv 无法跑测试。在新电脑上首次使用`uv sync`时，请以管理员权限运行终端，否则可能会出现多个错误。
@@ -123,7 +134,7 @@ python scripts/run_pylint.py
 - 模块入口与打包后的exe在资源定位上保持一致（基于`sys.executable`）
 - 已移除临时测试脚本：`test_config_read.py`、`test_exe.py`、`test_exe_start.py`、`test_ui_events.py`
 - 如需本地检查，请直接使用上述"开发运行"命令并验证界面与配置读取是否正常
-- 遇到task version问题，去修改`CHANGELOG.md`和`src/battery_analysis/_version.py`
+- 软件版本唯一来源是 `src/battery_analysis/_version.py`；发布同时维护 `CHANGELOG.md` 和对应发布说明，详见 [Changelog 维护指南](docs/CHANGELOG_GUIDE.md)。不要通过改软件版本绕过报告版本冲突。
 
 ## 已知问题
 1. 第五页存在空白页

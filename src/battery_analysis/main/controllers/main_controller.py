@@ -6,9 +6,12 @@
 import logging
 
 from PyQt6 import QtCore as QC
+from PyQt6 import QtWidgets as QW
 
 from battery_analysis.main.workers.analysis_worker import AnalysisWorker
 from battery_analysis.main.workers.task_runner import TaskSignals
+
+logger = logging.getLogger("battery_analysis.main_controller")
 
 
 class MainController(QC.QObject):
@@ -20,7 +23,8 @@ class MainController(QC.QObject):
     # 定义信号
     progress_updated = QC.pyqtSignal(int, str)  # 进度更新信号
     status_changed = QC.pyqtSignal(bool, int, str)  # 状态变化信号
-    analysis_completed = QC.pyqtSignal()  # 分析完成信号
+    analysis_completed = QC.pyqtSignal()  # 分析结束（含失败/取消），仅用于 UI 复位
+    analysis_succeeded = QC.pyqtSignal()  # 报告成功，用于版本计次
     path_renamed = QC.pyqtSignal(str)  # 路径重命名信号
     start_visualizer = QC.pyqtSignal()  # 启动可视化工具信号
 
@@ -81,17 +85,22 @@ class MainController(QC.QObject):
         self.current_worker.set_info(
             self.project_path, self.input_path, self.output_path, self.test_info
         )
+        self.current_worker.input_files = getattr(self, "input_files", None)
+        self.current_worker.profile_validation = getattr(self, "profile_validation", None) or {}
 
         # 连接信号
         self.current_worker.signals.progress.connect(self._on_progress_update)
         self.current_worker.signals.info.connect(self._on_status_changed)
         self.current_worker.signals.thread_end.connect(self._on_analysis_completed)
+        self.current_worker.signals.analysis_succeeded.connect(self.analysis_succeeded.emit)
+        self.current_worker.signals.anomalies_request.connect(self._on_anomalies_request)
         self.current_worker.signals.rename_path.connect(self._on_path_renamed)
         self.current_worker.signals.start_visualizer.connect(self._on_start_visualizer)
 
         # 启动工作线程
         self.thread_pool.start(self.current_worker)
         self.is_analysis_running = True
+        logger.info("Analysis submitted: input=%s output=%s", self.input_path, self.output_path)
         return True
 
     def cancel_analysis(self):
@@ -112,6 +121,59 @@ class MainController(QC.QObject):
             bool: True表示正在运行，False表示未运行
         """
         return self.is_analysis_running
+
+    @staticmethod
+    def _show_anomaly_dialog(title, prompt, lines, confirm_label):
+        """Keep anomaly details scrollable and the action buttons on screen."""
+        parent = QW.QApplication.activeWindow()
+        dialog = QW.QDialog(parent)
+        dialog.setWindowTitle(title)
+        layout = QW.QVBoxLayout(dialog)
+        summary = QW.QLabel(prompt)
+        summary.setWordWrap(True)
+        layout.addWidget(summary)
+        details = QW.QPlainTextEdit(dialog)
+        details.setReadOnly(True)
+        details.setPlainText("\n".join(lines))
+        layout.addWidget(details)
+        buttons = QW.QDialogButtonBox(dialog)
+        confirm = buttons.addButton(confirm_label, QW.QDialogButtonBox.ButtonRole.AcceptRole)
+        stop = buttons.addButton("Stop batch", QW.QDialogButtonBox.ButtonRole.RejectRole)
+        stop.setDefault(True)
+        confirm.clicked.connect(dialog.accept)
+        stop.clicked.connect(dialog.reject)
+        layout.addWidget(buttons)
+        screen = parent.screen() if parent else QW.QApplication.primaryScreen()
+        if screen:
+            available = screen.availableGeometry()
+            dialog.resize(min(700, int(available.width() * 0.8)), min(500, int(available.height() * 2 / 3)))
+        return dialog.exec() == QW.QDialog.DialogCode.Accepted
+
+    def _on_anomalies_request(self, anomalies):
+        """Both confirmations run on this QObject's GUI thread, never in the worker."""
+        worker = self.current_worker
+        if worker is None or worker.b_cancel_requested:
+            if worker:
+                worker.confirm_anomalies(False)
+            return
+        logger.info("Showing anomaly dialog: count=%d", len(anomalies))
+        lines = [
+            f"{a['file']}: {a['type']} — {a['current']} mA / {a['voltage']} V (required judgment cell)"
+            if a["type"] in ("missing_pulse", "required_slot_missing") else
+            f"{a['file']}: {a['type']} - {a.get('reason', a.get('current', ''))}"
+            for a in anomalies
+        ]
+        summary = f"Missing/invalid slots: {len(anomalies)}; affected files: {len({a['file'] for a in anomalies})}. "
+        structural = any(a["type"] != "current_deviation" for a in anomalies)
+        consequence = (
+            "Required judgment data or input files are missing. Continuing leaves slots empty; the report is not proof of a complete qualification test."
+            if structural else "Measured pulse currents deviate from the Step.xml recipe; data remain available."
+        )
+        allowed = False
+        if self._show_anomaly_dialog("Analysis anomalies", summary + "Stop the entire batch? Review the anomalies below before continuing.", lines, "Review consequences") and not worker.b_cancel_requested:
+            allowed = self._show_anomaly_dialog("Missing data consequences", summary + consequence + " Continue?", lines, "Continue analysis")
+        logger.info("Anomaly dialog completed: allowed=%s", allowed)
+        worker.confirm_anomalies(allowed)
 
     def _on_progress_update(self, progress, status_text):
         """
@@ -138,6 +200,7 @@ class MainController(QC.QObject):
         """
         分析完成回调
         """
+        logger.info("Analysis thread ended")
         self.is_analysis_running = False
         # 释放 worker 引用，允许 Python GC 回收 TaskRunner（setAutoDelete=False）
         self.current_worker = None

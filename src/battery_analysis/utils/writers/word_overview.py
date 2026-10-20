@@ -152,6 +152,9 @@ class WordOverviewMixin:
             listStrContent[12]
         )
 
+        counts = stats.get(
+            "counts", [[1] * self.intVoltageLevelNum] * self.intCurrentLevelNum
+        )
         for v in range(self.intVoltageLevelNum):
             text1 = (
                 table.cell(intTestProfileStartLine + 8, 1 + v * 2)
@@ -161,13 +164,18 @@ class WordOverviewMixin:
             text2 = (
                 table.cell(intTestProfileStartLine + 9, 1 + v * 2)
                 .paragraphs[0]
-                .add_run(f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}")
+                .add_run(
+                    "No data (n=0)" if not counts[intPosiMaxmA][v]
+                    else f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}"
+                )
             )
             text3 = (
                 table.cell(intTestProfileStartLine + 10, 1 + v * 2)
                 .paragraphs[0]
                 .add_run(
-                    f"{math.floor(100 * stats['mm2s'][intPosiMaxmA][v] / int(listStrContent[10]))}%"
+                    ""
+                    if not counts[intPosiMaxmA][v]
+                    else f"{math.floor(100 * stats['mm2s'][intPosiMaxmA][v] / int(listStrContent[10]))}%"
                 )
             )
             if v == intPosi2V25:

@@ -5,8 +5,11 @@
 import logging
 import os
 import shutil
+import threading
 
 from battery_analysis.main.workers.task_runner import TaskCancelled, TaskRunner
+
+logger = logging.getLogger("battery_analysis.analysis_worker")
 
 
 class AnalysisWorker(TaskRunner):
@@ -34,6 +37,24 @@ class AnalysisWorker(TaskRunner):
         self.str_error_battery = ""
         self.str_error_xlsx = ""
         self.str_test_date = ""
+        self.profile_validation = {}
+        self._decision_event = threading.Event()
+        self._decision = False
+
+    def confirm_anomalies(self, allowed):
+        self._decision = allowed
+        self._decision_event.set()
+
+    def _ask_anomalies(self, anomalies):
+        self._decision_event.clear()
+        self._decision = False
+        logger.info("Awaiting GUI anomaly decision: count=%d types=%s", len(anomalies), sorted({a["type"] for a in anomalies}))
+        self.signals.anomalies_request.emit(anomalies)
+        while not self._decision_event.wait(0.1):
+            if self.b_cancel_requested or self._cancelled:
+                return False
+        logger.info("GUI anomaly decision: allowed=%s cancelled=%s", self._decision, self.b_cancel_requested or self._cancelled)
+        return self._decision and not (self.b_cancel_requested or self._cancelled)
 
     def _run_placeholder(self):
         """占位 task_func：run() 被重写，不使用 task_func 机制。"""
@@ -85,6 +106,12 @@ class AnalysisWorker(TaskRunner):
         self.b_thread_run = True
         self.b_cancel_requested = False
         self.progress_value = 0
+        self.str_error_battery = ""
+        self.str_error_xlsx = ""
+        owned_dir = None
+        owned_docx = None
+        succeeded = False
+        warning_summary = ""
 
         # 发送初始运行状态
         try:
@@ -94,7 +121,7 @@ class AnalysisWorker(TaskRunner):
             self.signals.info.emit(True, 2, status_text)
             self.signals.info.emit(True, 3, status_text)
         except RuntimeError as e:
-            logging.warning("Failed to send initial running status: %s", str(e))
+            logger.warning("Failed to send initial running status: %s", str(e))
 
         try:
             self._emit_progress(0, "Preparing analysis...")
@@ -110,12 +137,12 @@ class AnalysisWorker(TaskRunner):
 
             # 检查并创建版本目录
             version_dir = f"{self.str_output_path}/v{self.list_test_info[16]}"
-            if os.path.exists(version_dir):
-                shutil.rmtree(version_dir)
-            if self.b_cancel_requested:
-                return
-
+            if self.b_cancel_requested or self._cancelled:
+                raise TaskCancelled
+            # mkdir is exclusive: never remove a pre-existing report or crash remnant.
             os.mkdir(version_dir)
+            owned_dir = version_dir
+            logger.info("Analysis started: input=%s output=%s version=%s", self.str_input_path, self.str_output_path, self.list_test_info[16])
             self._emit_progress(3, "Initializing analysis environment...")
 
             # 电池分析
@@ -131,17 +158,21 @@ class AnalysisWorker(TaskRunner):
                 strResultPath=self.str_output_path,
                 listTestInfo=self.list_test_info,
                 progress_callback=lambda v, s: self._emit_progress(v, s),
+                decision_callback=self._ask_anomalies,
+                profile_validation=self.profile_validation,
+                input_files=getattr(self, "input_files", None),
             )
 
             # BatteryAnalysis.__init__ 内部已报告进度至约55%，继续后续步骤
             self._emit_progress(self.progress_value, "Processing battery information...")
 
             self.str_error_battery = info_battery.UBA_GetErrorLog()
+            warning_summary = getattr(info_battery, "warning_summary", "")
             if self.str_error_battery == "":
                 list_battery_info = info_battery.UBA_GetBatteryInfo()
 
-                if self.b_cancel_requested:
-                    return
+                if self.b_cancel_requested or self._cancelled:
+                    raise TaskCancelled
 
                 # 获取Test Date和原始周期日期进行验证
                 # 从修改后的UBA_GetBatteryInfo返回值中获取Test Date
@@ -149,21 +180,19 @@ class AnalysisWorker(TaskRunner):
                 # 从修改后的UBA_GetBatteryInfo返回值中获取原始周期日期
                 original_cycle_date = list_battery_info[4]
 
-                logging.info(
+                logger.info(
                     "Retrieved Test Date: %s, original cycle date: %s",
                     test_date,
                     original_cycle_date,
                 )
 
-                from battery_analysis.utils.readers.date_parser import parse_test_date
+                from datetime import datetime
 
-                fallback = (
-                    list_battery_info[2][0]
-                    if len(list_battery_info) > 2 and list_battery_info[2]
-                    else ""
-                )
-                self.str_test_date = parse_test_date(test_date, original_cycle_date, fallback)
-                logging.info("Final test date determined: %s", self.str_test_date)
+                # Only measured sampling time may name a delivered report.
+                timestamp = list_battery_info[2][0] if list_battery_info[2] else ""
+                self.str_test_date = datetime.fromisoformat(str(timestamp)).strftime("%Y%m%d")
+                list_battery_info[3] = self.str_test_date
+                logger.info("Final test date determined: %s", self.str_test_date)
 
                 self._emit_progress(self.progress_value, "Processing output directory...")
 
@@ -172,22 +201,23 @@ class AnalysisWorker(TaskRunner):
                     final_dir = (
                         f"{self.str_output_path}/{self.str_test_date}_v{self.list_test_info[16]}"
                     )
-                    if os.path.exists(final_dir):
-                        shutil.rmtree(final_dir)
-
-                    # 发送重命名路径信号
-                    try:
-                        self.signals.rename_path.emit(self.str_test_date)
-                    except RuntimeError:
-                        logging.warning(
-                            "Signal object already deleted, cannot emit rename path signal"
-                        )
-
+                    report_name = (
+                        f"{self.list_test_info[4]}_{self.list_test_info[2]}"
+                        f"_DC{self.list_test_info[5]}_TD{self.str_test_date}"
+                        f"_v{self.list_test_info[16]}.docx"
+                    )
+                    docx_path = os.path.join(self.str_output_path, report_name)
+                    if os.path.exists(final_dir) or os.path.exists(docx_path):
+                        raise FileExistsError(f"Report already exists: {final_dir if os.path.exists(final_dir) else docx_path}")
+                    # Word writes outside the report directory; reserve it exclusively too.
+                    with open(docx_path, "x"):
+                        pass
+                    owned_docx = docx_path
                     os.rename(version_dir, final_dir)
-                except (OSError, PermissionError, FileNotFoundError) as e:
-                    logging.error("Failed to rename directory: %s", e)
-                    # 重命名失败时，使用默认目录名继续执行
-                    final_dir = version_dir
+                    owned_dir = final_dir
+                    logger.info("Report paths reserved: directory=%s word=%s", final_dir, docx_path)
+                except (OSError, PermissionError, FileNotFoundError):
+                    raise
 
                 self._emit_progress(self.progress_value, "Preparing to generate report...")
 
@@ -216,6 +246,8 @@ class AnalysisWorker(TaskRunner):
                         listTestInfo=self.list_test_info,
                         listBatteryInfo=list_battery_info,
                         equipment_info=_equipment,
+                        result_dir=final_dir,
+                        test_date=self.str_test_date,
                     )
 
                     self._emit_progress(63, "Organizing analysis data...")
@@ -232,33 +264,65 @@ class AnalysisWorker(TaskRunner):
 
                     self.str_error_xlsx = info_file.UFW_GetErrorLog()
                     if self.str_error_xlsx != "":
-                        logging.error(self.str_error_xlsx)
+                        logger.error("Report writer failed: %s", self.str_error_xlsx)
                     else:
                         self._emit_progress(85, "Completing final processing...")
 
                         self._emit_progress(90, "Validating output results...")
 
-                        self._emit_progress(95, "Cleaning up temporary files...")
+                        self._emit_progress(95, "Validating generated reports...")
+                        from pathlib import Path
 
+                        delivered = [p for p in Path(final_dir).iterdir() if p.is_file() and p.stat().st_size]
+                        for suffix in (".xlsx", ".csv", ".json", ".png", ".svg"):
+                            if not any(p.suffix == suffix for p in delivered):
+                                raise RuntimeError(f"Missing report output {suffix} in {final_dir}")
+                        for name in ("Info_Image.csv", "Info_Plot.json"):
+                            if not any(p.name == name for p in delivered):
+                                raise RuntimeError(f"Missing report output {name} in {final_dir}")
+                        if sum(p.suffix == ".xlsx" for p in delivered) < 2:
+                            raise RuntimeError(f"Result and Sample Excel reports are required in {final_dir}")
+                        for image in ("Image_FilteredLoadVoltageOverCharge", "Image_UnfilteredLoadVoltageOverCharge"):
+                            for ext in (".png", ".svg"):
+                                if not any(p.name == image + ext for p in delivered):
+                                    raise RuntimeError(f"Missing image: {image + ext}")
+                        if not os.path.getsize(owned_docx):
+                            raise RuntimeError(f"Word report was not generated: {owned_docx}")
                         self._emit_progress(100, "Analysis complete!")
+                        succeeded = True
+                        logger.info("Report verified: directory=%s files=%d", final_dir, len(delivered))
 
                     # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
                     try:
                         self._start_visualizer()
                     except (ImportError, OSError, PermissionError, ValueError) as e:
-                        logging.error("Failed to start visualizer: %s", e)
+                        logger.exception("Failed to start visualizer")
                 except (ImportError, OSError, PermissionError, ValueError) as e:
-                    logging.error("An error occurred during file writing: %s", e)
+                    logger.exception("An error occurred during file writing")
                     self.str_error_xlsx = f"File writing error: {e!s}"
 
         except TaskCancelled:
+            logger.info("Analysis cancelled: progress=%d", self.progress_value)
             return
         except Exception as e:
             # 捕获所有异常，包括自定义的 BatteryAnalysisException
-            logging.error("An error occurred during thread execution: %s", e)
+            logger.exception("Analysis failed: progress=%d", self.progress_value)
             # 将未捕获的异常信息传递给UI层
             self.str_error_xlsx = f"Thread execution error: {e!s}"
         finally:
+            succeeded = succeeded and not (self.b_cancel_requested or self._cancelled)
+            if not succeeded:
+                logger.warning("Analysis incomplete: battery_error=%s writer_error=%s owned_dir=%s", self.str_error_battery, self.str_error_xlsx, owned_dir)
+                if owned_docx:
+                    try:
+                        os.remove(owned_docx)
+                    except OSError as e:
+                        logger.error("Could not remove this run's Word file %s: %s", owned_docx, e)
+                if owned_dir:
+                    try:
+                        shutil.rmtree(owned_dir)
+                    except OSError as e:
+                        logger.error("Could not remove this run's directory %s: %s", owned_dir, e)
             self.b_thread_run = False
             # 发送完成状态（取消的任务发 cancelled 信号，其他正常上报）
             try:
@@ -268,10 +332,14 @@ class AnalysisWorker(TaskRunner):
                     self.signals.info.emit(False, 1, self.str_error_battery)
                 elif self.str_error_xlsx != "":
                     self.signals.info.emit(False, 2, self.str_error_xlsx)
+                elif succeeded:
+                    self.signals.info.emit(False, 0, "status:success" + ("\n" + warning_summary if warning_summary else ""))
+                    self.signals.rename_path.emit(self.str_test_date)
+                    self.signals.analysis_succeeded.emit()
                 else:
-                    self.signals.info.emit(False, 0, "status:success")
+                    self.signals.info.emit(False, 2, "Analysis did not produce all reports")
             except RuntimeError as e:
-                logging.warning(
+                logger.warning(
                     "Signal object already deleted, cannot emit completion status: %s", e
                 )
             # thread_end 必须无条件发射：_on_analysis_completed 依赖它来重置

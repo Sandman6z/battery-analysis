@@ -24,7 +24,7 @@ class TestMatchPulseLevels:
         listLevelToVoltage, listLevelToRow, listPosi, listVoltage = result
 
         assert listLevelToVoltage == [[2.9, 3.2], [3.0, 3.5]]
-        assert listLevelToRow == [[3, 2], [0, 5]]
+        assert listLevelToRow == [[3, 2], [None, 5]]
         assert listPosi == [[3], [5]]
         assert listVoltage == [[2.9], [3.5]]
 
@@ -126,6 +126,6 @@ class TestMatchPulseLevels:
         assert result is not None
         listLevelToVoltage, listLevelToRow, listPosi, listVoltage = result
         assert listLevelToVoltage == [[2.9, 3.2], [3.0, 3.5]]
-        assert listLevelToRow == [[5, 4], [0, 7]]
+        assert listLevelToRow == [[5, 4], [None, 7]]
         assert listPosi == [[5], [7]]
         assert listVoltage == [[2.9], [3.5]]

@@ -9,6 +9,8 @@ def write_all(
     listTestInfo: list,
     listBatteryInfo: list,
     equipment_info: dict | None = None,
+    result_dir: str | None = None,
+    test_date: str | None = None,
 ) -> None:
     """写入 Excel/Word/CSV/JSON 报告（FileWriter 的简化替代）"""
     # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
@@ -17,8 +19,8 @@ def write_all(
     if isinstance(listTestInfo, TestInfo):
         listTestInfo = listTestInfo.to_list()
 
-    ReportCoordinator(strResultPath, listTestInfo, listBatteryInfo, equipment_info).write()
-    JsonWriter(strResultPath, listTestInfo, listBatteryInfo)
+    ReportCoordinator(strResultPath, listTestInfo, listBatteryInfo, equipment_info, result_dir, test_date).write()
+    JsonWriter(strResultPath, listTestInfo, listBatteryInfo, result_dir)
 
 
 class FileWriter:
@@ -30,10 +32,12 @@ class FileWriter:
         listTestInfo: list,
         listBatteryInfo: list,
         equipment_info: dict | None = None,
+        result_dir: str | None = None,
+        test_date: str | None = None,
     ) -> None:
         self.strErrorLog = ""
         try:
-            write_all(strResultPath, listTestInfo, listBatteryInfo, equipment_info)
+            write_all(strResultPath, listTestInfo, listBatteryInfo, equipment_info, result_dir, test_date)
         except Exception as e:
             self.strErrorLog = str(e)
             logging.exception("Failed to write report")

@@ -53,6 +53,11 @@ class BatteryConfigInitializationStep(InitializationStep):
                 main_window.listCurrentLevel = [0] * len(listPulseCurrent)
                 self.logger.warning("Failed to convert current values, using defaults")
 
+            # 截止电压档位为空时使用默认网格（协议固定档位，见 DEFAULT_CONFIG）
+            if not listCutoffVoltage:
+                listCutoffVoltage = [str(v) for v in DEFAULT_CONFIG["battery"]["cutOffVoltages"]]
+                self.logger.warning("Cutoff voltage config is empty, using default: %s", listCutoffVoltage)
+
             main_window.listVoltageLevel = [
                 safe_float_convert(listCutoffVoltage[c].strip())
                 for c in range(len(listCutoffVoltage))

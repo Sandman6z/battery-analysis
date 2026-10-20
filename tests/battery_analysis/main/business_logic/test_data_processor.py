@@ -2,9 +2,8 @@
 测试数据处理器模块的功能
 """
 
+import zipfile
 from unittest.mock import MagicMock, Mock, patch
-
-import pandas as pd
 
 from battery_analysis.main.business_logic.data_processor import DataProcessor
 
@@ -220,20 +219,19 @@ class TestDataProcessor:
         文件名须通过 validate_excel_filename（含 DC / mA / 逗号 / 温度），
         否则文件在内容校验前就被拒绝，无法测到读取路径。
         """
-        valid = tmp_path / "DC1,mA1.xlsx"
-        pd.DataFrame({"Capacity": [1000, 2000]}).to_excel(valid, index=False)
-        invalid = tmp_path / "DC2,mA2.xlsx"
-        invalid.write_bytes(b"not a real xlsx")
+        valid = tmp_path / "channel1.ndax"
+        with zipfile.ZipFile(valid, "w") as archive:
+            archive.writestr("Step.xml", '<root><Step_Info><Step4><PulseData Count="1"><Pulse1 Value="-30"/></PulseData></Step4></Step_Info></root>')
+        invalid = tmp_path / "channel2.ndax"
+        invalid.write_bytes(b"not a real ndax")
         result = self.processor._process_excel_files_task(
-            str(tmp_path), ["DC1,mA1.xlsx", "DC2,mA2.xlsx"]
+            str(tmp_path), ["channel1.ndax", "channel2.ndax"]
         )
-        excel_files, excel_data, error_files = result
-        assert excel_files == ["DC1,mA1.xlsx", "DC2,mA2.xlsx"]
-        assert len(excel_data) == 1
-        assert excel_data[0]["filename"] == "DC1,mA1.xlsx"
-        assert excel_data[0]["row_count"] == 2
-        assert len(error_files) == 1
-        assert error_files[0][0] == "DC2,mA2.xlsx"
+        files, data, errors = result
+        assert files == ["channel1.ndax", "channel2.ndax"]
+        assert data == [{"filename": "channel1.ndax", "current_levels": [30.0]}]
+        assert len(errors) == 1
+        assert errors[0][0] == "channel2.ndax"
 
     def test_on_excel_files_processed_success(self):
         """处理成功 → 更新 UI + 解析首个文件 + 重连规格信号"""
@@ -270,18 +268,17 @@ class TestDataProcessor:
 
         self.processor._scan_generation = 5
         self.mock_main_window.checker_input_xlsx = Mock()
-        mock_msgbox = Mock()
         # excel_data 需非空：否则会落入 `if not excel_data` 通用分支覆盖 set_error
         valid_entry = {"filename": "b.xlsx"}
         with (
-            patch.object(dp.QW, "QMessageBox", return_value=mock_msgbox),
+            patch.object(dp, "show_countdown_notice") as mock_notice,
             patch.object(self.processor, "_process_first_excel_file"),
             patch.object(self.processor, "_reconnect_specification_signals"),
         ):
             self.processor._on_excel_files_processed(
                 (["a.xlsx"], [valid_entry], [("a.xlsx", "bad format")]), generation=5
             )
-        mock_msgbox.exec.assert_not_called()
+        mock_notice.assert_not_called()
         err = self.mock_main_window.checker_input_xlsx.set_error.call_args[0][0]
         assert "a.xlsx" in err and "bad format" in err
         self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called()
@@ -336,11 +333,10 @@ class TestDataProcessor:
         """部分成功部分失败 → 错误进 checker/状态栏（不弹框），仍用有效文件更新 UI"""
         from battery_analysis.main.business_logic import data_processor as dp
 
-        mock_msgbox = Mock()
         self.processor._scan_generation = 5
         self.mock_main_window.checker_input_xlsx = Mock()
         with (
-            patch.object(dp.QW, "QMessageBox", return_value=mock_msgbox),
+            patch.object(dp, "show_countdown_notice") as mock_notice,
             patch.object(self.processor, "_update_ui_with_excel_info") as mock_ui,
             patch.object(self.processor, "_process_first_excel_file") as mock_first,
             patch.object(self.processor, "_reconnect_specification_signals") as mock_reconnect,
@@ -348,7 +344,7 @@ class TestDataProcessor:
             self.processor._on_excel_files_processed(
                 (["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx"}], [("b.xlsx", "bad")]), generation=5
             )
-        mock_msgbox.exec.assert_not_called()
+        mock_notice.assert_not_called()
         self.mock_main_window.checker_input_xlsx.set_error.assert_called()
         mock_ui.assert_called_once_with(["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx"}])
         mock_first.assert_called_once_with("a.xlsx")  # Fix 4 生效后是 excel_data[0]['filename']
@@ -427,41 +423,13 @@ class TestProcessFirstExcelFilePulse:
         self.mock_main_window.comboBox_Specification_Method.currentText.return_value = "1S1P"
         self.processor = DataProcessor(self.mock_main_window)
 
-    def test_filename_values_take_priority(self):
-        self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).xlsx")
-        assert self.mock_main_window.listCurrentLevel == [30, 26, 15, 6]
-        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [30, 26, 15, 6])
-        self.mock_cs.save_config.assert_called_once()
-
-    def test_table_fallback_when_filename_has_no_pulse(self):
-        self.processor._process_first_excel_file("Test_CR2450_Freezer.xlsx")
+    def test_recipe_levels_override_filename_without_persisting_config(self):
+        self.mock_main_window.lineEdit_InputPath.text.return_value = "1_ndax"
+        with patch("battery_analysis.ndax.reader.recipe_levels", return_value=[15, 13, 7.5, 3]) as recipe:
+            self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).ndax")
+        assert recipe.call_args.args[0].endswith("Test_CR2450_(30-26-15-6mA).ndax")
         assert self.mock_main_window.listCurrentLevel == [15, 13, 7.5, 3]
-        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [15, 13, 7.5, 3])
-
-    def test_no_filename_no_table_leaves_config_untouched(self):
-        self.mock_main_window.comboBox_Specification_Type.currentText.return_value = ""
-        self.processor._process_first_excel_file("Test_Battery.xlsx")
-        assert not hasattr(self.mock_main_window, "listCurrentLevel") or not isinstance(
-            self.mock_main_window.listCurrentLevel, list
-        )
         self.mock_cs.set_config_value.assert_not_called()
-
-    def test_mismatch_filename_vs_table_warns_and_keeps_filename(self):
-        """双重验证：文件名档位与容量查表不一致 → 告警，且以文件名为准"""
-        self.processor._process_first_excel_file("Test_CR2450_(60-30-15-6mA).xlsx")
-        # 文件名优先
-        assert self.mock_main_window.listCurrentLevel == [60, 30, 15, 6]
-        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [60, 30, 15, 6])
-        # 状态栏收到不一致告警
-        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called_once()
-        warn = self.mock_main_window.statusBar_BatteryAnalysis.showMessage.call_args[0][0]
-        assert "mismatch" in warn
-        assert "[Warning]" in warn
-
-    def test_match_filename_vs_table_no_warning(self):
-        """双重验证：一致时不告警"""
-        self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).xlsx")
-        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_not_called()
 
 
 class TestSpecMethodDefault1S1P:
@@ -493,6 +461,12 @@ class TestSpecMethodDefault1S1P:
 
         self.mock_main_window.config_manager.get_config.side_effect = get_config
         self.processor = DataProcessor(self.mock_main_window)
+        self.mock_main_window.lineEdit_InputPath.text.return_value = "1_ndax"
+        self.recipe_patch = patch("battery_analysis.ndax.reader.recipe_levels", return_value=[30, 26, 15, 6])
+        self.recipe_patch.start()
+
+    def teardown_method(self):
+        self.recipe_patch.stop()
 
     def test_filename_without_method_defaults_to_1s1p(self):
         """文件名未提到 1S1P/1S2P → 默认选 1S1P 并置提示标志"""
@@ -512,16 +486,16 @@ class TestSpecMethodDefault1S1P:
     def test_notice_shown_after_processed_when_defaulted(self):
         """识别带出后（_spec_method_defaulted=True）→ 弹确认提示"""
         self.processor._scan_generation = 5
-        self.processor._spec_method_defaulted = True
         with (
             patch.object(self.processor, "_update_ui_with_excel_info"),
             patch.object(self.processor, "_reconnect_specification_signals"),
-            patch.object(self.processor, "_show_spec_method_default_notice") as mock_notice,
+            patch.object(self.processor, "_show_spec_notices") as mock_notices,
         ):
             self.processor._on_excel_files_processed(
-                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=5
+                (["CR2450.xlsx"], [{"filename": "CR2450.xlsx"}], []), generation=5
             )
-        mock_notice.assert_called_once()
+        # 型号已匹配（missing_rules=False）+ 方法默认 1S1P → 统一入口收到 (False, True, filename)
+        mock_notices.assert_called_once_with(False, True, "CR2450.xlsx")
         assert self.processor._spec_method_defaulted is False
 
     def test_no_notice_when_method_matched(self):
@@ -531,31 +505,137 @@ class TestSpecMethodDefault1S1P:
             patch.object(self.processor, "_update_ui_with_excel_info"),
             patch.object(self.processor, "_process_first_excel_file"),
             patch.object(self.processor, "_reconnect_specification_signals"),
-            patch.object(self.processor, "_show_spec_method_default_notice") as mock_notice,
+            patch.object(self.processor, "_show_spec_notices") as mock_notices,
         ):
             self.processor._on_excel_files_processed(
                 (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=5
             )
-        mock_notice.assert_not_called()
+        mock_notices.assert_not_called()
 
-    def test_notice_single_ok_button_and_auto_close(self):
-        """提示框：仅一个 OK 按钮 + 5 秒自动关闭"""
+    def test_notice_delegates_to_shared_countdown_component(self):
+        """默认方法确认提示 → 复用共享倒计时组件（5 秒）"""
         from battery_analysis.main.business_logic import data_processor as dp
 
-        mock_box = Mock()
-        with (
-            patch.object(dp.QW, "QMessageBox", return_value=mock_box, autospec=True),
-            patch.object(dp.QC.QTimer, "singleShot") as mock_timer,
-        ):
+        with patch.object(dp, "show_countdown_notice") as mock_show:
             self.processor._show_spec_method_default_notice()
-            mock_box.setStandardButtons.assert_called_once_with(
-                dp.QW.QMessageBox.StandardButton.Ok
-            )
-        mock_timer.assert_called_once_with(5000, mock_box.accept)
-        mock_box.exec.assert_called_once()
+        mock_show.assert_called_once()
+        kwargs = mock_show.call_args.kwargs
+        assert kwargs["timeout_seconds"] == 5
 
     def test_no_excel_files_reconnects_signals(self):
         """无文件路径也重连规格信号（修复：此前手动选择规格不会触发规则填充）"""
         with patch.object(self.processor, "_reconnect_specification_signals") as mock_reconnect:
             self.processor._handle_no_excel_files("dir/2_xlsx")
         mock_reconnect.assert_called_once()
+
+
+class TestMissingRulesNotice:
+    """识别到的规格型号不在系统 rules 配置中 → 倒计时弹框提示补充配置（用户需求）"""
+
+    def setup_method(self):
+        self.mock_main_window = Mock()
+        for name in (
+            "comboBox_ConstructionMethod",
+            "comboBox_Specification_Type",
+            "comboBox_Specification_Method",
+            "comboBox_Manufacturer",
+        ):
+            combo = Mock()
+            combo.count.return_value = 0
+            setattr(self.mock_main_window, name, combo)
+        self.mock_main_window.lineEdit_BatchDateCode = Mock()
+        self.mock_main_window.config_manager = Mock()
+        self.mock_cs = Mock()
+        self.mock_main_window._get_service.return_value = self.mock_cs
+
+        def get_config(key):
+            return {
+                "BatteryConfig/SpecificationTypeCoinCell": ["CR2450"],
+                "BatteryConfig/SpecificationTypePouchCell": ["CP5022121"],
+                "BatteryConfig/SpecificationMethod": ["1S1P", "1S2P"],
+                "BatteryConfig/Rules": ["CR2450/1S1P/600/550/380/1.0"],
+            }.get(key, [])
+
+        self.mock_main_window.config_manager.get_config.side_effect = get_config
+        self.processor = DataProcessor(self.mock_main_window)
+        self.mock_main_window.lineEdit_InputPath.text.return_value = "1_ndax"
+        self.recipe_patch = patch("battery_analysis.ndax.reader.recipe_levels", return_value=[30, 26, 15, 6])
+        self.recipe_patch.start()
+
+    def teardown_method(self):
+        self.recipe_patch.stop()
+
+    def test_missing_type_sets_flag(self):
+        """文件名不含已配置型号 → _spec_missing_rules 置位"""
+        self.processor._process_first_excel_file("Test_NewModel_XYZ.xlsx")
+        assert self.processor._spec_missing_rules is True
+
+    def test_matched_type_clears_flag(self):
+        """文件名含已配置型号 → 不置位"""
+        self.processor._process_first_excel_file("Test_CR2450.xlsx")
+        assert self.processor._spec_missing_rules is False
+
+    def test_notice_after_processed_with_filename(self):
+        """NDAX 转换/导入 XML 汇合后 → 统一入口收到缺失标志与文件名"""
+        self.processor._scan_generation = 5
+        with (
+            patch.object(self.processor, "_update_ui_with_excel_info"),
+            patch.object(self.processor, "_reconnect_specification_signals"),
+            patch.object(self.processor, "_show_spec_notices") as mock_notices,
+        ):
+            self.processor._on_excel_files_processed(
+                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=5
+            )
+        mock_notices.assert_called_once_with(True, True, "a.xlsx")
+        assert self.processor._spec_missing_rules is False
+        assert self.processor._spec_method_defaulted is False
+
+    def test_notice_uses_shared_component_with_jump_button(self):
+        """弹框 → 复用共享倒计时组件，默认 3 秒，带“前往配置”按钮"""
+        from battery_analysis.main.business_logic import data_processor as dp
+
+        with patch.object(dp, "show_countdown_notice") as mock_show:
+            self.processor._show_missing_rules_notice("a.xlsx")
+        mock_show.assert_called_once()
+        kwargs = mock_show.call_args.kwargs
+        assert kwargs["timeout_seconds"] == 3
+        label, callback = kwargs["extra_button"]
+        assert label
+        callback()  # 回调可直接执行（内部另有异常兑底）
+        self.mock_main_window.show_config_dialog.assert_called_once()
+
+    def test_notice_configurable_timeout_and_disabled(self):
+        """battery.missingRulesNotice.timeoutSeconds / enabled 生效"""
+        from battery_analysis.main.business_logic import data_processor as dp
+
+        self.mock_cs.get_config_value.return_value = {
+            "enabled": True,
+            "timeoutSeconds": 10,
+        }
+        with patch.object(dp, "show_countdown_notice") as mock_show:
+            self.processor._show_missing_rules_notice("a.xlsx")
+        assert mock_show.call_args.kwargs["timeout_seconds"] == 10
+
+        self.mock_cs.get_config_value.return_value = {"enabled": False}
+        with patch.object(dp, "show_countdown_notice") as mock_show:
+            self.processor._show_missing_rules_notice("a.xlsx")
+        mock_show.assert_not_called()
+
+    def test_notice_merges_method_default_text(self):
+        """同时默认了方法 → 合并进同一个弹框"""
+        from battery_analysis.main.business_logic import data_processor as dp
+
+        with patch.object(dp, "show_countdown_notice") as mock_show:
+            self.processor._show_missing_rules_notice("a.xlsx", method_defaulted=True)
+        mock_show.assert_called_once()
+        assert "1S1P" in mock_show.call_args.kwargs["text"]
+
+    def test_bad_notice_config_falls_back_to_defaults(self):
+        """配置读取异常 → 回退 enabled=True/3 秒"""
+        from battery_analysis.main.business_logic import data_processor as dp
+
+        self.mock_cs.get_config_value.side_effect = RuntimeError("boom")
+        with patch.object(dp, "show_countdown_notice") as mock_show:
+            self.processor._show_missing_rules_notice("a.xlsx")
+        mock_show.assert_called_once()
+        assert mock_show.call_args.kwargs["timeout_seconds"] == 3

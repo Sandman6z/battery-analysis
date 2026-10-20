@@ -73,7 +73,8 @@ class SignalConnector:
             if hasattr(main_controller, "progress_updated"):
                 main_controller.progress_updated.connect(self._on_progress_updated)
             if hasattr(main_controller, "analysis_completed"):
-                main_controller.analysis_completed.connect(self.main_window.version_manager.set_version)
+                # 结束信号只负责复位；失败和取消不能占用成功版本。
+                main_controller.analysis_succeeded.connect(self.main_window.version_manager.set_version)
                 # 修复：analysis_completed 连接到按钮重置，解决按钮失灵问题
                 main_controller.analysis_completed.connect(self._reset_run_button)
                 self.logger.info("Connected analysis_completed -> _reset_run_button")
@@ -163,8 +164,10 @@ class SignalConnector:
                 # 显示成功提示，添加打开报告和打开路径按钮
                 msg_box = QW.QMessageBox()
                 msg_box.setWindowTitle("Analysis Completed")
+                warning_summary = threadinfo.partition("\n")[2]
                 msg_box.setText(
                     "Battery analysis completed successfully!\n\nThe report has been generated to the specified output path."
+                    + ("\n\nWarning: " + warning_summary if warning_summary else "")
                 )
                 msg_box.setIcon(QW.QMessageBox.Icon.Information)
 
