@@ -17,10 +17,10 @@ from pathlib import Path
 import PyQt6.QtWidgets as QW
 from PyQt6 import QtCore as QC
 
-from battery_analysis.domain.entities.test_info import TestInfo
-
 # 本地应用/库导入
+from battery_analysis.domain.entities.test_info import TestInfo
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.main.business_logic.version_manager import delivered_versions, parse_version
 
 
 class AnalysisRunner:
@@ -37,7 +37,7 @@ class AnalysisRunner:
             main_window: 主窗口实例（旧接口）
         """
         self.main_window = main_window
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("battery_analysis.analysis_runner")
 
     def run_analysis(self):
         """
@@ -55,10 +55,12 @@ class AnalysisRunner:
         try:
             files, profile_decision = self._preflight_recipe()
         except (OSError, ValueError, KeyError) as e:
+            self.logger.warning("NDAX preflight rejected: %s", e)
             QW.QMessageBox.critical(self.main_window, "NDAX recipe validation", str(e))
             self.main_window.pushButton_Run.setEnabled(True)
             return
         if files is None:
+            self.logger.info("NDAX preflight aborted by user: %s", profile_decision)
             self.main_window.pushButton_Run.setEnabled(True)
             return
 
@@ -100,8 +102,15 @@ class AnalysisRunner:
         if index >= len(times) or not times[index].isdigit():
             raise ValueError(f"Invalid SHA256.csv success count: {csv_path}")
         expected_version = f"{index + 1}.{times[index]}"
-        if self.main_window.lineEdit_Version.text() != expected_version:
-            raise ValueError(f"Stale version: expected {expected_version}; refresh the version before analysis")
+        requested_version = self.main_window.lineEdit_Version.text().strip()
+        requested = parse_version(requested_version)
+        used = delivered_versions(csv_path.parent)
+        highest = max({parse_version(expected_version), *used})
+        if requested < highest:
+            raise ValueError(f"Version {requested_version} is below the highest version {'.'.join(map(str, highest[:2]))}; choose a version not lower than it")
+        if requested in used:
+            raise ValueError(f"Version {requested_version} already has a report; choose an unused version")
+        self.logger.info("NDAX preflight passed: files=%d levels=%s version=%s", len(files), levels, requested_version)
         self.main_window.listCurrentLevel = levels
         decision = {"result": "no_profile", "mismatch_type": None, "decision": "continue", "policy_version": "2026.10"}
         profile_path = self.main_window.lineEdit_TestProfile.text().strip()
@@ -259,6 +268,7 @@ class AnalysisRunner:
             # 更新配置
             self.main_window.config_manager.update_config(test_info)
             self.main_window.sha256_checksum_run = self.main_window.sha256_checksum
+            self.main_window.version_run = test_info.version
             self.main_window.statusBar_BatteryAnalysis.showMessage("status:ok")
 
             # 启动分析

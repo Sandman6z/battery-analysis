@@ -164,8 +164,10 @@ class SignalConnector:
                 # 显示成功提示，添加打开报告和打开路径按钮
                 msg_box = QW.QMessageBox()
                 msg_box.setWindowTitle("Analysis Completed")
+                warning_summary = threadinfo.partition("\n")[2]
                 msg_box.setText(
                     "Battery analysis completed successfully!\n\nThe report has been generated to the specified output path."
+                    + ("\n\nWarning: " + warning_summary if warning_summary else "")
                 )
                 msg_box.setIcon(QW.QMessageBox.Icon.Information)
 

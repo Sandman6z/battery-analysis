@@ -13,8 +13,8 @@ from pathlib import Path
 
 import matplotlib
 
+from battery_analysis.utils.battery_classifier import battery_type_code
 from battery_analysis.utils.constants import (
-    BATTERY_TYPE_BASE,
     CN_FONT_LIST,
     COLOR_NAME,
     PLT_COLOR_TYPE,
@@ -48,12 +48,7 @@ logger = logging.getLogger(__name__)
 
 def match_battery_type(test_info_type: str) -> str:
     """从测试信息中匹配电池类型，返回标准类型名称"""
-    try:
-        stripped_types = [bt.strip() for bt in BATTERY_TYPE_BASE]
-        result = next((bt for bt in stripped_types if bt in test_info_type), None)
-        return result or stripped_types[0]
-    except (IndexError, TypeError, ValueError):
-        return test_info_type
+    return battery_type_code(test_info_type)
 
 
 # ── 共享报告内容计算 ──────────────────────────────────────────
@@ -517,7 +512,7 @@ class ReportCoordinator:
             self.listImageToReplace.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
 
         # 电池类型匹配
-        strBatteryType = match_battery_type(self.listTestInfo[2])
+        strBatteryType = match_battery_type(self.listTestInfo[0])
 
         # 颜色/电流等级字符串
         strStrF = ""

@@ -1,6 +1,17 @@
 """电池型号分类工具——根据型号名和容量判断电池类型"""
 
+from battery_analysis.utils.constants import BATTERY_TYPE_BASE
+
 DEFAULT_CAPACITY_THRESHOLD = 800  # mAh，低于此值为 Coin Cell
+
+
+def battery_type_code(battery_type: str) -> str:
+    """Serialize the submitted UI/TestInfo type; never guess it from a model name."""
+    normalized = "".join(str(battery_type).split()).casefold()
+    for code in BATTERY_TYPE_BASE:
+        if code.casefold() == normalized:
+            return code
+    raise ValueError(f"Unknown battery type: {battery_type!r}; select a valid Battery Type")
 
 
 def classify_spec(model_name: str, capacity: int = 0) -> str:

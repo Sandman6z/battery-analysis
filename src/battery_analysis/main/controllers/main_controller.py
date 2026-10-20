@@ -11,6 +11,8 @@ from PyQt6 import QtWidgets as QW
 from battery_analysis.main.workers.analysis_worker import AnalysisWorker
 from battery_analysis.main.workers.task_runner import TaskSignals
 
+logger = logging.getLogger("battery_analysis.main_controller")
+
 
 class MainController(QC.QObject):
     """
@@ -98,6 +100,7 @@ class MainController(QC.QObject):
         # 启动工作线程
         self.thread_pool.start(self.current_worker)
         self.is_analysis_running = True
+        logger.info("Analysis submitted: input=%s output=%s", self.input_path, self.output_path)
         return True
 
     def cancel_analysis(self):
@@ -119,6 +122,33 @@ class MainController(QC.QObject):
         """
         return self.is_analysis_running
 
+    @staticmethod
+    def _show_anomaly_dialog(title, prompt, lines, confirm_label):
+        """Keep anomaly details scrollable and the action buttons on screen."""
+        parent = QW.QApplication.activeWindow()
+        dialog = QW.QDialog(parent)
+        dialog.setWindowTitle(title)
+        layout = QW.QVBoxLayout(dialog)
+        summary = QW.QLabel(prompt)
+        summary.setWordWrap(True)
+        layout.addWidget(summary)
+        details = QW.QPlainTextEdit(dialog)
+        details.setReadOnly(True)
+        details.setPlainText("\n".join(lines))
+        layout.addWidget(details)
+        buttons = QW.QDialogButtonBox(dialog)
+        confirm = buttons.addButton(confirm_label, QW.QDialogButtonBox.ButtonRole.AcceptRole)
+        stop = buttons.addButton("Stop batch", QW.QDialogButtonBox.ButtonRole.RejectRole)
+        stop.setDefault(True)
+        confirm.clicked.connect(dialog.accept)
+        stop.clicked.connect(dialog.reject)
+        layout.addWidget(buttons)
+        screen = parent.screen() if parent else QW.QApplication.primaryScreen()
+        if screen:
+            available = screen.availableGeometry()
+            dialog.resize(min(700, int(available.width() * 0.8)), min(500, int(available.height() * 2 / 3)))
+        return dialog.exec() == QW.QDialog.DialogCode.Accepted
+
     def _on_anomalies_request(self, anomalies):
         """Both confirmations run on this QObject's GUI thread, never in the worker."""
         worker = self.current_worker
@@ -126,27 +156,23 @@ class MainController(QC.QObject):
             if worker:
                 worker.confirm_anomalies(False)
             return
-        lines = [f"{a['file']}: {a['type']} - {a.get('reason', a.get('current', ''))}" for a in anomalies]
+        logger.info("Showing anomaly dialog: count=%d", len(anomalies))
+        lines = [
+            f"{a['file']}: {a['type']} — {a['current']} mA / {a['voltage']} V (required judgment cell)"
+            if a["type"] in ("missing_pulse", "required_slot_missing") else
+            f"{a['file']}: {a['type']} - {a.get('reason', a.get('current', ''))}"
+            for a in anomalies
+        ]
+        summary = f"Missing/invalid slots: {len(anomalies)}; affected files: {len({a['file'] for a in anomalies})}. "
         structural = any(a["type"] != "current_deviation" for a in anomalies)
         consequence = (
-            "Continuing leaves missing file/current/voltage slots empty; statistics may be incomplete."
+            "Required judgment data or input files are missing. Continuing leaves slots empty; the report is not proof of a complete qualification test."
             if structural else "Measured pulse currents deviate from the Step.xml recipe; data remain available."
         )
-        parent = QW.QApplication.activeWindow()
-        first = QW.QMessageBox.question(
-            parent, "Analysis anomalies", "Stop the entire batch?\n" + "\n".join(lines),
-            QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-            QW.QMessageBox.StandardButton.Yes,
-        )
         allowed = False
-        if first == QW.QMessageBox.StandardButton.No and not worker.b_cancel_requested:
-            second = QW.QMessageBox.question(
-                parent, "Missing data consequences",
-                consequence + " Continue?\n" + "\n".join(lines),
-                QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
-                QW.QMessageBox.StandardButton.No,
-            )
-            allowed = second == QW.QMessageBox.StandardButton.Yes
+        if self._show_anomaly_dialog("Analysis anomalies", summary + "Stop the entire batch? Review the anomalies below before continuing.", lines, "Review consequences") and not worker.b_cancel_requested:
+            allowed = self._show_anomaly_dialog("Missing data consequences", summary + consequence + " Continue?", lines, "Continue analysis")
+        logger.info("Anomaly dialog completed: allowed=%s", allowed)
         worker.confirm_anomalies(allowed)
 
     def _on_progress_update(self, progress, status_text):
@@ -174,6 +200,7 @@ class MainController(QC.QObject):
         """
         分析完成回调
         """
+        logger.info("Analysis thread ended")
         self.is_analysis_running = False
         # 释放 worker 引用，允许 Python GC 回收 TaskRunner（setAutoDelete=False）
         self.current_worker = None

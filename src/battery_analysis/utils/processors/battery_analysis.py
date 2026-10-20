@@ -17,12 +17,14 @@ import traceback
 from pathlib import Path
 
 from battery_analysis.ndax.reader import read_analysis_views
+from battery_analysis.utils.battery_classifier import battery_type_code
 from battery_analysis.utils.exceptions import BatteryAnalysisException
 from battery_analysis.utils.file_finder import scan_sorted_ndax
 from battery_analysis.utils.processors.charge_calculator import ChargeCalculator
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
 from battery_analysis.utils.processors.pulse_detector import detect_pulse_rows
 from battery_analysis.utils.processors.pulse_matcher import match_pulse_levels
+from battery_analysis.utils.quality_requirements import build_expectations
 from battery_analysis.utils.readers.xlsx_reader import (
     extract_test_date_from_xls,
     read_xlsx_sheets,
@@ -36,6 +38,7 @@ if __name__ == "__main__":
     pass
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("battery_analysis.processors.battery_analysis")
 
 
 class BatteryAnalysis:
@@ -135,6 +138,7 @@ class BatteryAnalysis:
 
             if not self.listAllInXlsx:
                 raise BatteryAnalysisException("[Input Path Error]: has no ndax data file")
+            logger.info("Reading analysis inputs: files=%d currents=%d voltages=%d", len(self.listAllInXlsx), len(self.listCurrentLevel), len(self.listVoltageLevel))
 
             # ── 并行处理 ──────────────────────────────────────────
             process_args = [
@@ -150,7 +154,9 @@ class BatteryAnalysis:
                     progress_callback(15 + int(idx / len(process_args) * 35), f"Analyzing {Path(args[0]).name}...")
                 try:
                     results.append(self._parallel_process_file(args))
+                    logger.info("Analyzed input %d/%d: %s", idx + 1, len(process_args), Path(args[0]).name)
                 except Exception as e:
+                    logger.exception("Input failed %d/%d: %s", idx + 1, len(process_args), Path(args[0]).name)
                     self.anomalies.append({"file": Path(args[0]).name, "type": "file_error", "reason": str(e)})
                     slots = len(self.listCurrentLevel) * len(self.listVoltageLevel)
                     results.append((Path(args[0]).name, [None] * slots,
@@ -202,13 +208,80 @@ class BatteryAnalysis:
                     "end": self.listTimeStamp[1],
                     "test_date": self.test_date,
                 })
-            # 只有缺脉冲/坏文件才值得停批次；偏离与跨日仅记录留痕。
-            structural = [
-                a for a in self.anomalies if a["type"] in ("file_error", "missing_pulse")
-            ]
-            if structural and self._decision_callback and not self._decision_callback(structural):
-                from battery_analysis.main.workers.task_runner import TaskCancelled
-                raise TaskCancelled
+            required = [(e.current_ma, e.cutoff_v) for e in build_expectations(self.listTestInfo)]
+            # Match the report's fallback when the model/construction cannot derive a PDF cell.
+            if not required:
+                required = [(max(self.listCurrentLevel), 2.25)]
+            for current, voltage in required:
+                if not any(abs(float(c) - current) < 1e-6 for c in self.listCurrentLevel) or not any(abs(float(v) - voltage) < 1e-6 for v in self.listVoltageLevel):
+                    self.anomalies.append({"file": "<batch>", "type": "required_slot_missing", "current": current, "voltage": voltage,
+                                           "reason": "Required judgment cell is absent from the analysis levels"})
+            if self.listTestInfo[8] and self.listTestInfo[9] and str(self.listTestInfo[8]) != str(self.listTestInfo[9]):
+                self.anomalies.append({"file": "<batch>", "type": "capacity_basis_difference",
+                                       "datasheet_mah": self.listTestInfo[8], "calculation_mah": self.listTestInfo[9],
+                                       "reason": "Existing judgment rules use Calculation Nominal Capacity; values were not changed"})
+            structural = []
+            ordinary_missing = []
+            for anomaly in self.anomalies:
+                if anomaly["type"] in ("file_error", "required_slot_missing"):
+                    structural.append(anomaly)
+                elif anomaly["type"] == "missing_pulse":
+                    is_required = any(abs(float(anomaly["current"]) - c) < 1e-6 and abs(float(anomaly["voltage"]) - v) < 1e-6 for c, v in required)
+                    (structural if is_required else ordinary_missing).append(anomaly)
+            self.warning_summary = ""
+            if ordinary_missing:
+                self.warning_summary = (
+                    f"Non-judgment cutoff data unavailable: {len(ordinary_missing)} slots across "
+                    f"{len({a['file'] for a in ordinary_missing})} files. Analysis continued without filling missing values. "
+                    "See No data cells in the report and anomalies in Info_Plot.json."
+                )
+                logger.warning(self.warning_summary)
+            logger.info("Analysis anomalies: total=%d requires_confirmation=%d ordinary_missing=%d types=%s timestamps=%s", len(self.anomalies), len(structural), len(ordinary_missing), sorted({a["type"] for a in self.anomalies}), self.listTimeStamp)
+            classified = []
+            for anomaly in self.anomalies:
+                blocking = anomaly in structural
+                category = (
+                    "required_judgment_missing" if blocking and anomaly["type"] in ("missing_pulse", "required_slot_missing")
+                    else "input_file_error" if anomaly["type"] == "file_error"
+                    else "non_judgment_cutoff_missing" if anomaly["type"] == "missing_pulse"
+                    else anomaly["type"]
+                )
+                entry = {**anomaly, "category": category, "requires_confirmation": blocking}
+                classified.append(entry)
+                logger.warning("Data quality: category=%s requires_confirmation=%s details=%s", category, blocking, anomaly)
+            if structural and self._decision_callback:
+                allowed = self._decision_callback(structural)
+                logger.warning("Data quality confirmation: allowed=%s issues=%s", allowed, structural)
+                if not allowed:
+                    from battery_analysis.main.workers.task_runner import TaskCancelled
+                    raise TaskCancelled
+            else:
+                allowed = None
+            self.analysis_audit = {
+                "input_context": {
+                    "source": "submitted TestInfo snapshot (GUI fields; defaults from BatteryConfig/Rules, may be edited)",
+                    "battery_type": self.listTestInfo[0],
+                    "battery_type_code": battery_type_code(self.listTestInfo[0]) if self.listTestInfo[0] else "",
+                    "model": self.listTestInfo[2],
+                    "profile_validation": self.profile_validation,
+                    "datasheet_nominal_capacity": self.listTestInfo[8],
+                    "calculation_nominal_capacity": self.listTestInfo[9],
+                    "judgment_capacity_basis": "calculation_nominal_capacity",
+                    "declared_samples": self.listTestInfo[6], "input_files": len(self.listAllInXlsx),
+                },
+                "classification": classified,
+                "confirmation": "allowed" if allowed else "not_connected" if structural else "not_required",
+                "required_judgment_cells": [{"current_ma": c, "voltage": v} for c, v in required],
+                "slot_sample_counts": [
+                    {"current_ma": current, "voltage": voltage, "expected": len(self.listAllInXlsx),
+                     "valid": sum(row[c * len(self.listVoltageLevel) + v] is not None and row[c * len(self.listVoltageLevel) + v] != 0 for row in self.listAllBatteryCharge)}
+                    for c, current in enumerate(self.listCurrentLevel) for v, voltage in enumerate(self.listVoltageLevel)
+                ],
+            }
+            logger.info("Analysis input context: %s", self.analysis_audit["input_context"])
+            for slot in self.analysis_audit["slot_sample_counts"]:
+                if slot["valid"] < slot["expected"]:
+                    logger.warning("Data quality sample coverage: %s", slot)
             if progress_callback:
                 progress_callback(52, "Writing CSV file...")
 
@@ -219,6 +292,7 @@ class BatteryAnalysis:
                 progress_callback(55, "Data processing complete")
 
         except (OSError, ValueError, BatteryAnalysisException, KeyError) as e:
+            logger.exception("Analysis processing failed")
             self.strErrorLog = str(e)
             if not isinstance(e, (BatteryAnalysisException, KeyError)):
                 traceback.print_exc()
@@ -464,6 +538,7 @@ class BatteryAnalysis:
             current_levels=self.listCurrentLevel,
             anomalies=getattr(self, "anomalies", []),
             profile_validation=self.profile_validation,
+            analysis_audit=getattr(self, "analysis_audit", {}),
             file_statuses=[
                 {"file": Path(path).name, "levels": [
                     {"current_ma": current, "voltages": [

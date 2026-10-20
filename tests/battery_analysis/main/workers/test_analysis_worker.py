@@ -108,6 +108,8 @@ class TestAnalysisWorker:
             def UBA_GetBatteryInfo(self):
                 return [[[]], ["good"], ["2024-10-19 23:55:00", "2024-10-19 23:56:00"], "", ""]
 
+        Engine.warning_summary = "Non-judgment cutoff data unavailable: 2 slots across 1 file."
+
         class Writer:
             def __init__(self, *, result_dir, **kwargs):
                 from pathlib import Path
@@ -134,9 +136,11 @@ class TestAnalysisWorker:
         worker = AnalysisWorker()
         worker.set_info("project", "input", str(output), info)
         success = QSignalSpy(worker.signals.analysis_succeeded)
+        statuses = QSignalSpy(worker.signals.info)
         renamed = QSignalSpy(worker.signals.rename_path)
         worker.run()
         assert len(success) == 1
+        assert statuses[-1][2] == "status:success\n" + Engine.warning_summary
         assert renamed[0] == ["20241019"]
         assert (output / "20241019_v1.0" / "Result.xlsx").exists()
 

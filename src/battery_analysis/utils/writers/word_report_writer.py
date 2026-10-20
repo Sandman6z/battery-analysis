@@ -151,7 +151,7 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
             self.listImageToReplace.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
 
         # 电池类型匹配
-        strBatteryType = match_battery_type(self.listTestInfo[2])
+        strBatteryType = match_battery_type(self.listTestInfo[0])
 
         # strStrF（颜色/电流等级字符串）
         strStrF = ""

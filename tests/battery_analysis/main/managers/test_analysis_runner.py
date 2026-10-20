@@ -63,3 +63,36 @@ class TestAnalysisRunner:
         mw.sha256_checksum = FileUtils.calc_checksum([str(p) for p in sorted(source.glob("*.ndax"))])
         with pytest.raises(ValueError, match=r"Different Step\.xml"):
             self.runner._preflight_recipe()
+
+    def test_manual_version_requires_highest_and_no_duplicate(self, tmp_path):
+        source = tmp_path / "1_ndax"
+        source.mkdir()
+        with zipfile.ZipFile(source / "a.ndax", "w") as z:
+            z.writestr("Step.xml", self._recipe([30, 26]))
+        profile = tmp_path / "profile.xml"
+        profile.write_text(self._recipe([30, 26]), encoding="utf-8")
+        out = tmp_path / "results"
+        out.mkdir()
+        checksum = FileUtils.calc_checksum([str(source / "a.ndax")])
+        with (out / "SHA256.csv").open("w", newline="", encoding="utf-8") as f:
+            csv.writer(f).writerows([
+                ["Checksums:"], ["old1", "old2", "old3", checksum],
+                ["Times:"], ["1", "1", "1", "0"],
+            ])
+        mw = self.main_window
+        mw.lineEdit_InputPath.text.return_value = str(source)
+        mw.lineEdit_OutputPath.text.return_value = str(out)
+        mw.lineEdit_TestProfile.text.return_value = str(profile)
+        mw.sha256_checksum = checksum
+        mw.lineEdit_Version.text.return_value = "1.08"
+        with pytest.raises(ValueError, match=r"below the highest version 4\.0"):
+            self.runner._preflight_recipe()
+        mw.lineEdit_Version.text.return_value = "4.0"
+        self.runner._preflight_recipe()
+        (out / "20250610_v4.0").mkdir()
+        with pytest.raises(ValueError, match="already has a report"):
+            self.runner._preflight_recipe()
+        mw.lineEdit_Version.text.return_value = "4.1"
+        self.runner._preflight_recipe()
+        mw.lineEdit_Version.text.return_value = "5.0"
+        self.runner._preflight_recipe()

@@ -11,10 +11,29 @@
 import csv
 import logging
 import os
+import re
 import tempfile
 from pathlib import Path
 
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
+
+
+def parse_version(value):
+    """Compare numeric components, so 4.01 and 4.1 denote the same version."""
+    if not isinstance(value, str) or not re.fullmatch(r"\d+(?:\.\d+){1,2}", value):
+        raise ValueError("Version must contain 2 or 3 numeric components (e.g. 4.1)")
+    parts = tuple(int(part) for part in value.split("."))
+    return (parts + (0,) * (3 - len(parts)))
+
+
+def delivered_versions(output_path):
+    """Versions already used by delivered reports, including other test dates."""
+    versions = set()
+    for path in Path(output_path).iterdir():
+        match = re.search(r"(?:^|_)v(\d+(?:\.\d+){1,2})(?:\.docx)?$", path.name)
+        if match:
+            versions.add(parse_version(match.group(1)))
+    return versions
 
 
 class VersionManager:
@@ -179,10 +198,21 @@ class VersionManager:
                     listChecksum, listTimes, checksum
                 )
                 self._write_sha256_csv(strCsvPath, listChecksum, listTimes)
-                self.main_window.lineEdit_Version.setText(f"{major}.{minor}")
+                candidate = f"{major}.{minor}"
+                used = delivered_versions(strOutoutDir)
+                if used and parse_version(candidate) <= max(used):
+                    highest = max(used)
+                    candidate = f"{highest[0]}.{highest[1] + 1}" if highest[2] == 0 else f"{highest[0]}.{highest[1]}.{highest[2] + 1}"
+                self.main_window.lineEdit_Version.setText(candidate)
             else:
                 self._write_sha256_csv(strCsvPath, [checksum], ["0"])
-                self.main_window.lineEdit_Version.setText("1.0")
+                used = delivered_versions(strOutoutDir)
+                if used:
+                    highest = max(used)
+                    candidate = f"{highest[0]}.{highest[1] + 1}" if highest[2] == 0 else f"{highest[0]}.{highest[1]}.{highest[2] + 1}"
+                else:
+                    candidate = "1.0"
+                self.main_window.lineEdit_Version.setText(candidate)
 
             # 使用文件服务设置文件隐藏属性
             file_service = self.main_window._get_service("file")
@@ -293,9 +323,18 @@ class VersionManager:
                                 current_times = 0
                             new_times = current_times + 1
                             list_times[c] = str(new_times)
-                            self.main_window.lineEdit_Version.setText(
-                                f"{version_major}.{new_times}"
-                            )
+                            used_version = getattr(self.main_window, "version_run", None)
+                            if not isinstance(used_version, str):
+                                used_version = self.main_window.lineEdit_Version.text()
+                            try:
+                                parts = parse_version(used_version)
+                                if len(used_version.split(".")) == 3:
+                                    next_version = f"{parts[0]}.{parts[1]}.{parts[2] + 1}"
+                                else:
+                                    next_version = f"{parts[0]}.{parts[1] + 1}"
+                            except ValueError:
+                                next_version = f"{version_major}.{new_times}"
+                            self.main_window.lineEdit_Version.setText(next_version)
                             break
 
                     if not checksum_found:

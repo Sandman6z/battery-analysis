@@ -95,7 +95,7 @@ class JsonWriter:
 
         strBatteryModel = self.listTestInfo[2]
         # 电池类型匹配
-        strBatteryType = match_battery_type(self.listTestInfo[2])
+        strBatteryType = match_battery_type(self.listTestInfo[0])
 
         self.dictJson.update(
             {
