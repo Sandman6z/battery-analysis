@@ -33,7 +33,7 @@ After selecting a **Test Profile (XML)**, the app automatically:
 - Validates the XML (file name, content; encoding auto-compatible with UTF-8/GBK)
 - **Sets the input path** to the sibling `1_ndax` folder; main analysis no longer reads `2_xlsx`
 - **Sets the output path** to the sibling `3_analysis results` folder (asks whether to create it if it doesn't exist)
-- **Detects temperature automatically**: `Freezer` in the file name → Freezer temperature; otherwise → Room temperature
+- **Detects recipe temperature from NDAX**: `TestInfo.xml` → `TestInfo@StepName` containing `Freezer` (case-insensitive) means freezer; otherwise room. External XML file names do not determine temperature.
 - Suggests a report version from the NDAX checksum; manual unused versions at or above the highest applicable version are allowed (Tips 9)
 - If you are a new team member, just type your name directly into the name field.
 
@@ -65,9 +65,8 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 - **Datasheet Nominal Capacity**, **Calculation Nominal Capacity**, **Required Useable Capacity** (absolute value such as `380`; or percentage such as `80%` = calculation capacity × 80%; or construction-aware dual percentage `85%|75%` = spiral/laminate, resolved by the selected construction method, aligned with BatteryQualityRequirements_v2.3 §7.1.1)
 - Automatically matches the **Battery Type** (e.g. selecting CR2450 → Coin Cell)
-- Automatically determines the **temperature** based on required useable capacity:
-  - `280` → switches to **Freezer -20°C**
-  - `380` → switches to **Room temperature**
+- **Temperature type is read only from embedded NDAX `StepName`** and cannot be changed manually. Capacity rules no longer determine temperature. Freezer nominal temperature defaults to −20°C and remains editable; it is not a measured temperature.
+- Missing/unreadable `StepName` is an error, not a room-temperature default. Mixed recipe temperatures or pulse levels in one batch block analysis. Analysis uses the embedded `Step.xml` currents, such as 15/13/7.5/3mA in the supplied freezer batch.
 
 > 💡 If the freezer temperature is set to 0°C when you click Run, a confirmation dialog appears to prevent mistakes.
 >

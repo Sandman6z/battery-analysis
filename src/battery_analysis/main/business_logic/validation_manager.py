@@ -41,4 +41,3 @@ class ValidationManager(ValidationFieldsMixin, ValidationSpecRulesMixin, Validat
         if main_window is None:
             raise ValueError("ValidationManager requires a main_window instance")
         self.main_window = main_window
-        self._temperature_set_from_xml = False  # 标志：温度是否已从XML文件名设置

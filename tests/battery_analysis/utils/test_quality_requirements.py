@@ -28,12 +28,14 @@ def make_test_info(
     method="1S1P",
     qnom=920,
     required=782,
+    temperature="Room Temperature",
 ):
     """构造 19 位位置列表（TestInfo.to_list 兼容格式）"""
     items = [""] * 19
     items[1] = construction
     items[2] = spec
     items[3] = method
+    items[7] = temperature
     items[9] = str(qnom)
     items[17] = str(required)
     return items
@@ -117,7 +119,7 @@ class TestBuildExpectations:
     def test_coin_freezer_single_cell(self):
         # §7.1.1.2.4：冷冻单体 15mA / >280mAh
         expectations = build_expectations(
-            make_test_info(construction="", spec="CR2450D", method="1S1P", qnom=600, required=280)
+            make_test_info(construction="", spec="CR2450D", method="1S1P", qnom=600, required=280, temperature="Freezer Temperature:-20")
         )
         assert expectations[0].current_ma == 15
         assert expectations[0].threshold_mah == 280
@@ -125,7 +127,13 @@ class TestBuildExpectations:
     def test_coin_freezer_1s2p(self):
         # §7.1.1.2.5：冷冻 1S2P 30mA / >280mAh
         expectations = build_expectations(
-            make_test_info(construction="", spec="CR2450D", method="1S2P", qnom=600, required=280)
+            make_test_info(construction="", spec="CR2450D", method="1S2P", qnom=600, required=280, temperature="Freezer Temperature:-20")
+        )
+        assert expectations[0].current_ma == 30
+
+    def test_capacity_does_not_override_ndax_room_temperature(self):
+        expectations = build_expectations(
+            make_test_info(spec="CR2450D", qnom=600, required=280)
         )
         assert expectations[0].current_ma == 30
 

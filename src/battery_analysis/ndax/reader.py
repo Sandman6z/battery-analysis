@@ -55,6 +55,20 @@ def recipe_levels(ndax_path: str | Path) -> list[float]:
         raise ValueError(f"Cannot read Step.xml in {ndax_path}: {e}") from e
 
 
+def recipe_temperature(ndax_path: str | Path) -> str:
+    """Classify the recorded recipe name, not the measured ambient temperature."""
+    try:
+        with zipfile.ZipFile(ndax_path) as archive:
+            root = _xml_root(archive.read("TestInfo.xml"))
+        info = root.find(".//TestInfo")
+        name = info.get("StepName", "").strip() if info is not None else ""
+        if not name:
+            raise ValueError("TestInfo.xml has no StepName")
+        return "Freezer Temperature" if "freezer" in name.lower() else "Room Temperature"
+    except (zipfile.BadZipFile, UnicodeError, ET.ParseError, KeyError) as e:
+        raise ValueError(f"Cannot read TestInfo.xml StepName in {ndax_path}: {e}") from e
+
+
 def profile_levels(profile_path: str | Path) -> list[float]:
     return pulse_levels(_xml_root(Path(profile_path).read_bytes()))
 

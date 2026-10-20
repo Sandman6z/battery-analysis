@@ -277,7 +277,7 @@ class UIManager:
             self.main_window.lineEdit_SamplesQty.setToolTip(_("Enter number of samples"))
 
             # 温度类型
-            self.main_window.comboBox_Temperature.setToolTip(_("Select temperature type"))
+            self.main_window.comboBox_Temperature.setToolTip("From NDAX TestInfo.xml StepName (recipe type, not measured temperature)")
 
             # 温度值
             self.main_window.spinBox_Temperature.setToolTip(_("Enter freezing temperature value"))
@@ -460,8 +460,9 @@ class UIManager:
             self.main_window.comboBox_Temperature.addItems(
                 ["Room Temperature", "Freezer Temperature"]
             )
-        # 设置默认值为Room Temperature
-        self.main_window.comboBox_Temperature.setCurrentText("Room Temperature")
+        # 等待 NDAX 内嵌 StepName；温度类型不允许手动覆盖。
+        self.main_window.comboBox_Temperature.setCurrentIndex(-1)
+        self.main_window.comboBox_Temperature.setEnabled(False)
         # 默认禁用spinBox_Temperature
         self.main_window.spinBox_Temperature.setEnabled(False)
 

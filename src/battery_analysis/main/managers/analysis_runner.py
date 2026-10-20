@@ -73,7 +73,7 @@ class AnalysisRunner:
         self._update_controller_context(test_info, files, profile_decision)
 
     def _preflight_recipe(self):
-        from battery_analysis.ndax.reader import profile_levels, recipe_levels
+        from battery_analysis.ndax.reader import profile_levels, recipe_levels, recipe_temperature
 
         input_dir = Path(self.main_window.lineEdit_InputPath.text())
         from battery_analysis.utils.file_finder import scan_sorted_ndax
@@ -82,7 +82,10 @@ class AnalysisRunner:
         if not files:
             raise ValueError(f"No .ndax files in {input_dir}")
         levels = recipe_levels(files[0])
+        temperature = recipe_temperature(files[0])
         for path in files[1:]:
+            if recipe_temperature(path) != temperature:
+                raise ValueError(f"Different TestInfo.xml recipe temperatures: {Path(files[0]).name}; {Path(path).name}")
             other = recipe_levels(path)
             if other != levels:
                 raise ValueError(f"Different Step.xml pulse levels: {Path(files[0]).name}: {levels}; {Path(path).name}: {other}")
@@ -112,6 +115,9 @@ class AnalysisRunner:
             raise ValueError(f"Version {requested_version} already has a report; choose an unused version")
         self.logger.info("NDAX preflight passed: files=%d levels=%s version=%s", len(files), levels, requested_version)
         self.main_window.listCurrentLevel = levels
+        from battery_analysis.main.handlers.temperature_handler import TemperatureType
+
+        self.main_window.temperature_handler.update_temperature_ui(TemperatureType(temperature))
         decision = {"result": "no_profile", "mismatch_type": None, "decision": "continue", "policy_version": "2026.10"}
         profile_path = self.main_window.lineEdit_TestProfile.text().strip()
         if profile_path:

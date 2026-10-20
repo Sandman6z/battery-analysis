@@ -177,9 +177,8 @@ def build_expectations(list_test_info) -> list[Expectation]:
         # §7.1.1.1 常温 30mA/>380mAh；§7.1.1.2 冷冻单体 15mA、1S2P 30mA/>280mAh
         if required is None:
             return []
-        # 三入口收敛：required==280 与温度字段（listTestInfo[7]）OR 判定，
-        # 与 data_processor 文件名/规则口径同步（data_processor.py 共调本 helper）
-        is_freezer = is_freezer_context(required=required, temperature=str(ti[7] or ""))
+        # 温度字段由 NDAX StepName 确定；容量规则不能反推温度。
+        is_freezer = is_freezer_context(temperature=str(ti[7] or ""))
         if required not in (FREEZER_REQUIRED_CAPACITY_MAH, 380):
             # PDF §7.1.1.1/.2 只给 380（常温）/ 280（冷冻）；其他值属规则侧自定义，提示核对
             logger.warning(

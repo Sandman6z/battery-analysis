@@ -121,6 +121,7 @@ class DataProcessor:
         if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.clear()
         self._disconnect_specification_signals()
+        self.main_window.temperature_handler.clear_temperature_ui()
 
         input_dir = self.main_window.lineEdit_InputPath.text()
         from battery_analysis.utils.file_validator import FileValidator
@@ -216,14 +217,15 @@ class DataProcessor:
                     int((index + 1) / len(excel_files) * 100), f"Validating {filename}..."
                 )
             file_path = os.path.join(input_dir, filename)
-            from battery_analysis.ndax.reader import recipe_levels
+            from battery_analysis.ndax.reader import recipe_levels, recipe_temperature
 
             try:
                 levels = recipe_levels(file_path)
+                temperature = recipe_temperature(file_path)
             except (OSError, ValueError, KeyError, zipfile.BadZipFile) as e:
                 error_files.append((filename, str(e)))
                 continue
-            file_info = {"filename": filename, "current_levels": levels}
+            file_info = {"filename": filename, "current_levels": levels, "temperature": temperature}
             excel_data.append(file_info)
         return excel_files, excel_data, error_files
 
@@ -264,7 +266,23 @@ class DataProcessor:
                 )
             return
 
+        if excel_data and any(
+            (entry["current_levels"], entry["temperature"])
+            != (excel_data[0]["current_levels"], excel_data[0]["temperature"])
+            for entry in excel_data[1:]
+        ):
+            self.main_window.temperature_handler.clear_temperature_ui()
+            self._on_excel_files_process_error(
+                "NDAX files have different recipe temperatures or Step.xml pulse levels", generation
+            )
+            return
+
         self._update_ui_with_excel_info(excel_files, excel_data)
+        from battery_analysis.main.handlers.temperature_handler import TemperatureType
+
+        self.main_window.temperature_handler.update_temperature_ui(
+            TemperatureType(excel_data[0]["temperature"])
+        )
         if excel_data:
             self._process_first_excel_file(excel_data[0]["filename"])
         self._reconnect_specification_signals()

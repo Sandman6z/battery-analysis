@@ -160,17 +160,6 @@ class ValidationSpecRulesMixin:
         # 按规则匹配填充容量字段（含 85%|75% 构造相关换算）
         self._apply_specification_rules()
 
-        # 根据 required useable capacity 自动判定温度类型
-        # 但如果温度已从XML文件名设置，则跳过容量检测，避免覆盖
-        if not self._temperature_set_from_xml:
-            capacity_text = self.main_window.lineEdit_RequiredUseableCapacity.text()
-            if capacity_text:
-                try:
-                    capacity_value = int(capacity_text)
-                    self.main_window.temperature_handler.set_temperature_by_capacity(capacity_value)
-                except ValueError:
-                    pass
-
     def _clear_spec_rule_fields(self) -> None:
         """清空「标称 / 计算 / 要求可用容量」三个字段"""
         self.main_window.lineEdit_DatasheetNominalCapacity.setText("")

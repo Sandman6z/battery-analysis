@@ -6,7 +6,6 @@
 
 # 标准库导入
 import logging
-import os
 
 # 第三方库导入
 import PyQt6.QtWidgets as QW
@@ -65,9 +64,6 @@ class TestProfileManager:
             self.main_window.current_directory = parent_dir
             self.logger.info("Setting current directory to project root: %s", parent_dir)
 
-            # 9. 根据XML文件名自动检测温度类型
-            self._detect_temperature_type_from_xml(selected_file)
-
         except (
             OSError,
             ValueError,
@@ -83,34 +79,3 @@ class TestProfileManager:
                 f"Error processing Test Profile:\n{e!s}",
                 QW.QMessageBox.StandardButton.Ok,
             )
-
-    def _detect_temperature_type_from_xml(self, xml_path: str) -> None:
-        """
-        根据XML文件名自动检测温度类型
-
-        Args:
-            xml_path: XML文件的完整路径
-        """
-        try:
-            # 使用温度处理器检测温度类型
-            temperature_type = (
-                self.main_window.temperature_handler.detect_temperature_type_from_xml(xml_path)
-            )
-
-            # 获取文件名用于日志
-            file_name = os.path.basename(xml_path)
-
-            # 使用温度处理器更新UI
-            self.main_window.temperature_handler.update_temperature_ui(temperature_type)
-
-            # 设置标志，防止后续容量检测覆盖XML文件名检测的结果
-            self.main_window.validation_manager._temperature_set_from_xml = True
-
-            # 记录日志
-            if temperature_type.value == "Freezer Temperature":
-                self.logger.info("Freezer temperature test profile detected: %s", file_name)
-            else:
-                self.logger.info("Room temperature test profile detected: %s", file_name)
-
-        except (AttributeError, ValueError) as e:
-            self.logger.warning("Error detecting temperature type: %s", e)

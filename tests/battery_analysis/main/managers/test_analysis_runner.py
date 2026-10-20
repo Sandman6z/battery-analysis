@@ -40,6 +40,7 @@ class TestAnalysisRunner:
         for name in ("a.ndax", "b.ndax"):
             with zipfile.ZipFile(source / name, "w") as z:
                 z.writestr("Step.xml", self._recipe([30, 26]))
+                z.writestr("TestInfo.xml", '<root><TestInfo StepName="room.xml"/></root>')
         profile = tmp_path / "profile.xml"
         profile.write_text(self._recipe([30, 26.01]), encoding="utf-8")
         checksum = FileUtils.calc_checksum([str(p) for p in sorted(source.glob("*.ndax"))])
@@ -60,6 +61,7 @@ class TestAnalysisRunner:
 
         with zipfile.ZipFile(source / "b.ndax", "w") as z:
             z.writestr("Step.xml", self._recipe([30, 25]))
+            z.writestr("TestInfo.xml", '<root><TestInfo StepName="room.xml"/></root>')
         mw.sha256_checksum = FileUtils.calc_checksum([str(p) for p in sorted(source.glob("*.ndax"))])
         with pytest.raises(ValueError, match=r"Different Step\.xml"):
             self.runner._preflight_recipe()
@@ -69,6 +71,7 @@ class TestAnalysisRunner:
         source.mkdir()
         with zipfile.ZipFile(source / "a.ndax", "w") as z:
             z.writestr("Step.xml", self._recipe([30, 26]))
+            z.writestr("TestInfo.xml", '<root><TestInfo StepName="room.xml"/></root>')
         profile = tmp_path / "profile.xml"
         profile.write_text(self._recipe([30, 26]), encoding="utf-8")
         out = tmp_path / "results"

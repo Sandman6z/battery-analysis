@@ -159,10 +159,12 @@ class TestCoinVerdict:
     """§7.1.1.1/§7.1.1.2：Coin Cell 期望格回归（标准 30mA/380、冷冻 15mA/280）。"""
 
     @staticmethod
-    def coin_info(spec="CR2450", method="1S1P", qnom=600, required=380):
-        return make_test_info(
+    def coin_info(spec="CR2450", method="1S1P", qnom=600, required=380, temperature="Room Temperature"):
+        info = make_test_info(
             construction="", spec=spec, method=method, qnom=qnom, required=required
         )
+        info[7] = temperature
+        return info
 
     def test_standard_room_pass(self):
         stats = make_stats(4, 9)
@@ -196,7 +198,7 @@ class TestCoinVerdict:
         stats["min"][0][V225_IDX] = 300
         stats["mm2s"][0][V225_IDX] = 295
         result = run(
-            self.coin_info(spec="CR2450D", required=280),
+            self.coin_info(spec="CR2450D", required=280, temperature="Freezer Temperature:-20"),
             stats,
             currents=(15, 13, 7.5, 3),
         )
@@ -207,7 +209,7 @@ class TestCoinVerdict:
         stats["min"][0][V225_IDX] = 270  # < 280
         stats["mm2s"][0][V225_IDX] = 265
         result = run(
-            self.coin_info(spec="CR2450D", required=280),
+            self.coin_info(spec="CR2450D", required=280, temperature="Freezer Temperature:-20"),
             stats,
             currents=(15, 13, 7.5, 3),
         )

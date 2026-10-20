@@ -222,6 +222,7 @@ class TestDataProcessor:
         valid = tmp_path / "channel1.ndax"
         with zipfile.ZipFile(valid, "w") as archive:
             archive.writestr("Step.xml", '<root><Step_Info><Step4><PulseData Count="1"><Pulse1 Value="-30"/></PulseData></Step4></Step_Info></root>')
+            archive.writestr("TestInfo.xml", '<root><TestInfo StepName="room.xml"/></root>')
         invalid = tmp_path / "channel2.ndax"
         invalid.write_bytes(b"not a real ndax")
         result = self.processor._process_excel_files_task(
@@ -229,7 +230,7 @@ class TestDataProcessor:
         )
         files, data, errors = result
         assert files == ["channel1.ndax", "channel2.ndax"]
-        assert data == [{"filename": "channel1.ndax", "current_levels": [30.0]}]
+        assert data == [{"filename": "channel1.ndax", "current_levels": [30.0], "temperature": "Room Temperature"}]
         assert len(errors) == 1
         assert errors[0][0] == "channel2.ndax"
 
@@ -237,7 +238,7 @@ class TestDataProcessor:
         """处理成功 → 更新 UI + 解析首个文件 + 重连规格信号"""
         self.processor._scan_generation = 5
         excel_files = ["a.xlsx"]
-        excel_data = [{"filename": "a.xlsx"}]
+        excel_data = [{"filename": "a.xlsx", "temperature": "Room Temperature"}]
         with (
             patch.object(self.processor, "_update_ui_with_excel_info") as mock_ui,
             patch.object(self.processor, "_process_first_excel_file") as mock_first,
@@ -269,7 +270,7 @@ class TestDataProcessor:
         self.processor._scan_generation = 5
         self.mock_main_window.checker_input_xlsx = Mock()
         # excel_data 需非空：否则会落入 `if not excel_data` 通用分支覆盖 set_error
-        valid_entry = {"filename": "b.xlsx"}
+        valid_entry = {"filename": "b.xlsx", "temperature": "Room Temperature"}
         with (
             patch.object(dp, "show_countdown_notice") as mock_notice,
             patch.object(self.processor, "_process_first_excel_file"),
@@ -342,11 +343,11 @@ class TestDataProcessor:
             patch.object(self.processor, "_reconnect_specification_signals") as mock_reconnect,
         ):
             self.processor._on_excel_files_processed(
-                (["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx"}], [("b.xlsx", "bad")]), generation=5
+                (["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx", "temperature": "Room Temperature"}], [("b.xlsx", "bad")]), generation=5
             )
         mock_notice.assert_not_called()
         self.mock_main_window.checker_input_xlsx.set_error.assert_called()
-        mock_ui.assert_called_once_with(["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx"}])
+        mock_ui.assert_called_once_with(["a.xlsx", "b.xlsx"], [{"filename": "a.xlsx", "temperature": "Room Temperature"}])
         mock_first.assert_called_once_with("a.xlsx")  # Fix 4 生效后是 excel_data[0]['filename']
         mock_reconnect.assert_called_once()
 
@@ -492,7 +493,7 @@ class TestSpecMethodDefault1S1P:
             patch.object(self.processor, "_show_spec_notices") as mock_notices,
         ):
             self.processor._on_excel_files_processed(
-                (["CR2450.xlsx"], [{"filename": "CR2450.xlsx"}], []), generation=5
+                (["CR2450.xlsx"], [{"filename": "CR2450.xlsx", "temperature": "Room Temperature"}], []), generation=5
             )
         # 型号已匹配（missing_rules=False）+ 方法默认 1S1P → 统一入口收到 (False, True, filename)
         mock_notices.assert_called_once_with(False, True, "CR2450.xlsx")
@@ -508,7 +509,7 @@ class TestSpecMethodDefault1S1P:
             patch.object(self.processor, "_show_spec_notices") as mock_notices,
         ):
             self.processor._on_excel_files_processed(
-                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=5
+                (["a.xlsx"], [{"filename": "a.xlsx", "temperature": "Room Temperature"}], []), generation=5
             )
         mock_notices.assert_not_called()
 
@@ -584,7 +585,7 @@ class TestMissingRulesNotice:
             patch.object(self.processor, "_show_spec_notices") as mock_notices,
         ):
             self.processor._on_excel_files_processed(
-                (["a.xlsx"], [{"filename": "a.xlsx"}], []), generation=5
+                (["a.xlsx"], [{"filename": "a.xlsx", "temperature": "Room Temperature"}], []), generation=5
             )
         mock_notices.assert_called_once_with(True, True, "a.xlsx")
         assert self.processor._spec_missing_rules is False
