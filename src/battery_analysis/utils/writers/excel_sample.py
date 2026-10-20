@@ -144,13 +144,18 @@ class ExcelSampleMixin:
             fmt_val = fmts["sample_data_bold"] if v == intPosi2V25 else fmts["sample_data"]
             fmt_pct = fmts["sample_data_pct_bold"] if v == intPosi2V25 else fmts["sample_data_pct"]
             col = intTestProfileStartLine + 9 + v * 2
-            wsExcel.write(2, col, f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}", fmt_val)
-            wsExcel.write_formula(
-                f"{excel_utils.num2letter(col + 1)}3",
-                f"=TRUNC({excel_utils.num2letter(col)}3/"
-                f"{excel_utils.num2letter(intTestProfileStartLine + 6)}3, 2)",
-                fmt_pct,
-            )
+            if stats.get("counts", [[1] * self.intVoltageLevelNum] * self.intCurrentLevelNum)[intPosiMaxmA][v]:
+                wsExcel.write(2, col, f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}", fmt_val)
+                wsExcel.write_formula(
+                    f"{excel_utils.num2letter(col + 1)}3",
+                    f"=TRUNC({excel_utils.num2letter(col)}3/"
+                    f"{excel_utils.num2letter(intTestProfileStartLine + 6)}3, 2)",
+                    fmt_pct,
+                )
+            else:
+                # 缺数据格写原因，不写 0，也不留下会报 #VALUE! 的公式
+                wsExcel.write(2, col, "No data (n=0)", fmt_val)
+                wsExcel.write(f"{excel_utils.num2letter(col + 1)}3", "", fmt_pct)
 
         # 日期/结果列
         for i in range(4):
@@ -268,7 +273,9 @@ class ExcelSampleMixin:
                 col,
                 intTestProfileStartLine + 9,
                 col + 1,
-                f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}",
+                "No data (n=0)"
+                if not stats.get("counts", [[1] * self.intVoltageLevelNum] * self.intCurrentLevelNum)[intPosiMaxmA][v]
+                else f"{round(stats['mm2s'][intPosiMaxmA][v], 2)}",
                 fmt_val,
             )
             wsWord.merge_range(

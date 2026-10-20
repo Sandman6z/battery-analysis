@@ -29,3 +29,54 @@ class TestMainController:
 
     def test_is_running_initially(self):
         assert self.controller.is_running() is False
+
+    def test_anomaly_confirmation_defaults_stop_then_abort(self, monkeypatch):
+        """两次确认：第一次默认停止；第二次默认中止；中途取消同样停止。"""
+        from unittest.mock import MagicMock
+
+        from PyQt6.QtWidgets import QMessageBox
+
+        from battery_analysis.main.controllers import main_controller as module
+
+        class Worker:
+            b_cancel_requested = False
+            def __init__(self):
+                self.result = None
+            def confirm_anomalies(self, allowed):
+                self.result = allowed
+
+        worker = Worker()
+        self.controller.current_worker = worker
+        question = MagicMock()
+        monkeypatch.setattr(
+            module,
+            "QW",
+            MagicMock(QMessageBox=MagicMock(question=question, StandardButton=QMessageBox.StandardButton)),
+        )
+
+        # 路径 1：第一次确认即停止
+        question.return_value = QMessageBox.StandardButton.Yes
+        self.controller._on_anomalies_request([{"file": "a.ndax", "type": "file_error", "reason": "x"}])
+        assert worker.result is False
+        assert question.call_count == 1
+
+        # 路径 2：第一次不停止、第二次确认继续 → 放行
+        question.reset_mock()
+        question.side_effect = [QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes]
+        self.controller._on_anomalies_request([{"file": "a.ndax", "type": "file_error", "reason": "x"}])
+        assert worker.result is True
+        assert question.call_count == 2
+
+        # 路径 3：第一次继续、第二次中止 → 停止
+        question.reset_mock()
+        question.side_effect = [QMessageBox.StandardButton.No, QMessageBox.StandardButton.No]
+        self.controller._on_anomalies_request([{"file": "a.ndax", "type": "missing_pulse", "current": 6}])
+        assert worker.result is False
+
+        # 路径 4：worker 已取消 → 直接停止，不弹框
+        question.reset_mock()
+        question.side_effect = None
+        worker.b_cancel_requested = True
+        self.controller._on_anomalies_request([{"file": "a.ndax", "type": "file_error", "reason": "x"}])
+        assert worker.result is False
+        question.assert_not_called()

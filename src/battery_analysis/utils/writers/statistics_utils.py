@@ -22,7 +22,7 @@ def compute_list_cpt(listBatteryCharge, intBatteryNum, intCurrentLevelNum, intVo
         for c in range(intCurrentLevelNum):
             for v in range(intVoltageLevelNum):
                 col = arr[:, i]
-                listCpt[c][v] = col[col != 0].tolist()
+                listCpt[c][v] = col[(col != 0) & (col != None)].tolist()  # noqa: E711
                 i += 1
     else:
         # 行不等长：回退逐元素收集（与原始实现语义一致）
@@ -30,7 +30,7 @@ def compute_list_cpt(listBatteryCharge, intBatteryNum, intCurrentLevelNum, intVo
             i = 0
             for c in range(intCurrentLevelNum):
                 for v in range(intVoltageLevelNum):
-                    if listBatteryCharge[b][i] != 0:
+                    if listBatteryCharge[b][i] is not None and listBatteryCharge[b][i] != 0:
                         listCpt[c][v].append(listBatteryCharge[b][i])
                     i += 1
     return listCpt

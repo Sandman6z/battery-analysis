@@ -69,7 +69,6 @@ class InputValidator:
         ("required_usable_capacity", "Required Useable Capacity"),
         ("tester_location", "Tester Location"),
         ("tested_by", "Tested By"),
-        ("test_profile", "Test Profile"),
         ("input_path", "Input Path"),
         ("output_path", "Output Path"),
         ("version", "Version"),
@@ -126,7 +125,6 @@ class InputValidator:
             ("required_usable_capacity", "Required Useable Capacity"),
             ("tester_location", "Tester Location"),
             ("tested_by", "Tested By"),
-            ("test_profile", "Test Profile"),
             ("input_path", "Input Path"),
             ("output_path", "Output Path"),
         ]:

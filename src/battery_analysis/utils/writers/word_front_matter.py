@@ -176,6 +176,10 @@ class WordFrontMatterMixin:
                         f"Minimum: {round(stats['min'][c - 1][v - 1])}mAh\n"
                         f"Maximum: {round(stats['max'][c - 1][v - 1])}mAh"
                     )
+                    if not stats["counts"][c - 1][v - 1]:
+                        text.text = "No data (n=0)"
+                    else:
+                        text.text = f"n={stats['counts'][c - 1][v - 1]}\n{text.text}"
                     text.font.size = Pt(7)
                     cell.paragraphs[0].paragraph_format.line_spacing_rules = WD_LINE_SPACING.EXACTLY
                     cell.paragraphs[0].paragraph_format.line_spacing = Pt(10)

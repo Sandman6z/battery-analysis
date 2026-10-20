@@ -6,9 +6,10 @@
 
 import logging
 import os
+import zipfile
 
 from battery_analysis.i18n.language_manager import _
-from battery_analysis.main.business_logic import excel_validator, filename_parser
+from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.ui_components.countdown_message_box import show_countdown_notice
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
@@ -83,7 +84,9 @@ class DataProcessor:
         }
 
     def _scan_excel_files_task(self, input_dir, **kwargs):
-        return [f for f in os.listdir(input_dir) if f[:2] != "~$" and f[-5:] == ".xlsx"]
+        from battery_analysis.utils.file_finder import scan_sorted_ndax
+
+        return [os.path.basename(f) for f in scan_sorted_ndax(input_dir)]
 
     def _on_scan_finished(self, excel_files):
         input_dir = self.main_window.lineEdit_InputPath.text()
@@ -213,20 +216,14 @@ class DataProcessor:
                     int((index + 1) / len(excel_files) * 100), f"Validating {filename}..."
                 )
             file_path = os.path.join(input_dir, filename)
-            is_valid, error_msg, df = excel_validator.validate_excel_file(
-                file_path, filename, self._cache["file_validation"]
-            )
-            if not is_valid:
-                self.logger.error(error_msg)
-                error_files.append((filename, error_msg))
+            from battery_analysis.ndax.reader import recipe_levels
+
+            try:
+                levels = recipe_levels(file_path)
+            except (OSError, ValueError, KeyError, zipfile.BadZipFile) as e:
+                error_files.append((filename, str(e)))
                 continue
-            file_info = {
-                "filename": filename,
-                "sheet_name": df.columns.tolist(),
-                "row_count": len(df),
-                "column_count": len(df.columns),
-                "first_five_rows": df.head().to_dict("records"),
-            }
+            file_info = {"filename": filename, "current_levels": levels}
             excel_data.append(file_info)
         return excel_files, excel_data, error_files
 
@@ -336,21 +333,10 @@ class DataProcessor:
         filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
         filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
 
-        # 脉冲电流档位：文件名解析优先，容量档位查表兜底（BatteryQualityRequirements_v2.3 §7.1.1）
-        pulse_values = filename_parser.extract_pulse_current(filename)
-        table_values = self._lookup_pulse_currents_from_table(filename)
-        if pulse_values and table_values:
-            # 双重验证：文件名档位 vs 型号/容量查表档位，不一致则告警（以文件名为准）
-            self._verify_pulse_currents(filename, pulse_values, table_values)
-        if not pulse_values:
-            pulse_values = table_values
-        if pulse_values:
-            pulse_values = normalize_current_levels(pulse_values)
-            mw.listCurrentLevel = pulse_values
-            cs = mw._get_service("config")
-            if cs:
-                cs.set_config_value("battery.pulseCurrents", pulse_values)
-                cs.save_config()
+        # 配方是唯一的分析档位权威；文件名与配置表仅用于非档位 UI 信息。
+        from battery_analysis.ndax.reader import recipe_levels
+
+        mw.listCurrentLevel = recipe_levels(os.path.join(mw.lineEdit_InputPath.text(), filename))
 
         mw.cc_current = filename_parser.extract_cc_current(filename)
 

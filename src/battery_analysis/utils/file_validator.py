@@ -180,8 +180,8 @@ class FileValidator:
         is_valid, error_msg = self.validate_directory_structure(directory)
         if not is_valid:
             return is_valid, error_msg
-        if os.path.basename(directory) != "2_xlsx":
-            return False, f"Input path is not a 2_xlsx directory: {directory}"
+        if os.path.basename(os.path.normpath(directory)) != "1_ndax":
+            return False, f"Input path is not a 1_ndax directory: {directory}"
         if not os.access(directory, os.R_OK):
             return False, f"Unable to read directory: {directory}"
         return True, ""

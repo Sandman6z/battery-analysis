@@ -29,6 +29,8 @@ class TaskSignals(QC.QObject):
     # P5-B：AnalysisWorker 并入的信号
     info = QC.pyqtSignal(bool, int, str)  # (is_running, 状态码, 消息)
     thread_end = QC.pyqtSignal()  # 分析线程结束
+    analysis_succeeded = QC.pyqtSignal()  # 全部报告成功产出
+    anomalies_request = QC.pyqtSignal(object)  # GUI 主线程询问异常放行
     rename_path = QC.pyqtSignal(str)  # 输出目录重命名后的日期
     start_visualizer = QC.pyqtSignal()  # 通知主线程启动可视化
 

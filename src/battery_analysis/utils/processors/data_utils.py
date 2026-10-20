@@ -15,6 +15,10 @@ def filter_data(
         import numpy as np
 
         for charge_data, voltage_data in zip(plt_charge_list, plt_voltage_list):
+            if not charge_data or not voltage_data:
+                plt_charge_filtered.append([])
+                plt_voltage_filtered.append([])
+                continue
             try:
                 # 直接转换为numpy数组，避免重复转换
                 charge_np = np.asarray(charge_data, dtype=float)
@@ -133,6 +137,16 @@ def filter_data(
             plt_voltage_filtered.append(filtered_voltage)
 
     return plt_charge_filtered, plt_voltage_filtered
+
+
+def missing_reason(battery_info: list, battery_idx: int) -> str:
+    """Human-readable missing slot text; numerical exports keep this out of Info_Image.csv."""
+    if len(battery_info) > 5:
+        file_name = battery_info[1][battery_idx]
+        for issue in battery_info[5]:
+            if issue.get("file") == file_name and issue.get("type") == "file_error":
+                return f"No data (file error: {issue.get('reason', 'unknown')})"
+    return "No data (pulse missing)"
 
 
 def generate_current_type_string(list_current_level: list) -> str:

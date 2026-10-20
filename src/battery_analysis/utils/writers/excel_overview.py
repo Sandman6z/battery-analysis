@@ -5,6 +5,7 @@
 import logging
 
 from battery_analysis import __version__
+from battery_analysis.utils.processors.data_utils import missing_reason
 from battery_analysis.utils.quality_requirements import (
     expected_requirement_text,
     verdict_map,
@@ -87,7 +88,7 @@ class ExcelOverviewMixin:
                     excel_utils.ws_result_write_data(
                         3 + b,
                         2 + c * (2 + self.intVoltageLevelNum) + v,
-                        self.listBatteryCharge[b][i],
+                        self.listBatteryCharge[b][i] if self.listBatteryCharge[b][i] is not None else missing_reason(self.listBatteryInfo, b),
                         fmts["result_data"],
                         wsResult,
                     )
@@ -95,6 +96,7 @@ class ExcelOverviewMixin:
 
     def _write_result_statistics(self, wsResult, stats, fmts):
         """将统计值（均值、中位数、标准差等）写入result表"""
+        counts = stats.get("counts", [[1] * self.intVoltageLevelNum for _ in range(self.intCurrentLevelNum)])
         for c in range(self.intCurrentLevelNum):
             for v in range(self.intVoltageLevelNum):
                 stat_rows = [
@@ -112,7 +114,7 @@ class ExcelOverviewMixin:
                     excel_utils.ws_result_write_data(
                         row_offset + self.intBatteryNum,
                         2 + c * (2 + self.intVoltageLevelNum) + v,
-                        round(stats[key][c][v], 5),
+                        round(stats[key][c][v], 5) if counts[c][v] else "No data (n=0)",
                         fmts["result_data"],
                         wsResult,
                     )
@@ -146,6 +148,7 @@ class ExcelOverviewMixin:
                 标注，仅文本追加、不改变表格布局。
         """
         vmap = verdict_map(verdicts)
+        counts = stats.get("counts", [[1] * self.intVoltageLevelNum for _ in range(self.intCurrentLevelNum)])
         wsOverview.write(
             wsOverviewStatisticalStartLine, 0, "Statisticals Results", fmts["overview_stat_dark"]
         )
@@ -185,6 +188,10 @@ class ExcelOverviewMixin:
                     f"μ + 3σ: {round(stats['mp3s'][c - 1][v - 1])}mAh\n"
                     f"Minimum: {round(stats['min'][c - 1][v - 1])}mAh\n"
                     f"Maximum: {round(stats['max'][c - 1][v - 1])}mAh"
+                )
+                cell_text = (
+                    "No data (n=0)" if not counts[c - 1][v - 1]
+                    else (f"n={counts[c - 1][v - 1]}\n{cell_text}" if "counts" in stats else cell_text)
                 )
                 cell_verdict = vmap.get((c - 1, v - 1))
                 if cell_verdict is not None:

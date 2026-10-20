@@ -31,3 +31,12 @@ def scan_sorted_xlsx(directory: str, exclude_temp: bool = True) -> list[str]:
     ]
     files.sort(key=natural_sort_key)
     return [os.path.join(directory, f) for f in files]
+
+
+def scan_sorted_ndax(directory: str) -> list[str]:
+    """按自然顺序扫描 ndax（40_8_2 在 40_8_10 之前），供校验和/分析共用。"""
+    files = sorted(
+        (f for f in os.listdir(directory) if f.lower().endswith(".ndax")),
+        key=natural_sort_key,
+    )
+    return [os.path.join(directory, f) for f in files]

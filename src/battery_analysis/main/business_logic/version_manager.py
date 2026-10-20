@@ -11,6 +11,7 @@
 import csv
 import logging
 import os
+import tempfile
 from pathlib import Path
 
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
@@ -63,11 +64,9 @@ class VersionManager:
         目录内无 xlsx 文件时返回 None（回调据此清空版本号）。
         progress_callback 由 TaskRunner 强制注入，此处忽略。
         """
-        listAllInXlsx = [
-            strInPutDir + f"/{f}"
-            for f in os.listdir(strInPutDir)
-            if f[:2] != "~$" and f[-5:] == ".xlsx"
-        ]
+        from battery_analysis.utils.file_finder import scan_sorted_ndax
+
+        listAllInXlsx = scan_sorted_ndax(strInPutDir)
         if not listAllInXlsx:
             return None
         from battery_analysis.main.utils.file_utils import FileUtils
@@ -96,15 +95,23 @@ class VersionManager:
         return checksums, times
 
     def _write_sha256_csv(self, csv_path, checksums, times):
-        """写入 SHA256 CSV 文件（先删后写，保持原行为）。"""
-        if os.path.exists(csv_path):
-            os.remove(csv_path)
-        with open(csv_path, mode="w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(["Checksums:"])
-            writer.writerow(checksums)
-            writer.writerow(["Times:"])
-            writer.writerow(times)
+        """Atomically replace the ledger so failed writes never erase success counts."""
+        tmp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", newline="", encoding="utf-8", delete=False,
+                dir=os.path.dirname(csv_path), prefix=".SHA256-", suffix=".csv",
+            ) as f:
+                tmp_path = f.name
+                writer = csv.writer(f)
+                writer.writerow(["Checksums:"])
+                writer.writerow(checksums)
+                writer.writerow(["Times:"])
+                writer.writerow(times)
+            os.replace(tmp_path, csv_path)
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
     @staticmethod
     def _compute_version_number(checksums, times, current_checksum):

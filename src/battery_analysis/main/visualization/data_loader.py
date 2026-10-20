@@ -81,7 +81,8 @@ class DataLoaderMixin:
 
         self.strInfoImageCsvPath = os.path.join(self.strPltPath, "Info_Image.csv")
 
-        # 尝试从元数据文件读取动态标题（优先于配置中的静态标题）
+        # 尝试从元数据文件读取动态标题与本次 ndax 电流档位。
+        self._recipe_levels = []
         self._try_load_metadata_title()
 
         self.listPulseCurrentLevel = self._get_pulse_current_level()
@@ -109,6 +110,7 @@ class DataLoaderMixin:
             with open(meta_path, encoding="utf-8") as f:
                 meta = json.load(f)
 
+            self._recipe_levels = meta.get("current_levels") or []
             manufacturer = meta.get("manufacturer", "")
             spec_type = meta.get("spec_type", "")
             spec_method = meta.get("spec_method", "")
@@ -132,7 +134,9 @@ class DataLoaderMixin:
             logger.warning("Failed to read metadata file, using default title: %s", e)
 
     def _get_pulse_current_level(self):
-        """获取脉冲电流级别配置"""
+        """Report metadata takes precedence over persistent settings for current levels."""
+        if getattr(self, "_recipe_levels", None):
+            return self._recipe_levels
         svc = getattr(self, "_config_service", None)
         if svc is not None:
             try:
@@ -322,8 +326,7 @@ class DataLoaderMixin:
                                     float_data.append(float(row[i]))
                                 except ValueError:
                                     continue
-                            if float_data:
-                                self.listPlt[current_idx][data_idx].append(float_data)
+                            self.listPlt[current_idx][data_idx].append(float_data)
                     except IndexError as e:
                         logger.warning("Error parsing CSV row data: %s, skipping this row", e)
             index += 1

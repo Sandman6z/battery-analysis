@@ -60,6 +60,9 @@ def write_info_json(
     capacity: str = "",
     temperature: str = "",
     current_levels: list | None = None,
+    anomalies: list | None = None,
+    profile_validation: dict | None = None,
+    file_statuses: list | None = None,
 ) -> None:
     """写入 Info_Plot.json（供 BatteryChartViewer 读取动态标题）
 
@@ -86,6 +89,10 @@ def write_info_json(
         "temperature": temperature or (list_test_info[7] if len(list_test_info) > 7 else ""),
         "current_levels": current_levels
         or (list_test_info[14] if len(list_test_info) > 14 else []),
+        "anomalies": anomalies or [],
+        "file_statuses": file_statuses or [],
+        "profile_validation": {**(profile_validation or {}), "policy_version": "2026.10"},
+        "policy_version": "2026.10",
     }
 
     with open(file_path, "w", encoding="utf-8") as f:

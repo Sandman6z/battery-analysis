@@ -307,6 +307,8 @@ class ReportCoordinator:
         listTestInfo: list,
         listBatteryInfo: list,
         equipment_info: dict | None = None,
+        result_dir: str | None = None,
+        test_date: str | None = None,
     ) -> None:
         # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
         from battery_analysis.domain.entities.test_info import TestInfo
@@ -319,10 +321,10 @@ class ReportCoordinator:
         self._equipment_info = equipment_info or {}
 
         # 提取测试日期（YYYYMMDD）
-        td = self._extract_test_date()
+        td = test_date or self._extract_test_date()
 
         # 构建输出路径
-        self.strResultPath = os.path.join(strResultPath, f"{td}_v{listTestInfo[16]}")
+        self.strResultPath = result_dir or os.path.join(strResultPath, f"{td}_v{listTestInfo[16]}")
         os.makedirs(self.strResultPath, exist_ok=True)
 
         # 电流/电压等级信息

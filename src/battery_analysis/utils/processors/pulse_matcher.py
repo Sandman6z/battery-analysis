@@ -27,7 +27,7 @@ def _init_level_structures(
         listVoltageForInfoImageCsv.append([])
         for v_idx in range(len(listVoltageLevel)):
             listLevelToVoltage[c_idx].append(listVoltageLevel[v_idx])
-            listLevelToRow[c_idx].append(0)
+            listLevelToRow[c_idx].append(None)
             listLevelToCharge[c_idx].append(0)
 
     return (

@@ -166,8 +166,8 @@ class PathManager:
         Args:
             parent_dir: 父目录路径
         """
-        # 自动设置input path为同级的2_xlsx文件夹
-        input_path = os.path.join(parent_dir, "2_xlsx")
+        # 自动设置input path为同级的1_ndax文件夹
+        input_path = os.path.join(parent_dir, "1_ndax")
         if os.path.exists(input_path) and os.path.isdir(input_path):
             self.main_window.lineEdit_InputPath.setText(input_path)
             self.main_window.sigSetVersion.emit()

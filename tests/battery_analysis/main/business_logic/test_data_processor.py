@@ -2,9 +2,8 @@
 测试数据处理器模块的功能
 """
 
+import zipfile
 from unittest.mock import MagicMock, Mock, patch
-
-import pandas as pd
 
 from battery_analysis.main.business_logic.data_processor import DataProcessor
 
@@ -220,20 +219,19 @@ class TestDataProcessor:
         文件名须通过 validate_excel_filename（含 DC / mA / 逗号 / 温度），
         否则文件在内容校验前就被拒绝，无法测到读取路径。
         """
-        valid = tmp_path / "DC1,mA1.xlsx"
-        pd.DataFrame({"Capacity": [1000, 2000]}).to_excel(valid, index=False)
-        invalid = tmp_path / "DC2,mA2.xlsx"
-        invalid.write_bytes(b"not a real xlsx")
+        valid = tmp_path / "channel1.ndax"
+        with zipfile.ZipFile(valid, "w") as archive:
+            archive.writestr("Step.xml", '<root><Step_Info><Step4><PulseData Count="1"><Pulse1 Value="-30"/></PulseData></Step4></Step_Info></root>')
+        invalid = tmp_path / "channel2.ndax"
+        invalid.write_bytes(b"not a real ndax")
         result = self.processor._process_excel_files_task(
-            str(tmp_path), ["DC1,mA1.xlsx", "DC2,mA2.xlsx"]
+            str(tmp_path), ["channel1.ndax", "channel2.ndax"]
         )
-        excel_files, excel_data, error_files = result
-        assert excel_files == ["DC1,mA1.xlsx", "DC2,mA2.xlsx"]
-        assert len(excel_data) == 1
-        assert excel_data[0]["filename"] == "DC1,mA1.xlsx"
-        assert excel_data[0]["row_count"] == 2
-        assert len(error_files) == 1
-        assert error_files[0][0] == "DC2,mA2.xlsx"
+        files, data, errors = result
+        assert files == ["channel1.ndax", "channel2.ndax"]
+        assert data == [{"filename": "channel1.ndax", "current_levels": [30.0]}]
+        assert len(errors) == 1
+        assert errors[0][0] == "channel2.ndax"
 
     def test_on_excel_files_processed_success(self):
         """处理成功 → 更新 UI + 解析首个文件 + 重连规格信号"""
@@ -425,41 +423,13 @@ class TestProcessFirstExcelFilePulse:
         self.mock_main_window.comboBox_Specification_Method.currentText.return_value = "1S1P"
         self.processor = DataProcessor(self.mock_main_window)
 
-    def test_filename_values_take_priority(self):
-        self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).xlsx")
-        assert self.mock_main_window.listCurrentLevel == [30, 26, 15, 6]
-        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [30, 26, 15, 6])
-        self.mock_cs.save_config.assert_called_once()
-
-    def test_table_fallback_when_filename_has_no_pulse(self):
-        self.processor._process_first_excel_file("Test_CR2450_Freezer.xlsx")
+    def test_recipe_levels_override_filename_without_persisting_config(self):
+        self.mock_main_window.lineEdit_InputPath.text.return_value = "1_ndax"
+        with patch("battery_analysis.ndax.reader.recipe_levels", return_value=[15, 13, 7.5, 3]) as recipe:
+            self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).ndax")
+        assert recipe.call_args.args[0].endswith("Test_CR2450_(30-26-15-6mA).ndax")
         assert self.mock_main_window.listCurrentLevel == [15, 13, 7.5, 3]
-        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [15, 13, 7.5, 3])
-
-    def test_no_filename_no_table_leaves_config_untouched(self):
-        self.mock_main_window.comboBox_Specification_Type.currentText.return_value = ""
-        self.processor._process_first_excel_file("Test_Battery.xlsx")
-        assert not hasattr(self.mock_main_window, "listCurrentLevel") or not isinstance(
-            self.mock_main_window.listCurrentLevel, list
-        )
         self.mock_cs.set_config_value.assert_not_called()
-
-    def test_mismatch_filename_vs_table_warns_and_keeps_filename(self):
-        """双重验证：文件名档位与容量查表不一致 → 告警，且以文件名为准"""
-        self.processor._process_first_excel_file("Test_CR2450_(60-30-15-6mA).xlsx")
-        # 文件名优先
-        assert self.mock_main_window.listCurrentLevel == [60, 30, 15, 6]
-        self.mock_cs.set_config_value.assert_called_once_with("battery.pulseCurrents", [60, 30, 15, 6])
-        # 状态栏收到不一致告警
-        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_called_once()
-        warn = self.mock_main_window.statusBar_BatteryAnalysis.showMessage.call_args[0][0]
-        assert "mismatch" in warn
-        assert "[Warning]" in warn
-
-    def test_match_filename_vs_table_no_warning(self):
-        """双重验证：一致时不告警"""
-        self.processor._process_first_excel_file("Test_CR2450_(30-26-15-6mA).xlsx")
-        self.mock_main_window.statusBar_BatteryAnalysis.showMessage.assert_not_called()
 
 
 class TestSpecMethodDefault1S1P:
@@ -491,6 +461,12 @@ class TestSpecMethodDefault1S1P:
 
         self.mock_main_window.config_manager.get_config.side_effect = get_config
         self.processor = DataProcessor(self.mock_main_window)
+        self.mock_main_window.lineEdit_InputPath.text.return_value = "1_ndax"
+        self.recipe_patch = patch("battery_analysis.ndax.reader.recipe_levels", return_value=[30, 26, 15, 6])
+        self.recipe_patch.start()
+
+    def teardown_method(self):
+        self.recipe_patch.stop()
 
     def test_filename_without_method_defaults_to_1s1p(self):
         """文件名未提到 1S1P/1S2P → 默认选 1S1P 并置提示标志"""
@@ -582,6 +558,12 @@ class TestMissingRulesNotice:
 
         self.mock_main_window.config_manager.get_config.side_effect = get_config
         self.processor = DataProcessor(self.mock_main_window)
+        self.mock_main_window.lineEdit_InputPath.text.return_value = "1_ndax"
+        self.recipe_patch = patch("battery_analysis.ndax.reader.recipe_levels", return_value=[30, 26, 15, 6])
+        self.recipe_patch.start()
+
+    def teardown_method(self):
+        self.recipe_patch.stop()
 
     def test_missing_type_sets_flag(self):
         """文件名不含已配置型号 → _spec_missing_rules 置位"""

@@ -39,6 +39,107 @@ class TestAnalysisWorker:
         with pytest.raises(TaskCancelled):
             worker._emit_progress(50, "x")
 
+    def test_existing_version_directory_is_never_deleted(self, tmp_path):
+        output = tmp_path / "reports"
+        output.mkdir()
+        old = output / "v1.0"
+        old.mkdir()
+        (old / "keep.txt").write_bytes(b"original")
+        worker = AnalysisWorker()
+        worker.set_info("project", "input", str(output), [None] * 16 + ["1.0"])
+        success = QSignalSpy(worker.signals.analysis_succeeded)
+        worker.run()
+        assert (old / "keep.txt").read_bytes() == b"original"
+        assert not success
+        assert worker.str_error_xlsx
+
+    def test_failed_writer_removes_only_this_run(self, tmp_path, monkeypatch):
+        from battery_analysis.utils import file_writer
+        from battery_analysis.utils.processors import battery_analysis
+
+        output = tmp_path / "reports"
+        output.mkdir()
+        previous = output / "previous"
+        previous.mkdir()
+        (previous / "keep.txt").write_text("safe")
+
+        class Engine:
+            def __init__(self, **kwargs):
+                pass
+
+            def UBA_GetErrorLog(self):
+                return ""
+
+            def UBA_GetBatteryInfo(self):
+                return [[[]], ["battery"], ["2024-10-19 23:55:00", ""], "", ""]
+
+        class FailedWriter:
+            def __init__(self, *, result_dir, **kwargs):
+                (output / "Example__DCbatch_TD20241019_v1.0.docx").write_bytes(b"partial")
+                (tmp_path / "reports" / "20241019_v1.0" / "partial.csv").write_text("partial")
+
+            def UFW_GetErrorLog(self):
+                return "writer failed"
+
+        monkeypatch.setattr(battery_analysis, "BatteryAnalysis", Engine)
+        monkeypatch.setattr(file_writer, "FileWriter", FailedWriter)
+        info = [""] * 19
+        info[4], info[2], info[5], info[16] = "Example", "", "batch", "1.0"
+        worker = AnalysisWorker()
+        worker.set_info("project", "input", str(output), info)
+        success = QSignalSpy(worker.signals.analysis_succeeded)
+        worker.run()
+        assert not success
+        assert not (output / "20241019_v1.0").exists()
+        assert not (output / "Example__DCbatch_TD20241019_v1.0.docx").exists()
+        assert (previous / "keep.txt").read_text() == "safe"
+
+    def test_success_signal_only_after_all_artifacts(self, tmp_path, monkeypatch):
+        from battery_analysis.utils import file_writer
+        from battery_analysis.utils.processors import battery_analysis
+
+        class Engine:
+            def __init__(self, **kwargs):
+                pass
+
+            def UBA_GetErrorLog(self):
+                return ""
+
+            def UBA_GetBatteryInfo(self):
+                return [[[]], ["good"], ["2024-10-19 23:55:00", "2024-10-19 23:56:00"], "", ""]
+
+        class Writer:
+            def __init__(self, *, result_dir, **kwargs):
+                from pathlib import Path
+
+                p = Path(result_dir)
+                for name in ("Result.xlsx", "Sample.xlsx", "Result.csv", "Result.json",
+                             "Info_Image.csv", "Info_Plot.json"):
+                    (p / name).write_text("report")
+                for prefix in ("Image_FilteredLoadVoltageOverCharge",
+                               "Image_UnfilteredLoadVoltageOverCharge"):
+                    for ext in (".png", ".svg"):
+                        (p / (prefix + ext)).write_bytes(b"image")
+                (p.parent / "Example__DCbatch_TD20241019_v1.0.docx").write_bytes(b"word")
+
+            def UFW_GetErrorLog(self):
+                return ""
+
+        monkeypatch.setattr(battery_analysis, "BatteryAnalysis", Engine)
+        monkeypatch.setattr(file_writer, "FileWriter", Writer)
+        output = tmp_path / "reports"
+        output.mkdir()
+        info = [""] * 19
+        info[4], info[2], info[5], info[16] = "Example", "", "batch", "1.0"
+        worker = AnalysisWorker()
+        worker.set_info("project", "input", str(output), info)
+        success = QSignalSpy(worker.signals.analysis_succeeded)
+        renamed = QSignalSpy(worker.signals.rename_path)
+        worker.run()
+        assert len(success) == 1
+        assert renamed[0] == ["20241019"]
+        assert (output / "20241019_v1.0" / "Result.xlsx").exists()
+
     def test_cancelled_before_run_reports_cancelled(self):
         """queued-cancel 回归：排队期间被取消，调度后应报 cancelled 而非 success"""
         worker = AnalysisWorker()

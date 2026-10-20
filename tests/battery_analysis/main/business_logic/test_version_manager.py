@@ -170,9 +170,9 @@ class TestGetVersion:
         input_dir = tmp_path / "input"
         input_dir.mkdir()
 
-        # 创建一个空xlsx文件作为输入
-        xlsx_file = input_dir / "test.xlsx"
-        xlsx_file.write_bytes(b"dummy excel content")
+        # 创建一个 ndax 文件作为校验和输入
+        xlsx_file = input_dir / "test.ndax"
+        xlsx_file.write_bytes(b"dummy ndax content")
 
         create_sha256_csv(output_dir, ["dummy_checksum"], ["3"])
 
@@ -205,8 +205,8 @@ class TestGetVersion:
         input_dir = tmp_path / "input"
         input_dir.mkdir()
 
-        xlsx_file = input_dir / "test.xlsx"
-        xlsx_file.write_bytes(b"dummy excel content")
+        xlsx_file = input_dir / "test.ndax"
+        xlsx_file.write_bytes(b"dummy ndax content")
 
         # Times为空字符串
         create_sha256_csv(output_dir, ["dummy_checksum"], [""])
@@ -255,7 +255,7 @@ class TestGetVersion:
 
     def test_calc_checksum_task_absorbs_progress_callback_kwarg(self, tmp_path):
         """TaskRunner 注入的 progress_callback 经 **kwargs 吸收，不影响计算"""
-        (tmp_path / "a.xlsx").write_bytes(b"dummy")
+        (tmp_path / "a.ndax").write_bytes(b"dummy")
         vm = VersionManager(MagicMock())
         with patch(
             "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum", return_value="abc123"
@@ -334,8 +334,8 @@ class TestGetVersion:
         assert vm._calc_checksum_task(str(tmp_path)) is None
 
     def test_calc_checksum_task_returns_checksum(self, tmp_path):
-        """有 xlsx → 返回 FileUtils.calc_checksum 结果"""
-        (tmp_path / "a.xlsx").write_bytes(b"dummy")
+        """有 ndax → 返回 FileUtils.calc_checksum 结果"""
+        (tmp_path / "a.ndax").write_bytes(b"dummy")
         vm = VersionManager(MagicMock())
         with patch(
             "battery_analysis.main.utils.file_utils.FileUtils.calc_checksum", return_value="abc123"
