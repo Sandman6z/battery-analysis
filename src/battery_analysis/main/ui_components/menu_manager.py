@@ -118,7 +118,6 @@ class MenuManager:
                 )
                 self.main_window.actionUser_Mannual.setToolTip(_("Open User Manual"))
             if hasattr(self.main_window, "actionOnline_Help"):
-                self.main_window.actionOnline_Help.setShortcut(QG.QKeySequence("F1"))
                 self.main_window.actionOnline_Help.setToolTip(_("Open Online Help"))
             if hasattr(self.main_window, "actionAbout"):
                 self.main_window.actionAbout.setShortcut(QG.QKeySequence("Ctrl+Alt+A"))
@@ -153,14 +152,9 @@ class MenuManager:
             )
 
         # 工具菜单功能连接
-        self.main_window.actionCalculate_Battery.triggered.connect(
-            self.main_window.calculate_battery_command.execute
-        )
-        self.main_window.actionAnalyze_Data.triggered.connect(self.main_window.analyze_data_command.execute)
+        self.main_window.actionAnalyze_Data.triggered.connect(self.main_window.run_analysis_command.execute)
         self.main_window.actionBatteryChartViewer.triggered.connect(self.main_window.visualization_manager.run_visualizer)
         self.main_window.actionNdaxConverter.triggered.connect(self.main_window.show_ndax_converter)
-        self.main_window.actionGenerate_Report.triggered.connect(self.main_window.generate_report_command.execute)
-        self.main_window.actionBatch_Processing.triggered.connect(self.main_window.batch_processing_command.execute)
 
         # 配置管理连接
         if hasattr(self.main_window, "actionConfiguration"):
@@ -177,9 +171,6 @@ class MenuManager:
 
         # 主题菜单功能连接
         self._connect_theme_actions()
-
-        # 文件操作连接
-        self.main_window.actionExport_Report.triggered.connect(self.main_window.export_report_command.execute)
 
     def _connect_theme_actions(self):
         """

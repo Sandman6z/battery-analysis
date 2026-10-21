@@ -37,6 +37,12 @@ class TestSetSpecificationType:
         combo.setCurrentIndex.assert_not_called()
         assert result is None
 
+    def test_match_case_insensitive_and_ignore_empty_model(self):
+        combo = MagicMock()
+        result = set_specification_type("cp5022121_1S1P.ndax", ["", "CP5022121"], combo)
+        assert result == "CP5022121"
+        combo.setCurrentIndex.assert_called_once_with(1)
+
     def test_match_first_type(self):
         """匹配第一个类型时应设置正确索引。"""
         combo = MagicMock()

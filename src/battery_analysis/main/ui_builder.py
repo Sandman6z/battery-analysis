@@ -187,20 +187,10 @@ class UIBuilder:
 
         # 文件菜单
         file_menu = menubar.addMenu(_("File"))
-        file_menu.addAction(mw.actionNew)
-        file_menu.addAction(mw.actionOpen)
-        file_menu.addAction(mw.actionSave)
-        file_menu.addAction(mw.actionSave_As)
-        file_menu.addSeparator()
-        file_menu.addAction(mw.actionExport_Report)
-        file_menu.addSeparator()
         file_menu.addAction(mw.actionExit)
 
         # 编辑菜单
         edit_menu = menubar.addMenu(_("Edit"))
-        edit_menu.addAction(mw.actionUndo)
-        edit_menu.addAction(mw.actionRedo)
-        edit_menu.addSeparator()
         edit_menu.addAction(mw.actionCut)
         edit_menu.addAction(mw.actionCopy)
         edit_menu.addAction(mw.actionPaste)
@@ -223,10 +213,7 @@ class UIBuilder:
         tools_menu.addAction(mw.actionBatteryChartViewer)
         tools_menu.addAction(mw.actionNdaxConverter)
         tools_menu.addSeparator()
-        tools_menu.addAction(mw.actionCalculate_Battery)
         tools_menu.addAction(mw.actionAnalyze_Data)
-        tools_menu.addAction(mw.actionGenerate_Report)
-        tools_menu.addAction(mw.actionBatch_Processing)
         tools_menu.addSeparator()
         tools_menu.addAction(mw.actionConfiguration)
 

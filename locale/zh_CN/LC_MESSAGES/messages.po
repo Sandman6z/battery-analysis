@@ -503,11 +503,14 @@ msgstr "默认规格方法"
 msgid "The specification method was not found for this battery. {method} has been selected by default. Please confirm."
 msgstr "此电池未找到类型（规格方法），已默认选择 {method}，请确认。"
 
-msgid "Missing Battery Configuration"
-msgstr "电池配置缺失"
+msgid "Battery Model Not Identified"
+msgstr "未识别电池型号"
 
-msgid "The system has no configuration for the battery model (file: {filename}). Please add it via Tools → Configuration → Battery → Rules."
-msgstr "系统中没有该电池的配置信息（文件：{filename}）。请通过 Tools → Configuration → Battery → Rules 补充。"
+msgid "No configured battery model could be identified from the file or project folder (file: {filename}). Include the model in the file or project folder name, or select it manually. Check rules via Tools → Configuration → Test Data Dictionary → Rules."
+msgstr "无法从文件名或项目目录名识别已配置的电池型号（文件：{filename}）。请在文件名或项目目录名中包含型号，或手动选择型号。可通过 工具 → 配置 → 测试数据字典 → 规则 检查配置。"
+
+msgid "Test Data Dictionary"
+msgstr "测试数据字典"
 
 msgid "Go to Configuration"
 msgstr "前往配置"

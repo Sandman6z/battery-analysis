@@ -503,11 +503,14 @@ msgstr "Default Specification Method"
 msgid "The specification method was not found for this battery. {method} has been selected by default. Please confirm."
 msgstr "The specification method was not found for this battery. {method} has been selected by default. Please confirm."
 
-msgid "Missing Battery Configuration"
-msgstr "Missing Battery Configuration"
+msgid "Battery Model Not Identified"
+msgstr "Battery Model Not Identified"
 
-msgid "The system has no configuration for the battery model (file: {filename}). Please add it via Tools → Configuration → Battery → Rules."
-msgstr "The system has no configuration for the battery model (file: {filename}). Please add it via Tools → Configuration → Battery → Rules."
+msgid "No configured battery model could be identified from the file or project folder (file: {filename}). Include the model in the file or project folder name, or select it manually. Check rules via Tools → Configuration → Test Data Dictionary → Rules."
+msgstr "No configured battery model could be identified from the file or project folder (file: {filename}). Include the model in the file or project folder name, or select it manually. Check rules via Tools → Configuration → Test Data Dictionary → Rules."
+
+msgid "Test Data Dictionary"
+msgstr "Test Data Dictionary"
 
 msgid "Go to Configuration"
 msgstr "Go to Configuration"

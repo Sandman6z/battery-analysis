@@ -32,16 +32,11 @@ class _BatteryConfigPage(QW.QWidget):
         # Specification Methods 同样移出 UI（只读词表）：仅作文件名
         # 匹配与 Rules 表格 Spec Method 列的下拉选项，由
         # load_data 从配置读入后直接喂给 _rules_editor
-        dict_group = QW.QGroupBox(_("Test Data Dictionary"))
-        dict_layout = QW.QVBoxLayout(dict_group)
-
         self._rules_editor = _RulesEditor(_("Rules"))
-        dict_layout.addWidget(self._rules_editor)
+        layout.addWidget(self._rules_editor)
 
         self._list_mfrs = _ListEditor(_("Manufacturers"))
-        dict_layout.addWidget(self._list_mfrs)
-
-        layout.addWidget(dict_group)
+        layout.addWidget(self._list_mfrs)
 
         # ── Test Parameters ──
         # 原 "Test Parameters" 组已整体移出 UI（数据保留在 config.json 生效）：

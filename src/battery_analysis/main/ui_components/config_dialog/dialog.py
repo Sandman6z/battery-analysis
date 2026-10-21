@@ -46,7 +46,7 @@ class ConfigDialog(QW.QDialog):
         self._page_battery = _BatteryConfigPage(self)
         self._page_test = _TestConfigPage(self)
         self._page_equipment = _EquipmentPage(self)
-        self._tab_widget.addTab(self._page_battery, _("Battery"))
+        self._tab_widget.addTab(self._page_battery, _("Test Data Dictionary"))
         self._tab_widget.addTab(self._page_test, _("Test"))
         self._tab_widget.addTab(self._page_equipment, _("Equipment"))
         # 缩短选项卡高度

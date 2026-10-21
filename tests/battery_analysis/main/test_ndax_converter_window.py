@@ -100,8 +100,7 @@ def test_tools_menu_entry_opens_single_reusable_window(main_window):
 
     for attr in (
         "dialog_manager", "help_manager", "visualization_manager",
-        "calculate_battery_command", "analyze_data_command", "generate_report_command",
-        "batch_processing_command", "export_report_command",
+        "run_analysis_command",
     ):
         setattr(main_window, attr, Mock())
     main_window.menu_manager = MenuManager(main_window)

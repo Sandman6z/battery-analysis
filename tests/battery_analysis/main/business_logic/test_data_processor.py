@@ -469,6 +469,29 @@ class TestSpecMethodDefault1S1P:
     def teardown_method(self):
         self.recipe_patch.stop()
 
+    def test_project_model_used_when_ndax_name_only_has_channel(self):
+        self.mock_main_window.lineEdit_InputPath.text.return_value = (
+            "D:/tests/BTS83_CP5022121_DC2608/1_ndax"
+        )
+        self.processor._process_first_excel_file("83-1-1.ndax")
+        assert self.processor._spec_missing_rules is False
+        self.mock_main_window.comboBox_Specification_Type.setCurrentIndex.assert_called_with(1)
+
+    def test_filename_model_takes_priority_over_project(self):
+        self.mock_main_window.lineEdit_InputPath.text.return_value = (
+            "D:/tests/CP5022121/1_ndax"
+        )
+        self.processor._process_first_excel_file("CR2450_1S1P.ndax")
+        assert self.processor._spec_missing_rules is False
+        self.mock_main_window.comboBox_Specification_Type.setCurrentIndex.assert_called_with(0)
+
+    def test_does_not_match_unrelated_ancestor_folder(self):
+        self.mock_main_window.lineEdit_InputPath.text.return_value = (
+            "D:/tests/CP5022121/UnknownProject/1_ndax"
+        )
+        self.processor._process_first_excel_file("83-1-1.ndax")
+        assert self.processor._spec_missing_rules is True
+
     def test_filename_without_method_defaults_to_1s1p(self):
         """文件名未提到 1S1P/1S2P → 默认选 1S1P 并置提示标志"""
         self.processor._process_first_excel_file(

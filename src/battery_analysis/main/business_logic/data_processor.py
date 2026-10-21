@@ -362,8 +362,14 @@ class DataProcessor:
         matched_type = filename_parser.set_specification_type(
             filename, all_spec_types, mw.comboBox_Specification_Type
         )
+        if matched_type is None:
+            # NDAX 常以通道/样品编号命名，型号在 1_ndax 的直接父目录（项目名）中。
+            project_name = os.path.basename(os.path.dirname(os.path.normpath(input_dir)))
+            matched_type = filename_parser.set_specification_type(
+                project_name, all_spec_types, mw.comboBox_Specification_Type
+            )
         self._record_metadata_source("comboBox_Specification_Type", matched_type, input_dir)
-        # 未匹配到已配置的规格型号（NDAX 转换 / 导入 XML 两条链路均汇合于此）→ 置标志，由统一弹框提示补充配置
+        # 无法从文件名或项目名识别已配置型号，不等于用户尚未添加规则。
         self._spec_missing_rules = matched_type is None
         method_matched = filename_parser.set_specification_method(
             filename, all_spec_methods, mw.comboBox_Specification_Method
@@ -476,18 +482,19 @@ class DataProcessor:
     def _show_missing_rules_notice(
         self, filename: str, method_defaulted: bool = False
     ) -> None:
-        """识别到的规格型号不在系统 rules 配置中时的提示
+        """文件名与项目名均无法识别已配置型号时的提示（不声称规则不存在）。
 
         倒计时自动关闭（默认 3 秒，可在 battery.missingRulesNotice.timeoutSeconds 配置），
-        OK 按钮旁显示剩余秒数；"前往配置"按钮跳转到配置对话框的 Battery 页补充规则。
+        OK 按钮旁显示剩余秒数；"前往配置"按钮打开测试数据字典。
         """
         enabled, timeout_seconds = self._missing_rules_notice_settings()
         if not enabled:
             self.logger.info("missingRulesNotice disabled; skipping for %s", filename)
             return
         text = _(
-            "The system has no configuration for the battery model "
-            "(file: {filename}). Please add it via Tools → Configuration → Battery → Rules."
+            "No configured battery model could be identified from the file or project folder "
+            "(file: {filename}). Include the model in the file or project folder name, "
+            "or select it manually. Check rules via Tools → Configuration → Test Data Dictionary → Rules."
         ).format(filename=filename)
         if method_defaulted:
             text += "\n\n" + _(
@@ -496,14 +503,14 @@ class DataProcessor:
             ).format(method=self.SPEC_METHOD_DEFAULT)
         show_countdown_notice(
             self.main_window,
-            title=_("Missing Battery Configuration"),
+            title=_("Battery Model Not Identified"),
             text=text,
             timeout_seconds=timeout_seconds,
             extra_button=(_("Go to Configuration"), self._open_config_dialog),
         )
 
     def _open_config_dialog(self) -> None:
-        """跳转到配置对话框（Battery 页可编辑 Rules）"""
+        """跳转到配置对话框（测试数据字典页可编辑 Rules）"""
         try:
             self.main_window.show_config_dialog()
         except Exception as e:  # pylint: disable=broad-exception-caught

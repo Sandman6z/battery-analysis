@@ -18,6 +18,38 @@ class TestRulesEditorSpecMethodCombo:
         self.editor = _RulesEditor()
         self.editor.set_methods(METHODS)
 
+    def test_battery_page_has_flat_editors(self):
+        from unittest.mock import Mock
+
+        from PyQt6.QtWidgets import QGroupBox
+
+        from battery_analysis.main.ui_components.config_dialog.battery_config_page import (
+            _BatteryConfigPage,
+        )
+
+        page = _BatteryConfigPage(Mock())
+        assert page._rules_editor.parentWidget() is page._list_mfrs.parentWidget()
+        assert not isinstance(page._rules_editor.parentWidget(), QGroupBox)
+        page.load_data({"rules": ["CP5022121/1S1P/3500/3500/85%/10"],
+                        "specificationMethods": METHODS, "manufacturers": ["Ewin"]})
+        assert page._rules_editor.rules() == ["CP5022121/1S1P/3500/3500/85%/10"]
+        assert page._list_mfrs.items() == ["Ewin"]
+
+    def test_dictionary_is_the_tab_name(self):
+        from unittest.mock import Mock
+
+        from PyQt6.QtWidgets import QMainWindow
+
+        from battery_analysis.i18n.language_manager import _
+        from battery_analysis.main.ui_components.config_dialog import ConfigDialog
+
+        window = QMainWindow()
+        window._get_service = Mock(return_value=Mock())
+        dialog = ConfigDialog(window)
+        assert dialog._tab_widget.tabText(0) == _("Test Data Dictionary")
+        dialog.close()
+        window.close()
+
     def test_spec_method_col_is_a_constant(self):
         assert RULE_COLUMNS[SPEC_METHOD_COL] == "Spec Method"
 
