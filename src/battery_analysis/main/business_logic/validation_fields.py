@@ -4,8 +4,6 @@
 
 import os
 
-import PyQt6.QtCore as QC
-
 from battery_analysis.i18n.language_manager import _
 from battery_analysis.utils.input_validator import FieldValues, InputValidator, ValidationResult
 
@@ -18,8 +16,8 @@ class ValidationFieldsMixin:
         验证版本号格式并提供实时反馈
         """
         version_text = self.main_window.lineEdit_Version.text()
-        regex = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
-        if version_text and not regex.match(version_text).hasMatch():
+        result = InputValidator._validate_version(FieldValues(version=version_text))
+        if not result.is_valid:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
                 f"{_('Warning')}: {_('Version format is invalid. Expected x.y.z format')}"
             )

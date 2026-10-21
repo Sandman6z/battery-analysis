@@ -33,6 +33,8 @@ class DataLoaderMixin:
 
     def load_data(self):
         """加载数据并处理，为绘制图表做准备"""
+        self.data_load_attempted = True
+        self.loaded_data = False
         self.listPlt = []
         self.listBatteryName = []
         self.listBatteryNameSplit = []
@@ -49,6 +51,7 @@ class DataLoaderMixin:
                 return False
 
             self._read_rules_configuration()
+            self.loaded_data = True
             return True
         except (ValueError, TypeError, OSError) as e:
             self.errorlog = str(e)

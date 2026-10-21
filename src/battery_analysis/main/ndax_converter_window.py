@@ -31,7 +31,7 @@ class NdaxConverterWindow(QW.QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent, QC.Qt.WindowType.Window)
-        self.setWindowTitle(_("NDAX 转换器"))
+        self.setWindowTitle(_("NDAX Converter"))
         self.setMinimumSize(640, 480)
         self.resize(900, 700)
         self.input_dir: Path | None = None
@@ -49,12 +49,12 @@ class NdaxConverterWindow(QW.QWidget):
         layout.setSpacing(8)
 
         # ── 标题栏 ──
-        title = QW.QLabel(_("NDAX → XLSX 批量转换"))
+        title = QW.QLabel(_("NDAX → XLSX Batch Conversion"))
         title.setFont(QG.QFont("Microsoft YaHei UI", 14, QG.QFont.Weight.Bold))
         title.setAlignment(QC.Qt.AlignmentFlag.AlignLeft | QC.Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(title)
 
-        desc = QW.QLabel(_("可选导出工具：将 NDAX 批量转换为 Excel；主分析直接读取 NDAX，无需转换。"))
+        desc = QW.QLabel(_("Optional export tool: batch convert NDAX files to Excel. The main analysis reads NDAX directly; no conversion is required."))
         desc.setWordWrap(True)
         desc.setStyleSheet("color: #666;")
         layout.addWidget(desc)
@@ -63,7 +63,7 @@ class NdaxConverterWindow(QW.QWidget):
 
         # ── 文件夹选择行 ──
         folder_row = QW.QHBoxLayout()
-        self.btn_select = QW.QPushButton(_("📁 选择文件夹"))
+        self.btn_select = QW.QPushButton(_("📁 Select Folder"))
         self.btn_select.setMinimumHeight(36)
         self.btn_select.setFont(QG.QFont("Microsoft YaHei UI", 10))
         self.btn_select.setCursor(QG.QCursor(QC.Qt.CursorShape.PointingHandCursor))
@@ -71,7 +71,7 @@ class NdaxConverterWindow(QW.QWidget):
 
         self.edit_path = QW.QLineEdit()
         self.edit_path.setReadOnly(True)
-        self.edit_path.setPlaceholderText(_("选择包含 .ndax 文件的文件夹..."))
+        self.edit_path.setPlaceholderText(_("Select a folder containing .ndax files..."))
         self.edit_path.setMinimumHeight(36)
 
         folder_row.addWidget(self.btn_select)
@@ -80,7 +80,7 @@ class NdaxConverterWindow(QW.QWidget):
 
         # ── 文件列表 ──
         self.table = QW.QTableWidget(0, 2)
-        self.table.setHorizontalHeaderLabels([_("文件名"), _("状态")])
+        self.table.setHorizontalHeaderLabels([_("File Name"), _("Status")])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(
             0, QW.QHeaderView.ResizeMode.Stretch
@@ -113,7 +113,7 @@ class NdaxConverterWindow(QW.QWidget):
         # ── 底部操作行 ──
         bottom_row = QW.QHBoxLayout()
 
-        self.btn_start = QW.QPushButton(_("▶ 开始转换"))
+        self.btn_start = QW.QPushButton(_("▶ Start Conversion"))
         self.btn_start.setMinimumHeight(36)
         self.btn_start.setMinimumWidth(160)
         self.btn_start.setFont(QG.QFont("Microsoft YaHei UI", 10, QG.QFont.Weight.Bold))
@@ -141,7 +141,7 @@ class NdaxConverterWindow(QW.QWidget):
 
     def _select_folder(self) -> None:
         """Open folder selection dialog and load NDAX files."""
-        folder = QW.QFileDialog.getExistingDirectory(self, _("选择 NDAX 文件夹"))
+        folder = QW.QFileDialog.getExistingDirectory(self, _("Select NDAX Folder"))
         if not folder:
             return
 
@@ -155,11 +155,13 @@ class NdaxConverterWindow(QW.QWidget):
 
         if not self.ndax_files:
             self.btn_start.setEnabled(False)
-            self.log_area.append(f"[{_now()}] 未找到 NDAX 文件")
+            self.log_area.append(f"[{_now()}] " + _("No NDAX files found"))
             return
 
-        self.log_area.append(f"[{_now()}] 已加载 {len(self.ndax_files)} 个 NDAX 文件")
-        self.log_area.append(f"[{_now()}] 输出目录: {self.out_dir}")
+        self.log_area.append(
+            f"[{_now()}] " + _("Loaded {count} NDAX files").format(count=len(self.ndax_files))
+        )
+        self.log_area.append(f"[{_now()}] " + _("Output folder: {path}").format(path=self.out_dir))
 
         # 检查 2_xlsx 是否已有 xlsx 文件
         # 按钮始终可用
@@ -184,14 +186,14 @@ class NdaxConverterWindow(QW.QWidget):
 
             xlsx_path = self.out_dir / f"{f.stem}.xlsx" if self.out_dir else None
             if xlsx_path and xlsx_path.exists():
-                status_item = QW.QTableWidgetItem(_("已存在"))
+                status_item = QW.QTableWidgetItem(_("Already Exists"))
                 status_item.setForeground(QC.Qt.GlobalColor.gray)
             else:
-                status_item = QW.QTableWidgetItem(_("就绪"))
+                status_item = QW.QTableWidgetItem(_("Ready"))
                 status_item.setForeground(QC.Qt.GlobalColor.darkGreen)
             self.table.setItem(i, self.COL_STATUS, status_item)
 
-        self.lbl_summary.setText(_("共 {count} 个文件").format(count=len(self.ndax_files)))
+        self.lbl_summary.setText(_("Total files: {count}").format(count=len(self.ndax_files)))
 
     def _update_status_ui(self, converting: bool) -> None:
         """Update UI elements based on conversion state."""
@@ -209,8 +211,8 @@ class NdaxConverterWindow(QW.QWidget):
         if self._check_existing_xlsx():
             reply = QW.QMessageBox.question(
                 self,
-                _("覆盖确认"),
-                _("2_xlsx 目录中已存在转换后的文件，继续转换将覆盖已有文件，是否继续？"),
+                _("Confirm Overwrite"),
+                _("Converted files already exist in the 2_xlsx folder. Continuing will overwrite existing files. Continue?"),
                 QW.QMessageBox.StandardButton.Yes | QW.QMessageBox.StandardButton.No,
                 QW.QMessageBox.StandardButton.No,
             )
@@ -220,7 +222,7 @@ class NdaxConverterWindow(QW.QWidget):
 
         self.out_dir.mkdir(parents=True, exist_ok=True)
         self.log_area.clear()
-        self.log_area.append(f"[{_now()}] 开始批量转换...")
+        self.log_area.append(f"[{_now()}] " + _("Starting batch conversion..."))
 
         self._update_status_ui(True)
         self.progress_bar.setMaximum(len(self.ndax_files))
@@ -234,7 +236,7 @@ class NdaxConverterWindow(QW.QWidget):
         self.worker.start()
 
         self.btn_start.setEnabled(True)
-        self.btn_start.setText(_("■ 取消"))
+        self.btn_start.setText(_("■ Cancel"))
         self.btn_start.clicked.disconnect()
         self.btn_start.clicked.connect(self._cancel_convert)
 
@@ -243,7 +245,7 @@ class NdaxConverterWindow(QW.QWidget):
         if self.worker:
             self.worker.cancel()
         self.btn_start.setEnabled(False)
-        self.btn_start.setText(_("正在取消..."))
+        self.btn_start.setText(_("Cancelling..."))
 
     def _on_progress(self, current: int, total: int) -> None:
         """Handle progress updates from worker thread."""
@@ -255,17 +257,17 @@ class NdaxConverterWindow(QW.QWidget):
         item = self.table.item(row, self.COL_STATUS)
         if item:
             item.setText(status)
-            if status == _("成功"):
+            if status == _("Success"):
                 item.setForeground(QC.Qt.GlobalColor.darkGreen)
-            elif status == _("失败"):
+            elif status == _("Failed"):
                 item.setForeground(QC.Qt.GlobalColor.red)
-            elif status == _("已跳过"):
+            elif status == _("Skipped"):
                 item.setForeground(QC.Qt.GlobalColor.gray)
 
     def _on_finished(self, result: dict) -> None:
         """Handle conversion completion."""
         self._update_status_ui(False)
-        self.btn_start.setText(_("▶ 开始转换"))
+        self.btn_start.setText(_("▶ Start Conversion"))
         self.btn_start.clicked.disconnect()
         self.btn_start.clicked.connect(self._start_convert)
         self._refresh_file_list()
@@ -273,25 +275,27 @@ class NdaxConverterWindow(QW.QWidget):
         succ = len(result["success"])
         skip = len(result["skipped"])
         fail = len(result["failed"])
-        self.lbl_summary.setText(_("成功 {succ}  跳过 {skip}  失败 {fail}").format(
+        self.lbl_summary.setText(_("Success: {succ}  Skipped: {skip}  Failed: {fail}").format(
             succ=succ, skip=skip, fail=fail
         ))
 
         self.log_area.append(
-            f"[{_now()}] 转换完成: 成功 {succ}, 跳过 {skip}, 失败 {fail}"
+            f"[{_now()}] " + _("Conversion complete: success {succ}, skipped {skip}, failed {fail}").format(
+                succ=succ, skip=skip, fail=fail
+            )
         )
 
         if fail > 0:
             QW.QMessageBox.warning(
-                self, _("转换完成"),
-                _("转换完成\n✔ 成功: {succ}\n⏭ 跳过: {skip}\n✘ 失败: {fail}").format(
+                self, _("Conversion Complete"),
+                _("Conversion complete\n✔ Success: {succ}\n⏭ Skipped: {skip}\n✘ Failed: {fail}").format(
                     succ=succ, skip=skip, fail=fail
                 )
             )
         elif succ > 0:
             QW.QMessageBox.information(
-                self, _("转换完成"),
-                _("全部完成!\n✔ 成功: {succ}\n⏭ 跳过: {skip}").format(
+                self, _("Conversion Complete"),
+                _("All done!\n✔ Success: {succ}\n⏭ Skipped: {skip}").format(
                     succ=succ, skip=skip
                 )
             )
@@ -301,8 +305,8 @@ class NdaxConverterWindow(QW.QWidget):
         if self.worker and self.worker.isRunning():
             QW.QMessageBox.warning(
                 self,
-                _("正在转换"),
-                _("请先取消转换并等待当前任务结束，再关闭窗口。"),
+                _("Conversion in Progress"),
+                _("Please cancel the conversion and wait for the current task to finish before closing this window."),
             )
             event.ignore()
             return

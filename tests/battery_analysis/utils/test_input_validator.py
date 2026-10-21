@@ -154,7 +154,7 @@ class TestValidateVersion:
 
     def test_valid_version_formats(self):
         """合法版本号格式应通过。"""
-        for ver in ["1", "1.0", "1.0.0", "12.34.56"]:
+        for ver in ["1.0", "1.0.0", "12.34.56"]:
             values = _make_valid_values(version=ver)
             result = InputValidator._validate_version(values)
             assert result.is_valid is True, f"Version '{ver}' should be valid"
@@ -267,3 +267,22 @@ class TestCapacityFields:
         assert result.field_errors["required_usable_capacity"] == (
             "Required Useable Capacity must be a positive integer"
         )
+
+
+@pytest.mark.parametrize("version", ["1", "1.", "1.0.", "a", "1.0.1.2", "1.0\n", " 1.0"])
+def test_version_format_rejects_every_nonfinal_run_version(version):
+    result = InputValidator._validate_version(FieldValues(version=version))
+    assert not result.is_valid
+    assert "version" in result.field_errors
+
+
+def test_shared_parser_keeps_original_api_and_equivalent_versions():
+    from battery_analysis.main.business_logic.version_manager import (
+        parse_version as old_parse_version,
+    )
+    from battery_analysis.utils.input_validator import parse_version
+
+    assert old_parse_version is parse_version
+    assert parse_version("1.0") == parse_version("1.0.0")
+    assert parse_version("1.01") == parse_version("1.1")
+    assert parse_version("1.0") != parse_version("10.0")

@@ -31,19 +31,26 @@ def set_specification_method(filename, all_spec_methods, combo_box):
 
 
 def set_manufacturer(filename, combo_box):
-    """从文件名匹配制造商"""
+    """从文件名匹配制造商，返回命中值；未匹配时返回 None，不改动控件。"""
     for m in range(combo_box.count()):
         if combo_box.itemText(m) in filename:
             combo_box.setCurrentIndex(m)
-            break
+            return combo_box.itemText(m)
+    return None
 
 
 def extract_batch_date_code(filename, line_edit):
-    """提取批次日期代码，兼容 DC2604、DC(2604) 和 DC (2604) 三种格式"""
-    # 匹配 DC 后可选空格、可选括号包裹的字母数字批次码
-    batch_date_codes = re.findall(r"DC\s*\(?(\w+)\)?", filename)
+    """提取并返回批次码（兼容 DC2604 / DC(2604) / DC (2604)）；未匹配返回 None。"""
+    # 保留批次码中的下划线；只有明确的报告字段 _TD / _v 才截断无括号码。
+    batch_date_codes = re.findall(
+        r"DC\s*(?:\((\w+)\)|(\w+?)(?=_(?:TD|v)\d|\W|$))", filename
+    )
     if len(batch_date_codes) == 1:
-        line_edit.setText(batch_date_codes[0].strip())
+        parenthesized, plain = batch_date_codes[0]
+        value = (parenthesized or plain).strip()
+        line_edit.setText(value)
+        return value
+    return None
 
 
 def extract_pulse_current(filename):

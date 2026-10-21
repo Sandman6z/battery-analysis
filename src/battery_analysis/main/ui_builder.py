@@ -146,7 +146,7 @@ class UIBuilder:
         mw.actionBatteryChartViewer = QG.QAction(_("BatteryChartViewer"), mw)
         mw.actionBatteryChartViewer.setObjectName("actionBatteryChartViewer")
 
-        mw.actionNdaxConverter = QG.QAction(_("NDAX 转换器"), mw)
+        mw.actionNdaxConverter = QG.QAction(_("NDAX Converter"), mw)
         mw.actionNdaxConverter.setObjectName("actionNdaxConverter")
 
         mw.actionCalculate_Battery = QG.QAction(_("Calculate Battery"), mw)

@@ -167,3 +167,17 @@ class TestExtractCcCurrent:
         result = extract_cc_current("(100mA,500mAh)")
         # "500mAh" → strip "mAh" → "500" → no mA match → return ""
         assert result == ""
+
+
+@pytest.mark.parametrize(("filename", "expected"), [
+    ("Example_CR2032_DC20231231_TD20241019_v1.0.ndax", "20231231"),
+    ("Example_DC2604_v1.0.ndax", "2604"),
+    ("Example_DCbatch_part_TD20241019_v1.0.ndax", "batch_part"),
+    ("Example_DC(batch_part)_TD20241019_v1.0.ndax", "batch_part"),
+    ("Example_DC (2608)_TD20241019_v1.0.ndax", "2608"),
+    ("Example_DCBATCH42, QA Test.ndax", "BATCH42"),
+])
+def test_batch_date_code_stops_at_report_fields(filename, expected):
+    line_edit = MagicMock()
+    extract_batch_date_code(filename, line_edit)
+    line_edit.setText.assert_called_once_with(expected)

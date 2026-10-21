@@ -43,6 +43,10 @@ class AnalysisRunner:
         """
         执行分析运行逻辑
         """
+        controller = self.main_window._get_controller("main_controller")
+        if controller and controller.is_analysis_running:
+            return
+
         # 保存表格数据
         self.main_window.table_manager.save_table()
         self.main_window.ui_manager.init_widgetcolor()
@@ -270,6 +274,15 @@ class AnalysisRunner:
             main_controller.set_test_info(test_info)
             main_controller.input_files = files
             main_controller.profile_validation = profile_decision
+            main_controller.checksum = self.main_window.sha256_checksum
+            main_controller.equipment_info = {}
+            try:
+                config = self.main_window._get_service("config")
+                equipment = config.get_config_value("test.equipment", {}) if config else {}
+                if equipment:
+                    main_controller.equipment_info = next(iter(equipment.values()))
+            except (KeyError, TypeError, AttributeError, StopIteration):
+                pass
 
             # 更新配置
             self.main_window.config_manager.update_config(test_info)

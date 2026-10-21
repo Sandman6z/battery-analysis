@@ -103,7 +103,7 @@ class MenuManager:
             if hasattr(self.main_window, "actionBatteryChartViewer"):
                 self.main_window.actionBatteryChartViewer.setToolTip(_("Open Battery Chart Viewer"))
             if hasattr(self.main_window, "actionNdaxConverter"):
-                self.main_window.actionNdaxConverter.setToolTip(_("NDAX → XLSX 批量转换"))
+                self.main_window.actionNdaxConverter.setToolTip(_("NDAX → XLSX Batch Conversion"))
             if hasattr(self.main_window, "actionBatch_Processing"):
                 self.main_window.actionBatch_Processing.setToolTip(_("Batch Process Data"))
             if hasattr(self.main_window, "actionConfiguration"):

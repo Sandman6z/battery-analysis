@@ -511,3 +511,260 @@ msgstr "The system has no configuration for the battery model (file: {filename})
 
 msgid "Go to Configuration"
 msgstr "Go to Configuration"
+
+# NDAX converter
+msgid "NDAX Converter"
+msgstr "NDAX Converter"
+
+msgid "NDAX → XLSX Batch Conversion"
+msgstr "NDAX → XLSX Batch Conversion"
+
+msgid "Optional export tool: batch convert NDAX files to Excel. The main analysis reads NDAX directly; no conversion is required."
+msgstr "Optional export tool: batch convert NDAX files to Excel. The main analysis reads NDAX directly; no conversion is required."
+
+msgid "📁 Select Folder"
+msgstr "📁 Select Folder"
+
+msgid "Select a folder containing .ndax files..."
+msgstr "Select a folder containing .ndax files..."
+
+msgid "File Name"
+msgstr "File Name"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "▶ Start Conversion"
+msgstr "▶ Start Conversion"
+
+msgid "Select NDAX Folder"
+msgstr "Select NDAX Folder"
+
+msgid "No NDAX files found"
+msgstr "No NDAX files found"
+
+msgid "Loaded {count} NDAX files"
+msgstr "Loaded {count} NDAX files"
+
+msgid "Output folder: {path}"
+msgstr "Output folder: {path}"
+
+msgid "Already Exists"
+msgstr "Already Exists"
+
+msgid "Total files: {count}"
+msgstr "Total files: {count}"
+
+msgid "Confirm Overwrite"
+msgstr "Confirm Overwrite"
+
+msgid "Converted files already exist in the 2_xlsx folder. Continuing will overwrite existing files. Continue?"
+msgstr "Converted files already exist in the 2_xlsx folder. Continuing will overwrite existing files. Continue?"
+
+msgid "Starting batch conversion..."
+msgstr "Starting batch conversion..."
+
+msgid "■ Cancel"
+msgstr "■ Cancel"
+
+msgid "Cancelling..."
+msgstr "Cancelling..."
+
+msgid "Success"
+msgstr "Success"
+
+msgid "Failed"
+msgstr "Failed"
+
+msgid "Skipped"
+msgstr "Skipped"
+
+msgid "Success: {succ}  Skipped: {skip}  Failed: {fail}"
+msgstr "Success: {succ}  Skipped: {skip}  Failed: {fail}"
+
+msgid "Conversion complete: success {succ}, skipped {skip}, failed {fail}"
+msgstr "Conversion complete: success {succ}, skipped {skip}, failed {fail}"
+
+msgid "Conversion Complete"
+msgstr "Conversion Complete"
+
+msgid "Conversion complete\n✔ Success: {succ}\n⏭ Skipped: {skip}\n✘ Failed: {fail}"
+msgstr "Conversion complete\n✔ Success: {succ}\n⏭ Skipped: {skip}\n✘ Failed: {fail}"
+
+msgid "All done!\n✔ Success: {succ}\n⏭ Skipped: {skip}"
+msgstr "All done!\n✔ Success: {succ}\n⏭ Skipped: {skip}"
+
+msgid "Conversion in Progress"
+msgstr "Conversion in Progress"
+
+msgid "Please cancel the conversion and wait for the current task to finish before closing this window."
+msgstr "Please cancel the conversion and wait for the current task to finish before closing this window."
+
+msgid "⚠ Conversion cancelled"
+msgstr "⚠ Conversion cancelled"
+
+msgid "⏭ {name} already exists; skipped"
+msgstr "⏭ {name} already exists; skipped"
+
+msgid "Waiting..."
+msgstr "Waiting..."
+
+msgid "Converting..."
+msgstr "Converting..."
+
+msgid "⚡ Converting {count} files in parallel using {workers} processes"
+msgstr "⚡ Converting {count} files in parallel using {workers} processes"
+
+msgid "✔ {name} converted successfully"
+msgstr "✔ {name} converted successfully"
+
+msgid "✘ {name} conversion failed: {error}"
+msgstr "✘ {name} conversion failed: {error}"
+
+msgid "✘ Parallel conversion error: {error}"
+msgstr "✘ Parallel conversion error: {error}"
+
+# Application dialogs
+msgid "File Error"
+msgstr "File Error"
+
+msgid "Filename Error"
+msgstr "Filename Error"
+
+msgid "Input Directory Not Found"
+msgstr "Input Directory Not Found"
+
+msgid "No sibling Test Profile was found (optional). Analysis will use the recipe embedded in the NDAX files."
+msgstr "No sibling Test Profile was found (optional). Analysis will use the recipe embedded in the NDAX files."
+
+msgid "Multiple XML files were found. Select a Test Profile for validation, or cancel to leave it empty:"
+msgstr "Multiple XML files were found. Select a Test Profile for validation, or cancel to leave it empty:"
+
+msgid "File Format Error"
+msgstr "File Format Error"
+
+msgid "Directory Error"
+msgstr "Directory Error"
+
+msgid "The sibling NDAX directory was not found:\n{path}\nPlease check the project directory structure."
+msgstr "The sibling NDAX directory was not found:\n{path}\nPlease check the project directory structure."
+
+msgid "Invalid XML file format: {filename} is missing a root element"
+msgstr "Invalid XML file format: {filename} is missing a root element"
+
+msgid "Failed to parse XML file: {filename} - {error}"
+msgstr "Failed to parse XML file: {filename} - {error}"
+
+msgid "Error validating XML file: {filename} - {error}"
+msgstr "Error validating XML file: {filename} - {error}"
+
+msgid "<h3>Battery Analyzer</h3><p>Version: v{version}</p><p>Battery analysis tool for battery performance testing and data analysis.</p><p>© {year} Sandman Zhang, Shane Zhao</p>"
+msgstr "<h3>Battery Analyzer</h3><p>Version: v{version}</p><p>Battery analysis tool for battery performance testing and data analysis.</p><p>© {year} Sandman Zhang, Shane Zhao</p>"
+
+msgid "User Manual"
+msgstr "User Manual"
+
+msgid "User manual file not found.\n\nPlease make sure one of the following files exists:\n• docs/user_manual.pdf\n• user_manual.pdf\n\nFor help, please contact technical support."
+msgstr "User manual file not found.\n\nPlease make sure one of the following files exists:\n• docs/user_manual.pdf\n• user_manual.pdf\n\nFor help, please contact technical support."
+
+msgid "Online Help"
+msgstr "Online Help"
+
+msgid "Error details: {error}"
+msgstr "Error details: {error}"
+
+msgid "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: {url}"
+msgstr "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: {url}"
+
+msgid "Translation coverage: {translated}/{total} keys translated"
+msgstr "Translation coverage: {translated}/{total} keys translated"
+
+msgid "Error parsing config: {error}"
+msgstr "Error parsing config: {error}"
+
+msgid "Missing required keys: {keys}"
+msgstr "Missing required keys: {keys}"
+
+msgid "Missing required sections: {sections}"
+msgstr "Missing required sections: {sections}"
+
+msgid "Check whether the input path is correct"
+msgstr "Check whether the input path is correct"
+
+msgid "Ensure the necessary data files are included"
+msgstr "Ensure the necessary data files are included"
+
+msgid "Check whether the data file format meets the requirements"
+msgstr "Check whether the data file format meets the requirements"
+
+msgid "Ensure you have sufficient file operation permissions"
+msgstr "Ensure you have sufficient file operation permissions"
+
+msgid "{message}:\n\n{details}\n\nSuggested steps:\n"
+msgstr "{message}:\n\n{details}\n\nSuggested steps:\n"
+
+msgid "Analysis Completed"
+msgstr "Analysis Completed"
+
+msgid "Open Report"
+msgstr "Open Report"
+
+msgid "Open Output Folder"
+msgstr "Open Output Folder"
+
+msgid "Date Mismatch Error"
+msgstr "Date Mismatch Error"
+
+msgid "Check whether the output path exists and is writable"
+msgstr "Check whether the output path exists and is writable"
+
+msgid "Ensure there is enough disk space"
+msgstr "Ensure there is enough disk space"
+
+msgid "Close other programs that may be using the output files"
+msgstr "Close other programs that may be using the output files"
+
+msgid "Try selecting a different output directory"
+msgstr "Try selecting a different output directory"
+
+msgid "Check the integrity of the input data"
+msgstr "Check the integrity of the input data"
+
+msgid "Ensure the file path does not contain special characters"
+msgstr "Ensure the file path does not contain special characters"
+
+msgid "Re-select valid input and output directories"
+msgstr "Re-select valid input and output directories"
+
+msgid "Battery analysis completed successfully!\n\nThe report has been generated to the specified output path."
+msgstr "Battery analysis completed successfully!\n\nThe report has been generated to the specified output path."
+
+msgid "Please check whether the Test Date field in the Excel file is correct"
+msgstr "Please check whether the Test Date field in the Excel file is correct"
+
+msgid "Ensure the Test Date matches the actual test date"
+msgstr "Ensure the Test Date matches the actual test date"
+
+msgid "Correct the date and re-run the analysis"
+msgstr "Correct the date and re-run the analysis"
+
+msgid "Battery Analysis Error"
+msgstr "Battery Analysis Error"
+
+msgid "An error occurred while analyzing battery data."
+msgstr "An error occurred while analyzing battery data."
+
+msgid "Report Generation Error"
+msgstr "Report Generation Error"
+
+msgid "An error occurred while generating the analysis report."
+msgstr "An error occurred while generating the analysis report."
+
+msgid "Analysis Error"
+msgstr "Analysis Error"
+
+msgid "Warning: {details}"
+msgstr "Warning: {details}"
+
+msgid "An error occurred during analysis:\n\n{details}"
+msgstr "An error occurred during analysis:\n\n{details}"

@@ -6,13 +6,12 @@ international standards and best practices for Python GUI applications.
 """
 
 import logging
-from pathlib import Path
 from typing import Any
 
-from PyQt6.QtCore import QObject, QSettings, pyqtSignal
+from PyQt6.QtCore import QObject, QSettings, Qt, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
-from . import _, detect_system_locale, get_current_locale, ngettext, pgettext, set_locale
+from . import LOCALEDIR, _, detect_system_locale, get_current_locale, ngettext, pgettext, set_locale
 
 
 class LanguageManager(QObject):
@@ -100,11 +99,7 @@ class LanguageManager(QObject):
 
     def _has_translation_file(self, locale_code: str) -> bool:
         """Check if translation file exists for locale"""
-        locale_dir = (
-            Path(__file__).parent.parent.parent.parent / "locale" / locale_code / "LC_MESSAGES"
-        )
-        mo_file = locale_dir / "messages.mo"
-        return mo_file.exists()
+        return (LOCALEDIR / locale_code / "LC_MESSAGES" / "messages.po").is_file()
 
     def get_current_locale(self) -> str:
         """
@@ -136,6 +131,8 @@ class LanguageManager(QObject):
 
         # Set locale using standard gettext
         if set_locale(locale_code):
+            # Native Windows file dialogs follow the OS language, not the app language.
+            QApplication.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeDialogs, locale_code == "en")
             self.settings.setValue("language/locale", locale_code)
             self.language_changed.emit(locale_code)
             self.locale_changed.emit(locale_code)

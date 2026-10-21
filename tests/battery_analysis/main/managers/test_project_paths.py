@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 from PyQt6 import QtWidgets as QW
 
+from battery_analysis.i18n import get_current_locale, set_locale
 from battery_analysis.main.main_window import Main
 from battery_analysis.main.managers.path_manager import PathManager
 from battery_analysis.main.managers.test_profile_manager import TestProfileManager
@@ -15,6 +16,14 @@ from battery_analysis.main.ui_components.ui_manager import UIManager
 def qapp():
     app = QW.QApplication.instance() or QW.QApplication([])
     yield app
+
+
+@pytest.fixture(autouse=True)
+def english_locale():
+    previous = get_current_locale()
+    assert set_locale("en")
+    yield
+    assert set_locale(previous)
 
 
 @pytest.fixture
@@ -83,7 +92,9 @@ def test_switching_project_without_profile_clears_old_profile(window, tmp_path):
     with patch.object(QW.QMessageBox, "question") as question:
         choose_ndax(window, source)
     assert_project(window, second)
-    assert "NDAX" in window.statusBar_BatteryAnalysis.currentMessage()
+    assert window.statusBar_BatteryAnalysis.currentMessage() == (
+        "No sibling Test Profile was found (optional). Analysis will use the recipe embedded in the NDAX files."
+    )
     question.assert_not_called()  # Existing first-run acknowledgement remains in AnalysisRunner.
 
 
@@ -93,6 +104,10 @@ def test_multiple_profiles_require_selection(window, tmp_path, accept):
     with patch.object(QW.QInputDialog, "getItem", return_value=("second.xml", accept)) as picker:
         choose_ndax(window, source)
     picker.assert_called_once()
+    assert picker.call_args.args[1:3] == (
+        "Select Test Profile",
+        "Multiple XML files were found. Select a Test Profile for validation, or cancel to leave it empty:",
+    )
     assert_project(window, tmp_path, tmp_path / "4_test profile" / "second.xml" if accept else "")
 
 
@@ -116,6 +131,10 @@ def test_xml_without_sibling_ndax_does_not_keep_previous_input(window, tmp_path)
     with patch.object(QW.QMessageBox, "warning") as warning:
         choose_xml(window, profile)
     warning.assert_called_once()
+    assert warning.call_args.args[1:] == (
+        "Input Directory Not Found",
+        f"The sibling NDAX directory was not found:\n{other / '1_ndax'}\nPlease check the project directory structure.",
+    )
     assert window.lineEdit_InputPath.text() == ""
     assert window.lineEdit_TestProfile.text() == str(profile)
     assert window.lineEdit_OutputPath.text() == str(other / "3_analysis results")

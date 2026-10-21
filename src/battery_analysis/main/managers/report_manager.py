@@ -2,9 +2,12 @@
 
 import logging
 import os
+import re
 from pathlib import Path
 
 from PyQt6 import QtWidgets as QW
+
+from battery_analysis.main.business_logic.version_manager import parse_version
 
 
 class ReportManager:
@@ -34,67 +37,44 @@ class ReportManager:
 
     # ── 业务方法 ────────────────────────────────────────────────
 
-    def open_report(self, dialog=None):
-        """
-        打开生成的docx格式报告
-
-        Args:
-            dialog: 父对话框，可选
-        """
-        output_path_str = self._get_output_path()
-        version = self._get_version()
-
+    def open_report(self, dialog=None, *, report_path=None):
+        """打开实际交付的报告，或当前输出根内精确匹配版本的报告。"""
         try:
-            output_path = Path(output_path_str)
-
-            if not output_path.exists() or not output_path.is_dir():
-                self._warn("Warning", f"Invalid output path: {output_path}")
-                return
-
-            # 搜索docx文件（word报告保存在输出目录的上一级）
-            docx_files = list(output_path.parent.rglob("*.docx"))
-
-            if not docx_files:
-                self._info(
-                    "Information", f"No docx report file found\nSearch path: {output_path.parent}"
-                )
-                return
-
-            # 找到与当前版本匹配的报告
-            target_docx = None
-            for docx_file in docx_files:
-                if f"_v{version}" in docx_file.name:
-                    target_docx = docx_file
-                    break
-
-            # 如果没有匹配版本，使用最新的报告
-            if not target_docx and docx_files:
-                target_docx = sorted(docx_files, key=lambda f: f.stat().st_mtime, reverse=True)[0]
-
-            # 打开报告
-            if target_docx:
-                target_path = str(target_docx)
-                try:
-                    os.startfile(target_path)
-                except Exception as popen_error:
-                    self.logger.error("Failed to open report: %s", popen_error)
-                    self._critical("Error", f"Failed to open report: {popen_error!s}")
-
-                # 关闭对话框（如果提供）
-                if dialog:
-                    dialog.accept()
-        except Exception as e:
+            if report_path is not None:
+                target_docx = Path(report_path)
+                if not target_docx.is_file():
+                    self._warn("Warning", f"Report not found: {target_docx}")
+                    return
+            else:
+                output_path = Path(self._get_output_path())
+                if not output_path.is_dir():
+                    self._warn("Warning", f"Invalid output path: {output_path}")
+                    return
+                version = parse_version(self._get_version())
+                matches = []
+                for docx_file in output_path.glob("*.docx"):
+                    match = re.search(r"_v(\d+(?:\.\d+){1,2})\.docx$", docx_file.name)
+                    if match and parse_version(match.group(1)) == version:
+                        matches.append(docx_file)
+                if not matches:
+                    self._info("Information", f"No matching docx report file found\nSearch path: {output_path}")
+                    return
+                target_docx = max(matches, key=lambda path: path.stat().st_mtime)
+            os.startfile(str(target_docx))
+            if dialog:
+                dialog.accept()
+        except (OSError, ValueError) as e:
             self._critical("Error", f"Failed to open report: {e!s}")
             self.logger.error("Failed to open report: %s", e)
 
-    def open_report_path(self, dialog=None):
+    def open_report_path(self, dialog=None, *, output_path=None):
         """
         打开报告所在的文件夹
 
         Args:
             dialog: 父对话框，可选
         """
-        output_path_str = self._get_output_path()
+        output_path_str = self._get_output_path() if output_path is None else output_path
 
         try:
             output_path = Path(output_path_str)

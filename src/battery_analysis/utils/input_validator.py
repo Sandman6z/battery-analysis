@@ -10,6 +10,16 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+REPORT_VERSION_PATTERN = r"\d+(?:\.\d+){1,2}"
+
+
+def parse_version(value):
+    """Compare numeric components, so 4.01 and 4.1 denote the same version."""
+    if not isinstance(value, str) or not re.fullmatch(REPORT_VERSION_PATTERN, value):
+        raise ValueError("Version must contain 2 or 3 numeric components (e.g. 4.1)")
+    parts = tuple(int(part) for part in value.split("."))
+    return parts + (0,) * (3 - len(parts))
+
 
 @dataclass
 class ValidationResult:
@@ -180,9 +190,12 @@ class InputValidator:
     def _validate_version(values: FieldValues) -> ValidationResult:
         """验证版本号格式 (x.y.z)。"""
         result = ValidationResult()
-        if values.version and not re.match(r"^\d+(\.\d+){0,2}$", values.version):
-            result.is_valid = False
-            result.field_errors["version"] = "Version format is invalid. Expected x.y.z format"
+        if values.version:
+            try:
+                parse_version(values.version)
+            except ValueError:
+                result.is_valid = False
+                result.field_errors["version"] = "Version format is invalid. Expected x.y.z format"
         return result
 
     @staticmethod

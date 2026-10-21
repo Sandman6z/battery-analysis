@@ -74,14 +74,20 @@ class SignalConnector:
                 main_controller.progress_updated.connect(self._on_progress_updated)
             if hasattr(main_controller, "analysis_completed"):
                 # 结束信号只负责复位；失败和取消不能占用成功版本。
-                main_controller.analysis_succeeded.connect(self.main_window.version_manager.set_version)
+                main_controller.analysis_succeeded.connect(
+                    lambda: self.main_window.version_manager.set_version(**main_controller.completed_context)
+                )
                 # 修复：analysis_completed 连接到按钮重置，解决按钮失灵问题
                 main_controller.analysis_completed.connect(self._reset_run_button)
                 self.logger.info("Connected analysis_completed -> _reset_run_button")
             if hasattr(main_controller, "path_renamed"):
                 main_controller.path_renamed.connect(self.main_window.config_manager.rename_pltPath)
             if hasattr(main_controller, "start_visualizer"):
-                main_controller.start_visualizer.connect(self.main_window.visualization_manager.run_visualizer)
+                main_controller.start_visualizer.connect(
+                    lambda: self.main_window.visualization_manager.run_visualizer(
+                        data_path=main_controller.completed_result_dir
+                    )
+                )
             if hasattr(main_controller, "status_changed"):
                 main_controller.status_changed.connect(self._on_status_changed)
                 self.logger.info("Connected status_changed -> _on_status_changed")
@@ -161,24 +167,28 @@ class SignalConnector:
                     "Battery analysis completed!"
                 )
 
-                # 显示成功提示，添加打开报告和打开路径按钮
+                # 完成提示绑定本次实际交付路径，不读取任务期间可能已变更的 UI。
+                controller = self._get_controller("main_controller")
+                report_path = controller.completed_report_path
+                result_dir = controller.completed_result_dir
                 msg_box = QW.QMessageBox()
-                msg_box.setWindowTitle("Analysis Completed")
+                msg_box.setWindowTitle(_("Analysis Completed"))
                 warning_summary = threadinfo.partition("\n")[2]
                 msg_box.setText(
-                    "Battery analysis completed successfully!\n\nThe report has been generated to the specified output path."
-                    + ("\n\nWarning: " + warning_summary if warning_summary else "")
+                    _("Battery analysis completed successfully!\n\nThe report has been generated to the specified output path.")
+                    + f"\n\n{report_path}\n{result_dir}"
+                    + ("\n\n" + _("Warning: {details}").format(details=warning_summary) if warning_summary else "")
                 )
                 msg_box.setIcon(QW.QMessageBox.Icon.Information)
 
                 # 添加打开报告按钮
                 open_report_button = msg_box.addButton(
-                    "Open Report", QW.QMessageBox.ButtonRole.ActionRole
+                    _("Open Report"), QW.QMessageBox.ButtonRole.ActionRole
                 )
 
                 # 添加打开路径按钮
                 open_path_button = msg_box.addButton(
-                    "Open Path", QW.QMessageBox.ButtonRole.ActionRole
+                    _("Open Output Folder"), QW.QMessageBox.ButtonRole.ActionRole
                 )
 
                 # 添加确定按钮
@@ -190,10 +200,10 @@ class SignalConnector:
                 clicked_button = msg_box.clickedButton()
                 if clicked_button == open_report_button:
                     if hasattr(self.main_window, "report_manager"):
-                        self.main_window.report_manager.open_report()
+                        self.main_window.report_manager.open_report(report_path=report_path)
                 elif clicked_button == open_path_button:
                     if hasattr(self.main_window, "report_manager"):
-                        self.main_window.report_manager.open_report_path()
+                        self.main_window.report_manager.open_report_path(output_path=result_dir)
             elif stateindex == 3:
                 # 日期不一致错误处理
                 # 关闭进度条
@@ -203,18 +213,20 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setEnabled(True)
 
                 # 日期不一致错误消息处理
-                error_title = "Date Mismatch Error"
+                error_title = _("Date Mismatch Error")
                 error_details = threadinfo
 
                 # 构建日期不一致错误的具体建议
                 suggestions = [
-                    "Please check whether the Test Date field in the Excel file is correct",
-                    "Ensure the Test Date matches the actual test date",
-                    "Correct the date and re-run the analysis",
+                    _("Please check whether the Test Date field in the Excel file is correct"),
+                    _("Ensure the Test Date matches the actual test date"),
+                    _("Correct the date and re-run the analysis"),
                 ]
 
                 # 构建完整的错误消息
-                full_error_msg = f"{error_title}:\n\n{error_details}\n\nSuggested steps:\n"
+                full_error_msg = _("{message}:\n\n{details}\n\nSuggested steps:\n").format(
+                    message=error_title, details=error_details
+                )
                 full_error_msg += "\n".join([f"- {s}" for s in suggestions])
 
                 # 显示专门的日期不一致错误对话框
@@ -233,8 +245,8 @@ class SignalConnector:
 
                 # 增强的电池分析错误处理
                 self._handle_error(
-                    "Battery Analysis Error",
-                    "An error occurred while analyzing battery data.",
+                    _("Battery Analysis Error"),
+                    _("An error occurred while analyzing battery data."),
                     threadinfo,
                     True,  # 需要关闭进度条
                 )
@@ -247,8 +259,8 @@ class SignalConnector:
                 self.main_window.pushButton_Run.setEnabled(True)
 
                 self._handle_error(
-                    "Report Generation Error",
-                    "An error occurred while generating the analysis report.",
+                    _("Report Generation Error"),
+                    _("An error occurred while generating the analysis report."),
                     threadinfo,
                     False,  # 进度条已关闭
                 )
@@ -262,8 +274,8 @@ class SignalConnector:
 
                 # 显示错误提示
                 msg_box = QW.QMessageBox()
-                msg_box.setWindowTitle("Analysis Error")
-                msg_box.setText(f"An error occurred during analysis:\n\n{threadinfo}")
+                msg_box.setWindowTitle(_("Analysis Error"))
+                msg_box.setText(_("An error occurred during analysis:\n\n{details}").format(details=threadinfo))
                 msg_box.setIcon(QW.QMessageBox.Icon.Critical)
                 msg_box.exec()
 
@@ -292,19 +304,19 @@ class SignalConnector:
         error_details_str = error_details if isinstance(error_details, str) else str(error_details)
 
         if "input path" in error_details_lower or "not found" in error_details_lower:
-            suggestions.append("Check whether the input path is correct")
-            suggestions.append("Ensure the necessary data files are included")
+            suggestions.append(_("Check whether the input path is correct"))
+            suggestions.append(_("Ensure the necessary data files are included"))
         if "format" in error_details_lower:
-            suggestions.append("Check whether the data file format meets the requirements")
+            suggestions.append(_("Check whether the data file format meets the requirements"))
         if "permission" in error_details_lower:
-            suggestions.append("Ensure you have sufficient file operation permissions")
+            suggestions.append(_("Ensure you have sufficient file operation permissions"))
         if "output" in error_details_lower or "write" in error_details_lower:
             suggestions.extend(
                 [
-                    "Check whether the output path exists and is writable",
-                    "Ensure there is enough disk space",
-                    "Close other programs that may be using the output files",
-                    "Try selecting a different output directory",
+                    _("Check whether the output path exists and is writable"),
+                    _("Ensure there is enough disk space"),
+                    _("Close other programs that may be using the output files"),
+                    _("Try selecting a different output directory"),
                 ]
             )
 
@@ -312,14 +324,16 @@ class SignalConnector:
         if not suggestions:
             suggestions.extend(
                 [
-                    "Check the integrity of the input data",
-                    "Ensure the file path does not contain special characters",
-                    "Re-select valid input and output directories",
+                    _("Check the integrity of the input data"),
+                    _("Ensure the file path does not contain special characters"),
+                    _("Re-select valid input and output directories"),
                 ]
             )
 
         # 构建完整的错误消息
-        full_error_msg = f"{error_msg}:\n\n{error_details_str}\n\nSuggested steps:\n"
+        full_error_msg = _("{message}:\n\n{details}\n\nSuggested steps:\n").format(
+            message=error_msg, details=error_details_str
+        )
         full_error_msg += "\n".join([f"- {s}" for s in suggestions])
 
         # 显示详细的错误对话框

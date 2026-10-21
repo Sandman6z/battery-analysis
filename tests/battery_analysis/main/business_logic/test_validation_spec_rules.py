@@ -5,8 +5,10 @@ _apply_specification_rules 匹配逻辑与 check_construction 重算入口。
 """
 
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
+from PyQt6.QtWidgets import QApplication, QComboBox, QLineEdit
 
 from battery_analysis.main.business_logic.validation_spec_rules import (
     ValidationSpecRulesMixin,
@@ -160,3 +162,86 @@ class TestCheckConstruction:
         mixin = make_mixin(construction="Spiral Type")
         mixin.check_construction()
         assert mixin.main_window.lineEdit_RequiredUseableCapacity.value == "782"
+
+
+_rules_app = None
+
+
+@pytest.fixture
+def rules_ui():
+    global _rules_app
+    _rules_app = QApplication.instance() or QApplication([])
+    mw = SimpleNamespace(construction_method="", specification_type="LP503048")
+    values = {
+        "BatteryConfig/SpecificationTypeCoinCell": ["CR2032"],
+        "BatteryConfig/SpecificationTypePouchCell": ["LP503048"],
+        "BatteryConfig/Rules": ["LP503048/1S1P/100/100/85%|75%", "LP503048/2S1P/100/100/85%|75%"],
+    }
+    mw.config_manager = SimpleNamespace(get_config=lambda key: values.get(key, []))
+    mw.checker_battery_type = Mock()
+    for name, items in {
+        "BatteryType": ["Coin Cell", "Pouch Cell"],
+        "ConstructionMethod": ["Spiral Type", "Laminate Type"],
+        "Specification_Type": ["CR2032", "LP503048"],
+        "Specification_Method": ["1S1P", "2S1P"],
+        "Temperature": ["Room Temperature"],
+    }.items():
+        combo = QComboBox()
+        combo.addItems(items)
+        setattr(mw, f"comboBox_{name}", combo)
+    for name in ("DatasheetNominalCapacity", "CalculationNominalCapacity", "RequiredUseableCapacity"):
+        setattr(mw, f"lineEdit_{name}", QLineEdit())
+    rules = ValidationSpecRulesMixin()
+    rules.main_window = mw
+    mw.check_batterytype = rules.check_batterytype
+    mw.check_specification = rules.check_specification
+    mw.comboBox_BatteryType.setCurrentText("Pouch Cell")
+    rules.check_batterytype()
+    mw.comboBox_BatteryType.currentIndexChanged.connect(mw.check_batterytype)
+    mw.comboBox_ConstructionMethod.setCurrentText("Laminate Type")
+    yield mw, rules
+    assert _rules_app is not None
+
+
+def test_specification_method_change_preserves_same_type_construction(rules_ui):
+    mw, rules = rules_ui
+    mw.comboBox_Specification_Method.setCurrentText("2S1P")
+    rules.check_specification()
+    assert mw.comboBox_ConstructionMethod.currentText() == "Laminate Type"
+    assert float(mw.lineEdit_RequiredUseableCapacity.text()) == 75
+
+
+def test_direct_battery_type_change_clears_incompatible_specification(rules_ui):
+    mw, _ = rules_ui
+    mw.comboBox_BatteryType.setCurrentText("Coin Cell")
+    assert mw.comboBox_Specification_Type.currentText() == ""
+    assert mw.specification_type == ""
+    assert mw.lineEdit_RequiredUseableCapacity.text() == ""
+    assert not mw.comboBox_ConstructionMethod.isEnabled()
+
+
+def test_specification_still_infers_battery_type(rules_ui):
+    mw, rules = rules_ui
+    mw.comboBox_Specification_Type.setCurrentText("CR2032")
+    rules.check_specification()
+    assert mw.comboBox_BatteryType.currentText() == "Coin Cell"
+    assert mw.comboBox_Specification_Type.currentText() == "CR2032"
+    assert mw.comboBox_ConstructionMethod.currentText() == ""
+
+
+def test_same_type_import_applies_explicit_filename_construction(rules_ui):
+    mw, rules = rules_ui
+    mw.construction_method = "Spiral Type"
+    rules.check_specification()
+    assert mw.comboBox_ConstructionMethod.currentText() == "Spiral Type"
+    assert mw.construction_method == ""
+    assert float(mw.lineEdit_RequiredUseableCapacity.text()) == 85
+
+
+def test_cleared_specification_method_clears_derived_capacity(rules_ui):
+    mw, rules = rules_ui
+    rules.check_specification()
+    mw.comboBox_Specification_Method.setCurrentIndex(-1)
+    rules.check_specification()
+    assert mw.lineEdit_RequiredUseableCapacity.text() == ""
+    assert mw.comboBox_ConstructionMethod.currentText() == "Laminate Type"

@@ -18,7 +18,7 @@ from docx import Document
 
 from battery_analysis.utils.constants import COLOR_NAME
 from battery_analysis.utils.processors.data_utils import generate_current_type_string
-from battery_analysis.utils.report_coordinator import match_battery_type
+from battery_analysis.utils.report_coordinator import match_battery_type, report_filename
 from battery_analysis.utils.writers.statistics_utils import (
     compute_list_cpt,
     compute_statistics,
@@ -38,6 +38,8 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
         listTestInfo: list,
         listBatteryInfo: list,
         equipment_info: dict | None = None,
+        *,
+        test_date: str | None = None,
     ) -> None:
         self._equipment_info = equipment_info or {}
         self.strResultPath = strResultPath
@@ -59,16 +61,18 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
         self.intBatteryNum = len(self.listBatteryName)
 
         # 路径推导（图像 / Excel / Word 模板 / Word 输出）
-        self._init_report_paths(strResultPath)
+        self._init_report_paths(strResultPath, test_date)
 
         # 替换占位符与电池类型匹配
         self._init_replace_placeholders()
 
-    def _init_report_paths(self, strResultPath: str) -> None:
+    def _init_report_paths(self, strResultPath: str, test_date: str | None = None) -> None:
         """由结果目录推导图像、Excel、Word 模板与输出路径"""
         # 从strResultPath提取td（日期部分）
         basename = os.path.basename(strResultPath)
-        if "_v" in basename:
+        if test_date:
+            td = test_date
+        elif "_v" in basename:
             td = basename.split("_v")[0]
         else:
             td = "00000000"
@@ -121,10 +125,7 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
             )
 
         # Word输出路径
-        report_name = (
-            f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}"
-            f"_TD{td}_v{self.listTestInfo[16]}.docx"
-        )
+        report_name = report_filename(self.listTestInfo, td)
         result_dir = Path(self.strResultPath).parent
         self.strReportWordPath = str(result_dir / report_name)
 

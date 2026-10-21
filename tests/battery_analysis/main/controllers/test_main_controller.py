@@ -115,3 +115,37 @@ class TestMainController:
         assert observed["scroll_max"] > 0
         assert "Stop batch" in observed["buttons"]
         assert "Review consequences" in observed["buttons"]
+
+
+def test_submission_copies_inputs_and_completion_binds_actual_paths():
+    from types import SimpleNamespace
+
+    from battery_analysis.domain.entities.test_info import TestInfo
+
+    controller = MainController()
+    controller.thread_pool = SimpleNamespace(start=lambda worker: None)
+    controller.set_project_context("A", "A/input", "A/output")
+    info = TestInfo(version="1.0", battery_type="Coin Cell", current_levels=[3])
+    controller.set_test_info(info)
+    controller.input_files = ["A/input/a.ndax"]
+    controller.profile_validation = {"decision": "continue", "levels": [3]}
+    controller.equipment_info = {"name": "original", "versions": ["1"]}
+    controller.checksum = "checksum-a"
+    assert controller.start_analysis()
+    worker = controller.current_worker
+    info.current_levels.append(6)
+    controller.input_files.append("A/input/b.ndax")
+    controller.profile_validation["levels"].append(6)
+    controller.equipment_info["versions"].append("2")
+    controller.set_project_context("B", "B/input", "B/output")
+    assert worker.list_test_info.current_levels == [3]
+    assert worker.input_files == ["A/input/a.ndax"]
+    assert worker.profile_validation["levels"] == [3]
+    assert worker.equipment_info["versions"] == ["1"]
+    worker.delivered_report_path = "A/output/report.docx"
+    worker.delivered_result_dir = "A/output/20241019_v1.0"
+    controller._on_status_changed(False, 0, "status:success")
+    assert controller.completed_context == {
+        "project_path": "A", "output_path": "A/output", "checksum": "checksum-a", "version": "1.0"
+    }
+    assert controller.completed_report_path == "A/output/report.docx"

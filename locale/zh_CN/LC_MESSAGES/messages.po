@@ -511,3 +511,260 @@ msgstr "系统中没有该电池的配置信息（文件：{filename}）。请�
 
 msgid "Go to Configuration"
 msgstr "前往配置"
+
+# NDAX converter
+msgid "NDAX Converter"
+msgstr "NDAX 转换器"
+
+msgid "NDAX → XLSX Batch Conversion"
+msgstr "NDAX → XLSX 批量转换"
+
+msgid "Optional export tool: batch convert NDAX files to Excel. The main analysis reads NDAX directly; no conversion is required."
+msgstr "可选导出工具：将 NDAX 批量转换为 Excel；主分析直接读取 NDAX，无需转换。"
+
+msgid "📁 Select Folder"
+msgstr "📁 选择文件夹"
+
+msgid "Select a folder containing .ndax files..."
+msgstr "选择包含 .ndax 文件的文件夹..."
+
+msgid "File Name"
+msgstr "文件名"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "▶ Start Conversion"
+msgstr "▶ 开始转换"
+
+msgid "Select NDAX Folder"
+msgstr "选择 NDAX 文件夹"
+
+msgid "No NDAX files found"
+msgstr "未找到 NDAX 文件"
+
+msgid "Loaded {count} NDAX files"
+msgstr "已加载 {count} 个 NDAX 文件"
+
+msgid "Output folder: {path}"
+msgstr "输出目录: {path}"
+
+msgid "Already Exists"
+msgstr "已存在"
+
+msgid "Total files: {count}"
+msgstr "共 {count} 个文件"
+
+msgid "Confirm Overwrite"
+msgstr "覆盖确认"
+
+msgid "Converted files already exist in the 2_xlsx folder. Continuing will overwrite existing files. Continue?"
+msgstr "2_xlsx 目录中已存在转换后的文件，继续转换将覆盖已有文件，是否继续？"
+
+msgid "Starting batch conversion..."
+msgstr "开始批量转换..."
+
+msgid "■ Cancel"
+msgstr "■ 取消"
+
+msgid "Cancelling..."
+msgstr "正在取消..."
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Failed"
+msgstr "失败"
+
+msgid "Skipped"
+msgstr "已跳过"
+
+msgid "Success: {succ}  Skipped: {skip}  Failed: {fail}"
+msgstr "成功 {succ}  跳过 {skip}  失败 {fail}"
+
+msgid "Conversion complete: success {succ}, skipped {skip}, failed {fail}"
+msgstr "转换完成: 成功 {succ}, 跳过 {skip}, 失败 {fail}"
+
+msgid "Conversion Complete"
+msgstr "转换完成"
+
+msgid "Conversion complete\n✔ Success: {succ}\n⏭ Skipped: {skip}\n✘ Failed: {fail}"
+msgstr "转换完成\n✔ 成功: {succ}\n⏭ 跳过: {skip}\n✘ 失败: {fail}"
+
+msgid "All done!\n✔ Success: {succ}\n⏭ Skipped: {skip}"
+msgstr "全部完成!\n✔ 成功: {succ}\n⏭ 跳过: {skip}"
+
+msgid "Conversion in Progress"
+msgstr "正在转换"
+
+msgid "Please cancel the conversion and wait for the current task to finish before closing this window."
+msgstr "请先取消转换并等待当前任务结束，再关闭窗口。"
+
+msgid "⚠ Conversion cancelled"
+msgstr "⚠ 已取消转换"
+
+msgid "⏭ {name} already exists; skipped"
+msgstr "⏭ {name} 已存在，跳过"
+
+msgid "Waiting..."
+msgstr "等待中..."
+
+msgid "Converting..."
+msgstr "转换中..."
+
+msgid "⚡ Converting {count} files in parallel using {workers} processes"
+msgstr "⚡ 使用 {workers} 个进程并行转换 {count} 个文件"
+
+msgid "✔ {name} converted successfully"
+msgstr "✔ {name} 转换成功"
+
+msgid "✘ {name} conversion failed: {error}"
+msgstr "✘ {name} 转换失败: {error}"
+
+msgid "✘ Parallel conversion error: {error}"
+msgstr "✘ 并行转换异常: {error}"
+
+# Application dialogs
+msgid "File Error"
+msgstr "文件错误"
+
+msgid "Filename Error"
+msgstr "文件名错误"
+
+msgid "Input Directory Not Found"
+msgstr "未找到输入目录"
+
+msgid "No sibling Test Profile was found (optional). Analysis will use the recipe embedded in the NDAX files."
+msgstr "未找到同级 Test Profile（选填），分析将使用 NDAX 内嵌配方。"
+
+msgid "Multiple XML files were found. Select a Test Profile for validation, or cancel to leave it empty:"
+msgstr "发现多个 XML，请选择用于校验的 Test Profile（取消则不填写）："
+
+msgid "File Format Error"
+msgstr "文件格式错误"
+
+msgid "Directory Error"
+msgstr "目录错误"
+
+msgid "The sibling NDAX directory was not found:\n{path}\nPlease check the project directory structure."
+msgstr "未找到同级 NDAX 目录：\n{path}\n请确认项目目录结构。"
+
+msgid "Invalid XML file format: {filename} is missing a root element"
+msgstr "XML 文件格式无效：{filename} 缺少根元素"
+
+msgid "Failed to parse XML file: {filename} - {error}"
+msgstr "解析 XML 文件失败：{filename} - {error}"
+
+msgid "Error validating XML file: {filename} - {error}"
+msgstr "校验 XML 文件时发生错误：{filename} - {error}"
+
+msgid "<h3>Battery Analyzer</h3><p>Version: v{version}</p><p>Battery analysis tool for battery performance testing and data analysis.</p><p>© {year} Sandman Zhang, Shane Zhao</p>"
+msgstr "<h3>电池分析器</h3><p>版本：v{version}</p><p>用于电池性能测试和数据分析的电池分析工具。</p><p>© {year} Sandman Zhang, Shane Zhao</p>"
+
+msgid "User Manual"
+msgstr "用户手册"
+
+msgid "User manual file not found.\n\nPlease make sure one of the following files exists:\n• docs/user_manual.pdf\n• user_manual.pdf\n\nFor help, please contact technical support."
+msgstr "未找到用户手册。\n\n请确认以下文件之一存在：\n• docs/user_manual.pdf\n• user_manual.pdf\n\n如需帮助，请联系技术支持。"
+
+msgid "Online Help"
+msgstr "在线帮助"
+
+msgid "Error details: {error}"
+msgstr "错误详情：{error}"
+
+msgid "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: {url}"
+msgstr "无法打开在线帮助，请检查网络连接或联系技术支持。\n\n帮助中心网址：{url}"
+
+msgid "Translation coverage: {translated}/{total} keys translated"
+msgstr "翻译覆盖率：已翻译 {translated}/{total} 个条目"
+
+msgid "Error parsing config: {error}"
+msgstr "解析配置时发生错误：{error}"
+
+msgid "Missing required keys: {keys}"
+msgstr "缺少必需配置项：{keys}"
+
+msgid "Missing required sections: {sections}"
+msgstr "缺少必需配置节：{sections}"
+
+msgid "Check whether the input path is correct"
+msgstr "请检查输入路径是否正确"
+
+msgid "Ensure the necessary data files are included"
+msgstr "请确认包含所需数据文件"
+
+msgid "Check whether the data file format meets the requirements"
+msgstr "请检查数据文件格式是否符合要求"
+
+msgid "Ensure you have sufficient file operation permissions"
+msgstr "请确认具有足够的文件操作权限"
+
+msgid "{message}:\n\n{details}\n\nSuggested steps:\n"
+msgstr "{message}：\n\n{details}\n\n建议操作：\n"
+
+msgid "Analysis Completed"
+msgstr "分析完成"
+
+msgid "Open Report"
+msgstr "打开报告"
+
+msgid "Open Output Folder"
+msgstr "打开输出目录"
+
+msgid "Date Mismatch Error"
+msgstr "日期不一致错误"
+
+msgid "Check whether the output path exists and is writable"
+msgstr "请检查输出路径是否存在且可写"
+
+msgid "Ensure there is enough disk space"
+msgstr "请确认有足够的磁盘空间"
+
+msgid "Close other programs that may be using the output files"
+msgstr "请关闭可能正在使用输出文件的其他程序"
+
+msgid "Try selecting a different output directory"
+msgstr "请尝试选择其他输出目录"
+
+msgid "Check the integrity of the input data"
+msgstr "请检查输入数据的完整性"
+
+msgid "Ensure the file path does not contain special characters"
+msgstr "请确认文件路径不含特殊字符"
+
+msgid "Re-select valid input and output directories"
+msgstr "请重新选择有效的输入和输出目录"
+
+msgid "Battery analysis completed successfully!\n\nThe report has been generated to the specified output path."
+msgstr "电池分析已成功完成！\n\n报告已生成到指定的输出目录。"
+
+msgid "Please check whether the Test Date field in the Excel file is correct"
+msgstr "请检查 Excel 文件中的 Test Date 字段是否正确"
+
+msgid "Ensure the Test Date matches the actual test date"
+msgstr "请确认 Test Date 与实际测试日期一致"
+
+msgid "Correct the date and re-run the analysis"
+msgstr "请更正日期后重新运行分析"
+
+msgid "Battery Analysis Error"
+msgstr "电池分析错误"
+
+msgid "An error occurred while analyzing battery data."
+msgstr "分析电池数据时发生错误。"
+
+msgid "Report Generation Error"
+msgstr "报告生成错误"
+
+msgid "An error occurred while generating the analysis report."
+msgstr "生成分析报告时发生错误。"
+
+msgid "Analysis Error"
+msgstr "分析错误"
+
+msgid "Warning: {details}"
+msgstr "警告：{details}"
+
+msgid "An error occurred during analysis:\n\n{details}"
+msgstr "分析过程中发生错误：\n\n{details}"

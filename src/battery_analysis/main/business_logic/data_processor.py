@@ -48,6 +48,43 @@ class DataProcessor:
         self._task_manager = TaskManager()
         self._spec_method_defaulted = False
         self._spec_missing_rules = False
+        self._automatic_metadata: dict[str, str] = {}
+        self._metadata_edit_signals_connected = False
+
+    def connect_metadata_edit_signals(self) -> None:
+        """只由用户编辑信号取消自动来源，程序设置相同文本不会冒充手填。"""
+        if self._metadata_edit_signals_connected:
+            return
+        mw = self.main_window
+        mw.lineEdit_BatchDateCode.textEdited.connect(
+            lambda _text: self._automatic_metadata.pop("lineEdit_BatchDateCode", None)
+        )
+        mw.comboBox_Specification_Type.activated.connect(
+            lambda _index: self._automatic_metadata.pop("comboBox_Specification_Type", None)
+        )
+        mw.comboBox_Manufacturer.activated.connect(
+            lambda _index: self._automatic_metadata.pop("comboBox_Manufacturer", None)
+        )
+        self._metadata_edit_signals_connected = True
+
+    def reset_metadata_sources(self) -> None:
+        """配置重建/恢复无法证明来源时，保守视为手填，不删除现有值。"""
+        self._automatic_metadata.clear()
+
+    def _record_metadata_source(self, widget_name: str, parsed_value: str | None, input_path: str) -> None:
+        # 与输入校验相同的 normpath 语义，并比较完整绝对路径及平台大小写。
+        project = os.path.normcase(os.path.abspath(input_path))
+        if parsed_value is not None:
+            self._automatic_metadata[widget_name] = project
+        elif widget_name in self._automatic_metadata and self._automatic_metadata[widget_name] != project:
+            widget = getattr(self.main_window, widget_name)
+            if widget_name == "lineEdit_BatchDateCode":
+                widget.setText("")
+            else:
+                widget.setCurrentIndex(-1)
+            self._automatic_metadata.pop(widget_name)
+            if widget_name == "comboBox_Specification_Type":
+                self.main_window.check_specification()
 
     def _invalidate_cache(self, path=None):
         if path:
@@ -88,7 +125,10 @@ class DataProcessor:
 
         return [os.path.basename(f) for f in scan_sorted_ndax(input_dir)]
 
-    def _on_scan_finished(self, excel_files):
+    def _on_scan_finished(self, excel_files, generation=None):
+        if generation is not None and generation != self._scan_generation:
+            self.logger.info("Discarding stale scan result for changed input path")
+            return
         input_dir = self.main_window.lineEdit_InputPath.text()
         self._cache["directory_files"].put(input_dir, excel_files)
         # generation 已在 get_xlsxinfo 请求时推进（唯一入口）；此处仅捕获当前值
@@ -109,7 +149,9 @@ class DataProcessor:
             excel_files,
         )
 
-    def _on_scan_error(self, error_msg):
+    def _on_scan_error(self, error_msg, generation=None):
+        if generation is not None and generation != self._scan_generation:
+            return
         self.logger.error("Failed to scan Excel files: %s", error_msg)
         if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.set_error(f"Failed to scan files: {error_msg}")
@@ -156,8 +198,12 @@ class DataProcessor:
         if cached is None:
             if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
                 self.main_window.statusBar_BatteryAnalysis.showMessage("Scanning Excel files...")
+            generation = self._scan_generation
             self._run_async(
-                self._scan_excel_files_task, self._on_scan_finished, self._on_scan_error, input_dir
+                self._scan_excel_files_task,
+                lambda files, g=generation: self._on_scan_finished(files, g),
+                lambda error, g=generation: self._on_scan_error(error, g),
+                input_dir,
             )
         else:
             self._on_scan_finished(cached)
@@ -175,33 +221,17 @@ class DataProcessor:
 
     def _handle_no_excel_files(self, input_dir):
         self.logger.warning("No Excel files found: %s", input_dir)
-        self.main_window.comboBox_BatteryType.setCurrentIndex(-1)
-        self.main_window.comboBox_Specification_Type.clear()
-        self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypeCoinCell")
-        )
-        self.main_window.comboBox_Specification_Type.addItems(
-            self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypePouchCell")
-        )
-        self.main_window.comboBox_Specification_Type.setCurrentIndex(-1)
-        self.main_window.comboBox_Specification_Method.clear()
-        self.main_window.comboBox_Specification_Method.addItems(
-            self.main_window.config_manager.get_config("BatteryConfig/SpecificationMethod")
-        )
-        self.main_window.comboBox_Specification_Method.setCurrentIndex(-1)
-        self.main_window.comboBox_Manufacturer.setCurrentIndex(-1)
-        self.main_window.lineEdit_BatchDateCode.setText("")
+        for name in ("comboBox_Specification_Type", "comboBox_Manufacturer", "lineEdit_BatchDateCode"):
+            self._record_metadata_source(name, None, input_dir)
         self.main_window.lineEdit_SamplesQty.setText("")
-        self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
-        self.main_window.lineEdit_CalculationNominalCapacity.setText("")
         if hasattr(self.main_window, "checker_input_xlsx"):
             self.main_window.checker_input_xlsx.set_error("Input path has no data")
         if hasattr(self.main_window, "statusBar_BatteryAnalysis"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(
                 _("[Error]: Input path has no data")
             )
-        # 无文件路径同样重连规格信号（修复：此前仅成功/异常路径重连）
-        self._reconnect_specification_signals()
+        # 无文件不重算保留的手填规格/容量；已清空规格走原规则清除派生容量。
+        self._reconnect_specification_signals(refresh=False)
 
     def _process_excel_files_task(self, input_dir, excel_files, progress_callback=None, **kwargs):
         """后台线程：逐文件验证并提取 Excel 元信息（不触碰任何 UI）。
@@ -328,9 +358,11 @@ class DataProcessor:
         )
         all_spec_methods = mw.config_manager.get_config("BatteryConfig/SpecificationMethod")
 
+        input_dir = mw.lineEdit_InputPath.text()
         matched_type = filename_parser.set_specification_type(
             filename, all_spec_types, mw.comboBox_Specification_Type
         )
+        self._record_metadata_source("comboBox_Specification_Type", matched_type, input_dir)
         # 未匹配到已配置的规格型号（NDAX 转换 / 导入 XML 两条链路均汇合于此）→ 置标志，由统一弹框提示补充配置
         self._spec_missing_rules = matched_type is None
         method_matched = filename_parser.set_specification_method(
@@ -348,8 +380,10 @@ class DataProcessor:
                 filename,
                 self.SPEC_METHOD_DEFAULT,
             )
-        filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
-        filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
+        manufacturer = filename_parser.set_manufacturer(filename, mw.comboBox_Manufacturer)
+        self._record_metadata_source("comboBox_Manufacturer", manufacturer, input_dir)
+        batch_code = filename_parser.extract_batch_date_code(filename, mw.lineEdit_BatchDateCode)
+        self._record_metadata_source("lineEdit_BatchDateCode", batch_code, input_dir)
 
         # 配方是唯一的分析档位权威；文件名与配置表仅用于非档位 UI 信息。
         from battery_analysis.ndax.reader import recipe_levels
@@ -401,7 +435,7 @@ class DataProcessor:
         except Exception as e:  # pylint: disable=broad-exception-caught
             self.logger.warning("Failed to verify pulse currents: %s", e)
 
-    def _reconnect_specification_signals(self):
+    def _reconnect_specification_signals(self, *, refresh=True):
         try:
             self.main_window.comboBox_Specification_Type.currentIndexChanged.connect(
                 self.main_window.check_specification
@@ -409,7 +443,8 @@ class DataProcessor:
             self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
                 self.main_window.check_specification
             )
-            self.main_window.check_specification()
+            if refresh:
+                self.main_window.check_specification()
         except (TypeError, AttributeError):
             pass
 
