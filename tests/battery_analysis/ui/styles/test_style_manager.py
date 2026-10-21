@@ -1,5 +1,7 @@
 from unittest.mock import Mock, patch
 
+from PyQt6.QtCore import Qt
+
 from battery_analysis.ui.styles.style_manager import (
     _DARK_TOKENS,
     _LIGHT_TOKENS,
@@ -18,7 +20,7 @@ class TestThemeEngine:
             "battery_analysis.ui.styles.style_manager.QApplication.instance",
             return_value=Mock(),
         )
-        self._patcher.start()
+        self.app = self._patcher.start().return_value
 
     def teardown_method(self):
         self._patcher.stop()
@@ -63,6 +65,40 @@ class TestThemeEngine:
         engine = ThemeEngine()
         engine.set_theme("invalid_theme")
         assert engine.get_current_theme() == "light"
+
+    def test_legacy_theme_is_supported_without_warning(self, caplog):
+        engine = ThemeEngine()
+        engine.set_theme("modern")
+        assert engine.get_current_theme() == "light"
+        assert "Unknown theme" not in caplog.text
+
+    def test_system_theme_tracks_color_scheme(self):
+        engine = ThemeEngine()
+        hints = self.app.styleHints.return_value
+        hints.colorScheme.return_value = Qt.ColorScheme.Dark
+        engine.set_theme("system")
+        assert engine.get_current_theme() == "dark"
+        assert engine.get_theme_preference() == "system"
+        hints.colorScheme.return_value = Qt.ColorScheme.Light
+        engine._on_color_scheme_changed(Qt.ColorScheme.Light)
+        assert engine.get_current_theme() == "light"
+        hints.colorSchemeChanged.connect.assert_called_once()
+
+    def test_reapply_global_style_preserves_system_preference(self):
+        engine = Mock()
+        engine.get_theme_preference.return_value = "system"
+        with patch(
+            "battery_analysis.ui.styles.style_manager.get_theme_engine", return_value=engine
+        ):
+            manager = StyleManager()
+        manager.apply_global_style(self.app)
+        engine.set_theme.assert_called_once_with("system")
+
+    def test_explicit_theme_ignores_system_changes(self):
+        engine = ThemeEngine()
+        engine.set_theme("dark")
+        engine._on_color_scheme_changed(Qt.ColorScheme.Light)
+        assert engine.get_current_theme() == "dark"
 
     def test_theme_engine_render(self):
         """ThemeEngine._render 应替换所有令牌"""

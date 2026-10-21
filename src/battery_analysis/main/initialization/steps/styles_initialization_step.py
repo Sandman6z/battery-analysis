@@ -5,6 +5,7 @@
 import PyQt6.QtWidgets as QW
 
 from battery_analysis.main.initialization.initialization_step import InitializationStep
+from battery_analysis.ui.styles.theme_settings import load_theme_preference
 
 
 class StylesInitializationStep(InitializationStep):
@@ -29,7 +30,7 @@ class StylesInitializationStep(InitializationStep):
 
             app = QW.QApplication.instance()
             if app:
-                style_manager.apply_global_style(app, "light")
+                style_manager.apply_global_style(app, load_theme_preference())
             self.logger.info("Styles loaded")
             return True
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:

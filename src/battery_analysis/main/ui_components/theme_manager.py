@@ -5,7 +5,10 @@
 
 import logging
 
+from PyQt6.QtCore import QSettings
+
 from battery_analysis.ui.styles.style_manager import get_theme_engine
+from battery_analysis.ui.styles.theme_settings import THEME_SETTING_KEY, normalize_theme
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +24,15 @@ class ThemeManager:
         """设置应用程序主题。
 
         Args:
-            theme_name: "light" 或 "dark"
+            theme_name: "light"、"dark" 或 "system"
         """
-        self._engine.set_theme(theme_name)
+        preference = normalize_theme(theme_name)
+        self._engine.set_theme(preference)
+        QSettings().setValue(THEME_SETTING_KEY, preference)
         if self.main_window is not None:
             status_bar = getattr(self.main_window, "statusBar_BatteryAnalysis", None)
             if status_bar is not None:
-                status_bar.showMessage(f"Switched to {theme_name} theme")
+                status_bar.showMessage(f"Switched to {self.get_current_theme()} theme")
 
     def get_current_theme(self) -> str:
         return self._engine.get_current_theme()

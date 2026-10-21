@@ -4,13 +4,12 @@
 
 import logging
 
-import PyQt6.QtCore as QC
-import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 logger = logging.getLogger(__name__)
 
 from battery_analysis.main.ui_components.config_dialog import ConfigDialog
+from battery_analysis.ui.styles.theme_settings import load_theme_preference
 from battery_analysis.utils.config_utils import clear_config_cache
 
 
@@ -59,14 +58,7 @@ class WindowActionsMixin:
                 logger.warning("ui_manager missing, skip combobox init in preferences apply")
 
             # 应用主题设置
-            settings = QC.QSettings()
-            theme = settings.value("display/theme", "light")
-            if theme == "system":
-                # 跟随系统主题
-                palette = QW.QApplication.palette()
-                is_dark = palette.color(QG.QPalette.ColorRole.Window).lightness() < 128
-                theme = "dark" if is_dark else "light"
-            self.theme_manager.set_theme(theme)
+            self.theme_manager.set_theme(load_theme_preference())
 
             self.refresh_ui()
         except Exception as e:

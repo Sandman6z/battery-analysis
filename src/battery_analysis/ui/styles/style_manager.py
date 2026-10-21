@@ -9,9 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, Qt, pyqtSignal
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication, QGroupBox, QPushButton, QVBoxLayout, QWidget
+
+from battery_analysis.ui.styles.theme_settings import normalize_theme
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +177,8 @@ class ThemeEngine(QObject):
         self._style_dir = _get_resource_dir()
         self._qss_template: str = ""
         self._current_theme: str = "light"
+        self._theme_preference: str = "light"
+        self._style_hints = None
         self._tokens: dict[str, str] = dict(_LIGHT_TOKENS)
 
         self._load_and_tokenize_qss()
@@ -208,19 +212,32 @@ class ThemeEngine(QObject):
 
     def set_theme(self, theme_name: str) -> None:
         """切换主题并应用到 QApplication。"""
-        if theme_name not in THEMES:
-            logger.warning("Unknown theme: %s, falling back to light", theme_name)
-            theme_name = "light"
+        self._theme_preference = normalize_theme(theme_name)
+        app = QApplication.instance()
+        if app is not None and self._style_hints is None:
+            self._style_hints = app.styleHints()
+            self._style_hints.colorSchemeChanged.connect(self._on_color_scheme_changed)
+
+        theme_name = self._theme_preference
+        if theme_name == "system":
+            is_dark = (
+                self._style_hints is not None
+                and self._style_hints.colorScheme() == Qt.ColorScheme.Dark
+            )
+            theme_name = "dark" if is_dark else "light"
 
         self._tokens = THEMES[theme_name]
         self._current_theme = theme_name
 
-        app = QApplication.instance()
         if app is not None:
             qss = self._render()
             app.setStyleSheet(qss)
             self.theme_changed.emit(theme_name)
             logger.info("Theme applied: %s", theme_name)
+
+    def _on_color_scheme_changed(self, _scheme) -> None:
+        if self._theme_preference == "system":
+            self.set_theme("system")
 
     def _render(self) -> str:
         """用当前令牌集渲染 QSS 模板。"""
@@ -228,6 +245,9 @@ class ThemeEngine(QObject):
         for token, value in self._tokens.items():
             qss = qss.replace(f"{{{token}}}", value)
         return qss
+
+    def get_theme_preference(self) -> str:
+        return self._theme_preference
 
     def get_current_theme(self) -> str:
         return self._current_theme
@@ -280,7 +300,7 @@ class StyleManager(QObject):
         if theme:
             self._engine.set_theme(theme)
         else:
-            self._engine.set_theme(self._engine.get_current_theme())
+            self._engine.set_theme(self._engine.get_theme_preference())
 
     def get_current_theme(self) -> str:
         return self._engine.get_current_theme()

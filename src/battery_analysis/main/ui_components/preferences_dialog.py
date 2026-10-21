@@ -14,6 +14,7 @@ import PyQt6.QtWidgets as QW
 from battery_analysis.i18n import _, get_current_locale
 from battery_analysis.i18n.language_manager import get_language_manager
 from battery_analysis.main.ui_components.config_path_provider import IConfigPathProvider
+from battery_analysis.ui.styles.theme_settings import THEME_SETTING_KEY, load_theme_preference
 
 
 class PreferencesDialog(QW.QDialog):
@@ -108,7 +109,9 @@ class PreferencesDialog(QW.QDialog):
         theme_layout = QW.QHBoxLayout()
         theme_layout.addWidget(QW.QLabel(_("Theme:")))
         self.theme_combo = QW.QComboBox()
-        self.theme_combo.addItems([_("Light"), _("Dark"), _("System")])
+        self.theme_combo.addItem(_("Light"), "light")
+        self.theme_combo.addItem(_("Dark"), "dark")
+        self.theme_combo.addItem(_("System"), "system")
         theme_layout.addWidget(self.theme_combo)
         theme_layout.addStretch()
         display_group_layout.addLayout(theme_layout)
@@ -382,9 +385,8 @@ class PreferencesDialog(QW.QDialog):
             )
 
             # Theme
-            theme = settings.value("display/theme", "light")
-            theme_map = {"light": 0, "dark": 1, "system": 2}
-            self.theme_combo.setCurrentIndex(theme_map.get(theme, 0))
+            theme = load_theme_preference(settings)
+            self.theme_combo.setCurrentIndex(self.theme_combo.findData(theme))
 
             # Font size
             font_size = settings.value("display/font_size", 10, type=int)
@@ -483,10 +485,7 @@ class PreferencesDialog(QW.QDialog):
             settings.setValue("general/confirm_exit", self.confirm_exit_checkbox.isChecked())
 
             # Save display settings
-            theme_map = {0: "light", 1: "dark", 2: "system"}
-            settings.setValue(
-                "display/theme", theme_map.get(self.theme_combo.currentIndex(), "light")
-            )
+            settings.setValue(THEME_SETTING_KEY, self.theme_combo.currentData() or "light")
             settings.setValue("display/font_size", self.font_size_spinbox.value())
 
             # Save language preference

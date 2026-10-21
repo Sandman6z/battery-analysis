@@ -7,7 +7,6 @@ import time
 
 import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
-import PyQt6.QtWidgets as QW
 
 from battery_analysis.i18n import _
 from battery_analysis.main.application_initializer import ApplicationInitializer
@@ -19,6 +18,7 @@ from battery_analysis.main.managers.initialization_manager import (
     InitializationManager,
 )
 from battery_analysis.main.utils import FileUtils
+from battery_analysis.ui.styles.theme_settings import load_theme_preference
 from battery_analysis.utils.log_manager import get_log_manager, get_logger
 
 logger = logging.getLogger(__name__)
@@ -100,13 +100,7 @@ class WindowInitMixin:
 
         # 4c) 应用保存的主题设置
         try:
-            settings = QC.QSettings()
-            theme = settings.value("display/theme", "light")
-            if theme == "system":
-                palette = QW.QApplication.palette()
-                is_dark = palette.color(QG.QPalette.ColorRole.Window).lightness() < 128
-                theme = "dark" if is_dark else "light"
-            self.theme_manager.set_theme(theme)
+            self.theme_manager.set_theme(load_theme_preference())
         except Exception as e:
             logger.warning("Failed to apply saved theme: %s", e)
 
