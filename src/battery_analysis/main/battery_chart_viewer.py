@@ -599,7 +599,7 @@ if __name__ == "__main__":
             logger.warning("Unified style file not found: %s", unified_style_path)
             try:
                 style_manager = StyleManager()
-                style_manager.apply_global_style(app, "modern")
+                style_manager.apply_global_style(app, "light")
                 logger.info("Applied fallback global theme style")
             except Exception as e2:
                 logger.error("Failed to apply fallback style: %s", e2)
@@ -607,7 +607,7 @@ if __name__ == "__main__":
         logger.error("Failed to apply style: %s", e)
         try:
             style_manager = StyleManager()
-            style_manager.apply_global_style(app, "modern")
+            style_manager.apply_global_style(app, "light")
             logger.info("Final fallback style applied")
         except Exception as e3:
             logger.error("Final fallback style also failed: %s", e3)

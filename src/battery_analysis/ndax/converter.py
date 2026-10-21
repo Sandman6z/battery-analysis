@@ -178,14 +178,7 @@ def convert_one(ndax_path: str | Path, xlsx_path: str | Path | None = None) -> s
         xlsx_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        # Suppress NewareNDA's per-file version info logs (logged once per file, very noisy in batch)
-        nda_logger = logging.getLogger('newarenda')
-        old_level = nda_logger.level
-        nda_logger.setLevel(logging.WARNING)
-        try:
-            df = nda.read(str(ndax_path), software_cycle_number=False)
-        finally:
-            nda_logger.setLevel(old_level)
+        df = nda.read(str(ndax_path), software_cycle_number=False, log_level="WARNING")
     except Exception as e:
         raise ValueError(f"Failed to parse {ndax_path}: {e}") from e
 

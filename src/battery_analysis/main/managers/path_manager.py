@@ -2,6 +2,7 @@
 
 import logging
 import os
+from pathlib import Path
 
 from PyQt6 import QtWidgets as QW
 
@@ -166,14 +167,51 @@ class PathManager:
         Args:
             parent_dir: 父目录路径
         """
-        # 自动设置input path为同级的1_ndax文件夹
         input_path = os.path.join(parent_dir, "1_ndax")
-        if os.path.exists(input_path) and os.path.isdir(input_path):
+        if os.path.isdir(input_path):
             self.main_window.lineEdit_InputPath.setText(input_path)
-            self.main_window.sigSetVersion.emit()
             self.logger.info("Input path set automatically: %s", input_path)
         else:
+            self.main_window.lineEdit_InputPath.clear()
             self.logger.info("Input directory not found: %s", input_path)
+            QW.QMessageBox.warning(
+                self.main_window, "Input directory not found",
+                f"未找到同级 NDAX 目录：\n{input_path}\n请确认项目目录结构。",
+            )
+        self.main_window.sigSetVersion.emit()
+
+    def set_project_paths(self, parent_dir, profile_path=None):
+        """Resolve sibling paths from either entry point before refreshing analysis."""
+        if profile_path is None:
+            profile_path = self._find_test_profile(parent_dir)
+        self.main_window.lineEdit_TestProfile.setText(profile_path or "")
+        self.main_window.current_directory = str(parent_dir)
+        self.set_output_path(parent_dir)
+        self.set_input_path(parent_dir)
+
+    def _find_test_profile(self, parent_dir):
+        """Find an optional profile; ask rather than guess when several exist."""
+        profile_dir = Path(parent_dir) / "4_test profile"
+        xml_files = sorted(
+            (p for p in profile_dir.iterdir() if p.is_file() and p.suffix.lower() == ".xml"),
+            key=lambda p: p.name.lower(),
+        ) if profile_dir.is_dir() else []
+        if not xml_files:
+            self.main_window.statusBar_BatteryAnalysis.showMessage(
+                "未找到同级 Test Profile（选填），分析将使用 NDAX 内嵌配方。"
+            )
+            return None
+        selected_file = xml_files[0]
+        if len(xml_files) > 1:
+            name, accepted = QW.QInputDialog.getItem(
+                self.main_window, "Select Test Profile",
+                "发现多个 XML，请选择用于校验的 Test Profile（取消则不填写）：",
+                [p.name for p in xml_files], 0, False,
+            )
+            if not accepted:
+                return None
+            selected_file = profile_dir / name
+        return str(selected_file) if self.validate_test_profile(str(selected_file)) else None
 
     def set_output_path(self, parent_dir):
         """
@@ -228,38 +266,10 @@ class PathManager:
             # 验证输入目录
             is_valid, error_msg = validator.validate_input_directory(selected_dir)
             if is_valid:
-                self.main_window.lineEdit_InputPath.setText(selected_dir)
-                self.main_window.sigSetVersion.emit()
-                self.main_window.current_directory = os.path.join(selected_dir, "../../")
-                self.logger.info("Input path set manually: %s", selected_dir)
+                self.set_project_paths(str(Path(selected_dir).parent))
+                self.logger.info("Project paths resolved from NDAX directory: %s", selected_dir)
             else:
                 self.logger.warning("Input directory validation failed: %s", error_msg)
-                QW.QMessageBox.warning(
-                    self.main_window, "Directory Error", error_msg, QW.QMessageBox.StandardButton.Ok
-                )
-
-    def select_outputpath(self) -> None:
-        """
-        选择输出路径
-        """
-        from battery_analysis.utils.file_validator import FileValidator
-
-        validator = FileValidator()
-
-        selected_dir = QW.QFileDialog.getExistingDirectory(
-            self.main_window, "Select Output Path", self.main_window.current_directory
-        )
-
-        if selected_dir != "":
-            # 验证输出目录
-            is_valid, error_msg = validator.validate_output_directory(selected_dir)
-            if is_valid:
-                self.main_window.lineEdit_OutputPath.setText(selected_dir)
-                self.main_window.sigSetVersion.emit()
-                self.main_window.current_directory = os.path.join(selected_dir, "../")
-                self.logger.info("Output path set manually: %s", selected_dir)
-            else:
-                self.logger.warning("Output directory validation failed: %s", error_msg)
                 QW.QMessageBox.warning(
                     self.main_window, "Directory Error", error_msg, QW.QMessageBox.StandardButton.Ok
                 )

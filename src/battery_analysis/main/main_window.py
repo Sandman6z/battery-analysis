@@ -46,6 +46,7 @@ class Main(WindowInitMixin, WindowTextsMixin, WindowActionsMixin, QW.QMainWindow
         self._controllers = {}
         self._lazy_init_done = False
         self._resize_timer = None
+        self._ndax_converter_window = None
 
         # 主题管理器（延迟初始化，但需要在 on_preferences_applied 前就绪）
         from battery_analysis.main.ui_components.theme_manager import ThemeManager
@@ -76,6 +77,13 @@ class Main(WindowInitMixin, WindowTextsMixin, WindowActionsMixin, QW.QMainWindow
 
         # 所有业务初始化延后到窗口显示后执行
         QC.QTimer.singleShot(0, self._deferred_init)
+
+    def closeEvent(self, event: QG.QCloseEvent) -> None:
+        """Close the optional converter only when its worker can safely stop."""
+        if self._ndax_converter_window is not None and not self._ndax_converter_window.close():
+            event.ignore()
+            return
+        super().closeEvent(event)
 
 
 def _create_splash_screen(app):

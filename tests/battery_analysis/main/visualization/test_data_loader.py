@@ -15,11 +15,11 @@ class _StubDataLoader(DataLoaderMixin):
         self.intCurrentLevelNum = 1
         self.intBatteryNum = 0
         self.last_data_path = None
-        self.listPlt = [[0, 1, True, 2, 3, 4]]
+        self.listPlt = [[[[1]], [[3]], [[1]], [[3]]]]
         self.processed_rows = 0
 
     def _initialize_data_structures(self):
-        self.listPlt = [[0, 1, True, 2, 3, 4]]
+        self.listPlt = [[[[1]], [[3]], [[1]], [[3]]]]
 
     def _process_csv_data(self, csvreader):
         self.processed_rows = sum(1 for _ in csvreader)

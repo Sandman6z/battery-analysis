@@ -97,7 +97,6 @@ class TestMainWindow:
 
             self.main_window.path_manager = Mock()
             self.main_window.path_manager.select_inputpath = Mock()
-            self.main_window.path_manager.select_outputpath = Mock()
 
             self.main_window.report_manager = Mock()
             self.main_window.report_manager.open_report = Mock()

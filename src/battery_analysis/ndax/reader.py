@@ -76,7 +76,7 @@ def profile_levels(profile_path: str | Path) -> list[float]:
 def read_analysis_views(path: str | Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """One NDA read, same Cycle/Step/Record rows as the standalone xlsx exporter."""
     path = Path(path)
-    df = nda.read(str(path), software_cycle_number=False)
+    df = nda.read(str(path), software_cycle_number=False, log_level="WARNING")
     if df.empty or df["Timestamp"].isna().all():
         raise ValueError(f"No measured Timestamp: {path}")
     filename = path.name

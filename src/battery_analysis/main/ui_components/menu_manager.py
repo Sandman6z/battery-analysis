@@ -102,6 +102,8 @@ class MenuManager:
                 self.main_window.actionGenerate_Report.setToolTip(_("Generate Report"))
             if hasattr(self.main_window, "actionBatteryChartViewer"):
                 self.main_window.actionBatteryChartViewer.setToolTip(_("Open Battery Chart Viewer"))
+            if hasattr(self.main_window, "actionNdaxConverter"):
+                self.main_window.actionNdaxConverter.setToolTip(_("NDAX → XLSX 批量转换"))
             if hasattr(self.main_window, "actionBatch_Processing"):
                 self.main_window.actionBatch_Processing.setToolTip(_("Batch Process Data"))
             if hasattr(self.main_window, "actionConfiguration"):
@@ -156,6 +158,7 @@ class MenuManager:
         )
         self.main_window.actionAnalyze_Data.triggered.connect(self.main_window.analyze_data_command.execute)
         self.main_window.actionBatteryChartViewer.triggered.connect(self.main_window.visualization_manager.run_visualizer)
+        self.main_window.actionNdaxConverter.triggered.connect(self.main_window.show_ndax_converter)
         self.main_window.actionGenerate_Report.triggered.connect(self.main_window.generate_report_command.execute)
         self.main_window.actionBatch_Processing.triggered.connect(self.main_window.batch_processing_command.execute)
 

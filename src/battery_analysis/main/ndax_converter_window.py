@@ -1,4 +1,4 @@
-"""NDAX Converter tab — batch conversion from .ndax to .xlsx.
+"""Standalone NDAX converter window — optional batch export to .xlsx.
 
 Provides a full-page interface for selecting folders, viewing NDAX files,
 and running batch conversion with progress tracking.
@@ -23,14 +23,17 @@ def _now() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M")
 
 
-class NdaxConverterTab(QW.QWidget):
-    """NDAX → XLSX batch converter full-page tab widget."""
+class NdaxConverterWindow(QW.QWidget):
+    """NDAX → XLSX converter, independent of the main analysis workflow."""
 
     COL_NAME = 0
     COL_STATUS = 1
 
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, QC.Qt.WindowType.Window)
+        self.setWindowTitle(_("NDAX 转换器"))
+        self.setMinimumSize(640, 480)
+        self.resize(900, 700)
         self.input_dir: Path | None = None
         self.out_dir: Path | None = None
         self.ndax_files: list[Path] = []
@@ -51,7 +54,8 @@ class NdaxConverterTab(QW.QWidget):
         title.setAlignment(QC.Qt.AlignmentFlag.AlignLeft | QC.Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(title)
 
-        desc = QW.QLabel(_("将 Neware 测试数据 (.ndax) 批量转换为 Excel 格式，供电池分析使用"))
+        desc = QW.QLabel(_("可选导出工具：将 NDAX 批量转换为 Excel；主分析直接读取 NDAX，无需转换。"))
+        desc.setWordWrap(True)
         desc.setStyleSheet("color: #666;")
         layout.addWidget(desc)
 
@@ -161,60 +165,11 @@ class NdaxConverterTab(QW.QWidget):
         # 按钮始终可用
         self.btn_start.setEnabled(True)
 
-        # xlsx 已存在时自动查找 test profile，带出 analysis 页面信息
-        if self.out_dir.exists():
-            self._find_and_fill_test_profile()
-
     def _check_existing_xlsx(self) -> bool:
         """Check if 2_xlsx directory already has xlsx files."""
         if not self.out_dir or not self.out_dir.exists():
             return False
         return any(self.out_dir.glob("*.xlsx"))
-
-    # ─────────────────────────────────────────────────────
-    #  Test Profile 自动查找与填入
-    # ─────────────────────────────────────────────────────
-
-    def _find_and_fill_test_profile(self) -> None:
-        """查找 4_test profile 目录中的 XML 文件，走和手动选 XML 一样的流程。
-
-        目录结构约定：
-            parent_dir/
-            ├── 1_ndax/          ← input_dir
-            ├── 2_xlsx/          ← out_dir
-            └── 4_test profile/  ← 包含 XML profile
-        """
-        if not self.input_dir:
-            return
-
-        profile_dir = self.input_dir.parent / "4_test profile"
-        if not profile_dir.exists():
-            self.log_area.append(f"[{_now()}] ✘ 未找到 4_test profile 目录")
-            return
-
-        xml_files = sorted(profile_dir.glob("*.xml"))
-        if not xml_files:
-            self.log_area.append(f"[{_now()}] ✘ 4_test profile 目录中无 XML 文件")
-            return
-
-        xml_path = xml_files[0]
-        if len(xml_files) > 1:
-            self.log_area.append(
-                f"[{_now()}] ⚠ 发现 {len(xml_files)} 个 XML，使用第一个: {xml_path.name}"
-            )
-
-        self.log_area.append(f"[{_now()}] ✔ 找到测试配置: {xml_path}")
-
-        # 走和手动选 XML 一样的流程：设 TestProfile → 设输入路径 → 设输出路径 → 触发版本号
-        mw = self.window()  # 获取 MainWindow
-        if hasattr(mw, 'lineEdit_TestProfile'):
-            mw.lineEdit_TestProfile.setText(str(xml_path))
-        parent_dir = str(profile_dir.parent)
-        if hasattr(mw, 'path_manager'):
-            mw.path_manager.set_output_path(parent_dir)
-            mw.path_manager.set_input_path(parent_dir)
-        if hasattr(mw, 'sigSetVersion'):
-            mw.sigSetVersion.emit()
 
     # ─────────────────────────────────────────────────────
     #  转换流程
@@ -278,6 +233,7 @@ class NdaxConverterTab(QW.QWidget):
         self.worker.finished_signal.connect(self._on_finished)
         self.worker.start()
 
+        self.btn_start.setEnabled(True)
         self.btn_start.setText(_("■ 取消"))
         self.btn_start.clicked.disconnect()
         self.btn_start.clicked.connect(self._cancel_convert)
@@ -340,5 +296,14 @@ class NdaxConverterTab(QW.QWidget):
                 )
             )
 
-        # 转换完成后自动查找 test profile
-        self._find_and_fill_test_profile()
+    def closeEvent(self, event: QG.QCloseEvent) -> None:
+        """Keep the window and its worker alive until conversion has stopped."""
+        if self.worker and self.worker.isRunning():
+            QW.QMessageBox.warning(
+                self,
+                _("正在转换"),
+                _("请先取消转换并等待当前任务结束，再关闭窗口。"),
+            )
+            event.ignore()
+            return
+        super().closeEvent(event)
