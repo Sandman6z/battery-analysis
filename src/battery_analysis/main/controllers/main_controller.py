@@ -4,6 +4,7 @@
 """
 
 import logging
+from copy import deepcopy
 
 from PyQt6 import QtCore as QC
 from PyQt6 import QtWidgets as QW
@@ -40,6 +41,7 @@ class MainController(QC.QObject):
         self.input_path = ""
         self.output_path = ""
         self.test_info = []
+        self.completed_context = {}
 
     def set_project_context(self, project_path=None, input_path=None, output_path=None):
         """
@@ -85,8 +87,18 @@ class MainController(QC.QObject):
         self.current_worker.set_info(
             self.project_path, self.input_path, self.output_path, self.test_info
         )
-        self.current_worker.input_files = getattr(self, "input_files", None)
-        self.current_worker.profile_validation = getattr(self, "profile_validation", None) or {}
+        self.current_worker.input_files = deepcopy(getattr(self, "input_files", None))
+        self.current_worker.profile_validation = deepcopy(getattr(self, "profile_validation", None) or {})
+        self.current_worker.equipment_info = deepcopy(getattr(self, "equipment_info", {}))
+        from battery_analysis.domain.entities.test_info import TestInfo
+
+        info = self.current_worker.list_test_info
+        self.current_worker.success_context = {
+            "project_path": self.project_path,
+            "output_path": self.output_path,
+            "checksum": getattr(self, "checksum", ""),
+            "version": info.version if isinstance(info, TestInfo) else info[16],
+        }
 
         # 连接信号
         self.current_worker.signals.progress.connect(self._on_progress_update)
@@ -194,6 +206,10 @@ class MainController(QC.QObject):
             status_code: 状态代码
             message: 状态消息
         """
+        if not is_running and status_code == 0 and message.split("\n", 1)[0] == "status:success":
+            self.completed_context = dict(self.current_worker.success_context)
+            self.completed_report_path = self.current_worker.delivered_report_path
+            self.completed_result_dir = self.current_worker.delivered_result_dir
         self.status_changed.emit(is_running, status_code, message)
 
     def _on_analysis_completed(self):

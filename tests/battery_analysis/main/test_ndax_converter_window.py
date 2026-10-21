@@ -1,21 +1,35 @@
 """Independent converter entry point, state isolation and worker lifecycle."""
 
+import ast
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
 from PyQt6 import QtCore as QC
 from PyQt6 import QtWidgets as QW
 
+from battery_analysis.i18n import LOCALEDIR, get_current_locale, set_locale
+from battery_analysis.i18n.translator import SimplePOTranslator
 from battery_analysis.main.main_window import Main
 from battery_analysis.main.ndax_converter_window import NdaxConverterWindow
 from battery_analysis.main.tabs.battery_tab import BatteryAnalysisTab
 from battery_analysis.main.ui_components.menu_manager import MenuManager
+from battery_analysis.ndax.worker import ConvertWorker
 
 
 @pytest.fixture(scope="module", autouse=True)
 def qapp():
     app = QW.QApplication.instance() or QW.QApplication([])
     yield app
+
+
+@pytest.fixture(autouse=True)
+def english_locale():
+    previous = get_current_locale()
+    assert set_locale("en")
+    yield
+    assert set_locale(previous)
 
 
 @pytest.fixture
@@ -91,10 +105,18 @@ def test_tools_menu_entry_opens_single_reusable_window(main_window):
     ):
         setattr(main_window, attr, Mock())
     main_window.menu_manager = MenuManager(main_window)
+    main_window.menu_manager.setup_menu_shortcuts()
     main_window.menu_manager.connect_menu_actions()
     main_window.actionNdaxConverter.trigger()
     converter = main_window._ndax_converter_window
     assert isinstance(converter, NdaxConverterWindow)
+    assert main_window.actionNdaxConverter.text() == "NDAX Converter"
+    assert main_window.actionNdaxConverter.toolTip() == "NDAX → XLSX Batch Conversion"
+    assert converter.windowTitle() == "NDAX Converter"
+    assert converter.btn_select.text() == "📁 Select Folder"
+    assert converter.btn_start.text() == "▶ Start Conversion"
+    assert converter.table.horizontalHeaderItem(0).text() == "File Name"
+    assert converter.table.horizontalHeaderItem(1).text() == "Status"
     assert converter.isWindow()
     assert converter.isVisible()
     assert converter.parent() is main_window
@@ -149,16 +171,26 @@ def test_conversion_cancel_and_safe_close(converter, main_window, tmp_path):
     assert converter.btn_start.isEnabled()
     worker.progress.emit(1, 1)
     assert converter.progress_bar.value() == 1
+    assert converter.btn_start.text() == "■ Cancel"
+    worker.file_status.emit(0, "Success")
+    status = converter.table.item(0, converter.COL_STATUS)
+    assert status.text() == "Success"
+    assert status.foreground().color() == QC.Qt.GlobalColor.darkGreen
 
     with patch.object(QW.QMessageBox, "warning") as warning:
         assert not converter.close()
         assert not main_window.close()
         assert warning.call_count == 2
+        assert warning.call_args.args[1:] == (
+            "Conversion in Progress",
+            "Please cancel the conversion and wait for the current task to finish before closing this window.",
+        )
     assert converter.isVisible()
     assert main_window.isVisible()
 
     converter.btn_start.click()
     assert worker.cancelled
+    assert converter.btn_start.text() == "Cancelling..."
     assert not converter.btn_start.isEnabled()
     worker.running = False
     worker.finished_signal.emit({"success": [], "skipped": [], "failed": []})
@@ -176,11 +208,12 @@ def test_overwrite_confirmation(converter, tmp_path, overwrite):
     existing.write_bytes(b"original data")
     answer = QW.QMessageBox.StandardButton.Yes if overwrite else QW.QMessageBox.StandardButton.No
     with (
-        patch.object(QW.QMessageBox, "question", return_value=answer),
+        patch.object(QW.QMessageBox, "question", return_value=answer) as question,
         patch("battery_analysis.main.ndax_converter_window.ConvertWorker", FakeWorker),
     ):
         converter._start_convert()
     assert existing.read_bytes() == b"original data"
+    assert question.call_args.args[1] == "Confirm Overwrite"
     if overwrite:
         assert converter.worker.force
         converter.worker.running = False
@@ -196,3 +229,99 @@ def test_empty_folder_and_cancelled_selection(converter, tmp_path):
         converter._select_folder()
     assert converter.ndax_files == []
     assert not converter.btn_start.isEnabled()
+    assert "No NDAX files found" in converter.log_area.toPlainText()
+
+
+@pytest.mark.parametrize("failed", [False, True])
+def test_completion_messages_are_english(converter, failed):
+    result = {"success": ["good.ndax"], "skipped": [], "failed": []}
+    if failed:
+        result["failed"].append(("bad.ndax", "invalid data"))
+    method = "warning" if failed else "information"
+    with patch.object(QW.QMessageBox, method) as message:
+        converter._on_finished(result)
+    assert message.call_args.args[1] == "Conversion Complete"
+    assert "✔ Success: 1\n⏭ Skipped: 0" in message.call_args.args[2]
+    assert converter.lbl_summary.text() == f"Success: 1  Skipped: 0  Failed: {int(failed)}"
+    assert "Conversion complete: success 1, skipped 0" in converter.log_area.toPlainText()
+
+
+def test_converter_chinese_locale(qapp, tmp_path):
+    assert set_locale("zh_CN")
+    window = NdaxConverterWindow()
+    try:
+        assert window.windowTitle() == "NDAX 转换器"
+        assert window.btn_start.text() == "▶ 开始转换"
+        window.table.setRowCount(1)
+        window.table.setItem(0, window.COL_STATUS, QW.QTableWidgetItem())
+        worker = ConvertWorker([tmp_path / "existing.ndax"], tmp_path)
+        (tmp_path / "existing.xlsx").touch()
+        worker.file_status.connect(window._on_file_status)
+        worker.run()
+        status = window.table.item(0, window.COL_STATUS)
+        assert status.text() == "已跳过"
+        assert status.foreground().color() == QC.Qt.GlobalColor.gray
+    finally:
+        window.close()
+        window.deleteLater()
+
+
+@pytest.mark.parametrize("locale", ["en", "zh_CN"])
+def test_converter_translation_catalogs(locale):
+    translator = SimplePOTranslator()
+    assert translator.load_locale(locale, LOCALEDIR)
+    root = Path(__file__).resolve().parents[3] / "src" / "battery_analysis"
+    for relative in ("main/ndax_converter_window.py", "ndax/worker.py"):
+        tree = ast.parse((root / relative).read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                continue
+            if node.func.id != "_":
+                continue
+            message = node.args[0].value
+            assert not any("\u4e00" <= char <= "\u9fff" for char in message), message
+            translated = translator.translations[message]
+            assert translated
+            if locale == "en":
+                assert translated == message
+    assert translator.gettext("NDAX Converter") == (
+        "NDAX Converter" if locale == "en" else "NDAX 转换器"
+    )
+
+
+def test_worker_status_and_logs_are_english(tmp_path):
+    files = [tmp_path / name for name in ("existing.ndax", "good.ndax", "bad.ndax")]
+    (tmp_path / "existing.xlsx").touch()
+    worker = ConvertWorker(files, tmp_path)
+    statuses, logs, results = [], [], []
+    worker.file_status.connect(lambda row, status: statuses.append((row, status)))
+    worker.log.connect(logs.append)
+    worker.finished_signal.connect(results.append)
+
+    def convert(source, output):
+        if source.name == "bad.ndax":
+            raise ValueError("invalid data")
+        return str(output)
+
+    with (
+        patch("battery_analysis.ndax.worker.ProcessPoolExecutor", ThreadPoolExecutor),
+        patch("battery_analysis.ndax.worker.convert_one", side_effect=convert),
+    ):
+        worker.run()
+
+    assert (0, "Skipped") in statuses
+    assert (1, "Waiting...") in statuses
+    assert (1, "Converting...") in statuses
+    assert (1, "Success") in statuses
+    assert (2, "Failed") in statuses
+    assert results == [{
+        "success": ["good.ndax"],
+        "skipped": ["existing.ndax"],
+        "failed": [("bad.ndax", "invalid data")],
+    }]
+    assert all(not any("\u4e00" <= c <= "\u9fff" for c in log) for log in logs)
+
+    logs.clear()
+    worker.cancel()
+    worker.run()
+    assert logs == ["⚠ Conversion cancelled"]

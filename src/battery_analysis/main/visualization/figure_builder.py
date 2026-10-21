@@ -87,6 +87,42 @@ class FigureBuilderMixin:
 
         return lines_unfiltered, lines_filtered
 
+    def _draw_empty_chart(self, fig):
+        """尚未选择数据时的中性占位图，独立窗口与嵌入模式共用。"""
+        ax = fig.add_subplot(111)
+        self._apply_modern_plot_style(fig, ax)
+        ax.axis("off")
+        ax.set_title("No Data", fontsize=18, fontweight="bold", pad=20)
+        ax.text(0.5, 0.6, "No battery data selected", fontsize=14, ha="center", va="center")
+        ax.text(
+            0.5,
+            0.4,
+            "Open a data directory containing Info_Image.csv to view battery charts.",
+            fontsize=11,
+            ha="center",
+            va="center",
+        )
+
+    def _add_optional_menu_bar(self, fig):
+        """菜单不可用不应阻止占位图或错误图显示。"""
+        try:
+            if not self._add_menu_bar(fig):
+                logger.warning("Unable to add menubar; displaying chart without it")
+        except (ImportError, RuntimeError) as menu_error:
+            logger.warning("Unable to add menubar; displaying chart without it: %s", menu_error)
+
+    def _show_empty_plot(self):
+        """显示尚未加载数据的独立图表窗口。"""
+        fig = plt.figure(figsize=(12, 8))
+        self.current_fig = fig
+        self._draw_empty_chart(fig)
+        self._add_optional_menu_bar(fig)
+        fig.tight_layout()
+        plt.ion()
+        plt.show(block=False)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+
     def _show_error_plot(
         self, title=None, main_message=None, details=None, allow_file_selection=True
     ):
@@ -208,11 +244,7 @@ class FigureBuilderMixin:
                 spine.set_linewidth(1.5)
                 spine.set_alpha(0.8)
 
-            menu_added = self._add_menu_bar(fig)
-            if not menu_added:
-                logger.warning(
-                    "Unable to add menubar, will display error chart using default method"
-                )
+            self._add_optional_menu_bar(fig)
 
             logger.info("Displaying error information chart: %s - %s", title, main_message)
             plt.tight_layout()

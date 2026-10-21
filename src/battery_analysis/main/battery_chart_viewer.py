@@ -122,6 +122,7 @@ class BatteryChartViewer(
         self.maxXaxis = self.plot_config.axis_default[1]
         self.intBatteryNum = 0
         self.loaded_data = False
+        self.data_load_attempted = False
         self.current_fig = None
         self.last_data_path = None
         self.last_data_timestamp = None
@@ -237,6 +238,11 @@ class BatteryChartViewer(
                                 logger.warning("Error showing update prompt: %s", msg_error)
                 except Exception as check_error:
                     logger.warning("Error checking for data update: %s", check_error)
+
+            if self.intBatteryNum <= 0 and not self.data_load_attempted:
+                logger.info("No data selected, showing empty chart")
+                self._show_empty_plot()
+                return True
 
             if self.intBatteryNum <= 0:
                 logger.error("Error: no valid battery data available to display")
@@ -455,6 +461,19 @@ class BatteryChartViewer(
             fig = Figure(figsize=(15, 6))
             canvas = FigureCanvasQTAgg(fig)
             canvas.setObjectName("FigureCanvasQTAgg")
+
+            if self.intBatteryNum <= 0 and not self.data_load_attempted:
+                logger.info("No data selected, showing embedded empty chart")
+                self._draw_empty_chart(fig)
+                self.current_fig = fig
+                self.current_canvas = canvas
+                if parent_widget is not None:
+                    from PyQt6.QtWidgets import QVBoxLayout
+
+                    layout = QVBoxLayout(parent_widget)
+                    layout.setContentsMargins(0, 0, 0, 0)
+                    layout.addWidget(canvas)
+                return fig, canvas, None, None, []
 
             if self.intBatteryNum <= 0:
                 logger.warning("No valid battery data available, showing error chart")

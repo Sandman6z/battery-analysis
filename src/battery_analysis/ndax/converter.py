@@ -7,7 +7,6 @@ No GUI dependencies — pure data processing module.
 from __future__ import annotations
 
 import logging
-import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
@@ -16,6 +15,8 @@ import NewareNDA as nda
 import numpy as np
 import pandas as pd
 import xlsxwriter
+
+from battery_analysis.utils.concurrency_policy import get_conversion_worker_count
 
 # Status mapping from NewareNDA to Chinese display names
 STATUS_MAP: dict[str, str] = {
@@ -198,7 +199,10 @@ def convert_batch(input_dir: str | Path, max_workers: int | None = None) -> dict
 
     Args:
         input_dir: Directory containing .ndax files.
-        max_workers: Number of parallel worker processes. Defaults to CPU count.
+        max_workers: Requested upper bound, capped by the shared 75%/reserved-CPU
+            budget, pending file count and Windows' 61-process limit. None or 0
+            means auto. Negative values raise ValueError; booleans and other
+            non-integers raise TypeError. This is not a CPU-utilization limit.
 
     Returns:
         {'success': [file...], 'skipped': [file...], 'failed': [(file, error)...]}
@@ -218,10 +222,10 @@ def convert_batch(input_dir: str | Path, max_workers: int | None = None) -> dict
         else:
             pending.append((ndax_path, xlsx_path))
 
+    max_workers = get_conversion_worker_count(len(pending), max_workers)
     if not pending:
         return result
 
-    max_workers = max_workers or os.cpu_count()
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         fut_map = {
             executor.submit(convert_one, ndax_path, xlsx_path): ndax_path

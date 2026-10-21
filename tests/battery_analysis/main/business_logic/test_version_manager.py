@@ -386,3 +386,24 @@ class TestGetVersion:
         with patch.object(vm.logger, "error") as mock_error:
             vm._on_checksum_error("boom", generation=4)
         mock_error.assert_not_called()
+
+
+@pytest.mark.parametrize("switch_project", [False, True])
+def test_success_uses_submitted_output_without_overwriting_user_edits(tmp_path, switch_project):
+    original = tmp_path / "A"
+    original.mkdir()
+    other = tmp_path / "B"
+    other.mkdir()
+    ledger_a = create_sha256_csv(original, ["a"], ["0"])
+    ledger_b = create_sha256_csv(other, ["b"], ["0"])
+    window = MagicMock()
+    window.path = "B" if switch_project else "A"
+    window.lineEdit_OutputPath.text.return_value = str(other if switch_project else original)
+    window.lineEdit_Version.text.return_value = "9.0"  # user edit while task runs
+    window.sha256_checksum = "b" if switch_project else "a"
+    window._get_service.return_value = None
+    vm = VersionManager(window)
+    vm.set_version(output_path=str(original), checksum="a", version="1.0", project_path="A")
+    assert list(csv.reader(ledger_a.open(encoding="utf-8")))[3] == ["1"]
+    assert list(csv.reader(ledger_b.open(encoding="utf-8")))[3] == ["0"]
+    window.lineEdit_Version.setText.assert_not_called()

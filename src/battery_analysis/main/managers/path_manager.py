@@ -6,6 +6,8 @@ from pathlib import Path
 
 from PyQt6 import QtWidgets as QW
 
+from battery_analysis.i18n import _
+
 
 class PathManager:
     """路径管理类，负责处理文件和目录路径的选择、验证和管理"""
@@ -27,9 +29,9 @@ class PathManager:
         Returns:
             选中的文件路径，或None如果取消选择
         """
-        selected_file, _ = QW.QFileDialog.getOpenFileName(
+        selected_file, selected_filter = QW.QFileDialog.getOpenFileName(
             self.main_window,
-            "Select Test Profile",
+            _("Select Test Profile"),
             self.main_window.current_directory,
             "XML Files(*.xml)",
         )
@@ -54,7 +56,7 @@ class PathManager:
         is_valid, error_msg = validator.validate_file_exists(file_path)
         if not is_valid:
             QW.QMessageBox.warning(
-                self.main_window, "File Error", error_msg, QW.QMessageBox.StandardButton.Ok
+                self.main_window, _("File Error"), error_msg, QW.QMessageBox.StandardButton.Ok
             )
             return False
 
@@ -65,7 +67,7 @@ class PathManager:
         is_valid, error_msg = validator.validate_xml_filename(filename)
         if not is_valid:
             QW.QMessageBox.warning(
-                self.main_window, "Filename Error", error_msg, QW.QMessageBox.StandardButton.Ok
+                self.main_window, _("Filename Error"), error_msg, QW.QMessageBox.StandardButton.Ok
             )
             return False
 
@@ -73,7 +75,7 @@ class PathManager:
         is_valid, error_msg = validator.validate_file_not_empty(file_path)
         if not is_valid:
             QW.QMessageBox.warning(
-                self.main_window, "File Error", error_msg, QW.QMessageBox.StandardButton.Ok
+                self.main_window, _("File Error"), error_msg, QW.QMessageBox.StandardButton.Ok
             )
             return False
 
@@ -103,8 +105,8 @@ class PathManager:
             if root is None:
                 QW.QMessageBox.warning(
                     self.main_window,
-                    "File Format Error",
-                    f"Invalid XML file format: {filename} is missing a root element",
+                    _("File Format Error"),
+                    _("Invalid XML file format: {filename} is missing a root element").format(filename=filename),
                     QW.QMessageBox.StandardButton.Ok,
                 )
                 return False
@@ -112,16 +114,16 @@ class PathManager:
         except ET.ParseError as e:
             QW.QMessageBox.warning(
                 self.main_window,
-                "File Format Error",
-                f"Failed to parse XML file: {filename} - {e!s}",
+                _("File Format Error"),
+                _("Failed to parse XML file: {filename} - {error}").format(filename=filename, error=e),
                 QW.QMessageBox.StandardButton.Ok,
             )
             return False
         except Exception as e:
             QW.QMessageBox.warning(
                 self.main_window,
-                "File Error",
-                f"Error validating XML file: {filename} - {e!s}",
+                _("File Error"),
+                _("Error validating XML file: {filename} - {error}").format(filename=filename, error=e),
                 QW.QMessageBox.StandardButton.Ok,
             )
             return False
@@ -175,8 +177,8 @@ class PathManager:
             self.main_window.lineEdit_InputPath.clear()
             self.logger.info("Input directory not found: %s", input_path)
             QW.QMessageBox.warning(
-                self.main_window, "Input directory not found",
-                f"未找到同级 NDAX 目录：\n{input_path}\n请确认项目目录结构。",
+                self.main_window, _("Input Directory Not Found"),
+                _("The sibling NDAX directory was not found:\n{path}\nPlease check the project directory structure.").format(path=input_path),
             )
         self.main_window.sigSetVersion.emit()
 
@@ -198,14 +200,14 @@ class PathManager:
         ) if profile_dir.is_dir() else []
         if not xml_files:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                "未找到同级 Test Profile（选填），分析将使用 NDAX 内嵌配方。"
+                _("No sibling Test Profile was found (optional). Analysis will use the recipe embedded in the NDAX files.")
             )
             return None
         selected_file = xml_files[0]
         if len(xml_files) > 1:
             name, accepted = QW.QInputDialog.getItem(
-                self.main_window, "Select Test Profile",
-                "发现多个 XML，请选择用于校验的 Test Profile（取消则不填写）：",
+                self.main_window, _("Select Test Profile"),
+                _("Multiple XML files were found. Select a Test Profile for validation, or cancel to leave it empty:"),
                 [p.name for p in xml_files], 0, False,
             )
             if not accepted:
@@ -259,7 +261,7 @@ class PathManager:
         validator = FileValidator()
 
         selected_dir = QW.QFileDialog.getExistingDirectory(
-            self.main_window, "Select Input Path", self.main_window.current_directory
+            self.main_window, _("Select Input Path"), self.main_window.current_directory
         )
 
         if selected_dir != "":
@@ -271,5 +273,5 @@ class PathManager:
             else:
                 self.logger.warning("Input directory validation failed: %s", error_msg)
                 QW.QMessageBox.warning(
-                    self.main_window, "Directory Error", error_msg, QW.QMessageBox.StandardButton.Ok
+                    self.main_window, _("Directory Error"), error_msg, QW.QMessageBox.StandardButton.Ok
                 )

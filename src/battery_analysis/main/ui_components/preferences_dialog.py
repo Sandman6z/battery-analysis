@@ -292,7 +292,9 @@ class PreferencesDialog(QW.QDialog):
                 required_keys = ["battery", "test"]
                 missing = [k for k in required_keys if k not in data]
                 if missing:
-                    self.config_status_label.setText(f"Missing required keys: {', '.join(missing)}")
+                    self.config_status_label.setText(
+                        _("Missing required keys: {keys}").format(keys=", ".join(missing))
+                    )
                     self.config_status_label.setStyleSheet("color: orange;")
                 else:
                     self.config_status_label.setText(_("Configuration file is valid!"))
@@ -309,7 +311,7 @@ class PreferencesDialog(QW.QDialog):
 
                 if missing_sections:
                     self.config_status_label.setText(
-                        _(f"Missing required sections: {', '.join(missing_sections)}")
+                        _("Missing required sections: {sections}").format(sections=", ".join(missing_sections))
                     )
                     self.config_status_label.setStyleSheet("color: orange;")
                 else:
@@ -319,7 +321,7 @@ class PreferencesDialog(QW.QDialog):
                     self.config_status_label.setStyleSheet("color: orange;")
 
         except Exception as e:
-            self.config_status_label.setText(_(f"Error parsing config: {e!s}"))
+            self.config_status_label.setText(_("Error parsing config: {error}").format(error=e))
             self.config_status_label.setStyleSheet("color: red;")
 
     def _reset_config_path(self):
@@ -437,7 +439,9 @@ class PreferencesDialog(QW.QDialog):
             total_keys = len(validation)
             translated_keys = sum(1 for translated in validation.values() if translated)
 
-            status_text = _(f"Translation coverage: {translated_keys}/{total_keys} keys translated")
+            status_text = _("Translation coverage: {translated}/{total} keys translated").format(
+                translated=translated_keys, total=total_keys
+            )
 
             if translated_keys == total_keys:
                 status_text += f"\n{_('✓ Translation is complete')}"

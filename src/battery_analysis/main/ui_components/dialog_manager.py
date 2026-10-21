@@ -63,11 +63,11 @@ class DialogManager:
         import time
 
         about_text = _(
-            f"""<h3>Battery Analyzer</h3>
-        <p>version: v{self.main_window.version}</p>
-        <p>Battery Analysis Tool, used for battery performance testing and data analysis.</p>
-        <p>© {time.localtime().tm_year} Sandman Zhang, Shane Zhao</p>"""
-        )
+            "<h3>Battery Analyzer</h3>"
+            "<p>Version: v{version}</p>"
+            "<p>Battery analysis tool for battery performance testing and data analysis.</p>"
+            "<p>© {year} Sandman Zhang, Shane Zhao</p>"
+        ).format(version=self.main_window.version, year=time.localtime().tm_year)
 
         QW.QMessageBox.about(self.main_window, _("About Battery Analyzer"), about_text)
 
@@ -140,12 +140,12 @@ class DialogManager:
                 # 如果找不到手册文件，显示提示并提供解决方案
                 QW.QMessageBox.information(
                     self.main_window,
-                    "User Manual",
-                    "User manual file not found.\n\n"
-                    "Please make sure one of the following files exists:\n"
-                    "• docs/user_manual.pdf\n"
-                    "• user_manual.pdf\n\n"
-                    "For help, please contact technical support.",
+                    _("User Manual"),
+                    _("User manual file not found.\n\n"
+                      "Please make sure one of the following files exists:\n"
+                      "• docs/user_manual.pdf\n"
+                      "• user_manual.pdf\n\n"
+                      "For help, please contact technical support."),
                     QW.QMessageBox.StandardButton.Ok,
                 )
 
@@ -170,8 +170,10 @@ class DialogManager:
             logging.error("Failed to open online help: %s", e)
             QW.QMessageBox.information(
                 self.main_window,
-                "Online Help",
-                "Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: https://sandman6z.github.io/battery-analysis/",
+                _("Online Help"),
+                _("Unable to open online help. Please check your network connection or contact technical support.\n\nHelp Center URL: {url}").format(
+                    url="https://sandman6z.github.io/battery-analysis/"
+                ),
                 QW.QMessageBox.StandardButton.Ok,
             )
 
@@ -197,7 +199,7 @@ class DialogManager:
         layout.addWidget(error_label)
 
         # 详细错误信息
-        details_label = QW.QLabel(f"Error details: {error_msg}")
+        details_label = QW.QLabel(_("Error details: {error}").format(error=error_msg))
         details_label.setWordWrap(True)
         details_label.setStyleSheet(
             "background-color: #f0f0f0; padding: 10px; border: 1px solid #ccc;"

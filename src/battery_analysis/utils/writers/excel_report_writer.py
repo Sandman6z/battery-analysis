@@ -21,6 +21,7 @@ from battery_analysis.utils.quality_requirements import (
     build_expectations,
     evaluate_expectations,
 )
+from battery_analysis.utils.report_coordinator import report_filename
 from battery_analysis.utils.writers.excel_formats import ExcelFormatMixin
 from battery_analysis.utils.writers.excel_overview import ExcelOverviewMixin
 from battery_analysis.utils.writers.excel_sample import ExcelSampleMixin
@@ -39,7 +40,7 @@ _compute_statistics = compute_statistics
 class ExcelReportWriter(ExcelFormatMixin, ExcelOverviewMixin, ExcelSampleMixin):
     """Excel 报告写入器（骨架类，方法分布在 3 个 Mixin 中）"""
 
-    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list) -> None:
+    def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list, *, test_date: str | None = None) -> None:
         self.strResultPath = strResultPath
         self.listTestInfo = listTestInfo
         self.listBatteryInfo = listBatteryInfo
@@ -79,14 +80,13 @@ class ExcelReportWriter(ExcelFormatMixin, ExcelOverviewMixin, ExcelSampleMixin):
 
         # 计算Word报告路径（用于样本表中的相对路径链接）
         basename = os.path.basename(strResultPath)
-        if "_v" in basename:
+        if test_date:
+            td = test_date
+        elif "_v" in basename:
             td = basename.split("_v")[0]
         else:
             td = "00000000"
-        report_name = (
-            f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}"
-            f"_TD{td}_v{self.listTestInfo[16]}.docx"
-        )
+        report_name = report_filename(self.listTestInfo, td)
         result_dir = Path(self.strResultPath).parent
         self.strReportWordPath = str(result_dir / report_name)
 

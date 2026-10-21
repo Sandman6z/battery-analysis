@@ -18,6 +18,7 @@ import PyQt6.QtWidgets as QW
 
 # 本地应用/库导入
 from battery_analysis.i18n.language_manager import _
+from battery_analysis.utils.input_validator import REPORT_VERSION_PATTERN
 
 
 class UIManager:
@@ -349,8 +350,8 @@ class UIManager:
         self.main_window.lineEdit_CalculationNominalCapacity.setValidator(validator)
         self.main_window.lineEdit_RequiredUseableCapacity.setValidator(validator)
 
-        # 增强版本号验证，支持x.y.z格式
-        reg = QC.QRegularExpression(r"^\d+(\.\d+){0,2}$")
+        # 两/三段报告版本；Qt 仍允许未完成输入处于 Intermediate。
+        reg = QC.QRegularExpression(REPORT_VERSION_PATTERN)
         validator = QG.QRegularExpressionValidator(self.main_window)
         validator.setRegularExpression(reg)
         self.main_window.lineEdit_Version.setValidator(validator)
@@ -387,6 +388,9 @@ class UIManager:
         """
         初始化组合框设置
         """
+        if hasattr(self.main_window, "data_processor"):
+            self.main_window.data_processor.reset_metadata_sources()
+
         # 屏蔽信号，防止 clear/addItems/setCurrentIndex 触发已连接的
         # currentIndexChanged 导致级联回调（见 check_batterytype / check_specification）
         all_combos = [
@@ -557,6 +561,7 @@ class UIManager:
         """
         连接部件信号
         """
+        self.main_window.data_processor.connect_metadata_edit_signals()
         self.main_window.comboBox_BatteryType.currentIndexChanged.connect(
             self.main_window.check_batterytype
         )

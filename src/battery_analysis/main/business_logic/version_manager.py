@@ -16,14 +16,7 @@ import tempfile
 from pathlib import Path
 
 from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
-
-
-def parse_version(value):
-    """Compare numeric components, so 4.01 and 4.1 denote the same version."""
-    if not isinstance(value, str) or not re.fullmatch(r"\d+(?:\.\d+){1,2}", value):
-        raise ValueError("Version must contain 2 or 3 numeric components (e.g. 4.1)")
-    parts = tuple(int(part) for part in value.split("."))
-    return (parts + (0,) * (3 - len(parts)))
+from battery_analysis.utils.input_validator import parse_version
 
 
 def delivered_versions(output_path):
@@ -255,7 +248,7 @@ class VersionManager:
         self._task_manager.submit(runner)
         return runner
 
-    def set_version(self) -> None:
+    def set_version(self, *, output_path=None, checksum=None, version=None, project_path=None) -> None:
         """
         更新版本号，增加次要版本号
         """
@@ -268,7 +261,14 @@ class VersionManager:
             )
 
         list_sha256_reader = []
-        output_path_str = self.main_window.lineEdit_OutputPath.text()
+        output_path_str = output_path if output_path is not None else self.main_window.lineEdit_OutputPath.text()
+        run_checksum = checksum if checksum is not None else self.main_window.sha256_checksum_run
+        update_ui = output_path is None or (
+            self.main_window.lineEdit_OutputPath.text() == output_path
+            and self.main_window.path == project_path
+            and self.main_window.sha256_checksum == run_checksum
+            and self.main_window.lineEdit_Version.text() == version
+        )
 
         try:
             # 使用Path对象进行路径处理
@@ -309,8 +309,8 @@ class VersionManager:
 
                     # 查找匹配的校验和，递增次要版本号
                     checksum_found = False
-                    for c, checksum in enumerate(list_checksum):
-                        if self.main_window.sha256_checksum_run == checksum:
+                    for c, ledger_checksum in enumerate(list_checksum):
+                        if run_checksum == ledger_checksum:
                             checksum_found = True
                             version_major = c + 1
                             try:
@@ -323,7 +323,7 @@ class VersionManager:
                                 current_times = 0
                             new_times = current_times + 1
                             list_times[c] = str(new_times)
-                            used_version = getattr(self.main_window, "version_run", None)
+                            used_version = version if version is not None else getattr(self.main_window, "version_run", None)
                             if not isinstance(used_version, str):
                                 used_version = self.main_window.lineEdit_Version.text()
                             try:
@@ -334,13 +334,14 @@ class VersionManager:
                                     next_version = f"{parts[0]}.{parts[1] + 1}"
                             except ValueError:
                                 next_version = f"{version_major}.{new_times}"
-                            self.main_window.lineEdit_Version.setText(next_version)
+                            if update_ui:
+                                self.main_window.lineEdit_Version.setText(next_version)
                             break
 
                     if not checksum_found:
                         self.logger.warning(
                             "Checksum %s was not found in SHA256.csv; unable to update version number",
-                            self.main_window.sha256_checksum_run,
+                            run_checksum,
                         )
                         return
 
@@ -405,8 +406,8 @@ class VersionManager:
                         csv_sha256_writer.writerow(["Checksums:"])
                         csv_sha256_writer.writerow(
                             [
-                                self.main_window.sha256_checksum_run
-                                if self.main_window.sha256_checksum_run
+                                run_checksum
+                                if run_checksum
                                 else ""
                             ]
                         )

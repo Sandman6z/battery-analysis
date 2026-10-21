@@ -57,6 +57,9 @@ class BatteryChartViewerWrapper(IVisualizer):
         目录 → 最新子目录的 Info_Image.csv → 兜底遍历其他子目录 → 兜底直接
         在分析结果目录根下找 csv。
         """
+        # 搜索不到结果也是一次加载尝试，不能当作尚未选择数据的启动状态。
+        self._viewer.data_load_attempted = True
+
         # 确保XML路径是绝对路径
         if not os.path.isabs(xml_path):
             xml_path = os.path.abspath(xml_path)

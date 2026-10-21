@@ -6,6 +6,7 @@ import logging
 import os
 import shutil
 import threading
+from copy import deepcopy
 
 from battery_analysis.main.workers.task_runner import TaskCancelled, TaskRunner
 
@@ -38,6 +39,9 @@ class AnalysisWorker(TaskRunner):
         self.str_error_xlsx = ""
         self.str_test_date = ""
         self.profile_validation = {}
+        self.equipment_info = {}
+        self.delivered_report_path = ""
+        self.delivered_result_dir = ""
         self._decision_event = threading.Event()
         self._decision = False
 
@@ -81,7 +85,7 @@ class AnalysisWorker(TaskRunner):
         self.str_path = str_path
         self.str_input_path = str_input_path
         self.str_output_path = str_output_path
-        self.list_test_info = test_info
+        self.list_test_info = deepcopy(test_info)
 
     def _emit_progress(self, value, status):
         """
@@ -201,11 +205,9 @@ class AnalysisWorker(TaskRunner):
                     final_dir = (
                         f"{self.str_output_path}/{self.str_test_date}_v{self.list_test_info[16]}"
                     )
-                    report_name = (
-                        f"{self.list_test_info[4]}_{self.list_test_info[2]}"
-                        f"_DC{self.list_test_info[5]}_TD{self.str_test_date}"
-                        f"_v{self.list_test_info[16]}.docx"
-                    )
+                    from battery_analysis.utils.report_coordinator import report_filename
+
+                    report_name = report_filename(self.list_test_info, self.str_test_date)
                     docx_path = os.path.join(self.str_output_path, report_name)
                     if os.path.exists(final_dir) or os.path.exists(docx_path):
                         raise FileExistsError(f"Report already exists: {final_dir if os.path.exists(final_dir) else docx_path}")
@@ -225,27 +227,13 @@ class AnalysisWorker(TaskRunner):
 
                 # 文件写入
                 try:
-                    from battery_analysis.main.services.service_container import (
-                        get_service_container,
-                    )
                     from battery_analysis.utils import file_writer
-
-                    _equipment = {}
-                    try:
-                        _container = get_service_container()
-                        _config = _container.get("config")
-                        if _config:
-                            _eq = _config.get_config_value("test.equipment", {})
-                            if _eq:
-                                _equipment = next(iter(_eq.values()))
-                    except (KeyError, TypeError, AttributeError, StopIteration):
-                        pass
 
                     info_file = file_writer.FileWriter(
                         strResultPath=self.str_output_path,
                         listTestInfo=self.list_test_info,
                         listBatteryInfo=list_battery_info,
-                        equipment_info=_equipment,
+                        equipment_info=self.equipment_info,
                         result_dir=final_dir,
                         test_date=self.str_test_date,
                     )
@@ -289,14 +277,11 @@ class AnalysisWorker(TaskRunner):
                         if not os.path.getsize(owned_docx):
                             raise RuntimeError(f"Word report was not generated: {owned_docx}")
                         self._emit_progress(100, "Analysis complete!")
+                        self.delivered_report_path = docx_path
+                        self.delivered_result_dir = final_dir
                         succeeded = True
                         logger.info("Report verified: directory=%s files=%d", final_dir, len(delivered))
 
-                    # 优化ImageMaker启动逻辑：仅查找与 analyzer 同版本的 visualizer
-                    try:
-                        self._start_visualizer()
-                    except (ImportError, OSError, PermissionError, ValueError) as e:
-                        logger.exception("Failed to start visualizer")
                 except (ImportError, OSError, PermissionError, ValueError) as e:
                     logger.exception("An error occurred during file writing")
                     self.str_error_xlsx = f"File writing error: {e!s}"
@@ -336,6 +321,7 @@ class AnalysisWorker(TaskRunner):
                     self.signals.info.emit(False, 0, "status:success" + ("\n" + warning_summary if warning_summary else ""))
                     self.signals.rename_path.emit(self.str_test_date)
                     self.signals.analysis_succeeded.emit()
+                    self._start_visualizer()
                 else:
                     self.signals.info.emit(False, 2, "Analysis did not produce all reports")
             except RuntimeError as e:
@@ -355,7 +341,7 @@ class AnalysisWorker(TaskRunner):
         发送信号通知主线程启动可视化工具，确保环境一致
         """
         try:
-            if hasattr(self, "signals"):
+            if self.delivered_result_dir and not (self.b_cancel_requested or self._cancelled):
                 self.signals.start_visualizer.emit()
         except RuntimeError as e:
             logging.warning(

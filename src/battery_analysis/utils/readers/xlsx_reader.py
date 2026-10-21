@@ -18,14 +18,16 @@ def read_xlsx_sheets(filepath: str) -> tuple[pd.DataFrame, pd.DataFrame, pd.Data
     sheets = pd.read_excel(filepath, sheet_name=None, header=None, engine="calamine")
     names = list(sheets)
     if len(names) < 3:
-        raise ValueError(f"xlsx 缺少工作表（需 Cycle/Step/Record），实际只有 {len(names)} 张: {names}")
+        raise ValueError(
+            f"XLSX requires Cycle, Step and Record worksheets; found {len(names)}: {names}"
+        )
 
     record_parts = [
         df for name, df in sheets.items()
         if name == "Record" or name.startswith("Record_")
     ]
     if not record_parts:
-        raise ValueError(f"未找到 Record 工作表: {names}")
+        raise ValueError(f"Record worksheet not found: {names}")
 
     record_df = record_parts[0] if len(record_parts) == 1 else pd.concat(
         [record_parts[0]] + [df.iloc[2:] for df in record_parts[1:]],

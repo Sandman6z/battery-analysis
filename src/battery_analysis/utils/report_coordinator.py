@@ -46,6 +46,14 @@ logger = logging.getLogger(__name__)
 # ── 共享常量 ──────────────────────────────────────────────────
 
 
+def report_filename(test_info: list, test_date: str) -> str:
+    """既有 Word 命名契约：DC 为批次码，TD 为本次确定的测试日期。"""
+    return (
+        f"{test_info[4]}_{test_info[2]}_DC{test_info[5]}"
+        f"_TD{test_date}_v{test_info[16]}.docx"
+    )
+
+
 def match_battery_type(test_info_type: str) -> str:
     """从测试信息中匹配电池类型，返回标准类型名称"""
     return battery_type_code(test_info_type)
@@ -337,6 +345,7 @@ class ReportCoordinator:
 
         # 提取测试日期（YYYYMMDD）
         td = test_date or self._extract_test_date()
+        self.test_date = td
 
         # 构建输出路径
         self.strResultPath = result_dir or os.path.join(strResultPath, f"{td}_v{listTestInfo[16]}")
@@ -498,10 +507,7 @@ class ReportCoordinator:
                 self.strSampleReportWordPath,
             )
 
-        report_name = (
-            f"{self.listTestInfo[4]}_{self.listTestInfo[2]}_DC{self.listTestInfo[5]}"
-            f"_TD{td}_v{self.listTestInfo[16]}.docx"
-        )
+        report_name = report_filename(self.listTestInfo, td)
         result_dir = Path(self.strResultPath).parent
         self.strReportWordPath = str(result_dir / report_name)
 
@@ -598,7 +604,7 @@ class ReportCoordinator:
         from battery_analysis.utils.writers.excel_report_writer import ExcelReportWriter
         from battery_analysis.utils.writers.word_report_writer import WordReportWriter
 
-        ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(
+        ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo, test_date=self.test_date).write(
             listCpt, stats
         )
         WordReportWriter(
@@ -606,6 +612,7 @@ class ReportCoordinator:
             self.listTestInfo,
             self.listBatteryInfo,
             equipment_info=self._equipment_info,
+            test_date=self.test_date,
         ).write(listCpt, stats)
         CsvWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
 

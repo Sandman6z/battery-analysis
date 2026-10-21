@@ -32,7 +32,7 @@ class VisualizationManager:
             return self.main_window.visualizer_factory
         return None
 
-    def run_visualizer(self, xml_path=None) -> None:
+    def run_visualizer(self, xml_path=None, *, data_path=None) -> None:
         """运行可视化工具（独立窗口模式）"""
         self.logger.info("Entering visualizer run method")
 
@@ -42,7 +42,7 @@ class VisualizationManager:
             xml_path = None
 
         # 如果未提供xml_path，尝试从主窗口获取
-        if xml_path is None:
+        if xml_path is None and data_path is None:
             xml_path = self._get_test_profile()
             if xml_path:
                 self.logger.info("Retrieved XML path: %s", xml_path)
@@ -52,9 +52,12 @@ class VisualizationManager:
         self._status("Starting visualizer...")
 
         # 直接使用独立窗口模式
-        self._run_visualizer_standalone(xml_path)
+        if data_path is not None:
+            self._run_visualizer_standalone(data_path=data_path)
+        else:
+            self._run_visualizer_standalone(xml_path)
 
-    def _run_visualizer_standalone(self, xml_path=None) -> None:
+    def _run_visualizer_standalone(self, xml_path=None, *, data_path=None) -> None:
         """独立窗口模式（回退方案）"""
         try:
             # 清理matplotlib资源
@@ -68,7 +71,11 @@ class VisualizationManager:
                 raise RuntimeError("Failed to create visualizer instance")
 
             # 显示可视化（传递XML路径，让viewer处理数据搜索和加载）
-            show_success = visualizer.show_figure(xml_path=xml_path)
+            if data_path is not None:
+                # 已交付任务只打开该目录，不经 XML 搜索 latest 或当前 UI。
+                show_success = visualizer.show_figure(data_path=data_path)
+            else:
+                show_success = visualizer.show_figure(xml_path=xml_path)
 
             if show_success:
                 self.logger.info("Visualizer started (standalone)")

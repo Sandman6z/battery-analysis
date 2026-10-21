@@ -88,13 +88,16 @@ class TestAnalysisWorker:
         worker = AnalysisWorker()
         worker.set_info("project", "input", str(output), info)
         success = QSignalSpy(worker.signals.analysis_succeeded)
+        visualizer = QSignalSpy(worker.signals.start_visualizer)
         worker.run()
         assert not success
+        assert not visualizer
         assert not (output / "20241019_v1.0").exists()
         assert not (output / "Example__DCbatch_TD20241019_v1.0.docx").exists()
         assert (previous / "keep.txt").read_text() == "safe"
 
-    def test_success_signal_only_after_all_artifacts(self, tmp_path, monkeypatch):
+    @pytest.mark.parametrize("cancel_at_completion", [False, True])
+    def test_success_signal_only_after_all_artifacts(self, tmp_path, monkeypatch, cancel_at_completion):
         from battery_analysis.utils import file_writer
         from battery_analysis.utils.processors import battery_analysis
 
@@ -138,8 +141,22 @@ class TestAnalysisWorker:
         success = QSignalSpy(worker.signals.analysis_succeeded)
         statuses = QSignalSpy(worker.signals.info)
         renamed = QSignalSpy(worker.signals.rename_path)
+        visualizer = QSignalSpy(worker.signals.start_visualizer)
+        observed = []
+        worker.signals.start_visualizer.connect(
+            lambda: observed.append((worker.delivered_result_dir, (output / "20241019_v1.0" / "Info_Image.csv").is_file(), len(success)))
+        )
+        if cancel_at_completion:
+            worker.signals.progress.connect(lambda value, status: worker.request_cancel() if value == 100 and not worker.b_cancel_requested else None)
         worker.run()
+        if cancel_at_completion:
+            assert not success
+            assert not visualizer
+            assert not (output / "20241019_v1.0").exists()
+            return
         assert len(success) == 1
+        assert len(visualizer) == 1
+        assert observed == [(str(output) + "/20241019_v1.0", True, 1)]
         assert statuses[-1][2] == "status:success\n" + Engine.warning_summary
         assert renamed[0] == ["20241019"]
         assert (output / "20241019_v1.0" / "Result.xlsx").exists()
@@ -150,8 +167,22 @@ class TestAnalysisWorker:
         worker.set_info("path", "input", "output", ["info"])
         spy_info = QSignalSpy(worker.signals.info)
         spy_thread_end = QSignalSpy(worker.signals.thread_end)
+        visualizer = QSignalSpy(worker.signals.start_visualizer)
         worker.request_cancel()
         worker.run()
         assert len(spy_info) > 0
         assert spy_info[-1] == [False, 0, "status:cancelled"]
         assert len(spy_thread_end) == 1  # 取消也发 thread_end，确保 is_analysis_running 重置
+        assert not visualizer
+
+
+def test_set_info_freezes_nested_test_info():
+    from battery_analysis.domain.entities.test_info import TestInfo
+
+    info = TestInfo(battery_type="Coin Cell", current_levels=[3, 6], voltage_levels=[2.5])
+    worker = AnalysisWorker()
+    worker.set_info("project", "input", "output", info)
+    info.battery_type = "Pouch Cell"
+    info.current_levels.append(9)
+    assert worker.list_test_info.battery_type == "Coin Cell"
+    assert worker.list_test_info.current_levels == [3, 6]

@@ -49,20 +49,21 @@ class ValidationSpecRulesMixin:
             )
             return
 
+        # 直接切换类型不能保留已知属于另一类型的规格。
+        specifications = {
+            "Coin Cell": self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypeCoinCell") or [],
+            "Pouch Cell": self.main_window.config_manager.get_config("BatteryConfig/SpecificationTypePouchCell") or [],
+        }
+        selected_spec = self.main_window.specification_type
+        known_specs = {spec for specs in specifications.values() for spec in specs}
+        if selected_spec in known_specs and selected_spec not in specifications.get(current_type, []):
+            self.main_window.specification_type = ""
+
         # 构造方法：仅需要的电池类型（如 Pouch Cell）启用，其他类型禁用并清空
         requires_construction = current_type in self._get_types_requiring_construction()
         self.main_window.comboBox_ConstructionMethod.setEnabled(requires_construction)
         self.main_window.comboBox_ConstructionMethod.setCurrentIndex(-1)
-        # 将文件名解析到的构造方法设置到下拉框（仅需要的类型）
-        if requires_construction and self.main_window.construction_method:
-            for c in range(self.main_window.comboBox_ConstructionMethod.count()):
-                if (
-                    self.main_window.construction_method
-                    == self.main_window.comboBox_ConstructionMethod.itemText(c)
-                ):
-                    self.main_window.comboBox_ConstructionMethod.setCurrentIndex(c)
-                    self.main_window.construction_method = ""
-                    break
+        self._restore_parsed_construction()
         self.main_window.lineEdit_DatasheetNominalCapacity.setText("")
         self.main_window.lineEdit_CalculationNominalCapacity.setText("")
         self.main_window.lineEdit_RequiredUseableCapacity.setText("")
@@ -95,6 +96,17 @@ class ValidationSpecRulesMixin:
         self.main_window.comboBox_Specification_Method.currentIndexChanged.connect(
             self.main_window.check_specification
         )
+
+    def _restore_parsed_construction(self) -> None:
+        """只消费文件名明确提供的构造方法，不重置同类型的手动选择。"""
+        if self.main_window.comboBox_BatteryType.currentText() not in self._get_types_requiring_construction():
+            return
+        combo = self.main_window.comboBox_ConstructionMethod
+        if self.main_window.construction_method:
+            index = combo.findText(self.main_window.construction_method)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+                self.main_window.construction_method = ""
 
     def _get_all_specifications(self) -> list:
         """从配置中获取所有规格型号（不分电池类型）"""
@@ -133,6 +145,7 @@ class ValidationSpecRulesMixin:
             ),
         ]
 
+        previous_type = self.main_window.comboBox_BatteryType.currentText()
         # 临时断开 BatteryType 信号，避免递归触发 check_batterytype
         try:
             self.main_window.comboBox_BatteryType.currentIndexChanged.disconnect(
@@ -154,12 +167,15 @@ class ValidationSpecRulesMixin:
             self.main_window.check_batterytype
         )
 
-        # 显式执行 check_batterytype 以确保 UI 状态更新
-        # （setCurrentIndex 在信号断开期间执行，不会自动触发回调）
-        self.main_window.check_batterytype()
+        # 同类型的规格/成组方式变更不重置用户已选的构造方法。
+        if self.main_window.comboBox_BatteryType.currentText() != previous_type:
+            self.main_window.check_batterytype()
+        else:
+            self._restore_parsed_construction()
 
         specification_method = self.main_window.comboBox_Specification_Method.currentText()
         if not self.main_window.specification_type or not specification_method:
+            self._clear_spec_rule_fields()
             return
 
         # 按规则匹配填充容量字段（含 85%|75% 构造相关换算）

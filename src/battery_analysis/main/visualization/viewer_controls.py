@@ -66,8 +66,8 @@ class ViewerControlsMixin:
         except (ValueError, TypeError, AttributeError) as e:
             logger.error("Error creating file operation buttons: %s", e)
 
-    def _add_menu_bar(self: "InteractionControlsMixin", fig):
-        """为图表添加菜单栏（统一使用PyQt6）"""
+    def _add_menu_bar(self: "InteractionControlsMixin", fig) -> bool:
+        """为图表添加菜单栏，成功返回 True，无独立窗口时返回 False。"""
         try:
             logger.info("Starting to add PyQt6 menubar")
 
@@ -124,6 +124,7 @@ class ViewerControlsMixin:
 
                 about_action.triggered.connect(on_about_clicked)
                 logger.info("PyQt6 menubar added successfully")
+                return True
             else:
                 raise RuntimeError("Window does not support a menu bar")
 
@@ -132,7 +133,6 @@ class ViewerControlsMixin:
                 f"PyQt6 dependency missing: {e}. Please ensure PyQt6 is installed correctly"
             )
         except (AttributeError, TypeError, RuntimeError) as e:
-            logger.error("Failed to add menubar: %s", e)
             raise RuntimeError(f"Menu bar initialization failed: {e}") from e
 
     def _open_file_dialog(self: "InteractionControlsMixin"):
