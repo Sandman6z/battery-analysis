@@ -274,9 +274,9 @@ class TestFullReport:
         out = run_report(ti, bi)
         assert out["strResult"] == "Fail"
         assert (
-            "no single sample below expected usable Q 1275mAh at 60mA → 2.25V" in out["strRemarks"]
+            "The minimum sample capacity should be at least 1275mAh" in out["strRemarks"]
         )
-        assert "minimum 1260mAh" in out["strRemarks"]
+        assert "actual measured minimum capacity to 2.25V is 1260mAh" in out["strRemarks"]
 
     def test_fail_on_mu2sigma_not_higher_than_expectation(self):
         # min ≥ 1275 但离散度大 → µ-2σ < 1275 → 仅统计判据失败
@@ -284,8 +284,7 @@ class TestFullReport:
         bi = make_battery_info(make_charge([1280, 1280, 1600]))
         out = run_report(ti, bi)
         assert out["strResult"] == "Fail"
-        assert "μ-2σ" in out["strRemarks"]
-        assert "1275mAh" in out["strRemarks"]
+        assert "The expected usable Q(stat) should be more than 85%" in out["strRemarks"]
 
     def test_coin_new_model_full_report(self):
         ti = make_test_info("CR2032", "", "1S1P", 220, 200, [30, 26, 15, 6], VOLTAGES)
@@ -302,7 +301,10 @@ class TestFullReport:
         bi = make_battery_info(make_charge([210, 215, 205]))
         out = run_report(ti, bi)
         assert out["strResult"] == "Fail"
-        assert "μ-2σ 200mAh not higher than expected usable Q 200mAh" in out["strRemarks"]
+        assert out["strRemarks"] == (
+            "The expected usable Q(stat) should be more than 90%, "
+            "while the actual measured minimum capacity to 2.25V is 90%."
+        )
 
     def test_falls_back_to_legacy_when_expected_level_not_measured(self):
         """期望格（60mA）不在实测档位 → 回退历史单点判定（最高电流 × 2.25V）"""
@@ -312,8 +314,9 @@ class TestFullReport:
         bi = make_battery_info(make_charge([1300, 1300, 1300]))
         out = run_report(ti, bi)
         assert out["strResult"] == "Pass"
-        # P2：legacy 单点判定加标注，避免与 PDF 双条件路径的 "OK" 混淆
-        assert out["strRemarks"] == "OK (legacy single-point verdict)"
+        # 判定不变；缺少期望档位时必须明确说明，而不是写 OK。
+        assert "no measured samples at 60mA → 2.25V" in out["strRemarks"]
+        assert "OK" not in out["strRemarks"]
 
     def test_legacy_fallback_fail_keeps_historical_remarks(self):
         levels = [30, 26, 15, 6]

@@ -294,7 +294,7 @@ class TestDualConditionEndToEnd:
         ]
         out = self._run(charge)
         assert out["strResult"] == "Fail"
-        assert "1275" in out["strRemarks"] or "no single sample" in out["strRemarks"]
+        assert "The minimum sample capacity should be at least 1275mAh" in out["strRemarks"]
 
     def test_dual_condition_fail_mu2sigma(self):
         # µ-2σ < 期望但 min ≥ 期望 → 违反条件②
@@ -324,4 +324,4 @@ class TestDualConditionEndToEnd:
             stats,
         )
         assert out["strResult"] == "Fail"
-        assert "μ-2σ" in out["strRemarks"] or "µ-2σ" in out["strRemarks"]
+        assert "The expected usable Q(stat) should be more than 85%" in out["strRemarks"]

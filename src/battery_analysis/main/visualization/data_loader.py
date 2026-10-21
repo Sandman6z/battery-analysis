@@ -39,6 +39,9 @@ class DataLoaderMixin:
         self.intBatteryNum = 0
 
         try:
+            self._try_load_metadata_title()
+            self.listPulseCurrentLevel = self._get_pulse_current_level()
+            self.intCurrentLevelNum = len(self.listPulseCurrentLevel)
             self.csv_read()
 
             if self.intBatteryNum <= 0:
@@ -102,6 +105,7 @@ class DataLoaderMixin:
 
     def _try_load_metadata_title(self):
         """尝试从 Info_Plot.json 读取测试元数据以构建动态标题"""
+        self._recipe_levels = []
         try:
             meta_path = os.path.join(self.strPltPath, "Info_Plot.json")
             if not os.path.exists(meta_path):
@@ -232,7 +236,7 @@ class DataLoaderMixin:
                 csvreader = csv.reader(f)
                 # 流式计数替代 list() 全量读，避免大文件内存翻倍（all_rows 只用于行数检查）
                 row_count = sum(1 for _ in csvreader)
-                if row_count < 5:
+                if row_count < 4:
                     logger.error(
                         "Error: CSV file %s has insufficient data rows", self.strInfoImageCsvPath
                     )
@@ -254,7 +258,7 @@ class DataLoaderMixin:
 
             data_valid = False
             for c in range(self.intCurrentLevelNum):
-                if c < len(self.listPlt) and self.listPlt[c][2]:
+                if c < len(self.listPlt) and any(self.listPlt[c][2]):
                     data_valid = True
                     break
 
@@ -365,6 +369,12 @@ class DataLoaderMixin:
         for p in range(len(list_plt_charge)):
             charge_single = list_plt_charge[p]
             voltage_single = list_plt_voltage[p]
+            if not charge_single or not voltage_single:
+                filtered_charge.append([])
+                filtered_voltage.append([])
+                continue
+            if len(charge_single) != len(voltage_single):
+                raise ValueError("Charge and voltage curve lengths do not match")
             current_times = times
 
             while current_times > 0:
@@ -379,10 +389,10 @@ class DataLoaderMixin:
                         voltage_prev = float(voltage_single[c - 1])
 
                         charge_diff = charge_curr - charge_prev
+                        voltage_diff = voltage_curr - voltage_prev
                         if charge_diff == 0:
                             slope = slope_max
                         else:
-                            voltage_diff = voltage_curr - voltage_prev
                             slope = abs(voltage_diff / charge_diff)
 
                         voltage_diff_abs = abs(voltage_diff)

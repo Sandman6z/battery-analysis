@@ -31,6 +31,16 @@ class WindowActionsMixin:
     # ------------------------------
     # 用户交互方法
     # ------------------------------
+    def show_ndax_converter(self) -> None:
+        """Open or reactivate the independent NDAX export tool."""
+        if self._ndax_converter_window is None:
+            from battery_analysis.main.ndax_converter_window import NdaxConverterWindow
+
+            self._ndax_converter_window = NdaxConverterWindow(self)
+        self._ndax_converter_window.showNormal()
+        self._ndax_converter_window.raise_()
+        self._ndax_converter_window.activateWindow()
+
     def on_preferences_applied(self) -> None:
         try:
             # 配置路径/重载统一经 ConfigService；仅需丢弃 config_utils 的路径缓存，

@@ -72,6 +72,23 @@ def _require_positive_int(value, label: str) -> int:
     return parsed
 
 
+def _capacity_failure_remarks(threshold, minimum, statistic, qnom, cutoff, sample_ok, stat_ok):
+    """Keep the historical report wording; detailed criteria belong in the audit log."""
+    remarks = []
+    if not stat_ok:
+        remarks.append(
+            f"The expected usable Q(stat) should be more than {int(100 * threshold / qnom)}%, "
+            f"while the actual measured minimum capacity to {cutoff:g}V is "
+            f"{math.floor(100 * statistic / qnom)}%."
+        )
+    if not sample_ok:
+        remarks.append(
+            f"The minimum sample capacity should be at least {round(threshold)}mAh, "
+            f"while the actual measured minimum capacity to {cutoff:g}V is {round(minimum)}mAh."
+        )
+    return " ".join(remarks)
+
+
 def compute_report_content_base(
     listCurrentLevel,
     intCurrentLevelNum,
@@ -98,7 +115,7 @@ def compute_report_content_base(
             intPosiMaxmA = c
 
     # 2.25V 电压位置（P1：容差匹配，避免 float == 2.25 精确比较静默失配；
-    # 未命中时回退 index 0 并在 Remarks 标注，不再无声降级）
+    # 未命中时回退 index 0，技术细节记日志，Remarks 只说明缺失的测量）
     intPosi2V25 = 0
     found_225v = False
     for v in range(intVoltageLevelNum):
@@ -194,24 +211,32 @@ def compute_report_content_base(
         failed = [v for v in verdicts if not v.passed and not v.no_data]
         if failed:
             strResult = "Fail"
-            strRemarks = format_failure_remarks(verdicts)
         elif no_data:
             strResult = "Incomplete"
-            strRemarks = format_failure_remarks(verdicts)
         else:
             strResult = "Pass"
-            strRemarks = "OK"
-        # P3：单样本格 σ=0（ddof=1），µ-2σ 退化为均值，判定保留但需标注
+        remarks = []
+        for verdict in verdicts:
+            if verdict.no_data:
+                remarks.extend(verdict.failure_texts())
+            elif not verdict.passed:
+                text = _capacity_failure_remarks(
+                    verdict.expectation.threshold_mah, verdict.minimum, verdict.mu2sigma,
+                    intQnomCapacity, verdict.expectation.cutoff_v,
+                    verdict.sample_ok, verdict.stat_ok,
+                )
+                if len(expectations) > 1:
+                    text = f"{verdict.expectation.label}: {text}"
+                remarks.append(text)
+        strRemarks = " ".join(remarks) or "OK"
+        logger.info("Report judgment audit: %s", format_failure_remarks(verdicts))
         single_samples = [v for v in verdicts if v.sample_count == 1]
         if single_samples:
             labels = ", ".join(v.expectation.label for v in single_samples)
-            strRemarks = (
-                f"{strRemarks} (single sample at {labels}: σ=0, "
-                f"µ-2σ equals mean)"
-            )
+            logger.info("Report judgment audit: single sample at %s: σ=0, µ-2σ equals mean", labels)
     else:
         # 期望格不在实测档位中：保留原有单点判定（安全网，行为与历史一致）。
-        # P2：补最小值判据 + 告警 + legacy 标注，避免静默绕过 §6.2.11 双条件
+        # P2：保留最小值判据，回退路径只在日志中记录。
         legacy_min = float(stats["min"][intPosiMaxmA][intPosi2V25])
         legacy_stat_ok = (
             listMM2S[intPosiMaxmA][intPosi2V25] / intQnomCapacity >= intPassRate
@@ -229,28 +254,23 @@ def compute_report_content_base(
         )
         if legacy_stat_ok and legacy_sample_ok:
             strResult = "Pass"
-            strRemarks = "OK (legacy single-point verdict)"
+            strRemarks = "OK"
         else:
             strResult = "Fail"
-            strRemarks = (
-                f"The expected usable Q(stat) should be more than "
-                f"{strRequiredUseableCapacityPercentage}, "
-                f"while the actual measured minimum capacity to 2.25V is "
-                f"{math.floor(100 * listMM2S[intPosiMaxmA][intPosi2V25] / intQnomCapacity)}%."
+            strRemarks = _capacity_failure_remarks(
+                intRequiredCapacity, legacy_min, listMM2S[intPosiMaxmA][intPosi2V25],
+                intQnomCapacity, float(listVoltageLevel[intPosi2V25]),
+                legacy_sample_ok, legacy_stat_ok,
             )
-            if not legacy_sample_ok:
-                strRemarks = (
-                    f"No single sample below expected usable Q "
-                    f"{intRequiredCapacity}mAh: minimum {round(legacy_min)}mAh. "
-                    f"{strRemarks}"
-                )
-            strRemarks = f"{strRemarks} (legacy single-point verdict)"
 
-    if not found_225v:
-        strRemarks = (
-            f"{strRemarks} [note: 2.25V cutoff level not found in voltage table; "
-            f"fallback position used]"
+    measured_expectations = {v.expectation for v in verdicts}
+    missing_expectations = [e for e in expectations if e not in measured_expectations]
+    if missing_expectations:
+        missing_text = "; ".join(
+            f"no measured samples at {e.label}: data incomplete, retest required"
+            for e in missing_expectations
         )
+        strRemarks = missing_text if strRemarks == "OK" else f"{strRemarks} {missing_text}"
 
     listStrContent = [
         listTestInfo[0],  # 0

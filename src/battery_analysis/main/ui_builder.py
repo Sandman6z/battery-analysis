@@ -2,12 +2,11 @@
 主窗口 UI 构建器（重构版）
 
 职责精简为：
-  - 创建 QTabWidget 作为 centralWidget
-  - 注册各 Tab 页面
+  - 创建电池分析主页面作为 centralWidget
   - 构建菜单栏、状态栏
   - 窗口居中
 
-各 Tab 的具体布局由 tabs/ 下的独立 QWidget 子类管理。
+主页面的具体布局由 tabs/ 下的独立 QWidget 子类管理。
 """
 
 import PyQt6.QtCore as QC
@@ -31,8 +30,8 @@ class UIBuilder:
         mw.resize(920, 750)
         mw.setCursor(QG.QCursor(QC.Qt.CursorShape.ArrowCursor))
 
-        # ── TabWidget 作为 centralWidget ──
-        self._build_tab_widget()
+        # ── 电池分析主页面 ──
+        self._build_analysis_page()
 
         # ── 状态栏 ──
         self._build_status_bar()
@@ -40,29 +39,14 @@ class UIBuilder:
         # ── 窗口居中 ──
         self._adjust_window_size()
 
-    def _build_tab_widget(self) -> None:
-        """创建 QTabWidget 并注册各 Tab 页面"""
-        mw = self.main_window
-
-        tab_widget = QW.QTabWidget()
-        tab_widget.setTabPosition(QW.QTabWidget.TabPosition.North)
-        tab_widget.setDocumentMode(True)
-        tab_widget.setTabShape(QW.QTabWidget.TabShape.Rounded)
-
-        # Tab 0: NDAX 转换（分析前的准备工作，排在前面）
-        from battery_analysis.main.tabs.ndax_tab import NdaxConverterTab
-        ndax_tab = NdaxConverterTab()
-        tab_widget.addTab(ndax_tab, _("📊 NDAX转换"))
-
-        # Tab 1: 电池分析
+    def _build_analysis_page(self) -> None:
+        """直接显示电池分析页面，转换工具由菜单独立打开。"""
         from battery_analysis.main.tabs.battery_tab import BatteryAnalysisTab
-        battery_tab = BatteryAnalysisTab(main_window=mw)
-        tab_widget.addTab(battery_tab, _("🔋 电池分析"))
 
-        mw.setCentralWidget(tab_widget)
-        mw.centralwidget = tab_widget  # 兼容初始化管理器的 can_execute 检查
-        mw._tab_widget = tab_widget
-        mw._ndax_tab = ndax_tab
+        mw = self.main_window
+        battery_tab = BatteryAnalysisTab(main_window=mw)
+        mw.setCentralWidget(battery_tab)
+        mw.centralwidget = battery_tab  # 兼容初始化管理器的 can_execute 检查
 
     def _build_status_bar(self) -> None:
         """构建状态栏"""
@@ -162,6 +146,9 @@ class UIBuilder:
         mw.actionBatteryChartViewer = QG.QAction(_("BatteryChartViewer"), mw)
         mw.actionBatteryChartViewer.setObjectName("actionBatteryChartViewer")
 
+        mw.actionNdaxConverter = QG.QAction(_("NDAX 转换器"), mw)
+        mw.actionNdaxConverter.setObjectName("actionNdaxConverter")
+
         mw.actionCalculate_Battery = QG.QAction(_("Calculate Battery"), mw)
         mw.actionCalculate_Battery.setObjectName("actionCalculate_Battery")
 
@@ -234,6 +221,7 @@ class UIBuilder:
         # 工具菜单
         tools_menu = menubar.addMenu(_("Tools"))
         tools_menu.addAction(mw.actionBatteryChartViewer)
+        tools_menu.addAction(mw.actionNdaxConverter)
         tools_menu.addSeparator()
         tools_menu.addAction(mw.actionCalculate_Battery)
         tools_menu.addAction(mw.actionAnalyze_Data)

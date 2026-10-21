@@ -7,7 +7,7 @@
 > See the [complete v5.0.0 release and migration notes (Chinese)](RELEASE_NOTES_v5.0.0.md).
 
 > Compared to previous versions, the `setting.ini` file has been removed. All configuration is now done within the app (**Tools → Configuration**).
-> The standalone `ndaxConverter` remains available. Exporting to `2_xlsx` is optional and is no longer a prerequisite for main analysis.
+> To export raw data to Excel, open **Tools → NDAX 转换器** (NDAX Converter, directly below `BatteryChartViewer`). It runs in a separate window and saves results to the sibling `2_xlsx` folder without changing the main analysis settings. This export is optional, not a prerequisite for analysis.
 
 ---
 
@@ -15,7 +15,7 @@
 
 | Step | Action | What the app does automatically |
 |------|--------|--------------------------------|
-| 1 | **Select Test Profile** (Browse to an XML test profile file) | See **Tips 1** below |
+| 1 | **Select the `1_ndax` input folder or an optional Test Profile XML** | Resolves sibling paths; see **Tips 1** below |
 | 2 | Click the green **Run** | Validation → calculation → plotting → report generation, fully automatic |
 | 3 | When done, click **"Open Report"** / **"Open Path"** | One-click access to your results |
 
@@ -26,18 +26,19 @@
 
 ## 2. Time-Saving Tips (Highlights)
 
-### Tips 1. Select One XML, and All Paths Are Auto-Filled
+### Tips 1. Select Either the NDAX Folder or XML to Resolve All Paths
 
-After selecting a **Test Profile (XML)**, the app automatically:
+`1_ndax` and `4_test profile` normally share the same project directory. Both entry points work:
 
-- Validates the XML (file name, content; encoding auto-compatible with UTF-8/GBK)
-- **Sets the input path** to the sibling `1_ndax` folder; main analysis no longer reads `2_xlsx`
-- **Sets the output path** to the sibling `3_analysis results` folder (asks whether to create it if it doesn't exist)
+- **Select `1_ndax`**: searches the sibling `4_test profile` folder for XML. If several exist, choose one or cancel to leave the profile empty. If none exists, a status-bar notice explains that the profile is optional; the existing first-run acknowledgement confirms use of the embedded NDAX recipe.
+- **Select a Test Profile XML**: validates its file name and content (UTF-8/GBK compatible), then locates the sibling `1_ndax` folder. Main analysis no longer reads `2_xlsx`.
+- **Output is fixed** to the sibling `3_analysis results` folder, created automatically if needed. The field is read-only and has no browse button or custom directory option.
+- Switching projects resolves the profile and paths again instead of retaining the previous project's settings.
 - **Detects recipe temperature from NDAX**: `TestInfo.xml` → `TestInfo@StepName` containing `Freezer` (case-insensitive) means freezer; otherwise room. External XML file names do not determine temperature.
 - Suggests a report version from the NDAX checksum; manual unused versions at or above the highest applicable version are allowed (Tips 9)
 - If you are a new team member, just type your name directly into the name field.
 
-> 💡 If the output folder doesn't exist, a dialog will ask whether to create it — click "Yes" and you won't need to create folders manually.
+> 💡 Test Profile is an optional validation file, not the analysis data source. The `1_ndax` folder alone is sufficient to start analysis.
 
 ---
 

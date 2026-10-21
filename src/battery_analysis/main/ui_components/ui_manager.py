@@ -102,9 +102,9 @@ class UIManager:
             self.main_window.pushButton_InputPath.setAccessibleDescription(
                 _("Select input data file path")
             )
-            self.main_window.pushButton_OutputPath.setAccessibleName(_("Select Output Path"))
-            self.main_window.pushButton_OutputPath.setAccessibleDescription(
-                _("Select analysis output path")
+            self.main_window.lineEdit_OutputPath.setAccessibleName(_("Output Path"))
+            self.main_window.lineEdit_OutputPath.setAccessibleDescription(
+                _("Automatically set to the sibling 3_analysis results folder")
             )
 
             # 设置焦点策略
@@ -131,7 +131,6 @@ class UIManager:
                 self.main_window.lineEdit_InputPath,
                 self.main_window.pushButton_InputPath,
                 self.main_window.lineEdit_OutputPath,
-                self.main_window.pushButton_OutputPath,
                 self.main_window.pushButton_Run,
             ]
 
@@ -209,13 +208,9 @@ class UIManager:
             QW.QWidget.setTabOrder(
                 self.main_window.pushButton_InputPath, self.main_window.lineEdit_OutputPath
             )
-            QW.QWidget.setTabOrder(
-                self.main_window.lineEdit_OutputPath, self.main_window.pushButton_OutputPath
-            )
-
             # 最终运行按钮
             QW.QWidget.setTabOrder(
-                self.main_window.pushButton_OutputPath, self.main_window.pushButton_Run
+                self.main_window.lineEdit_OutputPath, self.main_window.pushButton_Run
             )
 
             # 确保表格支持键盘导航
@@ -318,8 +313,9 @@ class UIManager:
             self.main_window.pushButton_InputPath.setToolTip(_("Select input data file path"))
 
             # 输出路径
-            self.main_window.lineEdit_OutputPath.setToolTip(_("Output result file path"))
-            self.main_window.pushButton_OutputPath.setToolTip(_("Select output result file path"))
+            self.main_window.lineEdit_OutputPath.setToolTip(
+                _("Automatically set to the sibling 3_analysis results folder")
+            )
 
             # 运行按钮
             self.main_window.pushButton_Run.setToolTip(_("Start battery analysis"))
@@ -377,7 +373,8 @@ class UIManager:
         for field in required_fields:
             field.textChanged.connect(self.main_window.validation_manager.validate_required_fields)
 
-        self.main_window.lineEdit_TestProfile.setText("Not provided")
+        self.main_window.lineEdit_TestProfile.clear()
+        self.main_window.lineEdit_TestProfile.setPlaceholderText(_("Optional Test Profile XML"))
 
     def _add_items_with_fallback(self, combobox, items, fallback=None):
         """添加项到下拉框，配置为空时使用内置兜底值"""
@@ -585,7 +582,6 @@ class UIManager:
         self.main_window.lineEdit_InputPath.textChanged.connect(self.main_window.data_processor.get_xlsxinfo)
         self.main_window.pushButton_TestProfile.clicked.connect(self.main_window.test_profile_manager.select_testprofile)
         self.main_window.pushButton_InputPath.clicked.connect(self.main_window.path_manager.select_inputpath)
-        self.main_window.pushButton_OutputPath.clicked.connect(self.main_window.path_manager.select_outputpath)
         self.main_window.pushButton_Run.clicked.connect(self.main_window.run_analysis_command.execute)
         self.main_window.sigSetVersion.connect(self.main_window.version_manager.get_version)
 

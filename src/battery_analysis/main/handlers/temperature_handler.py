@@ -36,6 +36,8 @@ class TemperatureHandler:
                 self.main_window.spinBox_Temperature.setValue(-20)
         else:
             self.main_window.spinBox_Temperature.setValue(0)
+        # 扫描和 Run 前复核都从这里更新温度，同时刷新容量，避免沿用常温规则。
+        self.main_window.check_construction()
 
     def on_temperature_type_changed(self):
         self.main_window.spinBox_Temperature.setEnabled(

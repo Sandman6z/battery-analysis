@@ -6,6 +6,8 @@ _apply_specification_rules 匹配逻辑与 check_construction 重算入口。
 
 from types import SimpleNamespace
 
+import pytest
+
 from battery_analysis.main.business_logic.validation_spec_rules import (
     ValidationSpecRulesMixin,
 )
@@ -44,7 +46,8 @@ class FakeConfigManager:
         return None
 
 
-def make_mixin(spec="CP224642A", method="1S1P", construction="Spiral Type", rules=None):
+def make_mixin(spec="CP224642A", method="1S1P", construction="Spiral Type", rules=None,
+               temperature="Room Temperature"):
     mixin = ValidationSpecRulesMixin()
     mixin.main_window = SimpleNamespace(
         lineEdit_DatasheetNominalCapacity=FakeLineEdit(),
@@ -53,6 +56,7 @@ def make_mixin(spec="CP224642A", method="1S1P", construction="Spiral Type", rule
         comboBox_Specification_Type=FakeCombo(spec),
         comboBox_Specification_Method=FakeCombo(method),
         comboBox_ConstructionMethod=FakeCombo(construction),
+        comboBox_Temperature=FakeCombo(temperature),
         config_manager=FakeConfigManager(RULES if rules is None else rules),
     )
     return mixin
@@ -85,6 +89,38 @@ class TestApplySpecificationRules:
         mw = mixin.main_window
         assert mw.lineEdit_DatasheetNominalCapacity.value == "600"
         assert mw.lineEdit_RequiredUseableCapacity.value == "380"
+
+    @pytest.mark.parametrize("reverse", [False, True])
+    @pytest.mark.parametrize("temperature, required", [
+        ("Freezer Temperature", "280"), ("Room Temperature", "380"),
+    ])
+    def test_same_model_rules_follow_ndax_temperature(self, reverse, temperature, required):
+        rules = ["CR2450/1S1P/600/550/380/1.0", "CR2450/1S1P/600/550/280/1.0"]
+        mixin = make_mixin(spec="CR2450", rules=rules[::-1] if reverse else rules,
+                           temperature=temperature)
+        mixin._apply_specification_rules()
+        assert mixin.main_window.lineEdit_RequiredUseableCapacity.value == required
+
+    def test_missing_freezer_rule_does_not_reuse_room_capacity(self):
+        mixin = make_mixin(spec="CR2450", temperature="Freezer Temperature")
+        mixin.main_window.lineEdit_RequiredUseableCapacity.setText("380")
+        mixin._apply_specification_rules()
+        assert mixin.main_window.lineEdit_RequiredUseableCapacity.value == ""
+
+    def test_matching_method_is_not_hidden_by_first_rule(self):
+        mixin = make_mixin(spec="CR2450", method="1S2P", temperature="Freezer Temperature",
+                           rules=["CR2450/1S1P/600/550/280/1.0",
+                                  "CR2450/1S2P/1200/1100/280/1.0"])
+        mixin._apply_specification_rules()
+        assert mixin.main_window.lineEdit_CalculationNominalCapacity.value == "1100"
+        assert mixin.main_window.lineEdit_RequiredUseableCapacity.value == "280"
+
+    def test_exact_model_is_not_hidden_by_shorter_prefix(self):
+        mixin = make_mixin(spec="CR2450D", temperature="Freezer Temperature",
+                           rules=["CR2450/1S1P/600/550/380/1.0",
+                                  "CR2450D/1S1P/600/550/280/1.0"])
+        mixin._apply_specification_rules()
+        assert mixin.main_window.lineEdit_RequiredUseableCapacity.value == "280"
 
     def test_method_mismatch_clears_fields(self):
         mixin = make_mixin(method="2S1P")

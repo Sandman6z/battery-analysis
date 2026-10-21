@@ -6,6 +6,8 @@
 - 期望格不在实测档位时回退原有单点逻辑（安全网）
 """
 
+import logging
+
 import pytest
 
 from battery_analysis.utils.report_coordinator import compute_report_content_base
@@ -54,6 +56,61 @@ def run(test_info, stats, currents=(30, 26, 15, 6), voltages=None):
     )
 
 
+class TestRemarksPresentation:
+    def test_stat_failure_uses_original_sentence(self):
+        stats = make_stats(4, 9)
+        stats["min"][0][V225_IDX] = 800
+        stats["mm2s"][0][V225_IDX] = 700
+        result = run(make_test_info(), stats)
+        assert result["strResult"] == "Fail"
+        assert result["strRemarks"] == (
+            "The expected usable Q(stat) should be more than 85%, "
+            "while the actual measured minimum capacity to 2.25V is 76%."
+        )
+        assert result["listStrContent"][19] == result["strRemarks"]
+
+    def test_single_sample_audit_is_logged_not_in_remarks(self, caplog):
+        stats = make_stats(4, 9)
+        stats["counts"] = [[1] * 9 for _ in range(4)]
+        stats["min"][0][V225_IDX] = 800
+        stats["mm2s"][0][V225_IDX] = 800
+        with caplog.at_level(logging.INFO):
+            result = run(make_test_info(), stats)
+        assert result["strResult"] == "Pass"
+        assert result["strRemarks"] == "OK"
+        assert "single sample at 30mA → 2.25V" in caplog.text
+        assert "σ=0" in caplog.text
+
+    def test_fail_and_missing_cells_both_explained(self):
+        stats = make_stats(5, 9)
+        stats["counts"] = [[3] * 9 for _ in range(5)]
+        for c in (0, 2):
+            for v in (V225_IDX, V250_IDX):
+                stats["min"][c][v] = 4000
+                stats["mm2s"][c][v] = 3900
+        stats["mm2s"][0][V225_IDX] = 2800
+        stats["counts"][2][V250_IDX] = 0
+        stats["min"][2][V250_IDX] = 0
+        stats["mm2s"][2][V250_IDX] = 0
+        result = run(make_test_info(spec="CF583083", qnom=4000, required=3000), stats,
+                     currents=(500, 250, 100, 50, 25))
+        assert result["strResult"] == "Fail"
+        assert "The expected usable Q(stat) should be more than 75%" in result["strRemarks"]
+        assert "no measured samples at 100mA → 2.5V" in result["strRemarks"]
+        assert "OK" not in result["strRemarks"]
+
+    def test_unmeasured_required_levels_do_not_say_ok(self):
+        stats = make_stats(4, 9)
+        stats["min"][0][V225_IDX] = 3100
+        stats["mm2s"][0][V225_IDX] = 3200
+        result = run(make_test_info(spec="CF583083", qnom=4000, required=3000), stats)
+        # Keep the existing fallback verdict, but disclose missing required measurements.
+        assert result["strResult"] == "Pass"
+        assert "no measured samples at 500mA → 2.25V" in result["strRemarks"]
+        assert "OK" not in result["strRemarks"]
+        assert "legacy" not in result["strRemarks"]
+
+
 class TestPouchVerdict:
     def test_pass(self):
         stats = make_stats(4, 9)
@@ -71,8 +128,10 @@ class TestPouchVerdict:
         stats["mm2s"][0][V225_IDX] = 790
         result = run(make_test_info(), stats)
         assert result["strResult"] == "Fail"
-        assert "no single sample" in result["strRemarks"]
-        assert "782" in result["strRemarks"]
+        assert result["strRemarks"] == (
+            "The minimum sample capacity should be at least 782mAh, "
+            "while the actual measured minimum capacity to 2.25V is 780mAh."
+        )
 
     def test_fail_on_mu_minus_2sigma(self):
         stats = make_stats(4, 9)
@@ -80,7 +139,7 @@ class TestPouchVerdict:
         stats["mm2s"][0][V225_IDX] = 700  # ≤ 782
         result = run(make_test_info(), stats)
         assert result["strResult"] == "Fail"
-        assert "μ-2σ" in result["strRemarks"]
+        assert "The expected usable Q(stat) should be more than 85%" in result["strRemarks"]
 
     def test_laminate_threshold_75_percent(self):
         stats = make_stats(4, 9)
@@ -123,7 +182,7 @@ class TestHermesVerdict:
         result = self.run_hermes(stats)
         assert result["strResult"] == "Fail"
         assert "100mA → 2.25V" in result["strRemarks"]
-        assert "μ-2σ" in result["strRemarks"]
+        assert "The expected usable Q(stat) should be more than 90%" in result["strRemarks"]
 
 
 class TestFallbacks:
@@ -141,7 +200,7 @@ class TestFallbacks:
         stats["mm2s"][0][V225_IDX] = 700  # < 782
         result = run(make_test_info(construction=""), stats)
         assert result["strResult"] == "Fail"
-        assert "μ-2σ" in result["strRemarks"]
+        assert "The expected usable Q(stat) should be more than 85%" in result["strRemarks"]
 
     def test_hermes_expectation_outside_levels_uses_legacy_logic(self):
         # 期望格（500/100mA）不在实测档位 → 期望格全部跳过，
@@ -181,8 +240,7 @@ class TestCoinVerdict:
         stats["mm2s"][0][V225_IDX] = 390
         result = run(self.coin_info(), stats)
         assert result["strResult"] == "Fail"
-        assert "no single sample" in result["strRemarks"]
-        assert "380" in result["strRemarks"]
+        assert "The minimum sample capacity should be at least 380mAh" in result["strRemarks"]
 
     def test_standard_fail_on_mu_minus_2sigma(self):
         stats = make_stats(4, 9)
@@ -190,7 +248,7 @@ class TestCoinVerdict:
         stats["mm2s"][0][V225_IDX] = 375  # ≤ 380
         result = run(self.coin_info(), stats)
         assert result["strResult"] == "Fail"
-        assert "μ-2σ" in result["strRemarks"]
+        assert "The expected usable Q(stat) should be more than 63%" in result["strRemarks"]
 
     def test_freezer_single_cell_judged_at_15ma(self):
         # 冷冻单体：15mA 档（levels[0]=15）× 2.25V，阈值 280
@@ -214,7 +272,7 @@ class TestCoinVerdict:
             currents=(15, 13, 7.5, 3),
         )
         assert result["strResult"] == "Fail"
-        assert "15mA → 2.25V" in result["strRemarks"]
+        assert "The expected usable Q(stat) should be more than 46%" in result["strRemarks"]
 
     def test_freezer_1s2p_judged_at_30ma(self):
         # 冷冻 1S2P：PDF §7.1.1.2.5 回到 30mA 标准档，阈值 280
@@ -231,7 +289,7 @@ class TestCoinVerdict:
         stats["mm2s"][0][V225_IDX] = 290
         result = run(self.coin_info(spec="CR2450D", method="1S2P", required=280), stats)
         assert result["strResult"] == "Fail"
-        assert "30mA → 2.25V" in result["strRemarks"]
+        assert "The minimum sample capacity should be at least 280mAh" in result["strRemarks"]
 
 
 class TestValueGuard:
@@ -274,13 +332,15 @@ class TestP1VoltageMatch:
         assert result["strResult"] == "Pass"
         assert "2.25V cutoff level not found" not in result["strRemarks"]
 
-    def test_missing_225_level_appends_note(self):
+    def test_missing_225_level_reports_missing_data_not_technical_note(self, caplog):
         voltages = [2.6, 2.5, 2.4, 2.3, 2.2, 2.1]  # 无 2.25V
         stats = make_stats(4, len(voltages))
         stats["min"][0][0] = 800
         stats["mm2s"][0][0] = 800
         result = run(make_test_info(), stats, voltages=voltages)
-        assert "2.25V cutoff level not found in voltage table" in result["strRemarks"]
+        assert "no measured samples at 30mA → 2.25V" in result["strRemarks"]
+        assert "fallback" not in result["strRemarks"]
+        assert "2.25V cutoff level not found" in caplog.text
 
 
 class TestP2LegacyMinCheck:
@@ -293,8 +353,8 @@ class TestP2LegacyMinCheck:
         stats["mm2s"][0][V225_IDX] = 3200  # 3200/4000 = 80% ≥ 75%（旧逻辑会 Pass）
         result = run(make_test_info(spec="CF583083", qnom=4000, required=3000), stats)
         assert result["strResult"] == "Fail"
-        assert "No single sample below expected usable Q 3000mAh" in result["strRemarks"]
-        assert "(legacy single-point verdict)" in result["strRemarks"]
+        assert "The minimum sample capacity should be at least 3000mAh" in result["strRemarks"]
+        assert "legacy" not in result["strRemarks"]
 
     def test_legacy_pass_min_and_stat_ok(self):
         stats = make_stats(4, 9)
@@ -302,7 +362,8 @@ class TestP2LegacyMinCheck:
         stats["mm2s"][0][V225_IDX] = 3200
         result = run(make_test_info(spec="CF583083", qnom=4000, required=3000), stats)
         assert result["strResult"] == "Pass"
-        assert result["strRemarks"] == "OK (legacy single-point verdict)"
+        assert "no measured samples at 500mA → 2.25V" in result["strRemarks"]
+        assert "OK" not in result["strRemarks"]
 
 
 class TestP3ThreeState:
@@ -333,16 +394,15 @@ class TestP3ThreeState:
         result = run(make_test_info(), stats)
         assert result["strResult"] == "Fail"
 
-    def test_single_sample_keeps_verdict_with_sigma_note(self):
-        # n=1：保留判定但标注 σ=0 退化
+    def test_single_sample_keeps_verdict_without_sigma_note(self):
+        # n=1：保留判定，σ=0 退化移到审计日志
         stats = self._stats_with_counts()
         stats["counts"][0][V225_IDX] = 1
         stats["min"][0][V225_IDX] = 800
         stats["mm2s"][0][V225_IDX] = 800
         result = run(make_test_info(), stats)
         assert result["strResult"] == "Pass"
-        assert "single sample at 30mA → 2.25V" in result["strRemarks"]
-        assert "σ=0" in result["strRemarks"]
+        assert result["strRemarks"] == "OK"
 
     def test_missing_counts_key_behaves_like_old_stats(self):
         # 旧 stats 桩无 counts → sample_count=None，行为与旧版一致

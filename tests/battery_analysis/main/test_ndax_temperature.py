@@ -1,11 +1,13 @@
 """NDAX temperature selection, mixed-input rejection and UI authority."""
 import zipfile
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import pytest
-from PyQt6.QtWidgets import QApplication, QComboBox, QSpinBox
+from PyQt6.QtWidgets import QApplication, QComboBox, QLineEdit, QSpinBox
 
 from battery_analysis.main.business_logic.data_processor import DataProcessor
+from battery_analysis.main.business_logic.validation_spec_rules import ValidationSpecRulesMixin
 from battery_analysis.main.handlers.temperature_handler import TemperatureHandler, TemperatureType
 from battery_analysis.main.managers.analysis_runner import AnalysisRunner
 
@@ -62,6 +64,46 @@ def test_scan_sets_freezer_ui_from_metadata():
     with patch.object(processor, "_process_first_excel_file"), patch.object(processor, "_reconnect_specification_signals"):
         processor._on_excel_files_processed((["room.ndax"], [entry], []), 0)
     mw.temperature_handler.update_temperature_ui.assert_called_once_with(TemperatureType.FREEZER)
+
+
+def test_temperature_refresh_recomputes_capacity_and_report_threshold():
+    from battery_analysis.utils.quality_requirements import build_expectations
+
+    app = QApplication.instance() or QApplication([])
+    mw = SimpleNamespace(
+        comboBox_Temperature=QComboBox(), spinBox_Temperature=QSpinBox(),
+        comboBox_Specification_Type=QComboBox(), comboBox_Specification_Method=QComboBox(),
+        comboBox_ConstructionMethod=QComboBox(),
+        lineEdit_DatasheetNominalCapacity=QLineEdit(),
+        lineEdit_CalculationNominalCapacity=QLineEdit(),
+        lineEdit_RequiredUseableCapacity=QLineEdit(), config_manager=Mock(),
+    )
+    mw.comboBox_Temperature.addItems([t.value for t in TemperatureType])
+    mw.spinBox_Temperature.setRange(-100, 100)
+    mw.comboBox_Specification_Type.addItem("CR2450")
+    mw.comboBox_Specification_Method.addItem("1S1P")
+    mw.config_manager.get_config.return_value = [
+        "CR2450/1S1P/600/550/380/1.0", "CR2450/1S1P/600/550/280/1.0",
+    ]
+    validator = ValidationSpecRulesMixin()
+    validator.main_window = mw
+    mw.check_construction = validator.check_construction
+    handler = TemperatureHandler(mw)
+    for temperature, required, current in [
+        (TemperatureType.ROOM, "380", 30), (TemperatureType.FREEZER, "280", 15),
+        (TemperatureType.ROOM, "380", 30),
+    ]:
+        handler.update_temperature_ui(temperature)
+        assert mw.lineEdit_RequiredUseableCapacity.text() == required
+        assert mw.lineEdit_DatasheetNominalCapacity.text() == "600"
+        assert mw.lineEdit_CalculationNominalCapacity.text() == "550"
+        test_info = [""] * 19
+        test_info[2], test_info[3] = "CR2450", "1S1P"
+        test_info[7], test_info[9], test_info[17] = handler.get_temperature_value(), "600", required
+        expectation = build_expectations(test_info)[0]
+        assert expectation.threshold_mah == int(required)
+        assert expectation.current_ma == current
+    assert app is not None
 
 
 def test_preflight_rechecks_mixed_temperatures_even_with_same_currents(tmp_path):

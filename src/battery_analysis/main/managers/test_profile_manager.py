@@ -42,26 +42,13 @@ class TestProfileManager:
             if not self.main_window.path_manager.validate_test_profile(selected_file):
                 return
 
-            # 3. 显示选中的文件路径
-            self.main_window.lineEdit_TestProfile.setText(selected_file)
-
-            # 4. 获取父目录
+            # 3. 获取项目根目录
             parent_dir = self.main_window.path_manager.get_parent_directory(selected_file)
             if not parent_dir:
                 return
 
-            # 5. 设置输入路径
-            self.main_window.path_manager.set_input_path(parent_dir)
-
-            # 6. 设置输出路径
-            if not self.main_window.path_manager.set_output_path(parent_dir):
-                return
-
-            # 7. 发出版本设置信号
-            self.main_window.sigSetVersion.emit()
-
-            # 8. 更新当前目录
-            self.main_window.current_directory = parent_dir
+            # 4. 先确定 Profile 和输出目录，再触发 NDAX 扫描与版本刷新
+            self.main_window.path_manager.set_project_paths(parent_dir, selected_file)
             self.logger.info("Setting current directory to project root: %s", parent_dir)
 
         except (

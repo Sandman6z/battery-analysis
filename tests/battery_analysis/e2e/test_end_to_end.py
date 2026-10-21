@@ -24,8 +24,8 @@ class TestEndToEnd:
         """设置测试环境"""
         # 创建临时目录用于测试
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.input_dir = os.path.join(self.temp_dir.name, "input")
-        self.output_dir = os.path.join(self.temp_dir.name, "output")
+        self.input_dir = os.path.join(self.temp_dir.name, "1_ndax")
+        self.output_dir = os.path.join(self.temp_dir.name, "3_analysis results")
 
         # 创建输入输出目录
         os.makedirs(self.input_dir)
@@ -78,7 +78,6 @@ class TestEndToEnd:
 
             self.main_window.path_manager = Mock()
             self.main_window.path_manager.select_inputpath = Mock(return_value=self.input_dir)
-            self.main_window.path_manager.select_outputpath = Mock(return_value=self.output_dir)
 
             self.main_window.report_manager = Mock()
             self.main_window.report_manager.show_analysis_complete_dialog = Mock()
@@ -139,11 +138,10 @@ class TestEndToEnd:
         # 验证输入路径设置
         self.main_window.path_manager.select_inputpath.assert_called_once()
 
-        # 2. 选择输出路径
-        self.main_window.path_manager.select_outputpath()
-
-        # 验证输出路径设置
-        self.main_window.path_manager.select_outputpath.assert_called_once()
+        # 2. 输出路径由输入项目自动确定，不再手动选择
+        assert self.main_window.lineEdit_OutputPath.text() == os.path.join(
+            os.path.dirname(self.input_dir), "3_analysis results"
+        )
 
         # 3. 获取Excel文件信息
         self.main_window.data_processor.get_xlsxinfo()

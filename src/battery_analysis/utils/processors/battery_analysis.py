@@ -248,7 +248,7 @@ class BatteryAnalysis:
                 )
                 entry = {**anomaly, "category": category, "requires_confirmation": blocking}
                 classified.append(entry)
-                logger.warning("Data quality: category=%s requires_confirmation=%s details=%s", category, blocking, anomaly)
+                logger.log(logging.WARNING if blocking else logging.INFO, "Data quality: category=%s requires_confirmation=%s details=%s", category, blocking, anomaly)
             if structural and self._decision_callback:
                 allowed = self._decision_callback(structural)
                 logger.warning("Data quality confirmation: allowed=%s issues=%s", allowed, structural)
@@ -281,7 +281,7 @@ class BatteryAnalysis:
             logger.info("Analysis input context: %s", self.analysis_audit["input_context"])
             for slot in self.analysis_audit["slot_sample_counts"]:
                 if slot["valid"] < slot["expected"]:
-                    logger.warning("Data quality sample coverage: %s", slot)
+                    logger.info("Data quality sample coverage: %s", slot)
             if progress_callback:
                 progress_callback(52, "Writing CSV file...")
 

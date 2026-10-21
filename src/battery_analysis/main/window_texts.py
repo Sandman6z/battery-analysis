@@ -29,7 +29,6 @@ _WIDGET_TEXTS = [
     ("label_InputPath", "Input Path "),  # 原文尾部带空格
     ("label_OutputPath", "Output Path"),
     ("pushButton_InputPath", "Open"),
-    ("pushButton_OutputPath", "Open"),
     # 电池参数区
     ("label_BatteryType", "Battery Type"),
     ("label_ConstructionMethod", "Construction Method"),

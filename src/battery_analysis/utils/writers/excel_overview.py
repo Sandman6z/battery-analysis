@@ -189,10 +189,8 @@ class ExcelOverviewMixin:
                     f"Minimum: {round(stats['min'][c - 1][v - 1])}mAh\n"
                     f"Maximum: {round(stats['max'][c - 1][v - 1])}mAh"
                 )
-                cell_text = (
-                    "No data (n=0)" if not counts[c - 1][v - 1]
-                    else (f"n={counts[c - 1][v - 1]}\n{cell_text}" if "counts" in stats else cell_text)
-                )
+                if not counts[c - 1][v - 1]:
+                    cell_text = "No data"
                 cell_verdict = vmap.get((c - 1, v - 1))
                 if cell_verdict is not None:
                     # §6.2.11：该格为 PDF 指定的判定格，追加期望与结论

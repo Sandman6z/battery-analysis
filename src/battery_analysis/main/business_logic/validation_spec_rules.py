@@ -2,7 +2,12 @@
 
 check_batterytype / check_specification 及其辅助查询。"""
 
-from battery_analysis.utils.pulse_currents import required_useable_capacity_from_rule
+from battery_analysis.main.handlers.temperature_handler import TemperatureType
+from battery_analysis.utils.battery_classifier import classify_spec, extract_capacity
+from battery_analysis.utils.pulse_currents import (
+    FREEZER_REQUIRED_CAPACITY_MAH,
+    required_useable_capacity_from_rule,
+)
 
 
 class ValidationSpecRulesMixin:
@@ -185,33 +190,38 @@ class ValidationSpecRulesMixin:
             self.main_window.lineEdit_RequiredUseableCapacity.setText(f"{rule_parts[4]}")
 
     def _apply_specification_rules(self) -> None:
-        """按当前规格/成组方式匹配规则并填充容量字段
+        """按规格、成组方式和 NDAX 温度匹配容量规则。
 
-        仅做规则匹配与字段填充：不改电池类型/规格下拉框、不联动温度，
-        供 check_specification 与 check_construction 共用。
+        仅读取温度，不反向修改温度或型号；供规格、构造及配方温度更新共用。
         """
         spec = self.main_window.comboBox_Specification_Type.currentText()
         method = self.main_window.comboBox_Specification_Method.currentText()
         if not spec or not method:
             return
         rules = self.main_window.config_manager.get_config("BatteryConfig/Rules") or []
-        for rule in rules:
-            rule_parts = str(rule).split("/")
-            if len(rule_parts) < 5:
+        candidates = [str(rule).split("/") for rule in rules]
+        candidates = [p for p in candidates if len(p) >= 5 and p[0] and p[0] in spec]
+        self._clear_spec_rule_fields()
+        if not candidates:
+            return
+        # 精确型号优先；兼容带厂商后缀的型号时只使用最长匹配，不串用其他型号。
+        matched_spec = max((p[0] for p in candidates), key=len)
+        for parts in candidates:
+            if parts[0] != matched_spec or parts[1] != method:
                 continue
-            if rule_parts[0] == spec:
-                if method == rule_parts[1]:
-                    self._fill_spec_rule_fields(rule_parts)
-                else:
-                    self._clear_spec_rule_fields()
-                break
-            elif rule_parts[0] in spec:
-                if method == rule_parts[1]:
-                    self._fill_spec_rule_fields(rule_parts)
-                else:
-                    self._clear_spec_rule_fields()
-            else:
-                pass
+            rule = "/".join(parts)
+            required = required_useable_capacity_from_rule(rule)
+            if classify_spec(spec, extract_capacity(rule)) == "Coin Cell" and required in (FREEZER_REQUIRED_CAPACITY_MAH, 380):
+                temperature = self.main_window.comboBox_Temperature.currentText()
+                # 旧配置用 280/380 区分冷冻/常温；温度权威始终是 NDAX StepName。
+                rule_temperature = (
+                    TemperatureType.FREEZER.value if required == FREEZER_REQUIRED_CAPACITY_MAH
+                    else TemperatureType.ROOM.value
+                )
+                if temperature != rule_temperature:
+                    continue
+            self._fill_spec_rule_fields(parts)
+            return
 
     def check_construction(self) -> None:
         """构造方法变化 → 重算「要求可用容量」

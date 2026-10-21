@@ -295,9 +295,6 @@ class BatteryAnalysisTab(QW.QWidget):
         sp3 = QW.QSizePolicy(QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
         mw.lineEdit_OutputPath.setSizePolicy(sp3)
         hl_out.addWidget(mw.lineEdit_OutputPath)
-        mw.pushButton_OutputPath = _make_button(_("Open"))
-        mw.pushButton_OutputPath.setObjectName("pushButton_OutputPath")
-        hl_out.addWidget(mw.pushButton_OutputPath)
         outer.addLayout(hl_out, 1)
 
         parent_layout.addWidget(groupBox)
