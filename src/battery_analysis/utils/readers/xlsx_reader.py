@@ -110,16 +110,16 @@ def _parse_date_str(date_value) -> str | None:
 def _parse_date_from_filename(file_name: str) -> str | None:
     """尝试从文件名提取日期，返回 YYYYMMDD；无法解析返回 None"""
     # 匹配文件名中所有连续的数字组，取最后一组的前 8 位
-    digit_groups = re.findall(r"(\d+)", file_name)
+    digit_groups: list[str] = re.findall(r"(\d+)", file_name)
     if digit_groups:
         last_digit_group = digit_groups[-1]
         if len(last_digit_group) >= 8:
             date_str = last_digit_group[:8]
             try:
-                year = int(date_str[:4])
-                if 2000 <= year <= 2100:
+                numeric_year = int(date_str[:4])
+                if 2000 <= numeric_year <= 2100:
                     return date_str
-                logger.warning("Extracted year %s is not in valid range", year)
+                logger.warning("Extracted year %s is not in valid range", numeric_year)
             except ValueError:
                 logger.error("Could not parse year")
 

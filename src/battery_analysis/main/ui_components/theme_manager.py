@@ -7,7 +7,7 @@ import logging
 
 from PyQt6.QtCore import QSettings
 
-from battery_analysis.ui.styles.style_manager import get_theme_engine
+from battery_analysis.ui.styles.style_manager import ThemeEngine, get_theme_engine
 from battery_analysis.ui.styles.theme_settings import THEME_SETTING_KEY, normalize_theme
 
 logger = logging.getLogger(__name__)
@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class ThemeManager:
     """主题管理器，提供 Light/Dark 主题切换。"""
 
-    def __init__(self, main_window=None):
+    def __init__(self, main_window=None) -> None:
         self.main_window = main_window
-        self._engine = get_theme_engine()
+        self._engine: ThemeEngine = get_theme_engine()
 
     def set_theme(self, theme_name: str) -> None:
         """设置应用程序主题。

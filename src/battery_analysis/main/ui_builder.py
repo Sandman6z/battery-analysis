@@ -9,17 +9,22 @@
 主页面的具体布局由 tabs/ 下的独立 QWidget 子类管理。
 """
 
+from typing import TYPE_CHECKING
+
 import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 from battery_analysis.i18n import _
 
+if TYPE_CHECKING:
+    from battery_analysis.main.main_window import Main
+
 
 class UIBuilder:
     """主窗口 UI 构建器"""
 
-    def __init__(self, main_window: QW.QMainWindow):
+    def __init__(self, main_window: Main):
         self.main_window = main_window
 
     def build_ui(self) -> None:
@@ -57,7 +62,10 @@ class UIBuilder:
 
     def _adjust_window_size(self) -> None:
         """调整窗口：最小完整显示，不超出屏幕，自动居中"""
-        screen = QW.QApplication.primaryScreen().availableGeometry()
+        primary_screen = QW.QApplication.primaryScreen()
+        if primary_screen is None:
+            return
+        screen = primary_screen.availableGeometry()
         ref_w, ref_h = 720, 750
         w = max(min(ref_w, screen.width()), 720)
         h = max(min(ref_h, screen.height()), 600)
@@ -183,14 +191,17 @@ class UIBuilder:
 
     def create_menus(self) -> None:
         mw = self.main_window
-        menubar = mw.menuBar()
+        menubar = QW.QMenuBar(mw)
+        mw.setMenuBar(menubar)
 
         # 文件菜单
-        file_menu = menubar.addMenu(_("File"))
+        file_menu = QW.QMenu(_("File"), menubar)
+        menubar.addMenu(file_menu)
         file_menu.addAction(mw.actionExit)
 
         # 编辑菜单
-        edit_menu = menubar.addMenu(_("Edit"))
+        edit_menu = QW.QMenu(_("Edit"), menubar)
+        menubar.addMenu(edit_menu)
         edit_menu.addAction(mw.actionCut)
         edit_menu.addAction(mw.actionCopy)
         edit_menu.addAction(mw.actionPaste)
@@ -198,7 +209,8 @@ class UIBuilder:
         edit_menu.addAction(mw.actionPreferences)
 
         # 视图菜单
-        view_menu = menubar.addMenu(_("View"))
+        view_menu = QW.QMenu(_("View"), menubar)
+        menubar.addMenu(view_menu)
         view_menu.addAction(mw.actionShow_Statusbar)
         view_menu.addSeparator()
         view_menu.addAction(mw.actionZoom_In)
@@ -209,7 +221,8 @@ class UIBuilder:
         view_menu.addAction(mw.actionDark_Theme)
 
         # 工具菜单
-        tools_menu = menubar.addMenu(_("Tools"))
+        tools_menu = QW.QMenu(_("Tools"), menubar)
+        menubar.addMenu(tools_menu)
         tools_menu.addAction(mw.actionBatteryChartViewer)
         tools_menu.addAction(mw.actionNdaxConverter)
         tools_menu.addSeparator()
@@ -218,7 +231,8 @@ class UIBuilder:
         tools_menu.addAction(mw.actionConfiguration)
 
         # 帮助菜单
-        help_menu = menubar.addMenu(_("Help"))
+        help_menu = QW.QMenu(_("Help"), menubar)
+        menubar.addMenu(help_menu)
         help_menu.addAction(mw.actionUser_Mannual)
         help_menu.addAction(mw.actionOnline_Help)
         help_menu.addSeparator()

@@ -21,13 +21,13 @@ class ConfigService(BaseService):
     底层使用 JsonConfigManager，支持点号路径键访问（如 "battery.types"）。
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         初始化配置服务
         """
         BaseService.__init__(self)
-        self._config_manager = JsonConfigManager()
-        self._config_path = None
+        self._config_manager: JsonConfigManager = JsonConfigManager()
+        self._config_path: Path | None = None
         self._loaded = False
 
     def get_config_value(self, key: str, default: Any = None) -> Any:

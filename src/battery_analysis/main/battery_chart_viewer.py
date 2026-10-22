@@ -185,7 +185,7 @@ class BatteryChartViewer(
         """获取整个图表配置对象"""
         return self.plot_config
 
-    def plt_figure(self):
+    def plt_figure(self) -> bool:
         """创建并显示电池数据图表，包含交互控件以切换数据显示"""
         try:
             logger.info("Starting to draw chart")
@@ -610,9 +610,10 @@ if __name__ == "__main__":
                 unified_style = f.read()
                 app.setStyleSheet(unified_style)
                 # 移除 processEvents()（roadmap #12）：unpolish/polish 已触发完整重绘
-                app.style().unpolish(app)
-                app.style().polish(app)
-                app.update()
+                style = app.style()
+                if style is not None:
+                    style.unpolish(app)
+                    style.polish(app)
                 logger.info("Applied unified battery analyzer style")
         else:
             logger.warning("Unified style file not found: %s", unified_style_path)

@@ -80,7 +80,7 @@ class TestInfo:
         ]
 
     @classmethod
-    def from_list(cls, items: list) -> "TestInfo":
+    def from_list(cls, items: list) -> TestInfo:
         """从位置列表构造 TestInfo（后向兼容）。"""
         if not isinstance(items, (list, tuple)):
             raise TypeError(f"Expected list/tuple, got {type(items).__name__}")
@@ -101,8 +101,8 @@ class TestInfo:
             tester_location=padded[11],
             tested_by=padded[12],
             test_profile=padded[13],
-            current_levels=padded[14] if isinstance(padded[14], (list, tuple)) else [],
-            voltage_levels=padded[15] if isinstance(padded[15], (list, tuple)) else [],
+            current_levels=list(padded[14]) if isinstance(padded[14], (list, tuple)) else [],
+            voltage_levels=list(padded[15]) if isinstance(padded[15], (list, tuple)) else [],
             version=padded[16],
             required_usable_capacity=padded[17],
             reported_by=padded[18],

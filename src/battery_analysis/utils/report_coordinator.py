@@ -392,7 +392,7 @@ class ReportCoordinator:
         if len(self.listBatteryInfo) > 1 and self.listBatteryInfo[1]:
             first_name = self.listBatteryInfo[1][0] if self.listBatteryInfo[1] else ""
             if first_name:
-                digit_groups = re.findall(r"(\d+)", first_name)
+                digit_groups: list[str] = re.findall(r"(\d+)", first_name)
                 if digit_groups:
                     last_group = digit_groups[-1]
                     if len(last_group) >= 8:

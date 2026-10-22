@@ -48,7 +48,7 @@ class _ListEditor(QW.QGroupBox):
 
     def items(self) -> list:
         return [
-            self._lw.item(i).text().strip()
+            item.text().strip()
             for i in range(self._lw.count())
-            if self._lw.item(i).text().strip()
+            if (item := self._lw.item(i)) is not None and item.text().strip()
         ]

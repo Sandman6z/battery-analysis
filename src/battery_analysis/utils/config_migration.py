@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -16,13 +17,14 @@ logger = logging.getLogger(__name__)
 # ── 迁移脚本注册 ──────────────────────────────────────────────
 
 _MIGRATIONS: dict[int, str] = {}  # version -> description
-_MIGRATION_FUNCS: dict[int, callable] = {}
+Migration = Callable[[dict[str, Any]], dict[str, Any]]
+_MIGRATION_FUNCS: dict[int, Migration] = {}
 
 
-def register_migration(version: int, description: str):
+def register_migration(version: int, description: str) -> Callable[[Migration], Migration]:
     """装饰器：注册指定版本的迁移脚本。"""
 
-    def decorator(func):
+    def decorator(func: Migration) -> Migration:
         _MIGRATIONS[version] = description
         _MIGRATION_FUNCS[version] = func
         logger.debug("Registering migration v%s: %s", version, description)
@@ -105,7 +107,7 @@ def _migrate_v5(config: dict[str, Any]) -> dict[str, Any]:
     """
     battery = config.get("battery")
     rules = battery.get("rules") if isinstance(battery, dict) else None
-    if isinstance(rules, list):
+    if isinstance(battery, dict) and isinstance(rules, list):
         new_rules = [_PDF_RULE_REPLACEMENTS.get(str(rule), rule) for rule in rules]
         if new_rules != rules:
             battery["rules"] = new_rules

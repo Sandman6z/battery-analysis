@@ -18,13 +18,14 @@ from battery_analysis.main.managers.initialization_manager import (
     InitializationManager,
 )
 from battery_analysis.main.utils import FileUtils
+from battery_analysis.main.window_state import MainWindowState
 from battery_analysis.ui.styles.theme_settings import load_theme_preference
 from battery_analysis.utils.log_manager import get_log_manager, get_logger
 
 logger = logging.getLogger(__name__)
 
 
-class WindowInitMixin:
+class WindowInitMixin(MainWindowState):
     """延迟初始化、组件获取、图标加载、环境信息、窗口尺寸事件"""
 
     def _deferred_init(self):

@@ -15,6 +15,7 @@ import datetime
 import logging
 import traceback
 from pathlib import Path
+from typing import Any
 
 from battery_analysis.ndax.reader import read_analysis_views
 from battery_analysis.utils.battery_classifier import battery_type_code
@@ -96,21 +97,21 @@ class BatteryAnalysis:
         )
 
         # ── 结果容器 ──────────────────────────────────────────────
-        self.listAllBatteryCharge = []
-        self.listBatteryName = []
-        self.listTimeStamp = []
+        self.listAllBatteryCharge: list[list[float | None]] = []
+        self.listBatteryName: list[str] = []
+        self.listTimeStamp: list[str] = []
         self.listTestInfo = listTestInfo
         self.test_date = "00000000"
         self.original_cycle_date = "00000000"
 
-        self.listAllPosiForInfoImageCsv = []
-        self.listAllChargeForInfoImageCsv = []
-        self.listAllVoltageForInfoImageCsv = []
+        self.listAllPosiForInfoImageCsv: list[list[list[int]]] = []
+        self.listAllChargeForInfoImageCsv: list[list[list[float]]] = []
+        self.listAllVoltageForInfoImageCsv: list[list[list[float]]] = []
 
         self.strErrorLog = ""
 
         # 日志缓冲区（减少 I/O）
-        self._log_buffer = []
+        self._log_buffer: list[str] = []
         self._log_buffer_size = 0
         self._max_buffer_size = 1024 * 10
 
@@ -148,7 +149,7 @@ class BatteryAnalysis:
 
             # Sequential until real peak-memory measurements justify parallel NDA reads.
             results = []
-            self.anomalies = []
+            self.anomalies: list[dict[str, Any]] = []
             for idx, args in enumerate(process_args):
                 if progress_callback:
                     progress_callback(15 + int(idx / len(process_args) * 35), f"Analyzing {Path(args[0]).name}...")
@@ -221,7 +222,7 @@ class BatteryAnalysis:
                                        "datasheet_mah": self.listTestInfo[8], "calculation_mah": self.listTestInfo[9],
                                        "reason": "Existing judgment rules use Calculation Nominal Capacity; values were not changed"})
             structural = []
-            ordinary_missing = []
+            ordinary_missing: list[dict[str, Any]] = []
             for anomaly in self.anomalies:
                 if anomaly["type"] in ("file_error", "required_slot_missing"):
                     structural.append(anomaly)
@@ -257,7 +258,7 @@ class BatteryAnalysis:
                     raise TaskCancelled
             else:
                 allowed = None
-            self.analysis_audit = {
+            self.analysis_audit: dict[str, Any] = {
                 "input_context": {
                     "source": "submitted TestInfo snapshot (GUI fields; defaults from BatteryConfig/Rules, may be edited)",
                     "battery_type": self.listTestInfo[0],
@@ -491,8 +492,8 @@ class BatteryAnalysis:
         self.UBA_Log(f"Battery {battery_name}:\r")
 
         # 构建日志用的等级信息
-        listLevelToVoltage = []
-        listLevelToRow = []
+        listLevelToVoltage: list[list[float]] = []
+        listLevelToRow: list[list[int]] = []
         for c, current_level in enumerate(self.listCurrentLevel):
             listLevelToVoltage.append([])
             listLevelToRow.append([])

@@ -31,13 +31,13 @@ class DataLoaderMixin:
         self._try_load_metadata_title()
         self.strPltName = self._set_plot_title()
 
-    def load_data(self):
+    def load_data(self) -> bool:
         """加载数据并处理，为绘制图表做准备"""
         self.data_load_attempted = True
         self.loaded_data = False
-        self.listPlt = []
-        self.listBatteryName = []
-        self.listBatteryNameSplit = []
+        self.listPlt: list[list[list[list[float]]]] = []
+        self.listBatteryName: list[str] = []
+        self.listBatteryNameSplit: list[str] = []
         self.intBatteryNum = 0
 
         try:

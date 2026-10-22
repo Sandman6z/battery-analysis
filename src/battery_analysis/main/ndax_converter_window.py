@@ -81,10 +81,10 @@ class NdaxConverterWindow(QW.QWidget):
         # ── 文件列表 ──
         self.table = QW.QTableWidget(0, 2)
         self.table.setHorizontalHeaderLabels([_("File Name"), _("Status")])
-        self.table.horizontalHeader().setStretchLastSection(True)
-        self.table.horizontalHeader().setSectionResizeMode(
-            0, QW.QHeaderView.ResizeMode.Stretch
-        )
+        header = self.table.horizontalHeader()
+        if header is not None:
+            header.setStretchLastSection(True)
+            header.setSectionResizeMode(0, QW.QHeaderView.ResizeMode.Stretch)
         self.table.setEditTriggers(QW.QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setAlternatingRowColors(True)
         self.table.setStyleSheet("""
@@ -300,8 +300,10 @@ class NdaxConverterWindow(QW.QWidget):
                 )
             )
 
-    def closeEvent(self, event: QG.QCloseEvent) -> None:
+    def closeEvent(self, event: QG.QCloseEvent | None) -> None:
         """Keep the window and its worker alive until conversion has stopped."""
+        if event is None:
+            return
         if self.worker and self.worker.isRunning():
             QW.QMessageBox.warning(
                 self,

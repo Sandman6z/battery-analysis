@@ -41,10 +41,10 @@ class PlatformType(Enum):
 class EnvironmentDetector:
     """环境检测器类"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """初始化环境检测器"""
-        self._environment_info = None
-        self._gui_available = None
+        self._environment_info: dict[str, Any] | None = None
+        self._gui_available: bool | None = None
         self._is_frozen = getattr(sys, "frozen", False)
         self._meipass = getattr(sys, "_MEIPASS", None)
 
@@ -255,7 +255,7 @@ class EnvironmentDetector:
     def is_gui_mode(self) -> bool:
         """检查是否应该使用GUI模式"""
         info = self.get_environment_info()
-        return info["gui_available"] and info["environment_type"] != EnvironmentType.CONTAINER
+        return bool(info["gui_available"]) and info["environment_type"] != EnvironmentType.CONTAINER
 
     def is_cli_mode(self) -> bool:
         """检查是否应该使用命令行模式"""
@@ -274,14 +274,14 @@ class EnvironmentDetector:
             return Path(self._meipass) / relative_path
         else:
             # 开发环境
-            return info["project_root"] / relative_path
+            return Path(info["project_root"]) / relative_path
 
     def get_locale_path(self, locale_file: str = "messages.po") -> Path | None:
         """获取国际化文件的路径"""
         info = self.get_environment_info()
 
         # 尝试多个可能的locale目录
-        possible_locale_dirs = [
+        possible_locale_dirs: list[Path] = [
             self.get_resource_path("locale"),
             info["project_root"] / "locale",
             Path.cwd() / "locale",

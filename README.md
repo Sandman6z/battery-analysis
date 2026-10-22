@@ -1,8 +1,8 @@
 # BOEDT Battery test GUI Tool
 
-**当前软件版本：v5.0.2 — 紧凑界面、字号提升与型号识别修复**
+**当前软件版本：v5.0.3 — 构建与测试入口统一、类型检查修复**
 
-本版变更见 [CHANGELOG](CHANGELOG.md#v502--2026-10-22)；v5.0.0 的 NDAX 迁移要求继续适用。
+本版变更见 [CHANGELOG](CHANGELOG.md#v503--2026-10-22)；v5.0.0 的 NDAX 迁移要求继续适用。
 
 主分析直接读取 `1_ndax` 中的原始 NDAX，不再依赖先转出的 `2_xlsx`；电流档位以 NDAX 内嵌 Step.xml 为准。Excel 继续作为报告输出，独立转换功能保留。
 
@@ -11,7 +11,7 @@
 - **[中文操作指南](docs/QUICK_START.md)** / **[English quick start](docs/QUICK_START_EN.md)**
 - **[PDF 复查、容量来源与异常策略](docs/pdf_recheck_and_anomaly_policy.md)**
 
-升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.0.2` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
+升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.0.3` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
 
 ## NDAX 转换并发与 CPU 留核
 
@@ -37,41 +37,26 @@ API 的 `max_workers`（`convert_batch` 及 `ConvertWorker` 的可选关键字�
 > .\.venv\Scripts\activate
 > uv sync --all-extras -i https://mirrors.aliyun.com/pypi/simple/
 
-**注意：** 必须带 `--all-extras`。pytest/pylint/pyinstaller 等开发与打包工具声明在 `[project.optional-dependencies]`（dev/build extras），裸 `uv sync` 会跳过它们，得到的 venv 无法跑测试。在新电脑上首次使用`uv sync`时，请以管理员权限运行终端，否则可能会出现多个错误。
+**注意：** 开发环境请带 `--all-extras`。pytest/pylint/pyinstaller 等开发与打包工具声明在 `[project.optional-dependencies]`（dev/build extras），裸 `uv sync` 不会安装这些工具。后续同步使用 `uv sync --all-extras --frozen`（或 `make sync`），避免移除开发工具。通常无需管理员权限。
 
 ### 开发工具安装
 - **Qt Designer**：设计UI界面
   - 可以通过pip安装PyQt6或PySide6获取：`pip install PyQt6`或`pip install PySide6`
-  - 安装位置：`%userprofile%\AppData\Roaming\Python\Python313\site-packages\PyQt6` 或 `PySide6`
+  - 本项目使用 Python 3.14 和 PyQt6，请使用项目虚拟环境中的工具，不要混用全局 Python 或 PySide6 环境。
 
 - **打包工具**：
   - 或使用pyinstaller：`uv pip install pyinstaller -i https://mirrors.aliyun.com/pypi/simple/`
 
-## Qt 资源系统使用说明
+## 界面与资源
 
-### 1. 资源文件结构
-我们使用 Qt 资源系统（.qrc）管理应用图标和其他资源文件，这使得资源文件能够被正确地打包到可执行文件中。
+当前主窗口由 `src/battery_analysis/main/ui_builder.py` 中的 `UIBuilder` 创建，不再通过 Designer 生成的 `Ui_MainWindow.setupUi()` 构建。仓库中的 `.ui` 和 `ui_main_window.py` 是历史文件，不是当前界面的修改入口。
 
-资源文件位置：
-- `config/resources/icons/resources.qrc` - 主资源文件
-- SVG图标存放在 `config/resources/icons/` 目录下
+- 应用图标：`config/resources/icons/Icon_BatteryTestGUI.ico`，同时用于 EXE 内嵌图标和运行时窗口图标。
+- 样式及样式图标：`src/battery_analysis/ui/styles/`。
+- 报告模板：`src/battery_analysis/templates/`。
+- 翻译：`locale/`。
 
-### 2. UI文件转换为Python
-使用pyuic6将UI文件转换为Python文件：
-> pyuic6 ./src/battery_analysis/ui/resources/ui_battery_analysis.ui -o ./src/battery_analysis/ui/ui_main_window.py
-
-这将生成包含Ui_MainWindow类的ui_main_window.py文件。
-主类继承自`ui_main_window.Ui_MainWindow`，并在构造函数中调用`self.setupUi(self)`来加载UI元素。
-
-### 3. 资源文件(qrc)转换为Python
-编译.qrc文件为Python文件，通常命名为`resources_rc.py`：
-> .\.venv\Scripts\pyrcc6.exe .\config\resources\icons\resources.qrc -o src\battery_analysis\resources\resources_rc.py        
-
-**重要注意事项：**
-- 确保resources.qrc文件在正确的文件夹中
-- 生成的.py文件需放在与UI Python文件相同目录或符合模块导入路径
-- 在应用中使用资源时，使用`:/icons/icon_name.svg`格式的路径
-- 所有SVG图标引用已更新为使用资源系统路径
+打包脚本通过 `--add-data` 收集这些资源。开发环境从源码目录定位，PyInstaller 环境通过 `sys._MEIPASS` 定位；不需要手动编译 `.qrc`。
 
 ## 配置文件说明
 
@@ -82,14 +67,13 @@ API 的 `max_workers`（`convert_batch` 及 `ConvertWorker` 的可选关键字�
 ## 运行方式
 
 ### 开发运行（推荐）
-- 使用虚拟环境：
-  - ` .\.venv\Scripts\activate `
-  - ` python -m src.battery_analysis.main.main_window `
-- 使用 uv：
-  - ` uv run python -m src.battery_analysis.main.main_window `
 
-### 安装后脚本入口
-- ` uv run battery-analysis `
+```bash
+uv run battery-analysis
+```
+
+已激活并安装项目的虚拟环境中也可直接运行 `battery-analysis`。
+开发命令和 Debug/Release EXE 都使用 `battery_analysis.main.launcher:main`：先显示闪屏，再加载主窗口，避免绕过启动器。
 
 ## 代码质量检查
 
@@ -121,19 +105,22 @@ python scripts/run_pylint.py
 
 ## 构建与打包
 
-在打包项目之前，请确保：
-- 以**管理员权限**运行终端
-- 已**激活虚拟环境**
+打包前运行 `uv sync --all-extras --frozen` 安装开发与构建依赖。以下命令通过 uv 使用项目虚拟环境，通常无需管理员权限或手动激活环境。
 
 ### 使用构建脚本（推荐）
 
 项目提供了自动化构建脚本，支持Debug和Release两种模式：
 
 - Debug 构建：
-  > python -m scripts.build Debug
+  > uv run python scripts/build.py Debug
 
 - Release 构建：
-  > python -m scripts.build Release
+  > uv run python scripts/build.py Release
+
+- 重复构建并保留 PyInstaller 分析缓存：
+  > uv run python scripts/build.py Release --no-clean
+
+默认构建先清理旧输出，验证 EXE 存在后清理工作目录；`--no-clean` 保留工作目录用于增量分析。构建失败保留工作目录供诊断。首次使用 `--no-clean` 仍需完成完整分析。
 
 脚本内部使用 PyInstaller 进行打包，包含完整的 `--exclude-module`、`--hidden-import` 和资源文件配置。如需自定义打包参数，参考 `scripts/build.py` 中的 `_build_pyinstaller_args()` 方法。
 
@@ -141,7 +128,7 @@ python scripts/run_pylint.py
 
 - 始终在已激活的虚拟环境中运行或打包
 - 一定在虚拟环境下安装打包工具，否则无法生成各种hook，运行会各种缺失
-- 模块入口与打包后的exe在资源定位上保持一致（基于`sys.executable`）
+- 打包资源从 `sys._MEIPASS` 定位；`sys.executable` 表示可执行文件位置，不能代替 onefile 的资源解包目录
 - 已移除临时测试脚本：`test_config_read.py`、`test_exe.py`、`test_exe_start.py`、`test_ui_events.py`
 - 如需本地检查，请直接使用上述"开发运行"命令并验证界面与配置读取是否正常
 - 软件版本唯一来源是 `src/battery_analysis/_version.py`；发布同时维护 `CHANGELOG.md` 和对应发布说明，详见 [Changelog 维护指南](docs/CHANGELOG_GUIDE.md)。不要通过改软件版本绕过报告版本冲突。

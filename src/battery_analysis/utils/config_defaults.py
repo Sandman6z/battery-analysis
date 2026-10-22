@@ -4,7 +4,9 @@
 首次运行时，如果 %APPDATA% 下没有 config.json，则从此模块创建初始数据。
 """
 
-DEFAULT_CONFIG = {
+from typing import Any
+
+DEFAULT_CONFIG: dict[str, Any] = {
     "version": 1,
     "battery": {
         "types": ["Coin Cell", "Pouch Cell"],

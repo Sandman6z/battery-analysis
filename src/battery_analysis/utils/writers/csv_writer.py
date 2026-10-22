@@ -57,7 +57,7 @@ class CsvWriter:
             csvwriterResultCsvFile = csv.writer(f)
 
             # CSV写入缓冲区，减少I/O操作
-            csv_buffer = []
+            csv_buffer: list[list[str | int | float | None]] = []
             csv_buffer_size = 0
             max_csv_buffer_size = 100  # 每次写入100行
 

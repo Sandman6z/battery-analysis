@@ -89,10 +89,10 @@ class BuildManager(BuildConfig):
             {
                 "name": "BatteryAnalysis",
                 "main_file_path": (
-                    self.project_root / "src" / "battery_analysis" / "main" / "main_window.py"
+                    self.project_root / "src" / "battery_analysis" / "main" / "launcher.py"
                 ),
                 "base_exe_name": "battery-analyzer",
-                "icon_name": "Icon_BatteryAnalysis.ico",
+                "icon_name": "Icon_BatteryTestGUI.ico",
                 "hidden_imports": [
                     # 核心 PyQt6 模块
                     "PyQt6.QtCore",
@@ -133,6 +133,7 @@ class BuildManager(BuildConfig):
                 os.startfile(final_build_dir)
         except (OSError, FileNotFoundError, PermissionError) as e:
             logger.error("构建过程中出错: %s", e)
+            raise
 
     def clean_build_dirs(self):
         """清理构建目录和缓存"""
@@ -153,12 +154,11 @@ class BuildManager(BuildConfig):
         build_dir = self.project_root / "build" / self.build_type
         for app_config in self.apps_config:
             exe_path = build_dir / f"{app_config['exe_name']}.exe"
-            if exe_path.exists():
-                logger.info("确认: %s 已在目标目录中", exe_path)
-            else:
-                logger.warning("警告: %s 不存在", exe_path)
+            if not exe_path.is_file():
+                raise FileNotFoundError(f"缺少构建产物: {exe_path}")
+            logger.info("确认: %s 已在目标目录中", exe_path)
 
-        if self.temp_build_dir.exists():
+        if not self.no_clean and self.temp_build_dir.exists():
             shutil.rmtree(self.temp_build_dir)
             logger.info("已清理临时构建目录: %s", self.temp_build_dir)
 
@@ -209,7 +209,7 @@ class BuildManager(BuildConfig):
             "PyQt6.QtRemoteObjects", "PyQt6.QtSpatialAudio",
         ]
 
-        icon_path = self.project_root / "config" / "resources" / "icons" / "Icon_BatteryTestGUI.ico"
+        icon_path = self.project_root / "config" / "resources" / "icons" / app_config["icon_name"]
 
         # ----- 构建命令 -----
         # 从 src/ 目录运行 PyInstaller，入口用绝对路径
@@ -239,6 +239,8 @@ class BuildManager(BuildConfig):
             f"{src_path / 'battery_analysis' / 'ui' / 'styles'};battery_analysis/ui/styles",
             "--add-data",
             f"{self.project_root / 'locale'};locale",
+            "--add-data",
+            f"{icon_path};config/resources/icons",
         ])
 
         # ----- 排除模块 -----
@@ -255,7 +257,7 @@ class BuildManager(BuildConfig):
         if not debug_mode:
             cmd_args.append("--strip")
 
-        # Python 字节码优化：去除 docstrings 和 assert 语句，减小体积并略微提速
+        # 优化等级 1 去除 assert 并关闭 __debug__，保留 docstrings。
         cmd_args.append("--optimize=1")
 
         # UPX 压缩：仅在 UPX 可用时启用
@@ -309,9 +311,8 @@ class BuildManager(BuildConfig):
                 )
                 sys.exit(1)
 
-        if temp_path.exists():
-            shutil.rmtree(temp_path)
-        logger.info("构建完成，可执行文件位于: %s", final_build_dir)
+        # 验证通过后统一清理；--no-clean 保留分析缓存，失败时保留诊断信息。
+        logger.info("PyInstaller 执行完成，待验证产物: %s", final_build_dir)
 
 
 def main():

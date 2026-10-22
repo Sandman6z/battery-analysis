@@ -7,7 +7,10 @@ BatteryChartViewer 适配器模块
 
 import logging
 import os
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
 from battery_analysis.main.interfaces.ivisualizer import IVisualizer
 
 
@@ -30,8 +33,8 @@ class BatteryChartViewerWrapper(IVisualizer):
         # 延迟导入，避免 import visualizer_factory 时触发 matplotlib 等 heavy 导入
         from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
 
-        self._viewer = BatteryChartViewer(data_path=None, auto_search=False)
-        self._config = {}
+        self._viewer: BatteryChartViewer = BatteryChartViewer(data_path=None, auto_search=False)
+        self._config: dict = {}
 
         # 如果提供了有效的数据路径，先设置路径但不自动加载
         if data_path and os.path.exists(data_path):
@@ -328,7 +331,7 @@ class BatteryChartViewerWrapper(IVisualizer):
         return self._config.copy()
 
     @property
-    def viewer(self) -> "BatteryChartViewer":  # noqa: F821 延迟 import，pyflakes 误报
+    def viewer(self) -> BatteryChartViewer:
         """
         获取原始的viewer实例
 

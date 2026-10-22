@@ -51,7 +51,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: battery-analysis-build
-        path: build/
+        path: build/Release/*.exe
+        if-no-files-found: error
         retention-days: 7
 
   release:
@@ -77,7 +78,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: battery-analysis-build
-        path: build/
+        path: build/Release/
 
     - name: Generate release information
       id: release_info
@@ -146,10 +147,11 @@ jobs:
       run: |
         $tagName = "${{ github.ref_name }}"
         $exeFiles = Get-ChildItem -Path build/Release -Filter *.exe | Select-Object -ExpandProperty FullName
-        if (-not $exeFiles) { Write-Host "No .exe files found"; exit 0 }
+        if (-not $exeFiles) { throw "No .exe files found in build/Release" }
         foreach ($file in $exeFiles) {
           Write-Host "Uploading $file..."
           gh release upload $tagName $file --clobber
+          if ($LASTEXITCODE -ne 0) { throw "Failed to upload $file" }
         }
       shell: pwsh
       env:

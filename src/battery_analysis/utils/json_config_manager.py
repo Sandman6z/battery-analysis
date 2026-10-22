@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 class JsonConfigManager:
     """JSON 配置管理器，支持原子写入和键路径访问"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._data: dict[str, Any] = {}
-        self._loaded = False
+        self._loaded: bool = False
 
     def read_config(self, config_path: str) -> bool:
         """读取 JSON 配置文件"""

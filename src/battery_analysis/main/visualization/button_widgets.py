@@ -15,17 +15,13 @@ logger = logging.getLogger(__name__)
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    # 本 Mixin 通过 self 隐式使用兄弟 Mixin 与汇总类的方法/属性；
-    # 将 self 标注为汇总类 InteractionControlsMixin，IDE 才能静态看出这些依赖。
-    from battery_analysis.main.visualization.interaction_controls import (
-        InteractionControlsMixin,
-    )
+    from battery_analysis.main.visualization.interaction_contract import ChartInteractionHost
 
 
 class ButtonFactoryMixin:
     """提供图内按钮的创建与状态管理（依赖 ChartStylingMixin 的 _update_button_style）"""
 
-    def _get_button_pad(self: "InteractionControlsMixin", width, height):
+    def _get_button_pad(self: ChartInteractionHost, width, height):
         """计算 FancyBboxPatch 的圆角 pad（transAxes 分数单位）。
 
         matplotlib 的 FancyBboxPatch 在 transform=ax.transAxes 下，boxstyle 的
@@ -40,7 +36,7 @@ class ButtonFactoryMixin:
         """
         return min(0.02, min(width, height) * 0.15)
 
-    def _battery_name_sort_key(self: "InteractionControlsMixin", name):
+    def _battery_name_sort_key(self: ChartInteractionHost, name):
         """解析电池名称的数字排序键，用于按钮正序（从小到大）排列。
 
         名称形如 '8-8'（或 '8_8'、'Battery-5'），取前两个数字段构成排序元组，
@@ -53,7 +49,7 @@ class ButtonFactoryMixin:
             return (float("inf"), 0)
 
     def _create_modern_button(
-        self: "InteractionControlsMixin",
+        self: ChartInteractionHost,
         ax,
         x,
         y,
@@ -151,7 +147,7 @@ class ButtonFactoryMixin:
             return None
 
     def _create_modern_toggle_group(
-        self: "InteractionControlsMixin", ax, x, y, width, height, buttons_config
+        self: ChartInteractionHost, ax, x, y, width, height, buttons_config
     ):
         """创建现代化切换按钮组"""
         try:

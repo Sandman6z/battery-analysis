@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    # 本 Mixin 通过 self 隐式使用兄弟 Mixin 与汇总类的方法/属性；
-    # 将 self 标注为汇总类 InteractionControlsMixin，IDE 才能静态看出这些依赖。
-    from battery_analysis.main.visualization.interaction_controls import (
-        InteractionControlsMixin,
+    from battery_analysis.main.visualization.interaction_contract import (
+        BatteryChoice,
+        ButtonState,
+        ChartInteractionHost,
     )
 
 
@@ -24,7 +24,7 @@ class BatterySelectionMixin:
     """电池选择控件（依赖 ButtonFactoryMixin 的 _create_modern_button / _battery_name_sort_key）"""
 
     def _add_battery_selection_buttons(
-        self: "InteractionControlsMixin", fig, check_filter, lines_unfiltered, lines_filtered
+        self: ChartInteractionHost, fig, check_filter, lines_unfiltered, lines_filtered
     ):
         """添加电池选择现代化按钮"""
         button_states_line1 = None
@@ -82,7 +82,7 @@ class BatterySelectionMixin:
         return button_states_line1, button_states_line2
 
     def _create_battery_check_buttons(
-        self: "InteractionControlsMixin",
+        self: ChartInteractionHost,
         fig,
         rect,
         start_idx,
@@ -98,9 +98,7 @@ class BatterySelectionMixin:
         ax_buttons.axis("off")
         ax_buttons.invert_yaxis = False
 
-        self.battery_button_states = []
-
-        battery_info = []
+        battery_info: list[BatteryChoice] = []
         for i in range(start_idx, end_idx):
             if i < self.intBatteryNum:
                 battery_info.append(
@@ -136,7 +134,7 @@ class BatterySelectionMixin:
         # 电池索引 → 按钮 state 映射，供 toggle 回调按索引查找对应按钮状态。
         # 避免 lambda 晚绑定捕获循环变量 button_state（所有回调曾指向最后一个
         # 按钮的 state，导致点击任意电池都会连带切换排序后的末位按钮）。
-        index_to_state = {}
+        index_to_state: dict[int, ButtonState] = {}
 
         def toggle_battery_visibility(battery_idx, button_state=None):
             try:
@@ -147,7 +145,7 @@ class BatterySelectionMixin:
 
                 is_filtered = (
                     self.filter_button_state["active"]
-                    if hasattr(self, "filter_button_state")
+                    if hasattr(self, "filter_button_state") and self.filter_button_state is not None
                     else True
                 )
 
@@ -191,6 +189,12 @@ class BatterySelectionMixin:
         valid_batteries.sort(key=lambda x: self._battery_name_sort_key(x["name"]))
         num_valid = len(valid_batteries)
 
+        def make_toggle_callback(index: int):
+            def on_click():
+                toggle_battery_visibility(index)
+
+            return on_click
+
         for i, battery in enumerate(valid_batteries):
             # matplotlib axes 的 y 轴自下而上：y_pos 越大越靠上。
             # 反转 i 使正序（5-1 顶、8-8 底）在视觉上从上到下排列。
@@ -203,7 +207,7 @@ class BatterySelectionMixin:
                 button_width,
                 button_height,
                 battery["name"][:12] + "..." if len(battery["name"]) > 12 else battery["name"],
-                lambda idx=battery["index"]: toggle_battery_visibility(idx),
+                make_toggle_callback(battery["index"]),
                 is_toggle=True,
                 initial_state=battery["initial_state"],
             )
@@ -218,7 +222,7 @@ class BatterySelectionMixin:
         return button_states
 
     def create_battery_checkboxes(
-        self: "InteractionControlsMixin",
+        self: ChartInteractionHost,
         parent_widget,
         fig,
         lines_unfiltered,
@@ -253,13 +257,14 @@ class BatterySelectionMixin:
         battery_checkboxes = []
 
         # 获取电池信息并排序
-        battery_info = []
+        battery_info: list[BatteryChoice] = []
         for i in range(self.intBatteryNum):
             battery_info.append(
                 {
                     "name": self.listBatteryNameSplit[i],
                     "index": i,
                     "initial_state": True,
+                    "is_none": False,
                 }
             )
 

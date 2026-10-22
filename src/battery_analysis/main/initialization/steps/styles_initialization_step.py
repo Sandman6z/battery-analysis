@@ -29,7 +29,7 @@ class StylesInitializationStep(InitializationStep):
             from battery_analysis.ui.styles import style_manager
 
             app = QW.QApplication.instance()
-            if app:
+            if isinstance(app, QW.QApplication):
                 style_manager.apply_global_style(app, load_theme_preference())
             self.logger.info("Styles loaded")
             return True

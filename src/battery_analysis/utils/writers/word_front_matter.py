@@ -4,6 +4,7 @@
 
 import datetime
 import logging
+from typing import Any
 
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_LINE_SPACING
@@ -17,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 class WordFrontMatterMixin:
     """版本历史、测试信息、统计结果三个页眉小节"""
+
+    _equipment_info: dict[str, Any]
 
     def _get_equip_value(self, dotted_key: str, fallback: str = "") -> str:
         """从 _equipment_info 字典读取带点号的键"""

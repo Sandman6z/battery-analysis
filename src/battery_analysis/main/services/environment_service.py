@@ -7,7 +7,11 @@
 import logging
 from typing import Any
 
-from battery_analysis.utils.environment_utils import EnvironmentType, get_environment_detector
+from battery_analysis.utils.environment_utils import (
+    EnvironmentDetector,
+    EnvironmentType,
+    get_environment_detector,
+)
 
 
 class EnvironmentService:
@@ -16,13 +20,13 @@ class EnvironmentService:
     提供环境检测和适配功能
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         初始化环境服务
         """
         self.logger = logging.getLogger(__name__)
-        self.env_detector = None
-        self.env_info = {}
+        self.env_detector: EnvironmentDetector | None = None
+        self.env_info: dict[str, Any] = {}
         self.is_initialized = False
         # 暴露EnvironmentType以便其他组件使用
         self.EnvironmentType = EnvironmentType
@@ -87,7 +91,8 @@ class EnvironmentService:
         Returns:
             EnvironmentType: 环境类型
         """
-        return self.env_info.get("environment_type")
+        environment_type = self.env_info.get("environment_type")
+        return environment_type if isinstance(environment_type, EnvironmentType) else None
 
     def is_ide_environment(self) -> bool:
         """

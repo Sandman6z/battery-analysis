@@ -1,6 +1,10 @@
 """可视化管理器模块"""
 
 import logging
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from battery_analysis.main.main_window import Main
 
 from PyQt6 import QtWidgets as QW
 
@@ -8,14 +12,14 @@ from PyQt6 import QtWidgets as QW
 class VisualizationManager:
     """可视化工具管理器"""
 
-    def __init__(self, main_window=None):
+    def __init__(self, main_window: Main | None = None) -> None:
         """
         初始化可视化管理器
 
         Args:
             main_window: 主窗口实例
         """
-        self.main_window = main_window
+        self.main_window: Main | None = main_window
         self.logger = logging.getLogger(__name__)
 
     def _get_test_profile(self) -> str:

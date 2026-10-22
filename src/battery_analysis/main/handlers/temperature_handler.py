@@ -1,6 +1,10 @@
 """温度 UI：类型仅由 NDAX 内嵌配方决定。"""
 
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from battery_analysis.main.main_window import Main
 
 
 class TemperatureType(Enum):
@@ -9,10 +13,12 @@ class TemperatureType(Enum):
 
 
 class TemperatureHandler:
-    def __init__(self, main_window=None):
-        self.main_window = main_window
+    def __init__(self, main_window: Main | None = None) -> None:
+        self.main_window: Main | None = main_window
 
     def get_temperature_value(self) -> str:
+        if self.main_window is None:
+            raise RuntimeError("TemperatureHandler requires a main window")
         temperature_type = self.main_window.comboBox_Temperature.currentText()
         if temperature_type == TemperatureType.FREEZER.value:
             return f"{temperature_type}:{self.main_window.spinBox_Temperature.value()}"
@@ -25,6 +31,8 @@ class TemperatureHandler:
         self.main_window.spinBox_Temperature.setEnabled(False)
 
     def update_temperature_ui(self, temperature_type: TemperatureType):
+        if self.main_window is None:
+            raise RuntimeError("TemperatureHandler requires a main window")
         previous = self.main_window.comboBox_Temperature.currentText()
         self.main_window.comboBox_Temperature.setCurrentText(temperature_type.value)
         self.main_window.comboBox_Temperature.setEnabled(False)

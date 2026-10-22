@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QCoreApplication, Qt
+from PyQt6.QtWidgets import QApplication
 
 from battery_analysis.ui.styles.style_manager import (
     _DARK_TOKENS,
@@ -18,12 +19,24 @@ class TestThemeEngine:
         # 模拟 QApplication.instance()
         self._patcher = patch(
             "battery_analysis.ui.styles.style_manager.QApplication.instance",
-            return_value=Mock(),
+            return_value=Mock(spec=QApplication),
         )
         self.app = self._patcher.start().return_value
 
     def teardown_method(self):
         self._patcher.stop()
+
+    def test_core_application_does_not_receive_gui_style(self):
+        core_app = Mock(spec=QCoreApplication)
+        with patch(
+            "battery_analysis.ui.styles.style_manager.QApplication.instance",
+            return_value=core_app,
+        ):
+            engine = ThemeEngine()
+            engine.set_theme("system")
+
+        assert engine.get_current_theme() == "light"
+        assert engine._style_hints is None
 
     def test_light_tokens_defined(self):
         """_LIGHT_TOKENS 应包含所有必要令牌"""

@@ -62,14 +62,9 @@ def main():
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create("Fusion"))
 
-    # 过滤 Qt 内部无害警告（QTableWidget auto-expand 时的 dataChanged 防护检查）
-    _QT_FILTER_MSG = "dataChanged() called with an invalid index range"
+    from battery_analysis.utils.qt_logging import qt_message_handler
 
-    def _qt_msg_handler(mode, ctx, msg):
-        if _QT_FILTER_MSG not in msg:
-            sys.stderr.write(msg + "\n")
-
-    qInstallMessageHandler(_qt_msg_handler)
+    qInstallMessageHandler(qt_message_handler)
 
     font = QFont()
     font.setFamilies(["Segoe UI", "Segoe UI Emoji", "SimHei", "Microsoft YaHei"])

@@ -66,7 +66,7 @@ class AppConfigSchema:
     test: TestSchema = field(default_factory=TestSchema)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "AppConfigSchema":
+    def from_dict(cls, data: dict[str, Any]) -> AppConfigSchema:
         """从原始 dict 解析并验证（自动处理 camelCase → snake_case）。"""
         errors: list[str] = []
 

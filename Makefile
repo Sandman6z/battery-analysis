@@ -11,8 +11,8 @@ help: ## 显示帮助信息
 install: ## 安装项目及所有依赖
 	uv sync --all-extras
 
-sync: ## 同步依赖（等效 uv sync --frozen）
-	uv sync --frozen
+sync: ## 从锁文件同步项目及全部开发/构建依赖
+	uv sync --all-extras --frozen
 
 test: ## 运行测试
 	uv run pytest

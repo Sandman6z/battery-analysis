@@ -19,4 +19,4 @@ def num2letter(_intCol: int) -> str:
     """列序号转列字母（0 → A, 25 → Z, 26 → AA）"""
     if _intCol < 0:
         raise ValueError(f"Column index must be >= 0, got {_intCol}")
-    return xl_col_to_name(_intCol)
+    return str(xl_col_to_name(_intCol))

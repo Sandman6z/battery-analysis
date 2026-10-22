@@ -11,15 +11,16 @@
 """
 
 import argparse
-import os
 import subprocess
 import sys
+from pathlib import Path
 
 
 def run_coverage_test(test_path="tests/", cov_module="battery_analysis"):
     """运行覆盖率测试"""
     print("开始运行覆盖率测试...")
-    print(f"当前工作目录: {os.getcwd()}")
+    project_root = Path(__file__).resolve().parent.parent
+    print(f"测试工作目录: {project_root}")
 
     # 构建测试命令
     cmd = [
@@ -35,7 +36,11 @@ def run_coverage_test(test_path="tests/", cov_module="battery_analysis"):
     print(f"执行命令: {' '.join(cmd)}")
 
     # 执行测试
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, cwd=project_root, capture_output=True, text=True)
+    except OSError as exc:
+        print(f"无法启动测试: {exc}")
+        return 1
 
     # 输出结果
     print("\n测试输出:")
@@ -53,6 +58,7 @@ def run_coverage_test(test_path="tests/", cov_module="battery_analysis"):
         print("🔍 请打开 htmlcov/index.html 文件查看详细报告")
     else:
         print("\n❌ 测试失败，请查看上面的错误信息")
+    return result.returncode
 
 
 def main():
@@ -66,8 +72,8 @@ def main():
     )
 
     args = parser.parse_args()
-    run_coverage_test(args.test_path, args.module)
+    return run_coverage_test(args.test_path, args.module)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

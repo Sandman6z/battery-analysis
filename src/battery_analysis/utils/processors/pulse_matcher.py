@@ -13,11 +13,11 @@ def _init_level_structures(
     listVoltageLevel: list,
 ) -> tuple[list, list, list, list, list]:
     """初始化等级匹配所需的嵌套列表结构"""
-    listLevelToVoltage = []
-    listLevelToRow = []
-    listLevelToCharge = []
-    listPosiForInfoImageCsv = []
-    listVoltageForInfoImageCsv = []
+    listLevelToVoltage: list[list[float]] = []
+    listLevelToRow: list[list[int | None]] = []
+    listLevelToCharge: list[list[float]] = []
+    listPosiForInfoImageCsv: list[list[int]] = []
+    listVoltageForInfoImageCsv: list[list[float]] = []
 
     for c_idx in range(len(listCurrentLevel)):
         listLevelToVoltage.append([])

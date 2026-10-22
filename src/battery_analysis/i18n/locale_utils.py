@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def get_available_locales(localedir: Path) -> list[str]:
     """Get list of available locales with translation files."""
-    available = []
+    available: list[str] = []
     if not localedir.exists():
         logger.warning("Locale directory not found: %s", localedir)
         return available

@@ -18,17 +18,13 @@ logger = logging.getLogger(__name__)
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    # 本 Mixin 通过 self 隐式使用兄弟 Mixin 与汇总类的方法/属性；
-    # 将 self 标注为汇总类 InteractionControlsMixin，IDE 才能静态看出这些依赖。
-    from battery_analysis.main.visualization.interaction_controls import (
-        InteractionControlsMixin,
-    )
+    from battery_analysis.main.visualization.interaction_contract import ChartInteractionHost
 
 
 class ViewerControlsMixin:
     """查看器窗口级交互（依赖 ButtonFactoryMixin 的 _create_modern_toggle_group）"""
 
-    def _add_help_text(self: "InteractionControlsMixin", fig):
+    def _add_help_text(self: ChartInteractionHost, fig):
         """添加帮助文本到图表右上角"""
         try:
             fig.text(
@@ -45,7 +41,7 @@ class ViewerControlsMixin:
         except (AttributeError, TypeError, ValueError) as e:
             logger.warning("Error adding help text: %s", e)
 
-    def _add_file_operation_buttons(self: "InteractionControlsMixin", fig):
+    def _add_file_operation_buttons(self: ChartInteractionHost, fig):
         """添加文件操作按钮区域（打开文件和退出按钮）"""
         try:
             ax_file = fig.add_axes([0.001, 0.90, 0.17, 0.062])
@@ -66,7 +62,7 @@ class ViewerControlsMixin:
         except (ValueError, TypeError, AttributeError) as e:
             logger.error("Error creating file operation buttons: %s", e)
 
-    def _add_menu_bar(self: "InteractionControlsMixin", fig) -> bool:
+    def _add_menu_bar(self: ChartInteractionHost, fig) -> bool:
         """为图表添加菜单栏，成功返回 True，无独立窗口时返回 False。"""
         try:
             logger.info("Starting to add PyQt6 menubar")
@@ -135,7 +131,7 @@ class ViewerControlsMixin:
         except (AttributeError, TypeError, RuntimeError) as e:
             raise RuntimeError(f"Menu bar initialization failed: {e}") from e
 
-    def _open_file_dialog(self: "InteractionControlsMixin"):
+    def _open_file_dialog(self: ChartInteractionHost):
         """打开文件对话框，允许用户选择数据文件
 
         失败场景（对话框打不开、数据加载失败）给用户可见提示，
@@ -176,7 +172,7 @@ class ViewerControlsMixin:
             logger.error("Error opening file dialog: %s", e)
             traceback.print_exc()
 
-    def _show_about_dialog(self: "InteractionControlsMixin"):
+    def _show_about_dialog(self: ChartInteractionHost):
         """显示About对话框"""
         try:
             try:
@@ -226,7 +222,7 @@ Thank you for using Battery Analysis Tool!"""
             except (ImportError, AttributeError, TypeError):
                 fallback_version = "v2.1.2"
 
-    def _close_viewer(self: "InteractionControlsMixin"):
+    def _close_viewer(self: ChartInteractionHost):
         """关闭viewer窗口"""
         try:
             logger.info("File operation button: Exit clicked, closing visualizer window")

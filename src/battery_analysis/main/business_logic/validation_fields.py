@@ -3,6 +3,11 @@
 版本号、输入路径、必填字段与 InputValidator 字段校验。"""
 
 import os
+from collections.abc import Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from battery_analysis.main.main_window import Main
 
 from battery_analysis.i18n.language_manager import _
 from battery_analysis.utils.input_validator import FieldValues, InputValidator, ValidationResult
@@ -10,6 +15,9 @@ from battery_analysis.utils.input_validator import FieldValues, InputValidator, 
 
 class ValidationFieldsMixin:
     """版本号 / 输入路径 / 必填字段 / InputValidator 字段校验"""
+
+    main_window: Main
+    _get_types_requiring_construction: Callable[[], list[str]]
 
     def validate_version(self) -> None:
         """

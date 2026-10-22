@@ -7,7 +7,15 @@
 import logging
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
+
+
+class _FileCache(TypedDict):
+    list_files: dict[str, list[str]]
+    get_file_size: dict[str, int]
+    is_file_hidden: dict[str, bool]
+    get_directory_info: dict[str, dict[str, Any]]
+    get_file_info: dict[str, dict[str, Any]]
 
 
 class FileService:
@@ -15,13 +23,13 @@ class FileService:
     文件服务实现
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         初始化文件服务
         """
         self.logger = logging.getLogger(__name__)
         # 初始化缓存，用于存储文件系统操作结果
-        self._cache = {
+        self._cache: _FileCache = {
             "list_files": {},
             "get_file_size": {},
             "is_file_hidden": {},

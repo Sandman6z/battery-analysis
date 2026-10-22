@@ -138,7 +138,7 @@ class ValidationService:
         return True, ""
 
     def validate_numeric_value(
-        self, value: Any, min_val: float = None, max_val: float = None
+        self, value: Any, min_val: float | None = None, max_val: float | None = None
     ) -> tuple[bool, str]:
         """
         验证数值是否在有效范围内

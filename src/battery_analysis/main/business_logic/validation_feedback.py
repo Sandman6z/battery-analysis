@@ -2,6 +2,14 @@
 
 checkinput 主流程与标签/输入框高亮、警告汇总。"""
 
+from collections.abc import Callable
+from typing import TYPE_CHECKING
+
+from battery_analysis.utils.input_validator import ValidationResult
+
+if TYPE_CHECKING:
+    from battery_analysis.main.main_window import Main
+
 _ERROR_WIDGET_STYLE = "background-color: #FFDDDD; border: 1px solid #FF6666;"
 _ERROR_LABEL_STYLE = "background-color:red"
 
@@ -51,6 +59,10 @@ _LEGACY_FIELD_CHECKS = [
 
 class ValidationFeedbackMixin:
     """checkinput 主流程与字段级 UI 高亮/警告反馈"""
+
+    main_window: Main
+    validate_fields: Callable[[], ValidationResult]
+    _get_types_requiring_construction: Callable[[], list[str]]
 
     def checkinput(self) -> bool:
         """
@@ -111,12 +123,14 @@ class ValidationFeedbackMixin:
                 ):
                     check_pass_flag = False
                     warning_info.append(name)
-                    label.setStyleSheet(_ERROR_LABEL_STYLE)
+                    if label is not None:
+                        label.setStyleSheet(_ERROR_LABEL_STYLE)
             elif kind == "aging":
                 if not 0 <= widget.value() <= 10:
                     check_pass_flag = False
                     warning_info.append(name)
-                    label.setStyleSheet(_ERROR_LABEL_STYLE)
+                    if label is not None:
+                        label.setStyleSheet(_ERROR_LABEL_STYLE)
 
         return check_pass_flag
 

@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from typing import Any
 
 from battery_analysis.utils.processors.data_utils import (
     generate_current_type_string,
@@ -25,9 +26,9 @@ class JsonWriter:
         except ValueError:
             td = "00000000"
         self.strResultPath = result_dir or f"{strResultPath}/{td}_v{listTestInfo[16]}"
-        self.dictJson = {}
-        self.listTestRun = []
-        self.dictMeasurements = {}
+        self.dictJson: dict[str, Any] = {}
+        self.listTestRun: list[dict[str, Any]] = []
+        self.dictMeasurements: dict[str, float] = {}
         self.runAt = (
             datetime.datetime.strptime(self.listBatteryInfo[2][0], "%Y-%m-%d %H:%M:%S")
             .astimezone(datetime.UTC)
@@ -57,8 +58,8 @@ class JsonWriter:
     def UJS_FormatJson(self) -> None:
         for i, battery_info in enumerate(self.listBatteryInfo[1]):
             index = -1
-            dictMeasurements = [{} for _ in self.listCurrentLevel]
-            dictTestRun = {}
+            dictMeasurements: list[dict[str, float]] = [{} for _ in self.listCurrentLevel]
+            dictTestRun: dict[str, Any] = {}
 
             # 填充测量数据
             for j, value in enumerate(self.listBatteryInfo[0][i]):

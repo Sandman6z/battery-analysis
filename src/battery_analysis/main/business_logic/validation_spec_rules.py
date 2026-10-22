@@ -2,7 +2,12 @@
 
 check_batterytype / check_specification 及其辅助查询。"""
 
+from typing import TYPE_CHECKING
+
 from battery_analysis.main.handlers.temperature_handler import TemperatureType
+
+if TYPE_CHECKING:
+    from battery_analysis.main.main_window import Main
 from battery_analysis.utils.battery_classifier import classify_spec, extract_capacity
 from battery_analysis.utils.pulse_currents import (
     FREEZER_REQUIRED_CAPACITY_MAH,
@@ -12,6 +17,8 @@ from battery_analysis.utils.pulse_currents import (
 
 class ValidationSpecRulesMixin:
     """电池类型、规格（Specification）、施工方式相关验证"""
+
+    main_window: Main
 
     def check_batterytype(self) -> None:
         """

@@ -42,8 +42,8 @@ class Main(WindowInitMixin, WindowTextsMixin, WindowActionsMixin, QW.QMainWindow
         super().__init__()
 
         # 初始化属性
-        self._services = {}
-        self._controllers = {}
+        self._services: dict[str, object] = {}
+        self._controllers: dict[str, object] = {}
         self._lazy_init_done = False
         self._resize_timer = None
         self._ndax_converter_window = None
@@ -78,8 +78,10 @@ class Main(WindowInitMixin, WindowTextsMixin, WindowActionsMixin, QW.QMainWindow
         # 所有业务初始化延后到窗口显示后执行
         QC.QTimer.singleShot(0, self._deferred_init)
 
-    def closeEvent(self, event: QG.QCloseEvent) -> None:
+    def closeEvent(self, event: QG.QCloseEvent | None) -> None:
         """Close the optional converter only when its worker can safely stop."""
+        if event is None:
+            return
         if self._ndax_converter_window is not None and not self._ndax_converter_window.close():
             event.ignore()
             return
@@ -148,15 +150,10 @@ if __name__ == "__main__":
 
     _warnings.filterwarnings("ignore", message=".*sipPyTypeDict.*")
 
-    # 过滤 Qt 内部无害警告（QTableWidget auto-expand 时的 dataChanged 防护检查）
-    _QT_FILTER_MSG = "dataChanged() called with an invalid index range"
-
-    def _qt_msg_handler(mode, ctx, msg):
-        if _QT_FILTER_MSG not in msg:
-            sys.stderr.write(msg + "\n")
-
     from PyQt6.QtCore import qInstallMessageHandler
 
-    qInstallMessageHandler(_qt_msg_handler)
+    from battery_analysis.utils.qt_logging import qt_message_handler
+
+    qInstallMessageHandler(qt_message_handler)
 
     main()

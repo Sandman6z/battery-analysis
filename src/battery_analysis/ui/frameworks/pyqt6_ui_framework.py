@@ -6,7 +6,10 @@ PyQt6 UI框架实现
 
 import logging
 from enum import Enum, auto
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from PyQt6.QtWidgets import QApplication
 
 
 class MessageBoxType(Enum):
@@ -69,13 +72,14 @@ class PyQt6UIFramework:
     def create_progress_dialog(self, parent: Any | None = None) -> Any:
         """创建进度对话框"""
         try:
+            from PyQt6.QtCore import Qt
             from PyQt6.QtWidgets import QProgressDialog
 
             if parent is None:
                 parent = self._app.activeWindow() if self._app else None
 
             progress_dialog = QProgressDialog("Processing...", "Cancel", 0, 100, parent)
-            progress_dialog.setWindowModality(True)
+            progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
             progress_dialog.setWindowTitle("Progress")
 
             self.logger.info("PyQt6 progress dialog created successfully")
@@ -201,7 +205,7 @@ class PyQt6UIFramework:
             self.logger.error("Failed to set PyQt6 layout: %s", e)
             raise
 
-    def exec_application(self, app: Any) -> int:
+    def exec_application(self, app: QApplication) -> int:
         """运行应用程序"""
         try:
             result = app.exec()

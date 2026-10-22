@@ -9,11 +9,12 @@ import PyQt6.QtWidgets as QW
 logger = logging.getLogger(__name__)
 
 from battery_analysis.main.ui_components.config_dialog import ConfigDialog
+from battery_analysis.main.window_state import MainWindowState
 from battery_analysis.ui.styles.theme_settings import load_theme_preference
 from battery_analysis.utils.config_utils import clear_config_cache
 
 
-class WindowActionsMixin:
+class WindowActionsMixin(MainWindowState):
     """信号连接、偏好应用、配置重载、剪贴板、配置对话框、主题与状态栏"""
 
     def connect_widget(self) -> None:
@@ -171,7 +172,7 @@ class WindowActionsMixin:
         self.theme_manager.set_theme(theme_name)
 
     def toggle_statusbar(self) -> None:
-        self.menu_manager.toggle_statusbar()
+        self.menu_manager.toggle_statusbar_safe()
 
     # ------------------------------
     # 验证相关方法

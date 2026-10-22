@@ -14,12 +14,12 @@ class BaseService(ABC):
     提供统一的错误处理、日志记录等公共功能
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         初始化基础服务
         """
         self.logger = logging.getLogger(self.__class__.__name__)
-        self._running = False
+        self._running: bool = False
 
     # ── 生命周期 ──────────────────────────────────────────────
 

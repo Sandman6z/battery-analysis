@@ -219,9 +219,11 @@ class TestSimpleDelegations:
 
     def test_toggle_statusbar(self, main_window):
         from battery_analysis.main.main_window import Main
+        from battery_analysis.main.ui_components.menu_manager import MenuManager
 
+        main_window.menu_manager = MagicMock(spec=MenuManager)
         Main.toggle_statusbar(main_window)
-        main_window.menu_manager.toggle_statusbar.assert_called_once()
+        main_window.menu_manager.toggle_statusbar_safe.assert_called_once()
 
     def test_initialize_environment_info(self, main_window):
         from battery_analysis.main.main_window import Main

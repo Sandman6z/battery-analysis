@@ -4,6 +4,7 @@ import csv
 import json
 import logging
 import os
+from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ def write_info_csv(
     file_path = os.path.join(result_path, "Info_Image.csv")
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-    csv_data = []
+    csv_data: list[Sequence[str | int | float | None]] = []
     for b, battery_name in enumerate(list_battery_name):
         csv_data.append(["BATTERY", battery_name])
         for c in range(len(list_current_level)):

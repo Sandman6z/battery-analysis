@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from PyQt6.QtCore import QObject, Qt, pyqtSignal
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QStyleHints
 from PyQt6.QtWidgets import QApplication, QGroupBox, QPushButton, QVBoxLayout, QWidget
 
 from battery_analysis.ui.styles.theme_settings import normalize_theme
@@ -149,7 +149,7 @@ _COLOR_TO_TOKEN = _build_color_map()
 def _resolve_qss_urls(qss: str, style_dir: Path) -> str:
     """将 QSS 中 url() 的相对路径解析为绝对路径。"""
 
-    def _replace(match: re.Match) -> str:
+    def _replace(match: re.Match[str]) -> str:
         url_path = match.group(1)
         if url_path.startswith((":/", "/", "http")):
             return match.group(0)
@@ -178,7 +178,7 @@ class ThemeEngine(QObject):
         self._qss_template: str = ""
         self._current_theme: str = "light"
         self._theme_preference: str = "light"
-        self._style_hints = None
+        self._style_hints: QStyleHints | None = None
         self._tokens: dict[str, str] = dict(_LIGHT_TOKENS)
 
         self._load_and_tokenize_qss()
@@ -214,9 +214,10 @@ class ThemeEngine(QObject):
         """切换主题并应用到 QApplication。"""
         self._theme_preference = normalize_theme(theme_name)
         app = QApplication.instance()
-        if app is not None and self._style_hints is None:
+        if isinstance(app, QApplication) and self._style_hints is None:
             self._style_hints = app.styleHints()
-            self._style_hints.colorSchemeChanged.connect(self._on_color_scheme_changed)
+            if self._style_hints is not None:
+                self._style_hints.colorSchemeChanged.connect(self._on_color_scheme_changed)
 
         theme_name = self._theme_preference
         if theme_name == "system":
@@ -229,7 +230,7 @@ class ThemeEngine(QObject):
         self._tokens = THEMES[theme_name]
         self._current_theme = theme_name
 
-        if app is not None:
+        if isinstance(app, QApplication):
             qss = self._render()
             app.setStyleSheet(qss)
             self.theme_changed.emit(theme_name)

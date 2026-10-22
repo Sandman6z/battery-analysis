@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 
 def filter_data(
@@ -7,8 +8,8 @@ def filter_data(
     """
     优化后的数据过滤函数，使用numpy进行向量运算，降低时间复杂度
     """
-    plt_charge_filtered = []
-    plt_voltage_filtered = []
+    plt_charge_filtered: list[list[float]] = []
+    plt_voltage_filtered: list[list[float]] = []
 
     # 尝试导入numpy，若不可用则使用原算法
     try:
@@ -25,21 +26,21 @@ def filter_data(
                 voltage_np = np.asarray(voltage_data, dtype=float)
 
                 # 计算差值
-                charge_diff = np.diff(charge_np)
-                voltage_diff = np.diff(voltage_np)
+                charge_diffs = np.diff(charge_np)
+                voltage_diffs = np.diff(voltage_np)
 
                 # 计算斜率，使用更高效的方式
                 with np.errstate(divide="ignore", invalid="ignore"):
                     # 使用numpy的where函数高效处理除数为0的情况
                     slopes = np.abs(
-                        np.where(charge_diff != 0, voltage_diff / charge_diff, slope_max)
+                        np.where(charge_diffs != 0, voltage_diffs / charge_diffs, slope_max)
                     )
 
                 # 计算电压差值绝对值
-                voltage_diff_abs = np.abs(voltage_diff)
+                voltage_diffs_abs = np.abs(voltage_diffs)
 
                 # 生成过滤掩码，合并条件
-                mask = (slopes < slope_max) & (voltage_diff_abs < difference_max)
+                mask = (slopes < slope_max) & (voltage_diffs_abs < difference_max)
 
                 # 确保第一个点总是保留，使用更高效的掩码生成方式
                 filtered_mask = np.zeros(len(charge_np), dtype=bool)
@@ -214,7 +215,7 @@ def detect_outliers(
     Returns:
         异常值列表
     """
-    anomalies = []
+    anomalies: list[dict[str, Any]] = []
     if not data:
         return anomalies
 

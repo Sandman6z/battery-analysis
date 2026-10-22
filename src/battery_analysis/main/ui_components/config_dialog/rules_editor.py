@@ -46,8 +46,12 @@ class _RulesEditor(QW.QGroupBox):
     def _make_table() -> QW.QTableWidget:
         table = QW.QTableWidget(0, len(RULE_COLUMNS))
         table.setHorizontalHeaderLabels(RULE_COLUMNS)
-        table.verticalHeader().hide()
-        table.horizontalHeader().setStretchLastSection(True)
+        vertical_header = table.verticalHeader()
+        horizontal_header = table.horizontalHeader()
+        if vertical_header is not None:
+            vertical_header.hide()
+        if horizontal_header is not None:
+            horizontal_header.setStretchLastSection(True)
         table.setSelectionBehavior(QW.QAbstractItemView.SelectionBehavior.SelectRows)
         table.setMinimumHeight(150)
         # 设置表头背景颜色，避免黑色看不清
@@ -126,7 +130,8 @@ class _RulesEditor(QW.QGroupBox):
             for col in range(len(RULE_COLUMNS)):
                 value = parts[col] if col < len(parts) else ""
                 table.setItem(row, col, QW.QTableWidgetItem(value))
-            self._set_method_combo(table, row, table.item(row, SPEC_METHOD_COL).text())
+            method = parts[SPEC_METHOD_COL] if len(parts) > SPEC_METHOD_COL else ""
+            self._set_method_combo(table, row, method)
 
     @staticmethod
     def _read_table(table: QW.QTableWidget) -> list:
@@ -145,7 +150,8 @@ class _RulesEditor(QW.QGroupBox):
         return result
 
     def set_rules(self, rules: list) -> None:
-        coin, pouch = [], []
+        coin: list[str] = []
+        pouch: list[str] = []
         for rule in rules:
             (pouch if self._cell_type(rule) == "Pouch Cell" else coin).append(rule)
         self._fill_table(self._table_coin, coin)

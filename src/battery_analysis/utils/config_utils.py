@@ -14,10 +14,10 @@ from .environment_utils import EnvironmentType, get_environment_detector
 logger = logging.getLogger(__name__)
 
 # 配置文件路径缓存
-_config_path_cache = {}
+_config_path_cache: dict[tuple[str, str], str | None] = {}
 
 # 模块级缓存：存储用户自定义配置路径
-_custom_config_path_cache = None
+_custom_config_path_cache: str | None = None
 
 
 def set_custom_config_path(path: str) -> None:
@@ -93,7 +93,7 @@ def _get_custom_config_path() -> str | None:
             # 更新模块级缓存
             _custom_config_path_cache = custom_path
             logger.info(f"Returning custom config path: '{custom_path}'")
-            return custom_path
+            return str(custom_path)
         else:
             logger.info("No custom config path set")
     except Exception as e:
@@ -103,7 +103,7 @@ def _get_custom_config_path() -> str | None:
 
 def find_config_file(
     file_name: str = "config.json", config_dir: str = "config", use_cache: bool = True
-) -> str:
+) -> str | None:
     """
     在多个可能的位置查找配置文件，并返回第一个找到的配置文件的路径。
 
@@ -169,8 +169,6 @@ def find_config_file(
 
 def _get_container_config_paths(file_name: str, config_dir: str, env_info: dict) -> list:
     """获取容器环境的配置路径列表"""
-    paths = []
-
     # 容器环境优先使用标准路径
     standard_paths = [
         # 标准配置路径
@@ -198,7 +196,7 @@ def _get_container_config_paths(file_name: str, config_dir: str, env_info: dict)
 
 def _get_production_config_paths(file_name: str, config_dir: str, env_info: dict) -> list:
     """获取生产环境的配置路径列表"""
-    paths = []
+    paths: list[Path] = []
 
     # 生产环境优先使用PyInstaller资源路径
     if env_info.get("meipass"):
@@ -226,8 +224,6 @@ def _get_production_config_paths(file_name: str, config_dir: str, env_info: dict
 
 def _get_development_config_paths(file_name: str, config_dir: str, env_info: dict) -> list:
     """获取开发环境的配置路径列表"""
-    paths = []
-
     # 开发环境使用灵活的路径搜索
     current_file_dir = env_info.get("current_file_dir", Path(__file__).parent)
     project_root = env_info.get("project_root", Path.cwd())

@@ -43,7 +43,7 @@ class ConfigManager:
         "BatteryConfig/SpecificationTypePouchCell": "Pouch Cell",
     }
 
-    def __init__(self, main_window=None):
+    def __init__(self, main_window=None) -> None:
         """
         初始化配置管理器
 
@@ -53,8 +53,8 @@ class ConfigManager:
         self.main_window = main_window
         self.logger = logging.getLogger(__name__)
         self._config_service = None
-        self.config_path = None
-        self.b_has_config = True
+        self.config_path: str | None = None
+        self.b_has_config: bool = True
 
         # 缓存 ConfigService 引用
         self._init_config_service()

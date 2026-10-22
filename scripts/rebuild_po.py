@@ -202,7 +202,7 @@ CHINESE = {
 MSGID_RE = re.compile(r'(?<![\w._])_\s*\(\s*"((?:[^"\\]|\\.)*)"')
 
 
-def extract_msgids(src_dir: Path) -> "list[str]":
+def extract_msgids(src_dir: Path) -> list[str]:
     msgids: list[str] = []
     for path in sorted(src_dir.rglob("*.py")):
         text = path.read_text(encoding="utf-8")

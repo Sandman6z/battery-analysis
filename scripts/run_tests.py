@@ -5,9 +5,9 @@
 """
 
 import argparse
-import os
 import subprocess
 import sys
+from pathlib import Path
 
 
 def run_tests(test_path=None, generate_report=False, report_format="html"):
@@ -41,7 +41,7 @@ def run_tests(test_path=None, generate_report=False, report_format="html"):
     try:
         result = subprocess.run(
             pytest_cmd,
-            cwd=os.path.dirname(os.path.abspath(__file__)),
+            cwd=Path(__file__).resolve().parent.parent,
             capture_output=True,
             text=True,
         )

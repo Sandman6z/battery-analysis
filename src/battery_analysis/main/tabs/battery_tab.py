@@ -9,11 +9,16 @@ This widget encapsulates the full battery analysis workflow:
   - Chart area (hidden until analysis produces results)
 """
 
+from typing import TYPE_CHECKING
+
 import PyQt6.QtCore as QC
 import PyQt6.QtGui as QG
 import PyQt6.QtWidgets as QW
 
 from battery_analysis.i18n import _
+
+if TYPE_CHECKING:
+    from battery_analysis.main.main_window import Main
 
 # 通用字体
 _FONT = QG.QFont("Microsoft JhengHei", 11)
@@ -56,7 +61,7 @@ def _make_button(text: str, parent=None) -> QW.QPushButton:
 class BatteryAnalysisTab(QW.QWidget):
     """Battery analysis full-page tab widget."""
 
-    def __init__(self, main_window: QW.QMainWindow, parent=None):
+    def __init__(self, main_window: Main, parent=None):
         super().__init__(parent)
         self.mw = main_window
         self._build_ui()
@@ -553,11 +558,15 @@ class BatteryAnalysisTab(QW.QWidget):
         mw.tableWidget_TestInformation.setColumnCount(3)
         mw.tableWidget_TestInformation.setRowCount(12)
         mw.tableWidget_TestInformation.setFont(QG.QFont("Microsoft JhengHei", 10))
-        mw.tableWidget_TestInformation.horizontalHeader().setVisible(False)
-        mw.tableWidget_TestInformation.horizontalHeader().setMinimumSectionSize(30)
-        mw.tableWidget_TestInformation.horizontalHeader().setStretchLastSection(False)
-        mw.tableWidget_TestInformation.verticalHeader().setVisible(False)
-        mw.tableWidget_TestInformation.verticalHeader().setDefaultSectionSize(30)
+        horizontal_header = mw.tableWidget_TestInformation.horizontalHeader()
+        vertical_header = mw.tableWidget_TestInformation.verticalHeader()
+        if horizontal_header is not None:
+            horizontal_header.setVisible(False)
+            horizontal_header.setMinimumSectionSize(30)
+            horizontal_header.setStretchLastSection(False)
+        if vertical_header is not None:
+            vertical_header.setVisible(False)
+            vertical_header.setDefaultSectionSize(30)
         mw.tableWidget_TestInformation.setFocusPolicy(QC.Qt.FocusPolicy.ClickFocus)
         mw.tableWidget_TestInformation.setTabKeyNavigation(False)
         scroll_layout.addWidget(mw.tableWidget_TestInformation)
