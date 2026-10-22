@@ -7,6 +7,7 @@ import math
 
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_LINE_SPACING
+from docx.oxml.ns import qn
 from docx.shared import Cm, Pt
 
 from battery_analysis.utils.report_coordinator import compute_report_content_base
@@ -268,7 +269,7 @@ class WordOverviewMixin:
                 in paragraph.text
             ):
                 bInsertOverview = True
-                intStepOut = 4
+                intStepOut = 1
             elif "Version history" in paragraph.text and paragraph.style.name == "Heading 2":
                 bInsertVersionHistory = True
                 intStepOut = 0
@@ -285,6 +286,17 @@ class WordOverviewMixin:
                 if bInsertOverview:
                     bInsertOverview = False
                     paragraph._p.addnext(tableOverview._tbl)
+                    # 保留表格后的一个空段落，不删除包含分页符的段落。
+                    following = tableOverview._tbl.getnext()
+                    blank_count = 0
+                    while following is not None and following.tag == qn("w:p"):
+                        if following.xpath(".//w:t | .//w:br | .//w:drawing | .//w:sectPr"):
+                            break
+                        next_element = following.getnext()
+                        blank_count += 1
+                        if blank_count > 1:
+                            following.getparent().remove(following)
+                        following = next_element
                 elif bInsertVersionHistory:
                     bInsertVersionHistory = False
                     paragraph._p.addnext(tableVersionHistory._tbl)
