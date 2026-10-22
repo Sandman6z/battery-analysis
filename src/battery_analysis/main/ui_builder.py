@@ -26,8 +26,8 @@ class UIBuilder:
         """构建主窗口 UI"""
         mw = self.main_window
         mw.setWindowTitle(_("Battery Analyzer"))
-        mw.setMinimumSize(800, 600)
-        mw.resize(920, 750)
+        mw.setMinimumSize(720, 600)
+        mw.resize(720, 750)
         mw.setCursor(QG.QCursor(QC.Qt.CursorShape.ArrowCursor))
 
         # ── 电池分析主页面 ──
@@ -58,8 +58,8 @@ class UIBuilder:
     def _adjust_window_size(self) -> None:
         """调整窗口：最小完整显示，不超出屏幕，自动居中"""
         screen = QW.QApplication.primaryScreen().availableGeometry()
-        ref_w, ref_h = 920, 750
-        w = max(min(ref_w, screen.width()), 800)
+        ref_w, ref_h = 720, 750
+        w = max(min(ref_w, screen.width()), 720)
         h = max(min(ref_h, screen.height()), 600)
         self.main_window.resize(w, h)
 

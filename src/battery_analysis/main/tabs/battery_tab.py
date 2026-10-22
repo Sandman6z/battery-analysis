@@ -16,7 +16,7 @@ import PyQt6.QtWidgets as QW
 from battery_analysis.i18n import _
 
 # 通用字体
-_FONT = QG.QFont("Microsoft JhengHei", 9)
+_FONT = QG.QFont("Microsoft JhengHei", 11)
 
 
 def _make_label(text: str, parent=None) -> QW.QLabel:
@@ -106,7 +106,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw.pushButton_Run = QW.QPushButton(_("Run"))
         mw.pushButton_Run.setObjectName("pushButton_Run")
         mw.pushButton_Run.setMinimumSize(200, 36)
-        run_font = QG.QFont("Consolas", 16)
+        run_font = QG.QFont("Consolas", 18)
         run_font.setBold(False)
         run_font.setKerning(True)
         run_font.setStyleStrategy(QG.QFont.StyleStrategy.PreferAntialias)
@@ -119,7 +119,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw.label_Version.setObjectName("label_Version")
         mw.lineEdit_Version = _make_lineedit()
         mw.lineEdit_Version.setObjectName("lineEdit_Version")
-        mw.lineEdit_Version.setMaximumWidth(100)
+        mw.lineEdit_Version.setFixedWidth(100)
         mw.lineEdit_Version.setAlignment(
             QC.Qt.AlignmentFlag.AlignRight | QC.Qt.AlignmentFlag.AlignTrailing | QC.Qt.AlignmentFlag.AlignVCenter
         )
@@ -129,9 +129,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw.label_ReportedBy.setObjectName("label_ReportedBy")
         mw.comboBox_ReportedBy = _make_combobox(editable=True)
         mw.comboBox_ReportedBy.setObjectName("comboBox_ReportedBy")
-        mw.comboBox_ReportedBy.setMinimumWidth(200)
-        mw.comboBox_ReportedBy.setMaximumWidth(500)
-        mw.comboBox_ReportedBy.setSizePolicy(QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
+        mw.comboBox_ReportedBy.setFixedWidth(2 * mw.lineEdit_Version.width())
 
         # 进度条
         mw.progressBar = QW.QProgressBar()
@@ -158,8 +156,9 @@ class BatteryAnalysisTab(QW.QWidget):
         rb_group = QW.QHBoxLayout()
         rb_group.setSpacing(4)
         rb_group.addWidget(mw.label_ReportedBy)
-        rb_group.addWidget(mw.comboBox_ReportedBy, 1)
-        top_bar.addLayout(rb_group, 1)
+        rb_group.addWidget(mw.comboBox_ReportedBy)
+        top_bar.addLayout(rb_group)
+        top_bar.addStretch(1)
 
         top_bar.addWidget(mw.pushButton_Run)
 
@@ -176,7 +175,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw = self.mw
         groupBox = QW.QGroupBox(_("Test Config"), parent)
         groupBox.setObjectName("groupBox_TestConfig")
-        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 9))
+        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 11))
         groupBox.setMinimumHeight(110)
         groupBox.setSizePolicy(QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
 
@@ -254,7 +253,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw = self.mw
         groupBox = QW.QGroupBox(_("Path"), parent)
         groupBox.setObjectName("groupBox_Path")
-        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 9))
+        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 11))
         groupBox.setMinimumHeight(90)
         groupBox.setSizePolicy(QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Fixed)
 
@@ -298,7 +297,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw = self.mw
         groupBox = QW.QGroupBox(_("Battery Config"), parent)
         groupBox.setObjectName("groupBox_BatteryConfig")
-        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 9))
+        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 11))
         groupBox.setMinimumHeight(400)
         groupBox.setSizePolicy(QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding)
 
@@ -531,7 +530,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw = self.mw
         groupBox = QW.QGroupBox(_("Test Information"), parent)
         groupBox.setObjectName("groupBox_TestInformation")
-        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 9))
+        groupBox.setFont(QG.QFont("Microsoft YaHei UI", 11))
         groupBox.setMinimumHeight(131)
         groupBox.setSizePolicy(QW.QSizePolicy.Policy.Expanding, QW.QSizePolicy.Policy.Expanding)
 
@@ -553,7 +552,7 @@ class BatteryAnalysisTab(QW.QWidget):
         mw.tableWidget_TestInformation.setObjectName("tableWidget_TestInformation")
         mw.tableWidget_TestInformation.setColumnCount(3)
         mw.tableWidget_TestInformation.setRowCount(12)
-        mw.tableWidget_TestInformation.setFont(QG.QFont("Microsoft JhengHei", 8))
+        mw.tableWidget_TestInformation.setFont(QG.QFont("Microsoft JhengHei", 10))
         mw.tableWidget_TestInformation.horizontalHeader().setVisible(False)
         mw.tableWidget_TestInformation.horizontalHeader().setMinimumSectionSize(30)
         mw.tableWidget_TestInformation.horizontalHeader().setStretchLastSection(False)

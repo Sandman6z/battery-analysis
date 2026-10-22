@@ -21,6 +21,7 @@ QMainWindow, QWidget {
     background-color: #f5f0e8;
     color: #3d3229;
     font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+    font-size: 11pt;
 }
 
 
@@ -84,7 +85,7 @@ QLineEdit {
     padding: 5px 8px;
     background-color: #ede9e3;
     color: #3d3229;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 QLineEdit:hover {
@@ -112,7 +113,13 @@ QComboBox {
     background-color: #ede9e3;
     color: #3d3229;
     min-width: 80px;
-    font-size: 11px;
+    font-size: 13px;
+}
+
+/* 200px total width, including the input's 8px padding on each side. */
+#comboBox_ReportedBy {
+    min-width: 184px;
+    max-width: 184px;
 }
 
 QComboBox:hover {
@@ -165,7 +172,7 @@ QSpinBox {
     padding: 4px 8px;
     background-color: #ede9e3;
     color: #3d3229;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 QSpinBox:hover {
@@ -202,7 +209,7 @@ QTextEdit {
     border: 1px solid #e0d8cc;
     border-radius: 8px;
     padding: 4px;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 QTextEdit[data-style="info"] {
@@ -225,7 +232,7 @@ QPushButton {
     background-color: #ede9e3;
     color: #3d3229;
     font-weight: 500;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 QPushButton:hover {
@@ -249,7 +256,7 @@ QPushButton:disabled {
     border: 1px solid #27ae60;
     border-radius: 8px;
     color: white;
-    font-size: 20px;
+    font-size: 22px;
 }
 
 #pushButton_Run:hover {
@@ -278,7 +285,7 @@ QPushButton[text="浏览"] {
     border-radius: 8px;
     color: white;
     padding: 4px 16px;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 QPushButton[text="Open"]:hover,
@@ -287,6 +294,32 @@ QPushButton[text="浏览"]:hover {
         stop:0 #5dade2,
         stop:1 #85c1e9);
     border-color: #5dade2;
+}
+
+/* Low-frequency Test Profile action: neutral, but still visibly interactive. */
+#pushButton_TestProfile {
+    background: #ede9e3;
+    border-color: #d6cec4;
+    color: #3d3229;
+}
+
+#pushButton_TestProfile:hover {
+    background: #e5e0d8;
+    border-color: #8a7a6a;
+}
+
+#pushButton_TestProfile:pressed {
+    background: #e0d8cc;
+}
+
+#pushButton_TestProfile:focus {
+    border-color: #27ae60;
+}
+
+#pushButton_TestProfile:disabled {
+    background: #f5f0e8;
+    color: #adb5bd;
+    border-color: #e0d8cc;
 }
 
 /* Gradient button styles by type (Enhanced style) */
@@ -423,7 +456,7 @@ QPushButton[data-action="analyze"]:hover {
    ============================================ */
 
 QLabel {
-    font-size: 11px;
+    font-size: 13px;
     color: #8a7a6a;
     border: none;
     outline: none;
@@ -431,7 +464,7 @@ QLabel {
 
 QLabel[data-type="title"] {
     font-weight: bold;
-    font-size: 12px;
+    font-size: 14px;
     color: #3d3229;
     border: none;
     outline: none;
@@ -473,7 +506,7 @@ QTableWidget::header {
     background-color: #f5f0e8;
     color: #8a7a6a;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 13px;
     height: 36px;
 }
 
@@ -489,7 +522,7 @@ QTableWidget::verticalHeader {
 QTableWidget::item {
     padding: 8px 12px;
     color: #8a7a6a;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 QTableWidget::item:selected {
@@ -509,7 +542,7 @@ QProgressBar {
     background-color: #e0d8cc;
     height: 14px;
     font-weight: 600;
-    font-size: 11px;
+    font-size: 13px;
     color: #8a7a6a;
 }
 
@@ -527,7 +560,7 @@ QStatusBar {
     background-color: #faf7f2;
     border-top: 1px solid #e0d8cc;
     color: #8a7a6a;
-    font-size: 10px;
+    font-size: 12px;
     padding: 4px 12px;
 }
 
@@ -550,7 +583,7 @@ QMenuBar::item {
     border-radius: 4px;
     color: #8a7a6a;
     font-weight: 500;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 QMenuBar::item:hover {
@@ -622,7 +655,7 @@ QToolBar QToolButton {
     padding: 5px;
     min-width: 30px;
     min-height: 30px;
-    font-size: 16px;
+    font-size: 18px;
     color: #8a7a6a;
 }
 
@@ -678,7 +711,7 @@ QTabBar::tab {
     border: 1px solid #e0d8cc;
     border-bottom: none;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 13px;
     min-width: 100px;
 }
 
@@ -705,7 +738,7 @@ QTabBar::tab:hover:!selected {
 
 QCheckBox {
     spacing: 8px;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 QCheckBox::indicator {
@@ -738,7 +771,7 @@ QCheckBox::indicator:checked:hover {
 }
 
 #progress_status_label {
-    font-size: 13px;
+    font-size: 15px;
     color: #3d3229;
     font-weight: 500;
     padding: 4px 0px;
@@ -751,7 +784,7 @@ QCheckBox::indicator:checked:hover {
     background-color: #ede9e3;
     height: 28px;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 14px;
     color: #ffffff;
     padding: 0px;
 }
@@ -772,7 +805,7 @@ QCheckBox::indicator:checked:hover {
     padding: 6px 20px;
     color: #e74c3c;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 14px;
     min-height: 32px;
     min-width: 100px;
 }
@@ -905,5 +938,5 @@ QToolTip {
     border: 1px solid #27ae60;
     border-radius: 4px;
     padding: 4px 8px;
-    font-size: 12px;
+    font-size: 14px;
 }

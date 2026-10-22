@@ -1,8 +1,8 @@
 # BOEDT Battery test GUI Tool
 
-**当前软件版本：v5.0.1 — 项目状态一致性、转换留核与界面完善**
+**当前软件版本：v5.0.2 — 紧凑界面、字号提升与型号识别修复**
 
-本版变更见 [CHANGELOG](CHANGELOG.md#v501--2026-10-21)；v5.0.0 的 NDAX 迁移要求继续适用。
+本版变更见 [CHANGELOG](CHANGELOG.md#v502--2026-10-22)；v5.0.0 的 NDAX 迁移要求继续适用。
 
 主分析直接读取 `1_ndax` 中的原始 NDAX，不再依赖先转出的 `2_xlsx`；电流档位以 NDAX 内嵌 Step.xml 为准。Excel 继续作为报告输出，独立转换功能保留。
 
@@ -11,7 +11,7 @@
 - **[中文操作指南](docs/QUICK_START.md)** / **[English quick start](docs/QUICK_START_EN.md)**
 - **[PDF 复查、容量来源与异常策略](docs/pdf_recheck_and_anomaly_policy.md)**
 
-升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.0.1` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
+升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.0.2` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
 
 ## NDAX 转换并发与 CPU 留核
 

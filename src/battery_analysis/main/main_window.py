@@ -129,7 +129,7 @@ def main(app=None, splash=None) -> None:
 
     # 创建主窗口（内部根据屏幕尺寸自动居中或最大化）
     window = Main(splash=splash)
-    window.setMinimumSize(800, 600)
+    window.setMinimumSize(720, 600)
 
     # 运行应用程序事件循环
     try:
