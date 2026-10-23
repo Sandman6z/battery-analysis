@@ -4,6 +4,8 @@ help_manager测试
 
 from unittest.mock import MagicMock, Mock, patch
 
+from PyQt6.QtCore import QUrl
+
 from battery_analysis.main.business_logic.help_manager import HelpManager
 
 
@@ -27,7 +29,22 @@ class TestHelpManager:
             self.help_manager.show_user_manual()
 
             # 验证结果
-            mock_open_url.assert_called_once()
+            mock_open_url.assert_called_once_with(
+                QUrl("https://github.com/Sandman6z/battery-analysis/wiki")
+            )
+
+    def test_show_user_manual_when_browser_cannot_open(self):
+        """浏览器启动失败时显示 Wiki 地址，便于手动打开。"""
+        with (
+            patch("PyQt6.QtGui.QDesktopServices.openUrl", return_value=False),
+            patch(
+                "battery_analysis.main.business_logic.help_manager.QW.QMessageBox.warning"
+            ) as mock_warning,
+        ):
+            self.help_manager.show_user_manual()
+
+        mock_warning.assert_called_once()
+        assert "https://github.com/Sandman6z/battery-analysis/wiki" in mock_warning.call_args.args[2]
 
     def test_show_user_manual_with_exception(self):
         """测试显示用户手册（发生异常）"""

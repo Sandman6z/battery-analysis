@@ -1,147 +1,111 @@
-# Battery Analysis Tool · Quick Start Guide
+# English User Guide
 
-> For BOEDT Battery Analysis Tool
->
-> This tool analyzes **Excel data** exported from the NEWARE battery test system and automatically generates box plots, Excel result sheets, Word reports, and CSV summaries.
+For **v5.1.2**. Main analysis reads original NEWARE **NDAX** directly. Excel conversion is not required; configuration is managed in the app, not `setting.ini`.
 
-> Compared to previous versions, the `setting.ini` file has been removed. All configuration is now done within the app (**Tools -> Configuration**).
-> A batch conversion tool, `ndaxConverter`, ships alongside this release and is available at the same download page as the main software.
+[Wiki home](https://github.com/Sandman6z/battery-analysis/wiki) · [中文](https://github.com/Sandman6z/battery-analysis/wiki/Quick-Start) · [Detailed guide and rules](https://github.com/Sandman6z/battery-analysis/blob/main/docs/QUICK_START_EN.md)
 
----
+## 1. Prepare Data and Select a Project
 
-## 1. Fastest Way to Get Started: Three Steps
+Recommended layout:
 
-| Step | Action | What the app does automatically |
-|------|--------|--------------------------------|
-| 1 | **Select Test Profile** (Browse to an XML test profile file) | See **Tips 1** below |
-| 2 | Click the green **Run** | Validation -> calculation -> plotting -> report generation, fully automatic |
-| 3 | When done, click **"Open Report"** / **"Open Path"** | One-click access to your results |
+```text
+Project/
+├── 1_ndax/               Original .ndax files (analysis input)
+├── 2_xlsx/               Optional Excel exports from the converter
+├── 3_analysis results/   Created automatically: reports and version ledger
+└── 4_test profile/       Optional Test Profile XML
+```
 
-- In most cases you only need to **select one XML file and click Run once** — the rest is fully automatic.
-- **To add new options (e.g. a new battery type or manufacturer), open Configuration and add a new entry or row there.**
+Choose either entry point:
 
----
+- **Input Path → Open**: select the folder containing `.ndax` files, normally `1_ndax`. The app searches the sibling `4_test profile` folder. If several XML files exist, choose one or cancel to leave the profile empty.
+- **Test Profile → Open**: select an XML file. The app validates its name/content and locates the sibling `1_ndax` folder.
 
-## 2. Time-Saving Tips (Highlights)
+**Output Path is fixed to the sibling `3_analysis results` folder: read-only, not user-selectable.** After switching projects, check paths and profile again, then wait for background scanning and checksum calculation.
 
-### Tips 1. Select One XML, and All Paths Are Auto-Filled
+> **XML validates the recipe; it is not the data source.** Without XML, acknowledge the first-run notice to use the embedded NDAX recipe. If XML levels differ, review the differences before deciding to continue. Continuing still uses NDAX `Step.xml`, never the external XML levels.
 
-After selecting a **Test Profile (XML)**, the app automatically:
+## 2. Check the Auto-Filled Information
 
-- Validates the XML (file name, content; encoding auto-compatible with UTF-8/GBK)
-- **Sets the input path** to the sibling `2_xlsx` folder
-- **Sets the output path** to the sibling `3_analysis results` folder (asks whether to create it if it doesn't exist)
-- **Detects temperature automatically**: `Freezer` in the file name -> Freezer temperature; otherwise -> Room temperature
-- Calculates and fills in the version number
-- If you are a new team member, just type your name directly into the name field.
+| Information | Source / action |
+|-------------|-----------------|
+| Samples Qty | Number of input NDAX files, read-only; not the valid count for every statistics cell |
+| Model, manufacturer, construction, specification method, date code, CC current | Parsed from the first file name; verify before running. Add configuration for an unknown model |
+| Pulse current levels | Embedded NDAX `Step.xml`, not guessed from file names or configuration tables |
+| Temperature type | Embedded `TestInfo.xml` → `StepName`: contains `Freezer` (case-insensitive) = freezer, otherwise room; missing/unreadable values are errors |
+| Three capacity fields | Derived from specification/method and applicable rules; read-only in the main window. See configuration below |
+| Location, people, equipment, environment | Selecting a location fills equipment information. Review and complete it; test information is saved when Run is clicked |
 
-> If the output folder doesn't exist, a dialog will ask whether to create it — click "Yes" and you won't need to create folders manually.
+- All NDAX files in a batch must have matching temperature types and pulse levels in the same order.
+- Freezer nominal temperature defaults to −20°C and is editable. It is **not measured temperature**; 0°C requires confirmation before running.
+- If an unrecognized arrangement defaults to `1S1P`, a countdown notice appears. Verify it; the default does not mean the source file declared that arrangement.
 
----
+### Where to Change Configuration
 
-### Tips 2. Select a Directory, and the Form Is Auto-Filled
+Use **Tools → Configuration** for models, manufacturers, people, equipment and **Rules**. New models need matching rules. After changing capacity rules, reselect the specification/method to refresh the main window.
 
-After setting the input path, the app scans all `.xlsx` files in the directory **in a background thread** (the UI stays responsive) and auto-fills:
+- Datasheet / Calculation Nominal Capacity are independent configuration inputs, not automatically extracted from measurements or a vendor PDF. Calculations use the Calculation capacity basis.
+- Required Useable Capacity accepts an absolute value, percentage, or construction-dependent dual percentage such as `85%|75%`.
+- Settings are saved automatically to `%APPDATA%\battery-analysis\config.json`; no manual file editing is needed.
 
-- **Samples Qty** = number of Excel files in the directory
-- Parsed from the **first file name**:
-  - Construction Method
-  - Specification Type (automatically matches the longest one)
-  - Specification Method
-  - Manufacturer
-  - **Batch/Date Code** (supports `DC2604`, `DC(2604)`, and `DC (2604)` formats)
-  - **Pulse Current** (extracted from patterns like `(15-6mA)`)
-  - **CC Current** (extracted from patterns like `mA,xxmA`)
+## 3. Confirm the Report Version and Run
 
-> Put the specification/batch/current info clearly in your file names — after selecting the directory, the form is almost fully filled in, and you just confirm.
+1. Check paths, form values, test information and **Version**. Wait for validation, then click the green **Run** button.
+2. Read any profile mismatch, freezer-temperature or anomaly notice before deciding; do not blindly confirm every dialog.
+3. On success, choose **Open Report** or **Open Path**.
 
----
+**Software versions and report versions are independent.** A report version is suggested from the NDAX checksum and existing deliveries. A manual version must be unused and at least the automatic baseline and highest delivered version. `4.01` and `4.1` are the same version; changing the test date does not allow reuse.
 
-### Tips 3. Capacity and Temperature Are Auto-Determined
+> Do not delete `SHA256.csv` to bypass validation. After changing input or migrating from Excel, reselect the input folder and wait for checksum refresh. A run counts as successful only after required outputs pass checks; failed/cancelled runs do not increase the success count.
 
-After selecting "Specification Type + Specification Method", the app matches the **Rules** in the configuration and auto-fills:
+### Handling Anomalies
 
-- **Datasheet Nominal Capacity**, **Calculation Nominal Capacity**, **Required Useable Capacity** (= calculation capacity x required percentage, e.g. 80%)
-- Automatically matches the **Battery Type** (e.g. selecting CR2450 -> Coin Cell)
-- Automatically determines the **temperature** based on required useable capacity:
-  - `280` -> switches to **Freezer -20 C**
-  - `380` -> switches to **Room temperature**
+| Situation | App behavior / action |
+|-----------|-----------------------|
+| Missing ordinary non-judgment cells | Continues automatically and summarizes at completion; preserves `No data`, with no zero-filling or interpolation |
+| Missing required judgment cells or per-file analysis failures | Read the scrollable details; two explicit confirmations are required to proceed. Stop is the default |
+| Invalid recipes or mixed batch temperatures/levels | Rejected before analysis. Correct the input; anomaly release cannot bypass this |
+| No valid measured timestamps in the entire batch | Fails rather than guessing the test date |
 
-> If the freezer temperature is set to 0 C when you click Run, a confirmation dialog appears to prevent mistakes.
+**Successful report generation does not mean the battery passed.** Reports may be Pass / Fail / Incomplete. After release, partially missing samples may still yield Pass based on remaining samples; review valid counts and anomaly records.
 
----
+## 4. Inspect Results and Audit Records
 
-### Tips 4. Zero Configuration on First Launch
+- `3_analysis results` contains automatically named report folders (`Date_vVersion`) and Word, Result/Sample Excel, PNG/SVG plots, CSV and JSON outputs.
+- `Info_Plot.json`: inspect `anomalies` and `analysis_audit` for provenance, capacity basis, anomaly decisions and valid/expected counts per cell.
+- Application logs: `%LOCALAPPDATA%\BatteryAnalysis\logs`.
+- Existing temporary folders, report folders or Word files are not overwritten. Inspect old outputs and choose an unused version. Normal failures/cancellation clean up only outputs created by that run; crash remnants are not automatically deleted.
 
-- On first run, a default configuration is created automatically at `%APPDATA%\battery-analysis\config.json`
-- Battery types, specifications, manufacturers, specification methods, pulse currents, cut-off voltages, tester locations, testers, equipment models and firmware versions are **all pre-set**
-- Old configurations are migrated automatically, with automatic integrity validation
-- Missing/empty configuration values fall back to **built-in defaults**, so the UI never goes blank due to a broken config
-- Loaded automatically on every launch — no need to re-set up
+## 5. Optional Tools and Settings
 
----
+### BatteryChartViewer
 
-### Tips 5. Test Information Is Auto-Saved and Auto-Loaded
+Open **Tools → BatteryChartViewer → File → Open** and select a results data folder containing `Info_Image.csv`.
 
-- Content in the **Test Information table** (equipment, software versions, testers, ambient temperature/humidity, etc.) is saved to the configuration automatically when you click Run
-- It is auto-loaded next time you open the app
-- Drop-downs (Tester Location, Tested By, Reported By) load automatically from the configuration
-- **Selecting a "Tester Location" auto-fills the whole equipment table**: test equipment, BTS server/client/analysis software versions, middle machine and test unit model/hardware version/serial number/firmware — all pre-set in the configuration per location, filled in with one click
-- After editing the configuration dialog and closing it, your previously selected Battery Type, Manufacturer, Tester Location, Tested By, etc. are **restored automatically** — nothing is lost
+| Pointer location | Left-button drag | Mouse wheel |
+|------------------|------------------|-------------|
+| Plot area | Pan both axes | Zoom both axes around the pointer |
+| X / Y tick area | Pan the corresponding axis only | Zoom that axis only |
 
----
+Right-click resets the view. **Home / Back / Forward** navigate view history. Native toolbar **Pan / Zoom** modes suspend these custom gestures; click the active mode again to restore them. **Save** exports images. Main-window View font zoom does not change chart coordinates.
 
-### Tips 6. One-Click Access After Analysis Completes
+### NDAX Converter
 
-- When analysis finishes, a dialog offers **"Open Report"** / **"Open Path"** / **"OK"**
-- Automatically matches the current version of the Word report; if not found, the **latest** one is opened
-- Report files are named automatically: `Manufacturer_Specification_DCBatch_TDDate_vVersion.docx`
-- **Word template is chosen automatically** based on the number of current levels (<=4 or >4)
-- Output directory is created automatically (`Date_vVersion` subfolder) and contains: box plots (PNG/SVG), Excel result sheets, Word report, CSV summary
+Open **Tools → NDAX Converter** (NDAX 转换器), select the NDAX folder and start conversion. Excel files go to the sibling `2_xlsx` folder. This separate window does not change the main analysis settings and is **not a prerequisite for analysis**.
 
----
+### Settings and Help
 
-### Tips 7. Language and Theme Are Remembered; Window Auto-Adjusts
+- **Edit → Preferences**: language, theme, font and other settings are remembered automatically.
+- **Help → User Manual**: opens this GitHub Wiki (internet access required).
 
-- **Language**: auto-detects the system language on first launch; once you switch manually it's remembered for next launch
-- **Window**: centered and sized to fit the screen automatically on every launch (scroll bars appear on small screens; the window can be freely resized/maximized)
-- **Theme / Font size**: set in Preferences and remembered automatically
+## 6. FAQ
 
----
+| Problem | Action |
+|---------|--------|
+| No input data | Select the directory that actually contains `.ndax`, not the project root or `2_xlsx` |
+| Wrong model or capacities | Add/update Rules in Configuration, then reselect specification/method |
+| Cannot create output directory | Check write permission beside the input folder; the output path cannot be selected manually |
+| Version conflict / checksum not ready | Wait for scanning; reselect input if needed, then use an unused version at or above the minimum. Do not delete the ledger |
+| Incomplete UI | Resize/maximize, reduce font size in Preferences, or scroll on a small screen |
 
-### Tips 8. Real-Time Validation — You'll Know Immediately When Something's Wrong
-
-- When a required field is empty, a path doesn't exist, or the version format is invalid, the corresponding input box turns **red** and the status bar shows a hint
-- When validation passes, the status bar shows `status:ok` and the Run button is ready
-- Problem files are listed in a dialog with detailed reasons for easy troubleshooting
-
----
-
-## 3. Menus
-
-- **Tools -> Configuration**: manage battery config, test config, and equipment info (add/remove specifications, manufacturers, testers, etc.)
-- **Preferences**: language, theme, font size, auto-save, exit confirmation, etc.
-- **Help -> User Manual**: view this guide
-
----
-
-## 4. FAQ
-
-| Problem | Solution |
-|---------|----------|
-| "Input path has no data" | Make sure `.xlsx` files exist in the `2_xlsx` folder (files starting with `~$` are ignored as temp files) |
-| "Output directory does not exist" | Click "Yes" in the dialog to create it automatically, or pick an existing directory manually |
-| Version number is wrong | The version is determined automatically by the data content — don't edit it manually; check that the input/output paths are correct |
-| UI appears incomplete | The window can be freely resized/maximized; a scroll bar appears automatically on small screens |
-
----
-
-*Last updated: 2026-08-11 · If the documentation differs from the software, the software's actual behavior takes precedence*
-
-> During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software.
-> However, due to insufficient testing time and samples, there are inevitably still many bugs.
-> If you have any questions, please let me know and I will fix them.
-
----
-
-Back to [[Home]]
+Before upgrading, back up reports, configuration and the ledger, then restart the app. [Release notes (Chinese)](https://github.com/Sandman6z/battery-analysis/blob/main/docs/RELEASE_NOTES_v5.1.2.md) · [Report an issue](https://github.com/Sandman6z/battery-analysis/issues) with software version, error details and logs.

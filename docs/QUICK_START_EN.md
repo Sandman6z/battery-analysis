@@ -1,10 +1,10 @@
 # Battery Analysis Tool · Quick Start Guide
 
-> For BOEDT Battery Analysis Tool **v5.1.1**.
+> For BOEDT Battery Analysis Tool **v5.1.2**.
 >
 > This tool analyzes original NEWARE **NDAX data directly** and generates plots, Excel result sheets, Word reports, CSV and JSON. Intermediate Excel conversion is no longer required.
 >
-> Use [v5.1.1 (release notes in Chinese)](RELEASE_NOTES_v5.1.1.md), which fixes startup failures in the v5.1.0 cloud-built EXE.
+> This version updates the guides and Wiki help entry; see [v5.1.2 release notes (Chinese)](RELEASE_NOTES_v5.1.2.md). The [v5.1.1 Windows EXE startup fixes](RELEASE_NOTES_v5.1.1.md) still apply.
 >
 > See the [v5.1.0 release notes (Chinese)](RELEASE_NOTES_v5.1.0.md) for chart navigation and read-only fields. The [v5.0.0 NDAX migration notes (Chinese)](RELEASE_NOTES_v5.0.0.md) still apply.
 
@@ -40,7 +40,7 @@
 - Suggests a report version from the NDAX checksum; manual unused versions at or above the highest applicable version are allowed (Tips 9)
 - If you are a new team member, just type your name directly into the name field.
 
-> 💡 Test Profile is an optional validation file, not the analysis data source. The `1_ndax` folder alone is sufficient to start analysis.
+> 💡 Test Profile is an optional validation file, not the analysis data source. The `1_ndax` folder alone is sufficient to start analysis. If XML levels differ from the embedded recipe, review the mismatch notice. Continuing still uses NDAX `Step.xml`, not the external XML levels.
 
 ---
 
@@ -126,7 +126,7 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 ### Tips 9. Manual Report Versions Without Overwriting Deliveries
 
-- Software `5.1.1` and report numbers such as `4.0/4.1` are independent.
+- Software `5.1.2` and report numbers such as `4.0/4.1` are independent.
 - A manual report version must be at least the automatic baseline and the highest existing delivered version, and must be unused. If the minimum is `4.0`, `1.08` is invalid.
 - Numeric components are compared: `4.01` and `4.1` denote the same version. Duplicate checking applies across test dates.
 - The manually selected version is retained after success. Success counts increase only after required outputs pass checks; failed/cancelled runs are not counted.
@@ -175,7 +175,7 @@ Open **Tools → BatteryChartViewer**. To inspect existing analysis results, cho
 
 - **Tools → Configuration**: manage battery config, test config, and equipment info (add/remove specifications, manufacturers, testers, etc.)
 - **Preferences**: language, theme, font size, auto-save, exit confirmation, etc.
-- **Help → User Manual**: view this guide
+- **Help → User Manual**: open the [GitHub Wiki](https://github.com/Sandman6z/battery-analysis/wiki) and select the Chinese or English guide (internet access required)
 
 ---
 
@@ -184,13 +184,13 @@ Open **Tools → BatteryChartViewer**. To inspect existing analysis results, cho
 | Problem | Solution |
 |---------|----------|
 | "Input path has no data" | Make sure original `.ndax` files exist in `1_ndax` or the selected input directory. Excel-only input is not supported by the new main workflow |
-| "Output directory does not exist" | Click "Yes" in the dialog to create it automatically, or pick an existing directory manually |
+| Cannot create output directory | Output is fixed to the sibling `3_analysis results` folder and created automatically. Check write permission there; manual output selection is not available |
 | Version/checksum problem | Wait for or refresh the NDAX checksum; a manual unused version at or above the minimum is allowed. Do not delete the ledger |
 | UI appears incomplete | The window can be freely resized/maximized; a scroll bar appears automatically on small screens |
 
 ---
 
-*Applicable version: v5.1.1 · See the release notes for rules and verification limits; include logs when reporting discrepancies.*
+*Applicable version: v5.1.2 · See the release notes for rules and verification limits; include logs when reporting discrepancies.*
 
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software.
 > However, due to insufficient testing time and samples, there are inevitably still many bugs.

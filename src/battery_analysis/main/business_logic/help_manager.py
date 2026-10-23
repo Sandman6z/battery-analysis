@@ -38,7 +38,9 @@ class HelpManager:
             from PyQt6.QtCore import QUrl
             from PyQt6.QtGui import QDesktopServices
 
-            QDesktopServices.openUrl(QUrl("https://sandman6z.github.io/battery-analysis/QUICK_START/"))
+            manual_url = "https://github.com/Sandman6z/battery-analysis/wiki"
+            if not QDesktopServices.openUrl(QUrl(manual_url)):
+                raise RuntimeError(manual_url)
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.error("Failed to open user manual: %s", e)
             QW.QMessageBox.warning(

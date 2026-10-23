@@ -1,66 +1,40 @@
-# BOEDT Battery Analysis Tool Wiki
+# BOEDT Battery Analysis Tool · 用户手册
 
-欢迎使用 **BOEDT Battery Analysis Tool** 文档 Wiki。
+适用于 **v5.1.2**。直接分析 NEWARE 原始 **NDAX**，生成图表、Excel、Word、CSV 和 JSON。
 
-本工具用于分析 NEWARE 电池测试系统导出的 **Excel 数据**，自动生成箱线图、Excel 结果表、Word 报告和 CSV 汇总。
+**[中文操作指南](https://github.com/Sandman6z/battery-analysis/wiki/Quick-Start)** · **[English User Guide](https://github.com/Sandman6z/battery-analysis/wiki/Quick-Start-EN)**
 
----
+## 三步开始
 
-## 功能特性
+| 步骤 | 操作 | 注意 |
+|------|------|------|
+| 1. 选数据 | **Input Path → Open** 选择 `1_ndax`；也可从 **Test Profile → Open** 选择 XML 带出路径 | XML 选填；主分析不读取 `2_xlsx` |
+| 2. 核对并运行 | 等待扫描，核对自动带出的电池/测试信息与报告版本，点击 **Run** | 输出固定为同级 `3_analysis results`；异常提示需先阅读 |
+| 3. 查结果 | 完成后点 **Open Report / Open Path** | 生成成功不等于合格；同时检查判定、有效样本数与异常 |
 
-- 电池数据分析与可视化
-- 支持多种数据格式导入
-- 脉冲识别与匹配
-- 批量处理与报告生成
-- 自动从文件名解析测试参数（规格、批次、电流等）
-- 实时校验与提示
-- 多语言支持（中文/英文）
-- 自动保存与恢复用户配置
+## 与旧流程的关键区别
 
----
+- **不必先转 Excel**：脉冲档位以 NDAX 内嵌 `Step.xml` 为准，外部 XML 仅做校验。
+- **温度来自 NDAX**：读取内嵌 `TestInfo.xml` 的 `StepName`，不再依据外部 XML 文件名；同批温度/档位必须一致。
+- **只读派生字段**：样本数来自输入文件；三项容量通过 **Tools → Configuration → Rules** 维护，修改后重选规格/方法刷新。
+- **报告版本独立于软件版本**：可手填未使用且不低于最低要求的版本，不能覆盖旧报告；不要删除 `SHA256.csv` 绕过检查。
+- **缺失分级处理**：普通缺失保留 `No data` 并汇总；必需判定格缺失/单文件分析失败需两次确认；损坏配方不能放行。
 
-## 快速开始
+## 按任务查找
 
-大多数情况下，你只需要 **三个步骤**：
+| 你要做什么 | 入口 |
+|------------|------|
+| 首次运行、切换项目、核对输入 | [操作指南 §1–3](https://github.com/Sandman6z/battery-analysis/wiki/Quick-Start#1-准备数据并选择项目) |
+| 新增型号/厂家、修改容量规则 | **Tools → Configuration**；[字段来源与配置](https://github.com/Sandman6z/battery-analysis/wiki/Quick-Start#2-核对自动填入的信息) |
+| 理解异常、查报告与日志 | [运行与结果追溯](https://github.com/Sandman6z/battery-analysis/wiki/Quick-Start#3-确认报告版本点击-run) |
+| 看交互曲线 | **Tools → BatteryChartViewer → File → Open**，选含 `Info_Image.csv` 的目录 |
+| 只导出原始 Excel | **Tools → NDAX Converter**，输出同级 `2_xlsx`，不是主分析前置步骤 |
+| 调整语言/主题/字号 | **Edit → Preferences** |
 
-| 步骤 | 操作 | 软件自动完成 |
-|------|------|-------------|
-| 1 | 选择 Test Profile（Browse 到 XML 测试配置文件） | 自动验证 XML、自动填充输入/输出路径 |
-| 2 | 点击绿色 **Run** | 校验 -> 计算 -> 绘图 -> 生成报告，全程自动 |
-| 3 | 完成后点击 **"打开报告"** / **"打开路径"** | 一键直达结果 |
+## 项目与详细说明
 
-详细指南请参阅：
-- [[Quick-Start]] - 中文快速操作指南
-- [[Quick-Start-EN]] - English Quick Start Guide
+- [GitHub 仓库](https://github.com/Sandman6z/battery-analysis) · [下载发布版本](https://github.com/Sandman6z/battery-analysis/releases) · [问题反馈](https://github.com/Sandman6z/battery-analysis/issues)
+- [中文详细说明](https://github.com/Sandman6z/battery-analysis/blob/main/docs/QUICK_START.md) · [English detailed guide](https://github.com/Sandman6z/battery-analysis/blob/main/docs/QUICK_START_EN.md)
+- [版本与迁移说明](https://github.com/Sandman6z/battery-analysis/blob/main/CHANGELOG.md) · [容量与异常判定边界](https://github.com/Sandman6z/battery-analysis/blob/main/docs/pdf_recheck_and_anomaly_policy.md)
 
----
-
-## 文档导航
-
-| 页面 | 说明 |
-|------|------|
-| [[Quick-Start]] | 中文快速操作指南（三步上手） |
-| [[Quick-Start-EN]] | English Quick Start Guide |
-
----
-
-## 项目链接
-
-- [GitHub 仓库](https://github.com/Sandman6z/battery-analysis)
-- [问题反馈](https://github.com/Sandman6z/battery-analysis/issues)
-- [文档站点](https://sandman6z.github.io/battery-analysis/)
-
----
-
-## 常见问题
-
-| 问题 | 解决 |
-|------|------|
-| 提示"输入路径没有数据" | 确认 `2_xlsx` 文件夹下有 `.xlsx` 文件（排除以 `~$` 开头的临时文件） |
-| 提示输出目录不存在 | 在弹窗中点"是"自动创建，或手动选择已有目录 |
-| 版本号不对 | 版本号由数据内容自动决定，不要手动改；确认输入/输出路径正确 |
-| 界面显示不全 | 窗口可自由拉伸、最大化；小屏会自动出现滚动条 |
-
----
-
-*最后更新：2026-09-03*
+升级前备份报告、配置及账本，并重启应用。具体步骤、错误处理和图表手势请查看上方中英文操作指南。

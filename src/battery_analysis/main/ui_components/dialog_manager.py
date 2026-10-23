@@ -12,8 +12,6 @@
 
 # 标准库导入
 import logging
-import os
-from pathlib import Path
 
 # 第三方库导入
 import PyQt6.QtCore as QC
@@ -93,70 +91,10 @@ class DialogManager:
             )
 
     def show_user_manual(self):
-        """
-        显示用户手册
-        """
-        try:
-            # 首先尝试从当前目录查找手册
-            manual_paths = []
-            # 仅当 current_directory 已设置时添加相对路径
-            if (
-                hasattr(self.main_window, "current_directory")
-                and self.main_window.current_directory
-            ):
-                manual_paths.extend(
-                    [
-                        Path(self.main_window.current_directory) / "docs" / "user_manual.pdf",
-                        Path(self.main_window.current_directory) / "user_manual.pdf",
-                    ]
-                )
-            manual_paths.extend(
-                [
-                    # 绝对路径 - 项目目录
-                    Path(__file__).parent.parent.parent / "docs" / "user_manual.pdf",
-                    Path(__file__).parent.parent.parent / "user_manual.pdf",
-                    # 常见的文档位置
-                    Path(os.getcwd()) / "docs" / "user_manual.pdf",
-                    Path(os.getcwd()) / "user_manual.pdf",
-                ]
-            )
+        """打开 GitHub Wiki 用户手册，与 Help 菜单使用同一入口。"""
+        from battery_analysis.main.business_logic.help_manager import HelpManager
 
-            manual_found = False
-            for manual_path in manual_paths:
-                if manual_path.exists() and manual_path.is_file():
-                    try:
-                        # 使用安全的文件打开方式
-                        os.startfile(str(manual_path))
-                        manual_found = True
-                        self.logger.info("Opened user manual: %s", manual_path)
-                        break
-                    except (OSError, ValueError, RuntimeError, PermissionError) as open_error:
-                        self.logger.warning(
-                            "Failed to open manual file %s: %s", manual_path, open_error
-                        )
-                        continue
-
-            if not manual_found:
-                # 如果找不到手册文件，显示提示并提供解决方案
-                QW.QMessageBox.information(
-                    self.main_window,
-                    _("User Manual"),
-                    _("User manual file not found.\n\n"
-                      "Please make sure one of the following files exists:\n"
-                      "• docs/user_manual.pdf\n"
-                      "• user_manual.pdf\n\n"
-                      "For help, please contact technical support."),
-                    QW.QMessageBox.StandardButton.Ok,
-                )
-
-        except (OSError, TypeError, ValueError, RuntimeError) as e:
-            self.logger.error("Failed to open user manual: %s", e)
-            QW.QMessageBox.warning(
-                self.main_window,
-                _("Error"),
-                f"{_('Cannot open user manual')}: {e!s}",
-                QW.QMessageBox.StandardButton.Ok,
-            )
+        HelpManager(self.main_window).show_user_manual()
 
     def show_online_help(self):
         """

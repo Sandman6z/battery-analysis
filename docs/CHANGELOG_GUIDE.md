@@ -2,7 +2,9 @@
 
 本文档说明如何维护项目的 CHANGELOG.md 文件。
 
-## 当前版本：v5.1.1
+## 当前版本：v5.1.2
+
+- v5.1.2 的操作指南更新与 GitHub Wiki 帮助入口见 [发布说明](RELEASE_NOTES_v5.1.2.md)；版本号变更不代表新 EXE 已构建或发布。
 
 - v5.1.1 的 Windows EXE 启动修复与发布验证见 [发布说明](RELEASE_NOTES_v5.1.1.md)；不要继续分发存在启动问题的 v5.1.0 云端 EXE。
 - v5.1.0 的 Viewer 导航恢复、轴刻度区拖动、菜单工具栏验收及派生字段只读详见根目录 [CHANGELOG](../CHANGELOG.md#v510--2026-10-23) 和 [发布说明](RELEASE_NOTES_v5.1.0.md)；v5.0.0 的 NDAX 迁移说明仍适用。

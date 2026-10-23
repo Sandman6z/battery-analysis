@@ -1,10 +1,10 @@
 # 电池分析工具 · 快速操作指南
 
-> 适用于 BOEDT Battery Analysis Tool **v5.1.1**。
+> 适用于 BOEDT Battery Analysis Tool **v5.1.2**。
 >
 > 本工具直接分析 NEWARE 原始 **NDAX 数据**，自动生成箱线图、Excel 结果表、Word 报告、CSV 和 JSON。主分析无需先转换成 Excel。
 >
-> 请使用 [v5.1.1](RELEASE_NOTES_v5.1.1.md)，修复 v5.1.0 云端 EXE 的启动问题。
+> 本版更新操作指南与 Wiki 帮助入口，见 [v5.1.2 发布说明](RELEASE_NOTES_v5.1.2.md)；[v5.1.1 的 Windows EXE 启动修复](RELEASE_NOTES_v5.1.1.md)继续适用。
 >
 > 本版图表交互及只读字段变更见 [v5.1.0 发布说明](RELEASE_NOTES_v5.1.0.md)；NDAX 迁移注意事项见 [v5.0.0 发布说明](RELEASE_NOTES_v5.0.0.md)。
 
@@ -40,7 +40,7 @@
 - 按 NDAX 输入校验和自动建议报告版本；允许手动选择不低于最高版本且未占用的编号（见 Tips 9）
 - 如果你是新增人员，直接在名字框里面输入你的名字即可
 
-> 💡 Test Profile 是选填的校验文件，不是分析数据源；只准备 `1_ndax` 也能开始分析。
+> 💡 Test Profile 是选填的校验文件，不是分析数据源；只准备 `1_ndax` 也能开始分析。XML 与 NDAX 内嵌档位不一致时会提示差异；确认继续仍使用 NDAX `Step.xml`，不会改用外部 XML 档位。
 
 ---
 
@@ -128,7 +128,7 @@
 
 ### Tips 9. 报告版本可手动选择，但不能覆盖旧交付
 
-- 软件 `5.1.1` 与报告 `4.0/4.1` 等编号独立。
+- 软件 `5.1.2` 与报告 `4.0/4.1` 等编号独立。
 - 报告版本须不低于当前自动基线和已有交付最高版本，且尚未使用；最低为 `4.0` 时不能填 `1.08`。
 - 按数字分段比较，`4.01` 与 `4.1` 视为同一版本；换测试日期也不能重复使用旧编号。
 - 手动版本在成功后保留；只有全部必需交付物检查成功才增加成功次数，失败/取消不计成功。
@@ -177,7 +177,7 @@
 
 - **Tools → Configuration**：管理电池配置、测试配置、设备信息（可增删规格、制造商、测试人员等）
 - **Preferences**：语言、主题、字体大小、自动保存、退出确认等
-- **帮助 → 用户手册**：查看本说明文档
+- **Help → User Manual（帮助 → 用户手册）**：打开 [GitHub Wiki](https://github.com/Sandman6z/battery-analysis/wiki)，选择中文或英文操作指南（需要联网）
 
 ---
 
@@ -186,13 +186,13 @@
 | 问题 | 解决 |
 |------|------|
 | 提示"输入路径没有数据" | 确认 `1_ndax` 或手选输入目录下有原始 `.ndax`；只有 Excel 不能运行新版主分析 |
-| 提示输出目录不存在 | 在弹窗中点"是"自动创建，或手动选择已有目录 |
+| 输出目录无法创建 | 输出固定为输入目录同级的 `3_analysis results`，自动创建；检查该位置的写入权限，不能手动另选输出目录 |
 | 版本号不对/校验和未就绪 | 等待或刷新 NDAX 校验和；可手动填不低于最高版本且未占用的编号，不要删账本 |
 | 界面显示不全 | 窗口可自由拉伸、最大化；小屏会自动出现滚动条 |
 
 ---
 
-*适用版本：v5.1.1 · 详细规则与验证边界见发布说明；发现差异请附日志反馈。*
+*适用版本：v5.1.2 · 详细规则与验证边界见发布说明；发现差异请附日志反馈。*
 
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software. 
 > However, due to insufficient testing time and samples, there are inevitably still many bugs. 

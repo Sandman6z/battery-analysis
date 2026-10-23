@@ -38,6 +38,15 @@ class TestDialogManager:
             result = self.manager.show_question_message("title", "message")
             assert result is not None
 
+    def test_show_user_manual_uses_help_manager(self):
+        with patch(
+            "battery_analysis.main.business_logic.help_manager.HelpManager"
+        ) as help_manager:
+            self.manager.show_user_manual()
+
+        help_manager.assert_called_once_with(self.manager.main_window)
+        help_manager.return_value.show_user_manual.assert_called_once_with()
+
     def test_show_preferences(self):
         with (
             patch("battery_analysis.main.ui_components.dialog_manager.PreferencesDialog"),
