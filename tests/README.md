@@ -23,34 +23,18 @@
 ```
 tests/
 ├── battery_analysis/
-│   ├── application/            # 应用层测试
-│   │   └── usecases/
-│   ├── domain/                  # 领域层测试
-│   │   ├── entities/
-│   │   ├── repositories/
-│   │   └── services/
-│   │       └── impl/
+│   ├── analysis/                # 分析、计算、脉冲及数据处理测试
 │   ├── e2e/                     # 端到端测试
-│   ├── infrastructure/          # 基础设施层测试
-│   │   ├── repositories/
-│   │   └── services/
-│   ├── main/                    # 主要应用测试
-│   │   ├── business_logic/      # 业务逻辑测试
-│   │   ├── controllers/         # 控制器测试
-│   │   ├── initialization/      # 初始化测试
-│   │   │   └── steps/
-│   │   ├── managers/            # 管理器测试
-│   │   ├── presenters/          # Presenter测试
-│   │   ├── services/            # 服务测试
-│   │   ├── ui/                  # UI测试
-│   │   ├── ui_components/       # UI组件测试
-│   │   ├── utils/               # 工具测试
-│   │   └── workers/             # Worker测试
-│   ├── ui/                      # UI框架测试
-│   │   ├── frameworks/
-│   │   └── styles/
-│   └── utils/                   # 通用工具测试
+│   ├── i18n/                    # 国际化测试
+│   ├── main/                    # 窗口、控制器、服务及后台任务测试
+│   ├── ndax/                    # NDAX 读取及转换测试
+│   ├── reports/                 # 报告输出及统计测试
+│   ├── ui/                      # UI 框架与样式测试
+│   └── utils/                   # 配置、日志及共享工具测试
 ├── data/                        # 测试数据
+├── fixtures/                    # 共享样本与测试辅助代码
+├── manual/                      # 默认不执行的手工测试
+├── conftest.py                  # 公共 fixture 与 pytest 配置
 └── README.md                    # 测试文档
 ```
 
@@ -85,11 +69,11 @@ python -m pytest tests/ -v
 
 ### 运行特定层的测试
 ```bash
-# 运行领域层测试
-python -m pytest tests/battery_analysis/domain/ -v
+# 运行业务分析测试
+python -m pytest tests/battery_analysis/analysis/ -v
 
-# 运行应用层测试
-python -m pytest tests/battery_analysis/application/ -v
+# 运行报告输出测试
+python -m pytest tests/battery_analysis/reports/ -v
 
 # 运行服务层测试
 python -m pytest tests/battery_analysis/main/services/ -v
@@ -97,7 +81,7 @@ python -m pytest tests/battery_analysis/main/services/ -v
 
 ### 运行特定测试文件
 ```bash
-python -m pytest tests/battery_analysis/domain/entities/test_battery.py -v
+python -m pytest tests/battery_analysis/analysis/test_battery_analysis.py -v
 ```
 
 ## 测试数据

@@ -138,7 +138,7 @@ version = { attr = "battery_analysis._version.__version__" }
 cache-keys = [{ file = "pyproject.toml" }, { file = "src/battery_analysis/_version.py" }]
 
 [tool.setuptools.package-data]
-battery_analysis = ["templates/*.docx"]
+battery_analysis = ["templates/*.docx", "resources/icons/*.ico"]
 
 # ── Ruff ──────────────────────────────────────────────────────────────
 [tool.ruff]

@@ -3,8 +3,9 @@
 /__build__/
 /__temp__/
 
-# Claude Code 本地配置（不同机器不同，不进版本控制）
+# 本地 AI 工具配置与会议记录，不进版本控制
 .claude/
+.pi-meetings/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -23,8 +24,6 @@ downloads/
 eggs/
 .eggs/
 lib/
-# 前端 shadcn 源码目录（src/lib/）不要被上面的 Python `lib/` 规则吞掉
-!battery-analysis-roadmap/src/lib/
 lib64/
 parts/
 sdist/

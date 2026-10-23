@@ -140,7 +140,7 @@ def test_window_icon_is_bundled_at_runtime_path(monkeypatch, tmp_path):
     args = manager._build_pyinstaller_args(
         config, tmp_path, manager.project_root / "src", tmp_path / "dist"
     )
-    icon = manager.project_root / "config" / "resources" / "icons" / config["icon_name"]
+    icon = manager.project_root / "src" / "battery_analysis" / "resources" / "icons" / config["icon_name"]
     assert icon.is_file()
     assert f"--icon={icon}" in args
-    assert f"{icon};config/resources/icons" in args
+    assert f"{icon};battery_analysis/resources/icons" in args

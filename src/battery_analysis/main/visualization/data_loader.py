@@ -11,9 +11,9 @@ import os
 import traceback
 from pathlib import Path
 
+from battery_analysis.analysis.data_utils import build_plot_title
 from battery_analysis.utils.battery_classifier import derive_specifications
 from battery_analysis.utils.config_defaults import DEFAULT_CONFIG
-from battery_analysis.utils.processors.data_utils import build_plot_title
 
 logger = logging.getLogger(__name__)
 

@@ -14,7 +14,7 @@ def write_all(
 ) -> None:
     """写入 Excel/Word/CSV/JSON 报告（FileWriter 的简化替代）"""
     # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
-    from battery_analysis.domain.entities.test_info import TestInfo
+    from battery_analysis.domain.test_info import TestInfo
 
     if isinstance(listTestInfo, TestInfo):
         listTestInfo = listTestInfo.to_list()

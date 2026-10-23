@@ -1,6 +1,6 @@
 # Battery Analysis Tool
 
-欢迎使用 Battery Analysis Tool **v5.1.2** 文档站点。主分析已切换为 NDAX 原生读取，不再依赖中间 Excel；软件版本与报告交付编号独立。
+欢迎使用 Battery Analysis Tool **v5.1.3** 文档站点。主分析已切换为 NDAX 原生读取，不再依赖中间 Excel；软件版本与报告交付编号独立。
 
 ## 功能特性
 
@@ -15,6 +15,8 @@
 
 ## 文档导航
 
+- **[v5.1.3 发布说明](RELEASE_NOTES_v5.1.3.md)** - 分析/报告模块整理、包内图标及界面对齐修复
+
 - **[v5.1.2 发布说明](RELEASE_NOTES_v5.1.2.md)** - 中英文操作指南更新、GitHub Wiki 用户手册入口
 - **[GitHub Wiki 用户手册](https://github.com/Sandman6z/battery-analysis/wiki)** - 按任务查找简明操作步骤
 
@@ -26,6 +28,10 @@
 
 - **[快速开始（中文）](QUICK_START.md)** - 三步上手，快速完成分析
 - **[Quick Start (English)](QUICK_START_EN.md)** - Get started in three steps
+
+## 开发与架构备忘
+
+- **[未来大重构：原生语言与性能优化候选](specs/native-performance-refactor-assessment.md)** - NDAX/XLSX、图表交互与 Rust/C++ 的待验证方案；仅调研存档，不改变当前技术栈
 
 ## 项目链接
 

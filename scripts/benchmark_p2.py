@@ -14,8 +14,8 @@ import time
 import numpy as np
 import pandas as pd
 
-from battery_analysis.utils.processors.charge_calculator import ChargeCalculator
-from battery_analysis.utils.processors.pulse_matcher import match_pulse_levels
+from battery_analysis.analysis.charge_calculator import ChargeCalculator
+from battery_analysis.analysis.pulse_matcher import match_pulse_levels
 
 N_ROWS = 50000
 listCurrentLevel = [500, 1000, 2000, 3000, 4000, 6000, 8000, 12000, 16000, 20000]

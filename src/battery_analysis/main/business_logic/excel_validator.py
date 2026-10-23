@@ -4,8 +4,8 @@ Excel文件验证模块
 
 import logging
 
+from battery_analysis.analysis.excel_processor import is_metadata_header, read_excel_smart
 from battery_analysis.utils.file_validator import FileValidator
-from battery_analysis.utils.processors.excel_processor import is_metadata_header, read_excel_smart
 
 logger = logging.getLogger(__name__)
 

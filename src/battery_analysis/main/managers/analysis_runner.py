@@ -18,7 +18,7 @@ import PyQt6.QtWidgets as QW
 from PyQt6 import QtCore as QC
 
 # 本地应用/库导入
-from battery_analysis.domain.entities.test_info import TestInfo
+from battery_analysis.domain.test_info import TestInfo
 from battery_analysis.i18n.language_manager import _
 from battery_analysis.main.business_logic.version_manager import delivered_versions, parse_version
 

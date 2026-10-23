@@ -7,7 +7,7 @@ from PyQt6 import QtCore as QC
 from PyQt6 import QtGui as QG
 from PyQt6 import QtWidgets as QW
 
-from battery_analysis.domain.entities.test_info import TestInfo as BatteryTestInfo
+from battery_analysis.domain.test_info import TestInfo as BatteryTestInfo
 from battery_analysis.main.handlers.temperature_handler import TemperatureHandler
 from battery_analysis.main.main_window import Main
 from battery_analysis.main.ndax_converter_window import NdaxConverterWindow

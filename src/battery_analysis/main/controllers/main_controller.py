@@ -90,7 +90,7 @@ class MainController(QC.QObject):
         self.current_worker.input_files = deepcopy(getattr(self, "input_files", None))
         self.current_worker.profile_validation = deepcopy(getattr(self, "profile_validation", None) or {})
         self.current_worker.equipment_info = deepcopy(getattr(self, "equipment_info", {}))
-        from battery_analysis.domain.entities.test_info import TestInfo
+        from battery_analysis.domain.test_info import TestInfo
 
         info = self.current_worker.list_test_info
         self.current_worker.success_context = {

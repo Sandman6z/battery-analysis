@@ -1,8 +1,0 @@
-# Meeting: 我是这么想的，ndax为主，把我们原来主UI上的第一个ndax转excel的功能去掉，变成一个子功能，和batterychartviewer一样，就放在它的上面作为一个按钮，点开才有这个功能
-然后界面上不再通过xml的profile带出，通过ndax，依然能识别到其他所有的数据，这部分需要重新识别一下
-profile的xml也还是自动查找，但是只进行验证，验证里面的脉冲电流和ndax的是不是一致，一致的话，就继续，如果不一致就报错。但是允许用户不提供xml，如果没有xml，弹框提示，允许继续，然后只依靠ndax分析，并声明一次
-然后你具体分析是用excel还是现成转换ndax然后把excel放在临时文件夹，我觉得就按最高效率、最不容易出错误的方式，是不是还是将ndax转成csv或者excel格式，然后进行数据处理分析，最后得到结果，生成写入3_analysis results文件夹的相应版本的文件夹，再然后生成报告
-> Created: 2026-10-15T10:42:39.091Z
-> Type: Brainstorming (3 rounds)
-
----

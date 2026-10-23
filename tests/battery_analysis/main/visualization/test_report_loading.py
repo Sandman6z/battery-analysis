@@ -6,7 +6,7 @@ from unittest.mock import Mock
 import pytest
 
 from battery_analysis.main.visualization.data_loader import DataLoaderMixin
-from battery_analysis.utils.writers.info_csv_writer import write_info_csv, write_info_json
+from battery_analysis.reports.info_csv_writer import write_info_csv, write_info_json
 
 
 class ReportLoader(DataLoaderMixin):

@@ -34,6 +34,7 @@ theme:
 
 nav:
   - 首页: index.md
+  - v5.1.3 发布说明: RELEASE_NOTES_v5.1.3.md
   - v5.1.2 发布说明: RELEASE_NOTES_v5.1.2.md
   - v5.1.1 发布说明: RELEASE_NOTES_v5.1.1.md
   - v5.1.0 发布说明: RELEASE_NOTES_v5.1.0.md
@@ -58,7 +59,8 @@ markdown_extensions:
       permalink: true
 
 exclude_docs: |
-  superpowers/
+  plans/
+  specs/
   *.pdf
   CHANGELOG_GUIDE.md
   DOCSTRING_GUIDE.md

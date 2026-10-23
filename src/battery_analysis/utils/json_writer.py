@@ -3,7 +3,7 @@ import json
 import os
 from typing import Any
 
-from battery_analysis.utils.processors.data_utils import (
+from battery_analysis.analysis.data_utils import (
     generate_current_type_string,
     missing_reason,
 )
@@ -13,7 +13,7 @@ from battery_analysis.utils.report_coordinator import match_battery_type
 class JsonWriter:
     def __init__(self, strResultPath: str, listTestInfo: list, listBatteryInfo: list, result_dir: str | None = None) -> None:
         # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
-        from battery_analysis.domain.entities.test_info import TestInfo
+        from battery_analysis.domain.test_info import TestInfo
 
         if isinstance(listTestInfo, TestInfo):
             listTestInfo = listTestInfo.to_list()

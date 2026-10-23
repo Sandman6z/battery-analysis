@@ -62,6 +62,23 @@ def test_reporter_width_stays_twice_version_width(compact_window, qapp, theme):
     assert window.comboBox_ReportedBy.width() == 2 * window.lineEdit_Version.width()
 
 
+@pytest.mark.parametrize("theme", ["light", "dark"])
+def test_main_labels_share_left_edge(compact_window, qapp, theme):
+    get_theme_engine().set_theme(theme)
+    compact_window.show()
+    qapp.processEvents()
+    for width in (720, 1100):
+        compact_window.resize(width, 750)
+        qapp.processEvents()
+        labels = (
+            compact_window.label_Version,
+            compact_window.label_TesterLocation,
+            compact_window.label_TestProfile,
+        )
+        left_edges = [label.mapTo(compact_window, label.rect().topLeft()).x() for label in labels]
+        assert len(set(left_edges)) == 1, left_edges
+
+
 def test_compact_layout_has_no_horizontal_overflow(compact_window, qapp):
     get_theme_engine().set_theme("light")
     compact_window.show()

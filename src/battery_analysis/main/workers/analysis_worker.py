@@ -131,7 +131,7 @@ class AnalysisWorker(TaskRunner):
             self._emit_progress(0, "Preparing analysis...")
 
             # 后向兼容：若传入 TestInfo，转为 list 供旧版引擎使用
-            from battery_analysis.domain.entities.test_info import TestInfo
+            from battery_analysis.domain.test_info import TestInfo
 
             if isinstance(self.list_test_info, TestInfo):
                 self.list_test_info = self.list_test_info.to_list()
@@ -151,7 +151,7 @@ class AnalysisWorker(TaskRunner):
 
             # 电池分析
             # 延迟导入以避免循环引用
-            from battery_analysis.utils.processors import battery_analysis
+            from battery_analysis.analysis import battery_analysis
 
             self._emit_progress(5, "Loading battery analysis module...")
 

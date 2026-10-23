@@ -1,9 +1,0 @@
-const meetingDir = 'C:/Users/boe/Documents/EwinDT/battery-analysis/.pi-meetings/2026-10-23-batterychartviewer_交互失效排查与重构选型';
-const cwd = 'C:/Users/boe/Documents/EwinDT/battery-analysis';
-const common = `黑板头脑风暴第二轮。必须先调用 meeting_read_index，再用 meeting_read_entry 阅读所有 Round 1 条目及 User Feedback 条目，历史只从黑板读取。meetingDir=${meetingDir}。结合用户反馈，质疑其他顾问的不准确结论，并形成改进方案。用户方向在黑板已记录，请直接读取而非猜测。项目仅只读分析，本轮不修改源码、不安装依赖、不提交，不启动子代理；用户优先修复 Matplotlib 的意向用于收敛方案，不代表你可在并行咨询中改代码。重要结论给路径行号或官方文档链接，区分事实、推断、运行验证。不要再由当前无实现推导从未实现，也不要在没有历史证据时断言重构删除。不得把未测性能倍数、工期、包体积当事实。不能使用 shell/web 时明说限制，不编造工具结果。资料足够后停止。完整中文分析必须调用 meeting_append_entry 写入相同 meetingDir，speaker 用你的显示名，phase='Round 2'，summary 一句话，content 只能含参与者分析，不含包装标签、隐藏思考标记、工具调用文本、WROTE_ENTRY 或 acceptance-report。最终回答只能 WROTE_ENTRY: <一句话摘要>。`;
-return await runs.all([
- {key:'round2-gpt',label:'收敛修复边界与选型标准',agent:'gpt-brainstormer',cwd,task:common+' 显示名 GPT。重点评审第一轮相互矛盾的断言，给出直接抓横纵轴刻度区域拖动的最小可靠控制器设计（平移与缩放语义需分清），避免为了换库提前建设双后端框架。综合绘图丰富度、用户易用性、开发易用性给出 Matplotlib/PyQtGraph 比较维度及决策建议。'},
- {key:'round2-deepseek',label:'核验轴带交互与事件仲裁',agent:'deepseek-brainstormer',cwd,task:common+' 显示名 DeepSeek。重点核验 Matplotlib 标准工具栏单轴约束与直接轴带拖动差异，设计轴带 hit-test、坐标变换、拖出画布/释放、toolbar 互斥与 close disconnect；复核过滤切换是否真重建 figure，以及你第一轮默认工具栏滚轮可用的说法。给出行为测试而不是 grep/方法存在性测试。'},
- {key:'round2-minimax',label:'核实两库绘图能力与易用性',agent:'minimax-brainstormer',cwd,task:common+' 显示名 MiniMax。主责比较 PyQtGraph 和 Matplotlib 谁绘图更丰富、谁更好用，按曲线/散点/误差条/统计与科学图/图像热图/ROI/多图联动/实时更新/标注中文/矢量与报告导出/Qt集成/交互可发现性逐项说明原生、扩展或自定义。优先使用 web_enable 后的官方资料工具，或本地已安装库源码，附来源；不支持工具则明确未经核实。纠正第一轮从未实现、Matplotlib 不支持单轴、垂直 RangeSlider 等过强断言。核实 PyQtGraph AxisItem 是否本来就实现轴区域 mouseDragEvent/mouseWheelEvent，不要先入为主断言两库均需自写。'},
- {key:'round2-glm',label:'核对回调链与最小修复清单',agent:'glm-brainstormer',cwd,task:common+' 显示名 GLM。主责核对第一轮你所称过滤切换必定重建图/重置视野是否成立，沿实际回调链给证据并主动修正错误。若 shell 可用适度查 git 历史，不可用则不伪称已查。给直接抓轴刻度区域拖动、滚轮、工具栏兜底的最小分阶段修复清单和验收；对 PyQtGraph 迁移列出现有功能对照、真实需要重写的边界，不给无依据的天数与体积数字。'}
-]);

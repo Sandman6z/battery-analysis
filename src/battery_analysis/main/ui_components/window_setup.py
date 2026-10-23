@@ -43,40 +43,12 @@ class WindowSetup:
             应用程序图标
         """
         try:
-            # 尝试多个可能的图标路径（优先使用环境检测器，否则使用固定路径）
-            icon_paths = []
+            from battery_analysis.main.utils.file_utils import FileUtils
 
-            # 如果环境检测器可用，使用它来解析路径
-            if hasattr(self.main_window, "env_detector") and self.main_window.env_detector:
-                icon_paths = [
-                    self.main_window.env_detector.get_resource_path(
-                        "config/resources/icons/Icon_BatteryTestGUI.ico"
-                    ),
-                    self.main_window.env_detector.get_resource_path(
-                        "resources/icons/Icon_BatteryTestGUI.ico"
-                    ),
-                ]
-
-            # 已设置 current_directory 时尝试相对路径（工程中的图标）
-            from pathlib import Path
-
-            if (
-                hasattr(self.main_window, "current_directory")
-                and self.main_window.current_directory
-            ):
-                icon_paths.extend(
-                    [
-                        Path(self.main_window.current_directory)
-                        / "config"
-                        / "resources"
-                        / "icons"
-                        / "Icon_BatteryTestGUI.ico",
-                        Path(self.main_window.current_directory)
-                        / "resources"
-                        / "icons"
-                        / "Icon_BatteryTestGUI.ico",
-                    ]
-                )
+            icon_paths = FileUtils.get_icon_paths(
+                getattr(self.main_window, "env_detector", None),
+                getattr(self.main_window, "current_directory", None),
+            )
 
             # 遍历所有可能的路径，找到第一个存在的
             for icon_path in icon_paths:

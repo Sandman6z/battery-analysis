@@ -4,10 +4,10 @@ import json
 
 import pytest
 
+from battery_analysis.reports.word_report_writer import WordReportWriter
 from battery_analysis.utils.battery_classifier import battery_type_code
 from battery_analysis.utils.json_writer import JsonWriter
 from battery_analysis.utils.report_coordinator import ReportCoordinator
-from battery_analysis.utils.writers.word_report_writer import WordReportWriter
 
 
 @pytest.mark.parametrize("label,code", [

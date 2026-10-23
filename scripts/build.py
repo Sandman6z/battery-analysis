@@ -100,7 +100,7 @@ class BuildManager(BuildConfig):
                     "battery_analysis.main.battery_chart_viewer",
                     "battery_analysis.utils.version",
                     "battery_analysis.utils.file_writer",
-                    "battery_analysis.utils.processors.battery_analysis",
+                    "battery_analysis.analysis.battery_analysis",
                     "battery_analysis.ui.ui_main_window",
                     # 第三方库
                     "openpyxl",
@@ -203,7 +203,7 @@ class BuildManager(BuildConfig):
             "PyQt6.QtRemoteObjects", "PyQt6.QtSpatialAudio",
         ]
 
-        icon_path = self.project_root / "config" / "resources" / "icons" / app_config["icon_name"]
+        icon_path = src_path / "battery_analysis" / "resources" / "icons" / app_config["icon_name"]
 
         # ----- 构建命令 -----
         # 从 src/ 目录运行 PyInstaller，入口用绝对路径
@@ -234,7 +234,7 @@ class BuildManager(BuildConfig):
             "--add-data",
             f"{self.project_root / 'locale'};locale",
             "--add-data",
-            f"{icon_path};config/resources/icons",
+            f"{icon_path};battery_analysis/resources/icons",
         ])
 
         # ----- 排除模块 -----

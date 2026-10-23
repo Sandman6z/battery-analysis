@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (
 
 from battery_analysis.main.battery_chart_viewer import BatteryChartViewer
 from battery_analysis.main.factories.battery_chart_viewer_wrapper import BatteryChartViewerWrapper
-from battery_analysis.utils.writers.info_csv_writer import write_info_csv, write_info_json
+from battery_analysis.reports.info_csv_writer import write_info_csv, write_info_json
 
 
 @pytest.fixture

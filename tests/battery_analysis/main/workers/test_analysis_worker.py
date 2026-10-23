@@ -54,8 +54,8 @@ class TestAnalysisWorker:
         assert worker.str_error_xlsx
 
     def test_failed_writer_removes_only_this_run(self, tmp_path, monkeypatch):
+        from battery_analysis.analysis import battery_analysis
         from battery_analysis.utils import file_writer
-        from battery_analysis.utils.processors import battery_analysis
 
         output = tmp_path / "reports"
         output.mkdir()
@@ -98,8 +98,8 @@ class TestAnalysisWorker:
 
     @pytest.mark.parametrize("cancel_at_completion", [False, True])
     def test_success_signal_only_after_all_artifacts(self, tmp_path, monkeypatch, cancel_at_completion):
+        from battery_analysis.analysis import battery_analysis
         from battery_analysis.utils import file_writer
-        from battery_analysis.utils.processors import battery_analysis
 
         class Engine:
             def __init__(self, **kwargs):
@@ -177,7 +177,7 @@ class TestAnalysisWorker:
 
 
 def test_set_info_freezes_nested_test_info():
-    from battery_analysis.domain.entities.test_info import TestInfo
+    from battery_analysis.domain.test_info import TestInfo
 
     info = TestInfo(battery_type="Coin Cell", current_levels=[3, 6], voltage_levels=[2.5])
     worker = AnalysisWorker()

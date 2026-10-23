@@ -1,8 +1,8 @@
 # BOEDT Battery test GUI Tool
 
-**当前软件版本：v5.1.2 — 操作指南更新与 GitHub Wiki 帮助入口**
+**当前软件版本：v5.1.3 — 模块整理、图标打包与界面对齐修复**
 
-本版变更见 [CHANGELOG](CHANGELOG.md#v512--2026-10-23) 和 [v5.1.2 发布说明](docs/RELEASE_NOTES_v5.1.2.md)。[GitHub Wiki 用户手册](https://github.com/Sandman6z/battery-analysis/wiki)已更新中英文操作流程；Help → User Manual 统一指向 Wiki。v5.1.1 的 Windows 启动修复、v5.1.0 的图表交互功能及 v5.0.0 的 NDAX 迁移要求继续适用。
+本版变更见 [CHANGELOG](CHANGELOG.md#v513--2026-10-23) 和 [v5.1.3 发布说明](docs/RELEASE_NOTES_v5.1.3.md)。[GitHub Wiki 用户手册](https://github.com/Sandman6z/battery-analysis/wiki)已更新中英文操作流程；Help → User Manual 统一指向 Wiki。v5.1.1 的 Windows 启动修复、v5.1.0 的图表交互功能及 v5.0.0 的 NDAX 迁移要求继续适用。
 
 主分析直接读取 `1_ndax` 中的原始 NDAX，不再依赖先转出的 `2_xlsx`；电流档位以 NDAX 内嵌 Step.xml 为准。Excel 继续作为报告输出，独立转换功能保留。
 
@@ -11,7 +11,7 @@
 - **[中文操作指南](docs/QUICK_START.md)** / **[English quick start](docs/QUICK_START_EN.md)**
 - **[PDF 复查、容量来源与异常策略](docs/pdf_recheck_and_anomaly_policy.md)**
 
-升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.1.2` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
+升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.1.3` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
 
 ## BatteryChartViewer 导航
 
@@ -54,11 +54,33 @@ API 的 `max_workers`（`convert_batch` 及 `ConvertWorker` 的可选关键字�
 - **打包工具**：
   - 或使用pyinstaller：`uv pip install pyinstaller -i https://mirrors.aliyun.com/pypi/simple/`
 
+## 工程目录
+
+```text
+src/battery_analysis/
+├── analysis/       # 电池分析、计算及数据处理
+├── domain/         # 领域数据模型
+├── i18n/           # 国际化逻辑
+├── main/           # 应用入口、窗口与交互协调
+├── ndax/           # NDAX 读取及转换
+├── reports/        # CSV、Excel、Word 和图表输出
+├── resources/      # 应用图标等包内资源
+├── templates/      # 报告模板
+├── ui/             # UI 框架、样式及历史 Designer 文件
+└── utils/          # 配置、日志、环境及尚未迁移的共享模块
+```
+
+- `tests/battery_analysis/` 按源码职责组织，手工测试单独放在 `tests/manual/`。
+- `scripts/` 存放构建、翻译和开发辅助脚本。
+- `docs/` 是正式文档来源，`docs/plans/` 和 `docs/specs/` 分别保存实施计划与设计说明。
+- `wiki/` 保存 GitHub Wiki 的中英文简明操作页，并链接 `docs/` 中的详细规则；变更操作流程时需同步更新。
+- `build/` 是本地构建产物目录，不进入版本控制。
+
 ## 界面与资源
 
 当前主窗口由 `src/battery_analysis/main/ui_builder.py` 中的 `UIBuilder` 创建，不再通过 Designer 生成的 `Ui_MainWindow.setupUi()` 构建。仓库中的 `.ui` 和 `ui_main_window.py` 是历史文件，不是当前界面的修改入口。
 
-- 应用图标：`config/resources/icons/Icon_BatteryTestGUI.ico`，同时用于 EXE 内嵌图标和运行时窗口图标。
+- 应用图标：`src/battery_analysis/resources/icons/Icon_BatteryTestGUI.ico`，同时用于 EXE 内嵌图标和运行时窗口图标。
 - 样式及样式图标：`src/battery_analysis/ui/styles/`。
 - 报告模板：`src/battery_analysis/templates/`。
 - 翻译：`locale/`。

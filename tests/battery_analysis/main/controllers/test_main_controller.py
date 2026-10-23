@@ -120,7 +120,7 @@ class TestMainController:
 def test_submission_copies_inputs_and_completion_binds_actual_paths():
     from types import SimpleNamespace
 
-    from battery_analysis.domain.entities.test_info import TestInfo
+    from battery_analysis.domain.test_info import TestInfo
 
     controller = MainController()
     controller.thread_pool = SimpleNamespace(start=lambda worker: None)

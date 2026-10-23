@@ -148,6 +148,8 @@ class BatteryAnalysisTab(QW.QWidget):
 
         # 水平布局：[Version 组] [ReportedBy 组] [Run]
         top_bar = QW.QHBoxLayout()
+        # Match Test Profile: 1px group border + 5px outer + 5px row margin.
+        top_bar.setContentsMargins(11, 0, 0, 0)
         top_bar.setSpacing(10)
 
         ver_group = QW.QHBoxLayout()
@@ -194,7 +196,7 @@ class BatteryAnalysisTab(QW.QWidget):
         row1.setSpacing(5)
 
         hl_loc = QW.QHBoxLayout()
-        hl_loc.setContentsMargins(5, 5, 5, 5)
+        hl_loc.setContentsMargins(0, 5, 5, 5)
         hl_loc.setSpacing(5)
         mw.label_TesterLocation = _make_label(_("Tester Location"))
         mw.label_TesterLocation.setObjectName("label_TesterLocation")

@@ -13,15 +13,16 @@ from pathlib import Path
 
 import matplotlib
 
+from battery_analysis.analysis.data_utils import (
+    build_plot_title,
+    generate_current_type_string,
+)
+from battery_analysis.reports import plot_writer
 from battery_analysis.utils.battery_classifier import battery_type_code
 from battery_analysis.utils.constants import (
     CN_FONT_LIST,
     COLOR_NAME,
     PLT_COLOR_TYPE,
-)
-from battery_analysis.utils.processors.data_utils import (
-    build_plot_title,
-    generate_current_type_string,
 )
 from battery_analysis.utils.quality_requirements import (
     _EXPECTATION_CUTOFF_V,
@@ -32,7 +33,6 @@ from battery_analysis.utils.quality_requirements import (
     format_failure_remarks,
 )
 from battery_analysis.utils.readers.date_parser import parse_test_date
-from battery_analysis.utils.writers import plot_writer
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -334,7 +334,7 @@ class ReportCoordinator:
         test_date: str | None = None,
     ) -> None:
         # ── 后向兼容：接受 TestInfo 实例 ──────────────────────────
-        from battery_analysis.domain.entities.test_info import TestInfo
+        from battery_analysis.domain.test_info import TestInfo
 
         if isinstance(listTestInfo, TestInfo):
             listTestInfo = listTestInfo.to_list()
@@ -565,7 +565,7 @@ class ReportCoordinator:
 
     def write(self) -> None:
         """执行完整的写入流程：绘图 → Excel → Word → CSV"""
-        from battery_analysis.utils.writers.statistics_utils import (
+        from battery_analysis.reports.statistics_utils import (
             compute_list_cpt,
             compute_statistics,
         )
@@ -600,9 +600,9 @@ class ReportCoordinator:
         )
 
         # 委托给专用写入器
-        from battery_analysis.utils.writers.csv_writer import CsvWriter
-        from battery_analysis.utils.writers.excel_report_writer import ExcelReportWriter
-        from battery_analysis.utils.writers.word_report_writer import WordReportWriter
+        from battery_analysis.reports.csv_writer import CsvWriter
+        from battery_analysis.reports.excel_report_writer import ExcelReportWriter
+        from battery_analysis.reports.word_report_writer import WordReportWriter
 
         ExcelReportWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo, test_date=self.test_date).write(
             listCpt, stats

@@ -61,30 +61,20 @@ class FileUtils:
         Returns:
             应用图标的可能路径列表
         """
-        icon_paths = []
+        relative_path = Path("battery_analysis/resources/icons/Icon_BatteryTestGUI.ico")
+        # 从包位置查找，兼容源码、wheel 安装和 PyInstaller 解包目录。
+        icon_paths = [Path(__file__).resolve().parents[2] / "resources" / "icons" / relative_path.name]
 
-        # 如果环境检测器可用，使用它来解析路径
         if env_detector:
+            icon_paths.append(env_detector.get_resource_path(relative_path.as_posix()))
+
+        if current_directory:
             icon_paths.extend(
                 [
-                    env_detector.get_resource_path(
-                        "config/resources/icons/Icon_BatteryTestGUI.ico"
-                    ),
-                    env_detector.get_resource_path("resources/icons/Icon_BatteryTestGUI.ico"),
+                    Path(current_directory) / relative_path,
+                    Path(current_directory) / "src" / relative_path,
                 ]
             )
-
-        # 始终尝试相对路径（工程中的图标）
-        icon_paths.extend(
-            [
-                Path(current_directory)
-                / "config"
-                / "resources"
-                / "icons"
-                / "Icon_BatteryTestGUI.ico",
-                Path(current_directory) / "resources" / "icons" / "Icon_BatteryTestGUI.ico",
-            ]
-        )
 
         return icon_paths
 
