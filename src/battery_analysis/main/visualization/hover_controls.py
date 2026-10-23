@@ -9,6 +9,7 @@ import time
 import numpy as np
 
 from battery_analysis.main.visualization.interaction_utils import _select_hover_lines
+from battery_analysis.main.visualization.navigation_controls import navigation_active
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +99,9 @@ class HoverControlsMixin:
             annot.set_visible(False)
 
             def on_hover(event):
+                if navigation_active(fig.canvas) or event.inaxes != ax:
+                    _hide_hover_annotation(annot, fig)
+                    return
                 if event.inaxes == ax:
                     current_lines = _select_hover_lines(
                         check_filter, lines_filtered, lines_unfiltered
@@ -257,7 +261,7 @@ class HoverControlsMixin:
 
             def on_hover(event):
                 """鼠标悬停事件处理（带节流）"""
-                if event.inaxes != ax:
+                if navigation_active(fig.canvas) or event.inaxes != ax:
                     if annot.get_visible():
                         annot.set_visible(False)
                         fig.canvas.draw_idle()
@@ -284,6 +288,9 @@ class HoverControlsMixin:
 
             def process_hover_event(event):
                 """处理悬停事件"""
+                if navigation_active(fig.canvas):
+                    _hide_hover_annotation(annot, fig)
+                    return
                 if event is None or event.inaxes != ax:
                     return
 

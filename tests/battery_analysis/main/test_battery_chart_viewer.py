@@ -80,6 +80,22 @@ def test_valid_data_still_plots_after_failed_load(wrapper, tmp_path):
     assert viewer.intBatteryNum == 1
     assert len(viewer.current_fig.axes[0].lines) == 2
     assert viewer.current_fig.axes[0].get_title().startswith("Filtered ")
+    from matplotlib.backend_bases import MouseEvent
+    from matplotlib.ticker import AutoLocator
+
+    ax = viewer.current_fig.axes[0]
+    canvas = viewer.current_fig.canvas
+    assert canvas._battery_navigation.ax is ax
+    assert canvas.toolbar is not None
+    assert ax.get_xlim() == pytest.approx(viewer.listAxis[:2])
+    assert isinstance(ax.xaxis.get_major_locator(), AutoLocator)
+    assert isinstance(ax.yaxis.get_major_locator(), AutoLocator)
+    before = ax.get_xlim()
+    point = ax.bbox.get_points().mean(axis=0)
+    canvas.callbacks.process(
+        "scroll_event", MouseEvent("scroll_event", canvas, *point, step=1)
+    )
+    assert ax.get_xlim()[1] - ax.get_xlim()[0] < before[1] - before[0]
     (tmp_path / "Info_Image.csv").unlink()
     assert not viewer.load_data()
     assert viewer.data_load_attempted
@@ -130,6 +146,39 @@ def test_embedded_empty_and_failed_load_are_distinct(wrapper, tmp_path, attempt_
     assert (filter_checkbox, scroll_area, checkboxes) == (None, None, [])
     if not attempt_load:
         assert not [record for record in caplog.records if record.levelno >= logging.WARNING]
+    parent.close()
+
+
+def test_embedded_data_has_toolbar_and_axis_navigation(wrapper, tmp_path):
+    from matplotlib.backend_bases import MouseEvent
+    from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
+
+    write_info_csv(
+        str(tmp_path), ["Battery_1"], [15], [[[]]], [[[10, 11, 12]]], [[[3, 2.99, 2.98]]]
+    )
+    write_info_json(str(tmp_path), [], current_levels=[15])
+    parent = QWidget()
+    result = wrapper.embed_to_widget(parent, data_path=str(tmp_path))
+    assert result is not None
+    fig, canvas, *_ = result
+    ax = fig.axes[0]
+    assert isinstance(canvas.toolbar, NavigationToolbar2QT)
+    assert parent.layout().indexOf(canvas.toolbar) >= 0
+    canvas.draw()
+    assert ax.get_xlim() == pytest.approx(wrapper._viewer.listAxis[:2])
+    label = ax.xaxis.get_ticklabels()[2]
+    box = label.get_window_extent(canvas.get_renderer())
+    point = ((box.x0 + box.x1) / 2, (box.y0 + box.y1) / 2)
+    before_y = ax.get_ylim()
+    before_x = ax.get_xlim()
+    canvas.callbacks.process(
+        "scroll_event", MouseEvent("scroll_event", canvas, *point, step=1)
+    )
+    assert ax.get_ylim() == before_y
+    assert ax.get_xlim()[1] - ax.get_xlim()[0] == pytest.approx(
+        (before_x[1] - before_x[0]) / 1.2
+    )
+    canvas._battery_navigation.disconnect()
     parent.close()
 
 
