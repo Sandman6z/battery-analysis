@@ -133,6 +133,17 @@ def main(app=None, splash=None) -> None:
     window = Main(splash=splash)
     window.setMinimumSize(720, 600)
 
+    if "--smoke-test" in sys.argv:
+        # 等待真实延迟初始化完成；外部 CI 超时负责拦截 DLL 弹窗或初始化失败。
+        smoke_timer = QC.QTimer(window)
+
+        def finish_smoke_test():
+            if window._lazy_init_done and window.actionConfiguration.isEnabled():
+                app.exit(0)
+
+        smoke_timer.timeout.connect(finish_smoke_test)
+        smoke_timer.start(100)
+
     # 运行应用程序事件循环
     try:
         result = app.exec()
