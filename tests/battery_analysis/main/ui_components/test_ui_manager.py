@@ -1,7 +1,9 @@
 from unittest.mock import Mock, patch
 
 import pytest
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QValidator
+from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import QApplication, QLineEdit, QWidget
 
 from battery_analysis.main.business_logic.validation_fields import ValidationFieldsMixin
@@ -21,6 +23,38 @@ class TestUIManager:
 
 
 _version_app = None
+
+
+@pytest.mark.parametrize("name", [
+    "SamplesQty", "DatasheetNominalCapacity", "CalculationNominalCapacity", "RequiredUseableCapacity",
+])
+def test_derived_fields_are_display_only_but_allow_automatic_updates(name):
+    global _version_app
+    _version_app = QApplication.instance() or QApplication([])
+    window = QWidget()
+    for field_name in ("SamplesQty", "DatasheetNominalCapacity", "CalculationNominalCapacity", "RequiredUseableCapacity", "Version", "InputPath", "TestProfile"):
+        setattr(window, "lineEdit_" + field_name, QLineEdit(window))
+    window.validation_manager = Mock()
+    UIManager(window).init_lineedit()
+    field = getattr(window, "lineEdit_" + name)
+
+    assert field.isReadOnly()
+    assert not field.hasFrame()
+    assert field.validator() is None
+    assert field.focusPolicy() == Qt.FocusPolicy.ClickFocus
+    assert not window.lineEdit_Version.isReadOnly()
+    assert window.lineEdit_Version.validator() is not None
+
+    field.setText("920")
+    field.selectAll()
+    QTest.keyClicks(field, "123")
+    QTest.keyClick(field, Qt.Key.Key_Backspace)
+    assert field.text() == "920"
+
+    window.validation_manager.validate_required_fields.reset_mock()
+    field.setText("782")
+    assert field.text() == "782"
+    window.validation_manager.validate_required_fields.assert_called_once()
 
 
 @pytest.mark.parametrize(("value", "state", "invalid_feedback"), [

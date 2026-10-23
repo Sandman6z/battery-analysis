@@ -117,13 +117,9 @@ class UIManager:
                 self.main_window.comboBox_Specification_Method,
                 self.main_window.comboBox_Manufacturer,
                 self.main_window.lineEdit_BatchDateCode,
-                self.main_window.lineEdit_SamplesQty,
                 self.main_window.comboBox_Temperature,
                 self.main_window.spinBox_Temperature,
-                self.main_window.lineEdit_DatasheetNominalCapacity,
-                self.main_window.lineEdit_CalculationNominalCapacity,
                 self.main_window.spinBox_AcceleratedAging,
-                self.main_window.lineEdit_RequiredUseableCapacity,
                 self.main_window.comboBox_TesterLocation,
                 self.main_window.comboBox_TestedBy,
                 self.main_window.comboBox_ReportedBy,
@@ -173,34 +169,19 @@ class UIManager:
                 self.main_window.comboBox_Manufacturer, self.main_window.lineEdit_BatchDateCode
             )
             QW.QWidget.setTabOrder(
-                self.main_window.lineEdit_BatchDateCode, self.main_window.lineEdit_SamplesQty
-            )
-            QW.QWidget.setTabOrder(
-                self.main_window.lineEdit_SamplesQty, self.main_window.comboBox_Temperature
+                self.main_window.lineEdit_BatchDateCode, self.main_window.comboBox_Temperature
             )
             QW.QWidget.setTabOrder(
                 self.main_window.comboBox_Temperature, self.main_window.spinBox_Temperature
             )
             QW.QWidget.setTabOrder(
                 self.main_window.spinBox_Temperature,
-                self.main_window.lineEdit_DatasheetNominalCapacity,
-            )
-            QW.QWidget.setTabOrder(
-                self.main_window.lineEdit_DatasheetNominalCapacity,
-                self.main_window.lineEdit_CalculationNominalCapacity,
-            )
-            QW.QWidget.setTabOrder(
-                self.main_window.lineEdit_CalculationNominalCapacity,
                 self.main_window.spinBox_AcceleratedAging,
-            )
-            QW.QWidget.setTabOrder(
-                self.main_window.spinBox_AcceleratedAging,
-                self.main_window.lineEdit_RequiredUseableCapacity,
             )
 
             # 路径配置部分
             QW.QWidget.setTabOrder(
-                self.main_window.lineEdit_RequiredUseableCapacity,
+                self.main_window.spinBox_AcceleratedAging,
                 self.main_window.lineEdit_InputPath,
             )
             QW.QWidget.setTabOrder(
@@ -270,7 +251,9 @@ class UIManager:
             self.main_window.lineEdit_BatchDateCode.setToolTip(_("Enter battery batch date code"))
 
             # 样品数量
-            self.main_window.lineEdit_SamplesQty.setToolTip(_("Enter number of samples"))
+            self.main_window.lineEdit_SamplesQty.setToolTip(
+                _("Automatically counted from input data files")
+            )
 
             # 温度类型
             self.main_window.comboBox_Temperature.setToolTip("From NDAX TestInfo.xml StepName (recipe type, not measured temperature)")
@@ -280,12 +263,12 @@ class UIManager:
 
             # 标称容量（数据手册）
             self.main_window.lineEdit_DatasheetNominalCapacity.setToolTip(
-                _("Enter datasheet nominal capacity")
+                _("Automatically set from Configuration → Rules")
             )
 
             # 标称容量（计算值）
             self.main_window.lineEdit_CalculationNominalCapacity.setToolTip(
-                _("Enter calculated nominal capacity")
+                _("Automatically set from Configuration → Rules")
             )
 
             # 加速老化天数
@@ -293,7 +276,7 @@ class UIManager:
 
             # 所需可用容量
             self.main_window.lineEdit_RequiredUseableCapacity.setToolTip(
-                _("Enter required usable capacity")
+                _("Automatically set from Configuration → Rules")
             )
 
             # 测试地点
@@ -340,15 +323,16 @@ class UIManager:
         """
         初始化输入框设置
         """
-        # 数字输入限制
-        reg = QC.QRegularExpression(r"^\d*$")
-        validator = QG.QRegularExpressionValidator(self.main_window)
-        validator.setRegularExpression(reg)
-
-        self.main_window.lineEdit_SamplesQty.setValidator(validator)
-        self.main_window.lineEdit_DatasheetNominalCapacity.setValidator(validator)
-        self.main_window.lineEdit_CalculationNominalCapacity.setValidator(validator)
-        self.main_window.lineEdit_RequiredUseableCapacity.setValidator(validator)
+        # 自动统计和规则派生值仅展示；保留文本读取和自动更新时的校验。
+        for field in (
+            self.main_window.lineEdit_SamplesQty,
+            self.main_window.lineEdit_DatasheetNominalCapacity,
+            self.main_window.lineEdit_CalculationNominalCapacity,
+            self.main_window.lineEdit_RequiredUseableCapacity,
+        ):
+            field.setReadOnly(True)
+            field.setFrame(False)
+            field.setFocusPolicy(QC.Qt.FocusPolicy.ClickFocus)
 
         # 两/三段报告版本；Qt 仍允许未完成输入处于 Intermediate。
         reg = QC.QRegularExpression(REPORT_VERSION_PATTERN)
