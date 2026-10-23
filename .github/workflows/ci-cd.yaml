@@ -50,8 +50,14 @@ jobs:
         QT_QPA_PLATFORM: offscreen
       run: |
         uv run python -c "from pathlib import Path; import subprocess; exe, = Path('build/Release').glob('*.exe'); subprocess.run([str(exe.resolve()), '--smoke-test'], check=True, timeout=90)"
+        if ($LASTEXITCODE -ne 0) {
+          Get-ChildItem "$env:LOCALAPPDATA/BatteryAnalysis/logs/*.log" -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime | Select-Object -Last 1 | Get-Content -Tail 100
+          exit 1
+        }
 
     - name: Upload build artifacts
+      if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
       with:
         name: battery-analysis-build

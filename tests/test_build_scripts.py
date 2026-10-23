@@ -1,6 +1,7 @@
 """测试 scripts/build.py 的构建入口与失败检测逻辑"""
 
 import tomllib
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -38,6 +39,11 @@ def test_pyinstaller_entry_matches_project_script(
     assert str(expected_entry) in args
     assert "--strip" not in args
     assert "--noupx" in args
+    import numpy
+
+    numpy_libs = Path(numpy.__file__).parent.parent / "numpy.libs"
+    assert numpy_libs.is_dir()
+    assert f"--add-binary={numpy_libs};numpy.libs" in args
 
 
 class TestBuildFailed:
