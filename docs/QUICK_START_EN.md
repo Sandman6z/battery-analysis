@@ -1,8 +1,10 @@
 # Battery Analysis Tool · Quick Start Guide
 
-> For BOEDT Battery Analysis Tool **v5.1.0**.
+> For BOEDT Battery Analysis Tool **v5.1.1**.
 >
 > This tool analyzes original NEWARE **NDAX data directly** and generates plots, Excel result sheets, Word reports, CSV and JSON. Intermediate Excel conversion is no longer required.
+>
+> Use [v5.1.1 (release notes in Chinese)](RELEASE_NOTES_v5.1.1.md), which fixes startup failures in the v5.1.0 cloud-built EXE.
 >
 > See the [v5.1.0 release notes (Chinese)](RELEASE_NOTES_v5.1.0.md) for chart navigation and read-only fields. The [v5.0.0 NDAX migration notes (Chinese)](RELEASE_NOTES_v5.0.0.md) still apply.
 
@@ -124,7 +126,7 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 ### Tips 9. Manual Report Versions Without Overwriting Deliveries
 
-- Software `5.1.0` and report numbers such as `4.0/4.1` are independent.
+- Software `5.1.1` and report numbers such as `4.0/4.1` are independent.
 - A manual report version must be at least the automatic baseline and the highest existing delivered version, and must be unused. If the minimum is `4.0`, `1.08` is invalid.
 - Numeric components are compared: `4.01` and `4.1` denote the same version. Duplicate checking applies across test dates.
 - The manually selected version is retained after success. Success counts increase only after required outputs pass checks; failed/cancelled runs are not counted.
@@ -188,7 +190,7 @@ Open **Tools → BatteryChartViewer**. To inspect existing analysis results, cho
 
 ---
 
-*Applicable version: v5.1.0 · See the release notes for rules and verification limits; include logs when reporting discrepancies.*
+*Applicable version: v5.1.1 · See the release notes for rules and verification limits; include logs when reporting discrepancies.*
 
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software.
 > However, due to insufficient testing time and samples, there are inevitably still many bugs.

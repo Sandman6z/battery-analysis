@@ -34,6 +34,7 @@ theme:
 
 nav:
   - 首页: index.md
+  - v5.1.1 发布说明: RELEASE_NOTES_v5.1.1.md
   - v5.1.0 发布说明: RELEASE_NOTES_v5.1.0.md
   - v5.0.0 发布与迁移: RELEASE_NOTES_v5.0.0.md
   - 数据口径与异常策略: pdf_recheck_and_anomaly_policy.md

@@ -1,8 +1,10 @@
 # 电池分析工具 · 快速操作指南
 
-> 适用于 BOEDT Battery Analysis Tool **v5.1.0**。
+> 适用于 BOEDT Battery Analysis Tool **v5.1.1**。
 >
 > 本工具直接分析 NEWARE 原始 **NDAX 数据**，自动生成箱线图、Excel 结果表、Word 报告、CSV 和 JSON。主分析无需先转换成 Excel。
+>
+> 请使用 [v5.1.1](RELEASE_NOTES_v5.1.1.md)，修复 v5.1.0 云端 EXE 的启动问题。
 >
 > 本版图表交互及只读字段变更见 [v5.1.0 发布说明](RELEASE_NOTES_v5.1.0.md)；NDAX 迁移注意事项见 [v5.0.0 发布说明](RELEASE_NOTES_v5.0.0.md)。
 
@@ -126,7 +128,7 @@
 
 ### Tips 9. 报告版本可手动选择，但不能覆盖旧交付
 
-- 软件 `5.1.0` 与报告 `4.0/4.1` 等编号独立。
+- 软件 `5.1.1` 与报告 `4.0/4.1` 等编号独立。
 - 报告版本须不低于当前自动基线和已有交付最高版本，且尚未使用；最低为 `4.0` 时不能填 `1.08`。
 - 按数字分段比较，`4.01` 与 `4.1` 视为同一版本；换测试日期也不能重复使用旧编号。
 - 手动版本在成功后保留；只有全部必需交付物检查成功才增加成功次数，失败/取消不计成功。
@@ -190,7 +192,7 @@
 
 ---
 
-*适用版本：v5.1.0 · 详细规则与验证边界见发布说明；发现差异请附日志反馈。*
+*适用版本：v5.1.1 · 详细规则与验证边界见发布说明；发现差异请附日志反馈。*
 
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software. 
 > However, due to insufficient testing time and samples, there are inevitably still many bugs. 

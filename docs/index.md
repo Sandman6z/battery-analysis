@@ -1,6 +1,6 @@
 # Battery Analysis Tool
 
-欢迎使用 Battery Analysis Tool **v5.1.0** 文档站点。主分析已切换为 NDAX 原生读取，不再依赖中间 Excel；软件版本与报告交付编号独立。
+欢迎使用 Battery Analysis Tool **v5.1.1** 文档站点。主分析已切换为 NDAX 原生读取，不再依赖中间 Excel；软件版本与报告交付编号独立。
 
 ## 功能特性
 
@@ -15,6 +15,7 @@
 
 ## 文档导航
 
+- **[v5.1.1 发布说明](RELEASE_NOTES_v5.1.1.md)** - Windows EXE 启动修复、DLL 打包与发布前启动验证
 - **[v5.1.0 发布说明](RELEASE_NOTES_v5.1.0.md)** - Viewer 导航恢复、菜单工具栏验收及只读派生字段
 - **[v5.0.0 完整发布与迁移说明](RELEASE_NOTES_v5.0.0.md)** - 所有功能变动、迁移要求、验证证据与边界
 - **[PDF 复查与数据口径](pdf_recheck_and_anomaly_policy.md)** - 告警分类、容量来源及样本覆盖率

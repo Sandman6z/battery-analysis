@@ -2,8 +2,9 @@
 
 本文档说明如何维护项目的 CHANGELOG.md 文件。
 
-## 当前版本：v5.1.0
+## 当前版本：v5.1.1
 
+- v5.1.1 的 Windows EXE 启动修复与发布验证见 [发布说明](RELEASE_NOTES_v5.1.1.md)；不要继续分发存在启动问题的 v5.1.0 云端 EXE。
 - v5.1.0 的 Viewer 导航恢复、轴刻度区拖动、菜单工具栏验收及派生字段只读详见根目录 [CHANGELOG](../CHANGELOG.md#v510--2026-10-23) 和 [发布说明](RELEASE_NOTES_v5.1.0.md)；v5.0.0 的 NDAX 迁移说明仍适用。
 
 - 软件版本只修改 `src/battery_analysis/_version.py` 的 `__version__`；pyproject 动态版本、包导出、界面兼容封装和构建脚本均读取此值，不另设版本常量。uv 缓存键已包含该文件，执行 `uv run`/`uv sync` 会在版本变化后更新本地包元数据；只用旧环境的 Python、不触发同步可能仍看到旧安装元数据。
