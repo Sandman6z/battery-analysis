@@ -10,7 +10,7 @@ import traceback
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
+from matplotlib.ticker import AutoLocator
 
 from battery_analysis.main.visualization.styling import MODERN_BUTTON_STYLE
 from battery_analysis.utils.constants import CN_FONT_LIST
@@ -35,11 +35,8 @@ class FigureBuilderMixin:
             ax = fig.add_subplot(gs[:, 5:])
 
             ax.axis(self.listAxis)
-            x_ticks = self.listXTicks
-            ax.set_xticks(x_ticks)
-
-            y_major_locator = MultipleLocator(0.2)
-            ax.yaxis.set_major_locator(y_major_locator)
+            ax.xaxis.set_major_locator(AutoLocator())
+            ax.yaxis.set_major_locator(AutoLocator())
 
             ax.set_title(f"Filtered {self.strPltName}", fontdict=title_fontdict)
             ax.set_xlabel("Charge [mAh]", fontdict=axis_fontdict)
@@ -330,22 +327,7 @@ class FigureBuilderMixin:
                 ax.set_ylim(y_min, y_max)
                 logger.info("Dynamically adjusting y-axis range: [%.4f, %.4f]", y_min, y_max)
 
-                y_range_actual = y_max - y_min
-                target_ticks = 15
-                optimal_interval = y_range_actual / target_ticks
-
-                if y_range_actual < 5:
-                    intervals = [0.1, 0.2, 0.5]
-                elif y_range_actual < 20:
-                    intervals = [0.5, 1.0, 2.0]
-                else:
-                    intervals = [1.0, 2.0, 5.0, 10.0]
-
-                best_interval = min(intervals, key=lambda x: abs(x - optimal_interval))
-
-                y_major_locator = MultipleLocator(best_interval)
-                ax.yaxis.set_major_locator(y_major_locator)
-                logger.info("Dynamically adjusting y-axis tick interval: %s", best_interval)
+                ax.yaxis.set_major_locator(AutoLocator())
             else:
                 logger.warning("Unable to calculate a valid y-axis range, using default value")
         except (AttributeError, ValueError, TypeError) as e:

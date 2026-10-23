@@ -33,7 +33,8 @@ class ViewerControlsMixin:
             fig.text(
                 0.98,
                 0.78,
-                "Shortcuts: Scroll to zoom, drag to pan, right-click to reset view",
+                "Drag plot to pan; drag axis ticks to pan one axis.\n"
+                "Scroll over plot/axis to zoom; right-click to reset (toolbar modes off).",
                 fontsize=7,
                 ha="right",
             )

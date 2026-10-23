@@ -313,6 +313,9 @@ class BatteryChartViewer(
             except (AttributeError, TypeError, ValueError) as ui_error:
                 logger.warning("Error adding interaction controls: %s", str(ui_error))
 
+            from battery_analysis.main.visualization.navigation_controls import install_navigation
+
+            install_navigation(fig, ax)
             logger.info("Chart created, showing real battery test data from CSV file")
 
             plt.ion()
@@ -439,7 +442,7 @@ class BatteryChartViewer(
             parent_widget: 父 QWidget，图表将嵌入到此控件中
 
         Returns:
-            tuple: (fig, canvas, toolbar) 或 None（失败时）
+            tuple: (fig, canvas, filter_checkbox, scroll_area, battery_checkboxes)，失败时 None
         """
         try:
             logger.info("Starting to create embedded chart")
@@ -454,7 +457,7 @@ class BatteryChartViewer(
                 )
                 matplotlib.use("QtAgg")
 
-            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
             from matplotlib.figure import Figure
 
             # 创建 Figure 和 Canvas（不使用 pyplot 全局状态）
@@ -485,26 +488,16 @@ class BatteryChartViewer(
                 self._show_error_chart_embedded(fig, canvas, parent_widget)
                 return fig, canvas, None, None, []
 
-            # 创建 Figure 和 Canvas（不使用 pyplot 全局状态）
-            fig = Figure(figsize=(15, 6))
-            canvas = FigureCanvasQTAgg(fig)
-
-            # 设置 canvas 属性
-            canvas.setObjectName("FigureCanvasQTAgg")
-
             # 添加子图
             gs = fig.add_gridspec(1, 40)
             ax = fig.add_subplot(gs[:, 5:])
 
             # 设置坐标轴
             ax.axis(self.listAxis)
-            x_ticks = self.listXTicks
-            ax.set_xticks(x_ticks)
+            from matplotlib.ticker import AutoLocator
 
-            from matplotlib.ticker import MultipleLocator
-
-            y_major_locator = MultipleLocator(0.2)
-            ax.yaxis.set_major_locator(y_major_locator)
+            ax.xaxis.set_major_locator(AutoLocator())
+            ax.yaxis.set_major_locator(AutoLocator())
 
             title_fontdict = {"fontsize": 15, "fontweight": "bold"}
             axis_fontdict = {"fontsize": 15}
@@ -554,6 +547,11 @@ class BatteryChartViewer(
                 scroll_area = None
                 battery_checkboxes = []
 
+            from battery_analysis.main.visualization.navigation_controls import install_navigation
+
+            toolbar = NavigationToolbar2QT(canvas, parent_widget)
+            install_navigation(fig, ax)
+
             # 保存引用
             self.current_fig = fig
             self.current_canvas = canvas
@@ -564,6 +562,7 @@ class BatteryChartViewer(
 
                 layout = QVBoxLayout(parent_widget)
                 layout.setContentsMargins(0, 0, 0, 0)
+                layout.addWidget(toolbar)
                 layout.addWidget(canvas)
                 parent_widget.setLayout(layout)
 
