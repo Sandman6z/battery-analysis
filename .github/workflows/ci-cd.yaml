@@ -40,13 +40,17 @@ jobs:
         QT_QPA_PLATFORM: offscreen
       run: uv run pytest
     
-    - name: Install UPX (optional, for smaller exe)
-      run: choco install upx --version 5.0.0 -y
-      continue-on-error: true
     - name: Run build script
       run: |
         uv run python scripts/build.py Release
     
+    - name: Smoke test frozen executable
+      timeout-minutes: 2
+      env:
+        QT_QPA_PLATFORM: offscreen
+      run: |
+        uv run python -c "from pathlib import Path; import subprocess; exe, = Path('build/Release').glob('*.exe'); subprocess.run([str(exe.resolve()), '--smoke-test'], check=True, timeout=90)"
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:

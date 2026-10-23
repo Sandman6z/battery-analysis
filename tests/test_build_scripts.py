@@ -8,12 +8,16 @@ import pytest
 from scripts.build import _build_failed
 
 
+@pytest.mark.parametrize("upx_available", [False, True])
 @pytest.mark.parametrize("build_type", ["Debug", "Release"])
-def test_pyinstaller_entry_matches_project_script(monkeypatch, tmp_path, build_type):
+def test_pyinstaller_entry_matches_project_script(
+    monkeypatch, tmp_path, build_type, upx_available
+):
     from scripts.build import BuildManager
 
     # 只检查配置与命令，不清理真实产物或调用 PyInstaller。
     monkeypatch.setattr(BuildManager, "clean_build_dirs", lambda self: None)
+    monkeypatch.setattr("scripts.build.shutil.which", lambda name: "upx" if upx_available else None)
     manager = BuildManager(build_type)
     project = tomllib.loads(
         (manager.project_root / "pyproject.toml").read_text(encoding="utf-8")
@@ -32,6 +36,8 @@ def test_pyinstaller_entry_matches_project_script(monkeypatch, tmp_path, build_t
     assert expected_entry.is_file()
     assert app_config["main_file_path"] == expected_entry
     assert str(expected_entry) in args
+    assert "--strip" not in args
+    assert "--noupx" in args
 
 
 class TestBuildFailed:

@@ -28,12 +28,6 @@ def _check_build_env():
         logger.warning("  uv pip install -e '.[build]'")
         sys.exit(1)
 
-    # 检查 UPX 是否可用
-    if shutil.which("upx"):
-        logger.info("UPX 已可用，将用于压缩")
-    else:
-        logger.info("UPX 未找到，跳过压缩（不影响功能）")
-
 
 def _build_failed(result):
     """PyInstaller 构建失败判定：返回码非零（或结果为 None）即失败。"""
@@ -254,15 +248,11 @@ class BuildManager(BuildConfig):
         else:
             cmd_args.append("--noconsole")
 
-        if not debug_mode:
-            cmd_args.append("--strip")
-
         # 优化等级 1 去除 assert 并关闭 __debug__，保留 docstrings。
         cmd_args.append("--optimize=1")
 
-        # UPX 压缩：仅在 UPX 可用时启用
-        if not shutil.which("upx"):
-            cmd_args.append("--noupx")
+        # Windows DLL 保持原样：strip/UPX 可能破坏 Python/Qt DLL 的加载。
+        cmd_args.append("--noupx")
 
         # 确保 numpy 的 C 扩展 DLL 被正确收集
         # 注意：不能用 --collect-submodules=numpy，因为它会覆盖 --exclude-module，
