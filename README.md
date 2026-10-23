@@ -1,8 +1,8 @@
 # BOEDT Battery test GUI Tool
 
-**当前软件版本：v5.0.3 — 构建与测试入口统一、类型检查修复**
+**当前软件版本：v5.1.0 — 图表导航恢复、轴刻度区拖动与菜单工具栏验收**
 
-本版变更见 [CHANGELOG](CHANGELOG.md#v503--2026-10-22)；v5.0.0 的 NDAX 迁移要求继续适用。
+本版变更见 [CHANGELOG](CHANGELOG.md#v510--2026-10-23) 和 [v5.1.0 发布说明](docs/RELEASE_NOTES_v5.1.0.md)；v5.0.0 的 NDAX 迁移要求继续适用。
 
 主分析直接读取 `1_ndax` 中的原始 NDAX，不再依赖先转出的 `2_xlsx`；电流档位以 NDAX 内嵌 Step.xml 为准。Excel 继续作为报告输出，独立转换功能保留。
 
@@ -11,7 +11,14 @@
 - **[中文操作指南](docs/QUICK_START.md)** / **[English quick start](docs/QUICK_START_EN.md)**
 - **[PDF 复查、容量来源与异常策略](docs/pdf_recheck_and_anomaly_policy.md)**
 
-升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.0.3` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
+升级注意：旧 XLSX 校验和需按 NDAX 输入刷新登记；手动报告版本须不低于已有最高版本且未占用。软件 `5.1.0` 与报告编号独立，已有报告和账本不自动改写。普通缺失保留 `No data` 并记录，判定必需格缺失仍需人工确认。
+
+## BatteryChartViewer 导航
+
+- 绘图区左键拖动平移双轴；抓横轴/纵轴刻度区域左键拖动，只平移对应轴。
+- 绘图区滚轮缩放双轴；刻度区域滚轮仅缩放对应轴，以鼠标位置为锚；右键点击复位。
+- 保留 Matplotlib 工具栏；Pan/Zoom 开启时自定义手势暂停，再次点击对应按钮退出模式后恢复。Home/Back/Forward 可导航自定义操作历史。
+- 主窗口样本数量和三项容量派生字段只读；样本数来自输入文件，容量在 Configuration → Rules 中维护。
 
 ## NDAX 转换并发与 CPU 留核
 

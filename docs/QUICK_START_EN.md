@@ -1,10 +1,10 @@
 # Battery Analysis Tool · Quick Start Guide
 
-> For BOEDT Battery Analysis Tool **v5.0.0**.
+> For BOEDT Battery Analysis Tool **v5.1.0**.
 >
 > This tool analyzes original NEWARE **NDAX data directly** and generates plots, Excel result sheets, Word reports, CSV and JSON. Intermediate Excel conversion is no longer required.
 >
-> See the [complete v5.0.0 release and migration notes (Chinese)](RELEASE_NOTES_v5.0.0.md).
+> See the [v5.1.0 release notes (Chinese)](RELEASE_NOTES_v5.1.0.md) for chart navigation and read-only fields. The [v5.0.0 NDAX migration notes (Chinese)](RELEASE_NOTES_v5.0.0.md) still apply.
 
 > Compared to previous versions, the `setting.ini` file has been removed. All configuration is now done within the app (**Tools → Configuration**).
 > To export raw data to Excel, open **Tools → NDAX 转换器** (NDAX Converter, directly below `BatteryChartViewer`). It runs in a separate window and saves results to the sibling `2_xlsx` folder without changing the main analysis settings. This export is optional, not a prerequisite for analysis.
@@ -46,7 +46,7 @@
 
 After setting the input path, the app scans `.ndax` files and validates their recipes **in a background thread**, then auto-fills:
 
-- **Samples Qty** = number of input NDAX files, not necessarily the valid count for every capacity cell
+- **Samples Qty** = number of input NDAX files, shown read-only; not necessarily the valid count for every capacity cell
 - Parsed from the **first file name**:
   - Construction Method
   - Specification Type (automatically matches the longest one)
@@ -71,7 +71,7 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 > 💡 If the freezer temperature is set to 0°C when you click Run, a confirmation dialog appears to prevent mistakes.
 >
-> Both nominal capacities are independent editable configuration inputs, not automatically measured values or values read from a datasheet PDF. Existing CR2450 rules use 600/550mAh; CP5022121 uses 3500/3500mAh. Calculations retain the Calculation-capacity basis and record differences. Report output uses the submitted Battery Type consistently; an empty or unknown type raises an explicit error, never a default Coin Cell.
+> Both nominal capacities are independent rule-derived configuration inputs, not automatically measured values or values read from a datasheet PDF. Sample count and all three capacity fields are read-only in the main window. To change capacities, edit **Tools → Configuration → Rules**, then reselect the applicable specification/method to refresh the derived values. Existing CR2450 rules use 600/550mAh; CP5022121 uses 3500/3500mAh. Calculations retain the Calculation-capacity basis and record differences. Report output uses the submitted Battery Type consistently; an empty or unknown type raises an explicit error, never a default Coin Cell.
 
 ---
 
@@ -124,7 +124,7 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 ### Tips 9. Manual Report Versions Without Overwriting Deliveries
 
-- Software `5.0.0` and report numbers such as `4.0/4.1` are independent.
+- Software `5.1.0` and report numbers such as `4.0/4.1` are independent.
 - A manual report version must be at least the automatic baseline and the highest existing delivered version, and must be unused. If the minimum is `4.0`, `1.08` is invalid.
 - Numeric components are compared: `4.01` and `4.1` denote the same version. Duplicate checking applies across test dates.
 - The manually selected version is retained after success. Success counts increase only after required outputs pass checks; failed/cancelled runs are not counted.
@@ -152,6 +152,23 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 ---
 
+### Tips 13. BatteryChartViewer Navigation
+
+Open **Tools → BatteryChartViewer**. To inspect existing analysis results, choose **File → Open** in the Viewer and select a directory containing `Info_Image.csv`.
+
+| Pointer location | Left-button drag | Mouse wheel |
+|------------------|------------------|-------------|
+| Plot area | Pan both axes | Zoom both axes around the pointer |
+| X-axis tick area | Pan X only | Zoom X only |
+| Y-axis tick area | Pan Y only | Zoom Y only |
+
+- Right-click in these regions to restore the initial view. Filter/battery visibility changes preserve the current view; loading new data establishes a new initial view.
+- **Home / Back / Forward** navigate view history. The native **Pan / Zoom** toolbar modes suspend the custom gestures above; click the active mode again to exit and restore them.
+- **Subplots** adjusts the layout; **Customize** edits chart parameters (select the main plot, not an auxiliary button Axes); **Save** exports formats including PNG/SVG/PDF.
+- **File → Exit** closes the Viewer; **Help → About** displays version information. Main-window font zoom is separate from chart-axis zoom.
+
+---
+
 ## 3. Menus
 
 - **Tools → Configuration**: manage battery config, test config, and equipment info (add/remove specifications, manufacturers, testers, etc.)
@@ -171,7 +188,7 @@ After selecting "Specification Type + Specification Method", the app matches the
 
 ---
 
-*Applicable version: v5.0.0 · See the release notes for rules and verification limits; include logs when reporting discrepancies.*
+*Applicable version: v5.1.0 · See the release notes for rules and verification limits; include logs when reporting discrepancies.*
 
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software.
 > However, due to insufficient testing time and samples, there are inevitably still many bugs.

@@ -1,10 +1,10 @@
 # 电池分析工具 · 快速操作指南
 
-> 适用于 BOEDT Battery Analysis Tool **v5.0.0**。
+> 适用于 BOEDT Battery Analysis Tool **v5.1.0**。
 >
 > 本工具直接分析 NEWARE 原始 **NDAX 数据**，自动生成箱线图、Excel 结果表、Word 报告、CSV 和 JSON。主分析无需先转换成 Excel。
 >
-> 完整变更与迁移注意事项见 [v5.0.0 发布说明](RELEASE_NOTES_v5.0.0.md)。
+> 本版图表交互及只读字段变更见 [v5.1.0 发布说明](RELEASE_NOTES_v5.1.0.md)；NDAX 迁移注意事项见 [v5.0.0 发布说明](RELEASE_NOTES_v5.0.0.md)。
 
 > 对比之前的版本，去掉了`setting.ini`文件，配置都在软件中完成（Tools——Configuration）
 > 如需导出原始数据为 Excel，请打开 **工具 → NDAX 转换器**（位于 `BatteryChartViewer` 下方）。转换在独立窗口中运行，结果保存到所选目录同级的 `2_xlsx`，不会更改主分析配置，也不是主分析前置步骤。
@@ -46,7 +46,7 @@
 
 设置输入路径后，软件在**后台线程**扫描目录下的 `.ndax` 文件并检查配方，自动带出：
 
-- **样本数量** = 输入 NDAX 文件数（不是各容量格的有效样本数）
+- **样本数量** = 输入 NDAX 文件数，只读展示（不是各容量格的有效样本数）
 - 从**第一个文件名**自动解析带出：
   - 构造方式（Construction Method）
   - 规格型号（Specification Type，自动匹配最长的那个）
@@ -71,7 +71,7 @@
 
 > 💡 冷冻温度设为 0°C 时点 Run 会弹确认框，防止误填。
 >
-> 两个 nominal capacity 都是规则自动填入、可手动编辑的独立参数，不是从实测计算或自动读取厂商 PDF。比如 CR2450 现有规则为 600/550mAh，CP5022121 为 3500/3500mAh；当前计算仍按 Calculation 容量口径，两值不同会记录。输出类型统一使用提交的 Battery Type，未知或空类型明确报错，不默认成 Coin Cell。
+> 两个 nominal capacity 都是规则自动填入的独立参数，不是从实测计算或自动读取厂商 PDF。样本数量和三项容量在主窗口只读展示；容量修改请到 **Tools → Configuration → Rules**，再重新选择对应规格/方法以刷新派生值。比如 CR2450 现有规则为 600/550mAh，CP5022121 为 3500/3500mAh；当前计算仍按 Calculation 容量口径，两值不同会记录。输出类型统一使用提交的 Battery Type，未知或空类型明确报错，不默认成 Coin Cell。
 
 ---
 
@@ -126,7 +126,7 @@
 
 ### Tips 9. 报告版本可手动选择，但不能覆盖旧交付
 
-- 软件 `5.0.0` 与报告 `4.0/4.1` 等编号独立。
+- 软件 `5.1.0` 与报告 `4.0/4.1` 等编号独立。
 - 报告版本须不低于当前自动基线和已有交付最高版本，且尚未使用；最低为 `4.0` 时不能填 `1.08`。
 - 按数字分段比较，`4.01` 与 `4.1` 视为同一版本；换测试日期也不能重复使用旧编号。
 - 手动版本在成功后保留；只有全部必需交付物检查成功才增加成功次数，失败/取消不计成功。
@@ -154,6 +154,23 @@
 
 ---
 
+### Tips 13. BatteryChartViewer 缩放与拖动
+
+通过 **Tools → BatteryChartViewer** 打开；查看已有分析结果时，使用 Viewer 的 **File → Open** 选择包含 `Info_Image.csv` 的数据目录。
+
+| 鼠标位置 | 左键拖动 | 滚轮 |
+|----------|----------|------|
+| 绘图区 | 双轴平移 | 以鼠标位置为锚缩放双轴 |
+| 横轴刻度区域 | 仅平移 X 轴 | 仅缩放 X 轴 |
+| 纵轴刻度区域 | 仅平移 Y 轴 | 仅缩放 Y 轴 |
+
+- 在上述区域右键点击可恢复初始视野；过滤/电池显隐切换保留当前视野，重新加载数据建立新的初始视野。
+- **Home / Back / Forward** 可导航视图历史；**Pan / Zoom** 是原生工具栏模式，开启时暂停以上自定义手势，再次点击相应按钮退出后恢复。
+- **Subplots** 调整布局；**Customize** 编辑图表参数，多轴选择框中请选择主图而非按钮辅助轴；**Save** 保存图像，支持 PNG/SVG/PDF 等格式。
+- **File → Exit** 关闭 Viewer；**Help → About** 显示版本信息。主窗口 View 菜单的字号缩放不是图表坐标缩放。
+
+---
+
 ## 三、菜单与快捷键
 
 - **Tools → Configuration**：管理电池配置、测试配置、设备信息（可增删规格、制造商、测试人员等）
@@ -173,7 +190,7 @@
 
 ---
 
-*适用版本：v5.0.0 · 详细规则与验证边界见发布说明；发现差异请附日志反馈。*
+*适用版本：v5.1.0 · 详细规则与验证边界见发布说明；发现差异请附日志反馈。*
 
 > During repeated testing and use, I made many user-friendly fixes and improvements based on commonly used software. 
 > However, due to insufficient testing time and samples, there are inevitably still many bugs. 
