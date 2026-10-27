@@ -187,6 +187,8 @@ class BuildManager(BuildConfig):
             "pandas.tests",
             # 其他库测试
             "openpyxl.tests",
+            # Pillow 自动收集的 AVIF 编解码器不属于图表导出或 Office 报告支持的格式。
+            "PIL.AvifImagePlugin",
             # GUI 框架排除（只用 PyQt6）
             "tkinter", "PySide6", "PySide2", "PyQt5",
             # 不使用的 PyQt6 子模块

@@ -1,7 +1,10 @@
 """测试 scripts/build.py 的构建入口与失败检测逻辑"""
 
+import subprocess
+import sys
 import tomllib
 from pathlib import Path
+from textwrap import dedent
 from unittest.mock import Mock
 
 import pytest
@@ -39,11 +42,65 @@ def test_pyinstaller_entry_matches_project_script(
     assert str(expected_entry) in args
     assert "--strip" not in args
     assert "--noupx" in args
+    assert "--exclude-module=PIL.AvifImagePlugin" in args
     import numpy
 
     numpy_libs = Path(numpy.__file__).parent.parent / "numpy.libs"
     assert numpy_libs.is_dir()
     assert f"--add-binary={numpy_libs};numpy.libs" in args
+
+
+def test_image_exports_and_office_reports_work_without_avif(tmp_path):
+    # 独立进程避免其他测试预先加载 Pillow 插件，模拟冻结包中没有 AVIF 编解码器。
+    result = subprocess.run(
+        [sys.executable, "-c", dedent("""
+            import sys
+            from pathlib import Path
+            from zipfile import ZipFile
+
+            sys.modules["PIL.AvifImagePlugin"] = None
+            sys.modules["PIL._avif"] = None
+
+            from docx import Document
+            from matplotlib.backends.backend_agg import FigureCanvasAgg
+            from matplotlib.figure import Figure
+            from openpyxl import Workbook
+            from openpyxl.drawing.image import Image as ExcelImage
+            from PIL import Image
+            from xlsxwriter import Workbook as XlsxWriterWorkbook
+
+            Image.init()
+            assert "AVIF" not in Image.OPEN
+            assert "AVIF" not in Image.SAVE
+            figure = Figure(figsize=(1, 1))
+            canvas = FigureCanvasAgg(figure)
+            figure.add_subplot().plot([0, 1], [0, 1])
+            formats = canvas.get_supported_filetypes()
+            assert "avif" not in formats
+            for fmt in formats:
+                if fmt == "pgf":  # PGF 依赖外部 LaTeX，与 Pillow 无关。
+                    continue
+                output = Path(f"chart.{fmt}")
+                figure.savefig(output, format=fmt)
+                assert output.stat().st_size > 0, fmt
+
+            document = Document()
+            document.add_picture("chart.png")
+            document.save("report.docx")
+            assert len(Document("report.docx").inline_shapes) == 1
+
+            workbook = Workbook()
+            workbook.active.add_image(ExcelImage("chart.png"), "A1")
+            workbook.save("openpyxl.xlsx")
+            with XlsxWriterWorkbook("xlsxwriter.xlsx") as workbook:
+                workbook.add_worksheet().insert_image("A1", "chart.png")
+            for filename in ("openpyxl.xlsx", "xlsxwriter.xlsx"):
+                with ZipFile(filename) as archive:
+                    assert "xl/media/image1.png" in archive.namelist()
+        """)],
+        cwd=tmp_path, capture_output=True, text=True, timeout=60,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 class TestBuildFailed:
