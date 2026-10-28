@@ -1,3 +1,14 @@
+### v5.1.4
+
+#### Windows EXE 精简与完整台账
+- 汇总全部 9 轮精简：Pillow AVIF、lxml.objectify、Qt PDF 图片读取插件及 Qt6Pdf.dll、Jinja2、lxml.html 及其自然孤立 optparse、lxml.sax、Matplotlib 15 个示例数据、SQLite、Pandas Styler/MarkupSafe/模板残留。
+- 在 [完整台账](docs/packaging/windows-exe-slimming.md) 与 [JSON 清单](docs/packaging/windows-exe-slimming-v5.1.4.json) 中记录全部 72 项现行排除（65 项既有、7 项新增），以及实际退出的 45 个 Python 模块、39 个文件条目、逐轮实测体积、验证与恢复条件。
+- 历史同版本候选 EXE 从 84,075,964 减至 73,687,890 字节，净减少 12.35558%；独立重建对照的 620 字节差异单列，不冒充优化收益。v5.1.4 的干净发布构建与云端附件大小另行记录。
+- 沿用 onefile、默认 zlib、optimize=1（保留 docstrings），禁用 UPX/strip；完整保留 NumPy DLL、普通 Excel/Word/图表路径、字体、翻译、时区、界面及 Matplotlib 样式。
+- 不更改分析算法、报告编号或已有账本；可选库功能裁剪边界与发布验证见 [v5.1.4 发布说明](docs/RELEASE_NOTES_v5.1.4.md)。未提交的界面/翻译改动不混入本版。
+
+---
+
 ### v5.1.3 — 2026-10-23
 
 #### 工程整理与修复

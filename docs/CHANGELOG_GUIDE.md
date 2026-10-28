@@ -2,7 +2,9 @@
 
 本文档说明如何维护项目的 CHANGELOG.md 文件。
 
-## 当前版本：v5.1.3
+## 当前版本：v5.1.4
+
+- v5.1.4 的全部 9 轮 EXE 精简、72 项现行排除与功能边界见 [完整台账](packaging/windows-exe-slimming.md) 和 [发布说明](RELEASE_NOTES_v5.1.4.md)。annotated tag 正文同时收录完整台账，不只列最后一轮；提交/tag、CI 构建和附件发布的结果须分别核实。
 
 - v5.1.3 的模块整理、图标打包和界面对齐修复见 [发布说明](RELEASE_NOTES_v5.1.3.md)；验证范围与远端构建结果分别记录，不将 tag 推送视为 EXE 验收完成。
 

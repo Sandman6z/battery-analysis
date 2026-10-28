@@ -185,12 +185,22 @@ class BuildManager(BuildConfig):
             "numpy.random._examples",
             # pandas 不需要的模块
             "pandas.tests",
+            # SQLite 仅用于 Pandas SQL 支线，现有 Excel/报告/NDAX 路径不使用它。
+            "sqlite3",
+            # Jinja2 仅供 Pandas Styler 模板；应用报告使用 XlsxWriter/python-docx。
+            "jinja2",
+            # Styler 模板支线不参与普通 DataFrame 的 Excel 导出或应用报告。
+            "pandas.io.formats.style",
             # 其他库测试
             "openpyxl.tests",
             # Pillow 自动收集的 AVIF 编解码器不属于图表导出或 Office 报告支持的格式。
             "PIL.AvifImagePlugin",
             # lxml 钩子会收集 objectify；文档处理只需 etree，保留其原生库。
             "lxml.objectify",
+            # lxml 钩子全量收集的 HTML 工具不参与 Excel/Word/NDAX 路径；保留 etree。
+            "lxml.html",
+            # 只排除未使用的 lxml SAX 适配层，标准库 xml.sax 和 etree 均保留。
+            "lxml.sax",
             # GUI 框架排除（只用 PyQt6）
             "tkinter", "PySide6", "PySide2", "PyQt5",
             # 不使用的 PyQt6 子模块
