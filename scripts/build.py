@@ -189,6 +189,8 @@ class BuildManager(BuildConfig):
             "openpyxl.tests",
             # Pillow 自动收集的 AVIF 编解码器不属于图表导出或 Office 报告支持的格式。
             "PIL.AvifImagePlugin",
+            # lxml 钩子会收集 objectify；文档处理只需 etree，保留其原生库。
+            "lxml.objectify",
             # GUI 框架排除（只用 PyQt6）
             "tkinter", "PySide6", "PySide2", "PyQt5",
             # 不使用的 PyQt6 子模块
@@ -212,6 +214,7 @@ class BuildManager(BuildConfig):
         cmd_args = [
             sys.executable, "-m", "PyInstaller",
             "--log-level=INFO",
+            f"--additional-hooks-dir={self.project_root / 'scripts' / 'pyinstaller_hooks'}",
             "--hidden-import=pywintypes",
             f"--name={app_config['exe_name']}",
             f"--icon={icon_path}",

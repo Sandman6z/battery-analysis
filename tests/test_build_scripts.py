@@ -1,10 +1,12 @@
 """测试 scripts/build.py 的构建入口与失败检测逻辑"""
 
+import runpy
 import subprocess
 import sys
 import tomllib
 from pathlib import Path
 from textwrap import dedent
+from types import ModuleType
 from unittest.mock import Mock
 
 import pytest
@@ -43,6 +45,11 @@ def test_pyinstaller_entry_matches_project_script(
     assert "--strip" not in args
     assert "--noupx" in args
     assert "--exclude-module=PIL.AvifImagePlugin" in args
+    assert "--exclude-module=lxml.objectify" in args
+    assert "--exclude-module=lxml.etree" not in args
+    hooks_dir = manager.project_root / "scripts" / "pyinstaller_hooks"
+    assert f"--additional-hooks-dir={hooks_dir}" in args
+    assert (hooks_dir / "hook-PyQt6.QtGui.py").is_file()
     import numpy
 
     numpy_libs = Path(numpy.__file__).parent.parent / "numpy.libs"
@@ -50,8 +57,34 @@ def test_pyinstaller_entry_matches_project_script(
     assert f"--add-binary={numpy_libs};numpy.libs" in args
 
 
-def test_image_exports_and_office_reports_work_without_avif(tmp_path):
-    # 独立进程避免其他测试预先加载 Pillow 插件，模拟冻结包中没有 AVIF 编解码器。
+@pytest.mark.parametrize("pdf_plugin", [None, "qpdf.dll", "QPDF.DLL"])
+def test_qtgui_hook_only_removes_pdf_reader(monkeypatch, tmp_path, pdf_plugin):
+    hook = Path(__file__).resolve().parents[1] / "scripts/pyinstaller_hooks/hook-PyQt6.QtGui.py"
+    retained = [
+        (str(tmp_path / name), "PyQt6/Qt6")
+        for name in ("qsvg.dll", "qjpeg.dll", "opengl32sw.dll", "Qt6Network.dll")
+    ]
+    binaries = retained.copy()
+    if pdf_plugin is not None:
+        binaries.insert(1, (str(tmp_path / pdf_plugin), "PyQt6/Qt6/plugins/imageformats"))
+    hiddenimports = ["PyQt6.QtCore"]
+    datas = [("qtbase_zh_CN.qm", "PyQt6/Qt6/translations")]
+    collect_dependencies = Mock(return_value=(hiddenimports, binaries, datas))
+    # 不要求开发测试环境安装 PyInstaller，钩子只依赖此官方收集接口。
+    qt_hooks = ModuleType("PyInstaller.utils.hooks.qt")
+    qt_hooks.add_qt6_dependencies = collect_dependencies
+    monkeypatch.setitem(sys.modules, qt_hooks.__name__, qt_hooks)
+
+    result = runpy.run_path(str(hook))
+
+    collect_dependencies.assert_called_once_with(str(hook))
+    assert result["binaries"] == retained
+    assert result["hiddenimports"] is hiddenimports
+    assert result["datas"] is datas
+
+
+def test_image_exports_and_office_reports_work_without_unused_modules(tmp_path):
+    # 独立进程避免其他测试预先加载已排除模块，模拟冻结包中的依赖边界。
     result = subprocess.run(
         [sys.executable, "-c", dedent("""
             import sys
@@ -60,6 +93,7 @@ def test_image_exports_and_office_reports_work_without_avif(tmp_path):
 
             sys.modules["PIL.AvifImagePlugin"] = None
             sys.modules["PIL._avif"] = None
+            sys.modules["lxml.objectify"] = None
 
             from docx import Document
             from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -88,6 +122,15 @@ def test_image_exports_and_office_reports_work_without_avif(tmp_path):
             document.add_picture("chart.png")
             document.save("report.docx")
             assert len(Document("report.docx").inline_shapes) == 1
+            templates = list(Path(sys.argv[1]).glob("*.docx"))
+            assert len(templates) == 2
+            for index, template in enumerate(templates):
+                document = Document(template)
+                original_images = len(document.inline_shapes)
+                document.add_picture("chart.png")
+                output = f"template_report_{index}.docx"
+                document.save(output)
+                assert len(Document(output).inline_shapes) == original_images + 1
 
             workbook = Workbook()
             workbook.active.add_image(ExcelImage("chart.png"), "A1")
@@ -97,7 +140,7 @@ def test_image_exports_and_office_reports_work_without_avif(tmp_path):
             for filename in ("openpyxl.xlsx", "xlsxwriter.xlsx"):
                 with ZipFile(filename) as archive:
                     assert "xl/media/image1.png" in archive.namelist()
-        """)],
+        """), str(Path(__file__).resolve().parents[1] / "src/battery_analysis/templates")],
         cwd=tmp_path, capture_output=True, text=True, timeout=60,
     )
     assert result.returncode == 0, result.stdout + result.stderr
