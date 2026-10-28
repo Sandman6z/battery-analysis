@@ -1,7 +1,12 @@
 """测试 scripts/build.py 的构建入口与失败检测逻辑"""
 
+import runpy
+import subprocess
+import sys
 import tomllib
 from pathlib import Path
+from textwrap import dedent
+from types import ModuleType
 from unittest.mock import Mock
 
 import pytest
@@ -39,11 +44,212 @@ def test_pyinstaller_entry_matches_project_script(
     assert str(expected_entry) in args
     assert "--strip" not in args
     assert "--noupx" in args
+    assert "--exclude-module=PIL.AvifImagePlugin" in args
+    assert "--exclude-module=lxml.objectify" in args
+    assert "--exclude-module=lxml.html" in args
+    assert "--exclude-module=lxml.sax" in args
+    assert "--exclude-module=xml.sax" not in args
+    assert "--exclude-module=lxml.etree" not in args
+    assert "--exclude-module=jinja2" in args
+    assert "--exclude-module=sqlite3" in args
+    assert "--exclude-module=pandas.io.sql" not in args
+    assert "--exclude-module=pandas.io.formats.style" in args
+    assert "--exclude-module=pandas.io.formats.excel" not in args
+    hooks_dir = manager.project_root / "scripts" / "pyinstaller_hooks"
+    assert f"--additional-hooks-dir={hooks_dir}" in args
+    assert (hooks_dir / "hook-PyQt6.QtGui.py").is_file()
+    assert (hooks_dir / "hook-matplotlib.py").is_file()
     import numpy
 
     numpy_libs = Path(numpy.__file__).parent.parent / "numpy.libs"
     assert numpy_libs.is_dir()
     assert f"--add-binary={numpy_libs};numpy.libs" in args
+
+
+@pytest.mark.parametrize("pdf_plugin", [None, "qpdf.dll", "QPDF.DLL"])
+def test_qtgui_hook_only_removes_pdf_reader(monkeypatch, tmp_path, pdf_plugin):
+    hook = Path(__file__).resolve().parents[1] / "scripts/pyinstaller_hooks/hook-PyQt6.QtGui.py"
+    retained = [
+        (str(tmp_path / name), "PyQt6/Qt6")
+        for name in ("qsvg.dll", "qjpeg.dll", "opengl32sw.dll", "Qt6Network.dll")
+    ]
+    binaries = retained.copy()
+    if pdf_plugin is not None:
+        binaries.insert(1, (str(tmp_path / pdf_plugin), "PyQt6/Qt6/plugins/imageformats"))
+    hiddenimports = ["PyQt6.QtCore"]
+    datas = [("qtbase_zh_CN.qm", "PyQt6/Qt6/translations")]
+    collect_dependencies = Mock(return_value=(hiddenimports, binaries, datas))
+    # 不要求开发测试环境安装 PyInstaller，钩子只依赖此官方收集接口。
+    qt_hooks = ModuleType("PyInstaller.utils.hooks.qt")
+    qt_hooks.add_qt6_dependencies = collect_dependencies
+    monkeypatch.setitem(sys.modules, qt_hooks.__name__, qt_hooks)
+
+    result = runpy.run_path(str(hook))
+
+    collect_dependencies.assert_called_once_with(str(hook))
+    assert result["binaries"] == retained
+    assert result["hiddenimports"] is hiddenimports
+    assert result["datas"] is datas
+
+
+@pytest.mark.parametrize("is_win", [False, True])
+@pytest.mark.parametrize("recent_wheel", [False, True])
+def test_matplotlib_hook_preserves_wheel_dependencies(monkeypatch, is_win, recent_wheel):
+    hook = Path(__file__).resolve().parents[1] / "scripts/pyinstaller_hooks/hook-matplotlib.py"
+    resources = [("font.ttf", "matplotlib/mpl-data/fonts/ttf")]
+    wheel_data = [("load-order", "matplotlib.libs")]
+    wheel_binaries = [("wheel.dll", "matplotlib.libs")]
+    compat = ModuleType("PyInstaller.compat")
+    compat.is_win = is_win
+    hooks = ModuleType("PyInstaller.utils.hooks")
+    hooks.collect_data_files = Mock(return_value=resources.copy())
+    hooks.check_requirement = Mock(return_value=recent_wheel)
+    hooks.collect_delvewheel_libs_directory = Mock(return_value=(wheel_data, wheel_binaries))
+    monkeypatch.setitem(sys.modules, compat.__name__, compat)
+    monkeypatch.setitem(sys.modules, hooks.__name__, hooks)
+
+    result = runpy.run_path(str(hook))
+
+    hooks.collect_data_files.assert_called_once_with(
+        "matplotlib", subdir="mpl-data", excludes=["sample_data"]
+    )
+    if is_win and recent_wheel:
+        hooks.collect_delvewheel_libs_directory.assert_called_once_with("matplotlib")
+        assert result["datas"] == resources + wheel_data
+        assert result["binaries"] == wheel_binaries
+    else:
+        hooks.collect_delvewheel_libs_directory.assert_not_called()
+        assert result["datas"] == resources
+        assert result["binaries"] == []
+
+
+def test_matplotlib_hook_only_removes_example_data():
+    hooks = pytest.importorskip("PyInstaller.utils.hooks")
+    hook = Path(__file__).resolve().parents[1] / "scripts/pyinstaller_hooks/hook-matplotlib.py"
+    full = set(hooks.collect_data_files("matplotlib", subdir="mpl-data"))
+    samples = {entry for entry in full if "/sample_data/" in Path(entry[0]).as_posix()}
+
+    result = runpy.run_path(str(hook))
+    retained = set(result["datas"])
+
+    assert samples
+    assert full - retained == samples
+    assert not retained & samples
+    for directory in ("fonts", "stylelib", "images"):
+        expected = {entry for entry in full if f"/mpl-data/{directory}/" in Path(entry[0]).as_posix()}
+        assert expected
+        assert expected <= retained
+
+
+def test_image_exports_and_office_reports_work_without_unused_modules(tmp_path):
+    # 独立进程避免其他测试预先加载已排除模块，模拟冻结包中的依赖边界。
+    result = subprocess.run(
+        [sys.executable, "-c", dedent("""
+            import sys
+            from io import StringIO
+            from pathlib import Path
+            from zipfile import ZipFile
+
+            sys.modules["PIL.AvifImagePlugin"] = None
+            sys.modules["PIL._avif"] = None
+            sys.modules["lxml.objectify"] = None
+            sys.modules["lxml.html"] = None
+            sys.modules["lxml.sax"] = None
+            sys.modules["jinja2"] = None
+            sys.modules["sqlite3"] = None
+            sys.modules["_sqlite3"] = None
+            sys.modules["pandas.io.formats.style"] = None
+            sys.modules["pandas.io.formats.style_render"] = None
+            sys.modules["markupsafe"] = None
+
+            def no_sample_data(event, args):
+                if event == "open" and args:
+                    path = str(args[0]).replace(chr(92), "/").lower()
+                    if "/mpl-data/sample_data/" in path:
+                        raise AssertionError("Unexpected use of Matplotlib example data")
+
+            sys.addaudithook(no_sample_data)
+
+            import pandas as pd
+            from docx import Document
+            from matplotlib.backends.backend_agg import FigureCanvasAgg
+            from matplotlib.figure import Figure
+            from openpyxl import Workbook
+            from openpyxl.drawing.image import Image as ExcelImage
+            from PIL import Image
+            from xlsxwriter import Workbook as XlsxWriterWorkbook
+
+            xml_frame = pd.read_xml(
+                StringIO("<root><row><Cycle>1</Cycle><Capacity>1300.5</Capacity></row></root>"),
+                parser="lxml",
+            )
+            pd.testing.assert_frame_equal(
+                xml_frame, pd.DataFrame({"Cycle": [1], "Capacity": [1300.5]})
+            )
+
+            from lxml import etree
+            from xml.sax import parseString
+            from xml.sax.handler import ContentHandler
+
+            parseString(b"<root><item>1300.5</item></root>", ContentHandler())
+            parser = etree.XMLPullParser(events=("end",))
+            parser.feed(b"<root><item>")
+            parser.feed(b"1300.5</item></root>")
+            assert parser.close().findtext("item") == "1300.5"
+
+            Image.init()
+            assert "AVIF" not in Image.OPEN
+            assert "AVIF" not in Image.SAVE
+            figure = Figure(figsize=(1, 1))
+            canvas = FigureCanvasAgg(figure)
+            figure.add_subplot().plot([0, 1], [0, 1])
+            formats = canvas.get_supported_filetypes()
+            assert "avif" not in formats
+            for fmt in formats:
+                if fmt == "pgf":  # PGF 依赖外部 LaTeX，与 Pillow 无关。
+                    continue
+                output = Path(f"chart.{fmt}")
+                figure.savefig(output, format=fmt)
+                assert output.stat().st_size > 0, fmt
+
+            document = Document()
+            document.add_picture("chart.png")
+            document.save("report.docx")
+            assert len(Document("report.docx").inline_shapes) == 1
+            templates = list(Path(sys.argv[1]).glob("*.docx"))
+            assert len(templates) == 2
+            for index, template in enumerate(templates):
+                document = Document(template)
+                original_images = len(document.inline_shapes)
+                document.add_picture("chart.png")
+                output = f"template_report_{index}.docx"
+                document.save(output)
+                assert len(Document(output).inline_shapes) == original_images + 1
+
+            workbook = Workbook()
+            workbook.active.append(["Cycle", "Capacity"])
+            workbook.active.append([1, 1300.5])
+            workbook.active.append([2, 1290.25])
+            workbook.active.add_image(ExcelImage("chart.png"), "D1")
+            workbook.save("openpyxl.xlsx")
+            expected = pd.DataFrame({"Cycle": [1, 2], "Capacity": [1300.5, 1290.25]})
+            for engine in ("openpyxl", "calamine"):
+                actual = pd.read_excel("openpyxl.xlsx", engine=engine)
+                pd.testing.assert_frame_equal(actual, expected)
+                assert actual.groupby("Cycle")["Capacity"].sum().tolist() == [1300.5, 1290.25]
+            for engine in ("xlsxwriter", "openpyxl"):
+                path = f"pandas_{engine}.xlsx"
+                expected.to_excel(path, engine=engine, index=False)
+                pd.testing.assert_frame_equal(pd.read_excel(path, engine="openpyxl"), expected)
+            with XlsxWriterWorkbook("xlsxwriter.xlsx") as workbook:
+                workbook.add_worksheet().insert_image("A1", "chart.png")
+            for filename in ("openpyxl.xlsx", "xlsxwriter.xlsx"):
+                with ZipFile(filename) as archive:
+                    assert "xl/media/image1.png" in archive.namelist()
+        """), str(Path(__file__).resolve().parents[1] / "src/battery_analysis/templates")],
+        cwd=tmp_path, capture_output=True, text=True, timeout=60,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 class TestBuildFailed:

@@ -34,6 +34,8 @@ theme:
 
 nav:
   - 首页: index.md
+  - v5.1.4 发布说明: RELEASE_NOTES_v5.1.4.md
+  - Windows EXE 精简完整台账: packaging/windows-exe-slimming.md
   - v5.1.3 发布说明: RELEASE_NOTES_v5.1.3.md
   - v5.1.2 发布说明: RELEASE_NOTES_v5.1.2.md
   - v5.1.1 发布说明: RELEASE_NOTES_v5.1.1.md

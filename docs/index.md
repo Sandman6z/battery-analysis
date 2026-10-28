@@ -1,6 +1,6 @@
 # Battery Analysis Tool
 
-欢迎使用 Battery Analysis Tool **v5.1.3** 文档站点。主分析已切换为 NDAX 原生读取，不再依赖中间 Excel；软件版本与报告交付编号独立。
+欢迎使用 Battery Analysis Tool **v5.1.4** 文档站点。主分析已切换为 NDAX 原生读取，不再依赖中间 Excel；软件版本与报告交付编号独立。
 
 ## 功能特性
 
@@ -14,6 +14,9 @@
 - 批量处理与报告生成
 
 ## 文档导航
+
+- **[v5.1.4 发布说明](RELEASE_NOTES_v5.1.4.md)** - Windows EXE 精简、验证与可选能力边界
+- **[EXE 精简完整台账](packaging/windows-exe-slimming.md)** - 全部 9 轮、72 项现行排除、精确资源清单及压缩策略
 
 - **[v5.1.3 发布说明](RELEASE_NOTES_v5.1.3.md)** - 分析/报告模块整理、包内图标及界面对齐修复
 
