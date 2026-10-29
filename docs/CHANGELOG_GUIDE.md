@@ -2,7 +2,9 @@
 
 本文档说明如何维护项目的 CHANGELOG.md 文件。
 
-## 当前版本：v5.1.4
+## 当前版本：v5.1.5
+
+- v5.1.5 是内部重构与遗留功能退役：校验与 NDAX 扫描收敛为单一权威实现，删除旧验证服务、占位命令、历史 Designer 界面等已断开的功能链；旧内部 Python API 不再保留，二次开发需更新导入。详见 [发布说明](RELEASE_NOTES_v5.1.5.md)、[函数审计](function-audit/README.md) 与 [退役清单](function-audit/retired-features.md)。同版附带一次性的 NDAX 目录选择引导。
 
 - v5.1.4 的全部 9 轮 EXE 精简、72 项现行排除与功能边界见 [完整台账](packaging/windows-exe-slimming.md) 和 [发布说明](RELEASE_NOTES_v5.1.4.md)。annotated tag 正文同时收录完整台账，不只列最后一轮；提交/tag、CI 构建和附件发布的结果须分别核实。
 
