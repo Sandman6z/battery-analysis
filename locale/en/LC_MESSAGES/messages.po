@@ -771,3 +771,12 @@ msgstr "Warning: {details}"
 
 msgid "An error occurred during analysis:\n\n{details}"
 msgstr "An error occurred during analysis:\n\n{details}"
+
+msgid "Open your NDAX folder directly"
+msgstr "Open your NDAX folder directly"
+
+msgid "No Excel folder is needed anymore. Click Open next to the NDAX path and select the original folder containing your NDAX files."
+msgstr "No Excel folder is needed anymore. Click Open next to the NDAX path and select the original folder containing your NDAX files."
+
+msgid "Got it"
+msgstr "Got it"

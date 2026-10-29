@@ -116,6 +116,11 @@ class WindowInitMixin(MainWindowState):
         except Exception:
             logger.exception("Failed to log environment info")
 
+        # Start only after language, theme and the real folder action are ready.
+        from battery_analysis.main.ui_components.ndax_path_guide import show_ndax_path_guide
+
+        show_ndax_path_guide(self.centralwidget, self.pushButton_InputPath)
+
         logger.info("  Phase [%s] completed ✓", PHASE_LAUNCH)
 
         # 启用配置菜单（服务已就绪）

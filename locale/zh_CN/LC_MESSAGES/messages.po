@@ -771,3 +771,12 @@ msgstr "警告：{details}"
 
 msgid "An error occurred during analysis:\n\n{details}"
 msgstr "分析过程中发生错误：\n\n{details}"
+
+msgid "Open your NDAX folder directly"
+msgstr "直接打开 NDAX 原始文件夹"
+
+msgid "No Excel folder is needed anymore. Click Open next to the NDAX path and select the original folder containing your NDAX files."
+msgstr "以后无需再准备 Excel 文件夹。只需点击 NDAX 路径旁的“打开”按钮，选择原始存放 NDAX 文件的文件夹即可。"
+
+msgid "Got it"
+msgstr "知道了"
