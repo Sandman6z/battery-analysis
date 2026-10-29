@@ -3,11 +3,6 @@
 import numpy as np
 
 
-def b_is_in_range(current: float, standard: float) -> bool:
-    """检查电流是否在标准值的 ±5% 范围内"""
-    return abs(current - standard) <= abs(standard * 0.05)
-
-
 def _init_level_structures(
     listCurrentLevel: list,
     listVoltageLevel: list,

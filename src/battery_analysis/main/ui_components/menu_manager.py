@@ -20,6 +20,20 @@ import PyQt6.QtGui as QG
 from battery_analysis.i18n.language_manager import _
 
 
+def toggle_statusbar(main_window) -> None:
+    """按菜单勾选状态显示状态栏；没有菜单动作时直接切换。"""
+    if hasattr(main_window, "actionShow_Statusbar") and hasattr(
+        main_window, "statusBar_BatteryAnalysis"
+    ):
+        main_window.statusBar_BatteryAnalysis.setVisible(
+            main_window.actionShow_Statusbar.isChecked()
+        )
+    elif hasattr(main_window, "statusBar_BatteryAnalysis"):
+        main_window.statusBar_BatteryAnalysis.setVisible(
+            not main_window.statusBar_BatteryAnalysis.isVisible()
+        )
+
+
 class MenuManager:
     """
     菜单管理器类，负责菜单和工具栏的管理
@@ -41,29 +55,11 @@ class MenuManager:
         """
         try:
             # 文件菜单快捷键和工具提示
-            if hasattr(self.main_window, "actionNew"):
-                self.main_window.actionNew.setShortcut(QG.QKeySequence.StandardKey.New)
-                self.main_window.actionNew.setToolTip(_("New Project"))
-            if hasattr(self.main_window, "actionOpen"):
-                self.main_window.actionOpen.setShortcut(QG.QKeySequence.StandardKey.Open)
-                self.main_window.actionOpen.setToolTip(_("Open Project"))
-            if hasattr(self.main_window, "actionSave"):
-                self.main_window.actionSave.setShortcut(QG.QKeySequence.StandardKey.Save)
-                self.main_window.actionSave.setToolTip(_("Save Settings"))
-            if hasattr(self.main_window, "actionSave_As"):
-                self.main_window.actionSave_As.setShortcut(QG.QKeySequence.StandardKey.SaveAs)
-                self.main_window.actionSave_As.setToolTip(_("Save As"))
             if hasattr(self.main_window, "actionExit"):
                 self.main_window.actionExit.setShortcut(QG.QKeySequence.StandardKey.Quit)
                 self.main_window.actionExit.setToolTip(_("Exit"))
 
             # 编辑菜单快捷键和工具提示
-            if hasattr(self.main_window, "actionUndo"):
-                self.main_window.actionUndo.setShortcut(QG.QKeySequence.StandardKey.Undo)
-                self.main_window.actionUndo.setToolTip(_("Undo"))
-            if hasattr(self.main_window, "actionRedo"):
-                self.main_window.actionRedo.setShortcut(QG.QKeySequence.StandardKey.Redo)
-                self.main_window.actionRedo.setToolTip(_("Redo"))
             if hasattr(self.main_window, "actionCut"):
                 self.main_window.actionCut.setShortcut(QG.QKeySequence.StandardKey.Cut)
                 self.main_window.actionCut.setToolTip(_("Cut"))
@@ -89,23 +85,13 @@ class MenuManager:
                 self.main_window.actionShow_Statusbar.setToolTip(_("Show/Hide Status Bar"))
 
             # 工具菜单快捷键和工具提示
-            if hasattr(self.main_window, "actionCalculate_Battery"):
-                self.main_window.actionCalculate_Battery.setShortcut(QG.QKeySequence("Ctrl+B"))
-                self.main_window.actionCalculate_Battery.setToolTip(
-                    _("Calculate Battery Parameters")
-                )
             if hasattr(self.main_window, "actionAnalyze_Data"):
                 self.main_window.actionAnalyze_Data.setShortcut(QG.QKeySequence("Ctrl+D"))
                 self.main_window.actionAnalyze_Data.setToolTip(_("Analyze Data"))
-            if hasattr(self.main_window, "actionGenerate_Report"):
-                self.main_window.actionGenerate_Report.setShortcut(QG.QKeySequence("Ctrl+R"))
-                self.main_window.actionGenerate_Report.setToolTip(_("Generate Report"))
             if hasattr(self.main_window, "actionBatteryChartViewer"):
                 self.main_window.actionBatteryChartViewer.setToolTip(_("Open Battery Chart Viewer"))
             if hasattr(self.main_window, "actionNdaxConverter"):
                 self.main_window.actionNdaxConverter.setToolTip(_("NDAX → XLSX Batch Conversion"))
-            if hasattr(self.main_window, "actionBatch_Processing"):
-                self.main_window.actionBatch_Processing.setToolTip(_("Batch Process Data"))
             if hasattr(self.main_window, "actionConfiguration"):
                 self.main_window.actionConfiguration.setToolTip(_("Manage Data Dictionary"))
             if hasattr(self.main_window, "actionPreferences"):
@@ -122,8 +108,6 @@ class MenuManager:
             if hasattr(self.main_window, "actionAbout"):
                 self.main_window.actionAbout.setShortcut(QG.QKeySequence("Ctrl+Alt+A"))
                 self.main_window.actionAbout.setToolTip(_("About"))
-            if hasattr(self.main_window, "actionExport_Report"):
-                self.main_window.actionExport_Report.setToolTip(_("Export Report"))
         except (AttributeError, TypeError, RuntimeError) as e:
             logging.error("Failed to set up menu shortcuts and tooltips: %s", e)
 
@@ -187,20 +171,8 @@ class MenuManager:
             )
 
     def toggle_statusbar_safe(self):
-        """
-        安全地切换状态栏的显示/隐藏状态
-        """
-        if hasattr(self.main_window, "actionShow_Statusbar") and hasattr(
-            self.main_window, "statusBar_BatteryAnalysis"
-        ):
-            self.main_window.statusBar_BatteryAnalysis.setVisible(
-                self.main_window.actionShow_Statusbar.isChecked()
-            )
-        elif hasattr(self.main_window, "statusBar_BatteryAnalysis"):
-            # 如果没有actionShow_Statusbar，只是切换显示状态
-            self.main_window.statusBar_BatteryAnalysis.setVisible(
-                not self.main_window.statusBar_BatteryAnalysis.isVisible()
-            )
+        """兼容菜单信号入口。"""
+        toggle_statusbar(self.main_window)
 
     def zoom_in(self):
         """放大界面元素"""
@@ -223,13 +195,6 @@ class MenuManager:
         font = self.main_window.font()
         font.setPointSize(9)  # 假设默认字体大小为9
         self.main_window.setFont(font)
-
-    def update_menu_texts(self):
-        """
-        更新菜单文本为当前语言
-        """
-        # 这里可以添加菜单文本的国际化更新
-        pass
 
     def update_statusbar_messages(self):
         """

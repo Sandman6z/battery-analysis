@@ -24,7 +24,6 @@ class TestMenuManager:
         mw.actionAnalyze_Data.triggered.connect.assert_called_once_with(
             mw.run_analysis_command.execute
         )
-        mw.actionExport_Report.triggered.connect.assert_not_called()
         mw.actionBatch_Processing.triggered.connect.assert_not_called()
 
     def test_visible_menus_exclude_unimplemented_actions(self):
@@ -52,9 +51,6 @@ class TestMenuManager:
             "actionCalculate_Battery", "actionGenerate_Report", "actionBatch_Processing",
         })
         window.close()
-
-    def test_update_menu_texts(self):
-        self.manager.update_menu_texts()
 
     def test_update_statusbar_messages(self):
         self.manager.update_statusbar_messages()

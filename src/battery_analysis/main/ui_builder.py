@@ -86,38 +86,11 @@ class UIBuilder:
         mw = self.main_window
 
         # 文件菜单动作
-        mw.actionNew = QG.QAction(_("New"), mw)
-        mw.actionNew.setObjectName("actionNew")
-        mw.actionNew.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.New))
-
-        mw.actionOpen = QG.QAction(_("Open"), mw)
-        mw.actionOpen.setObjectName("actionOpen")
-        mw.actionOpen.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.Open))
-
-        mw.actionSave = QG.QAction(_("Save"), mw)
-        mw.actionSave.setObjectName("actionSave")
-        mw.actionSave.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.Save))
-
-        mw.actionSave_As = QG.QAction(_("Save As"), mw)
-        mw.actionSave_As.setObjectName("actionSave_As")
-        mw.actionSave_As.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.SaveAs))
-
-        mw.actionExport_Report = QG.QAction(_("Export Report"), mw)
-        mw.actionExport_Report.setObjectName("actionExport_Report")
-
         mw.actionExit = QG.QAction(_("Exit"), mw)
         mw.actionExit.setObjectName("actionExit")
         mw.actionExit.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.Quit))
 
         # 编辑菜单动作
-        mw.actionUndo = QG.QAction(_("Undo"), mw)
-        mw.actionUndo.setObjectName("actionUndo")
-        mw.actionUndo.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.Undo))
-
-        mw.actionRedo = QG.QAction(_("Redo"), mw)
-        mw.actionRedo.setObjectName("actionRedo")
-        mw.actionRedo.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.Redo))
-
         mw.actionCut = QG.QAction(_("Cut"), mw)
         mw.actionCut.setObjectName("actionCut")
         mw.actionCut.setShortcut(QG.QKeySequence(QG.QKeySequence.StandardKey.Cut))
@@ -157,17 +130,8 @@ class UIBuilder:
         mw.actionNdaxConverter = QG.QAction(_("NDAX Converter"), mw)
         mw.actionNdaxConverter.setObjectName("actionNdaxConverter")
 
-        mw.actionCalculate_Battery = QG.QAction(_("Calculate Battery"), mw)
-        mw.actionCalculate_Battery.setObjectName("actionCalculate_Battery")
-
         mw.actionAnalyze_Data = QG.QAction(_("Analyze Data"), mw)
         mw.actionAnalyze_Data.setObjectName("actionAnalyze_Data")
-
-        mw.actionGenerate_Report = QG.QAction(_("Generate Report"), mw)
-        mw.actionGenerate_Report.setObjectName("actionGenerate_Report")
-
-        mw.actionBatch_Processing = QG.QAction(_("Batch Processing"), mw)
-        mw.actionBatch_Processing.setObjectName("actionBatch_Processing")
 
         mw.actionConfiguration = QG.QAction(_("Configuration"), mw)
         mw.actionConfiguration.setObjectName("actionConfiguration")

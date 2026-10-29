@@ -14,29 +14,12 @@ def natural_sort_key(filename: str) -> list:
     return [int(part) if part.isdigit() else part.lower() for part in parts]
 
 
-def scan_sorted_xlsx(directory: str, exclude_temp: bool = True) -> list[str]:
-    """扫描目录中的 xlsx 文件，按自然顺序排序返回完整路径
-
-    Args:
-        directory: 目录路径
-        exclude_temp: 是否排除 ~$ 开头的临时文件
-
-    Returns:
-        排序后的 xlsx 文件完整路径列表
-    """
-    files = [
-        f
-        for f in os.listdir(directory)
-        if f[-5:] == ".xlsx" and (not exclude_temp or f[:2] != "~$")
-    ]
-    files.sort(key=natural_sort_key)
-    return [os.path.join(directory, f) for f in files]
-
-
 def scan_sorted_ndax(directory: str) -> list[str]:
-    """按自然顺序扫描 ndax（40_8_2 在 40_8_10 之前），供校验和/分析共用。"""
-    files = sorted(
-        (f for f in os.listdir(directory) if f.lower().endswith(".ndax")),
-        key=natural_sort_key,
-    )
+    """非递归扫描实际 NDAX 文件，统一用于预览、转换、校验和与分析。"""
+    with os.scandir(directory) as entries:
+        files = [
+            entry.name for entry in entries
+            if entry.name.lower().endswith(".ndax") and entry.is_file()
+        ]
+    files.sort(key=natural_sort_key)
     return [os.path.join(directory, f) for f in files]

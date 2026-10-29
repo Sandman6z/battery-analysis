@@ -1,8 +1,8 @@
 """
 纯输入验证器 — 无 UI 依赖，返回结构化验证结果。
 
-将原先分散在 ValidationManager、ValidationService、analysis_runner 的
-验证逻辑集中在此。UI 层通过 ValidationResult 判断并展示样式。
+当前分析入口的字段规则统一在此。UI 层通过 ValidationResult 展示样式，
+不再维护旧验证服务或另一套界面业务规则。
 """
 
 from __future__ import annotations
@@ -74,11 +74,12 @@ class InputValidator:
         ("batch_date_code", "Batch/Date Code"),
         ("samples_qty", "Samples Qty"),
         ("temperature", "Temperature"),
-        ("datasheet_nominal_capacity", "Nominal Capacity (Datasheet)"),
-        ("calculation_nominal_capacity", "Nominal Capacity (Calculated)"),
+        ("datasheet_nominal_capacity", "Nominal Capacity"),
+        ("calculation_nominal_capacity", "Calculated Capacity"),
         ("required_usable_capacity", "Required Useable Capacity"),
         ("tester_location", "Tester Location"),
         ("tested_by", "Tested By"),
+        ("reported_by", "Reported By"),
         ("input_path", "Input Path"),
         ("output_path", "Output Path"),
         ("version", "Version"),
@@ -115,33 +116,19 @@ class InputValidator:
     def validate_before_run(
         values: FieldValues, types_requiring_construction: list | None = None
     ) -> ValidationResult:
-        """运行前的快速检查（仅必填项 + 路径）。"""
+        """运行前检查，与完整字段校验保持相同规则。"""
         return InputValidator.validate_all(values, types_requiring_construction)
 
     @staticmethod
     def _validate_required_fields(values: FieldValues) -> ValidationResult:
         """检查所有必填字段是否非空。"""
         result = ValidationResult()
-        for field_name, label in [
-            ("battery_type", "Battery Type"),
-            ("specification_type", "Specification Type"),
-            ("specification_method", "Specification Method"),
-            ("manufacturer", "Manufacturer"),
-            ("batch_date_code", "Batch/Date Code"),
-            ("samples_qty", "Samples Qty"),
-            ("temperature", "Temperature"),
-            ("datasheet_nominal_capacity", "Nominal Capacity"),
-            ("calculation_nominal_capacity", "Calculated Capacity"),
-            ("required_usable_capacity", "Required Useable Capacity"),
-            ("tester_location", "Tester Location"),
-            ("tested_by", "Tested By"),
-            ("input_path", "Input Path"),
-            ("output_path", "Output Path"),
-        ]:
-            val = getattr(values, field_name, "")
-            if not val:
-                result.is_valid = False
-                result.field_errors[field_name] = f"{label} cannot be empty"
+        for field_name, label in InputValidator.REQUIRED_TEXT_FIELDS:
+            result.merge(
+                InputValidator._validate_required_text(
+                    getattr(values, field_name, ""), field_name, label
+                )
+            )
         return result
 
     @staticmethod
@@ -176,14 +163,19 @@ class InputValidator:
         import os
 
         result = ValidationResult()
-        if values.input_path and not os.path.exists(values.input_path):
+        for field_name, label in [("input_path", "Input"), ("output_path", "Output")]:
+            path = getattr(values, field_name)
+            if not path:
+                continue  # 空值由必填检查负责，实时路径提示允许尚未选择目录。
+            if not os.path.exists(path):
+                message = f"{label} path does not exist"
+            elif not os.path.isdir(path):
+                message = f"{label} path must be a directory"
+            else:
+                continue
             result.is_valid = False
-            result.field_errors["input_path"] = "Input path does not exist"
-            result.errors.append(f"Input path does not exist: {values.input_path}")
-        if values.output_path and not os.path.exists(values.output_path):
-            result.is_valid = False
-            result.field_errors["output_path"] = "Output path does not exist"
-            result.errors.append(f"Output path does not exist: {values.output_path}")
+            result.field_errors[field_name] = message
+            result.errors.append(f"{message}: {path}")
         return result
 
     @staticmethod
@@ -213,7 +205,7 @@ class InputValidator:
     def _validate_required_text(value: str, field_name: str, label: str) -> ValidationResult:
         """单个必填字段验证。"""
         result = ValidationResult()
-        if not value:
+        if not value or not value.strip():
             result.is_valid = False
             result.field_errors[field_name] = f"{label} cannot be empty"
         return result

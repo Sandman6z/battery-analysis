@@ -82,7 +82,7 @@ def compute_statistics(listCpt, intCurrentLevelNum, intVoltageLevelNum):
         mins = np.nanmin(padded, axis=1)
         maxs = np.nanmax(padded, axis=1)
 
-    # 对齐 numeric_utils 语义：空 cell → 0.0；样本<=1 的 std → 0.0
+    # 统计边界约定：空 cell → 0.0；样本<=1 的 std → 0.0
     means = np.where(counts > 0, means, 0.0)
     meds = np.where(counts > 0, meds, 0.0)
     stds = np.where(counts > 1, stds, 0.0)

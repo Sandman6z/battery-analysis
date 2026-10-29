@@ -73,7 +73,6 @@ class TestMainWindow:
 
             self.main_window.config_manager = Mock()
             self.main_window.config_manager.get_config = Mock(return_value=[])
-            self.main_window.config_manager.save_user_settings = Mock()
             self.main_window.config_manager.save_settings = Mock()
 
             self.main_window.validation_manager = Mock()
@@ -191,7 +190,6 @@ class TestMainWindow:
             # 模拟需要被调用的方法
             self.main_window.refresh_texts = Mock()
             self.main_window._update_statusbar_messages = Mock()
-            self.main_window._refresh_dialogs = Mock()
 
             # 调用方法
             self.main_window._on_language_changed("en")
@@ -199,7 +197,6 @@ class TestMainWindow:
             # 验证方法被调用
             self.main_window.refresh_texts.assert_called_once()
             self.main_window._update_statusbar_messages.assert_called_once()
-            self.main_window._refresh_dialogs.assert_called_once()
 
     def test_handle_exit(self):
         """测试退出处理"""

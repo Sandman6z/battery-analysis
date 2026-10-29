@@ -45,4 +45,4 @@ class CommandManagerInitializationStep(InitializationStep):
         Returns:
             是否可以执行
         """
-        return hasattr(main_window, "presenter") and hasattr(main_window, "analysis_runner")
+        return hasattr(main_window, "analysis_runner")

@@ -468,9 +468,6 @@ class UIManager:
         for combo in all_combos:
             combo.blockSignals(False)
 
-        # 加载用户配置的设置
-        self.load_user_settings()
-
     def init_table(self):
         """
         初始化表格设置
@@ -599,10 +596,6 @@ class UIManager:
         # 更新状态栏
         if current_message in ("Ready", "就绪"):
             self.main_window.statusBar_BatteryAnalysis.showMessage(status_ready)
-
-    def load_user_settings(self):
-        """已废弃 —— 用户偏好不再以外部 INI 形式持久化"""
-        pass
 
     def init_widgetcolor(self) -> None:
         """

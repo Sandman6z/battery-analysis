@@ -2,7 +2,6 @@
 
 版本号、输入路径、必填字段与 InputValidator 字段校验。"""
 
-import os
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
@@ -45,9 +44,10 @@ class ValidationFieldsMixin:
         验证输入路径是否存在
         """
         path = self.main_window.lineEdit_InputPath.text()
-        if path and not os.path.exists(path):
+        result = InputValidator._validate_paths(FieldValues(input_path=path))
+        if not result.is_valid:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                f"{_('Warning')}: {_('Input path does not exist')}"
+                f"{_('Warning')}: {_(result.field_errors['input_path'])}"
             )
             self.main_window.lineEdit_InputPath.setStyleSheet(
                 "background-color: #FFDDDD; border: 1px solid #FF6666;"
@@ -59,46 +59,28 @@ class ValidationFieldsMixin:
                 self.main_window.statusBar_BatteryAnalysis.showMessage(_("Ready"))
 
     def validate_required_fields(self) -> None:
-        """
-        验证必填字段是否为空
-        """
-        empty_fields = []
-
-        if not self.main_window.lineEdit_SamplesQty.text():
-            empty_fields.append("Samples Qty")
-            self.main_window.lineEdit_SamplesQty.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;"
+        """派生字段的实时提示复用运行前的必填和容量规则。"""
+        widgets = {
+            "samples_qty": self.main_window.lineEdit_SamplesQty,
+            "datasheet_nominal_capacity": self.main_window.lineEdit_DatasheetNominalCapacity,
+            "calculation_nominal_capacity": self.main_window.lineEdit_CalculationNominalCapacity,
+            "required_usable_capacity": self.main_window.lineEdit_RequiredUseableCapacity,
+        }
+        values = FieldValues(**{name: widget.text() for name, widget in widgets.items()})
+        result = InputValidator._validate_required_fields(values)
+        result.merge(InputValidator._validate_capacity_fields(values))
+        messages = []
+        for name, widget in widgets.items():
+            error = result.field_errors.get(name)
+            widget.setStyleSheet(
+                "background-color: #FFDDDD; border: 1px solid #FF6666;" if error else ""
             )
-        else:
-            self.main_window.lineEdit_SamplesQty.setStyleSheet("")
+            if error:
+                messages.append(_(error))
 
-        if not self.main_window.lineEdit_DatasheetNominalCapacity.text():
-            empty_fields.append("Nominal Capacity")
-            self.main_window.lineEdit_DatasheetNominalCapacity.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;"
-            )
-        else:
-            self.main_window.lineEdit_DatasheetNominalCapacity.setStyleSheet("")
-
-        if not self.main_window.lineEdit_CalculationNominalCapacity.text():
-            empty_fields.append("Calculated Capacity")
-            self.main_window.lineEdit_CalculationNominalCapacity.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;"
-            )
-        else:
-            self.main_window.lineEdit_CalculationNominalCapacity.setStyleSheet("")
-
-        if not self.main_window.lineEdit_RequiredUseableCapacity.text():
-            empty_fields.append("Useable Capacity")
-            self.main_window.lineEdit_RequiredUseableCapacity.setStyleSheet(
-                "background-color: #FFDDDD; border: 1px solid #FF6666;"
-            )
-        else:
-            self.main_window.lineEdit_RequiredUseableCapacity.setStyleSheet("")
-
-        if empty_fields:
+        if messages:
             self.main_window.statusBar_BatteryAnalysis.showMessage(
-                f"{_('Warning')}: {_('The following required fields are empty')}: {', '.join(empty_fields)}"
+                f"{_('Warning')}: {'; '.join(messages)}"
             )
         else:
             # 如果所有验证都通过，显示正常状态

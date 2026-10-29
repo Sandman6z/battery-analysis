@@ -69,7 +69,6 @@ class TestEndToEnd:
 
             self.main_window.config_manager = Mock()
             self.main_window.config_manager.get_config = Mock(return_value=[])
-            self.main_window.config_manager.save_user_settings = Mock()
             self.main_window.config_manager.rename_pltPath = Mock()
             self.main_window.config_manager.update_config = Mock()
 

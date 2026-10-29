@@ -8,6 +8,8 @@ import logging
 
 from PyQt6 import QtGui as QG
 
+from battery_analysis.main.ui_components.menu_manager import toggle_statusbar
+
 
 class WindowSetup:
     """
@@ -67,27 +69,5 @@ class WindowSetup:
             return QG.QIcon()
 
     def toggle_statusbar_safe(self) -> None:
-        """
-        安全地切换状态栏的显示/隐藏状态
-        """
-        if hasattr(self.main_window, "actionShow_Statusbar") and hasattr(
-            self.main_window, "statusBar_BatteryAnalysis"
-        ):
-            self.main_window.statusBar_BatteryAnalysis.setVisible(
-                self.main_window.actionShow_Statusbar.isChecked()
-            )
-        elif hasattr(self.main_window, "statusBar_BatteryAnalysis"):
-            # 如果没有actionShow_Statusbar，只是切换显示状态
-            self.main_window.statusBar_BatteryAnalysis.setVisible(
-                not self.main_window.statusBar_BatteryAnalysis.isVisible()
-            )
-
-    def setup_menu_shortcuts(self) -> None:
-        """
-        设置菜单快捷键
-        """
-        self.logger.warning("setup_menu_shortcuts has been migrated to MenuManager")
-
-    def init_widgetcolor(self) -> None:
-        """初始化部件颜色 — handled by QSS now"""
-        pass
+        """兼容旧窗口入口，与菜单使用相同的切换规则。"""
+        toggle_statusbar(self.main_window)

@@ -19,10 +19,6 @@ logger = logging.getLogger(__name__)
 class ApplicationInitializer:
     """应用程序初始化器，负责处理应用程序的初始化和异常处理"""
 
-    def __init__(self):
-        """初始化应用程序初始化器"""
-        pass
-
     def _setup_global_exception_handler(self):
         """设置全局异常处理"""
 

@@ -65,10 +65,8 @@ class TestComputeStatistics:
         assert stats["min"] == [[0.0, 0.0], [0.0, 0.0]]
         assert stats["max"] == [[0.0, 0.0], [0.0, 0.0]]
 
-    def test_matches_numeric_utils(self):
-        """与逐 cell 调 numeric_utils 的结果一致（property 随机数据）"""
-        from battery_analysis.utils import numeric_utils
-
+    def test_matches_independent_numpy_reference(self):
+        """对照逐格 NumPy 参考值，锁定批量归约与空/单样本边界。"""
         rng = np.random.default_rng(7)
         for _ in range(10):
             b, c, v = rng.integers(2, 6), rng.integers(1, 4), rng.integers(1, 4)
@@ -78,11 +76,15 @@ class TestComputeStatistics:
             for ci in range(c):
                 for vi in range(v):
                     cell = list_cpt[ci][vi]
-                    assert stats["mean"][ci][vi] == pytest.approx(numeric_utils.np_mean(cell))
-                    assert stats["med"][ci][vi] == pytest.approx(numeric_utils.np_med(cell))
-                    assert stats["std"][ci][vi] == pytest.approx(numeric_utils.np_std(cell))
-                    assert stats["min"][ci][vi] == pytest.approx(numeric_utils.np_min(cell))
-                    assert stats["max"][ci][vi] == pytest.approx(numeric_utils.np_max(cell))
+                    expected = {
+                        "mean": np.mean(cell) if cell else 0.0,
+                        "med": np.median(cell) if cell else 0.0,
+                        "std": np.std(cell, ddof=1) if len(cell) > 1 else 0.0,
+                        "min": min(cell) if cell else 0.0,
+                        "max": max(cell) if cell else 0.0,
+                    }
+                    for key, value in expected.items():
+                        assert stats[key][ci][vi] == pytest.approx(value)
 
     def test_mixed_empty_and_single(self):
         """混合空/单样本 cell：空→0.0、单样本 std→0.0、非空正常"""

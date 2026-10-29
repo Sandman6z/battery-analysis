@@ -257,11 +257,9 @@ class TestLanguageMethods:
         # Patch at instance level since MagicMock auto-creates these attrs
         main_window.refresh_texts = Mock()
         main_window._update_statusbar_messages = Mock()
-        main_window._refresh_dialogs = Mock()
         Main._on_language_changed(main_window, "zh_CN")
         main_window.refresh_texts.assert_called_once_with()
         main_window._update_statusbar_messages.assert_called_once_with()
-        main_window._refresh_dialogs.assert_called_once_with()
 
 
 class TestRefreshUi:

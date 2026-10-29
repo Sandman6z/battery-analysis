@@ -55,7 +55,6 @@ class WindowTextsMixin:
         self.setWindowTitle(f"Battery Analyzer v{self.version}")
         self.refresh_texts()
         self._update_statusbar_messages()
-        self._refresh_dialogs()
         logging.info("Interface language switched to: %s", language_code)
 
     def refresh_texts(self):
@@ -88,9 +87,3 @@ class WindowTextsMixin:
 
     def _update_statusbar_messages(self):
         self.menu_manager.update_statusbar_messages()
-
-    def _refresh_dialogs(self):
-        """刷新所有打开的对话框"""
-        # TODO: 实现对话框刷新逻辑，语言切换时应更新已打开对话框的文本
-        # 当前为空实现，待首选项对话框等功能完成后补充
-        pass

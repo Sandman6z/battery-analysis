@@ -101,7 +101,6 @@ class BuildManager(BuildConfig):
                     "battery_analysis.utils.version",
                     "battery_analysis.utils.file_writer",
                     "battery_analysis.analysis.battery_analysis",
-                    "battery_analysis.ui.ui_main_window",
                     # 第三方库
                     "openpyxl",
                     "python_calamine",

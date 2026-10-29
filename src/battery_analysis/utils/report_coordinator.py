@@ -59,6 +59,28 @@ def match_battery_type(test_info_type: str) -> str:
     return battery_type_code(test_info_type)
 
 
+def build_word_replacements(test_info, current_levels, color_names):
+    """旧协调器和 Word 写入器共用的模板占位符及初始替换值。"""
+    text_placeholders = [
+        "TypeA", "TypeB", "TypeC", "TypeD", "TypeE", "TypeF", "TypeG",
+        "StrA", "StrB", "StrC", "StrD", "StrF",
+    ]
+    image_placeholders = ["<<Image_FilteredLoadVoltageOverCharge>>"]
+    for i in range(10):
+        image_placeholders.append(f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
+        image_placeholders.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
+    battery_type = match_battery_type(test_info[0])
+    current_description = ", ".join(
+        f"{color_names[i]}{current}mA" for i, current in enumerate(current_levels)
+    )
+    replacements = [
+        test_info[2], test_info[3], test_info[4], test_info[5], test_info[7],
+        test_info[11], battery_type,
+        None, None, None, None, current_description,
+    ]
+    return text_placeholders, image_placeholders, replacements
+
+
 # ── 共享报告内容计算 ──────────────────────────────────────────
 # ExcelReportWriter._prepare_sample_content 与
 # WordReportWriter._prepare_overview_content 约 90% 相同，
@@ -518,48 +540,11 @@ class ReportCoordinator:
 
     def _build_replacements(self) -> None:
         """构建 Word 模板文本替换列表"""
-        self.listTextToReplace = [
-            "TypeA",
-            "TypeB",
-            "TypeC",
-            "TypeD",
-            "TypeE",
-            "TypeF",
-            "TypeG",
-            "StrA",
-            "StrB",
-            "StrC",
-            "StrD",
-            "StrF",
-        ]
-        self.listImageToReplace = ["<<Image_FilteredLoadVoltageOverCharge>>"]
-        for i in range(10):
-            self.listImageToReplace.append(f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
-            self.listImageToReplace.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
-
-        # 电池类型匹配
-        strBatteryType = match_battery_type(self.listTestInfo[0])
-
-        # 颜色/电流等级字符串
-        strStrF = ""
-        for c in range(self.intCurrentLevelNum):
-            strStrF += f"{self.listColorName[c]}{self.listCurrentLevel[c]}mA, "
-        strStrF = strStrF[:-2]
-
-        self.listTestInfoForReplace = [
-            self.listTestInfo[2],
-            self.listTestInfo[3],
-            self.listTestInfo[4],
-            self.listTestInfo[5],
-            self.listTestInfo[7],
-            self.listTestInfo[11],
-            strBatteryType,
-            None,
-            None,
-            None,
-            None,
-            strStrF,
-        ]
+        (
+            self.listTextToReplace,
+            self.listImageToReplace,
+            self.listTestInfoForReplace,
+        ) = build_word_replacements(self.listTestInfo, self.listCurrentLevel, self.listColorName)
 
     # ── 公共方法 ──
 
@@ -615,24 +600,6 @@ class ReportCoordinator:
             test_date=self.test_date,
         ).write(listCpt, stats)
         CsvWriter(self.strResultPath, self.listTestInfo, self.listBatteryInfo).write(listCpt, stats)
-
-    # ── 静态工具 ──
-
-    def _get_equip_value(self, dotted_key: str, fallback: str = "") -> str:
-        """从 _equipment_info 读取带点号的键"""
-        parts = dotted_key.split(".")
-        value = self._equipment_info
-        try:
-            for p in parts:
-                value = value[p]
-            if isinstance(value, str):
-                return value
-            if isinstance(value, (list, tuple)):
-                return ", ".join(str(v) for v in value)
-        except (KeyError, TypeError, IndexError):
-            pass
-        return fallback
-
 
 # ── 向后兼容别名 ──────────────────────────────────────────────
 

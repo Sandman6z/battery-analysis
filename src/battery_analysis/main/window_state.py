@@ -83,29 +83,19 @@ class MainWindowState:
     spinBox_Temperature: QW.QSpinBox
     actionAbout: QG.QAction
     actionAnalyze_Data: QG.QAction
-    actionBatch_Processing: QG.QAction
     actionBatteryChartViewer: QG.QAction
-    actionCalculate_Battery: QG.QAction
     actionConfiguration: QG.QAction
     actionCopy: QG.QAction
     actionCut: QG.QAction
     actionDark_Theme: QG.QAction
     actionExit: QG.QAction
-    actionExport_Report: QG.QAction
-    actionGenerate_Report: QG.QAction
     actionLight_Theme: QG.QAction
     actionNdaxConverter: QG.QAction
-    actionNew: QG.QAction
     actionOnline_Help: QG.QAction
-    actionOpen: QG.QAction
     actionPaste: QG.QAction
     actionPreferences: QG.QAction
-    actionRedo: QG.QAction
     actionReset_Zoom: QG.QAction
-    actionSave: QG.QAction
-    actionSave_As: QG.QAction
     actionShow_Statusbar: QG.QAction
-    actionUndo: QG.QAction
     actionUser_Mannual: QG.QAction
     actionZoom_In: QG.QAction
     actionZoom_Out: QG.QAction

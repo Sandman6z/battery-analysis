@@ -15,7 +15,7 @@ import re
 import tempfile
 from pathlib import Path
 
-from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
+from battery_analysis.main.workers.task_runner import TaskManager
 from battery_analysis.utils.input_validator import parse_version
 
 
@@ -239,14 +239,8 @@ class VersionManager:
             )
 
     def _run_async(self, task_func, on_finished, on_error, *args, **kwargs):
-        """TaskRunner 派发：回调经 TaskSignals 自动回主线程（AutoConnection Queued）。"""
-        runner = TaskRunner(task_func, *args, **kwargs)
-        if on_finished:
-            runner.signals.finished.connect(on_finished)
-        if on_error:
-            runner.signals.error.connect(on_error)
-        self._task_manager.submit(runner)
-        return runner
+        """保留业务入口，派发与信号连接统一由 TaskManager 负责。"""
+        return self._task_manager.run_async(task_func, on_finished, on_error, *args, **kwargs)
 
     def set_version(self, *, output_path=None, checksum=None, version=None, project_path=None) -> None:
         """

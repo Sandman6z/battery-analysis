@@ -17,6 +17,7 @@ import pandas as pd
 import xlsxwriter
 
 from battery_analysis.utils.concurrency_policy import get_conversion_worker_count
+from battery_analysis.utils.file_finder import scan_sorted_ndax
 
 # Status mapping from NewareNDA to Chinese display names
 STATUS_MAP: dict[str, str] = {
@@ -58,8 +59,10 @@ def _ts_str(ts: Any) -> str:
 
 
 def _get_ndax_files(input_dir: Path) -> list[Path]:
-    """Get all .ndax files in a directory, sorted by name."""
-    return sorted(input_dir.glob("*.ndax"))
+    """Adapt the shared scanner to the converter's Path/empty-directory API."""
+    if not input_dir.is_dir():
+        return []
+    return [Path(path) for path in scan_sorted_ndax(str(input_dir))]
 
 
 def _build_record_sheet(wb: xlsxwriter.Workbook, df: pd.DataFrame, filename: str) -> None:

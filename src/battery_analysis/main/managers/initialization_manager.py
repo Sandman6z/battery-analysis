@@ -1,7 +1,7 @@
 """
 初始化管理器
 
-负责处理主窗口的初始化逻辑，将 12 个初始化步骤整合为 4 个阶段：
+负责处理主窗口的初始化逻辑，将 11 个初始化步骤整合为 4 个阶段：
   环境准备 → 核心服务 → UI 构建 → 启动完成
 """
 
@@ -31,9 +31,6 @@ from battery_analysis.main.initialization.steps.language_initialization_step imp
 from battery_analysis.main.initialization.steps.managers_initialization_step import (
     ManagersInitializationStep,
 )
-from battery_analysis.main.initialization.steps.presenters_initialization_step import (
-    PresentersInitializationStep,
-)
 from battery_analysis.main.initialization.steps.processors_initialization_step import (
     ProcessorsInitializationStep,
 )
@@ -55,7 +52,7 @@ PHASE_LAUNCH = "Startup Complete"
 class InitializationManager:
     """
     初始化管理器
-    将 12 个初始化步骤按职责划分为 4 个阶段，阶段内步骤按优先级顺序执行
+    将 11 个初始化步骤按职责划分为 4 个阶段，阶段内步骤按优先级顺序执行
     """
 
     def __init__(self, main_window):
@@ -74,7 +71,7 @@ class InitializationManager:
         注册所有初始化步骤到 4 个阶段：
           1. 环境准备 — 基础环境（版本、容器、环境检测、样式）
           2. 核心服务 — 业务服务层（管理器、处理器、配置）
-          3. UI 构建  — 界面层（控制器上下文、Presenter、命令、语言）
+          3. UI 构建  — 界面层（控制器上下文、命令、语言）
         """
 
         # ── 阶段 1: 环境准备 ──────────────────────────────
@@ -102,11 +99,10 @@ class InitializationManager:
         )
 
         # ── 阶段 3: UI 构建 ──────────────────────────────
-        # 按优先级依次初始化：UI设置 → Presenter → 命令管理器 → 语言
+        # 按优先级依次初始化：UI设置 → 命令管理器 → 语言
         self._orchestrator.register_steps(
             [
                 UISetupStep(),
-                PresentersInitializationStep(),
                 CommandManagerInitializationStep(),
                 LanguageInitializationStep(),
             ],

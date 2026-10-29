@@ -124,12 +124,6 @@ class ConfigManager:
             logging.error("Failed to read configuration %s: %s", config_key, e)
             return []
 
-    def save_user_settings(self):
-        """
-        保存用户配置（已弃用，保留空方法避免调用方报错）
-        """
-        pass
-
     def get_current_config_path(self) -> str | None:
         """
         获取当前配置文件路径

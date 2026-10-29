@@ -2,16 +2,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Pyuic6",
-            "type": "shell",
-            "command": "powershell",
-            "args": [
-                "-Command",
-                ". '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'; python -m PyQt6.uic.pyuic './src/battery_analysis/ui/resources/ui_battery_analysis.ui' -o './src/battery_analysis/ui/ui_main_window.py'"
-            ],
-            "problemMatcher": []
-        },
-        {
             "label": "(venv)build debug version",
             "type": "shell",
             "command": "powershell",

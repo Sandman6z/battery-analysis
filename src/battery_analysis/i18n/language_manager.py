@@ -254,11 +254,6 @@ class LanguageManager(QObject):
         self.settings.sync()
         self.logger.debug("Language preferences saved")
 
-    def load_preferences(self):
-        """Load language preferences"""
-        # This is called during initialization
-        pass
-
     def reset_to_default(self):
         """Reset to system default language"""
         system_locale = detect_system_locale()

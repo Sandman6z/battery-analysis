@@ -24,7 +24,7 @@ from battery_analysis.reports.statistics_utils import (
 from battery_analysis.reports.word_front_matter import WordFrontMatterMixin
 from battery_analysis.reports.word_overview import WordOverviewMixin
 from battery_analysis.utils.constants import COLOR_NAME
-from battery_analysis.utils.report_coordinator import match_battery_type, report_filename
+from battery_analysis.utils.report_coordinator import build_word_replacements, report_filename
 
 logger = logging.getLogger(__name__)
 
@@ -131,49 +131,11 @@ class WordReportWriter(WordFrontMatterMixin, WordOverviewMixin):
 
     def _init_replace_placeholders(self) -> None:
         """构建文本/图片替换占位符与 listTestInfoForReplace"""
-        # 文本替换占位符
-        self.listTextToReplace = [
-            "TypeA",
-            "TypeB",
-            "TypeC",
-            "TypeD",
-            "TypeE",
-            "TypeF",
-            "TypeG",
-            "StrA",
-            "StrB",
-            "StrC",
-            "StrD",
-            "StrF",
-        ]
-        self.listImageToReplace = ["<<Image_FilteredLoadVoltageOverCharge>>"]
-        for i in range(10):
-            self.listImageToReplace.append(f"<<Image_UseableCapacityOverCutoffVoltage{i}>>")
-            self.listImageToReplace.append(f"<<Title_UseableCapacityOverCutoffVoltage{i}>>")
-
-        # 电池类型匹配
-        strBatteryType = match_battery_type(self.listTestInfo[0])
-
-        # strStrF（颜色/电流等级字符串）
-        strStrF = ""
-        for c in range(self.intCurrentLevelNum):
-            strStrF += f"{COLOR_NAME[c]}{self.listCurrentLevel[c]}mA, "
-        strStrF = strStrF[:-2]
-
-        self.listTestInfoForReplace = [
-            self.listTestInfo[2],
-            self.listTestInfo[3],
-            self.listTestInfo[4],
-            self.listTestInfo[5],
-            self.listTestInfo[7],
-            self.listTestInfo[11],
-            strBatteryType,
-            None,
-            None,
-            None,
-            None,
-            strStrF,
-        ]
+        (
+            self.listTextToReplace,
+            self.listImageToReplace,
+            self.listTestInfoForReplace,
+        ) = build_word_replacements(self.listTestInfo, self.listCurrentLevel, COLOR_NAME)
 
     # ── 主入口 ──
 

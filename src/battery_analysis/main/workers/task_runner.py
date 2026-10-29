@@ -117,6 +117,15 @@ class TaskManager(QC.QObject):
         self._active: list[TaskRunner] = []
         self.logger = logging.getLogger(__name__)
 
+    def run_async(self, task_func, on_finished, on_error, *args, **kwargs) -> TaskRunner:
+        """连接回调后再提交任务，避免快速任务在连接信号前结束。"""
+        runner = TaskRunner(task_func, *args, **kwargs)
+        if on_finished:
+            runner.signals.finished.connect(on_finished)
+        if on_error:
+            runner.signals.error.connect(on_error)
+        return self.submit(runner)
+
     def submit(self, runner: TaskRunner) -> TaskRunner:
         """提交任务到线程池。"""
         self._active.append(runner)

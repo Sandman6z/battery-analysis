@@ -12,7 +12,7 @@ from battery_analysis.i18n.language_manager import _
 from battery_analysis.main.business_logic import filename_parser
 from battery_analysis.main.business_logic.cache import LRUCache
 from battery_analysis.main.ui_components.countdown_message_box import show_countdown_notice
-from battery_analysis.main.workers.task_runner import TaskManager, TaskRunner
+from battery_analysis.main.workers.task_runner import TaskManager
 from battery_analysis.utils.pulse_currents import (
     capacity_from_rules,
     is_freezer_context,
@@ -101,14 +101,8 @@ class DataProcessor:
         self.logger.info("DataProcessor cache cleared")
 
     def _run_async(self, task_func, on_finished, on_error, *args, **kwargs):
-        """TaskRunner 派发：回调经 TaskSignals 自动回主线程（AutoConnection Queued）。"""
-        runner = TaskRunner(task_func, *args, **kwargs)
-        if on_finished:
-            runner.signals.finished.connect(on_finished)
-        if on_error:
-            runner.signals.error.connect(on_error)
-        self._task_manager.submit(runner)
-        return runner
+        """保留业务入口，派发与信号连接统一由 TaskManager 负责。"""
+        return self._task_manager.run_async(task_func, on_finished, on_error, *args, **kwargs)
 
     def get_cache_stats(self):
         return {

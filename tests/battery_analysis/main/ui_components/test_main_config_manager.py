@@ -21,9 +21,6 @@ class TestConfigManager:
     def test_reload_config(self):
         self.manager.reload_config()
 
-    def test_save_user_settings(self):
-        self.manager.save_user_settings()
-
     def test_get_current_config_path(self):
         result = self.manager.get_current_config_path()
         assert result is None or isinstance(result, str)

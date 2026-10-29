@@ -1,0 +1,69 @@
+{
+  "python_files": 165,
+  "files": 146,
+  "functions": 985,
+  "limitations": "Calls are syntax-only, not resolved references. Candidates require manual review; dynamic Qt signals and semantic clones may be missed.",
+  "exact_body_groups": [],
+  "similar_pairs": [
+    {
+      "similarity": 0.937,
+      "functions": [
+        {
+          "file": "src/battery_analysis/main/business_logic/validation_fields.py",
+          "name": "ValidationFieldsMixin.validate_version",
+          "line": 21
+        },
+        {
+          "file": "src/battery_analysis/main/business_logic/validation_fields.py",
+          "name": "ValidationFieldsMixin.validate_input_path",
+          "line": 42
+        }
+      ]
+    },
+    {
+      "similarity": 0.901,
+      "functions": [
+        {
+          "file": "src/battery_analysis/main/services/config_service.py",
+          "name": "ConfigService.get_all_values",
+          "line": 234
+        },
+        {
+          "file": "src/battery_analysis/main/services/config_service.py",
+          "name": "ConfigService.has_config_key",
+          "line": 289
+        }
+      ]
+    },
+    {
+      "similarity": 0.931,
+      "functions": [
+        {
+          "file": "src/battery_analysis/main/services/file_service.py",
+          "name": "FileService.copy_file",
+          "line": 249
+        },
+        {
+          "file": "src/battery_analysis/main/services/file_service.py",
+          "name": "FileService.move_file",
+          "line": 279
+        }
+      ]
+    },
+    {
+      "similarity": 0.993,
+      "functions": [
+        {
+          "file": "src/battery_analysis/main/ui_components/menu_manager.py",
+          "name": "MenuManager.zoom_in",
+          "line": 177
+        },
+        {
+          "file": "src/battery_analysis/main/ui_components/menu_manager.py",
+          "name": "MenuManager.zoom_out",
+          "line": 185
+        }
+      ]
+    }
+  ]
+}

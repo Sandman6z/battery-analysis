@@ -61,15 +61,3 @@ class BasicAttributesInitializationStep(InitializationStep):
         except Exception:
             self.logger.exception("Basic attributes initialization failed unexpectedly")
             return False
-
-    def can_execute(self, main_window) -> bool:
-        """
-        检查是否可以执行此步骤
-
-        Args:
-            main_window: 主窗口实例
-
-        Returns:
-            是否可以执行
-        """
-        return True

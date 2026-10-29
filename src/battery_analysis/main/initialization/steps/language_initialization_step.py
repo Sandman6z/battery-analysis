@@ -59,15 +59,3 @@ class LanguageInitializationStep(InitializationStep):
                 )
         except (ImportError, AttributeError, TypeError, RuntimeError) as e:
             self.logger.warning("Failed to initialize language manager: %s", e)
-
-    def can_execute(self, main_window) -> bool:
-        """
-        检查是否可以执行此步骤
-
-        Args:
-            main_window: 主窗口实例
-
-        Returns:
-            是否可以执行
-        """
-        return hasattr(main_window, "presenter")

@@ -27,29 +27,3 @@ class RunAnalysisCommand(Command):
         except Exception as e:
             logging.error(f"Failed to run analysis: {e!s}")
             return False
-
-
-class CalculateBatteryCommand(Command):
-    """
-    计算电池命令
-    """
-
-    def __init__(self, presenter):
-        """
-        初始化计算电池命令
-
-        Args:
-            presenter: Presenter实例
-        """
-        self.presenter = presenter
-
-    def execute(self):
-        """
-        执行计算电池命令
-        """
-        try:
-            self.presenter.on_calculate_battery()
-            return True
-        except Exception as e:
-            logging.error(f"Failed to calculate battery: {e!s}")
-            return False

@@ -23,10 +23,8 @@ class Services:
     config: Any = None
     environment: Any = None
     file: Any = None
-    validation: Any = None
     main_controller: Any = None
     file_controller: Any = None
-    validation_controller: Any = None
 
     def get(self, name: str) -> Any:
         """按字符串名获取服务（保持向后兼容）。
@@ -65,21 +63,17 @@ class ServiceContainer:
         from battery_analysis.main.services.config_service import ConfigService
         from battery_analysis.main.services.environment_service import EnvironmentService
         from battery_analysis.main.services.file_service import FileService
-        from battery_analysis.main.services.validation_service import ValidationService
 
         self._impl.config = ConfigService()
         self._impl.environment = EnvironmentService()
         self._impl.file = FileService()
-        self._impl.validation = ValidationService()
 
         # 3) 创建可能回调容器的服务（此时 _impl 已有叶子服务，get("file") 等正常返回）
         from battery_analysis.main.controllers.file_controller import FileController
         from battery_analysis.main.controllers.main_controller import MainController
-        from battery_analysis.main.controllers.validation_controller import ValidationController
 
         self._impl.file_controller = FileController()
         self._impl.main_controller = MainController()
-        self._impl.validation_controller = ValidationController()
 
         self.logger.info("Services initialized incrementally: %s", type(self._impl).__name__)
 

@@ -3,7 +3,6 @@
 from types import SimpleNamespace
 
 import pytest
-from PyQt6 import QtCore as QC
 from PyQt6 import QtGui as QG
 from PyQt6 import QtWidgets as QW
 
@@ -12,22 +11,11 @@ from battery_analysis.main.handlers.temperature_handler import TemperatureHandle
 from battery_analysis.main.main_window import Main
 from battery_analysis.main.ndax_converter_window import NdaxConverterWindow
 from battery_analysis.main.ui_components.menu_manager import MenuManager
-from battery_analysis.ui.frameworks.pyqt6_ui_framework import PyQt6UIFramework
 
 
 @pytest.fixture(scope="session")
 def application():
     return QW.QApplication.instance() or QW.QApplication([])
-
-
-def test_progress_dialog_uses_window_modality(application):
-    parent = QW.QWidget()
-    dialog = PyQt6UIFramework().create_progress_dialog(parent)
-
-    assert dialog.parentWidget() is parent
-    assert dialog.windowModality() == QC.Qt.WindowModality.WindowModal
-    dialog.close()
-    parent.close()
 
 
 @pytest.mark.parametrize("checked", [False, True])

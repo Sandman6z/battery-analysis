@@ -64,7 +64,6 @@ class SignalConnector:
         """连接控制器信号和槽函数"""
         self._connect_main_controller_signals()
         self._connect_file_controller_signals()
-        self._connect_validation_controller_signals()
 
     def _connect_main_controller_signals(self):
         """连接主控制器信号"""
@@ -96,17 +95,8 @@ class SignalConnector:
         """连接文件控制器信号"""
         file_controller = self._get_controller("file_controller")
         if file_controller:
-            if hasattr(file_controller, "config_loaded"):
-                file_controller.config_loaded.connect(self._on_config_loaded)
             if hasattr(file_controller, "error_occurred"):
                 file_controller.error_occurred.connect(self._on_controller_error)
-
-    def _connect_validation_controller_signals(self):
-        """连接验证控制器信号"""
-        validation_controller = self._get_controller("validation_controller")
-        if validation_controller:
-            if hasattr(validation_controller, "validation_error"):
-                validation_controller.validation_error.connect(self._on_controller_error)
 
     def _on_progress_updated(self, progress, status_text):
         """进度更新处理（带平滑动画，消除百分比跳变）"""
@@ -342,10 +332,6 @@ class SignalConnector:
         )
 
         self.main_window.statusBar_BatteryAnalysis.showMessage(f"[Error]: {error_title}")
-
-    def _on_config_loaded(self, config_dict):
-        """配置加载完成处理"""
-        pass
 
     def _on_controller_error(self, error_msg):
         """控制器错误处理"""
